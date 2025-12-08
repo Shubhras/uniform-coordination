@@ -91,7 +91,7 @@ const SignInForm = (props) => {
                     variant="solid"
                     type="submit"
                 >
-                    {isSubmitting ? 'Signing in...' : 'Sign In'}
+                    {isSubmitting ? 'Signing in...' : 'Login to KIREIZ'}
                 </Button>
             </Form>
         </div>
