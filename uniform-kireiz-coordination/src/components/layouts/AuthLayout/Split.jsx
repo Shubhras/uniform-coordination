@@ -17,7 +17,7 @@ const Split = ({ children, content, ...rest }) => {
         </div>
 
         {/* Illustration */}
-        <div>
+        {/* <div>
             <div className='absolute top-0 left-0 '>
 
         <img
@@ -34,7 +34,13 @@ const Split = ({ children, content, ...rest }) => {
           className="object-contain w-full"
           />
           </div>
-          </div>
+          </div> */}
+          <img
+            src="/img/others/Illustration.png"
+            alt="KIREIZ FORM"
+            className="object-cover w-full max-h-screen"
+          />
+          
       </div>
 
       {/* Right – 40% */}
