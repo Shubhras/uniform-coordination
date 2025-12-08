@@ -18,6 +18,9 @@ yarn-error.log*
 .DS_Store
 
 # Environment variables
+/uniform-kireiz-coordination/.env
+
+
 .env
 .env.local
 .env.development.local
