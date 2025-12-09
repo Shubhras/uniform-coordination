@@ -1,36 +1,58 @@
 import { cloneElement } from 'react'
 
 const Split = ({ children, content, ...rest }) => {
-    return (
-        <div className="grid lg:grid-cols-2 min-h-screen bg-white">
-            {/* Left Side – Image + Stats */}
-            <div className="relative flex flex-col justify-center items-center overflow-hidden">
-                {/* Logo - positioned at top left */}
-                <div className="absolute top-8 left-13 z-10">
-                    <img
-                        src="/img/others/auth-logo.png"
-                        alt="KIREIZ FORM"
-                        className="h-10 w-auto"
-                    />
-                </div>
+  return (
+    <div className="flex flex-col lg:flex-row min-h-screen bg-white overflow-hidden">
 
-                {/* Uniform Image */}
-                <img
-                    src="/img/others/Illustration.png"
-                    alt="Uniform"
-                    className="h-full w-auto object-contain"
-                />
-            </div>
+      {/* Left – 60% */}
+      <div className="relative flex justify-center items-center w-full lg:w-[60%] bg-white">
 
-            {/* Right Side – Login Section */}
-            <div className="flex flex-col justify-center items-start px-8">
-                <div className="w-full max-w-sm">
-                    <div className="mb-8">{content}</div>
-                    {children ? cloneElement(children, { ...rest }) : null}
-                </div>
-            </div>
+        {/* Logo */}
+        <div className="absolute top-8 left-8 z-10">
+          <img
+            src="/img/others/auth-logo.png"
+            alt="KIREIZ FORM"
+            className="h-10 w-auto"
+          />
         </div>
-    )
+
+        {/* Illustration */}
+        {/* <div>
+            <div className='absolute top-0 left-0 '>
+
+        <img
+          src="/img/others/IllustrationTop.png"
+          alt="Uniform"
+          className="object-contain w-auto h-[50%] "
+          />
+          </div>
+            <div className='absolute bottom-0 left-0'>
+
+          <img
+          src="/img/others/BgIllustration.png"
+          alt="Uniform"
+          className="object-contain w-full"
+          />
+          </div>
+          </div> */}
+          <img
+            src="/img/others/Illustration.png"
+            alt="KIREIZ FORM"
+            className="object-cover w-full max-h-screen"
+          />
+          
+      </div>
+
+      {/* Right – 40% */}
+      <div className="flex flex-col justify-center px-8 w-full lg:w-[40%] overflow-auto bg-white">
+        <div className="w-full max-w-xl mx-auto">
+          <div className="mb-8">{content}</div>
+          {children ? cloneElement(children, { ...rest }) : null}
+        </div>
+      </div>
+
+    </div>
+  )
 }
 
 export default Split
