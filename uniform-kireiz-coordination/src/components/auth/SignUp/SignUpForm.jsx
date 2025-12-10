@@ -44,7 +44,7 @@ const SignUpForm = (props) => {
         <div className={className}>
             <Form onSubmit={handleSubmit(handleSignUp)}>
                 <FormItem
-                    label="User name"
+                    // label="User name"
                     invalid={Boolean(errors.userName)}
                     errorMessage={errors.userName?.message}
                 >
@@ -62,7 +62,7 @@ const SignUpForm = (props) => {
                     />
                 </FormItem>
                 <FormItem
-                    label="Email"
+                    // label="Email"
                     invalid={Boolean(errors.email)}
                     errorMessage={errors.email?.message}
                 >
@@ -80,7 +80,7 @@ const SignUpForm = (props) => {
                     />
                 </FormItem>
                 <FormItem
-                    label="Password"
+                    // label="Password"
                     invalid={Boolean(errors.password)}
                     errorMessage={errors.password?.message}
                 >
