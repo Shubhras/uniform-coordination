@@ -31,13 +31,13 @@ const _SidePanel = (props) => {
 
     return (
         <>
-            <div
+            {/* <div
                 className={classNames('text-2xl', className)}
                 onClick={openPanel}
                 {...rest}
             >
                 <PiGearDuotone />
-            </div>
+            </div> */}
             <Drawer
                 title="Theme Config"
                 isOpen={isOpen}

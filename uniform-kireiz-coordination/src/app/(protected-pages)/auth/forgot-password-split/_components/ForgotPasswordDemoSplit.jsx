@@ -22,7 +22,7 @@ const ForgotPasswordDemoSplit = () => {
     }
 
     return (
-        <Split>
+        <Split image="/img/others/Illustration3.png">
             <ForgotPassword
                 signInUrl="/auth/sign-in-side"
                 onForgotPasswordSubmit={handleForgotPasswordSubmit}

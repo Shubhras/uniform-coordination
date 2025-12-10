@@ -55,7 +55,7 @@ const ResetPasswordForm = (props) => {
             {!resetComplete ? (
                 <Form onSubmit={handleSubmit(handleResetPassword)}>
                     <FormItem
-                        label="Password"
+                        // label="Password"
                         invalid={Boolean(errors.newPassword)}
                         errorMessage={errors.newPassword?.message}
                     >
@@ -65,14 +65,14 @@ const ResetPasswordForm = (props) => {
                             render={({ field }) => (
                                 <PasswordInput
                                     autoComplete="off"
-                                    placeholder="••••••••••••"
+                                    placeholder="New Password"
                                     {...field}
                                 />
                             )}
                         />
                     </FormItem>
                     <FormItem
-                        label="Confirm Password"
+                        // label="Confirm Password"
                         invalid={Boolean(errors.confirmPassword)}
                         errorMessage={errors.confirmPassword?.message}
                     >
@@ -88,6 +88,17 @@ const ResetPasswordForm = (props) => {
                             )}
                         />
                     </FormItem>
+                    <div className="mb-6 mt-2 flex justify-between items-center">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            className="accent-primary cursor-pointer"
+                        />
+                        <p>I Agree to privacy
+                            <span className='text-blue-400'> policy & terms</span>
+                        </p>
+                    </label>
+                </div>
                     <Button
                         block
                         loading={isSubmitting}

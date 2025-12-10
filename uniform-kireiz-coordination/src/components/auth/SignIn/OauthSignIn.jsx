@@ -55,7 +55,7 @@ const OauthSignIn = ({ onOauthSignIn, setMessage }) => {
         //     </Button>
         // </div>
 
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center">
             {providers.map(({ type, img }) => (
                 <Button
                     key={type}
@@ -63,9 +63,9 @@ const OauthSignIn = ({ onOauthSignIn, setMessage }) => {
                     type="button"
                     onClick={() => handleClick(type)}
                 >
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="flex items-center justify-center">
                         <img
-                            className="h-[20px] w-[20px] object-contain"
+                            className="h-[20px] object-contain"
                             src={img}
                             alt={type}
                         />
