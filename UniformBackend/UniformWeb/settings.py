@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'uniformAdmin',
     'userhub',
 ]
+# AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
