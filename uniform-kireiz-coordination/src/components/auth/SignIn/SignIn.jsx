@@ -32,21 +32,34 @@ const SignIn = ({
                     <span className="break-all">{message}</span>
                 </Alert>
             )}
-            <SignInForm
+           <SignInForm
                 setMessage={setMessage}
                 passwordHint={
-                    <div className="mb-7 mt-2">
+                    <>
+                    {/* Remember Me */}
+                    <div className="mb-7 mt-2 flex justify-between items-center">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            className="accent-primary cursor-pointer"
+                        />
+                        <span className="text-sm text-gray-700">Remember me</span>
+                        </label>
+
+                        {/* Forgot password */}
                         <ActionLink
-                            href={forgetPasswordUrl}
-                            className="font-semibold heading-text mt-2 underline"
-                            themeColor={false}
+                        href={forgetPasswordUrl}
+                        className="font-semibold heading-text underline text-sm"
+                        themeColor={false}
                         >
-                            Forgot password
+                        Forgot password
                         </ActionLink>
                     </div>
+                    </>
                 }
                 onSignIn={onSignIn}
             />
+
           
             <div>
                 <div className="mt-6 text-center">
