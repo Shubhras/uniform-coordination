@@ -2,7 +2,7 @@
 
 import HeroContent from './HeroContent'
 import NavigationBar from './NavigationBar'
-import Features from './Features'
+import Features from './UniformBusinessEnquiry'
 import Demos from './Demos'
 import TechStack from './TechStack'
 import OtherFeatures from './OtherFeatures'
@@ -10,6 +10,7 @@ import Components from './Components'
 import LandingFooter from './LandingFooter'
 import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
+import UniformBusinessEnquiry from './UniformBusinessEnquiry'
 
 const Landing = () => {
     const mode = useTheme((state) => state.mode)
@@ -33,12 +34,7 @@ const Landing = () => {
                 ></div>
                 <HeroContent mode={mode} />
             </div>
-            <Features
-                mode={mode}
-                schema={schema}
-                setSchema={setSchema}
-                onModeChange={(value) => setMode(value ? 'dark' : 'light')}
-            />
+            <UniformBusinessEnquiry />
             <Demos mode={mode} />
             <TechStack />
             <OtherFeatures />
