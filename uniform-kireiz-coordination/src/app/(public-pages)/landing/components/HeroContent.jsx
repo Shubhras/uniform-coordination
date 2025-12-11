@@ -1,94 +1,72 @@
-import Button from '@/components/ui/Button'
-import { motion } from 'framer-motion'
-import TextGenerateEffect from './TextGenerateEffect'
-import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+"use client";
 
-const HeroContent = ({ mode }) => {
-    const router = useRouter()
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-    const handlePreview = () => {
-        router.push('/dashboards/ecommerce')
-    }
+const HeroContent = () => {
+  const router = useRouter();
 
-    const handleGetTemplate = () => {
-        window.open(
-            'https://themeforest.net/item/ecme-nextjs-tailwind-admin-template-app-router/56475600',
-            '_blank',
-        )
-    }
+  const handleStartDesigning = () => {
+    router.push("/design");
+  };
 
-    return (
-        <div className="max-w-7xl mx-auto px-4 flex min-h-screen flex-col items-center justify-between">
-            <div className="flex flex-col min-h-screen pt-20 md:pt-40 relative overflow-hidden">
-                <div>
-                    <TextGenerateEffect
-                        wordClassName="text-2xl md:text-4xl lg:text-8xl font-bold max-w-7xl mx-auto text-center mt-6 relative z-10"
-                        words="Unlock Ultimate Control with the Perfect Template"
-                        wordsCallbackClass={({ word }) => {
-                            if (word === 'Perfect') {
-                                return 'bg-gradient-to-r from-[#2feaa8] to-[#0eb9ce] bg-clip-text text-transparent'
-                            }
+  return (
+    <section className="w-full bg-white px-6 py-14 md:py-20">
+      <div
+        className="
+          max-w-7xl mx-auto 
+          flex flex-col md:flex-row 
+          items-center md:items-center 
+          justify-between 
+          gap-10 md:gap-16
+          md:h-[750px]
+        "
+      >
+        {/* LEFT SECTION */}
+        <div
+          className="
+            flex flex-col 
+            justify-center 
+            h-full 
+            space-y-4
+            max-w-lg
+          "
+        >
+          <h1 className="text-4xl md:text-5xl font-extrabold text-[#1C2C56] leading-[1.1] tracking-tight">
+            Design <br />
+            Professional <br />
+            Uniforms for <br />
+            Every Industry
+          </h1>
 
-                            if (word === 'Template') {
-                                return 'bg-gradient-to-r from-[#02bcca] to-[#028cf3] bg-clip-text text-transparent'
-                            }
+          <p className="text-gray-700 text-lg leading-relaxed">
+            KIREIZ offers powerful tools for businesses to design custom
+            uniforms and for anyone to create stunning table settings for any
+            event.
+          </p>
 
-                            return ''
-                        }}
-                    />
-                    <motion.p
-                        initial={{ opacity: 0, translateY: 40 }}
-                        animate={{ opacity: 1, translateY: 0 }}
-                        transition={{ duration: 0.3, delay: 0.5 }}
-                        className="text-center mt-6 text-base md:text-xl text-muted dark:text-muted-dark max-w-5xl mx-auto relative z-10 font-normal"
-                    >
-                        Experience a powerful, intuitive, and customizable admin
-                        dashboard that adapts to your needs. Built for
-                        developers, by developers, to simplify workflow
-                        management and enhance user experiences.
-                    </motion.p>
-                    <motion.div
-                        initial={{ opacity: 0, translateY: 40 }}
-                        animate={{ opacity: 1, translateY: 0 }}
-                        transition={{ duration: 0.3, delay: 0.6 }}
-                        className="flex items-center gap-4 justify-center mt-10 relative z-10"
-                    >
-                        <Button variant="solid" onClick={handlePreview}>
-                            Preview
-                        </Button>
-                        <Button onClick={handleGetTemplate}>
-                            Get this template
-                        </Button>
-                    </motion.div>
-                </div>
-                <div className="p-2 lg:p-4 border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-700 rounded-2xl lg:rounded-[32px] mt-20 relative">
-                    <div className="absolute inset-x-0 bottom-0 h-40 w-full bg-gradient-to-b from-transparent via-white to-white dark:via-black/50 dark:to-black scale-[1.1] pointer-events-none" />
-                    <div className="bg-white dark:bg-black dark:border-gray-700 border border-gray-200 rounded-[24px]">
-                        {mode === MODE_LIGHT && (
-                            <Image
-                                className="rounded-2xl lg:rounded-[24px]"
-                                src="/img/landing/hero/hero.webp"
-                                width={1920}
-                                height={1040}
-                                alt="Ecme homepage"
-                            />
-                        )}
-                        {mode === MODE_DARK && (
-                            <Image
-                                className="rounded-2xl lg:rounded-[24px]"
-                                src="/img/landing/hero/hero-dark.webp"
-                                width={1920}
-                                height={1040}
-                                alt="Ecme homepage"
-                            />
-                        )}
-                    </div>
-                </div>
-            </div>
+          <button
+            onClick={handleStartDesigning}
+            className="px-6 py-2 bg-[#1C2C56] text-white rounded-md text-sm md:text-base hover:bg-[#162347] transition-all w-fit"
+          >
+            Start Designing
+          </button>
         </div>
-    )
-}
 
-export default HeroContent
+        {/* RIGHT SECTION */}
+        <div className="h-full flex justify-center md:justify-end">
+          <Image
+            src="/img/landing/hero/uniform-home-page.png"
+            width={950}
+            height={750}
+            alt="Uniform Designs"
+            className="h-full object-contain"
+            priority
+          />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default HeroContent;

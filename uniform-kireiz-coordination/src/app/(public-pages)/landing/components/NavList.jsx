@@ -43,10 +43,10 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick }) => {
                                 bounce: 0.3,
                                 duration: 0.6,
                             }}
-                            className={classNames(
-                                'absolute inset-0 rounded-xl',
-                                show && 'bg-gray-100 dark:bg-gray-700',
-                            )}
+                            // className={classNames(
+                            //     'absolute inset-0 rounded-xl',
+                            //     show && 'bg-gray-100 dark:bg-gray-700',
+                            // )}
                         />
                     )}
                     {}
@@ -54,7 +54,7 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick }) => {
                         <Link
                             smooth
                             to={tab.to}
-                            className="relative block heading-text z-10"
+                            className="relative block heading-text z-10 text-white"
                             duration={500}
                         >
                             {tab.title}
@@ -62,7 +62,7 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick }) => {
                     ) : (
                         <NextLink
                             href={tab.href}
-                            className="relative block heading-text z-10"
+                            className="relative block heading-text z-10 text-white"
                         >
                             {tab.title}
                         </NextLink>

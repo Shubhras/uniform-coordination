@@ -1,142 +1,78 @@
-import { useState } from 'react'
-import Container from './LandingContainer'
-import { motion, AnimatePresence } from 'framer-motion'
+'use client'
+
+import React from "react";
 
 const stackList = [
-    {
-        id: 'react',
-        title: 'React',
-        description:
-            'A component-based JavaScript library for building user interfaces.',
-    },
-    {
-        id: 'tailwind',
-        title: 'TailwindCSS',
-        description:
-            'A utility-first CSS framework that allows for rapid, responsive design.',
-    },
-    {
-        id: 'typescript',
-        title: 'TypeScript',
-        description:
-            'Static typing for improved code quality and development efficiency.',
-    },
-    {
-        id: 'nextjs',
-        title: 'Next.js',
-        description:
-            'A React framework for building full-stack web applications.',
-    },
-    {
-        id: 'react-hook-form',
-        title: 'React Hook Form',
-        description:
-            'Efficient form management with minimal performance impact.',
-    },
-    {
-        id: 'zod',
-        title: 'Zod',
-        description:
-            'Schema validation made easy with TypeScript-first design.',
-    },
-    {
-        id: 'zustand',
-        title: 'Zustand',
-        description:
-            'A lightweight state management solution for managing complex application states.',
-    },
-    {
-        id: 'next-auth',
-        title: 'Auth.js',
-        description:
-            'Auth.js is a Web API-based library for simple, secure, and extensible authentication.',
-    },
-]
+  {
+    id: "location",
+    title: "Design Uniform/Table",
+    description:
+      "Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices, orci vitae convallis mattis.",
+  },
+  {
+    id: "Vector",
+    title: "Request for Quotation",
+    description:
+      "Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices, orci vitae convallis mattis.",
+  },
+  {
+    id: "car-front-fill",
+    title: "Order Custom Uniform",
+    description:
+      "Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices, orci vitae convallis mattis.",
+  },
+];
 
 const TechStack = () => {
-    const [hoveredIndex, setHoveredIndex] = useState(null)
+  return (
+    <div className="relative z-20 py-16 md:py-20 bg-white">
+      {/* Heading Section */}
+      <div className="text-center mb-12">
+        <h2 className="text-3xl md:text-4xl font-semibold mb-3">
+          How it works
+        </h2>
+        <p className="mx-auto max-w-[650px] text-gray-500 text-sm md:text-base px-4">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et
+        </p>
+      </div>
 
-    return (
-        <div id="demos" className="relative z-20 py-10 md:py-40">
-            <motion.div
-                className="text-center mb-12"
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, type: 'spring', bounce: 0.1 }}
-                viewport={{ once: true }}
-            >
-                <motion.h2 className="my-6 text-5xl">
-                    Core Technologies Powering
-                </motion.h2>
-                <motion.p className="mx-auto max-w-[600px]">
-                    Ecme built using cutting-edge technologies to ensure
-                    streamlined, scalability, and a seamless developer
-                    experience.
-                </motion.p>
-            </motion.div>
-            <Container>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                    {stackList.map((stack, index) => (
-                        <motion.div
-                            key={stack.id}
-                            initial={{ opacity: 0, y: 40 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{
-                                duration: 0.3,
-                                type: 'spring',
-                                bounce: 0.1,
-                                delay: index * 0.1,
-                            }}
-                            viewport={{ once: true }}
-                            className="relative p-4"
-                            onMouseEnter={() => setHoveredIndex(index)}
-                            onMouseLeave={() => setHoveredIndex(null)}
-                        >
-                            <AnimatePresence>
-                                {hoveredIndex === index && (
-                                    <motion.span
-                                        className="absolute inset-0 h-full w-full bg-gray-100 dark:bg-zinc-800/[0.8] block  rounded-3xl"
-                                        layoutId="hoverBackground"
-                                        initial={{ opacity: 0 }}
-                                        animate={{
-                                            opacity: 1,
-                                            transition: { duration: 0.15 },
-                                        }}
-                                        exit={{
-                                            opacity: 0,
-                                            transition: {
-                                                duration: 0.15,
-                                                delay: 0.2,
-                                            },
-                                        }}
-                                    />
-                                )}
-                            </AnimatePresence>
-                            <div className="p-4 rounded-2xl z-10 relative bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 h-full group">
-                                <div className="flex flex-col">
-                                    <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-600 group-hover:border-primary">
-                                        <img
-                                            className="max-h-8"
-                                            src={`/img/landing/tech/${stack.id}.png`}
-                                            alt={stack.title}
-                                        />
-                                    </div>
-                                    <div className="mt-6">
-                                        <h3 className="text-lg mb-2">
-                                            {stack.title}
-                                        </h3>
-                                        <p className="text-muted dark:text-muted-dark">
-                                            {stack.description}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="flex flex-row items-start justify-between gap-4 relative">
+          {/* HORIZONTAL LINE BEHIND ICONS */}
+          <div className="absolute top-[48px] left-[19%] right-[19%] h-[2px] bg-gray-300 z-0"></div>
+
+          {stackList.map((stack) => {
+            return (
+              <div
+                key={stack.id}
+                className="flex flex-col items-center relative z-20 flex-1 max-w-[280px]"
+              >
+                {/* ICON BLOCK */}
+                <div className="w-20 h-20 flex items-center justify-center rounded-xl bg-[#f3f6fb] shadow-sm mb-6 mr-24">
+                  <img
+                    src={`/img/landing/tech/${stack.id}.png`}
+                    alt={stack.title}
+                    className="max-h-10"
+                  />
                 </div>
-            </Container>
-        </div>
-    )
-}
 
-export default TechStack
+                {/* TITLE */}
+                <h3 className="text-base font-semibold mb-3 text-gray-800 text-left w-full">
+                  {stack.title}
+                </h3>
+
+                {/* DESCRIPTION */}
+                <p className="text-gray-500 text-sm leading-relaxed text-left w-full">
+                  {stack.description}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TechStack;
