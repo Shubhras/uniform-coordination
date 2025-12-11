@@ -13,7 +13,7 @@ import {
     helpCenterDemos,
     accountDemos,
     authDemos,
-} from '../utils//demos-gallery.config'
+} from '../utils/demos-gallery.config'
 import classNames from '@/utils/classNames'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
@@ -87,8 +87,8 @@ const DemoCard = ({ id, name, path, mode }) => {
                         className="rounded-xl"
                         src={
                             mode === 'light'
-                                ? `/img/landing/demo/${id}.webp`
-                                : `/img/landing/demo/${id}-dark.webp`
+                                ? `/img/kireiz-form/demo/${id}.webp`
+                                : `/img/kireiz-form/demo/${id}-dark.webp`
                         }
                         alt={name}
                     />
@@ -131,7 +131,8 @@ const Demos = ({ mode }) => {
     const router = useRouter()
 
     const handleViewAllDemos = () => {
-        router.push('/dashboards/ecommerce')
+        // router.push('/dashboards/ecommerce')
+        router.push('/kireiz-form')
     }
 
     return (

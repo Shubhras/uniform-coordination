@@ -110,7 +110,7 @@ const OtherFeatures = () => {
                                     <div className="absolute inset-x-0 bottom-0 h-20 w-full bg-gradient-to-b from-transparent via-gray-100 to-gray-100 dark:via-zinc-800/70 dark:to-gray-800 scale-[1.1] pointer-events-none" />
                                     <div className="bg-white dark:bg-black dark:border-gray-700 border border-gray-200 rounded-[24px] overflow-hidden max-h-[450px]">
                                         <img
-                                            src="/img/landing/features/mobile.png"
+                                            src="/img/kireiz-form/features/mobile.png"
                                             alt="Mobile view"
                                             className="rounded-[24px]"
                                         />
@@ -234,7 +234,7 @@ const OtherFeatures = () => {
                                         <div className="absolute inset-x-0 bottom-0 h-20 w-full bg-gradient-to-b from-transparent via-gray-100 to-gray-100 dark:via-zinc-800/50 dark:to-gray-800 scale-[1.1] pointer-events-none" />
                                         <div className="bg-white dark:border-gray-700 border border-gray-200 rounded-[24px] overflow-hidden p-2">
                                             <img
-                                                src="/img/landing/features/rtl.png"
+                                                src="/img/kireiz-form/features/rtl.png"
                                                 alt="App screenshot"
                                             />
                                         </div>

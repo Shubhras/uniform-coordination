@@ -26,7 +26,7 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick }) => {
                 <button
                     key={tab.title}
                     className={classNames(
-                        'relative px-5 py-2 rounded-xl',
+                        'relative px-4 py-2 rounded-xl',
                         tabClassName,
                     )}
                     onClick={() => {

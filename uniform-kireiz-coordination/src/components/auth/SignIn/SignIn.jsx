@@ -1,5 +1,4 @@
 'use client'
-import Logo from '@/components/template/Logo'
 import Alert from '@/components/ui/Alert'
 import SignInForm from './SignInForm'
 import OauthSignIn from './OauthSignIn'
@@ -19,6 +18,7 @@ const SignIn = ({
 
     return (
         <>
+           <div className='mx-4'>
             <div className="mb-6">
                 <h2 className="font-[Plus Jakarta Sans]  font-medium text-[28px] tracking-[0.18px] text-[#003560] mb-2">
                     Welcome to KIREIZ!
@@ -82,6 +82,7 @@ const SignIn = ({
                     setMessage={setMessage}
                     onOauthSignIn={onOauthSignIn}
                 />
+            </div>
             </div>
         </>
     )

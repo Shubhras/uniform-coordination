@@ -11,15 +11,13 @@ const HeroContent = () => {
   };
 
   return (
-    <section className="w-full bg-white px-6 py-14 md:py-20">
+    <section className="w-full bg-white px-6">
       <div
         className="
-          max-w-7xl mx-auto 
+          max-w-6xl mx-auto my-0
           flex flex-col md:flex-row 
-          items-center md:items-center 
-          justify-between 
-          gap-10 md:gap-16
-          md:h-[750px]
+          gap-8 md:gap-10
+          md:h-[700px]
         "
       >
         {/* LEFT SECTION */}
@@ -28,7 +26,7 @@ const HeroContent = () => {
             flex flex-col 
             justify-center 
             h-full 
-            space-y-4
+            space-y-3
             max-w-lg
           "
         >
@@ -56,11 +54,11 @@ const HeroContent = () => {
         {/* RIGHT SECTION */}
         <div className="h-full flex justify-center md:justify-end">
           <Image
-            src="/img/landing/hero/uniform-home-page.png"
-            width={950}
-            height={750}
+            src="/img/kireiz-form/hero/uniform-home-page.png"
+            width={925}
+            height={630}
             alt="Uniform Designs"
-            className="h-full object-contain"
+            className="h-full w-auto object-contain" 
             priority
           />
         </div>
