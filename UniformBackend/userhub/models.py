@@ -36,7 +36,7 @@ class Users(models.Model):
 
         """Ensure at least one address is present before saving."""
         if not self.role:
-            self.role, _ = Role.objects.get_or_create(name="user")
+            self.role, _ = Role.objects.get_or_create(role_name="user")
         super().save(*args, **kwargs)
  
     def __str__(self):
@@ -45,3 +45,20 @@ class Users(models.Model):
     @property
     def is_authenticated(self):
         return True  
+
+
+
+
+# class Simulation(models.Model):
+#     user = models.ForeignKey(Users, on_delete=models.CASCADE)
+
+#     title = models.CharField(max_length=255)
+#     category = models.CharField(max_length=100)
+#     previewImage = models.ImageField(upload_to="simulation_previews/")
+#     pdfFile = models.FileField(upload_to="simulation_pdfs/")
+
+#     createdAt = models.DateTimeField(auto_now_add=True)
+#     updatedAt = models.DateTimeField(auto_now=True)
+
+#     # Optional: JSON data of canvas
+#     config = models.JSONField(null=True, blank=True)
