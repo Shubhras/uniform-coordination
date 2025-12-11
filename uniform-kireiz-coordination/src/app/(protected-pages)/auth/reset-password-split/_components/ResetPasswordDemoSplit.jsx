@@ -27,7 +27,7 @@ const ResetPasswordDemoSplit = () => {
     }
 
     return (
-        <Split>
+        <Split image="/img/others/Illustration4.png">
             <ResetPassword
                 signInUrl="/auth/sign-in-split"
                 onResetPasswordSubmit={handleResetPassword}

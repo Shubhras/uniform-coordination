@@ -6,6 +6,7 @@ import ActionLink from '@/components/shared/ActionLink'
 import ResetPasswordForm from './ResetPasswordForm'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useRouter } from 'next/navigation'
+import { FiChevronLeft } from 'react-icons/fi'
 
 export const ResetPassword = ({
     signInUrl = '/sign-in',
@@ -26,17 +27,22 @@ export const ResetPassword = ({
             <div className="mb-6">
                 {resetComplete ? (
                     <>
-                        <h3 className="mb-1">Reset done</h3>
-                        <p className="font-semibold heading-text">
+                        <h2 className="font-[Plus Jakarta Sans] font-medium text-[28px] tracking-[0.18px] text-[#003560] mb-2">
+                            Reset done
+                        </h2>
+                        <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
                             Your password has been successfully reset
                         </p>
                     </>
                 ) : (
                     <>
-                        <h3 className="mb-1">Set new password</h3>
-                        <p className="font-semibold heading-text">
+                        <h2 className="font-[Plus Jakarta Sans] font-medium text-[28px] tracking-[0.18px] text-[#003560] mb-2">
+                            Reset password
+                        </h2>
+                        <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
                             Your new password must different to previos password
                         </p>
+
                     </>
                 )}
             </div>
@@ -57,17 +63,19 @@ export const ResetPassword = ({
                     type="button"
                     onClick={handleContinue}
                 >
-                    Continue
+                    Change Password
                 </Button>
             </ResetPasswordForm>
-            <div className="mt-4 text-center">
-                <span>Back to </span>
+            <div className="mt-4 text-center text-base">
                 <ActionLink
                     href={signInUrl}
-                    className="heading-text font-bold"
+                    className="heading-text text-blue-400"
                     themeColor={false}
                 >
-                    Sign in
+                    <span className='flex justify-center items-center'>
+                        <FiChevronLeft size={27}/>
+                        Back to Login
+                    </span>
                 </ActionLink>
             </div>
         </div>

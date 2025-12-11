@@ -6,6 +6,7 @@ import ActionLink from '@/components/shared/ActionLink'
 import ForgotPasswordForm from './ForgotPasswordForm'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useRouter } from 'next/navigation'
+import { FiChevronLeft } from 'react-icons/fi'
 
 export const ForgotPassword = ({
     signInUrl = '/sign-in',
@@ -25,18 +26,23 @@ export const ForgotPassword = ({
             <div className="mb-6">
                 {emailSent ? (
                     <>
-                        <h3 className="mb-2">Check your email</h3>
-                        <p className="font-semibold heading-text">
+                        <h2 className="font-[Plus Jakarta Sans] font-medium text-[28px] tracking-[0.18px] text-[#003560] mb-2">
+                            Check your email
+                        </h2>
+                        <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
                             We have sent a password recovery to your email
                         </p>
+
                     </>
                 ) : (
                     <>
-                        <h3 className="mb-2">Forgot Password</h3>
-                        <p className="font-semibold heading-text">
-                            Please enter your email to receive a verification
-                            code
+                        <h2 className="font-[Plus Jakarta Sans] font-medium text-[28px] tracking-[0.18px] text-[#003560] mb-2">
+                            Forgot Password
+                        </h2>
+                        <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
+                            Please enter your email to receive a verification code
                         </p>
+
                     </>
                 )}
             </div>
@@ -60,14 +66,16 @@ export const ForgotPassword = ({
                     Continue
                 </Button>
             </ForgotPasswordForm>
-            <div className="mt-4 text-center">
-                <span>Back to </span>
+            <div className="mt-4 text-center text-base">
                 <ActionLink
                     href={signInUrl}
-                    className="heading-text font-bold"
+                    className="heading-text text-blue-400"
                     themeColor={false}
                 >
-                    Sign in
+                    <span className='flex justify-center items-center'>
+                        <FiChevronLeft size={27}/>
+                        Back to Login
+                    </span>
                 </ActionLink>
             </div>
         </div>

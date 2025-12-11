@@ -6,6 +6,7 @@ import { FormItem, Form } from '@/components/ui/Form'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import PasswordInput from '@/components/shared/PasswordInput'
 
 const validationSchema = z
     .object({
@@ -61,6 +62,7 @@ const SignUpForm = (props) => {
                         )}
                     />
                 </FormItem>
+
                 <FormItem
                     // label="Email"
                     invalid={Boolean(errors.email)}
@@ -87,42 +89,37 @@ const SignUpForm = (props) => {
                     <Controller
                         name="password"
                         control={control}
+                        rules={{ required: true }}
                         render={({ field }) => (
-                            <Input
-                                type="password"
-                                autoComplete="off"
+                            <PasswordInput
+                                type="text"
                                 placeholder="Password"
-                                {...field}
-                            />
-                        )}
-                    />
-                </FormItem>
-                <FormItem
-                    label="Confirm Password"
-                    invalid={Boolean(errors.confirmPassword)}
-                    errorMessage={errors.confirmPassword?.message}
-                >
-                    <Controller
-                        name="confirmPassword"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="password"
                                 autoComplete="off"
-                                placeholder="Confirm Password"
                                 {...field}
                             />
                         )}
                     />
                 </FormItem>
+                <div className="mb-6 mt-2 flex justify-between items-center">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            className="accent-primary cursor-pointer"
+                        />
+                        <p>I Agree to privacy
+                            <span className='text-blue-400'> policy & terms</span>
+                        </p>
+                    </label>
+                </div>
                 <Button
                     block
                     loading={isSubmitting}
                     variant="solid"
                     type="submit"
                 >
-                    {isSubmitting ? 'Creating Account...' : 'Sign Up'}
+                    {isSubmitting ? 'Creating Account...' : 'Create Account'}
                 </Button>
+
             </Form>
         </div>
     )

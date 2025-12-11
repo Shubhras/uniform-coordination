@@ -105,24 +105,37 @@ const Button = (props) => {
         return getBtnColor(btn)
     }
 
+    // const defaultColor = () => {
+    //     const btn = {
+    //         bgColor: active
+    //             ? `bg-gray-100 border border-gray-300 dark:bg-gray-500 dark:border-gray-500`
+    //             : `bg-white border border-gray-300 dark:bg-gray-700 dark:border-gray-700`,
+    //         textColor: `text-gray-600 dark:text-gray-100`,
+    //         hoverColor: active
+    //             ? ''
+    //             : `ring-primary dark:ring-white hover:border-primary dark:hover:border-white hover:ring-1 hover:text-primary dark:hover:text-white dark:hover:bg-transparent`,
+    //         activeColor: ``,
+    //     }
+    //     return getBtnColor(btn)
+    // }
+
     const defaultColor = () => {
         const btn = {
             bgColor: active
-                ? `bg-gray-100 border border-gray-300 dark:bg-gray-500 dark:border-gray-500`
-                : `bg-white border border-gray-300 dark:bg-gray-700 dark:border-gray-700`,
+                ? ``
+                : ``,
             textColor: `text-gray-600 dark:text-gray-100`,
             hoverColor: active
                 ? ''
-                : `ring-primary dark:ring-white hover:border-primary dark:hover:border-white hover:ring-1 hover:text-primary dark:hover:text-white dark:hover:bg-transparent`,
+                : ``,
             activeColor: ``,
         }
         return getBtnColor(btn)
     }
 
     const getBtnColor = ({ bgColor, hoverColor, activeColor, textColor }) => {
-        return `${bgColor} ${
-            unclickable ? disabledClass : hoverColor + ' ' + activeColor
-        } ${textColor}`
+        return `${bgColor} ${unclickable ? disabledClass : hoverColor + ' ' + activeColor
+            } ${textColor}`
     }
 
     const btnColor = () => {

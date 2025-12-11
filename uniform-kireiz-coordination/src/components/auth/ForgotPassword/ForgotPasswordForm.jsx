@@ -47,7 +47,7 @@ const ForgotPasswordForm = (props) => {
             {!emailSent ? (
                 <Form onSubmit={handleSubmit(onForgotPassword)}>
                     <FormItem
-                        label="Email"
+                        // label="Email"
                         invalid={Boolean(errors.email)}
                         errorMessage={errors.email?.message}
                     >

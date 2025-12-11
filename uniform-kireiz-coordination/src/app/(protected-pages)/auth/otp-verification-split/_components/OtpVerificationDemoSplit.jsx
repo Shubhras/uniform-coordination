@@ -5,7 +5,7 @@ import Split from '@/components/layouts/AuthLayout/Split'
 
 const OtpVerificationDemoSplit = () => {
     return (
-        <Split>
+        <Split image="/img/others/Illustration.png">
             <OtpVerification />
         </Split>
     )

@@ -20,10 +20,10 @@ const SignIn = ({
     return (
         <>
             <div className="mb-6">
-                <h2 className="font-[Plus Jakarta Sans] font-semibold text-[24px] leading-[32px] tracking-[0.18px] text-[#003560] mb-0">
+                <h2 className="font-[Plus Jakarta Sans]  font-medium text-[28px] tracking-[0.18px] text-[#003560] mb-2">
                     Welcome to KIREIZ!
                 </h2>
-                <p className="font-[Plus Jakarta Sans] font-normal text-[14px] leading-[20px] tracking-[0.15px] text-[#4C4E64AD]">
+                <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
                     Professional Uniforms & Event Styling
                 </p>
             </div>
@@ -49,10 +49,10 @@ const SignIn = ({
                         {/* Forgot password */}
                         <ActionLink
                         href={forgetPasswordUrl}
-                        className="font-semibold heading-text underline text-sm"
+                        className="text-blue-400 heading-text text-sm"
                         themeColor={false}
                         >
-                        Forgot password
+                        Forgot Password?
                         </ActionLink>
                     </div>
                     </>
@@ -60,26 +60,23 @@ const SignIn = ({
                 onSignIn={onSignIn}
             />
 
-          
-            <div>
-                <div className="mt-6 text-center">
+                <div className="mt-6 text-center text-base">
                     <span>{`New on our platform?`} </span>
                     <ActionLink
                         href={signUpUrl}
-                        className="heading-text font-bold"
+                        className="heading-text text-blue-400"
                         themeColor={false}
                     >
                         Create an account
                     </ActionLink>
                 </div>
-            </div>
             <div className="mt-6">
-                <div className="flex items-center gap-2 mb-6">
-                    <div className="border-t border-gray-200 dark:border-gray-800 flex-1 mt-[1px]" />
-                    <p className="font-semibold heading-text">
+                <div className="flex items-center gap-5 mb-6">
+                    <div className="border-t border-gray-200 dark:border-gray-800 flex-1 " />
+                    <p className="text-base">
                         or 
                     </p>
-                    <div className="border-t border-gray-200 dark:border-gray-800 flex-1 mt-[1px]" />
+                    <div className="border-t border-gray-200 dark:border-gray-800 flex-1 " />
                 </div>
                 <OauthSignIn
                     setMessage={setMessage}

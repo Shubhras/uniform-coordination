@@ -88,7 +88,7 @@ const SignInForm = (props) => {
                 <Button
                     block
                     loading={isSubmitting}
-                    variant="solid"
+                    variant="solid" 
                     type="submit"
                 >
                     {isSubmitting ? 'Signing in...' : 'Login to KIREIZ'}
