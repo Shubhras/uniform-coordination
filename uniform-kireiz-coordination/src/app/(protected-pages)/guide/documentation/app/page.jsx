@@ -22,7 +22,8 @@ const Page = () => {
                 tsMarkdown={`\`\`\`tsx
 const appConfig: AppConfig = {
     apiPrefix: '/api',
-    authenticatedEntryPath: '/dashboards/ecommerce',
+    // authenticatedEntryPath: '/dashboards/ecommerce',
+    authenticatedEntryPath: '/kireiz-form',
     unAuthenticatedEntryPath: '/sign-in',
     locale: 'en',
     activeNavTranslation: true
@@ -30,7 +31,8 @@ const appConfig: AppConfig = {
                 jsMarkdown={`\`\`\`jsx
 const appConfig = {
     apiPrefix: '/api',
-    authenticatedEntryPath: '/dashboards/ecommerce',
+    // authenticatedEntryPath: '/dashboards/ecommerce',
+    authenticatedEntryPath: '/kireiz-form
     unAuthenticatedEntryPath: '/sign-in',
     locale: 'en',
     activeNavTranslation: true

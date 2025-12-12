@@ -40,7 +40,7 @@ const TechStack = () => {
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-row items-start justify-between gap-4 relative">
           {/* HORIZONTAL LINE BEHIND ICONS */}
-          <div className="absolute top-[48px] left-[19%] right-[19%] h-[2px] bg-gray-300 z-0"></div>
+          <div className="absolute top-[48px] left-[13%] right-[13%] h-[2px] bg-gray-300 z-0"></div>
 
           {stackList.map((stack) => {
             return (
@@ -51,7 +51,7 @@ const TechStack = () => {
                 {/* ICON BLOCK */}
                 <div className="w-20 h-20 flex items-center justify-center rounded-xl bg-[#f3f6fb] shadow-sm mb-6 mr-24">
                   <img
-                    src={`/img/landing/tech/${stack.id}.png`}
+                    src={`/img/kireiz-form/tech/${stack.id}.png`}
                     alt={stack.title}
                     className="max-h-10"
                   />

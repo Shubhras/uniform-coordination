@@ -1,12 +1,12 @@
 import classNames from "@/utils/classNames";
 import Badge from "@/components/ui/Badge";
-import { PiBellDuotone, PiBellLight } from "react-icons/pi";
+import { PiBellLight } from "react-icons/pi";
 
 const NotificationToggle = ({ className, dot }) => {
   return (
     <div
       className={classNames(
-        "text-4xl bg-white p-2 rounded-xlg text-[#1C2C56]",
+        "text-2xl bg-white p-1.8 rounded-xlg text-[#1C2C56]",
         className
       )}
     >

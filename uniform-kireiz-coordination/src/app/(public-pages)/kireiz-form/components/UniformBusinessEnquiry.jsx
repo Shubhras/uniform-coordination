@@ -6,17 +6,17 @@ import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 
 const bottomCards = [
   {
-    img: "/img/landing/features/uniform-card-img-one.png",
+    img: "/img/kireiz-form/features/uniform-card-img-one.png",
     title: "Medical & Nursing Care",
     desc: "Comfortable, functional medical uniforms",
   },
   {
-    img: "/img/landing/features/uniform-card-img-two.png",
+    img: "/img/kireiz-form/features/uniform-card-img-two.png",
     title: "Food Service & Dining",
     desc: "Hygienic, professional kitchen & serving wear",
   },
   {
-    img: "/img/landing/features/uniform-card-img-one.png",
+    img: "/img/kireiz-form/features/uniform-card-img-one.png",
     title: "Office & Back-End Operations",
     desc: "Professional corporate branding",
   },
@@ -39,7 +39,7 @@ const UniformBusinessEnquiry = () => {
         {/* BACKGROUND FRAME */}
         <div className="relative w-full max-w-6xl mx-auto">
           <Image
-            src="/img/landing/features/uniform-bussiness-frame.png"
+            src="/img/kireiz-form/features/uniform-bussiness-frame.png"
             width={1500}
             height={900}
             alt="Frame Background"
@@ -54,25 +54,25 @@ const UniformBusinessEnquiry = () => {
             </h2>
 
             {/* TOP 4 CARDS – SMALLER SIZE */}
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
               {[
                 {
-                  img: "/img/landing/features/Frame.png",
+                  img: "/img/kireiz-form/features/Frame.png",
                   title: "Visual Design Tools",
                   desc: "See your designs come to life",
                 },
                 {
-                  img: "/img/landing/features/Frame (1).png",
+                  img: "/img/kireiz-form/features/Frame (1).png",
                   title: "Professional Results",
                   desc: "Industry-specific solutions",
                 },
                 {
-                  img: "/img/landing/features/Frame (2).png",
+                  img: "/img/kireiz-form/features/Frame (2).png",
                   title: "Bulk Pricing & Delivery",
                   desc: "Rental options & bulk pricing",
                 },
                 {
-                  img: "/img/landing/features/Frame (3).png",
+                  img: "/img/kireiz-form/features/Frame (3).png",
                   title: "Custom Branding",
                   desc: "From design to delivery",
                 },
@@ -105,7 +105,7 @@ const UniformBusinessEnquiry = () => {
             </h2>
 
             {/* ARROWS */}
-            <div className="flex justify-end gap-3 mt-20">
+            <div className="flex justify-end gap-3 mt-5">
               <button
                 onClick={handlePrev}
                 className="h-10 w-10 border rounded-full flex items-center justify-center hover:bg-gray-100"
@@ -121,7 +121,7 @@ const UniformBusinessEnquiry = () => {
             </div>
 
             {/* INDUSTRY-SPECIFIC CARDS — FIGMA EXACT DESIGN */}
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0 pb-8">
               {bottomCards.map((item, i) => (
                 <div
                   key={i}

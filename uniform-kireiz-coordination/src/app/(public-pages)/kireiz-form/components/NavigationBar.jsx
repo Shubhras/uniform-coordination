@@ -19,11 +19,11 @@ const Navigation = ({ toggleMode, mode }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div
-      className="w-full fixed inset-x-0 top-0 z-[50]"
+    <section
+      className="w-full fixed inset-x-0 top-0 z-[50] px-18"
       style={{ backgroundColor: "#1C2C56" }}
     >
-      <div className="flex flex-row items-center justify-between py-3 max-w-7xl mx-auto px-4 w-full">
+      <div className="flex flex-row items-center justify-between py-2 max-w-7xl w-full">
         {/* Mobile menu button */}
         <button
           onClick={() => setIsOpen(true)}
@@ -38,7 +38,7 @@ const Navigation = ({ toggleMode, mode }) => {
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
           onRequestClose={() => setIsOpen(false)}
-          width={250}
+          width={230}
           placement="left"
         >
           <div className="flex flex-col gap-4 text-white">
@@ -50,19 +50,19 @@ const Navigation = ({ toggleMode, mode }) => {
         <Link href="/">
           <Image
             src="/img/logo/uniform-nav-logo.png"
-            width={80}
+            width={70}
             height={0}
             alt="logo"
           />
         </Link>
 
         {/* Center navigation items */}
-        <div className="lg:flex flex-row flex-1 absolute inset-0 hidden items-center justify-center text-sm font-medium text-white">
+        <div className="lg:flex flex-row flex-1 items-center justify-center text-sm font-medium text-white">
           <NavList tabs={navMenu} />
         </div>
 
         {/* Right side icons + login/signup */}
-        <div className="hidden lg:flex items-center gap-6 text-white">
+        <div className="hidden lg:flex items-center gap-8 text-white">
           {/* Login + Signup buttons */}
           <AuthButtons />
 
@@ -70,7 +70,7 @@ const Navigation = ({ toggleMode, mode }) => {
           <NavOtherList />
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -12,7 +12,8 @@ const LandingFooter = ({ mode }) => {
     const router = useRouter()
 
     const handlePreview = () => {
-        router.push('/dashboards/ecommerce')
+        // router.push('/dashboards/ecommerce')
+        router.push('/kireiz-form')
     }
 
     return (
@@ -68,7 +69,7 @@ const LandingFooter = ({ mode }) => {
                             )}
                         </Link>
                         <p className="text-center">
-                            Copyright © {year} Theme_Nate. All rights reserved.
+                            Copyright © {year} Kireiz Form - Uniform Coordination. All rights reserved.
                         </p>
                     </div>
                 </div>
