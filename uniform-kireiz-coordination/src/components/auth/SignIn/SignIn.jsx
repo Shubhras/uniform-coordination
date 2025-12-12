@@ -20,7 +20,7 @@ const SignIn = ({
         <>
            <div className='mx-4'>
             <div className="mb-6">
-                <h2 className="font-[Plus Jakarta Sans]  font-medium text-[28px] tracking-[0.18px] text-[#003560] mb-2">
+                <h2 className="font-[Plus Jakarta Sans]  font-medium text-[28px] tracking-[0.18px] text-[#1C2C56] mb-2">
                     Welcome to KIREIZ!
                 </h2>
                 <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
@@ -37,7 +37,7 @@ const SignIn = ({
                 passwordHint={
                     <>
                     {/* Remember Me */}
-                    <div className="mb-7 mt-2 flex justify-between items-center">
+                    <div className="mb-6 mt-2 flex justify-between items-center">
                         <label className="flex items-center gap-2 cursor-pointer">
                         <input
                             type="checkbox"
@@ -71,7 +71,7 @@ const SignIn = ({
                     </ActionLink>
                 </div>
             <div className="mt-6">
-                <div className="flex items-center gap-5 mb-6">
+                <div className="flex items-center gap-5 mb-2">
                     <div className="border-t border-gray-200 dark:border-gray-800 flex-1 " />
                     <p className="text-base">
                         or 

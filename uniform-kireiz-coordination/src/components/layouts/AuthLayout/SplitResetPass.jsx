@@ -1,6 +1,6 @@
 import { cloneElement } from "react";
 
-const Split = ({ children, content, ...rest }) => {
+const SplitResetPassword = ({ children, content, ...rest }) => {
   return (
     <div className="flex flex-col lg:flex-row bg-gray h-full">
       {/* LEFT SIDE */}
@@ -34,4 +34,4 @@ const Split = ({ children, content, ...rest }) => {
   );
 };
 
-export default Split;
+export default SplitResetPassword;

@@ -1,6 +1,6 @@
 import { cloneElement } from "react";
 
-const Split = ({ children, content, ...rest }) => {
+const SplitForgotPassword = ({ children, content, ...rest }) => {
   return (
     <div className="flex flex-col lg:flex-row bg-gray h-full">
       {/* LEFT SIDE */}
@@ -17,7 +17,7 @@ const Split = ({ children, content, ...rest }) => {
         {/* Image container (push image down so it never overlaps logo) */}
         <div className="flex-1 flex justify-center items-center z-0 mt-16">
           <img
-            src="/img/others/new-auth-imgtwo.png"
+            src="/img/others/new-auth-imgone.png"
             className="object-contain object-center h-full max-h-[75vh] w-full"
           />
         </div>
@@ -34,4 +34,4 @@ const Split = ({ children, content, ...rest }) => {
   );
 };
 
-export default Split;
+export default SplitForgotPassword;
