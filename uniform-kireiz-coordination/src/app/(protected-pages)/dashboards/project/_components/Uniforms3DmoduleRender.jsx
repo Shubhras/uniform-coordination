@@ -1033,7 +1033,7 @@ export default function Uniforms3DmoduleRender() {
 
             {/* Rotate */}
             <button className="p-2 flex items-center gap-1" onClick={rotate90}>
-              <img src="/img/top-left-image/rotate.svg" className="w-5 h-5" />
+              <img src="/img/top-left-image/rotate.png" className="w-5 h-5" />
               <span className="text-sm text-gray-700">90°</span>
             </button>
 
