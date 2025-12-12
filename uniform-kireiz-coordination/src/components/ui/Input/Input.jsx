@@ -62,7 +62,7 @@ const Input = (props) => {
         !prefix && !suffix ? className : '',
         disabled && 'input-disabled',
         isInputInvalid && 'input-invalid',
-        textArea && 'input-textarea',
+        textArea && 'input-textarea','rounded-lg'
     )
 
     const prefixNode = useRef(null)

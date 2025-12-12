@@ -1,13 +1,13 @@
 'use client'
 
 import SignUp from '@/components/auth/SignUp'
-import Split from '@/components/layouts/AuthLayout/Split'
+import SplitSignup from '@/components/layouts/AuthLayout/SplitSignup'
 
 const SignUpDemoSplit = () => {
     return (
-        <Split image="/img/others/Illustration2.png">
+        <SplitSignup>
             <SignUp signInUrl="/auth/sign-in-split" />
-        </Split>
+        </SplitSignup>
     )
 }
 
