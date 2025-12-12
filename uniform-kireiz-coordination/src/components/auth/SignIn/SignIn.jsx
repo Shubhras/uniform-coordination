@@ -60,7 +60,7 @@ const SignIn = ({
                 onSignIn={onSignIn}
             />
 
-                <div className="mt-6 text-center text-base">
+                <div className="mt-3 text-center text-base">
                     <span>{`New on our platform?`} </span>
                     <ActionLink
                         href={signUpUrl}
@@ -70,7 +70,7 @@ const SignIn = ({
                         Create an account
                     </ActionLink>
                 </div>
-            <div className="mt-6">
+            <div className="mt-4">
                 <div className="flex items-center gap-5 mb-2">
                     <div className="border-t border-gray-200 dark:border-gray-800 flex-1 " />
                     <p className="text-base">
