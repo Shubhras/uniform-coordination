@@ -431,7 +431,7 @@ import Link from 'next/link'
 import { BiReset } from 'react-icons/bi'
 import { FiPause, FiPlay } from 'react-icons/fi'
 import ColorPickerPopup from './ColorPickerPopup'
-
+import ActionLink from '@/components/shared/ActionLink'
 // const SAMPLE_MODEL = '/img/3dmodels/Astronaut.glb'
 const SAMPLE_MODEL = '/img/3dmodels/doctor_uniform.glb'
 const FALLBACK_MODEL = '' //'https://modelviewer.dev/shared-assets/models/Astronaut.glb'
@@ -789,6 +789,7 @@ export default function Uniforms3DmoduleRender() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h4 className="text-lg font-semibold">3D Uniform Configurator</h4>
+        <ActionLink href="/dashboards/delivery-request" className="heading-text text-blue-400">Delivery Request Form</ActionLink>
       </div>
 
       <div className="mt-6 flex gap-6">
@@ -1043,6 +1044,7 @@ export default function Uniforms3DmoduleRender() {
             <button className="p-2 flex items-center gap-1">
               <img src="/img/top-left-image/Group.png" className="w-5 h-5" />
               <span className="text-sm text-gray-700">3D</span>
+              
             </button>
 
           </div>
