@@ -16,7 +16,7 @@ const Page = () => {
     --neutral: #ffffff;
     --primary: #2a85ff;
     --primary-deep: #0069f6;
-    --primary-mild: #4996ff;
+     --primary-mild: #1e1f20;
     --primary-subtle: #2a85ff1a;
     --error: #ff6a55;
     --error-subtle: #ff6a551a;
@@ -43,7 +43,7 @@ const Page = () => {
     --neutral: #ffffff;
     --primary: #2a85ff;
     --primary-deep: #0069f6;
-    --primary-mild: #4996ff;
+     --primary-mild: #1e1f20;
     --primary-subtle: #2a85ff1a;
     --error: #ff6a55;
     --error-subtle: #ff6a551a; 

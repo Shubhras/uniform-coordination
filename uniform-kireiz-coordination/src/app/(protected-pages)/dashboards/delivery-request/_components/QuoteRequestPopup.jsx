@@ -45,7 +45,7 @@ const QuoteRequestPopup = ({ isOpen, onClose }) => {
                 <div className="p-6 bg-white flex justify-end gap-4">
                     <Button
                         variant="solid"
-                        className="bg-[#2A2FA8] text-white px-10 py-2 rounded-md"
+                        className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white px-10 py-2 rounded-md"
                         onClick={onClose}
                     >
                         Back to Home

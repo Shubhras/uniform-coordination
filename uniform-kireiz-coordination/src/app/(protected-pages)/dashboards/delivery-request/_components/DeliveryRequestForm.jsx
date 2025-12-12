@@ -250,7 +250,7 @@ const DeliveryRequestForm = () => {
                         <Button
                             type="submit"
                             variant="solid"
-                            className="w-full mt-4 bg-[#2A2FA8] text-white py-3"
+                            className="w-full mt-4 bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-3"
                         >
                             Request a Quote
                         </Button>

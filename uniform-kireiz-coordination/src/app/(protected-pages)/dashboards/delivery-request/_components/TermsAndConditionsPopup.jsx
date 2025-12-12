@@ -36,7 +36,7 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
                     <Button className="ltr:mr-2 rtl:ml-2" variant="plain" onClick={onClose}>
                         Cancel
                     </Button>
-                    <Button variant="solid"  className="bg-[#2A2FA8] text-white px-10 py-2 rounded-md" onClick={onDialogOk}>
+                    <Button variant="solid"  className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white px-10 py-2 rounded-md" onClick={onDialogOk}>
                         I Agree
                     </Button>
                 </div>
