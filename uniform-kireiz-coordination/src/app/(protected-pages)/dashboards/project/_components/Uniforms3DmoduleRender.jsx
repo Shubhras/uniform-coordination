@@ -514,7 +514,7 @@ const PANELS = {
 export default function Uniforms3DmoduleRender() {
   const mvRef = useRef(null)
   const [modelSrc, setModelSrc] = useState(SAMPLE_MODEL)
-  const [active, setActive] = useState('collar')
+  const [active, setActive] = useState('color')
   const [autoRotate, setAutoRotate] = useState(true)
   const [color, setColor] = useState('#7fc7ff')
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -727,23 +727,31 @@ export default function Uniforms3DmoduleRender() {
 
     setCameraHistory((prev) => [...prev, state]);
   }
-  function zoomIn() {
-    saveCameraState();
+ function zoomIn() {
+  saveCameraState();
+  const mv = mvRef.current;
+  if (!mv) return;
 
-    const mv = mvRef.current;
-    let fov = mv.getFieldOfView();
-    fov = Math.max(10, fov - 5); // limit zoom
-    mv.fieldOfView = `${fov}deg`;
-  }
+  let fov = mv.getFieldOfView();
+  fov = Math.max(10, fov - 5);   // min zoom
 
-  function zoomOut() {
-    saveCameraState();
+  mv.fieldOfView = `${fov}deg`;
+  setFieldOfView(fov);           // UPDATE UI
+}
 
-    const mv = mvRef.current;
-    let fov = mv.getFieldOfView();
-    fov = Math.min(120, fov + 5);
-    mv.fieldOfView = `${fov}deg`;
-  }
+function zoomOut() {
+  saveCameraState();
+  const mv = mvRef.current;
+  if (!mv) return;
+
+  let fov = mv.getFieldOfView();
+  fov = Math.min(120, fov + 5);  // max zoom
+
+  mv.fieldOfView = `${fov}deg`;
+  setFieldOfView(fov);           // UPDATE UI
+}
+const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
+
   function rotate90() {
     saveCameraState();
 
@@ -784,15 +792,14 @@ export default function Uniforms3DmoduleRender() {
 
 
   return (
-    <Card className="relative overflow-visible p-6 bg-[#F4F7FB]">
+    <div className="relative overflow-visible p-4 bg-[#F4F7FB]">
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h4 className="text-lg font-semibold">3D Uniform Configurator</h4>
+      <div className="flex items-center justify-between mb-2">
+        {/* <h4 className="text-lg font-semibold">3D Uniform Configurator</h4> */}
         <ActionLink href="/dashboards/delivery-request" className="heading-text text-blue-400">Delivery Request Form</ActionLink>
       </div>
-
-      <div className="mt-6 flex gap-6">
+      <div className="flex gap-6">
 
         {/* LEFT TOOLBAR */}
         <div className="w-[80px] flex flex-col items-center">
@@ -806,11 +813,11 @@ export default function Uniforms3DmoduleRender() {
           <div className="flex flex-col gap-5 w-full">
             <button
               onClick={() => onIconClick("color")}
-              className={`w-[75px] bg-white rounded-xl shadow-md p-2 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "collar" ? "ring-2 ring-blue-500" : ""
+              className={`w-[75px] bg-white rounded-xl shadow-md p-2 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
                 }`}
             >
               <img src="/img/top-left-image/color-wheel.png" className="w-12 h-12 mb-1" />
-              <span className="text-sm text-gray-600">Collar</span>
+              <span className="text-xs text-gray-600">Color</span>
             </button>
 
             <button
@@ -819,7 +826,7 @@ export default function Uniforms3DmoduleRender() {
                 }`}
             >
               <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
-              <span className="text-sm text-gray-600">Fabric</span>
+              <span className="text-xs text-gray-600">Fabric</span>
             </button>
 
             <button
@@ -828,7 +835,7 @@ export default function Uniforms3DmoduleRender() {
                 }`}
             >
               <img src="/img/top-left-image/collar.png" className="w-12 h-12 mb-1" />
-              <span className="text-sm text-gray-600">Collar</span>
+              <span className="text-xs text-gray-600">Collar</span>
             </button>
             {/* Size icon */}
             <button
@@ -837,7 +844,7 @@ export default function Uniforms3DmoduleRender() {
                 }`}
             >
               <img src="/img/top-left-image/measuring-tape.png" className="w-12 h-12 mb-1" />
-              <span className="text-sm text-gray-600">Size</span>
+              <span className="text-xs text-gray-600">Size</span>
             </button>
 
             {/* Sleeves */}
@@ -847,7 +854,7 @@ export default function Uniforms3DmoduleRender() {
                 }`}
             >
               <img src="/img/top-left-image/sleeves.png" className="w-12 h-12 mb-1" />
-              <span className="text-sm text-gray-600">Sleeves</span>
+              <span className="text-xs text-gray-600">Sleeves</span>
             </button>
 
             {/* Cap */}
@@ -857,7 +864,7 @@ export default function Uniforms3DmoduleRender() {
                 }`}
             >
               <img src="/img/top-left-image/cap.png" className="w-12 h-12 mb-1" />
-              <span className="text-sm text-gray-600">Cap</span>
+              <span className="text-xs text-gray-600">Cap</span>
             </button>
 
             {/* Zipper */}
@@ -867,7 +874,7 @@ export default function Uniforms3DmoduleRender() {
                 }`}
             >
               <img src="/img/top-left-image/zipper.png" className="w-12 h-12 mb-1" />
-              <span className="text-sm text-gray-600">Zipper</span>
+              <span className="text-xs text-gray-600">Zipper</span>
             </button>
 
             {/* Cuff */}
@@ -877,15 +884,15 @@ export default function Uniforms3DmoduleRender() {
                 }`}
             >
               <img src="/img/top-left-image/cuff.png" className="w-12 h-12 mb-1" />
-              <span className="text-sm text-gray-600">Cuff</span>
+              <span className="text-xs text-gray-600">Cuff</span>
             </button>
           </div>
         </div>
 
         <div className="w-[275px]">
           {PANELS[active] && (
-            <div className="bg-white shadow-xl rounded-xl p-4">
-              <h5 className="font-semibold text-gray-700 mb-3">
+            <div className="bg-white shadow-xl rounded-xl p-3">
+              <h5 className="font-semibold text-gray-700 mb-2">
                 {PANELS[active].title}
               </h5>
               {/* COLORS */}
@@ -937,7 +944,7 @@ export default function Uniforms3DmoduleRender() {
 
               {/* OPTIONS (image-based) */}
               {PANELS[active].type === "options" && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   {PANELS[active].data.map((opt, i) => (
                     <button key={i} className="p-2 border rounded-lg shadow">
                       <img src={opt} className="w-full" />
@@ -969,7 +976,7 @@ export default function Uniforms3DmoduleRender() {
         <div className="relative flex-1 flex flex-col items-center">
 
           {/* Blue Circle */}
-          <div className="absolute top-10 w-[500px] h-[500px] bg-[#BEE0FF] rounded-full"></div>
+          <div className="absolute top-10 w-[350px] h-[350px] bg-[#BEE0FF] rounded-full"></div>
 
           {/* MODEL VIEWER */}
           <model-viewer
@@ -981,17 +988,17 @@ export default function Uniforms3DmoduleRender() {
             environment-image="neutral"
             disable-tap
             style={{
-              width: "480px",
-              height: "600px",
+              // width: "480px",
+              height: "650px",
               zIndex: 10,
               background: "transparent",
             }}
           />
           {/* BOTTOM TOOLBAR */}
-          <div className="relative z-20 mt-6 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl px-6 py-3 flex items-center gap-4">
+          <div className="relative z-20 mt-6 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl px-3 py-2 flex items-center gap-4">
 
             {/* Cursor */}
-            <button className="p-2 bg-[#202A57] rounded-md">
+            <button className="p-2 rounded-md">
               <img src="/img/top-left-image/cursor.png" className="w-5 h-5 invert" />
             </button>
 
@@ -1022,7 +1029,7 @@ export default function Uniforms3DmoduleRender() {
             </button>
 
             <span className="text-sm font-semibold text-gray-700">
-              {Math.round(fieldOfView)}%
+             {zoomPercent}%
             </span>
 
             {/* Zoom Out */}
@@ -1044,15 +1051,10 @@ export default function Uniforms3DmoduleRender() {
             <button className="p-2 flex items-center gap-1">
               <img src="/img/top-left-image/Group.png" className="w-5 h-5" />
               <span className="text-sm text-gray-700">3D</span>
-              
             </button>
-
           </div>
         </div>
-
-
-
       </div>
-    </Card>
+    </div>
   )
 }
