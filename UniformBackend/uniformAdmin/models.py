@@ -45,7 +45,19 @@ class AdminUserManager(BaseUserManager):
         if extra.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self.create_user(email, password, **extra)
+        # --- Add Role Logic Here ---
+        admin_role, created = Role.objects.get_or_create(
+            role_name="admin",
+            defaults={
+                # "role_name": "admin",
+                "slug": "admin",
+                "description": "Admin role with full access"
+            }
+        )
+
+        extra.setdefault("role", admin_role)
+
+        return self.create_user(email=email, password=password, **extra)
 
 
 # Custom Admin User Model
@@ -71,4 +83,80 @@ class AdminUser(AbstractBaseUser, PermissionsMixin):
     
     def __str__(self):
         return self.email
+
+class Fabric(models.Model):
+    MATERIAL_CHOICES = [
+        ("cotton", "Cotton"),
+        ("polyester", "Polyester"),
+        ("silk", "Silk"),
+        ("linen", "Linen"),
+    ]
+
+    fabricName = models.CharField(max_length=150, unique=True)
+    color = models.CharField(max_length=100)
+    materialType = models.CharField(max_length=60, choices=MATERIAL_CHOICES)
+    pricePerUnit = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.fabricName
+
+
+
+class Parts(models.Model):
+    CATEGORY_CHOICES = [
+        ("body", "Body"),
+        ("sleeves", "Sleeves"),
+        ("caps", "Caps"),
+        ("straps", "Straps"),
+        ("collars", "Collars"),
+        ("cuffs", "Cuffs"),
+        ("pockets", "Pockets"),
+        ("hoods", "Hoods"),
+
+    ]
+    partName = models.CharField(max_length=150, unique=True)
+    partImage = models.ImageField(upload_to='part_images/', blank=True, null=True)
+    category = models.CharField(max_length=60, choices=CATEGORY_CHOICES)
+    fabric = models.ForeignKey(Fabric, on_delete=models.CASCADE)
+    usageTemmpCount = models.IntegerField(default=0)
+    zIndex = models.IntegerField(default=0)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.partName
+    
+
+class Colors(models.Model):
+    colorName = models.CharField(max_length=250)
+    colorCode = models.TextField(null=True, blank=True)
+    compatibleFabric = models.ManyToManyField(Fabric, blank=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.colorName
+
+
+class Template(models.Model):
+    templateName = models.CharField(max_length=250)
+    templateImage = models.ImageField(upload_to='template_images/', blank=True, null=True)
+    part = models.ForeignKey(Parts, on_delete=models.SET_NULL, null=True, blank=True)
+    partUsageCount = models.IntegerField(default=0)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.templateName
 

@@ -9,7 +9,7 @@ from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from datetime import timedelta
-
+from django.contrib.auth.tokens import default_token_generator
 
 class AdminLoginAPIView(APIView):
     def post(self, request):
@@ -45,15 +45,16 @@ class AdminLoginAPIView(APIView):
                 "statusCode": 200,
                 "message": "Login successful",
                 "data": {
-                    "access": access_token,
-                    "refresh": refresh_token,
                     "admin": {
                         "id": user.id,
-                        "username": user.username,
                         "email": user.email,
-                        "role": "admin",
+                        "role": user.role.role_name if user.role else None,
+                        "name": user.name,
                         "remember_me": remember_me,
-                    }
+                    },
+                    "access_token": access_token,
+                    "refresh_token": refresh_token,
+                
                 }
             }
 
@@ -65,7 +66,7 @@ class AdminLoginAPIView(APIView):
                 "statusCode": 400,
                 "message": "Validation Error",
                 "errors": ve.detail
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({
@@ -103,7 +104,7 @@ class AdminChangePasswordAPIView(APIView):
                 "statusCode": 400,
                 "message": "Validation Error",
                 "errors": ve.detail
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
             # **Only unexpected errors return 500**
@@ -138,14 +139,14 @@ class AdminUpdateProfileAPIView(APIView):
                 "statusCode": 400,
                 'message': 'Validation error',
                 'errors': ve.message_dict
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_200_OK)
 
         except ObjectDoesNotExist:
             return Response({
                 "status": False,
                 "statusCode": 404,
                 'error': 'User not found'
-            }, status=status.HTTP_404_NOT_FOUND)
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({
@@ -177,7 +178,7 @@ class AdminDetailAPIView(APIView):
                     "statusCode": 403,
                     "error": "Forbidden",
                     "details": "Only admin users can access this endpoint"
-                }, status=status.HTTP_403_FORBIDDEN)
+                }, status=status.HTTP_200_OK)
 
             serializer = AdminDetailSerializer(user)
             return Response({
@@ -193,7 +194,7 @@ class AdminDetailAPIView(APIView):
                 "statusCode": 404,
                 "error": "User not found",
                 "details": "The authenticated user does not exist"
-            }, status=status.HTTP_404_NOT_FOUND)
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({
@@ -216,7 +217,7 @@ class AdminLogoutAPIView(APIView):
                     "statusCode": 400,
                     "error": "Bad Request",
                     "details": "Refresh token is required for logout"
-                }, status=status.HTTP_400_BAD_REQUEST)
+                }, status=status.HTTP_200_OK)
 
             try:
                 token = RefreshToken(refresh_token)
@@ -227,7 +228,7 @@ class AdminLogoutAPIView(APIView):
                     "statusCode": 400,
                     "error": "Invalid token",
                     "details": "Token is already blacklisted or malformed"
-                }, status=status.HTTP_400_BAD_REQUEST)
+                }, status=status.HTTP_200_OK)
 
             return Response({
                 "status": True,
@@ -242,6 +243,67 @@ class AdminLogoutAPIView(APIView):
                 "error": "Something went wrong",
                 "details": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class AdminForgotPasswordAPIView(APIView):
+    # authentication_classes = [JWTAuthentication] 
+    # permission_classes = [IsAuthenticated]  
+
+    def post(self, request):
+        """Send password reset email to admin and return reset link in response"""
+        ip = request.META.get('REMOTE_ADDR')
+        user_agent = request.META.get('HTTP_USER_AGENT', 'unknown')
+
+        try:
+            email = request.data.get("email")
+            if not email:
+                return Response(
+                    {"statusCode": 400, "status": False, "message": "Email is required"},
+                    status=status.HTTP_200_OK
+                )
+            try:
+                user = AdminUser.objects.get(email=email, is_staff=True)  
+            except AdminUser.DoesNotExist:
+                return Response(
+                    {"statusCode": 404, "status": False, "message": "Admin not found"},
+                    status=status.HTTP_200_OK
+                )
+
+            token = default_token_generator.make_token(user)
+            base_url = "http://23.23.88.239:7001/forgotpassword/"
+            full_reset_link = f"{base_url}?token={token}&user_id={user.pk}"
+
+
+            # try:
+            #     send_mail(
+            #         subject="Admin Password Reset Request",
+            #         message=f"Click the link to reset your password: {full_reset_link}",
+            #         from_email="your-email@gmail.com",
+            #         recipient_list=[email],
+            #         fail_silently=False,
+            #     )
+            #     logger.info(f"[Forgot Password] Reset email sent to: {email} | IP: {ip}")
+            # except Exception as e:
+            #     logger.error(f"[Forgot Password] Failed to send reset email to {email}: {e} | IP: {ip}")
+            #     return Response(
+            #         {"statusCode": 500, "status": False, "message": "Failed to send email", "error": str(e)},
+            #         status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            #     )
+
+            return Response({
+                "statusCode": 200,
+                "status": True,
+                "message": "Password reset email sent",
+                "reset_link": full_reset_link
+            }, status=status.HTTP_200_OK)           
+
+        except Exception as e:
+            # logger.exception(f"[Forgot Password] Unexpected error: {e} | IP: {ip}")
+            return Response(
+                {"statusCode": 500, "status": False, "message": "An unexpected error occurred", "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 

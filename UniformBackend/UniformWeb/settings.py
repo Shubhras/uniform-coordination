@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'uniformAdmin',
     'userhub',
 ]
-# AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
+AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
 
 
 MIDDLEWARE = [
@@ -149,10 +149,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "UniformWeb.authentication.UserJWTAuthentication",      # For Customers
+        "rest_framework_simplejwt.authentication.JWTAuthentication",  # For Admin
+        "rest_framework.authentication.SessionAuthentication",
+    ]
 }
+
+
+
 
 
 SIMPLE_JWT = {

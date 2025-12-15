@@ -1,7 +1,10 @@
 from django.db import models
 from uniformAdmin.models import Role
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
+from django.db import models
 
 class Users(models.Model):
+# class Users(AbstractBaseUser, PermissionsMixin):
     GENDER_CHOICES = [
         ('male', 'Male'),
         ('female', 'Female'),
@@ -16,8 +19,8 @@ class Users(models.Model):
     password = models.CharField(max_length=255)  
     phone = models.CharField(max_length=20,blank=True, null=True)
     userName = models.CharField(max_length=255, null=True,blank=True)
-    firstName = models.CharField(max_length=100)
-    lastName = models.CharField(max_length=100)
+    firstName = models.CharField(max_length=100, null=True,blank=True)
+    lastName = models.CharField(max_length=100, null=True,blank=True)
     language = models.CharField(max_length=10, default="english")
     gender = models.CharField(max_length=20,choices=GENDER_CHOICES, blank=True, null=True)
     profileImage = models.ImageField(upload_to='profile_Image/', blank=True, null=True)
@@ -32,12 +35,10 @@ class Users(models.Model):
     updatedAt = models.DateTimeField(auto_now=True)
  
     def save(self, *args, **kwargs):
-        """Assign default role 'user' if not provided"""
-
-        """Ensure at least one address is present before saving."""
         if not self.role:
-            self.role, _ = Role.objects.get_or_create(name="user")
+            self.role, _ = Role.objects.get_or_create(role_name="customer")
         super().save(*args, **kwargs)
+
  
     def __str__(self):
         return self.email
