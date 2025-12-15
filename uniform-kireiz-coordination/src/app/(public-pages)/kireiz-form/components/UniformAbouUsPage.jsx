@@ -34,7 +34,7 @@ const UniformAbouUsPage = () => {
 
   return (
     <section className="w-full bg-white px-6 py-20 md:py-20 ">
-      <Container className="bg-[#EEF3FB] rounded-bl-[120px]">
+      <Container className="bg-[#EEF3FB] px-0 rounded-bl-[120px]">
         <div className="relative">
           <div className="text-center mb-8 pt-16">
             <h2 className="text-3xl md:text-4xl font-semibold text-[#1C2C56]">
@@ -77,9 +77,9 @@ const UniformAbouUsPage = () => {
                <FiArrowRight className="text-lg text-gray-600" />
             </button>
           </div>
-          <div className="w-full h-px bg-[#D6DEED] my-20" />
+          <div className="w-full h-px bg-[#A7B5C8] my-20" />
         </div>
-        <div className="pt-24 pb-28 px-6">
+        <div className="pt-2 pb-26 px-6">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-semibold text-[#1C2C56] mb-6">
               About Us

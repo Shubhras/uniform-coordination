@@ -7,7 +7,7 @@ const HeroContent = () => {
   const router = useRouter();
 
   const handleStartDesigning = () => {
-    router.push("/design");
+    router.push("/kireiz-form");
   };
 
   return (

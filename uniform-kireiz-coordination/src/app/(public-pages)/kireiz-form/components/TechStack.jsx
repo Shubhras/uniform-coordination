@@ -1,22 +1,30 @@
 'use client'
 
 import React from "react";
+import {
+  PiMapPinFill,
+  PiToteFill,
+  PiPoliceCarFill
+} from "react-icons/pi";
 
 const stackList = [
   {
     id: "location",
+    icon: PiMapPinFill,
     title: "Design Uniform/Table",
     description:
       "Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices, orci vitae convallis mattis.",
   },
   {
     id: "Vector",
+    icon:   PiToteFill,
     title: "Request for Quotation",
     description:
       "Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices, orci vitae convallis mattis.",
   },
   {
     id: "car-front-fill",
+    icon:   PiPoliceCarFill,
     title: "Order Custom Uniform",
     description:
       "Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices, orci vitae convallis mattis.",
@@ -43,6 +51,7 @@ const TechStack = () => {
           <div className="absolute top-[48px] left-[13%] right-[13%] h-[2px] bg-gray-300 z-0"></div>
 
           {stackList.map((stack) => {
+            const Icon = stack.icon;
             return (
               <div
                 key={stack.id}
@@ -50,11 +59,12 @@ const TechStack = () => {
               >
                 {/* ICON BLOCK */}
                 <div className="w-20 h-20 flex items-center justify-center rounded-xl bg-[#f3f6fb] shadow-sm mb-6 mr-24">
-                  <img
+                  {/* <img
                     src={`/img/kireiz-form/tech/${stack.id}.png`}
                     alt={stack.title}
                     className="max-h-10"
-                  />
+                  /> */}
+                  <Icon size={40} color="#1C2C56" />
                 </div>
 
                 {/* TITLE */}

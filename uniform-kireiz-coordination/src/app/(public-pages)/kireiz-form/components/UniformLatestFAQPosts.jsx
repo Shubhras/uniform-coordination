@@ -28,7 +28,7 @@ const UniformLatestFAQPosts = () => {
   };
 
   return (
-    <section className="relative py-16 md:py-24 bg-white">
+    <section className="relative py-16 md:py-0 bg-white">
       <Container>
         {/* Header */}
         <div className="text-center mb-14">

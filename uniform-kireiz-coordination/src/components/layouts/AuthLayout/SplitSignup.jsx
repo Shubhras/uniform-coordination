@@ -1,6 +1,10 @@
 import { cloneElement } from "react";
-
+import { useRouter } from "next/navigation";
 const SplitSignup = ({ children, content, ...rest }) => {
+ const router = useRouter();
+   const handleRedirectHome = () => {
+    router.push("/kireiz-form");
+  };
   return (
     <div className="flex flex-col lg:flex-row bg-gray h-full">
       {/* LEFT SIDE */}
@@ -10,7 +14,8 @@ const SplitSignup = ({ children, content, ...rest }) => {
           <img
             src="/img/others/auth-logo.png"
             alt="KIREIZ FORM"
-            className="md:h-12 h-10 w-auto"
+            className="md:h-12 h-10 w-auto cursor-pointer"
+             onClick={handleRedirectHome}
           />
         </div>
 

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-
+import { PiPhone,PiInstagramLogoFill } from "react-icons/pi";
 import { FaLinkedin, FaInstagram, FaYoutube, FaTiktok } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
@@ -81,7 +81,7 @@ const LandingFooter = ({ mode }) => {
         <>
             <footer className="bg-[#171a4b] text-white pt-16 ">
                 <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <div className='max-w-[300px]'> 
+                    <div className='max-w-[300px]'>
                         <img
                             src="/img/logo/image2.png"
                             width={130}
@@ -93,33 +93,38 @@ const LandingFooter = ({ mode }) => {
                         </p>
                         <div className="font-semibold text-[#fff] mt-6 mb-3">Support</div>
                         <div className="flex items-center gap-2 text-sm">
-                            <span>📞</span> <p>+123 456 7890</p>
+                            <PiPhone size={20} /><p>+123 456 7890</p>
                         </div>
                         <div className="flex items-center gap-2 text-sm mt-2">
-                            <span>@</span> <p>support@mm.com</p>
+                            <span className='text-lg'>@</span> <p>support@mm.com</p>
                         </div>
                     </div>
                     <div className="flex flex-col items-start max-w-[350px] justify-center">
                         <h3 className="font-semibold mb-4 text-lg text-[#fff]">Contact Channels</h3>
                         <div className="flex flex-wrap justify-flex-start gap-4">
                             <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
-                                <FaLinkedin /> LinkedIn
+                                <FaLinkedin className='text-lg' /> LinkedIn
                             </button>
 
                             <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
-                                <FaInstagram /> Instagram
+                                <PiInstagramLogoFill size={20} /> Instagram
                             </button>
                             <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
-                                <FaXTwitter /> X
+                                <FaXTwitter className='text-lg' /> X
                             </button>
                             <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
-                                <FaYoutube /> Youtube
+                                <FaYoutube className='text-lg' /> Youtube
                             </button>
                             <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
-                                <span>G2</span>
+                                <img
+                                    src="/img/logo/icone-g2.png"
+                                    alt="G2"
+                                    className="w-5 h-5"
+                                />
+                                G2
                             </button>
                             <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
-                                <FaTiktok /> TikTok
+                                <FaTiktok className='text-lg' /> TikTok
                             </button>
                         </div>
                     </div>
