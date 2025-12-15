@@ -3,12 +3,13 @@ import Split from '@/components/layouts/AuthLayout/Split'
 
 const SignInDemoSplit = () => {
     return (
-        <Split>
+        <Split >
             <SignIn
                 signUpUrl="/auth/sign-up-split"
                 forgetPasswordUrl="/auth/forgot-password-split"
             />
         </Split>
+
     )
 }
 

@@ -22,9 +22,11 @@ export const OtpVerification = () => {
 
     return (
         <div>
-            <div className="mb-8">
-                <h3 className="mb-2">OTP Verification</h3>
-                <p className="font-semibold heading-text">
+            <div className="mb-6">
+                <h2 className="font-[Plus Jakarta Sans] font-medium text-[28px] tracking-[0.18px] text-[#003560] mb-2">
+                    OTP Verification
+                </h2>
+                <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
                     We have sent you One Time Password to your email.
                 </p>
             </div>
@@ -47,10 +49,10 @@ export const OtpVerification = () => {
                 setMessage={setMessage}
                 setOtpVerified={setOtpVerified}
             />
-            <div className="mt-4 text-center">
+            <div className="mt-4 text-center text-base">
                 <span className="font-semibold">Din&apos;t receive OTP? </span>
                 <button
-                    className="heading-text font-bold underline"
+                    className="heading-text underline text-blue-400"
                     onClick={handleResendOtp}
                 >
                     Resend OTP

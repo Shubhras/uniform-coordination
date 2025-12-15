@@ -1,7 +1,7 @@
 const pageMeta = {
-    title: 'Ecme - The Ultimate Next & TypeScript Web Template',
+    title: 'Kireiz Form - The Ultimate Uniform Coordination',
     description:
-        'Admin Template and Starter Kit with React, Tailwind Components and Next.js',
+        'Kireiz Form - The Ultimate Uniform Coordination',
     icons: {
         icon: '/favicon.ico',
     },

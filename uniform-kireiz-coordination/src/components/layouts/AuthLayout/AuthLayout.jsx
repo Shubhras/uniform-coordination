@@ -1,6 +1,6 @@
 import { useMemo, lazy } from 'react'
 
-const currentLayoutType = 'side'
+const currentLayoutType = 'split'
 
 const layouts = {
     simple: lazy(() => import('./Simple')),
