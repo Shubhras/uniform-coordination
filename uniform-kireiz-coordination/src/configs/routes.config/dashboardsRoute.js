@@ -30,6 +30,7 @@ const dashboardsRoute = {
             pageBackgroundType: 'plain',
         },
     },
+   
 }
 
 export default dashboardsRoute
