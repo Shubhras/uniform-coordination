@@ -13,6 +13,8 @@ urlpatterns = [
     path("forgot-password/", ForgotPasswordAPIView.as_view(), name="forgot_password"),
     path("reset-password/", ResetPasswordAPIView.as_view(), name="reset_password"),
     path("update-password/", UpdatePasswordAPIView.as_view(), name="update-password"),
+    # path("reset-password-page/", ResetPasswordPageView.as_view(), name="reset-password-page"),
+
     # path("simulations-history",name="simulations-history")
 
     

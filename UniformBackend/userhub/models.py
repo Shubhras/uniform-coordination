@@ -1,5 +1,6 @@
 from django.db import models
 from uniformAdmin.models import Role
+from django.contrib.auth.hashers import make_password
 
 class Users(models.Model):
     GENDER_CHOICES = [
@@ -12,8 +13,15 @@ class Users(models.Model):
         ('google', 'Google'),
         ('apple', 'Apple'),
     ]
-    email = models.EmailField(unique=True, blank=True, null=True)
+    user_type_CHOICES = [
+        ('uniform', 'Uniform'),
+        ('table', 'Table'),
+        # ('both', 'Both'),
+    ]
+    # email = models.EmailField(unique=True, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)  
     password = models.CharField(max_length=255)  
+    userType = models.CharField(max_length=20,choices=user_type_CHOICES, blank=True, null=True)
     phone = models.CharField(max_length=20,blank=True, null=True)
     userName = models.CharField(max_length=255, null=True,blank=True)
     firstName = models.CharField(max_length=100)
@@ -41,6 +49,9 @@ class Users(models.Model):
  
     def __str__(self):
         return self.email
+    
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
 
     @property
     def is_authenticated(self):
@@ -49,16 +60,3 @@ class Users(models.Model):
 
 
 
-# class Simulation(models.Model):
-#     user = models.ForeignKey(Users, on_delete=models.CASCADE)
-
-#     title = models.CharField(max_length=255)
-#     category = models.CharField(max_length=100)
-#     previewImage = models.ImageField(upload_to="simulation_previews/")
-#     pdfFile = models.FileField(upload_to="simulation_pdfs/")
-
-#     createdAt = models.DateTimeField(auto_now_add=True)
-#     updatedAt = models.DateTimeField(auto_now=True)
-
-#     # Optional: JSON data of canvas
-#     config = models.JSONField(null=True, blank=True)

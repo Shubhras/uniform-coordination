@@ -7,7 +7,8 @@ from django.utils.timezone import now
 from rest_framework.permissions import IsAuthenticated
 from .utils import generate_custom_tokens
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from django.core.mail import send_mail
+from django.conf import settings
 from .serializers import*
 import logging,uuid
 
@@ -17,11 +18,11 @@ logger = logging.getLogger(__name__)
 
 
 
-
-
 class SignupAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
+        request.data._mutable = True
+        request.data["userType"] = request.data.get("userType")
         serializer = UserSignupSerializer(data=request.data)
 
         try:
@@ -64,27 +65,211 @@ class SignupAPIView(APIView):
 
 
 
+# class LoginAPIView(APIView):
+
+#     def post(self, request):
+#         try:
+#             email = request.data.get("email")
+#             password = request.data.get("password")
+
+#             if not email or not password:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "message": "Validation failed.",
+#                     "error": {
+#                         "email": "Email is required." if not email else "",
+#                         "password": "Password is required." if not password else ""
+#                     }
+#                 }, status=400)
+
+#             serializer = LoginSerializer(data=request.data)
+#             serializer.is_valid(raise_exception=True)
+#             user = serializer.validated_data["user"]
+
+#             # Update last login
+#             user.lastLogin = now()
+#             user.save()
+
+#             # ---------------------------------------------------------
+#             # CASE 1: NORMAL USER → call external custom token function
+#             # ---------------------------------------------------------
+#             if not isinstance(user, AdminUser):
+#                 tokens = generate_custom_tokens(user)
+#                 access_token = tokens["access"]
+#                 refresh_token = tokens["refresh"]
+
+#             # ---------------------------------------------------------
+#             # CASE 2: ADMIN USER → use SimpleJWT
+#             # ---------------------------------------------------------
+#             else:
+#                 jwt_refresh = RefreshToken.for_user(user)
+#                 access_token = str(jwt_refresh.access_token)
+#                 refresh_token = str(jwt_refresh)
+
+#             # User serialized data
+#             user_data = UserResponseSerializer(user, context={"request": request}).data
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Login successful.",
+#                 "data": {
+#                     "accessToken": access_token,
+#                     "refreshToken": refresh_token,
+#                     **user_data
+#                 }
+#             })
+
+#         except serializers.ValidationError as ve:
+#             error_msg = ""
+#             if "non_field_errors" in ve.detail:
+#                 error_msg = ve.detail["non_field_errors"][0]
+#             else:
+#                 error_msg = str(ve.detail)
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 200,
+#                 "message": f"Validation failed ; {error_msg}",
+#             }, status=200)
+
+#         except Exception as exc:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Server error during login.",
+#                 "error": str(exc)
+#             })
+
+
+
+# class LoginAPIView(APIView):
+
+#     def post(self, request):
+#         try:
+#             email = request.data.get("email")
+#             password = request.data.get("password")
+#             user_type = request.data.get("userType")  
+
+#             # Added userType validation
+#             if not email or not password or not user_type:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "message": "Validation failed.",
+#                     "error": {
+#                         "email": "Email is required." if not email else "",
+#                         "password": "Password is required." if not password else "",
+#                         "userType": "User type is required." if not user_type else ""
+#                     }
+#                 }, status=400)
+
+#             serializer = LoginSerializer(data=request.data)
+#             serializer.is_valid(raise_exception=True)
+#             user = serializer.validated_data["user"]
+
+#             # Check matching userType
+#             if user.userType != user_type:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 403,
+#                     "message": "You are not allowed to login in this section."
+#                 }, status=403)
+
+#             # Update last login
+#             user.lastLogin = now()
+#             user.save()
+
+#             # ---------------------------------------------------------
+#             # CASE 1: NORMAL USER → call external custom token function
+#             # ---------------------------------------------------------
+#             if not isinstance(user, AdminUser):
+#                 tokens = generate_custom_tokens(user)
+#                 access_token = tokens["access"]
+#                 refresh_token = tokens["refresh"]
+
+#             # ---------------------------------------------------------
+#             # CASE 2: ADMIN USER → use SimpleJWT
+#             # ---------------------------------------------------------
+#             else:
+#                 jwt_refresh = RefreshToken.for_user(user)
+#                 access_token = str(jwt_refresh.access_token)
+#                 refresh_token = str(jwt_refresh)
+
+#             # User serialized data
+#             user_data = UserResponseSerializer(user, context={"request": request}).data
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Login successful.",
+#                 "data": {
+#                     "accessToken": access_token,
+#                     "refreshToken": refresh_token,
+#                     **user_data
+#                 }
+#             })
+
+#         except serializers.ValidationError as ve:
+#             error_msg = ""
+#             if "non_field_errors" in ve.detail:
+#                 error_msg = ve.detail["non_field_errors"][0]
+#             else:
+#                 error_msg = str(ve.detail)
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 200,
+#                 "message": f"Validation failed ; {error_msg}",
+#             }, status=200)
+
+#         except Exception as exc:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Server error during login.",
+#                 "error": str(exc)
+#             })
+
+
+
 class LoginAPIView(APIView):
 
     def post(self, request):
         try:
             email = request.data.get("email")
             password = request.data.get("password")
+            user_type = request.data.get("userType")  
 
-            if not email or not password:
+            # ------- CLEAN VALIDATION FIX ----------
+            missing_fields = []
+
+            if not email:
+                missing_fields.append("Email is required.")
+            if not password:
+                missing_fields.append("Password is required.")
+            if not user_type:
+                missing_fields.append("User type is required.")
+
+            # If ANY field missing → return ONLY the FIRST message
+            if missing_fields:
                 return Response({
                     "status": False,
                     "statusCode": 400,
-                    "message": "Validation failed.",
-                    "error": {
-                        "email": "Email is required." if not email else "",
-                        "password": "Password is required." if not password else ""
-                    }
+                    "message": missing_fields[0],
                 }, status=400)
+            # ----------------------------------------
 
             serializer = LoginSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             user = serializer.validated_data["user"]
+
+            # Check matching userType
+            if user.userType != user_type:
+                return Response({
+                    "status": False,
+                    "statusCode": 403,
+                    "message": "You are not allowed to login in this section."
+                }, status=403)
 
             # Update last login
             user.lastLogin = now()
@@ -121,12 +306,16 @@ class LoginAPIView(APIView):
             })
 
         except serializers.ValidationError as ve:
+            error_msg = ""
+            if "non_field_errors" in ve.detail:
+                error_msg = ve.detail["non_field_errors"][0]
+            else:
+                error_msg = str(ve.detail)
             return Response({
                 "status": False,
-                "statusCode": 400,
-                "message": "Validation failed.",
-                "error": ve.detail
-            })
+                "statusCode": 200,
+                "message": f"Validation failed ; {error_msg}",
+            }, status=200)
 
         except Exception as exc:
             return Response({
@@ -184,6 +373,51 @@ class GetProfileAPIView(APIView):
 
 
 
+# class UpdateProfileAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def put(self, request):
+#         try:
+#             user = request.user
+
+#             allowed_fields = [
+#                 "firstName", "lastName", "phone",
+#                 "gender", "language", "userName"
+#             ]
+
+#             for field in allowed_fields:
+#                 if field in request.data:
+#                     setattr(user, field, request.data[field])
+
+#             # Handle profile image
+#             if "profileImage" in request.FILES:
+#                 user.profileImage = request.FILES["profileImage"]
+
+#             user.save()
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Profile updated successfully."
+#             }, status=200)
+
+#         except IntegrityError:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 400,
+#                 "message": "Username already exists.",
+#             }, status=400)
+
+#         except Exception as exc:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Unable to update profile.",
+#                 "error": str(exc)
+#             }, status=500)
+
+
+
 class UpdateProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -199,6 +433,10 @@ class UpdateProfileAPIView(APIView):
             for field in allowed_fields:
                 if field in request.data:
                     setattr(user, field, request.data[field])
+
+            # NEW — Update userType (as you requested)
+            if "userType" in request.data:
+                user.userType = request.data["userType"]
 
             # Handle profile image
             if "profileImage" in request.FILES:
@@ -278,15 +516,24 @@ class ForgotPasswordAPIView(APIView):
                 }, status=404)
 
             # Create reset token
-            reset_token = uuid.uuid4().hex
-            user.resetToken = reset_token
-            user.save()
+            # reset_token = uuid.uuid4().hex
+            # user.resetToken = reset_token
+            # user.save()
+            user_id = user.id
 
             # Build reset link
-            frontend_url = "http://localhost:3000/reset-password"
-            reset_link = f"{frontend_url}?token={reset_token}"
+            frontend_url = "http://localhost:3000/auth/reset-password"
+            reset_link = f"{frontend_url}?user_id={user_id}"
 
-            # (Later) Send email here using reset_link
+            # -------------------------------
+            # ✅ SMTP: Send Reset Email Here
+            # -------------------------------
+            subject = "Reset Your Password"
+            message = f"Hello,\n\nClick the link below to reset your password:\n{reset_link}\n\nIf you did not request this, please ignore this email."
+            from_email = settings.EMAIL_HOST_USER
+            recipient_list = [email]
+
+            send_mail(subject, message, from_email, recipient_list, fail_silently=False)
 
             return Response({
                 "status": True,
@@ -309,31 +556,44 @@ class ResetPasswordAPIView(APIView):
 
     def post(self, request):
         try:
-            reset_token = request.data.get("resetToken")
+            user_id = request.data.get("userId")
             new_password = request.data.get("newPassword")
+            confirm_password = request.data.get("confirmPassword")
 
-            if not reset_token or not new_password:
+            # Required fields validation
+            if not user_id or not new_password or not confirm_password:
                 return Response({
                     "status": False,
                     "statusCode": 400,
                     "message": "Validation failed.",
                     "error": {
-                        "resetToken": "Required." if not reset_token else "",
-                        "newPassword": "Required." if not new_password else ""
+                        "userId": "Required." if not user_id else "",
+                        "newPassword": "Required." if not new_password else "",
+                        "confirmPassword": "Required." if not confirm_password else ""
                     }
                 }, status=400)
 
+            # Check new & confirm password match
+            if new_password != confirm_password:
+                return Response({
+                    "status": False,
+                    "statusCode": 200,
+                    "message": "New password and confirm password do not match."
+                }, status=200)
+
+            # Find user by userId
             try:
-                user = Users.objects.get(resetToken=reset_token, isDeleted=False)
+                user = Users.objects.get(id=user_id, isDeleted=False)
             except Users.DoesNotExist:
                 return Response({
                     "status": False,
                     "statusCode": 404,
-                    "message": "Invalid or expired reset token."
+                    "message": "Invalid user."
                 }, status=404)
 
+            # Update password
             user.password = make_password(new_password)
-            user.resetToken = None
+            # user.resetToken = None  # Optional: clear token
             user.save()
 
             return Response({
@@ -349,7 +609,6 @@ class ResetPasswordAPIView(APIView):
                 "message": "Unable to reset password.",
                 "error": str(exc)
             }, status=500)
-
 
 
 
@@ -408,10 +667,7 @@ class UpdatePasswordAPIView(APIView):
                 return Response({
                     "status": False,
                     "statusCode": 400,
-                    "message": "Passwords do not match.",
-                    "error": {
-                        "confirmPassword": "Passwords do not match."
-                    }
+                    "message": "New Password and Confirm Passwords do not match.",
                 }, status=400)
 
             # Apply password policy validation
@@ -448,3 +704,6 @@ class UpdatePasswordAPIView(APIView):
                 "message": "Unable to update password.",
                 "error": str(exc)
             }, status=500)
+
+
+
