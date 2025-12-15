@@ -20,26 +20,47 @@ const bottomCards = [
     title: "Office & Back-End Operations",
     desc: "Professional corporate branding",
   },
+  {
+    img: "/img/kireiz-form/features/Frame 1430106488.png",
+    title: "Medical & Nursing Care",
+    desc: "Comfortable, functional medical uniforms",
+  },
+   {
+    img: "/img/kireiz-form/features/Gemini_Generated_Image_fu0gsgfu0gsgfu0g1.png",
+    title: "Medical & Nursing Care",
+    desc: "Comfortable, functional medical uniforms",
+  },
 ];
 
 const UniformBusinessEnquiry = () => {
   const [index, setIndex] = useState(0);
 
+  // const handleNext = () => {
+  //   setIndex((prev) => (prev + 1) % bottomCards.length);
+  // };
+
+  // const handlePrev = () => {
+  //   setIndex((prev) => (prev === 0 ? bottomCards.length - 1 : prev - 1));
+  // };
   const handleNext = () => {
-    setIndex((prev) => (prev + 1) % bottomCards.length);
+    setIndex((prev) =>
+      prev + 3 >= bottomCards.length ? 0 : prev + 1
+    );
   };
 
   const handlePrev = () => {
-    setIndex((prev) => (prev === 0 ? bottomCards.length - 1 : prev - 1));
+    setIndex((prev) =>
+      prev === 0 ? bottomCards.length - 3 : prev - 1
+    );
   };
 
   return (
-    <section className="w-full bg-white px-6 py-14 md:py-20">
+    <section className="w-full bg-white px-6 py-0 md:py-0">
       <div className="max-w-7xl mx-auto relative">
         {/* BACKGROUND FRAME */}
         <div className="relative w-full max-w-6xl mx-auto">
           <Image
-            src="/img/kireiz-form/features/uniform-bussiness-frame.png"
+            src="/img/kireiz-form/features/uniform-bussiness-frame111.png"
             width={1500}
             height={900}
             alt="Frame Background"
@@ -49,7 +70,7 @@ const UniformBusinessEnquiry = () => {
           {/* CONTENT INSIDE FRAME */}
           <div className="absolute inset-0 px-6 md:px-16 pt-14 overflow-hidden">
             {/* TITLE */}
-            <h2 className="text-center text-3xl md:text-4xl font-semibold text-[#1C2C56]">
+            <h2 className="text-center text-3xl md:text-3xl font-semibold text-[#1C2C56]">
               How KIREIZ Helps Your Business
             </h2>
 
@@ -100,7 +121,7 @@ const UniformBusinessEnquiry = () => {
             <div className="w-full h-[1px] bg-gray-300 mt-10 mx-auto"></div>
 
             {/* SECOND TITLE */}
-            <h2 className="text-center text-3xl md:text-4xl mt-8 font-semibold text-[#1C2C56]">
+            <h2 className="text-center text-3xl md:text-3xl mt-8 font-semibold text-[#1C2C56]">
               Industry-Specific Uniform Solutions
             </h2>
 
@@ -119,41 +140,36 @@ const UniformBusinessEnquiry = () => {
                 <FiArrowRight className="text-lg text-gray-600" />
               </button>
             </div>
-
-            {/* INDUSTRY-SPECIFIC CARDS — FIGMA EXACT DESIGN */}
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0 pb-8">
-              {bottomCards.map((item, i) => (
-                <div
-                  key={i}
-                  className="bg-white border border-[#E3E8F1] rounded-[28px] shadow-md p-6 pb-0 flex flex-col w-2xs max-w-xs"
-                >
-                  {/* Image Circle Background - Centered */}
-                  <div className="w-full flex justify-center mb-6">
-                    <div className="w-[200px] h-[200px] rounded-full flex items-center justify-center overflow-hidden">
-                      <Image
-                        src={item.img}
-                        width={200}
-                        height={160}
-                        alt={item.title}
-                        className="object-cover"
-                      />
+            {/* INDUSTRY-SPECIFIC CARDS — SLIDER */}
+            <div className="mt-10 overflow-hidden pb-8">
+              <div className="flex gap-4 transition-transform duration-500 ease-in-out">
+                {bottomCards
+                  .slice(index, index + 3)
+                  .map((item, i) => (
+                    <div
+                      key={i}
+                      className="bg-white border border-[#E3E8F1] rounded-[15px] shadow-md p-4 pt-2 pb-4 flex-shrink-0 w-[320px]"
+                    >
+                      <div className="w-full flex justify-center mb-6">
+                        <div className="w-[200px] h-[200px] rounded-full overflow-hidden">
+                          <Image
+                            src={item.img}
+                            width={200}
+                            height={200}
+                            alt={item.title}
+                            className="object-cover"
+                          />
+                        </div>
+                      </div>
+                      <h3 className="text-[#1C2C56] text-[18px] font-semibold">
+                        {item.title}
+                      </h3>
+                      <p className="text-[#6B7280] text-[14px] mt-2 leading-tight">
+                        {item.desc}
+                      </p>
                     </div>
-                  </div>
-
-                  {/* Text Content - Left Aligned */}
-                  <div className="flex flex-col items-start">
-                    {/* Title */}
-                    <h3 className="text-[#1C2C56] text-[18px] font-semibold text-left">
-                      {item.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-[#6B7280] text-[14px] text-left mt-2 leading-tight">
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                  ))}
+              </div>
             </div>
           </div>
         </div>

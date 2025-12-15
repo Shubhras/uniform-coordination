@@ -25,10 +25,10 @@ const stackList = [
 
 const TechStack = () => {
   return (
-    <div className="relative z-20 py-16 md:py-20 bg-white">
+    <div className="relative z-20 py-16 md:py-6 bg-white">
       {/* Heading Section */}
       <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-semibold mb-3">
+        <h2 className="text-3xl md:text-3xl font-semibold mb-3">
           How it works
         </h2>
         <p className="mx-auto max-w-[650px] text-gray-500 text-sm md:text-base px-4">

@@ -1,0 +1,86 @@
+"use client";
+
+import { useState } from "react";
+import Container from "./LandingContainer";
+import { FiPlus, FiMinus } from "react-icons/fi";
+
+const faqs = [
+  {
+    question: "Can I request samples?",
+    answer: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore.",
+  },
+  {
+    question: "What is the minimum order quantity and lead time?",
+    answer:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore.",
+  },
+  {
+    question: "Support and contact details",
+    answer: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore.",
+  },
+];
+
+const UniformLatestFAQPosts = () => {
+  const [activeIndex, setActiveIndex] = useState(1);
+
+  const toggleFAQ = (index) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
+
+  return (
+    <section className="relative py-16 md:py-24 bg-white">
+      <Container>
+        {/* Header */}
+        <div className="text-center mb-14">
+          <h2 className="text-3xl md:text-4xl font-semibold text-[#1C2C56] mb-3">
+            FAQ’s
+          </h2>
+          <p className="text-[#1C2C56] text-sm md:text-base">
+            About design and coordination flow
+          </p>
+        </div>
+
+        {/* FAQ List */}
+        <div className="max-w-3xl mx-auto space-y-6">
+          {faqs.map((faq, index) => {
+            const isOpen = activeIndex === index;
+
+            return (
+              <div
+                key={index}
+                className={`rounded-xl px-6 py-5 transition-all duration-300 ${
+                  isOpen
+                    ? "bg-white shadow-md"
+                    : "bg-[#F5F7FB]"
+                }`}
+              >
+                {/* Question */}
+                <button
+                  onClick={() => toggleFAQ(index)}
+                  className="w-full flex items-center justify-between text-left"
+                >
+                  <span className="text-[#1C2C56] font-medium text-sm md:text-base">
+                    {faq.question}
+                  </span>
+
+                  <span className="text-[#1C2C56] text-xl">
+                    {isOpen ? <FiMinus /> : <FiPlus />}
+                  </span>
+                </button>
+
+                {/* Answer */}
+                {isOpen && faq.answer && (
+                  <p className="mt-4 text-sm text-gray-600 leading-relaxed">
+                    {faq.answer}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Container>
+    </section>
+  );
+};
+
+export default UniformLatestFAQPosts;
