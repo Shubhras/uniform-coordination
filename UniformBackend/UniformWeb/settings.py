@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'uniformAdmin',
     'userhub',
 ]
-# AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
+AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
 
 
 MIDDLEWARE = [
@@ -153,9 +153,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "userhub.authentication.CustomUserJWTAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        # "UniformWeb.authentication.UserJWTAuthentication", 
+        "userhub.authentication.CustomUserJWTAuthentication",# For Customers
+        "rest_framework_simplejwt.authentication.JWTAuthentication",  # For Admin
+        "rest_framework.authentication.SessionAuthentication",
+    ]
 }
 
 
@@ -166,3 +169,11 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "moriji345@gmail.com"
 EMAIL_HOST_PASSWORD = "awbygemmexmvvyka"
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=32),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}

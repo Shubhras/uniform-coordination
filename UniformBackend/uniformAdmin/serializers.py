@@ -2,8 +2,8 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 import re
-
-User = get_user_model()
+from .models import *
+# User = get_user_model()
 
 class AdminLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -18,8 +18,8 @@ class AdminLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Email and password are required")
 
         try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
+            user = AdminUser.objects.get(email=email)
+        except AdminUser.DoesNotExist:
             raise serializers.ValidationError("Invalid credentials or not an admin")
 
         if not user.check_password(password):
@@ -72,12 +72,83 @@ class AdminChangePasswordSerializer(serializers.Serializer):
 
 class AdminUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ['id', 'first_name', 'last_name', 'username', 'email']
+        model = AdminUser
+        fields = ['name',"email", 'mobile', 'language','email']
 
 
 class AdminDetailSerializer(serializers.ModelSerializer):
+    role_name = serializers.CharField(source='role.name', read_only=True)
+
     class Meta:
-        model = User
-        fields = ['id', 'first_name', 'last_name', 'username', 'email']
-        read_only_fields = fields  
+        model = AdminUser
+        exclude = ['password']
+        read_only_fields = ['id',"email","name","mobile","language",'is_staff', 'is_superuser', 'last_login', 'date_joined']
+
+
+class FabricSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fabric
+        fields = '__all__'
+
+
+class PartsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Parts
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "updated_at", "usageTemmpCount"]
+
+
+class FabricMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fabric
+        fields = ["id", "fabricName"]
+
+
+class ColorsSerializer(serializers.ModelSerializer):
+    compatibleFabric = FabricMiniSerializer(many=True, read_only=True)
+    compatibleFabric_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        write_only=True,
+        required=False
+    )
+
+    class Meta:
+        model = Colors
+        fields = [
+            "id",
+            "colorName",
+            "colorCode",
+            "compatibleFabric",
+            "compatibleFabric_ids",
+            "isActive",
+            "isDeleted",
+            "created_at",
+            "updated_at"
+        ]
+
+    def create(self, validated_data):
+        fabric_ids = validated_data.pop("compatibleFabric_ids", [])
+        color = Colors.objects.create(**validated_data)
+        if fabric_ids:
+            color.compatibleFabric.set(fabric_ids)
+        return color
+
+    def update(self, instance, validated_data):
+        fabric_ids = validated_data.pop("compatibleFabric_ids", None)
+
+        for attr, val in validated_data.items():
+            setattr(instance, attr, val)
+        instance.save()
+
+        if fabric_ids is not None:
+            instance.compatibleFabric.set(fabric_ids)
+
+        return instance
+
+
+
+
+class TemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Template
+        fields = "__all__"
