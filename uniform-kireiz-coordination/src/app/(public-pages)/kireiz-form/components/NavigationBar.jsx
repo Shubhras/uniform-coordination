@@ -17,20 +17,19 @@ const navMenu = [
 
 const Navigation = ({ toggleMode, mode }) => {
   const [isOpen, setIsOpen] = useState(false);
-
+const [activeLoginUser, setActiveLoginUser] = useState("login");
   return (
-    <section
-      className="w-full fixed inset-x-0 top-0 z-[50] px-18"
-      style={{ backgroundColor: "#1C2C56" }}
+    <section className="fixed inset-x-0 top-0 z-[50] bg-[#1C2C56]"
     >
-      <div className="flex flex-row items-center justify-between py-2 max-w-7xl w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
+         <div className="flex items-center justify-between h-14">
         {/* Mobile menu button */}
-        <button
+        {/* <button
           onClick={() => setIsOpen(true)}
           className="flex lg:hidden items-center gap-4 text-white"
         >
           <TbMenu2 size={24} />
-        </button>
+        </button> */}
 
         {/* Drawer */}
         <Drawer
@@ -64,11 +63,12 @@ const Navigation = ({ toggleMode, mode }) => {
         {/* Right side icons + login/signup */}
         <div className="hidden lg:flex items-center gap-8 text-white">
           {/* Login + Signup buttons */}
-          <AuthButtons />
-
+          {activeLoginUser != "login" && ( <AuthButtons />)}
           {/* Notification + Profile dropdown */}
-          <NavOtherList />
+          {activeLoginUser === "login" && ( <NavOtherList />)}
+         
         </div>
+      </div>
       </div>
     </section>
   );

@@ -14,7 +14,7 @@ const HeroContent = () => {
     <section className="w-full bg-white px-6">
       <div
         className="
-          max-w-6xl mx-auto my-0
+          max-w-7xl mx-auto my-0
           flex flex-col md:flex-row 
           gap-8 md:gap-10
           md:h-[700px]

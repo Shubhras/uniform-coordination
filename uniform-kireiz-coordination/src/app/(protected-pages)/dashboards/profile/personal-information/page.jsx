@@ -14,7 +14,6 @@ const Page = () => {
                         <PersonalInformation />
                     </Suspense>
                 </div>
-                {/* </div> */}
             </AdaptiveCard>
         </>
     )

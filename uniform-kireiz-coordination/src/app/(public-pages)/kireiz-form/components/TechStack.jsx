@@ -35,7 +35,7 @@ const TechStack = () => {
   return (
     <div className="relative z-20 py-16 md:py-6 bg-white">
       {/* Heading Section */}
-      <div className="text-center mb-12">
+      <div className=" text-center mb-12">
         <h2 className="text-3xl md:text-3xl font-semibold mb-3">
           How it works
         </h2>
@@ -45,7 +45,7 @@ const TechStack = () => {
         </p>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-row items-start justify-between gap-4 relative">
           {/* HORIZONTAL LINE BEHIND ICONS */}
           <div className="absolute top-[48px] left-[13%] right-[13%] h-[2px] bg-gray-300 z-0"></div>

@@ -58,7 +58,7 @@ const UniformBusinessEnquiry = () => {
     <section className="w-full bg-white px-6 py-0 md:py-0">
       <div className="max-w-7xl mx-auto relative">
         {/* BACKGROUND FRAME */}
-        <div className="relative w-full max-w-6xl mx-auto">
+        <div className="relative w-full max-w-7xl mx-auto">
           <Image
             src="/img/kireiz-form/features/uniform-bussiness-frame111.png"
             width={1500}
@@ -141,8 +141,8 @@ const UniformBusinessEnquiry = () => {
               </button>
             </div>
             {/* INDUSTRY-SPECIFIC CARDS — SLIDER */}
-            <div className="mt-10 overflow-hidden pb-8">
-              <div className="flex gap-4 transition-transform duration-500 ease-in-out">
+            <div className="mt-10 overflow-hidden pb-8 ">
+              <div className="flex gap-4 transition-transform duration-500 ease-in-out justify-center">
                 {bottomCards
                   .slice(index, index + 3)
                   .map((item, i) => (
@@ -151,11 +151,11 @@ const UniformBusinessEnquiry = () => {
                       className="bg-white border border-[#E3E8F1] rounded-[15px] shadow-md p-4 pt-2 pb-4 flex-shrink-0 w-[320px]"
                     >
                       <div className="w-full flex justify-center mb-6">
-                        <div className="w-[200px] h-[200px] rounded-full overflow-hidden">
+                        <div className="w-[200px] h-[220px] rounded-full overflow-hidden">
                           <Image
                             src={item.img}
                             width={200}
-                            height={200}
+                            height={220}
                             alt={item.title}
                             className="object-cover"
                           />
