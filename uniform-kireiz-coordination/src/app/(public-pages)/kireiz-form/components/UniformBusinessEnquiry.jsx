@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
-
+import { useRouter } from "next/navigation";
 const bottomCards = [
   {
     img: "/img/kireiz-form/features/uniform-card-img-one.png",
@@ -33,6 +33,7 @@ const bottomCards = [
 ];
 
 const UniformBusinessEnquiry = () => {
+   const router = useRouter();
   const [index, setIndex] = useState(0);
 
   // const handleNext = () => {
@@ -53,7 +54,9 @@ const UniformBusinessEnquiry = () => {
       prev === 0 ? bottomCards.length - 3 : prev - 1
     );
   };
-
+  const handleMedicalFormDesigning = () => {
+    router.push("/medical-form");
+  };
   return (
     <section className="w-full bg-white px-6 py-0 md:py-0">
       <div className="max-w-7xl mx-auto relative">
@@ -148,7 +151,8 @@ const UniformBusinessEnquiry = () => {
                   .map((item, i) => (
                     <div
                       key={i}
-                      className="bg-white border border-[#E3E8F1] rounded-[15px] shadow-md p-4 pt-2 pb-4 flex-shrink-0 w-[320px]"
+                      className="bg-white border border-[#E3E8F1] rounded-[15px] shadow-md p-4 pt-2 pb-4 flex-shrink-0 w-[320px] cursor-pointer"
+                       onClick={handleMedicalFormDesigning}
                     >
                       <div className="w-full flex justify-center mb-6">
                         <div className="w-[200px] h-[220px] rounded-full overflow-hidden">
