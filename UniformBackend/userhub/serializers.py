@@ -8,57 +8,6 @@ from django.contrib.auth.hashers import check_password
 
 
 
-# class UserSignupSerializer(serializers.ModelSerializer):
-#     password = serializers.CharField(write_only=True, required=True, min_length=6)
-#     email = serializers.EmailField(required=True)
-#     userName = serializers.CharField(required=True, max_length=255)
-
-#     class Meta:
-#         model = Users
-#         fields = [
-#             "id",
-#             "userName",
-#             "email",
-#             "userType",
-#             "password",
-#             "phone",
-#             "firstName",
-#             "lastName",
-#             "language",
-#             "gender",
-#             "profileImage",
-#             "stripeOrderCustomerId",
-#             "loginType",
-#         ]
-#         read_only_fields = ["id"]
-
-#     def validate_email(self, value):
-#         if value and Users.objects.filter(email__iexact=value, isDeleted=False).exists():
-#             raise serializers.ValidationError("A user with this email already exists.")
-#         return value
-
-#     def validate_userName(self, value):
-#         if value and Users.objects.filter(userName__iexact=value, isDeleted=False).exists():
-#             raise serializers.ValidationError("This username is already taken.")
-#         return value
-    
-    
-#     def validate_userType(self, value):
-#         if value and Users.objects.filter(userType__iexact=value, isDeleted=False).exists():
-#             raise serializers.ValidationError("User with This userType is already taken.")
-#         return value
-
-
-#     def create(self, validated_data):
-#         raw_password = validated_data.pop("password")
-#         validated_data["password"] = make_password(raw_password)
-#         try:
-#             user = Users.objects.create(**validated_data)
-#         except IntegrityError:
-#             raise serializers.ValidationError({"detail": "Database error when creating user."})
-#         return user
-
-
 class UserSignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, min_length=6)
     email = serializers.EmailField(required=True)
@@ -139,7 +88,6 @@ class UserResponseSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(required=True, write_only=True)
@@ -156,7 +104,7 @@ class LoginSerializer(serializers.Serializer):
         users = Users.objects.filter(email=email, userType=userType, isDeleted=False)
 
         if not users.exists():
-            print("????/////////////")
+            # print("????/////////////")
             raise serializers.ValidationError("Invalid email or password.")
 
         if users.count() > 1:
@@ -171,7 +119,7 @@ class LoginSerializer(serializers.Serializer):
 
         # Validate password manually because authenticate() won't work
         if not check_password(password, user.password):
-            print("????/////////////>>>>>>>>>>>>>>>>>>>>>>")
+            # print("????/////////////>>>>>>>>>>>>>>>>>>>>>>")
             raise serializers.ValidationError("Invalid email or password.")
 
         # Optional: check if active

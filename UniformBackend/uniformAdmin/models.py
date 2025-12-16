@@ -160,3 +160,129 @@ class Template(models.Model):
     def __str__(self):
         return self.templateName
 
+
+
+#Categories
+class Category(models.Model):
+    categoryName = models.CharField(max_length=250,unique=True)
+    slug = models.CharField(max_length=255, blank=True, null=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.categoryName) if self.categoryName else None
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.categoryName
+    
+    
+    
+class Blog(models.Model):
+    title = models.CharField(max_length=250,unique=True)
+    slug = models.CharField(max_length=255, blank=True, null=True)
+    category = models.ForeignKey(Category,on_delete=models.CASCADE,related_name="blogs")
+    image = models.ImageField(upload_to="blog_images/",null=True,blank=True)
+    description = models.TextField()
+
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.title:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
+ 
+ 
+class FAQ(models.Model):
+    title = models.CharField(max_length=255,unique=True)
+    # description = models.TextField(blank=True, null=True)
+
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+   
+   
+class FAQDescription(models.Model):
+    faq = models.ForeignKey(FAQ,related_name="descriptions", on_delete=models.CASCADE)
+    description = models.TextField()
+
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.faq.title}"
+   
+   
+class CatalogImage(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    image = models.ImageField(upload_to="catalog_images/")
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="catalog_images")
+    description = models.CharField(max_length=250)
+
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            # slug with underscore
+            self.slug = slugify(self.name).replace("-", "_")
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name   
+    
+    
+    
+    
+class PDFTemplate(models.Model):
+    PAPER_SIZES = (
+        ('A4', 'A4'),
+        ('Letter', 'Letter'),
+    )
+
+    name = models.CharField(max_length=100)
+
+    template = models.ForeignKey(
+        Template,                 
+        on_delete=models.PROTECT, 
+        related_name='pdf_layouts'
+    )
+
+    paper_size = models.CharField(max_length=10, choices=PAPER_SIZES)
+
+    total_custom_fields = models.PositiveIntegerField(default=0)
+
+    preview_pdf = models.FileField(
+        upload_to='pdf_templates/previews/',
+        null=True,
+        blank=True
+    )
+
+    is_active = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.template.templateName})"
+    

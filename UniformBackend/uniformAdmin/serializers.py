@@ -147,8 +147,367 @@ class ColorsSerializer(serializers.ModelSerializer):
 
 
 
-
 class TemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Template
         fields = "__all__"
+
+
+#===================================================================
+class BlogSerializer(serializers.ModelSerializer):
+    categoryName = serializers.CharField(
+        source="category.categoryName",
+        read_only=True
+    )
+
+    # 🔹 WRITE image to DB
+    image = serializers.ImageField(required=False, allow_null=True)
+
+    slug = serializers.SerializerMethodField()
+    isActive = serializers.BooleanField(default=True)
+
+    class Meta:
+        model = Blog
+        fields = [
+            "id",
+            "title",
+            "slug",
+            "category",
+            "categoryName",
+            "image",        # ✅ ONLY ONE image field
+            "description",
+            "isActive",
+            "created_at",
+            "updated_at",
+        ]
+
+    # -----------------------------
+    # Replace dash (-) with underscore (_)
+    # -----------------------------
+    def get_slug(self, obj):
+        if obj.slug:
+            return obj.slug.replace("-", "_")
+        return None
+
+    # -----------------------------
+    # Return ABSOLUTE image URL using SAME field
+    # -----------------------------
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+
+        if instance.image and request:
+            data["image"] = request.build_absolute_uri(instance.image.url)
+        else:
+            data["image"] = None
+
+        return data
+
+    def validate_title(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("Title is required.")
+        return value
+
+
+class FAQDescriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FAQDescription
+        fields = ["id", "description"]
+
+class FAQSerializer(serializers.ModelSerializer):
+    descriptions = FAQDescriptionSerializer(many=True)
+
+    class Meta:
+        model = FAQ
+        fields = ["id", "title", "descriptions", "isActive", "created_at", "updated_at"]
+
+    # Make title unique
+    def validate_title(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("Title is required.")
+        if FAQ.objects.filter(title=value.strip(), isDeleted=False).exists():
+            raise serializers.ValidationError("FAQ with this title already exists.")
+        return value
+
+    # Handle nested descriptions on create
+    def create(self, validated_data):
+        descriptions_data = validated_data.pop("descriptions", [])
+        faq = FAQ.objects.create(**validated_data)
+        for desc in descriptions_data:
+            FAQDescription.objects.create(faq=faq, **desc)
+        return faq
+
+    # Handle nested descriptions on update
+    def update(self, instance, validated_data):
+        descriptions_data = validated_data.pop("descriptions", None)
+        instance.title = validated_data.get("title", instance.title)
+        instance.isActive = validated_data.get("isActive", instance.isActive)
+        instance.save()
+
+        if descriptions_data is not None:
+            # Remove old descriptions
+            instance.descriptions.all().delete()
+            # Create new ones
+            for desc in descriptions_data:
+                FAQDescription.objects.create(faq=instance, **desc)
+
+        return instance
+
+
+
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    slug = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Category
+        fields = [
+            "id",
+            "categoryName",
+            "slug",
+            "isActive",
+            "created_at",
+            "updated_at",
+        ]
+
+    def get_slug(self, obj):
+        return obj.slug.replace("-", "_") if obj.slug else None
+
+    def validate_categoryName(self, value):
+        qs = Category.objects.filter(
+            categoryName__iexact=value,
+            isDeleted=False
+        )
+
+        # Exclude current instance during update
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+
+        if qs.exists():
+            raise serializers.ValidationError(
+                "Category with this categoryName already exists."
+            )
+
+        return value.strip()
+
+
+
+
+# class CatalogImageSerializer(serializers.ModelSerializer):
+#     image_url = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = CatalogImage
+#         fields = [
+#             "id",
+#             "name",
+#             "image",
+#             "image_url",
+#             "slug",
+#             "category",
+#             "description",
+#             "isActive",
+#             "isDeleted",
+#             "created_at",
+#             "updated_at",
+#         ]
+#         read_only_fields = ("slug",)
+
+#     def get_image_url(self, obj):
+#         request = self.context.get("request")
+#         if obj.image and request:
+#             return request.build_absolute_uri(obj.image.url)
+#         return None
+
+#     def validate_name(self, value):
+#         qs = CatalogImage.objects.filter(name__iexact=value, isDeleted=False)
+#         if self.instance:
+#             qs = qs.exclude(id=self.instance.id)
+
+#         if qs.exists():
+#             raise serializers.ValidationError(
+#                 "Catalog Image with this Name already exists."
+#             )
+#         return value
+
+#     def validate(self, attrs):
+#         if not attrs.get("category"):
+#             raise serializers.ValidationError("Category is required.")
+#         return attrs
+
+
+
+# class CatalogImageSerializer(serializers.ModelSerializer):
+#     image_url = serializers.SerializerMethodField()
+
+#     #Explicitly mark required fields
+#     name = serializers.CharField(required=True)
+#     category = serializers.PrimaryKeyRelatedField(
+#         queryset=CatalogImage._meta.get_field("category").remote_field.model.objects.all(),
+#         required=True
+#     )
+#     image = serializers.ImageField(required=True)
+
+#     class Meta:
+#         model = CatalogImage
+#         fields = [
+#             "id",
+#             "name",
+#             "image",
+#             "image_url",
+#             "slug",
+#             "category",
+#             "description",
+#             "isActive",
+#             "isDeleted",
+#             "created_at",
+#             "updated_at",
+#         ]
+#         read_only_fields = ("slug",)
+
+#     def get_image_url(self, obj):
+#         request = self.context.get("request")
+#         if obj.image and request:
+#             return request.build_absolute_uri(obj.image.url)
+#         return None
+
+#     def validate_name(self, value):
+#         qs = CatalogImage.objects.filter(name__iexact=value, isDeleted=False)
+#         if self.instance:
+#             qs = qs.exclude(id=self.instance.id)
+
+#         if qs.exists():
+#             raise serializers.ValidationError(
+#                 "Catalog Image with this Name already exists."
+#             )
+#         return value
+
+#     def validate(self, attrs):
+#         if not attrs.get("category"):
+#             raise serializers.ValidationError("Category is required.")
+#         return attrs
+
+
+
+# class CatalogImageSerializer(serializers.ModelSerializer):
+#     image_url = serializers.SerializerMethodField()
+
+#     name = serializers.CharField(
+#         required=True,
+#         error_messages={
+#             "required": "Catelog Image Name is required.",
+#             "blank": "Catelog Image Name is required.",
+#         }
+#     )
+
+#     category = serializers.PrimaryKeyRelatedField(
+#         queryset=CatalogImage._meta.get_field("category").remote_field.model.objects.all(),
+#         required=True,
+#         error_messages={
+#             "required": "category is required.",
+#             "null": "category is required.",
+#         }
+#     )
+
+#     image = serializers.ImageField(
+#         required=True,
+#         error_messages={
+#             "required": "Catelog Image is required.",
+#             "invalid": "Catelog Image is required.",
+#         }
+#     )
+
+#     description = serializers.CharField(required=False, allow_blank=True)
+
+#     class Meta:
+#         model = CatalogImage
+#         fields = [
+#             "id",
+#             "name",
+#             "image",
+#             "image_url",
+#             "slug",
+#             "category",
+#             "description",
+#             "isActive",
+#             "isDeleted",
+#             "created_at",
+#             "updated_at",
+#         ]
+#         read_only_fields = ("slug",)
+
+#     def get_image_url(self, obj):
+#         request = self.context.get("request")
+#         if obj.image and request:
+#             return request.build_absolute_uri(obj.image.url)
+#         return None
+
+#     def validate_name(self, value):
+#         qs = CatalogImage.objects.filter(name__iexact=value, isDeleted=False)
+#         if self.instance:
+#             qs = qs.exclude(id=self.instance.id)
+
+#         if qs.exists():
+#             raise serializers.ValidationError(
+#                 "Catalog Image with this Name already exists."
+#             )
+#         return value
+
+
+
+class CatalogImageSerializer(serializers.ModelSerializer):
+
+    name = serializers.CharField(
+        required=True,
+        error_messages={
+            "required": "Catelog Image Name is required.",
+            "blank": "Catelog Image Name is required.",
+        }
+    )
+
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=CatalogImage._meta.get_field("category").remote_field.model.objects.all(),
+        required=True,
+        error_messages={
+            "required": "category is required.",
+            "null": "category is required.",
+        }
+    )
+
+    image = serializers.ImageField(
+        required=True,
+        error_messages={
+            "required": "Catelog Image is required.",
+            "invalid": "Catelog Image is required.",
+        }
+    )
+
+    description = serializers.CharField(required=False, allow_blank=True)
+
+    class Meta:
+        model = CatalogImage
+        fields = [
+            "id",
+            "name",
+            "image",
+            "slug",
+            "category",
+            "description",
+            "isActive",
+            "isDeleted",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ("slug",)
+
+    def validate_name(self, value):
+        qs = CatalogImage.objects.filter(name__iexact=value, isDeleted=False)
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+
+        if qs.exists():
+            raise serializers.ValidationError(
+                "Catalog Image with this Name already exists."
+            )
+        return value

@@ -4,6 +4,7 @@ from .fabric import *
 from .parts import *
 from .colours import *
 from .templates import *
+from .faqs import *
 
 urlpatterns = [
     path('login/', AdminLoginAPIView.as_view(), name='admin-login'),
@@ -41,5 +42,41 @@ urlpatterns = [
     path("templates/<int:id>/", TemplateDetailView.as_view(), name="get-template"),
     path("templates/update/<int:id>/", TemplateUpdateView.as_view(), name="update-template"),
     path("templates/delete/<int:id>/", TemplateDeleteView.as_view(), name="delete-template"),
+    
+    
+    
 
+    #Blog URLs 
+    path("blogs/create/", BlogCreateAPIView.as_view(), name="blog-create"),
+    path("blogs/list/", BlogListAPIView.as_view(), name="blog-list"),
+    path("blogs/detail/<int:blog_id>/", BlogDetailAPIView.as_view(), name="blog-detail"),
+    path("blogs/update/<int:blog_id>/", BlogUpdateAPIView.as_view(), name="blog-update"),
+    path("blogs/delete/<int:blog_id>/", BlogDeleteAPIView.as_view(), name="blog-delete-single"),
+    # path("blogs/delete/", BlogDeleteAPIView.as_view(), name="blog-delete-multiple"),
+
+
+    #FAQs
+    path("faqs/create/", FAQCreateAPIView.as_view(), name="faqs-create"),
+    path("faqs/list/", FAQListAPIView.as_view(), name="faqs-list"),
+    path("faqs/detail/<int:faq_id>/", FAQDetailAPIView.as_view(), name="faqs-detail"),
+    path("faqs/update/<int:faq_id>/", FAQUpdateAPIView.as_view(), name="faqs-update"),
+    path("faqs/delete/<int:faq_id>/", FAQDeleteAPIView.as_view(), name="faqs-delete"),
+    
+    
+    
+    #Categories
+    path("categories/create/", CategoryCreateAPIView.as_view(), name="categories-create"),
+    path("categories/list/", CategoryListAPIView.as_view(), name="categories-list"),
+    path("categories/detail/<int:category_id>/", CategoryDetailAPIView.as_view(), name="categories-detail"),
+    path("categories/update/<int:category_id>/", CategoryUpdateAPIView.as_view(), name="categories-update"),
+    path("categories/delete/<int:category_id>/", CategoryDeleteAPIView.as_view(), name="categories-delete"),
+    
+   
+    #Catalog Image
+    path("catalog-image/create/", CatalogImageCreateAPIView.as_view(),name="catalog-image-create"),
+    path("catalog-image/list/", CatalogImageListAPIView.as_view(),name="catalog-image-list"),
+    path("catalog-image/detail/<int:pk>/", CatalogImageDetailAPIView.as_view(),name="catalog-image-detail"),
+    path("catalog-image/update/<int:pk>/", CatalogImageUpdateAPIView.as_view(),name="catalog-image-update"),
+    path("catalog-image/delete/<int:pk>/", CatalogImageDeleteAPIView.as_view(),name="catalog-image-delete"), 
+    
 ]
