@@ -33,7 +33,7 @@ const UniformAbouUsPage = () => {
     setIndex(index >= testimonials.length - 2 ? 0 : index + 1);
 
   return (
-    <section className="w-full bg-white px-6 py-20 md:py-20 ">
+    <section className="w-full bg-white px-6 py-2 md:py-2 ">
       <Container className="bg-[#EEF3FB] px-0 rounded-bl-[120px]">
         <div className="relative">
           <div className="text-center mb-8 pt-16">

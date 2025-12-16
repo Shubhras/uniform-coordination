@@ -792,13 +792,13 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
 
 
   return (
-    <div className="relative overflow-visible p-4 bg-[#F4F7FB]">
+     <div className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        {/* <h4 className="text-lg font-semibold">3D Uniform Configurator</h4> */}
+      {/* <div className="flex items-center justify-between mb-2">
+       
         <ActionLink href="/dashboards/delivery-request" className="heading-text text-blue-400">Delivery Request Form</ActionLink>
-      </div>
+      </div> */}
       <div className="flex gap-6">
 
         {/* LEFT TOOLBAR */}

@@ -58,6 +58,16 @@ const dropdownItemList = [
         path: '/dashboards/profile/notification-setting',
         icon: <IoNotificationsOutline />,
     },
+    {
+        label: 'Design Result',
+        path: '/dashboards/project',
+        icon: "",
+    },
+    {
+        label: 'Delivery Request Form',
+        path: '/dashboards/delivery-request',
+        icon: "",
+    },
 
 ]
 

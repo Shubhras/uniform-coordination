@@ -13,6 +13,7 @@ import UniformBusinessEnquiry from './UniformBusinessEnquiry'
 import UniformLatestBlogPosts from './UniformLatestBlogPosts'
 import UniformLatestFAQPosts from './UniformLatestFAQPosts'
 import UniformAbouUsPage from './UniformAbouUsPage'
+import ChatbotSection from './ChatbotSection'
 
 const UniformHome = () => {
     const mode = useTheme((state) => state.mode)
@@ -43,6 +44,7 @@ const UniformHome = () => {
             <UniformAbouUsPage/>
             {/* <OtherFeatures /> */}
             {/* <Components /> */}
+            <ChatbotSection />
             <LandingFooter mode={mode} />
         </main>
     )

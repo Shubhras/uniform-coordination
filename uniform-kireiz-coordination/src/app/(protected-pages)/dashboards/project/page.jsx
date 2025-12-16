@@ -7,35 +7,42 @@ import RecentActivity from './_components/RecentActivity'
 import getProjectDashboard from '@/server/actions/getProjectDashboard'
 
 import Uniforms3DmoduleRender from './_components/Uniforms3DmoduleRender'
-
+import AdaptiveCard from '@/components/shared/AdaptiveCard'
 export default async function Page() {
     const data = await getProjectDashboard()
 
     return (
-        <div className="flex flex-col gap-4">
-            {/* <div className="flex flex-col xl:flex-row gap-4">
-                <div className="flex flex-col gap-4 flex-1 xl:max-w-[calc(100%-350px)]">
-                    <ProjectOverview data={data.projectOverview} />
-                    <Schedule data={data.schedule} />
-                </div>
-                <div>
-                    <UpcomingSchedule />
-                </div>
-            </div> */}
-            <div className="lex flex-col xl:flex-row gap-4">
-                {/* <div className="md:col-span-1 xl:col-span-1 order-1">
-                    <CurrentTasks data={data.currentTasks} />
-                </div>
-                <div className="md:col-span-1 xl:col-span-1 order-2 xl:order-3">
-                    <RecentActivity data={data.recentActivity} />
-                </div>
-                <div className="md:col-span-2 xl:col-span-1 order-3 xl:order-2">
-                    <TaskOverview data={data.taskOverview} />
-                </div> */}
+        // <div className="flex flex-col gap-4">
+        //     {/* <div className="flex flex-col xl:flex-row gap-4">
+        //         <div className="flex flex-col gap-4 flex-1 xl:max-w-[calc(100%-350px)]">
+        //             <ProjectOverview data={data.projectOverview} />
+        //             <Schedule data={data.schedule} />
+        //         </div>
+        //         <div>
+        //             <UpcomingSchedule />
+        //         </div>
+        //     </div> */}
+        //     <div className="lex flex-col xl:flex-row gap-4">
+        //         {/* <div className="md:col-span-1 xl:col-span-1 order-1">
+        //             <CurrentTasks data={data.currentTasks} />
+        //         </div>
+        //         <div className="md:col-span-1 xl:col-span-1 order-2 xl:order-3">
+        //             <RecentActivity data={data.recentActivity} />
+        //         </div>
+        //         <div className="md:col-span-2 xl:col-span-1 order-3 xl:order-2">
+        //             <TaskOverview data={data.taskOverview} />
+        //         </div> */}
 
-                <Uniforms3DmoduleRender data={{}} />
+        //         <Uniforms3DmoduleRender data={{}} />
 
-            </div>
-        </div>
+        //     </div>
+        // </div>
+        <>
+            <AdaptiveCard className="h-full mt-12">
+                <div className="flex flex-auto h-full">
+                    <Uniforms3DmoduleRender data={{}} />
+                </div>
+            </AdaptiveCard>
+        </>
     )
 }
