@@ -1,13 +1,13 @@
 'use client'
 
 import Image from 'next/image'
-// import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 const UniformSingle = () => {
-    // const router = useRouter()
+    const router = useRouter()
 
-    // const handleUniformDesigning = () => {
-    //     router.push("/dashboards/project");
-    // };
+    const handleUniformDesigning = () => {
+        router.push("/dashboards/project");
+    };
 
     return (
         <section className="w-full py-14 bg-[#F5F8FF]">
@@ -48,7 +48,7 @@ const UniformSingle = () => {
                         </div>
 
                         <button className="w-full bg-[#1C4FA8] text-white py-3 rounded-md text-sm font-medium"
-                        //  onClick={handleUniformDesigning}
+                         onClick={handleUniformDesigning}
                          >
                             Customize
                         </button>
