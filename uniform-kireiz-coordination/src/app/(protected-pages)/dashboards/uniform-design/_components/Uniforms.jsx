@@ -3,8 +3,12 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { FiChevronDown } from 'react-icons/fi'
-
+import { useRouter } from 'next/navigation'
 const Uniforms = () => {
+     const router = useRouter()
+     const handleUniformDesigning = () => {
+        router.push("/dashboards/uniform-single");
+    };
     const filters = ['All', 'Scrub', 'Lab Coats', 'Patient Care', 'Administrative']
     const tabs = ['All Scrubs', 'Tops', 'Bottoms', 'Sets', 'Best Sellers', 'New Arrivals']
     const sortOptions = ['Popular', 'Newest', 'Price: Low to High', 'Price: High to Low']
@@ -136,7 +140,7 @@ const Uniforms = () => {
                             <div className='flex flex-col gap-3'>
                                 <h4 className="text-[#1C2C56] font-medium">Item Name</h4>
                                 <p className="text-xs text-[#6B7280]">Style#: UTSC03BLU</p>
-                                <button className=" bg-[#1C2C56] text-white text-sm py-2 rounded-md">
+                                <button className=" bg-[#1C2C56] text-white text-sm py-2 rounded-md" onClick={handleUniformDesigning}>
                                     Customize
                                 </button>
                             </div>

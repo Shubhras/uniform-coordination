@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useRouter } from "next/navigation";
 import { useState } from 'react'
 import { FiChevronDown } from 'react-icons/fi'
 
@@ -57,6 +58,12 @@ const CategorySection = () => {
     const [activeFilter, setActiveFilter] = useState('All')
     const [sortBy, setSortBy] = useState('Popular')
     const [openSort, setOpenSort] = useState(false)
+
+      const router = useRouter();
+ 
+  const handleStartDesigning = () => {
+    router.push("/dashboards/uniform-design");
+  };
     return (
         <section className="w-full py-10 space-y-10">
             <div className="max-w-7xl mx-auto space-y-10">
@@ -172,7 +179,7 @@ const CategorySection = () => {
                                     ))}
                                 </ul>
 
-                                <button className="bg-[#1C2C56] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#1C2C56]">
+                                <button className="bg-[#1C2C56] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#1C2C56]" onClick={handleStartDesigning}>
                                     {item.btn}
                                 </button>
                             </div>
