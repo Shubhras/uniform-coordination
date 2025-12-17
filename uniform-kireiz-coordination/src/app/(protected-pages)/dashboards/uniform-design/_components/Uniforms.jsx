@@ -5,8 +5,8 @@ import Image from 'next/image'
 import { FiChevronDown } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
 const Uniforms = () => {
-     const router = useRouter()
-     const handleUniformDesigning = () => {
+    const router = useRouter()
+    const handleUniformDesigning = () => {
         router.push("/dashboards/uniform-single");
     };
     const filters = ['All', 'Scrub', 'Lab Coats', 'Patient Care', 'Administrative']
@@ -34,8 +34,8 @@ const Uniforms = () => {
     const products = imagesByTab[activeTab]
 
     return (
-        <section className="w-full py-10">
-            <div className="max-w-7xl mx-auto px-4">
+        <section className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10 mt-15">
+            <div className="w-full mx-auto px-4">
 
                 <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p>
 
@@ -120,7 +120,11 @@ const Uniforms = () => {
 
                 {/* PRODUCTS GRID */}
                 {/* pt-5 border-t border-[#90A3BF] */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 bg-[#F5F8FF] p-5">
+                <div className="grid grid-cols-1
+              sm:grid-cols-2
+              lg:grid-cols-3
+              xl:grid-cols-4
+               gap-6 bg-[#F5F8FF] p-5">
                     {products.map((img, i) => (
                         <div
                             key={i}

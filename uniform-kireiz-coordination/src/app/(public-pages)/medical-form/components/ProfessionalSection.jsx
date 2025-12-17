@@ -34,8 +34,8 @@ const features = [
 
 const ProfessionalSection = () => {
     return (
-        <section className="w-full">
-            <div className="max-w-7xl mx-auto px-8 py-10 bg-[#E6ECF770]">
+        <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
+            <div className="px-8 py-10 bg-[#E6ECF770] mt-10">
 
                 {/* SECTION TITLE */}
                 <h2 className="text-center text-[#1C2C56] lg:text-4xl md:text-3xl text-2xl font-semibold mb-10">

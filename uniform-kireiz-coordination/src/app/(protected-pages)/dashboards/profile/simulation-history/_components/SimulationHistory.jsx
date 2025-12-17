@@ -22,6 +22,11 @@ const simulations = [
         title: 'Food Service & Dining',
         date: 'Nov 18, 2025',
     },
+    {
+        img: '/img/kireiz-form/features/uniform-card-img-two.png',
+        title: 'Food Service & Dining',
+        date: 'Nov 18, 2025',
+    },
 ]
 
 const SimulationHistory = () => {
@@ -68,7 +73,7 @@ const SimulationHistory = () => {
             </div>
 
             {/* CARDS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {simulations.map((item, i) => (
                     <div
                         key={i}
@@ -101,7 +106,7 @@ const SimulationHistory = () => {
                             <Button
                                 className="flex-[2] bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md"
                                 size="sm"
-                                icon={<FiExternalLink size={16}/>}
+                                icon={<FiExternalLink size={16} />}
                             >
                                 OPEN
                             </Button>
