@@ -20,14 +20,13 @@ const ChatbotSection = () => {
                         {/* DOWNWARD SPEECH TAIL */}
                         <div
                             className="
-            absolute
-            right-1
-            bottom-[-8px]
-            w-0 h-0
-            border-l-[12px] border-r-[12px] border-t-[12px]
-            border-l-transparent border-r-transparent border-t-white
-        "
-                        />
+                                absolute
+                                right-1
+                                bottom-[-8px]
+                                w-0 h-0
+                                border-l-[12px] border-r-[12px] border-t-[12px]
+                                border-l-transparent border-r-transparent border-t-white
+                            "/>
                     </div>
 
 
