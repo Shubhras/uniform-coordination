@@ -121,6 +121,8 @@ const UniformBusinessEnquiry = () => {
               md:grid-cols-3
               lg:grid-cols-4
               xl:grid-cols-4
+              ml-6
+              mr-6
             ">
           {[
             {
@@ -171,22 +173,24 @@ const UniformBusinessEnquiry = () => {
           Industry-Specific Uniform Solutions
         </h2>
         <div className="flex justify-end gap-3 mt-6 mr-6">
-          <button
+          {/* <button
             onClick={handlePrev}
             className="h-10 w-10 border rounded-full flex items-center justify-center hover:bg-gray-100"
           >
-            <FiArrowLeft className="text-lg text-gray-600" />
+            <FiArrowLeft size={30} className="text-lg text-gray-600" />
           </button>
           <button
             onClick={handleNext}
             className="h-10 w-10 border rounded-full flex items-center justify-center hover:bg-gray-100"
           >
             <FiArrowRight className="text-lg text-gray-600" />
-          </button>
+          </button> */}
+           <FiArrowLeft  onClick={handlePrev} size={25} className="text-lg text-gray-600 cursor-pointer" />
+           <FiArrowRight  onClick={handleNext} size={25} className="text-lg text-gray-600 ml-8 cursor-pointer" />
         </div>
 
         {/* INDUSTRY SLIDER */}
-        <div className="mt-6 overflow-hidden pb-12">
+        <div className="mt-6 overflow-hidden pb-12  ml-6 mr-6">
           <div className="flex gap-6 transition-transform duration-500 ease-in-out justify-center">
             {bottomCards
               .slice(index, index + cardsPerView)

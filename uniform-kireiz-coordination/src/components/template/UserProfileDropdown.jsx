@@ -11,6 +11,7 @@ import {
     PiPulseDuotone,
     PiSignOutDuotone,
 } from 'react-icons/pi'
+import { IoIosLogOut } from "react-icons/io";
 import { CiUser } from 'react-icons/ci'
 import { FiBox, FiLock } from 'react-icons/fi'
 import { LuPalette } from 'react-icons/lu'
@@ -87,8 +88,16 @@ const _UserDropdown = () => {
             : { icon: <PiUserDuotone /> }),
     }
 
+     const handleProfile = () => {
+    router.push("/dashboards/profile/personal-information");
+  };
     return (
-        <Dropdown
+        <>
+            <div className="cursor-pointer flex items-center">
+                <Avatar size={38} {...avatarProps}  onClick={handleProfile}/>
+            </div>
+            <span>  <IoIosLogOut className='cursor-pointer z-10' size={25}  onClick={handleSignOut} /></span>
+            {/* <Dropdown
             className="flex"
             toggleClassName="flex items-center"
             renderTitle={
@@ -146,8 +155,10 @@ const _UserDropdown = () => {
                     <PiSignOutDuotone />
                 </span>
                 <span>Sign Out</span>
-            </Dropdown.Item>
-        </Dropdown>
+            </Dropdown.Item> 
+        </Dropdown>*/}
+        </>
+
     )
 }
 

@@ -93,12 +93,13 @@ const UniformAbouUsPage = () => {
             <div className="w-20 h-[2px] bg-[#1C2C56] mx-auto mt-3" />
           </div>
           <div className="relative flex items-center justify-center">
-            <button
+            {/* <button
               onClick={prev}
               className="absolute left-2 md:left-4 z-10 h-10 w-10 border rounded-full flex items-center justify-center hover:bg-gray-100"
             >
               <FiArrowLeft className="text-lg text-gray-600" />
-            </button>
+            </button> */}
+             <FiArrowLeft   onClick={prev} size={25} className="text-lg text-gray-600 cursor-pointer absolute left-2 md:left-4" />
             <div
               className=" grid w-full px-14 md:px-18 gap-6 mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {testimonials
@@ -120,12 +121,13 @@ const UniformAbouUsPage = () => {
                   </div>
                 ))}
             </div>
-            <button
+            <FiArrowRight  onClick={next} size={25} className="text-lg text-gray-600 cursor-pointer absolute right-2 md:right-4" />
+            {/* <button
               onClick={next}
               className="absolute right-2 md:right-4 z-10 h-10 w-10 border rounded-full flex items-center justify-center hover:bg-gray-100"
             >
               <FiArrowRight className="text-lg text-gray-600" />
-            </button>
+            </button> */}
           </div>
           <div className="w-full h-px bg-[#A7B5C8] my-20" />
         </div>

@@ -12,7 +12,7 @@ const navMenu = [
   { title: "Home", value: "home", to: "home", url: "/kireiz-form" },
   { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign", url: "/dashboards/delivery-request" },
   { title: "Blog", value: "blog", to: "blog", url: "/blog" },
-  { title: `FAQ's`, value: "faq", to: "faq" , url: "/faq" },
+  { title: `FAQ's`, value: "faq", to: "faq", url: "/faq" },
 ];
 
 const Navigation = ({ toggleMode, mode }) => {
@@ -21,7 +21,7 @@ const Navigation = ({ toggleMode, mode }) => {
   return (
     <header className="fixed inset-x-0 top-0 z-50 bg-[#1C2C56]">
       {/* <div className="w-full px-4 sm:px-6 lg:px-15"> */}
-        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12">
+      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12">
         <div className="flex h-14 items-center justify-between">
           {/* Mobile Menu Button */}
           {/* <button

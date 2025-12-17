@@ -38,7 +38,7 @@ const UniformLatestBlogPosts = () => {
   const router = useRouter();
 
     const handleAllBlogsPage = () => {
-    router.push("/blogs");
+    router.push("/blog");
   };
   return (
     <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
