@@ -113,7 +113,7 @@ const UniformTemplate = () => {
                     <h2 className="text-[#1C2C56] lg:text-4xl md:text-3xl text-2xl font-semibold">
                         Popular Medical Uniform Templates
                     </h2>
-                    <div className="w-24 h-1 rounded-full bg-[#1C4FA8] mx-auto mt-2" />
+                    <div className="w-24 h-1 rounded-full bg-[#1C2C56] mx-auto mt-2" />
                     <p className="text-[#6B7280] text-sm mt-4 max-w-xl mx-auto">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
                         eiusmod tempor incididunt ut labore et

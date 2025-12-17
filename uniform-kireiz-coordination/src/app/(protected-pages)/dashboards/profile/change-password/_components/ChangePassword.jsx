@@ -58,6 +58,10 @@ const ChangePassword = () => {
     const onSubmit = async (values) => {
         console.log('Change Password Form Data:', values)
     }
+    const progressValue =
+        [rules.length, rules.number, rules.symbol].filter(Boolean).length
+
+    const progressPercent = (progressValue / 3) * 100
 
     return (
         <Form onSubmit={handleSubmit(onSubmit)}>
@@ -106,6 +110,16 @@ const ChangePassword = () => {
                     )}
                 />
             </FormItem>
+
+            {/* Password Strength Progress */}
+            <div className="mb-4">
+                <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                        className={`h-full transition-all duration-300 bg-[#1C2C56]`}
+                        style={{ width: `${progressPercent}%` }}
+                    />
+                </div>
+            </div>
 
             {/* Password Rules */}
             <div className="flex flex-wrap gap-4 text-sm mb-6">

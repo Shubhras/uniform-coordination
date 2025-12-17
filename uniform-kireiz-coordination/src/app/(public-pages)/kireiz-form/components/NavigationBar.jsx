@@ -11,8 +11,8 @@ import AuthButtons from "./AuthButtons";
 const navMenu = [
   { title: "Home", value: "home", to: "home", url: "/kireiz-form" },
   { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign", url: "/dashboards/delivery-request" },
-  { title: "Blog", value: "blog", to: "blog", url: "/kireiz-form" },
-  { title: `FAQ's`, value: "faq", href: "/guide/documentation/introduction", url: "/kireiz-form" },
+  { title: "Blog", value: "blog", to: "blog", url: "/blog" },
+  { title: `FAQ's`, value: "faq", to: "faq" , url: "/faq" },
 ];
 
 const Navigation = ({ toggleMode, mode }) => {
