@@ -7,7 +7,7 @@ const HeroContent = () => {
     const router = useRouter()
 
     return (
-        <section className="w-full px-4 lg:px-0 mt-10">
+        <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
             {/* FULL WIDTH BG */}
             <div className="w-full bg-[#dce4f7] rounded-br-[100px] overflow-hidden">
 

@@ -37,8 +37,12 @@ const blogPosts = [
 const UniformLatestBlogPosts = () => {
   const router = useRouter();
 
-    const handleAllBlogsPage = () => {
+  const handleAllBlogsPage = () => {
     router.push("/blogs");
+  };
+
+  const handleSingleBlogPage = () => {
+    router.push("/single-blog");
   };
   return (
     <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
@@ -64,7 +68,7 @@ const UniformLatestBlogPosts = () => {
             {blogPosts.map((post, index) => (
               <div
                 key={index}
-                className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
+                className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden cursor-pointer" onClick={handleSingleBlogPage}
               >
                 <div className="p-3">
                   <Image

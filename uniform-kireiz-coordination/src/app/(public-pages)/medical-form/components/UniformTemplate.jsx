@@ -105,8 +105,8 @@ const UniformTemplate = () => {
     };
 
     return (
-        <section className="w-full lg:py-14 md:py-10 py-6">
-            <div className="max-w-7xl mx-auto px-4">
+        <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
+            <div className="mt-10">
 
                 {/* HEADER */}
                 <div className="text-center mb-10">

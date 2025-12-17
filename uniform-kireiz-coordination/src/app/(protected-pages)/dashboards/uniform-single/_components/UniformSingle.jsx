@@ -19,8 +19,8 @@ const UniformSingle = () => {
     };
 
     return (
-        <section className="w-full py-14 ">
-            <div className="max-w-7xl mx-auto px-4">
+        <section className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10 mt-15 ">
+            <div className="w-full mx-auto px-4">
 
                 <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p>
 

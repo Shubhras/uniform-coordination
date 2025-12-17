@@ -3,11 +3,11 @@ import React from 'react'
 
 const FaqHero = () => {
     return (
-        <section className="w-full mt-14">
+        <section className="w-full bg-white mt-14">
             <div
                 className="w-full rounded-br-[60px] bg-gradient-to-r from-[#005CA7] to-[#daebfa]">
-                <div className="max-w-7xl mx-auto lg:px-0 px-4 py-16">
-                    <div className="max-w-xl  space-y-3">
+                <div className="w-full mx-auto  py-16">
+                    <div className="max-w-xl  space-y-3 px-4 sm:px-6 md:px-8 lg:px-12 ">
                         <h1 className="text-3xl text-white md:text-4xl font-semibold">
                             FAQ’s
                         </h1>
