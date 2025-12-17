@@ -5,8 +5,9 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-scroll'
 import NextLink from 'next/link'
 import classNames from '@/utils/classNames'
-
+import { useRouter } from 'next/navigation'
 const NavList = ({ tabs: propTabs, tabClassName, onTabClick }) => {
+    const router = useRouter()
     const [active, setActive] = useState(propTabs[0])
     const [show, setShow] = useState(false)
 
@@ -19,10 +20,12 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick }) => {
         setActive(newTabs[0])
         onTabClick?.()
     }
-
+    const handleRedirect = (tab) => {
+        router.push(tab.url)
+    }
     return (
         <>
-            {propTabs.map((tab, idx) => (
+            {/* {propTabs.map((tab, idx) => (
                 <button
                     key={tab.title}
                     className={classNames(
@@ -43,10 +46,6 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick }) => {
                                 bounce: 0.3,
                                 duration: 0.6,
                             }}
-                            // className={classNames(
-                            //     'absolute inset-0 rounded-xl',
-                            //     show && 'bg-gray-100 dark:bg-gray-700',
-                            // )}
                         />
                     )}
                     {}
@@ -67,6 +66,32 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick }) => {
                             {tab.title}
                         </NextLink>
                     )}
+                </button>
+            ))} */}
+            {propTabs.map((tab, idx) => (
+                <button
+                    key={tab.title}
+                    className={classNames(
+                        'relative px-4 py-2 rounded-xl heading-text text-white',
+                        tabClassName
+                    )}
+                    onClick={() => handleRedirect(tab, idx)}
+                >
+                    {active.value === tab.value && (
+                        <motion.div
+                            layoutId="clickedbutton"
+                            transition={{
+                                type: 'spring',
+                                bounce: 0.3,
+                                duration: 0.6,
+                            }}
+                            className="absolute inset-0 rounded-xl"
+                        />
+                    )}
+
+                    <span className="relative z-10">
+                        {tab.title}
+                    </span>
                 </button>
             ))}
         </>

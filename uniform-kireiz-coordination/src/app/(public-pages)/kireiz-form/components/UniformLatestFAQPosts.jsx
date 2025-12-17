@@ -30,7 +30,7 @@ const UniformLatestFAQPosts = () => {
   return (
     <section className="relative py-16 md:py-0 bg-white">
       <Container>
-        {/* Header */}
+      
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-semibold text-[#1C2C56] mb-3">
             FAQ’s
@@ -39,8 +39,6 @@ const UniformLatestFAQPosts = () => {
             About design and coordination flow
           </p>
         </div>
-
-        {/* FAQ List */}
         <div className="max-w-7xl mx-auto space-y-6">
           {faqs.map((faq, index) => {
             const isOpen = activeIndex === index;
@@ -54,7 +52,6 @@ const UniformLatestFAQPosts = () => {
                     : "bg-[#F5F7FB]"
                 }`}
               >
-                {/* Question */}
                 <button
                   onClick={() => toggleFAQ(index)}
                   className="w-full flex items-center justify-between text-left"
@@ -67,8 +64,6 @@ const UniformLatestFAQPosts = () => {
                     {isOpen ? <FiMinus /> : <FiPlus />}
                   </span>
                 </button>
-
-                {/* Answer */}
                 {isOpen && faq.answer && (
                   <p className="mt-4 text-sm text-gray-600 leading-relaxed">
                     {faq.answer}
