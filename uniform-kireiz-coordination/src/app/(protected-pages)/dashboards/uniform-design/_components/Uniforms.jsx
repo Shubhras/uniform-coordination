@@ -36,7 +36,7 @@ const Uniforms = () => {
                 <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p>
 
                 {/* FILTER + SORT */}
-                <div className="flex flex-col lg:flex-row justify-between gap-4 mb-8">
+                <div className="flex flex-col lg:flex-row justify-between gap-4 mb-5">
 
                     {/* FILTERS */}
                     <div className="flex flex-wrap items-center gap-2 border border-[#1C2C56] bg-[#F5F8FF] rounded-lg px-3 py-2">
@@ -61,7 +61,7 @@ const Uniforms = () => {
                         <button
                             onClick={() => setOpenSort(!openSort)}
                             className="flex items-center justify-between gap-2 border border-[#1C2C56] bg-[#F5F8FF]
-              px-4 py-2 rounded-lg text-sm min-w-[190px]"
+                                px-4 py-3 rounded-lg text-sm min-w-[190px]"
                         >
                             <span>Sort By : <b>{sortBy}</b></span>
                             <FiChevronDown />
@@ -91,7 +91,7 @@ const Uniforms = () => {
                     <h2 className="text-3xl font-semibold text-[#1C2C56]">
                         Placeholder Text
                     </h2>
-                    <div className="w-20 h-1 bg-[#1C4FA8] mx-auto mt-2" />
+                    <div className="w-20 h-1 bg-[#1C2C56] mx-auto mt-2" />
                     <p className="text-sm text-[#6B7280] mt-4 max-w-lg mx-auto">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                     </p>

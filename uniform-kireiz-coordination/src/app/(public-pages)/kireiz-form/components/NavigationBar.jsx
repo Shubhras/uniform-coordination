@@ -11,8 +11,8 @@ import AuthButtons from "./AuthButtons";
 const navMenu = [
   { title: "Home", value: "home", to: "home" },
   { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign" },
-  { title: "Blog", value: "blog", to: "blog" },
-  { title: `FAQ's`, value: "faq", href: "/guide/documentation/introduction" },
+  { title: "Blog", value: "blog", href: "/blog" },
+  { title: `FAQ's`, value: "faq", href: "/faq" },
 ];
 
 const Navigation = ({ toggleMode, mode }) => {

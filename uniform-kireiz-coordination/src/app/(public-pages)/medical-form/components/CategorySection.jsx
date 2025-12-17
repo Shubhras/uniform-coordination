@@ -68,7 +68,7 @@ const CategorySection = () => {
                         <h2 className="text-[#1C2C56] lg:text-4xl md:text-3xl text-2xl font-semibold">
                             Featured Medical Categories
                         </h2>
-                        <div className="w-24 h-1 rounded-full bg-[#1C4FA8] mx-auto mt-2" />
+                        <div className="w-24 h-1 rounded-full bg-[#1C2C56] mx-auto mt-2" />
                     </div>
 
                     {/* FILTER + SORT BAR */}
