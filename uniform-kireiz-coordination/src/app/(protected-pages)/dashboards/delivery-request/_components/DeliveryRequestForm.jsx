@@ -18,7 +18,9 @@ const validationSchema = z.object({
     itemType: z.string().min(1, 'Item Type Required'),
     material: z.string().min(1, 'Material Required'),
     sizeQty: z.string().min(1, 'Size & Quantity Required'),
-    deliveryDate: z.string().min(1, 'Delivery Date Required'),
+    deliveryDate: z.date({
+        required_error: 'Delivery Date Required',
+    }),
     notes: z.string().optional(),
     agree: z.boolean().refine(val => val === true, { message: 'Required' }),
 })
@@ -40,27 +42,35 @@ const DeliveryRequestForm = () => {
             itemType: "",
             material: "",
             sizeQty: "",
-            deliveryDate: "",
+            deliveryDate: null,
             notes: "",
             agree: false,
+
         },
         resolver: zodResolver(validationSchema),
     });
 
     const onSubmit = (values) => {
-        console.log('summit from', values);
+     
+        const payload = {
+            ...values,
+            deliveryDate: values.deliveryDate.toISOString().split('T')[0],
+        }
+          console.log('summit from', payload);
+        openDialogQuoteRequest();
     };
 
     const openDialogTerms = () => {
         setDialogTermsOpen(true)
     }
-     const openDialogQuoteRequest = () => {
+    const openDialogQuoteRequest = () => {
         setDialogQuoteRequestOpen(true)
     }
     return (
         <>
-            <div className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10">
-                <div className="w-full lg:w-1/2 px-4 ">
+            {/* <div className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10"> */}
+            <div className="w-full bg-white py-8 px-4">
+                {/* <div className="w-full lg:w-1/2 px-4 ">
                     <h5 className="font-medium mb-3">Design Result</h5>
                     <div className="relative w-[250px] h-[250px] mx-auto">
                         <div className="absolute inset-0 rounded-full bg-[#BEE3F8]"></div>
@@ -89,9 +99,10 @@ const DeliveryRequestForm = () => {
                             </div>
                         </div>
                     </div>
-                </div>
-                <div className="w-full lg:w-1/2">
-                    <h4 className="font-semibold mb-4">
+                </div> */}
+                {/* <div className="w-full lg:w-1/2 "> */}
+                <div className="w-full mx-auto max-w-[720px]">
+                    <h4 className="font-semibold mb-8">
                         Quotation & Delivery Request Form
                     </h4>
                     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -203,10 +214,9 @@ const DeliveryRequestForm = () => {
                                     control={control}
                                     render={({ field }) => (
                                         <DatePicker
-                                            {...field}
                                             value={field.value}
                                             onChange={(date) => field.onChange(date)}
-                                            placeholder="Pick a date"
+                                            placeholder="Delivery Date"
                                         />
                                     )}
                                 />
@@ -239,7 +249,7 @@ const DeliveryRequestForm = () => {
                                         I agree to privacy
                                         <span
                                             className="text-blue-500 cursor-pointer ml-2"
-                                            onClick={openDialogTerms} 
+                                            onClick={openDialogTerms}
                                         >
                                             policy & terms
                                         </span>
@@ -255,10 +265,10 @@ const DeliveryRequestForm = () => {
                             Request a Quote
                         </Button>
                     </Form>
-                    <div className="flex justify-center gap-4 mt-6">
+                    {/* <div className="flex justify-center gap-4 mt-6">
                         <button className="border px-6 py-2 rounded-md">Save Design</button>
                         <button className="border px-6 py-2 rounded-md" onClick={openDialogQuoteRequest}>Export PDF</button>
-                    </div>
+                    </div> */}
                 </div>
             </div>
             <TermsAndConditionsPopup

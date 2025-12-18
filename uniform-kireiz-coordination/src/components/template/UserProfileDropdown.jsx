@@ -89,7 +89,7 @@ const router = useRouter()
     }
 
      const handleProfile = () => {
-    router.push("/dashboards/profile/personal-information");
+    router.push("/dashboards/profile/settings");
   };
     return (
         <>
