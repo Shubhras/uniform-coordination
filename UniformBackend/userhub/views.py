@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from .utils import generate_custom_tokens
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
 from django.conf import settings
 from .serializers import*
 import logging,uuid
@@ -493,5 +494,170 @@ class UpdatePasswordAPIView(APIView):
                 "error": str(exc)
             }, status=500)
 
+#-----------------Notification-------------------------
 
 
+
+# class NotificationCreateAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request):
+#         try:
+#             serializer = NotificationSerializer(data=request.data)
+#             if serializer.is_valid():
+#                 serializer.save(user=request.user)
+#                 return Response({
+#                     "status": True,
+#                     "statusCode": 200,
+#                     "message": "Notification created successfully",
+#                     "data": serializer.data
+#                 }, status=status.HTTP_200_OK)
+
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 400,
+#                 "message": serializer.errors,
+#                 "data": None
+#             }, status=status.HTTP_400_BAD_REQUEST)
+
+#         except Exception as e:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": str(e),
+#                 "data": None
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+# class NotificationListAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         try:
+#             notifications = Notifications.objects.filter(
+#                 user=request.user,
+#                 isDeleted=False
+#             ).order_by("-created_at")
+
+#             serializer = NotificationSerializer(notifications, many=True)
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Notifications fetched successfully",
+#                 "data": serializer.data
+#             }, status=status.HTTP_200_OK)
+
+#         except Exception as e:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": str(e),
+#                 "data": None
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# class NotificationDetailAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request, pk):
+#         try:
+#             notification = get_object_or_404(
+#                 Notifications,
+#                 pk=pk,
+#                 user=request.user,
+#                 isDeleted=False
+#             )
+
+#             serializer = NotificationSerializer(notification)
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Notification details fetched successfully",
+#                 "data": serializer.data
+#             }, status=status.HTTP_200_OK)
+
+#         except Exception as e:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 404,
+#                 "message": str(e),
+#                 "data": None
+#             }, status=status.HTTP_404_NOT_FOUND)
+
+
+# class NotificationUpdateAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def put(self, request, pk):
+#         try:
+#             notification = get_object_or_404(
+#                 Notifications,
+#                 pk=pk,
+#                 user=request.user,
+#                 isDeleted=False
+#             )
+
+#             serializer = NotificationSerializer(
+#                 notification,
+#                 data=request.data,
+#                 partial=True
+#             )
+
+#             if serializer.is_valid():
+#                 serializer.save()
+#                 return Response({
+#                     "status": True,
+#                     "statusCode": 200,
+#                     "message": "Notification updated successfully",
+#                     "data": serializer.data
+#                 }, status=status.HTTP_200_OK)
+
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 400,
+#                 "message": serializer.errors,
+#                 "data": None
+#             }, status=status.HTTP_400_BAD_REQUEST)
+
+#         except Exception as e:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": str(e),
+#                 "data": None
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# class NotificationDeleteAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def delete(self, request, pk):
+#         try:
+#             notification = get_object_or_404(
+#                 Notifications,
+#                 pk=pk,
+#                 user=request.user,
+#                 isDeleted=False
+#             )
+
+#             notification.isDeleted = True
+#             notification.isActive = False
+#             notification.save()
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Notification deleted successfully",
+#                 "data": None
+#             }, status=status.HTTP_200_OK)
+
+#         except Exception as e:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": str(e),
+#                 "data": None
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

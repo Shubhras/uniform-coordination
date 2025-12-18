@@ -5,6 +5,11 @@ from .parts import *
 from .colours import *
 from .templates import *
 from .faqs import *
+from .blog import *
+from .category import *
+from .subcategory import *
+from .catelogimage import *
+
 
 urlpatterns = [
     path('login/', AdminLoginAPIView.as_view(), name='admin-login'),
@@ -45,7 +50,6 @@ urlpatterns = [
     
     
     
-
     #Blog URLs 
     path("blogs/create/", BlogCreateAPIView.as_view(), name="blog-create"),
     path("blogs/list/", BlogListAPIView.as_view(), name="blog-list"),
@@ -78,5 +82,14 @@ urlpatterns = [
     path("catalog-image/detail/<int:pk>/", CatalogImageDetailAPIView.as_view(),name="catalog-image-detail"),
     path("catalog-image/update/<int:pk>/", CatalogImageUpdateAPIView.as_view(),name="catalog-image-update"),
     path("catalog-image/delete/<int:pk>/", CatalogImageDeleteAPIView.as_view(),name="catalog-image-delete"), 
+    
+    
+    
+    path("subcategory/create/", SubCategoryCreateAPIView.as_view(),name="subcategory-create"),
+    path("subcategory/list/", SubCategoryListAPIView.as_view(),name="subcategory-list"),
+    path("subcategory/detail/<int:pk>/", SubCategoryDetailAPIView.as_view(),name="subcategory-detail"),
+    path("subcategory/update/<int:pk>/", SubCategoryUpdateAPIView.as_view(),name="subcategory-create"),
+    path("subcategory/delete/<int:pk>/", SubCategoryDeleteAPIView.as_view(),name="subcategory-create"),
+
     
 ]

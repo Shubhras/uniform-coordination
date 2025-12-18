@@ -1,78 +1,78 @@
-
-from rest_framework.views import APIView
 from .models import *
 from uniformAdmin.serializers import *
-from django.core.paginator import Paginator
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.exceptions import ValidationError
-from uniformAdmin.fabric import CustomPagination,IsAdministrator
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated ,BasePermission,AllowAny
+from rest_framework import status
+from uniformAdmin.fabric import CustomPagination,IsAdministrator
+from django.shortcuts import get_object_or_404
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-#-----------------------FAQs----------------------------------
 
 
 
+#---------------------------Categories--------------------------
 
-
-
-class FAQCreateAPIView(APIView):
-    
+class CategoryCreateAPIView(APIView):
+   
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
 
     def post(self, request):
         try:
-            serializer = FAQSerializer(data=request.data, context={"request": request})
+            serializer = CategorySerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({
                     "status": True,
                     "statusCode": 200,
-                    "message": "FAQ created successfully.",
+                    "message": "Category created successfully.",
                     "data": serializer.data
                 }, status=status.HTTP_200_OK)
 
-            error_message = ""
-            if serializer.errors:
-                first_key = next(iter(serializer.errors))
-                error_message = serializer.errors[first_key][0]
+            if "categoryName" in serializer.errors:
+                return Response({
+                    "status": False,
+                    "statusCode": 200,
+                    "message": "Validation failed; Category with this categoryName already exists."
+                }, status=status.HTTP_200_OK)
 
             return Response({
                 "status": False,
                 "statusCode": 200,
-                "message": f"Validation failed; {error_message}"
+                "message": "Validation failed.",
+                "error": serializer.errors
             }, status=status.HTTP_200_OK)
 
         except Exception as exc:
             return Response({
                 "status": False,
                 "statusCode": 500,
-                "message": "Server error while creating FAQ.",
+                "message": "Server error while creating category.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
-class FAQListAPIView(APIView):
+class CategoryListAPIView(APIView):
     permission_classes = [AllowAny]
     
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
 
-            faqs = FAQ.objects.filter(isDeleted=False, isActive=True)
+            categories = Category.objects.filter(isDeleted=False)
 
+            # Search only on categoryName (as per requirement)
             if search:
-                faqs = faqs.filter(title__icontains=search)
+                categories = categories.filter(categoryName__icontains=search)
 
-            faqs = faqs.order_by("-created_at")
+            categories = categories.order_by("-created_at")
 
+            # Apply pagination (same as reference API)
             paginator = CustomPagination()
-            page = paginator.paginate_queryset(faqs, request)
-            serializer = FAQSerializer(page, many=True, context={"request": request})
+            page = paginator.paginate_queryset(categories, request)
+            serializer = CategorySerializer(page, many=True)
 
             response = {
                 "count": paginator.page.paginator.count,
@@ -80,7 +80,7 @@ class FAQListAPIView(APIView):
                 "previous": paginator.get_previous_link(),
                 "statusCode": 200,
                 "status": True,
-                "message": "FAQ list fetched successfully.",
+                "message": "Category list fetched successfully.",
                 "data": serializer.data,
                 "pagination": {
                     "page": paginator.page.number,
@@ -89,38 +89,41 @@ class FAQListAPIView(APIView):
                     "total_items": paginator.page.paginator.count
                 }
             }
+
             return Response(response, status=status.HTTP_200_OK)
 
         except Exception as exc:
             return Response({
                 "status": False,
                 "statusCode": 500,
-                "message": "Server error while fetching FAQ list.",
+                "message": "Server error while fetching categories.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
-class FAQDetailAPIView(APIView):
+class CategoryDetailAPIView(APIView):
     permission_classes = [AllowAny]
     
-    def get(self, request, faq_id):
+    def get(self, request, category_id):
         try:
-            faq = FAQ.objects.filter(id=faq_id, isDeleted=False).first()
+            category = Category.objects.filter(
+                id=category_id,
+                isDeleted=False
+            ).first()
 
-            if not faq:
+            if not category:
                 return Response({
                     "status": False,
-                    "statusCode": 404,
-                    "message": "FAQ not found."
-                }, status=status.HTTP_404_NOT_FOUND)
+                    "statusCode": 200,
+                    "message": "Category not found."
+                }, status=status.HTTP_200_OK)
 
-            serializer = FAQSerializer(faq, context={"request": request})
+            serializer = CategorySerializer(category)
 
             return Response({
                 "status": True,
                 "statusCode": 200,
-                "message": "FAQ details fetched successfully.",
+                "message": "Category details fetched successfully.",
                 "data": serializer.data
             }, status=status.HTTP_200_OK)
 
@@ -128,91 +131,99 @@ class FAQDetailAPIView(APIView):
             return Response({
                 "status": False,
                 "statusCode": 500,
-                "message": "Server error while fetching FAQ details.",
+                "message": "Server error while fetching category.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class FAQUpdateAPIView(APIView):
+class CategoryUpdateAPIView(APIView):
     permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]  # <-- ensures request.user is AdminUser
+    authentication_classes = [JWTAuthentication] 
 
-    def put(self, request, faq_id):
+    def put(self, request, category_id):
         try:
-            faq = FAQ.objects.filter(id=faq_id, isDeleted=False).first()
-
-            if not faq:
+            try:
+                category = Category.objects.get(
+                    id=category_id,
+                    isDeleted=False
+                )
+            except Category.DoesNotExist:
                 return Response({
                     "status": False,
-                    "statusCode": 404,
-                    "message": "FAQ not found."
-                }, status=status.HTTP_404_NOT_FOUND)
+                    "statusCode": 200,
+                    "message": "Category not found."
+                }, status=status.HTTP_200_OK)
 
-            serializer = FAQSerializer(faq, data=request.data, partial=True, context={"request": request})
+            serializer = CategorySerializer(
+                category,
+                data=request.data,
+                partial=True
+            )
 
             if serializer.is_valid():
                 serializer.save()
                 return Response({
                     "status": True,
                     "statusCode": 200,
-                    "message": "FAQ updated successfully.",
+                    "message": "Category updated successfully.",
                     "data": serializer.data
+                }, status=status.HTTP_200_OK)
+
+            if "categoryName" in serializer.errors:
+                return Response({
+                    "status": False,
+                    "statusCode": 200,
+                    "message": "Validation failed; Category with this categoryName already exists."
                 }, status=status.HTTP_200_OK)
 
             return Response({
                 "status": False,
-                "statusCode": 400,
+                "statusCode": 200,
                 "message": "Validation failed.",
                 "error": serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        except Exception as exc:
-            return Response({
-                "status": False,
-                "statusCode": 500,
-                "message": "Server error while updating FAQ.",
-                "error": str(exc)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class FAQDeleteAPIView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]  # <-- ensures request.user is AdminUser
-
-    def delete(self, request, faq_id):
-        try:
-            faq = FAQ.objects.filter(id=faq_id, isDeleted=False).first()
-
-            if not faq:
-                return Response({
-                    "status": False,
-                    "statusCode": 404,
-                    "message": "FAQ not found."
-                }, status=status.HTTP_404_NOT_FOUND)
-
-            # Soft delete FAQ and all its descriptions
-            faq.isDeleted = True
-            faq.save()
-            faq.descriptions.update(isDeleted=True)
-
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "FAQ deleted successfully."
             }, status=status.HTTP_200_OK)
 
         except Exception as exc:
             return Response({
                 "status": False,
                 "statusCode": 500,
-                "message": "Server error while deleting FAQ.",
+                "message": "Server error while updating category.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class CategoryDeleteAPIView(APIView):
+    
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication] 
 
+    def delete(self, request, category_id):
+        try:
+            try:
+                category = Category.objects.get(
+                    id=category_id,
+                    isDeleted=False
+                )
+            except Category.DoesNotExist:
+                return Response({
+                    "status": False,
+                    "statusCode": 200,
+                    "message": "Category not found."
+                }, status=status.HTTP_200_OK)
 
+            category.isDeleted = True
+            category.save()
 
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Category deleted successfully."
+            }, status=status.HTTP_200_OK)
 
-
-
+        except Exception as exc:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Server error while deleting category.",
+                "error": str(exc)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -1,9 +1,11 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from django.db import IntegrityError
-from .models import Users  # adjust import if needed
+from .models import *  # adjust import if needed
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
+# from userhub.models import Notifications
+
 
 
 
@@ -128,3 +130,27 @@ class LoginSerializer(serializers.Serializer):
 
         data["user"] = user
         return data
+
+
+
+# from rest_framework import serializers
+
+
+# class NotificationSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Notifications
+#         fields = [
+#             "id",
+#             "type",
+#             "is_enabled",
+#             "isActive",
+#             "isDeleted",
+#             "created_at",
+#             "updated_at",
+#         ]
+#         read_only_fields = ["id", "created_at", "updated_at"]
+
+#     def validate(self, attrs):
+#         if "type" in attrs and not attrs["type"]:
+#             raise serializers.ValidationError("Notification type is required.")
+#         return attrs

@@ -251,38 +251,57 @@ class CatalogImage(models.Model):
     def __str__(self):
         return self.name   
     
-    
-    
-    
-class PDFTemplate(models.Model):
-    PAPER_SIZES = (
-        ('A4', 'A4'),
-        ('Letter', 'Letter'),
-    )
 
-    name = models.CharField(max_length=100)
-
-    template = models.ForeignKey(
-        Template,                 
-        on_delete=models.PROTECT, 
-        related_name='pdf_layouts'
-    )
-
-    paper_size = models.CharField(max_length=10, choices=PAPER_SIZES)
-
-    total_custom_fields = models.PositiveIntegerField(default=0)
-
-    preview_pdf = models.FileField(
-        upload_to='pdf_templates/previews/',
-        null=True,
-        blank=True
-    )
-
-    is_active = models.BooleanField(default=True)
-
+class SubCategory(models.Model):
+    name = models.CharField(max_length=255)
+    subcategoryImage = models.ImageField(upload_to="subcategory/", blank=True, null=True)
+    category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,blank=True,related_name="subcategories")
+    slug = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            self.slug = slugify(self.name).replace("-", "_")
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.name} ({self.template.templateName})"
+        return self.name
+
+    
+    
+# class PDFTemplate(models.Model):
+#     PAPER_SIZES = (
+#         ('A4', 'A4'),
+#         ('Letter', 'Letter'),
+#     )
+
+#     name = models.CharField(max_length=100)
+
+#     template = models.ForeignKey(
+#         Template,                 
+#         on_delete=models.PROTECT, 
+#         related_name='pdf_layouts'
+#     )
+
+#     paper_size = models.CharField(max_length=10, choices=PAPER_SIZES)
+
+#     total_custom_fields = models.PositiveIntegerField(default=0)
+
+#     preview_pdf = models.FileField(
+#         upload_to='pdf_templates/previews/',
+#         null=True,
+#         blank=True
+#     )
+
+#     is_active = models.BooleanField(default=True)
+
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+
+#     def __str__(self):
+#         return f"{self.name} ({self.template.templateName})"
     

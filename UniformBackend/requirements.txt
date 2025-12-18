@@ -9,3 +9,4 @@ django-cors-headers==4.9.0
 openpyxl
 mysqlclient
 pillow
+requests

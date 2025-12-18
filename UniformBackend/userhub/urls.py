@@ -18,5 +18,12 @@ urlpatterns = [
     # path("simulations-history",name="simulations-history")
 
     
+    # path("notifications/create/", NotificationCreateAPIView.as_view()),
+    # path("notifications/", NotificationListAPIView.as_view()),
+    # path("notifications/<int:pk>/", NotificationDetailAPIView.as_view()),
+    # path("notifications/<int:pk>/update/", NotificationUpdateAPIView.as_view()),
+    # path("notifications/<int:pk>/delete/", NotificationDeleteAPIView.as_view()),
+
+    
 
 ]

@@ -1,5 +1,6 @@
 from django.db import models
 from uniformAdmin.models import Role
+from django.conf import settings
 from django.contrib.auth.hashers import make_password
 
 class Users(models.Model):
@@ -36,7 +37,11 @@ class Users(models.Model):
     appleID = models.CharField(max_length=255, null=True, blank=True)
     stripeOrderCustomerId= models.CharField(max_length=255, null=True, blank=True)
     isDeleted = models.BooleanField(default=False)
-    loginType = models.CharField(max_length=20,choices=LOGIN_CHOICES, default='app')
+    loginType = models.CharField(max_length=20,choices=LOGIN_CHOICES, default='app')    
+    email_notifications = models.BooleanField(default=True, null=True, blank=True)
+    push_notifications = models.BooleanField(default=True, null=True, blank=True)
+    
+    
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
  
@@ -59,3 +64,44 @@ class Users(models.Model):
 
 
 
+#-----------------Notification --------------------
+
+
+# NOTIFICATION_TYPE_CHOICES = [
+#     ('uniform_order', 'Uniform Order Updates'),
+#     ('table_order', 'Table Order Updates'),
+#     ('system', 'System Updates'),
+#     ('promotion', 'Promotions'),
+#     ('security', 'Security Alerts'),
+# ]
+
+# class Notifications(models.Model):
+#     user = models.ForeignKey(
+#         settings.AUTH_USER_MODEL,
+#         on_delete=models.CASCADE,
+#         related_name="notification_preferences"
+#     )
+
+#     type = models.CharField(
+#         max_length=50,
+#         choices=NOTIFICATION_TYPE_CHOICES,
+#         null=True,
+#         blank=True
+#     )
+
+#     is_enabled = models.BooleanField(default=True, null=True, blank=True)
+#     isActive = models.BooleanField(default=True)
+#     isDeleted = models.BooleanField(default=False)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+
+#     def __str__(self):
+#         return f"{self.user} - {self.type}"
+
+
+
+# class UserDevice(models.Model):
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     onesignal_player_id = models.CharField(max_length=255, unique=True)
+#     device_type = models.CharField(max_length=20)
+#     is_active = models.BooleanField(default=True)

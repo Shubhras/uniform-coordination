@@ -42,10 +42,6 @@ class FabricAdmin(admin.ModelAdmin):
     list_editable = ('isActive', 'isDeleted', 'pricePerUnit')
     
     
-# from django.contrib import admin
-# from .models import Blog
-
-
 @admin.register(Blog)
 class BlogAdmin(admin.ModelAdmin):
     list_display = (
@@ -61,8 +57,6 @@ class BlogAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
     
     
-    
-
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("id","categoryName","slug","isActive","isDeleted", "created_at","updated_at")
@@ -86,8 +80,6 @@ class CategoryAdmin(admin.ModelAdmin):
    
     
     
-    
-
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
     list_display = (
@@ -100,47 +92,6 @@ class FAQAdmin(admin.ModelAdmin):
     search_fields = ("title",)
     list_filter = ("isActive", "isDeleted")
    
-    
-    
-
-
-# @admin.register(FAQDescription)
-# class FAQDescriptionAdmin(admin.ModelAdmin):
-#     list_display = (
-#         "id",
-#         "faq",
-#         "short_description",
-#         "isActive",
-#         "isDeleted",
-#         "created_at",
-#         "updated_at",
-#     )
-
-#     list_filter = ("isActive", "isDeleted", "created_at")
-#     search_fields = ("faq__title", "description")
-#     ordering = ("-created_at",)
-
-#     readonly_fields = ("created_at", "updated_at")
-
-#     fieldsets = (
-#         ("FAQ Info", {
-#             "fields": ("faq", "description")
-#         }),
-#         ("Status", {
-#             "fields": ("isActive", "isDeleted")
-#         }),
-#         ("Timestamps", {
-#             "fields": ("created_at", "updated_at")
-#         }),
-#     )
-
-#     def short_description(self, obj):
-#         """Show first 50 chars of description in list view"""
-#         return obj.description[:50] + "..." if len(obj.description) > 50 else obj.description
-
-#     short_description.short_description = "Description Preview"
-    
-    
     
     
 @admin.register(FAQDescription)
@@ -186,17 +137,29 @@ class FAQDescriptionAdmin(admin.ModelAdmin):
     
     
     
-# from django.contrib import admin
-# from .models import CatalogImage
-
-
 @admin.register(CatalogImage)
 class CatalogImageAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "category", "isActive", "isDeleted", "created_at")
+    list_display = ("id", "name", "category", "isActive", "isDeleted", "created_at",)
     list_filter = ("category", "isActive", "isDeleted")
     search_fields = ("name",)
-    readonly_fields = ("created_at", "updated_at", "slug")
+    readonly_fields = ("created_at", "updated_at", "slug",)
     
+    
+    
+@admin.register(SubCategory)
+class SubCategoryAdmin(admin.ModelAdmin):
+    list_display = ("id","name","category","isActive","isDeleted","created_at",)
+
+    list_filter = ("isActive","isDeleted","category",)
+
+    search_fields = ("name",)
+
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+    )
+
+    ordering = ("-created_at",)
     
     
     
