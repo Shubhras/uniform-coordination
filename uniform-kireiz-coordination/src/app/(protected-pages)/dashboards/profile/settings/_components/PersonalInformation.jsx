@@ -171,7 +171,7 @@ const PersonalInformation = () => {
                                                     size="sm"
                                                     type="button"
                                                     // icon={<TbPlus />}
-                                                    className=" bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md"
+                                                    className=" bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md px-6"
                                                 >
                                                     Upload Image
                                                 </Button>
@@ -345,7 +345,7 @@ const PersonalInformation = () => {
                             type="submit"
                             size="sm"
                             loading={isSubmitting}
-                            className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md"
+                            className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
                         >
                             Save Changes
                         </Button>

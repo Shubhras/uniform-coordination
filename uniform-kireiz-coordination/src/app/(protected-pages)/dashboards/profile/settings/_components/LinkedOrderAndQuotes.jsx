@@ -112,7 +112,7 @@ const LinkedOrderAndQuotes = () => {
                         {/* Action */}
                         <Button
                             size="sm"
-                            className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md">
+                            className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md">
                             View order
                         </Button>
                     </div>
