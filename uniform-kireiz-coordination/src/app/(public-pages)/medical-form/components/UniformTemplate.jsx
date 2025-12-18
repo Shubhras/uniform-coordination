@@ -121,19 +121,9 @@ const UniformTemplate = () => {
                 </div>
 
                 {/* NAV */}
-                <div className="flex justify-end gap-3 mb-6">
-                    <button
-                        onClick={handlePrev}
-                        className="h-10 w-10 border rounded-full flex items-center justify-center hover:bg-gray-100"
-                    >
-                        <FiArrowLeft />
-                    </button>
-                    <button
-                        onClick={handleNext}
-                        className="h-10 w-10 border rounded-full flex items-center justify-center hover:bg-gray-100"
-                    >
-                        <FiArrowRight />
-                    </button>
+                <div className="flex justify-end gap-3 mb-6 mr-6">
+                             <FiArrowLeft  onClick={handlePrev} size={25} className="text-lg text-gray-600 cursor-pointer" />
+                             <FiArrowRight  onClick={handleNext} size={25} className="text-lg text-gray-600 ml-8 cursor-pointer" />
                 </div>
 
                 {/* CARDS */}
