@@ -17,7 +17,7 @@ import { FiBox, FiLock } from 'react-icons/fi'
 import { LuPalette } from 'react-icons/lu'
 import { IoNotificationsOutline } from 'react-icons/io5'
 import { usePathname } from 'next/navigation'
-
+import { useRouter } from 'next/navigation'
 const dropdownItemList = [
     // {
     //     label: 'Profile',
@@ -73,7 +73,7 @@ const dropdownItemList = [
 ]
 
 const _UserDropdown = () => {
-
+const router = useRouter()
 
     const { session } = useCurrentSession()
     const pathname = usePathname()
