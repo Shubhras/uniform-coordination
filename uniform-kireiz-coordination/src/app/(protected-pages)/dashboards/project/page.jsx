@@ -38,8 +38,8 @@ export default async function Page() {
         //     </div>
         // </div>
         <>
-            <AdaptiveCard className="h-full mt-12">
-                <div className="flex flex-auto h-full">
+            <AdaptiveCard className=" mt-12">
+                <div className="flex flex-auto ">
                     <Uniforms3DmoduleRender data={{}} />
                 </div>
             </AdaptiveCard>

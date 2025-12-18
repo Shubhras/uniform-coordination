@@ -10,7 +10,7 @@ import AuthButtons from "./AuthButtons";
 
 const navMenu = [
   { title: "Home", value: "home", to: "home", url: "/kireiz-form" },
-  { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign", url: "/dashboards/project" },
+  { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign", url: "/dashboards/uniform-3d-design" },
   { title: "Blog", value: "blog", to: "blog", url: "/blog" },
   { title: `FAQ's`, value: "faq", to: "faq", url: "/faq" },
 ];

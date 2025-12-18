@@ -422,7 +422,7 @@
 
 
 'use client'
-
+import Image from 'next/image'
 import '@google/model-viewer'
 import { useEffect, useRef, useState } from 'react'
 import Card from '@/components/ui/Card'
@@ -514,7 +514,7 @@ const PANELS = {
 export default function Uniforms3DmoduleRender() {
   const mvRef = useRef(null)
   const [modelSrc, setModelSrc] = useState(SAMPLE_MODEL)
-  const [active, setActive] = useState('color')
+  const [active, setActive] = useState('')
   const [autoRotate, setAutoRotate] = useState(true)
   const [color, setColor] = useState('#7fc7ff')
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -727,30 +727,30 @@ export default function Uniforms3DmoduleRender() {
 
     setCameraHistory((prev) => [...prev, state]);
   }
- function zoomIn() {
-  saveCameraState();
-  const mv = mvRef.current;
-  if (!mv) return;
+  function zoomIn() {
+    saveCameraState();
+    const mv = mvRef.current;
+    if (!mv) return;
 
-  let fov = mv.getFieldOfView();
-  fov = Math.max(10, fov - 5);   // min zoom
+    let fov = mv.getFieldOfView();
+    fov = Math.max(10, fov - 5);   // min zoom
 
-  mv.fieldOfView = `${fov}deg`;
-  setFieldOfView(fov);           // UPDATE UI
-}
+    mv.fieldOfView = `${fov}deg`;
+    setFieldOfView(fov);           // UPDATE UI
+  }
 
-function zoomOut() {
-  saveCameraState();
-  const mv = mvRef.current;
-  if (!mv) return;
+  function zoomOut() {
+    saveCameraState();
+    const mv = mvRef.current;
+    if (!mv) return;
 
-  let fov = mv.getFieldOfView();
-  fov = Math.min(120, fov + 5);  // max zoom
+    let fov = mv.getFieldOfView();
+    fov = Math.min(120, fov + 5);  // max zoom
 
-  mv.fieldOfView = `${fov}deg`;
-  setFieldOfView(fov);           // UPDATE UI
-}
-const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
+    mv.fieldOfView = `${fov}deg`;
+    setFieldOfView(fov);           // UPDATE UI
+  }
+  const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
 
   function rotate90() {
     saveCameraState();
@@ -792,24 +792,12 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
 
 
   return (
-     <div className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10">
-
-      {/* Header */}
-      {/* <div className="flex items-center justify-between mb-2">
-       
-        <ActionLink href="/dashboards/delivery-request" className="heading-text text-blue-400">Delivery Request Form</ActionLink>
-      </div> */}
+     <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
       <div className="flex gap-6">
-
-        {/* LEFT TOOLBAR */}
         <div className="w-[80px] flex flex-col items-center">
-
-          {/* TOP BUTTON */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-[#2F62FF] text-white rounded-lg shadow text-sm mb-4">
+          <div className="flex items-center gap-2 px-4 py-2 bg-[#1c2c56] text-white rounded-lg shadow text-sm mb-4">
             Top <span className="text-xs">›</span>
           </div>
-
-          {/* ICON LIST */}
           <div className="flex flex-col gap-5 w-full">
             <button
               onClick={() => onIconClick("color")}
@@ -819,7 +807,6 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
               <img src="/img/top-left-image/color-wheel.png" className="w-12 h-12 mb-1" />
               <span className="text-xs text-gray-600">Color</span>
             </button>
-
             <button
               onClick={() => onIconClick("fabric")}
               className={`w-[75px] bg-white rounded-xl shadow-md p-2 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "fabric" ? "ring-2 ring-blue-500" : ""
@@ -828,7 +815,6 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
               <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
               <span className="text-xs text-gray-600">Fabric</span>
             </button>
-
             <button
               onClick={() => onIconClick("collar")}
               className={`w-[75px] bg-white rounded-xl shadow-md p-2 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "collar" ? "ring-2 ring-blue-500" : ""
@@ -837,7 +823,6 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
               <img src="/img/top-left-image/collar.png" className="w-12 h-12 mb-1" />
               <span className="text-xs text-gray-600">Collar</span>
             </button>
-            {/* Size icon */}
             <button
               onClick={() => onIconClick("size")}
               className={`w-[75px] bg-white rounded-xl shadow-md p-2 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "size" ? "ring-2 ring-blue-500" : ""
@@ -846,8 +831,6 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
               <img src="/img/top-left-image/measuring-tape.png" className="w-12 h-12 mb-1" />
               <span className="text-xs text-gray-600">Size</span>
             </button>
-
-            {/* Sleeves */}
             <button
               onClick={() => onIconClick("sleeves")}
               className={`w-[75px] bg-white rounded-xl shadow-md p-2 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "sleeves" ? "ring-2 ring-blue-500" : ""
@@ -856,8 +839,6 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
               <img src="/img/top-left-image/sleeves.png" className="w-12 h-12 mb-1" />
               <span className="text-xs text-gray-600">Sleeves</span>
             </button>
-
-            {/* Cap */}
             <button
               onClick={() => onIconClick("cap")}
               className={`w-[75px] bg-white rounded-xl shadow-md p-2 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "cap" ? "ring-2 ring-blue-500" : ""
@@ -866,8 +847,6 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
               <img src="/img/top-left-image/cap.png" className="w-12 h-12 mb-1" />
               <span className="text-xs text-gray-600">Cap</span>
             </button>
-
-            {/* Zipper */}
             <button
               onClick={() => onIconClick("zipper")}
               className={`w-[75px] bg-white rounded-xl shadow-md p-2 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "zipper" ? "ring-2 ring-blue-500" : ""
@@ -876,8 +855,6 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
               <img src="/img/top-left-image/zipper.png" className="w-12 h-12 mb-1" />
               <span className="text-xs text-gray-600">Zipper</span>
             </button>
-
-            {/* Cuff */}
             <button
               onClick={() => onIconClick("cuff")}
               className={`w-[75px] bg-white rounded-xl shadow-md p-2 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "cuff" ? "ring-2 ring-blue-500" : ""
@@ -888,14 +865,12 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
             </button>
           </div>
         </div>
-
         <div className="w-[275px]">
           {PANELS[active] && (
             <div className="bg-white shadow-xl rounded-xl p-3">
               <h5 className="font-semibold text-gray-700 mb-2">
                 {PANELS[active].title}
               </h5>
-              {/* COLORS */}
               {PANELS[active].type === "colors" && (
                 <div className="grid grid-cols-5 gap-3 relative">
                   <button
@@ -927,8 +902,6 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
                   onClose={() => setShowColorPicker(false)}
                 />
               )}
-
-              {/* TEXTURES */}
               {PANELS[active].type === "textures" && (
                 <div className="grid grid-cols-3 gap-3">
                   {PANELS[active].data.map((tex, i) => (
@@ -941,8 +914,6 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
                   ))}
                 </div>
               )}
-
-              {/* OPTIONS (image-based) */}
               {PANELS[active].type === "options" && (
                 <div className="grid grid-cols-3 gap-3">
                   {PANELS[active].data.map((opt, i) => (
@@ -952,8 +923,6 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
                   ))}
                 </div>
               )}
-
-              {/* SIZE SELECT */}
               {PANELS[active].type === "size" && (
                 <div className="flex gap-2">
                   {PANELS[active].data.map((size, i) => (
@@ -974,11 +943,7 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
 
         {/* CENTER MODEL VIEWER */}
         <div className="relative flex-1 flex flex-col items-center">
-
-          {/* Blue Circle */}
-          <div className="absolute top-10 w-[350px] h-[350px] bg-[#BEE0FF] rounded-full"></div>
-
-          {/* MODEL VIEWER */}
+          {/* <div className="absolute top-10 w-[400px] h-[400px] bg-[#BEE0FF] rounded-full"></div>
           <model-viewer
             ref={mvRef}
             src={modelSrc}
@@ -993,61 +958,51 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
               zIndex: 10,
               background: "transparent",
             }}
-          />
+          /> */}
+          {/* Blue Circle */}
+          <div className="absolute top-[-10] w-[360px] h-[360px] bg-[#BEE0FF] rounded-full"></div>
+          <div className="relative z-10">
+            <Image
+              src="/img/uniform/uniform.png"
+              alt="Uniform"
+              width={350}
+              height={500}
+              className="object-contain"
+              priority
+            />
+          </div>
           {/* BOTTOM TOOLBAR */}
           <div className="relative z-20 mt-6 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl px-3 py-2 flex items-center gap-4">
-
-            {/* Cursor */}
             <button className="p-2 rounded-md">
               <img src="/img/top-left-image/cursor.png" className="w-5 h-5 invert" />
             </button>
-
             <div className="w-px h-6 bg-gray-300"></div>
-
-            {/* Hand */}
             <button className="p-2">
               <img src="/img/top-left-image/hand.png" className="w-5 h-5" />
             </button>
-
             <div className="w-px h-6 bg-gray-300"></div>
-
-            {/* Undo */}
             <button className="p-2" onClick={undoCamera}>
               <img src="/img/top-left-image/undo.png" className="w-5 h-5" />
             </button>
-
-            {/* Redo */}
             <button className="p-2" onClick={redoCamera}>
               <img src="/img/top-left-image/redo.png" className="w-5 h-5" />
             </button>
-
             <div className="w-px h-6 bg-gray-300"></div>
-
-            {/* Zoom In */}
             <button className="p-2" onClick={zoomIn}>
               <span className="text-lg font-bold">+</span>
             </button>
-
             <span className="text-sm font-semibold text-gray-700">
-             {zoomPercent}%
+              {zoomPercent}%
             </span>
-
-            {/* Zoom Out */}
             <button className="p-2" onClick={zoomOut}>
               <span className="text-lg font-bold">−</span>
             </button>
-
             <div className="w-px h-6 bg-gray-300"></div>
-
-            {/* Rotate */}
             <button className="p-2 flex items-center gap-1" onClick={rotate90}>
               <img src="/img/top-left-image/rotate.png" className="w-5 h-5" />
               <span className="text-sm text-gray-700">90°</span>
             </button>
-
             <div className="w-px h-6 bg-gray-300"></div>
-
-            {/* 3D View Toggle (optional) */}
             <button className="p-2 flex items-center gap-1">
               <img src="/img/top-left-image/Group.png" className="w-5 h-5" />
               <span className="text-sm text-gray-700">3D</span>
@@ -1055,6 +1010,6 @@ const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
           </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }

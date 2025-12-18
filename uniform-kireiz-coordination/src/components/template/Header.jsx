@@ -52,7 +52,7 @@ import NavOtherList from '@/app/(public-pages)/kireiz-form/components/NavOtherLi
 
 const navMenu = [
     { title: "Home", value: "home", to: "home", url: "/kireiz-form" },
-    { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign", url: "/dashboards/delivery-request" },
+    { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign", url: "/dashboards/uniform-3d-design" },
     { title: "Blog", value: "blog", to: "blog", url: "/kireiz-form" },
     { title: `FAQ's`, value: "faq", href: "/guide/documentation/introduction", url: "/kireiz-form" },
 ];
