@@ -76,8 +76,8 @@ const DesignResultPage = () => {
     }
     return (
         <>
-            <div className="w-full max-w-7xl mx-auto px-4 py-10">
-                <div className="bg-white rounded-2xl p-8">
+            <div className="w-full max-w-7xl mx-auto md:px-4 px-2 md:py-10 py-5">
+                <div className="bg-white rounded-2xl md:p-8 p-0">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                         {/* ================= LEFT SECTION ================= */}
                         <div className="flex flex-col items-center">
@@ -90,7 +90,7 @@ const DesignResultPage = () => {
 
                             {/* Image with Blue Circle */}
                             <div className="relative flex justify-center items-center h-[520px] w-full">
-                                <div className="absolute w-[420px] h-[420px] bg-[#BFE3F9] rounded-full" />
+                                <div className="absolute sm:w-[420px] sm:h-[420px] w-[300px] h-[300px] bg-[#BFE3F9] rounded-full" />
 
                                 <Image
                                     src="/img/uniform/uniform.png"
@@ -171,7 +171,6 @@ const DesignResultPage = () => {
                 </div>
             </div>
         </>
-
     )
 }
 

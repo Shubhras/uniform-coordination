@@ -127,7 +127,7 @@ const NotificationSetting = () => {
   }
 
   return (
-    <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl">
+    <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
       {/* Header */}
       <div className="flex flex-col gap-1 mb-4">
         <div className="flex items-center gap-2">

@@ -36,7 +36,7 @@ const LinkedOrderAndQuotes = () => {
     const [activeTab, setActiveTab] = useState('ALL')
 
     return (
-        <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl">
+        <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
             {/* Header */}
             <div className="flex items-center gap-2 mb-1">
                 <FiBox size={23} className="text-[#003562]" />
