@@ -8,7 +8,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import DatePicker from '@/components/ui/DatePicker'
-
+import Image from 'next/image'
 const validationSchema = z.object({
     companyName: z.string().min(1, 'Company Name Required'),
     contactPerson: z.string().min(1, 'Contact Person Required'),
@@ -56,279 +56,120 @@ const DesignResultPage = () => {
     const openDialogQuoteRequest = () => {
         setDialogQuoteRequestOpen(true)
     }
-   
+    const SpecCard = ({ title, value }) => (
+        <div className="border border-[#E3E6EA] rounded-xl px-4 py-3">
+            <p className="text-xs text-gray-500 mb-1">{title}</p>
+            <p className="text-sm font-semibold text-gray-800">{value}</p>
+        </div>
+    )
+
+    const Counter = () => (
+        <div className="flex items-center gap-2">
+            <button className="w-6 h-6 border border-[#D7DBDF] rounded text-sm">−</button>
+            <span className="w-5 text-center text-sm">1</span>
+            <button className="w-6 h-6 border border-[#D7DBDF] rounded text-sm">+</button>
+        </div>
+    )
+
+     const handleRedirect = () => {
+        router.push('/dashboards/delivery-request')
+    }
     return (
         <>
-            <div className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10">
-                <div className="w-full lg:w-1/2 px-4 ">
-                    <h5 className="font-medium mb-3">Design Result</h5>
-                    <div className="relative w-[250px] h-[250px] mx-auto">
-                        <div className="absolute inset-0 rounded-full bg-[#BEE3F8]"></div>
-                        <img
-                            src="/img/uniform/uniform.png"
-                            alt="Model"
-                            className="absolute top-0 left-1/2 -translate-x-1/2 h-[400px] object-contain"
-                        />
-                    </div>
-                   
-                </div>
-                <div className="w-full lg:w-1/2 ">
-                    <h4 className="font-semibold mb-8">
-                        Quotation & Delivery Request Form
-                    </h4>
-                    {/* <Form onSubmit={handleSubmit(onSubmit)}>
-                        <h5 className="font-medium mb-3">Company & Contact</h5>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
-                            <FormItem
-                                label="Company Name"
-                                invalid={Boolean(errors.companyName)}
-                                errorMessage={errors.companyName?.message}
-                                className="mb-2"
-                            >
-                                <Controller
-                                    name="companyName"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Input placeholder="Company Name" {...field} />
-                                    )}
+            <div className="w-full max-w-7xl mx-auto px-4 py-10">
+                <div className="bg-white rounded-2xl p-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                        {/* ================= LEFT SECTION ================= */}
+                        <div className="flex flex-col items-center">
+
+                            {/* Header */}
+                            <div className="w-full flex justify-between items-center mb-6 px-2">
+                                <p className="text-sm text-gray-600">Design Result</p>
+                                <p className="text-sm text-gray-600">360°</p>
+                            </div>
+
+                            {/* Image with Blue Circle */}
+                            <div className="relative flex justify-center items-center h-[520px] w-full">
+                                <div className="absolute w-[420px] h-[420px] bg-[#BFE3F9] rounded-full" />
+
+                                <Image
+                                    src="/img/uniform/uniform.png"
+                                    alt="Uniform"
+                                    width={360}
+                                    height={720}
+                                    className="relative z-10 object-contain"
+                                    priority
                                 />
-                            </FormItem>
-                            <FormItem
-                                label="Contact Person"
-                                invalid={Boolean(errors.contactPerson)}
-                                errorMessage={errors.contactPerson?.message}
-                                className="mb-2"
-                            >
-                                <Controller
-                                    name="contactPerson"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Input placeholder="Contact Person" {...field} />
-                                    )}
-                                />
-                            </FormItem>
-                            <FormItem
-                                label="Email Address"
-                                invalid={Boolean(errors.email)}
-                                errorMessage={errors.email?.message}
-                                className="mb-2"
-                            >
-                                <Controller
-                                    name="email"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Input type="email" placeholder="Email Address" {...field} />
-                                    )}
-                                />
-                            </FormItem>
-                            <FormItem
-                                label="Phone Number"
-                                invalid={Boolean(errors.phone)}
-                                errorMessage={errors.phone?.message}
-                                className="mb-2"
-                            >
-                                <Controller
-                                    name="phone"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Input placeholder="Phone Number" {...field} />
-                                    )}
-                                />
-                            </FormItem>
+                            </div>
                         </div>
-                        <h5 className="font-medium mb-3">Uniform Request Details</h5>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
-                            <FormItem
-                                label="Item Type"
-                                invalid={Boolean(errors.itemType)}
-                                errorMessage={errors.itemType?.message}
-                                className="mb-2"
-                            >
-                                <Controller
-                                    name="itemType"
-                                    control={control}
-                                    render={({ field }) => <Input placeholder="Item Type" {...field} />}
-                                />
-                            </FormItem>
-                            <FormItem
-                                label="Material"
-                                invalid={Boolean(errors.material)}
-                                errorMessage={errors.material?.message}
-                                className="mb-2"
-                            >
-                                <Controller
-                                    name="material"
-                                    control={control}
-                                    render={({ field }) => <Input placeholder="Material" {...field} />}
-                                />
-                            </FormItem>
-                            <FormItem
-                                label="Size & Quantity"
-                                invalid={Boolean(errors.sizeQty)}
-                                errorMessage={errors.sizeQty?.message}
-                                className="mb-2"
-                            >
-                                <Controller
-                                    name="sizeQty"
-                                    control={control}
-                                    render={({ field }) => <Input placeholder="Size & Quantity" {...field} />}
-                                />
-                            </FormItem>
-                            <FormItem
-                                label="Delivery Date"
-                                invalid={Boolean(errors.deliveryDate)}
-                                errorMessage={errors.deliveryDate?.message}
-                                className="mb-2"
-                            >
-                                <Controller
-                                    name="deliveryDate"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <DatePicker
-                                            {...field}
-                                            value={field.value}
-                                            onChange={(date) => field.onChange(date)}
-                                            placeholder="Pick a date"
-                                        />
-                                    )}
-                                />
-                            </FormItem>
-                        </div>
-                        <FormItem
-                            label="Additional Note"
-                            invalid={Boolean(errors.notes)}
-                            errorMessage={errors.notes?.message}
-                            className="mb-2"
-                        >
-                            <Controller
-                                name="notes"
-                                control={control}
-                                render={({ field }) => (
-                                    <textarea className="input h-24" placeholder="Additional Note" {...field} />
-                                )}
-                            />
-                        </FormItem>
-                        <FormItem
-                            invalid={Boolean(errors.agree)}
-                            errorMessage={errors.agree?.message}
-                            className="mb-2"
-                        >
-                            <Controller
-                                name="agree"
-                                control={control}
-                                render={({ field }) => (
-                                    <Checkbox {...field}>
-                                        I agree to privacy
-                                        <span
-                                            className="text-blue-500 cursor-pointer ml-2"
-                                            onClick={openDialogTerms}
-                                        >
-                                            policy & terms
-                                        </span>
-                                    </Checkbox>
-                                )}
-                            />
-                        </FormItem>
-                        <Button
-                            type="submit"
-                            variant="solid"
-                            className="w-full mt-4 bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-3"
-                        >
-                            Request a Quote
-                        </Button>
-                    </Form> */}
-                    <div>
-                        <h4 className="font-semibold mb-4">Design Specifications</h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <SpecCard title="Cut Style" value="Modern Fit" />
-                                <SpecCard title="Collar Type" value="V-Neck Reinforced" />
-                                <SpecCard title="Sleeve Length" value="Short (Standard)" />
-                                <SpecCard title="Pocket Configuration" value="1 Chest, 2 Lower Patch" />
-                                <SpecCard title="Color" value="Navy Blue" />
-                                <SpecCard title="Fabric" value="Polyester" />
-                                <SpecCard title="Pant" value="Straight Pant" />
 
-                             
-                                <div className="border rounded-lg p-4">
-                                    <p className="text-xs text-gray-500 mb-2">Size Range</p>
+                        {/* ================= RIGHT SECTION ================= */}
+                        <div className="flex flex-col">
 
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span>XS</span>
-                                        <Counter />
-                                    </div>
+                            {/* Specification Card */}
+                            <div className="bg-white border border-[#E3E6EA] rounded-[16px]">
+                                <div className='p-4 bg-[#F7FBFF]'>
+                                <h4 className="text-base font-semibold text-gray-800 mb-2">
+                                    Design Specifications
+                                </h4>
+                                </div>
+                                 <div className='p-4'> 
+                                {/* Row 1 */}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                                    <SpecCard title="Cut Style" value="Modern Fit" />
+                                    <SpecCard title="Collar Type" value="V-Neck Reinforced" />
+                                    <SpecCard title="Sleeve Length" value="Short (Standard)" />
+                                </div>
 
-                                    <div className="flex items-center justify-between text-sm mt-2">
-                                        <span>S</span>
-                                        <Counter />
+                                {/* Row 2 */}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                                    <SpecCard title="Pocket Configuration" value="1 Chest, 2 Lower Patch" />
+                                    <SpecCard title="Color" value="Navy Blue" />
+                                    <SpecCard title="Fabric" value="Polyester" />
+                                </div>
+
+                                {/* Row 3 */}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <SpecCard title="Pant" value="Straight Pant" />
+
+                                    {/* Size Range */}
+                                    <div className="border border-[#E3E6EA] rounded-xl px-4 py-3">
+                                        <p className="text-xs text-gray-500 mb-3">Size Range</p>
+
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-sm">XS</span>
+                                            <Counter />
+                                        </div>
+
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm">S</span>
+                                            <Counter />
+                                        </div>
                                     </div>
                                 </div>
+                                </div>
                             </div>
-                    </div>
-                    <div className="flex justify-center gap-4 mt-6">
-                        <button className="border px-6 py-2 rounded-md">Save Design</button>
-                        <button className="border px-6 py-2 rounded-md" onClick={openDialogQuoteRequest}>Export PDF</button>
+
+                            {/* Buttons */}
+                            <div className="flex justify-between items-center mt-10">
+                                <div className="flex gap-4">
+                                    <button className="border border-[#D7DBDF] px-6 py-2 rounded-md text-sm">
+                                        Save Design
+                                    </button>
+
+                                    <button className="border border-[#D7DBDF] px-6 py-2 rounded-md text-sm">
+                                        Export PDF
+                                    </button>
+                                </div>
+                                <button className="bg-[#2F2FA2] text-white px-12 py-2 rounded-md" onClick={() => handleRedirect()}>
+                                    Next
+                                </button>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
-
-            {/* <div className="w-full bg-white px-6 py-6">
-                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
-                    <div>
-                        <h5 className="font-medium mb-4">Design Result</h5>
-
-                        <div className="relative w-[320px] h-[320px] mx-auto">
-                            <div className="absolute inset-0 rounded-full bg-[#BEE3F8]" />
-                            <img
-                                src="/img/uniform/uniform.png"
-                                alt="Uniform"
-                                className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[420px] object-contain"
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <div className="border rounded-xl p-6">
-                            <h4 className="font-semibold mb-4">Design Specifications</h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <SpecCard title="Cut Style" value="Modern Fit" />
-                                <SpecCard title="Collar Type" value="V-Neck Reinforced" />
-                                <SpecCard title="Sleeve Length" value="Short (Standard)" />
-                                <SpecCard title="Pocket Configuration" value="1 Chest, 2 Lower Patch" />
-                                <SpecCard title="Color" value="Navy Blue" />
-                                <SpecCard title="Fabric" value="Polyester" />
-                                <SpecCard title="Pant" value="Straight Pant" />
-
-                             
-                                <div className="border rounded-lg p-4">
-                                    <p className="text-xs text-gray-500 mb-2">Size Range</p>
-
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span>XS</span>
-                                        <Counter />
-                                    </div>
-
-                                    <div className="flex items-center justify-between text-sm mt-2">
-                                        <span>S</span>
-                                        <Counter />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4 mt-6">
-                            <button className="border px-6 py-2 rounded-md text-sm">
-                                Save Design
-                            </button>
-
-                            <button className="border px-6 py-2 rounded-md text-sm">
-                                Export PDF
-                            </button>
-
-                            <button className="ml-auto bg-[#2F2FA2] text-white px-10 py-2 rounded-md">
-                                Next
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div> */}
         </>
 
     )
