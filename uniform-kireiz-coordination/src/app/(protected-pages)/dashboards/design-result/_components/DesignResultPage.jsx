@@ -70,6 +70,10 @@ const DesignResultPage = () => {
             <button className="w-6 h-6 border border-[#D7DBDF] rounded text-sm">+</button>
         </div>
     )
+
+     const handleRedirect = () => {
+        router.push('/dashboards/delivery-request')
+    }
     return (
         <>
             <div className="w-full max-w-7xl mx-auto px-4 py-10">
@@ -157,7 +161,7 @@ const DesignResultPage = () => {
                                         Export PDF
                                     </button>
                                 </div>
-                                <button className="bg-[#2F2FA2] text-white px-12 py-2 rounded-md">
+                                <button className="bg-[#2F2FA2] text-white px-12 py-2 rounded-md" onClick={() => handleRedirect()}>
                                     Next
                                 </button>
                             </div>
