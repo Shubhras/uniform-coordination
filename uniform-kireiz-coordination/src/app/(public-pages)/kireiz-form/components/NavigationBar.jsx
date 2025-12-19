@@ -8,6 +8,7 @@ import { TbMenu2 } from "react-icons/tb";
 import NavOtherList from "./NavOtherList";
 import AuthButtons from "./AuthButtons";
 import { useRouter } from 'next/navigation'
+import useCurrentSession from '@/utils/hooks/useCurrentSession'
 const navMenu = [
   { title: "Home", value: "home", to: "home", url: "/kireiz-form" },
   { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign", url: "/dashboards/uniform-3d-design" },
@@ -16,12 +17,13 @@ const navMenu = [
 ];
 
 const Navigation = ({ toggleMode, mode }) => {
+  const { session } = useCurrentSession()
   const [isOpen, setIsOpen] = useState(false);
   const [activeLoginUser, setActiveLoginUser] = useState("login");
-   const router = useRouter()
-  const handleRedirectHome= () => {
-        router.push('/kireiz-form')
-    }
+  const router = useRouter()
+  const handleRedirectHome = () => {
+    router.push('/kireiz-form')
+  }
   return (
     <header className="fixed inset-x-0 top-0 z-50 bg-[#1C2C56]">
       {/* <div className="w-full px-4 sm:px-6 lg:px-15"> */}
@@ -59,21 +61,24 @@ const Navigation = ({ toggleMode, mode }) => {
             />
           </Link> */}
           <Image
-              src="/img/logo/uniform-nav-logo.png"
-              width={70}
-              height={40}
-              alt="logo"
-              priority
-               onClick={handleRedirectHome}
-               className="cursor-pointer"
-            />
+            src="/img/logo/uniform-nav-logo.png"
+            width={70}
+            height={40}
+            alt="logo"
+            priority
+            onClick={handleRedirectHome}
+            className="cursor-pointer"
+          />
           {/* Desktop Navigation */}
           <nav className="flex flex-1 items-center justify-center text-sm font-medium text-white">
             <NavList tabs={navMenu} />
           </nav>
           {/* Right Side (Desktop only) */}
           <div className="items-center gap-8 text-white">
-            {activeLoginUser !== "login" ? <AuthButtons /> : <NavOtherList />}
+            {/* {activeLoginUser !== "login" ? <AuthButtons /> : <NavOtherList />} */}
+            {session?.user?.email == undefined && (<AuthButtons />)}
+            {session?.user?.email && (<NavOtherList />)}
+
           </div>
 
         </div>

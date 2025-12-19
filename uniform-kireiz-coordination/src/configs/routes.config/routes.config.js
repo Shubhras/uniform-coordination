@@ -13,6 +13,36 @@ export const protectedRoutes = {
     ...guideRoute,
 }
 
-export const publicRoutes = {}
+export const publicRoutes = {
+    '/faq': {
+        key: 'faq',
+        authority: [],
+    },
+    '/blog': {
+        key: 'blog',
+        authority: [],
+    },
+    '/kireiz-form': {
+        key: 'kireiz-form',
+        authority: [],
+    },
+    '/medical-form': {
+        key: 'medical-form',
+        authority: [],
+    },
+     '/dashboards/uniform-design': {
+        key: 'dashboards/uniform-design',
+        authority: [],
+    },
+     '/dashboards/uniform-single': {
+        key: 'dashboards/uniform-single',
+        authority: [],
+    },
+    '/dashboards/uniform-3d-design': {
+        key: 'dashboards/uniform-3d-design',
+        authority: [],
+    },
+    
+}
 
 export const authRoutes = authRoute

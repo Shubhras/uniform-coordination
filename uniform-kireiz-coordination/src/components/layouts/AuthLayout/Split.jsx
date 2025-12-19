@@ -1,5 +1,5 @@
 import { cloneElement } from "react";
-
+import Link from "next/link";
 const Split = ({ children, content, ...rest }) => {
   return (
     <div className="flex flex-col lg:flex-row bg-gray h-full">
@@ -7,11 +7,13 @@ const Split = ({ children, content, ...rest }) => {
       <div className="relative flex justify-center items-center w-full lg:w-[60%] bg-gray h-full">
         {/* Logo */}
         <div className="absolute top-6 left-10 z-20">
+          <Link href="/kireiz-form" className="flex items-center">
           <img
             src="/img/others/auth-logo.png"
             alt="KIREIZ FORM"
             className="md:h-12 h-10 w-auto"
           />
+          </Link>
         </div>
 
         {/* Image container (push image down so it never overlaps logo) */}

@@ -16,7 +16,7 @@ const AuthButtons = () => {
       //router.push("/auth/sign-up-split");
       router.push("/sign-up")
     }
-    console.log('clickeddddddddddd');
+   // console.log('clickeddddddddddd');
 
   };
 
