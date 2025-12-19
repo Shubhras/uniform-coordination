@@ -30,6 +30,7 @@ const features = [
             'Professional appearance',
         ],
     },
+    
 ]
 
 const ProfessionalSection = () => {

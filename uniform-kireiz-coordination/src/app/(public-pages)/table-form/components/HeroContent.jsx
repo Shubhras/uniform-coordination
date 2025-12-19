@@ -1,67 +1,72 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 
 const HeroContent = () => {
-  const router = useRouter();
-
-  const handleStartDesigning = () => {
-    router.push("/table-form");
-  };
-
   return (
-    <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
+    <section className="relative w-full min-h-[620px] overflow-hidden mt-13">
+
+      {/* BACKGROUND GRADIENT */}
       <div
-        className="
-         mx-auto my-0
-          flex flex-col md:flex-row 
-          gap-8 md:gap-10
-          md:h-[700px] 
-        "
-      >
-        {/* LEFT SECTION */}
-        <div
-          className="
-            flex flex-col 
-            justify-center 
-            h-full 
-            space-y-3
-            max-w-lg
-          "
-        >
-          <h1 className="text-4xl md:text-5xl font-extrabold text-[#1C2C56] leading-[1.1] tracking-tight">
-            Design <br />
-            Professional <br />
-            Uniforms for <br />
-            Every Industry
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(104deg, rgba(232,180,169,0.25) 0%, rgba(255,182,163,0.55) 100%)",
+        }}
+      />
+
+      <div className="relative grid grid-cols-1 md:grid-cols-2 min-h-[620px]">
+
+        {/* LEFT CONTENT */}
+        <div className="flex flex-col justify-center px-10 sm:px-16 lg:px-28">
+          <h1 className="text-[42px] md:text-[50px] lg:text-[60px] font-bold text-[#3B2B2F] leading-[1.12]">
+            Design your <br />
+            special day <br />
+            with calm <br />
+            and joy.
           </h1>
 
-          <p className="text-gray-700 text-lg leading-relaxed">
-            KIREIZ offers powerful tools for businesses to design custom
-            uniforms and for anyone to create stunning table settings for any
-            event.
-          </p>
-
-          <button
-            onClick={handleStartDesigning}
-            className="px-6 py-2 bg-[#1C2C56] text-white rounded-md text-sm md:text-base hover:bg-[#162347] transition-all w-fit"
-          >
-            Start Designing
-          </button>
+          <div className="flex gap-4 mt-10">
+            <button className="px-6 py-3 rounded-md bg-[#C98B8B] text-white text-sm">
+              Browse by Color
+            </button>
+            <button className="px-6 py-3 rounded-md border border-[#C98B8B] text-sm">
+              Browse by Theme
+            </button>
+          </div>
         </div>
 
-        {/* RIGHT SECTION */}
-        <div className="h-full flex justify-center md:justify-end">
+        {/* RIGHT IMAGE AREA */}
+        <div className="relative w-full h-full">
+
+          {/* CURVE */}
+          <svg
+            viewBox="0 0 600 1000"
+            preserveAspectRatio="none"
+            className="absolute left-[-120px] top-0 h-full w-[260px]"
+          >
+            <path
+              d="
+                M300,0
+                C120,200 120,800 300,1000
+                L0,1000
+                L0,0
+                Z
+              "
+              fill="rgba(255,255,255,0.35)"
+            />
+          </svg>
+
+          {/* IMAGE */}
           <Image
             src="/img/table-form/hero-image.png"
-            width={925}
-            height={630}
-            alt="Uniform Designs"
-            className="h-full w-auto object-contain" 
+            alt="Table Design"
+            fill
             priority
+            className="object-cover"
           />
         </div>
+
       </div>
     </section>
   );
