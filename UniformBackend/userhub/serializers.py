@@ -106,7 +106,6 @@ class LoginSerializer(serializers.Serializer):
         users = Users.objects.filter(email=email, userType=userType, isDeleted=False)
 
         if not users.exists():
-            # print("????/////////////")
             raise serializers.ValidationError("Invalid email or password.")
 
         if users.count() > 1:
@@ -114,14 +113,9 @@ class LoginSerializer(serializers.Serializer):
 
         user = users.first()
 
-        # try:
-        #     user = Users.objects.get(email=email,userType=userType, isDeleted=False)
-        # except Users.DoesNotExist:
-        #     raise serializers.ValidationError("Invalid email or password.")
-
+     
         # Validate password manually because authenticate() won't work
         if not check_password(password, user.password):
-            # print("????/////////////>>>>>>>>>>>>>>>>>>>>>>")
             raise serializers.ValidationError("Invalid email or password.")
 
         # Optional: check if active
@@ -132,6 +126,14 @@ class LoginSerializer(serializers.Serializer):
         return data
 
 
+class VerifyUserSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField(required=True)
+    is_verify = serializers.BooleanField(required=True)
+
+    def validate(self, attrs):
+        if attrs["is_verify"] is not True:
+            raise serializers.ValidationError("is_verify must be true.")
+        return attrs
 
 # from rest_framework import serializers
 

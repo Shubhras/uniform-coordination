@@ -142,6 +142,14 @@ class CatalogImageUpdateAPIView(APIView):
                     "data": serializer.data
                 }, status=status.HTTP_200_OK)
 
+
+            if "name" in serializer.errors:
+                return Response({
+                    "status": False,
+                    "statusCode": 200,
+                    "message": "Validation failed;Catalog Image with this Name already exists"
+                }, status=status.HTTP_200_OK)
+
             return Response({
                 "status": False,
                 "statusCode": 200,

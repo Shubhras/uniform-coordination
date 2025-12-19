@@ -40,7 +40,8 @@ class Users(models.Model):
     loginType = models.CharField(max_length=20,choices=LOGIN_CHOICES, default='app')    
     email_notifications = models.BooleanField(default=True, null=True, blank=True)
     push_notifications = models.BooleanField(default=True, null=True, blank=True)
-    
+    is_verify = models.BooleanField(default=False)
+
     
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)

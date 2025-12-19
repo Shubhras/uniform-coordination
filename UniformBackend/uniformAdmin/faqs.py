@@ -159,12 +159,23 @@ class FAQUpdateAPIView(APIView):
                     "data": serializer.data
                 }, status=status.HTTP_200_OK)
 
+
+            #  ONLY CHANGE STARTS HERE
+            if "title" in serializer.errors:
+                return Response({
+                    "status": False,
+                    "statusCode": 200,
+                    "message": "Validation failed;FAQ with this title already exists"
+                }, status=status.HTTP_200_OK)
+            #  ONLY CHANGE ENDS HERE
+                
+                
             return Response({
                 "status": False,
-                "statusCode": 400,
+                "statusCode": 200,
                 "message": "Validation failed.",
                 "error": serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_200_OK)
 
         except Exception as exc:
             return Response({

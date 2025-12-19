@@ -154,6 +154,8 @@ class TemplateSerializer(serializers.ModelSerializer):
 
 
 #===================================================================
+
+
 class BlogSerializer(serializers.ModelSerializer):
     categoryName = serializers.CharField(
         source="category.categoryName",
@@ -207,6 +209,7 @@ class BlogSerializer(serializers.ModelSerializer):
         if not value.strip():
             raise serializers.ValidationError("Title is required.")
         return value
+
 
 
 class FAQDescriptionSerializer(serializers.ModelSerializer):
@@ -348,26 +351,6 @@ class CatalogImageSerializer(serializers.ModelSerializer):
                 "Catalog Image with this Name already exists."
             )
         return value
-
-
-
-
-# class SubCategorySerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = SubCategory
-#         fields = [            
-#             "id",
-#             "name",
-#             "category",           
-#             "subcategoryImage",
-#             "slug",
-#             "description",
-#             "isActive",
-#             "isDeleted",
-#             "created_at",
-#             "updated_at"]
-#         read_only_fields = ("id", "created_at", "updated_at")
-
 
 
 

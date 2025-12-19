@@ -61,13 +61,17 @@ class CategoryListAPIView(APIView):
         try:
             search = request.query_params.get("search", "").strip()
 
-            categories = Category.objects.filter(isDeleted=False)
+            # categories = Category.objects.filter(isDeleted=False)
+            categories = Category.objects.filter(isDeleted=False).order_by("order")
+
 
             # Search only on categoryName (as per requirement)
             if search:
                 categories = categories.filter(categoryName__icontains=search)
 
-            categories = categories.order_by("-created_at")
+            # categories = categories.order_by("-created_at")
+            categories = categories.order_by("order", "created_at")
+
 
             # Apply pagination (same as reference API)
             paginator = CustomPagination()
@@ -227,3 +231,97 @@ class CategoryDeleteAPIView(APIView):
                 "message": "Server error while deleting category.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# class CategoryReorderAPIView(APIView):
+#     permission_classes = [IsAdministrator]
+#     authentication_classes = [JWTAuthentication]
+
+#     def post(self, request):
+#         try:
+#             ordered_ids = request.data.get("ordered_category_ids")
+
+#             if not ordered_ids or not isinstance(ordered_ids, list):
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "message": "ordered_category_ids must be a list."
+#                 }, status=400)
+
+#             for index, category_id in enumerate(ordered_ids):
+#                 Category.objects.filter(
+#                     id=category_id,
+#                     isDeleted=False
+#                 ).update(order=index)
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Category order updated successfully."
+#             }, status=200)
+
+#         except Exception as exc:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Unable to reorder categories.",
+#                 "error": str(exc)
+#             }, status=500)
+
+
+
+class CategoryReorderAPIView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+
+    def put(self, request):
+        category_id = request.data.get("category_id")
+        new_position = request.data.get("new_position")
+
+        if category_id is None or new_position is None:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "category_id and new_position are required."
+            }, status=400)
+
+        try:
+            category = Category.objects.get(id=category_id, isDeleted=False)
+        except Category.DoesNotExist:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "Category not found."
+            }, status=404)
+
+        old_position = category.order
+
+        if old_position == new_position:
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Category already at this position."
+            }, status=200)
+
+        # Shift other categories
+        if new_position < old_position:
+            Category.objects.filter(
+                order__gte=new_position,
+                order__lt=old_position,
+                isDeleted=False
+            ).update(order=models.F("order") + 1)
+        else:
+            Category.objects.filter(
+                order__gt=old_position,
+                order__lte=new_position,
+                isDeleted=False
+            ).update(order=models.F("order") - 1)
+
+        category.order = new_position
+        category.save(update_fields=["order"])
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "message": "Category reordered successfully."
+        }, status=200)

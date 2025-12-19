@@ -12,6 +12,14 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 from .serializers import*
 import logging,uuid
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.conf import settings
+
+from rest_framework.permissions import AllowAny
+from django.utils.http import urlsafe_base64_decode
+
 
 import re
 
@@ -29,6 +37,24 @@ class SignupAPIView(APIView):
         try:
             if serializer.is_valid():
                 user = serializer.save()
+
+                # ---------------------------------------
+                # EMAIL VERIFICATION 
+                # ---------------------------------------
+                
+                uid = urlsafe_base64_encode(force_bytes(user.id))
+                # verify_link = f"{settings.FRONTEND_URL}/verify-email/{uid}"
+                
+                verify_link = request.build_absolute_uri(f"/api/v1/userhub/verify-email/{uid}/")
+
+
+                send_mail(
+                    subject="Verify your email",
+                    message=f"Click here to verify your email, it's you:\n{verify_link}",
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[user.email],
+                    fail_silently=False
+                )
 
                 # Serialize full safe user response
                 response_data = UserResponseSerializer(
@@ -48,11 +74,21 @@ class SignupAPIView(APIView):
                 }, status=status.HTTP_201_CREATED)
 
             else:
+                # Extract first validation error message
+                error_message = "Validation failed."
+                
+
+                errors = serializer.errors
+                if isinstance(errors, dict):
+                    for field, messages in errors.items():
+                        if isinstance(messages, list) and messages:
+                            error_message = f"Validation failed;{messages[0]}"
+                            break
+                            
                 return Response({
                     "status": False,
                     "statusCode": 400,
-                    "message": "Validation failed.",
-                    "error": serializer.errors
+                    "message": error_message
                 }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as exc:
@@ -96,6 +132,19 @@ class LoginAPIView(APIView):
             serializer = LoginSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             user = serializer.validated_data["user"]
+
+
+            # =====================================================
+            #  EMAIL VERIFICATION CHECK 
+            # =====================================================
+            if not user.is_verify:
+                return Response({
+                    "status": False,
+                    "statusCode": 403,
+                    "message": "Please verify your email before logging in."
+                }, status=403)
+            # =====================================================
+            
 
             # Check matching userType
             if user.userType != user_type:
@@ -207,6 +256,58 @@ class GetProfileAPIView(APIView):
 
 
 
+# class UpdateProfileAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def put(self, request):
+#         try:
+#             user = request.user
+
+#             allowed_fields = [
+#                 "firstName", "lastName", "phone",
+#                 "gender", "language", "userName"
+#             ]
+
+#             for field in allowed_fields:
+#                 if field in request.data:
+#                     setattr(user, field, request.data[field])
+
+#             # NEW — Update userType (as you requested)
+#             if "userType" in request.data:
+#                 user.userType = request.data["userType"]
+                
+#             # EMAIL VERIFICATION FLAG (FRONTEND CONTROLLED)
+#             if request.data.get("is_verify") is True:
+#                 user.is_verify = True    
+
+#             # Handle profile image
+#             if "profileImage" in request.FILES:
+#                 user.profileImage = request.FILES["profileImage"]
+
+#             user.save()
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Profile updated successfully."
+#             }, status=200)
+
+#         except IntegrityError:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 400,
+#                 "message": "Username already exists.",
+#             }, status=400)
+
+#         except Exception as exc:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Unable to update profile.",
+#                 "error": str(exc)
+#             }, status=500)
+
+
 class UpdateProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -226,6 +327,10 @@ class UpdateProfileAPIView(APIView):
             # NEW — Update userType (as you requested)
             if "userType" in request.data:
                 user.userType = request.data["userType"]
+                
+            # EMAIL VERIFICATION FLAG (FRONTEND CONTROLLED)
+            if request.data.get("is_verify") is True:
+                user.is_verify = True    
 
             # Handle profile image
             if "profileImage" in request.FILES:
@@ -233,10 +338,23 @@ class UpdateProfileAPIView(APIView):
 
             user.save()
 
+            # ✅ SERIALIZE COMPLETE UPDATED USER DATA
+            response_data = UserResponseSerializer(
+                user,
+                context={"request": request}
+            ).data
+
+            # ✅ Ensure full profileImage URL
+            if user.profileImage:
+                response_data["profileImage"] = request.build_absolute_uri(
+                    user.profileImage.url
+                )
+
             return Response({
                 "status": True,
                 "statusCode": 200,
-                "message": "Profile updated successfully."
+                "message": "Profile updated successfully.",
+                "data": response_data
             }, status=200)
 
         except IntegrityError:
@@ -253,6 +371,7 @@ class UpdateProfileAPIView(APIView):
                 "message": "Unable to update profile.",
                 "error": str(exc)
             }, status=500)
+
 
 
 
@@ -400,7 +519,6 @@ class ResetPasswordAPIView(APIView):
             }, status=500)
 
 
-
 class UpdatePasswordAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -493,6 +611,44 @@ class UpdatePasswordAPIView(APIView):
                 "message": "Unable to update password.",
                 "error": str(exc)
             }, status=500)
+
+
+class VerifyUserAPIView(APIView):
+    def post(self, request):
+        serializer = VerifyUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user_id = serializer.validated_data["user_id"]
+        # is_verify is already validated as True by serializer
+
+        try:
+            user = Users.objects.get(id=user_id, isDeleted=False)
+        except Users.DoesNotExist:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "User not found."
+            }, status=404)
+
+        #  Already verified case (idempotent API)
+        if user.is_verify:
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "User already verified."
+            }, status=200)
+
+        #  Verify user
+        user.is_verify = True
+        user.save(update_fields=["is_verify"])
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "message": "User verified successfully."
+        }, status=200)
+
+
 
 #-----------------Notification-------------------------
 

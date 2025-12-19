@@ -172,7 +172,7 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "moriji345@gmail.com"
-EMAIL_HOST_PASSWORD = "awbygemmexmvvyka"
+EMAIL_HOST_PASSWORD = "hqymjygpiifyfdfg"
 
 
 SIMPLE_JWT = {
@@ -186,7 +186,7 @@ SIMPLE_JWT = {
 
 
 
-import os
+# import os
 
-ONESIGNAL_APP_ID = os.getenv("ONESIGNAL_APP_ID")
-ONESIGNAL_API_KEY = os.getenv("ONESIGNAL_API_KEY")
+# ONESIGNAL_APP_ID = os.getenv("ONESIGNAL_APP_ID")
+# ONESIGNAL_API_KEY = os.getenv("ONESIGNAL_API_KEY")

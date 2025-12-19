@@ -74,6 +74,7 @@ urlpatterns = [
     path("categories/detail/<int:category_id>/", CategoryDetailAPIView.as_view(), name="categories-detail"),
     path("categories/update/<int:category_id>/", CategoryUpdateAPIView.as_view(), name="categories-update"),
     path("categories/delete/<int:category_id>/", CategoryDeleteAPIView.as_view(), name="categories-delete"),
+    path("categories/reorder/", CategoryReorderAPIView.as_view(), name="categories-reorder"),
     
    
     #Catalog Image

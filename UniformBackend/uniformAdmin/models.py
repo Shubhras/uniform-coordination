@@ -166,6 +166,7 @@ class Template(models.Model):
 class Category(models.Model):
     categoryName = models.CharField(max_length=250,unique=True)
     slug = models.CharField(max_length=255, blank=True, null=True)
+    order = models.PositiveIntegerField(default=0) #new
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
