@@ -15,7 +15,7 @@ const UniformSingle = () => {
     const router = useRouter()
 
     const handleUniformDesigning = () => {
-        router.push("/dashboards/project");
+        router.push("/dashboards/uniform-3d-design");
     };
 
     return (
