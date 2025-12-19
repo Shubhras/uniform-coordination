@@ -121,48 +121,51 @@ const stackList = [
 
 const TechStack = () => {
   return (
-    <section className="w-full bg-white px-4 sm:px-6 lg:px-12 py-16">
-      {/* HEADER */}
-      <div className="text-center mb-14">
-        <h2 className="text-2xl md:text-3xl font-semibold text-[#1C2C56]">
-          How it works
-        </h2>
-        <p className="mt-3 max-w-[650px] mx-auto text-gray-500 text-sm md:text-base">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et
-        </p>
-      </div>
+    <section className="w-full bg-[#fffdfb] px-4 sm:px-6 md:px-8 lg:px-12 ">
+      <div className="bg-[#F8D7DA33] rounded-3xl px-6 md:px-10 py-10 md:py-16">
 
-      {/* CONTENT */}
-      <div className="relative  mx-auto">
-        {/* Horizontal line (Desktop only) */}
-        <div className="hidden md:block absolute top-10 left-[15%] right-[15%] h-[2px] bg-gray-300" />
+        {/* HEADER */}
+        <div className="text-center mb-14">
+          <h2 className="text-2xl md:text-3xl font-semibold text-[#402936]">
+            How it works
+          </h2>
+          <p className="mt-3 max-w-[650px] mx-auto text-[#402936] text-sm md:text-base">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
-          {stackList.map((stack) => {
-            const Icon = stack.icon;
-            return (
-              <div
-                key={stack.id}
-                className="flex flex-col items-center text-center md:text-left"
-              >
-                {/* ICON */}
-                <div className="relative z-10 mb-6">
-                  <div className="w-20 h-20 rounded-xl bg-[#f3f6fb] flex items-center justify-center shadow-sm">
-                    <Icon size={40} className="text-[#1C2C56]" />
+        {/* CONTENT */}
+        <div className="relative  mx-auto">
+          {/* Horizontal line (Desktop only) */}
+          <div className="hidden md:block absolute top-10 left-[15%] right-[15%] h-[2px] bg-gray-300" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+            {stackList.map((stack) => {
+              const Icon = stack.icon;
+              return (
+                <div
+                  key={stack.id}
+                  className="flex flex-col items-center text-center md:text-left"
+                >
+                  {/* ICON */}
+                  <div className="relative z-10 mb-6">
+                    <div className="w-20 h-20 rounded-xl bg-white flex items-center justify-center shadow-sm border border-[#FFB6A3]">
+                      <Icon size={40} className="text-[#8A5A75]" />
+                    </div>
                   </div>
-                </div>
 
-                {/* TEXT */}
-                <h3 className="text-base font-semibold text-[#1C2C56] mb-2 ">
-                  {stack.title}
-                </h3>
-                <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
-                  {stack.description}
-                </p>
-              </div>
-            );
-          })}
+                  {/* TEXT */}
+                  <h3 className="text-base font-semibold text-[#8A5A75] mb-2 ">
+                    {stack.title}
+                  </h3>
+                  <p className="text-[#8A5A75] text-sm leading-relaxed max-w-xs">
+                    {stack.description}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

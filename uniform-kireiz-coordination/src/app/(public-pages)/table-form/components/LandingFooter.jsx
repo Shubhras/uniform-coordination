@@ -79,7 +79,7 @@ const LandingFooter = ({ mode }) => {
         //     </Container>
         // </div>
         <>
-            <footer className="bg-[#A0522D] text-white pt-16">
+            <footer className="bg-[#8A5A75] text-white pt-16">
                 <div className=" mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="max-w-[300px]">

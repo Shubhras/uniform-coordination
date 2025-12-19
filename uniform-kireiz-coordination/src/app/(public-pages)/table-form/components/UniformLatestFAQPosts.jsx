@@ -28,14 +28,14 @@ const UniformLatestFAQPosts = () => {
   };
 
   return (
-    <section className="relative py-16 md:py-0 bg-white">
+    <section className="relative py-16 md:py-0 bg-[#fffdfb]">
       <Container>
       
         <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-semibold text-[#1C2C56] mb-3">
+          <h2 className="text-3xl md:text-4xl font-semibold text-[#402936] mb-3">
             FAQ’s
           </h2>
-          <p className="text-[#1C2C56] text-sm md:text-base">
+          <p className="text-[#402936] text-sm md:text-base">
             About design and coordination flow
           </p>
         </div>
@@ -48,19 +48,19 @@ const UniformLatestFAQPosts = () => {
                 key={index}
                 className={`rounded-xl px-6 py-5 transition-all duration-300 ${
                   isOpen
-                    ? "bg-white shadow-md"
-                    : "bg-[#F5F7FB]"
+                    ? "bg-white text-[#402936] shadow-md"
+                    : "bg-[#E8B4A9] text-white border border-[#E1D1C7]"
                 }`}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
                   className="w-full flex items-center justify-between text-left"
                 >
-                  <span className="text-[#1C2C56] font-medium text-sm md:text-base">
+                  <span className=" font-semibold text-sm md:text-base">
                     {faq.question}
                   </span>
 
-                  <span className="text-[#1C2C56] text-xl">
+                  <span className=" text-xl">
                     {isOpen ? <FiMinus /> : <FiPlus />}
                   </span>
                 </button>

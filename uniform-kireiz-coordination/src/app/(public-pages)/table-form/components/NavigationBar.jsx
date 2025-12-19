@@ -10,16 +10,16 @@ import AuthButtons from "./AuthButtons";
 
 const navMenu = [
   { title: "Home", value: "home", to: "home", url: "/table-form" },
-  { title: "Color Selection", value: "colorSelection", to: "colorSelection", url: "/" },
-  { title: "Theme Selection", value: "themeSelection", to: "themeSelection", url: "/" },
-  { title: `Canvas`, value: "canvas", to: "canvas", url: "/" },
+  // { title: "Color Selection", value: "colorSelection", to: "colorSelection", url: "/" },
+  // { title: "Theme Selection", value: "themeSelection", to: "themeSelection", url: "/" },
+  { title: `Table Design`, value: "tableDesign", to: "tableDesign", url: "/" },
 ];
 
 const Navigation = ({ toggleMode, mode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeLoginUser, setActiveLoginUser] = useState("login");
   return (
-    <header className="fixed inset-x-0 top-0 z-50 bg-[#A0522D]">
+    <header className="fixed inset-x-0 top-0 z-50 bg-[#8A5A75]">
       {/* <div className="w-full px-4 sm:px-6 lg:px-15"> */}
       <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12">
         <div className="flex h-14 items-center justify-between">
