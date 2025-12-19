@@ -31,7 +31,7 @@ const simulations = [
 
 const SimulationHistory = () => {
     return (
-        <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl">
+        <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
 
             {/* HEADER */}
             <div className="mb-6">
@@ -73,7 +73,7 @@ const SimulationHistory = () => {
             </div>
 
             {/* CARDS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {simulations.map((item, i) => (
                     <div
                         key={i}
