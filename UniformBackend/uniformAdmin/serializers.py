@@ -270,6 +270,7 @@ class CategorySerializer(serializers.ModelSerializer):
             "categoryName",
             "slug",
             "isActive",
+            "order",
             "created_at",
             "updated_at",
         ]
