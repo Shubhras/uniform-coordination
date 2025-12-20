@@ -153,8 +153,6 @@ class TemplateSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-#===================================================================
-
 
 class BlogSerializer(serializers.ModelSerializer):
     categoryName = serializers.CharField(
@@ -364,6 +362,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
             "category",           
             "subcategoryImage",
             "slug",
+            "order",
             "description",
             "isActive",
             "isDeleted",

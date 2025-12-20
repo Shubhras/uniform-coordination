@@ -256,56 +256,6 @@ class GetProfileAPIView(APIView):
 
 
 
-# class UpdateProfileAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def put(self, request):
-#         try:
-#             user = request.user
-
-#             allowed_fields = [
-#                 "firstName", "lastName", "phone",
-#                 "gender", "language", "userName"
-#             ]
-
-#             for field in allowed_fields:
-#                 if field in request.data:
-#                     setattr(user, field, request.data[field])
-
-#             # NEW — Update userType (as you requested)
-#             if "userType" in request.data:
-#                 user.userType = request.data["userType"]
-                
-#             # EMAIL VERIFICATION FLAG (FRONTEND CONTROLLED)
-#             if request.data.get("is_verify") is True:
-#                 user.is_verify = True    
-
-#             # Handle profile image
-#             if "profileImage" in request.FILES:
-#                 user.profileImage = request.FILES["profileImage"]
-
-#             user.save()
-
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": "Profile updated successfully."
-#             }, status=200)
-
-#         except IntegrityError:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 400,
-#                 "message": "Username already exists.",
-#             }, status=400)
-
-#         except Exception as exc:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "message": "Unable to update profile.",
-#                 "error": str(exc)
-#             }, status=500)
 
 
 class UpdateProfileAPIView(APIView):

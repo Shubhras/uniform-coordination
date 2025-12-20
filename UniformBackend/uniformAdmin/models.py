@@ -256,6 +256,7 @@ class CatalogImage(models.Model):
 class SubCategory(models.Model):
     name = models.CharField(max_length=255)
     subcategoryImage = models.ImageField(upload_to="subcategory/", blank=True, null=True)
+    order = models.PositiveIntegerField(default=0, db_index=True,blank=True, null=True)   
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,blank=True,related_name="subcategories")
     slug = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)

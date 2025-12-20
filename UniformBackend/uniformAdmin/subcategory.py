@@ -7,6 +7,7 @@ from rest_framework import status
 from uniformAdmin.fabric import CustomPagination,IsAdministrator
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.db.models import Max
 
 
 #---------------- Sub Catgory -----------------
@@ -21,7 +22,17 @@ class SubCategoryCreateAPIView(APIView):
         try:
             serializer = SubCategorySerializer(data=request.data)
             if serializer.is_valid():
-                serializer.save()
+                
+                category = serializer.validated_data.get("category")
+
+                #FIX: Auto-assign order per category
+                max_order = SubCategory.objects.filter(
+                    category=category,
+                    isDeleted=False
+                ).aggregate(max_order=Max("order"))["max_order"] or 0
+
+                serializer.save(order=max_order + 1)
+                                    
                 return Response({
                     "status": True,
                     "statusCode": 200,
@@ -77,7 +88,9 @@ class SubCategoryListAPIView(APIView):
                     name__icontains=search_query
                 )
 
-            subcategories = subcategories.order_by("-id")
+            # subcategories = subcategories.order_by("-id")
+            subcategories = subcategories.order_by("order", "created_at")
+
 
             paginator = CustomPagination()
             page = paginator.paginate_queryset(subcategories, request)
