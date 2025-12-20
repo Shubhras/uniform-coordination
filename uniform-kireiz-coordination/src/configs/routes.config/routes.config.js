@@ -22,6 +22,10 @@ export const publicRoutes = {
         key: 'blog',
         authority: [],
     },
+    '/single-blog': {
+        key: 'single-blog',
+        authority: [],
+    },
     '/kireiz-form': {
         key: 'kireiz-form',
         authority: [],
