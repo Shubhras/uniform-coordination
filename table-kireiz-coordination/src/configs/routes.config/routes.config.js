@@ -38,6 +38,14 @@ export const publicRoutes = {
         key: 'table-form',
         authority: [],
     },
+    '/tbrowse-by-color': {
+        key: 'browse-by-color',
+        authority: [],
+    },
+    '/browse-by-theme': {
+        key: 'browse-by-theme',
+        authority: [],
+    },
     '/dashboards/uniform-design': {
         key: 'dashboards/uniform-design',
         authority: [],

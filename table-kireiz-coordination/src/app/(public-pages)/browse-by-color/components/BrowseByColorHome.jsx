@@ -2,10 +2,10 @@
 
 import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
-import LandingFooter from '../../table-form/components/LandingFooter'
-import NavigationBar from '../../table-form/components/NavigationBar'
 import BrowseByColorHero from './BrowseByColorHero'
 import Cards from './Cards'
+import HaederPage from '../../header/HaederPage'
+import FooterPage from '../../footer/FooterPage'
 
 
 const BrowseByColorHome = () => {
@@ -20,10 +20,10 @@ const BrowseByColorHome = () => {
 
     return (
         <main className="text-base bg-white dark:bg-gray-900">
-            <NavigationBar toggleMode={toggleMode} mode={mode} />
+            <HaederPage toggleMode={toggleMode} mode={mode} />
             <BrowseByColorHero />
             <Cards />
-            <LandingFooter mode={mode} />
+            <FooterPage mode={mode} />
         </main>
     )
 }
