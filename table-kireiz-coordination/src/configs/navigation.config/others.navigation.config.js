@@ -32,7 +32,7 @@ const othersNavigationConfig = [
             },
             {
                 key: 'others.landing',
-                path: `/kireiz-form`,
+                path: `/table-form`,
                 title: 'Landing',
                 translateKey: 'nav.others.landing',
                 icon: 'landing',

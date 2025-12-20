@@ -98,7 +98,6 @@ const _UserDropdown = () => {
         <>
             {session?.user?.email && (
                 <>
-                    <PiShoppingCartThin className='cursor-pointer z-10' size={25} />
                     <div className="cursor-pointer flex items-center">
                         <Avatar size={38} {...avatarProps} onClick={handleProfile} />
                     </div>

@@ -136,14 +136,14 @@ const PersonalInformation = () => {
     return (
         <>
             <div className='bg-[#E8EEF842] md:p-8 p-5 rounded-2xl  max-w-7xl mx-auto shadow-md'>
-                <h4 className="mb-8 text-[#003562] text-lg font-semibold">Personal information</h4>
+                <h4 className="mb-8 text-[#8a5a75] text-lg font-semibold">Personal information</h4>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <div className="mb-8">
                         <Controller
                             name="img"
                             control={control}
                             render={({ field }) => (
-                                <div className="flex items-center sm:flex-row flex-col  justify-center sm:justify-start gap-4 p-5 bg-[#1C4FA81F] rounded-lg">
+                                <div className="flex items-center sm:flex-row flex-col  justify-center sm:justify-start gap-4 p-5 bg-[#E0D1C7DB] rounded-lg">
                                     <Avatar
                                         size={100}
                                         className="border-1 border-white bg-gray-100 text-gray-300 shadow-lg"
@@ -171,7 +171,7 @@ const PersonalInformation = () => {
                                                     size="sm"
                                                     type="button"
                                                     // icon={<TbPlus />}
-                                                    className=" bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md px-6"
+                                                    className=" bg-[#8a5a75] hover:bg-[#8a5a75] text-white py-2 rounded-md px-6"
                                                 >
                                                     Upload Image
                                                 </Button>
@@ -187,7 +187,7 @@ const PersonalInformation = () => {
                                                 Remove
                                             </Button>
                                         </div>
-                                        <p className='text-[#5175B2] text-center text-xs'>Recommended: 500x500px, JPG/PNG</p>
+                                        <p className='text-[#A0522D] text-center text-xs'>Recommended: 500x500px, JPG/PNG</p>
                                     </div>
                                 </div>
                             )}
@@ -345,7 +345,7 @@ const PersonalInformation = () => {
                             type="submit"
                             size="sm"
                             loading={isSubmitting}
-                            className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+                            className="bg-[#8a5a75] px-6 hover:bg-[#8a5a75] text-white py-2 rounded-md"
                         >
                             Save Changes
                         </Button>

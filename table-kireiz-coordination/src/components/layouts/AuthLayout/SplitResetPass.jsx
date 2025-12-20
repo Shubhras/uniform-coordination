@@ -3,8 +3,7 @@ import { useRouter } from "next/navigation";
 const SplitResetPassword = ({ children, content, ...rest }) => {
   const router = useRouter();
   const handleRedirectHome = () => {
-    router.push("/kireiz-form");
-    //router.push("/medical-form");
+    router.push("/table-form");
   };
   return (
     <div className="flex flex-col lg:flex-row bg-gray h-full">
@@ -13,8 +12,8 @@ const SplitResetPassword = ({ children, content, ...rest }) => {
         {/* Logo */}
         <div className="absolute top-6 left-21 z-20">
           <img
-            src="/img/others/auth-logo.png"
-            alt="KIREIZ FORM"
+            src="/img/logo/logo-table.png"
+            alt="TABLE FORM"
             className="md:h-12 h-10 w-auto cursor-pointer"
             onClick={handleRedirectHome}
           />
@@ -22,8 +21,8 @@ const SplitResetPassword = ({ children, content, ...rest }) => {
         {/* Image container (push image down so it never overlaps logo) */}
         <div className="flex-1 flex justify-center items-center z-0 mt-16">
           <img
-            src="/img/others/new-auth-imgtwo.png"
-            //src="/img/others/table-image1.png"
+            // src="/img/others/new-auth-imgtwo.png"
+            src="/img/others/table-image1.png"
             className="object-contain object-center h-full max-h-[75vh] w-full"
           />
         </div>

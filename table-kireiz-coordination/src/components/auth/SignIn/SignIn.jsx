@@ -51,7 +51,7 @@ const SignIn = ({
                                     {/* Forgot password */}
                                     <ActionLink
                                         href={forgetPasswordUrl}
-                                        className="text-blue-400 heading-text text-sm"
+                                        className="text-[#8B4513] heading-text text-sm"
                                         themeColor={false}
                                     >
                                         Forgot Password?
@@ -66,7 +66,7 @@ const SignIn = ({
                         <span>{`New on our platform?`} </span>
                         <ActionLink
                             href={signUpUrl}
-                            className="heading-text text-blue-400"
+                            className="heading-text text-[#8B4513]"
                             themeColor={false}
                         >
                             Create an account

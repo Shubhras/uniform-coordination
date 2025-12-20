@@ -65,7 +65,7 @@ export const ForgotPassword = ({
       <div className="mt-4 text-center text-base">
         <ActionLink
           href={signInUrl}
-          className="heading-text text-blue-400"
+          className="heading-text text-[#8B4513]"
           themeColor={false}
         >
           <span className="flex justify-center items-center gap-2">

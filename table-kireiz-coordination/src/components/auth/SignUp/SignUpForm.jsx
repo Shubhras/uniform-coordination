@@ -103,7 +103,7 @@ const SignUpForm = (props) => {
           loading={isSubmitting}
           variant="solid"
           type="submit"
-          className="bg-[#1C2C56] hover:bg-[#152243] text-white"
+          className="bg-[#8a5a75] hover:bg-[#8a5a75] text-white"
         >
           {isSubmitting ? "Creating Account..." : "Create Account"}
         </Button>
