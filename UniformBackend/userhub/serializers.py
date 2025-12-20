@@ -156,3 +156,32 @@ class VerifyUserSerializer(serializers.Serializer):
 #         if "type" in attrs and not attrs["type"]:
 #             raise serializers.ValidationError("Notification type is required.")
 #         return attrs
+
+class ModelInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ModelInfo
+        fields = [
+            'id',
+            'product',
+            'model_file',
+            'description',
+            'isActive',
+            'isDeleted',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['created_at', 'updated_at']
+    
+class CustomUpdateModelSerializer(serializers.Serializer):
+    class Meta:
+        fields = [
+            'id',
+            'user',
+            'model_info',
+            'json_data',
+            'isActive',
+            'isDeleted',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['created_at','updated_at']

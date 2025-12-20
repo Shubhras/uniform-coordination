@@ -817,3 +817,169 @@ class VerifyUserAPIView(APIView):
 #                 "message": str(e),
 #                 "data": None
 #             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#<---------------------ModelsInfo------------------->
+class ModelInfoCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        try:
+            serializer = ModelInfoSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            model_info = serializer.save()
+            return Response({
+                'statusCode' : 201,
+                'status':True,
+                "message": "3D model information created successfully",
+                "data": ModelInfoSerializer(model_info).data
+            },status=status.HTTP_201_CREATED)
+        except serializers.ValidationError as ve:
+            return Response({
+                'statusCode':400,
+                'status':False,
+                'message': "Invalid input data",
+                "errors": ve.detail
+            },status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as ie:
+            return Response({
+                'statusCode':400,
+                'status':False,
+                'message':"Database constraint error",
+                'details': str(ie)
+            },status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                'statusCode':500,
+                'status':False,
+                 "message": "Something went wrong on server",
+                "details": str(e)
+            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+class ModelInfoListAPIView(APIView):
+    parser_classes = [IsAuthenticated]
+    def get(self,request):
+        model_Info = ModelInfo.objects.filter(isDeleted=False)
+        ids = request.GET.get("ids")
+        if ids:
+            try:
+                id_list = [int(i.strip()) for i in ids.split(",")]
+                model_Info = model_Info.filter(id_in = id_list)
+            except ValueError:
+                return Response({
+                    'status':False,
+                    'message':'Invalid ID format',
+                },status=status.HTTP_400_BAD_REQUEST)
+            
+        serializer = ModelInfoSerializer(model_Info,many=True)
+        return Response({
+            'statusCode':200,
+            'status':True,
+            'message': 'Model info fetched successfully',
+            'data':serializer.data
+
+        },status=status.HTTP_200_OK)
+
+class ModelInfoDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request,id):
+        model_info = get_object_or_404(
+            ModelInfo,
+            id=id,
+            isDelete=False
+        )
+        serializer = ModelInfoSerializer(model_info)
+        return Response({
+            'statusCode':200,
+            'status':True,
+            'message':'Model info fetched successfully',
+            'data':serializer.data
+        },status=status.HTTP_200_OK)
+    
+class ModelInfoUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def put(self,request,id):
+        model_info = get_object_or_404(
+            ModelInfo,
+            id=id,
+            isDelete=False
+        )
+        
+        serializer = ModelInfoSerializer(
+            model_info,
+            data=request.data,
+            partial = True
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'statusCode':200,
+                'status':True,
+                "message": "Model info updated successfully",
+                "data": serializer.data
+            },status=status.HTTP_200_OK)
+        
+        return Response({
+            'statusCode':400,
+            'status':False,
+            'message':"Invalid data",
+            "errors": serializer.errors
+        },status=status.HTTP_400_BAD_REQUEST)
+
+class ModelInfoDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def delete(self,request,id=None):
+        ids = request.data.get('id',None)
+        
+        #single delete
+        if id:
+            try:
+                obj = ModelInfo.objects.get(id=id)
+                obj.delete()
+                return Response({
+                    'statusCode':204,
+                    'status':True,
+                    'message':'ModelInfo permanently deleted.',
+                    'data':None
+                },status=status.HTTP_204_NO_CONTENT)
+            
+            except ModelInfo.DoesNotExist:
+                return Response({
+                    'statusCode':404,
+                    'status':False,
+                    'message':'ModelInfo not found.',
+                    'data':None
+                },status=status.HTTP_404_NOT_FOUND)
+        
+
+        # Delete all
+        if ids == "all":
+            queryset = ModelInfo.objects.all()
+            count = queryset.count()
+            queryset.delete()
+            return Response({
+                "statusCode": 200,
+                "status": True,
+                "message": f"All {count} ModelInfo permanently deleted.",
+                "data": None
+            }, status=status.HTTP_200_OK)
+  # Bulk delete
+        if not ids or not isinstance(ids, list):
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "message": "Please provide a list of IDs in 'id' field or 'all'.",
+                "data": None
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = ModelInfo.objects.filter(id__in=ids)
+        count = queryset.count()
+        queryset.delete()
+
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "message": f"{count} ModelInfo permanently deleted.",
+            "data": None
+        }, status=status.HTTP_200_OK)

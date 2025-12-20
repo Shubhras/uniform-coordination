@@ -2,6 +2,7 @@ from django.db import models
 from uniformAdmin.models import Role
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
+from uniformAdmin.models import Product
 
 class Users(models.Model):
 # class Users(AbstractBaseUser, PermissionsMixin):
@@ -106,3 +107,52 @@ class Users(models.Model):
 #     onesignal_player_id = models.CharField(max_length=255, unique=True)
 #     device_type = models.CharField(max_length=20)
 #     is_active = models.BooleanField(default=True)
+
+
+class ModelInfo(models.Model):
+    product = models.OneToOneField(Product,on_delete=models.CASCADE,related_name="model_info",null=True,blank=True)
+    model_file = models.FileField(upload_to="3d_models/",null=True,blank=True)
+    description = models.TextField(blank=True, null=True)
+    isActive = models.BooleanField(default=True,null=True,blank=True)
+    isDeleted = models.BooleanField(default=False,null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True,blank=True)
+
+
+    def __str__(self):
+        return self.product.name
+
+
+class CustomUpdateModel(models.Model):
+    user = models.ForeignKey(
+        Users,
+        on_delete=models.CASCADE,
+        related_name="customizations",
+        null = True, blank=True
+    )
+
+    model_info = models.ForeignKey(
+        ModelInfo,
+        on_delete=models.CASCADE,
+        related_name="user_customizations",
+        null=True,blank=True
+    )
+
+    json_data = models.JSONField(
+        default=dict,
+        help_text="User customization data",
+        null=True,blank=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True, null=True,blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True,blank=True)
+    isActive = models.BooleanField(default=True, null=True,blank=True)
+    isDeleted = models.BooleanField(default=False, null=True,blank=True)
+
+    class Meta:
+        unique_together = ('user', 'model_info')
+        verbose_name = "User Customization"
+        verbose_name_plural = "User Customizations"
+
+    def __str__(self):
+        return f"{self.user} → {self.model_info}"
