@@ -92,5 +92,9 @@ urlpatterns = [
     path("subcategory/update/<int:pk>/", SubCategoryUpdateAPIView.as_view(),name="subcategory-create"),
     path("subcategory/delete/<int:pk>/", SubCategoryDeleteAPIView.as_view(),name="subcategory-create"),
 
-    
+    path("product/create/", AdminCreateProductAPIView.as_view()),
+    path("product/update/<int:pk>/", AdminUpdateProductAPIView.as_view()),
+    path("product/get/<int:pk>/", AdminGetProductAPIView.as_view()),
+    path("product/list/", AdminListProductsAPIView.as_view()),
+    path("product/delete/<int:pk>/", AdminDeleteProductAPIView.as_view()),
 ]

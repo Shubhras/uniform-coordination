@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import *
-
+from django.utils.html import format_html
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
     list_display = ('role_name', 'slug', 'description')
@@ -78,6 +78,81 @@ class CategoryAdmin(admin.ModelAdmin):
         }),
     )
    
+
+
+@admin.register(Parts)
+class PartsAdmin(admin.ModelAdmin):
+    list_display = ("id",
+        "partName",
+        "category",
+        "fabric",
+        "usageTemmpCount",
+        "zIndex",
+        "isActive",
+        "isDeleted",
+        "created_at",
+    )
+
+    list_filter = (
+        "category",
+        "fabric",
+        "isActive",
+        "isDeleted",
+    )
+
+    search_fields = (
+        "partName",
+        "fabric__name",   # adjust if Fabric has a different field
+    )
+
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+        "image_preview",
+    )
+
+    ordering = ("zIndex", "partName")
+
+    fieldsets = (
+        ("Basic Info", {
+            "fields": (
+                "partName",
+                "category",
+                "fabric",
+                "partImage",
+                "image_preview",
+            )
+        }),
+        ("Display / Usage", {
+            "fields": (
+                "zIndex",
+                "usageTemmpCount",
+            )
+        }),
+        ("Status", {
+            "fields": (
+                "isActive",
+                "isDeleted",
+            )
+        }),
+        ("Timestamps", {
+            "fields": (
+                "created_at",
+                "updated_at",
+            )
+        }),
+    )
+
+    # ✅ Image preview in admin
+    def image_preview(self, obj):
+        if obj.partImage:
+            return format_html(
+                '<img src="{}" width="80" height="80" style="object-fit:cover;" />',
+                obj.partImage.url
+            )
+        return "No Image"
+
+    image_preview.short_description = "Image Preview"
     
     
 @admin.register(FAQ)

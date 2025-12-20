@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 import re
 from .models import *
 # User = get_user_model()
+import json
 
 class AdminLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -153,7 +154,6 @@ class TemplateSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-#===================================================================
 
 
 class BlogSerializer(serializers.ModelSerializer):
@@ -389,3 +389,56 @@ class SubCategorySerializer(serializers.ModelSerializer):
                 })
 
         return attrs
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    parts = serializers.PrimaryKeyRelatedField(
+        queryset=Parts.objects.filter(isActive=True, isDeleted=False),
+        many=True,
+        required=False
+    )
+
+    class Meta:
+        model = Product
+        fields = [
+            "id", "productName", "slug", "description", "productType",
+            "category", "subcategory", "parts", "price", "discount",
+            "total_quantity", "available_quantity",
+            "ProductImage", "isActive", "created_at"
+        ]
+        read_only_fields = ["slug", "created_at"]
+
+    # ✅ IMPORTANT: handle parts = "[1,2,3]" from form-data
+    def to_internal_value(self, data):
+        data = data.copy()
+
+        parts = data.get("parts")
+        if parts and isinstance(parts, str):
+            try:
+                data.setlist("parts", json.loads(parts))
+            except (json.JSONDecodeError, TypeError):
+                raise serializers.ValidationError({
+                    "parts": "Invalid format. Use [1,2,3]."
+                })
+
+        return super().to_internal_value(data)
+
+    #  Category → Subcategory + quantity validation
+    def validate(self, data):
+        category = data.get("category")
+        subcategory = data.get("subcategory")
+
+        if subcategory and subcategory.category != category:
+            raise serializers.ValidationError({
+                "subcategory": "Selected subcategory does not belong to selected category"
+            })
+
+        total_qty = data.get("total_quantity", 0)
+        avail_qty = data.get("available_quantity", 0)
+
+        if avail_qty > total_qty:
+            raise serializers.ValidationError({
+                "available_quantity": "Available quantity cannot exceed total quantity"
+            })
+
+        return data
