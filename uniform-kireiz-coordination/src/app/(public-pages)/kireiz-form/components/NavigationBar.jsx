@@ -17,7 +17,7 @@ const navMenu = [
 ];
 
 const Navigation = ({ toggleMode, mode }) => {
-  const { session } = useCurrentSession()
+  const { session } = useCurrentSession();
   const [isOpen, setIsOpen] = useState(false);
   const [activeLoginUser, setActiveLoginUser] = useState("login");
   const router = useRouter()

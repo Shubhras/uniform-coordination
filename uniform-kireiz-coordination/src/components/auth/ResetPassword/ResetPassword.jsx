@@ -7,6 +7,7 @@ import ResetPasswordForm from "./ResetPasswordForm";
 import useTimeOutMessage from "@/utils/hooks/useTimeOutMessage";
 import { useRouter } from "next/navigation";
 import { FiChevronLeft } from "react-icons/fi";
+import SplitResetPassword from "@/components/layouts/AuthLayout/SplitResetPass";
 
 export const ResetPassword = ({
   signInUrl = "/sign-in",
@@ -23,6 +24,7 @@ export const ResetPassword = ({
   };
 
   return (
+    <SplitResetPassword>
     <div className="mx-4">
       <div className="mb-6">
         {resetComplete ? (
@@ -73,6 +75,7 @@ export const ResetPassword = ({
         </ActionLink>
       </div>
     </div>
+    </SplitResetPassword>
   );
 };
 
