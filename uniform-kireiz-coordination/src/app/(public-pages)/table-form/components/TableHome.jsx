@@ -43,7 +43,7 @@ const TableHome = () => {
             <PlaceholderSection />
             <UniformLatestBlogPosts />
             <UniformLatestFAQPosts />
-            <TableAbouUsPage />
+            {/* <TableAbouUsPage /> */}
             {/* <OtherFeatures /> */}
             {/* <Components /> */}
             <ChatbotSection />

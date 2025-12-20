@@ -46,7 +46,7 @@ const UniformLatestBlogPosts = () => {
   };
   return (
     <section className="w-full bg-[#fffdfb] px-4 sm:px-6 md:px-8 lg:px-12">
-      <div className="py-14 md:py-16">
+      <div className="">
         <div className="bg-[#F8D7DA33] px-6 md:px-10 py-10 md:py-16">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
             <h2 className="text-center md:text-left text-3xl font-semibold text-[#402936]">
