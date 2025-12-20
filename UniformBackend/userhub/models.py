@@ -2,7 +2,7 @@ from django.db import models
 from uniformAdmin.models import Role
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
-
+from uniformAdmin.models import Product
 class Users(models.Model):
 # class Users(AbstractBaseUser, PermissionsMixin):
     GENDER_CHOICES = [
@@ -62,6 +62,28 @@ class Users(models.Model):
     def is_authenticated(self):
         return True  
 
+
+
+class Favourite(models.Model):
+    # PRODUCT_TYPE_CHOICES = [
+    #     ('uniform', 'Uniform'),
+    #     ('table', 'Table'),
+    # ]
+
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name="favourites")
+    user = models.ForeignKey(Users,on_delete=models.CASCADE,related_name="user_favourites")
+    # product_type = models.CharField(max_length=20,choices=PRODUCT_TYPE_CHOICES)
+    is_like = models.BooleanField(default=False)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('product', 'user')
+
+    def __str__(self):
+        return f"{self.user} - {self.product} - {self.is_like}"
 
 
 

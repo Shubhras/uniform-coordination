@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from uniformAdmin.models import AdminUser
+from uniformAdmin.models import AdminUser,Product
 from django.utils.timezone import now
 from rest_framework.permissions import IsAuthenticated
 from .utils import generate_custom_tokens
@@ -16,11 +16,9 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
-
+from django.db import IntegrityError, transaction
 from rest_framework.permissions import AllowAny
 from django.utils.http import urlsafe_base64_decode
-
-
 import re
 
 logger = logging.getLogger(__name__)
@@ -256,8 +254,6 @@ class GetProfileAPIView(APIView):
 
 
 
-
-
 class UpdateProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -321,7 +317,6 @@ class UpdateProfileAPIView(APIView):
                 "message": "Unable to update profile.",
                 "error": str(exc)
             }, status=500)
-
 
 
 
@@ -407,7 +402,6 @@ class ForgotPasswordAPIView(APIView):
                 "message": "Unable to process forgot password.",
                 "error": str(exc)
             }, status=500)
-
 
 
 class ResetPasswordAPIView(APIView):
@@ -597,6 +591,106 @@ class VerifyUserAPIView(APIView):
             "statusCode": 200,
             "message": "User verified successfully."
         }, status=200)
+
+
+class ToggleFavouriteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        product_id = request.data.get("product_id")
+
+        # Validate product_id presence
+        if not product_id:
+            return Response(
+                {
+                    "status": False,
+                    "message": "product_id is required"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        #  Validate product_id type
+        if not str(product_id).isdigit():
+            return Response(
+                {
+                    "status": False,
+                    "message": "product_id must be a valid integer"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            #  Validate product existence & state
+            product = Product.objects.get(
+                id=int(product_id),
+                isDeleted=False,
+                isActive=True
+            )
+
+            #  Atomic toggle
+            with transaction.atomic():
+                favourite, created = Favourite.objects.select_for_update().get_or_create(
+                    user=user,
+                    product=product,
+                    defaults={
+                        "is_like": True,
+                        "isDeleted": False,
+                        "isActive": True
+                    }
+                )
+
+                #  Revive soft-deleted favourite
+                if not created and favourite.isDeleted:
+                    favourite.isDeleted = False
+                    favourite.is_like = True
+                    favourite.save()
+
+                #  Toggle like
+                elif not created:
+                    favourite.is_like = not favourite.is_like
+                    favourite.save()
+
+        except Product.DoesNotExist:
+            return Response(
+                {
+                    "status": False,
+                    "message": "Product not found or inactive"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        except IntegrityError:
+            return Response(
+                {
+                    "status": False,
+                    "message": "Favourite integrity conflict"
+                },
+                status=status.HTTP_409_CONFLICT
+            )
+
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "message": "Something went wrong",
+                    "error": str(e)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        return Response(
+            {
+                "status": True,
+                "message": "Product liked" if favourite.is_like else "Product disliked",
+                "data": {
+                    "product_id": product.id,
+                    "product_type": product.productType,  #  derived safely
+                    "is_like": favourite.is_like
+                }
+            },
+            status=status.HTTP_200_OK
+        )
 
 
 

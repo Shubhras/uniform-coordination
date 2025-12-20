@@ -13,10 +13,12 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from uniformAdmin.fabric import CustomPagination
 from rest_framework.parsers import MultiPartParser, FormParser
-
-
+from .models import *
 
 class AdminLoginAPIView(APIView):
+    authentication_classes = []   # 🚀 IMPORTANT
+    permission_classes = []       # 🚀 IMPORTANT
+
     def post(self, request):
         try:
             serializer = AdminLoginSerializer(data=request.data)
@@ -27,25 +29,18 @@ class AdminLoginAPIView(APIView):
             if isinstance(remember_me, str):
                 remember_me = remember_me.lower() == 'true'
 
-
-            # Generate JWT tokens
             refresh = RefreshToken.for_user(user)
             refresh["user_id"] = str(user.id)
             refresh["role"] = "admin"
-            # refresh["email"] = user.email
 
             if remember_me:
-                refresh.set_exp(lifetime=timedelta(days=30))             
+                refresh.set_exp(lifetime=timedelta(days=30))
                 refresh.access_token.set_exp(lifetime=timedelta(days=30))
             else:
-                refresh.set_exp(lifetime=timedelta(days=1))               
+                refresh.set_exp(lifetime=timedelta(days=1))
                 refresh.access_token.set_exp(lifetime=timedelta(hours=1))
 
-
-            refresh_token = str(refresh)
-            access_token = str(refresh.access_token)
-
-            response_data = {
+            return Response({
                 "status": True,
                 "statusCode": 200,
                 "message": "Login successful",
@@ -57,19 +52,16 @@ class AdminLoginAPIView(APIView):
                         "name": user.name,
                         "remember_me": remember_me,
                     },
-                    "access_token": access_token,
-                    "refresh_token": refresh_token,
-                
+                    "access_token": str(refresh.access_token),
+                    "refresh_token": str(refresh),
                 }
-            }
-
-            return Response(response_data, status=status.HTTP_200_OK)
+            }, status=status.HTTP_200_OK)
 
         except ValidationError as ve:
             return Response({
                 "status": False,
                 "statusCode": 400,
-                "message": "Validation Error",
+                "message": "Invalid email or password",
                 "errors": ve.detail
             }, status=status.HTTP_200_OK)
 
@@ -80,7 +72,6 @@ class AdminLoginAPIView(APIView):
                 "message": "Something went wrong",
                 "errors": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class AdminChangePasswordAPIView(APIView):
     permission_classes = [IsAuthenticated]  
@@ -310,5 +301,188 @@ class AdminForgotPasswordAPIView(APIView):
             )
 
 
+# products/views/create_product.py
+
+class AdminCreateProductAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def post(self, request):
+        try:
+            serializer = ProductSerializer(data=request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "status": True,
+                    "statusCode": 201,
+                    "message": "Product created successfully.",
+                    "data": serializer.data
+                }, status=status.HTTP_201_CREATED)
+
+            # 🔹 Specific validation messages
+            if "productName" in serializer.errors:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Validation failed; product name issue.",
+                    "error": serializer.errors["productName"]
+                }, status=status.HTTP_200_OK)
+
+            if "subcategory" in serializer.errors:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Subcategory does not belong to selected category.",
+                    "error": serializer.errors["subcategory"]
+                }, status=status.HTTP_200_OK)
+
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Validation failed.",
+                "error": serializer.errors
+            }, status=status.HTTP_200_OK)
+
+        except Exception as exc:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Server error while creating product.",
+                "error": str(exc)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# products/views/update_product.py
+
+class AdminUpdateProductAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def put(self, request, pk):
+        try:
+            product = Product.objects.filter(pk=pk, isDeleted=False).first()
+            if not product:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Product not found."
+                }, status=status.HTTP_200_OK)
+
+            serializer = ProductSerializer(product, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "Product updated successfully.",
+                    "data": serializer.data
+                }, status=status.HTTP_200_OK)
+
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Validation failed.",
+                "error": serializer.errors
+            }, status=status.HTTP_200_OK)
+
+        except Exception as exc:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Server error while updating product.",
+                "error": str(exc)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+# products/views/get_product.py
+
+class AdminGetProductAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request, pk):
+        try:
+            product = Product.objects.filter(pk=pk, isDeleted=False).first()
+            if not product:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Product not found."
+                }, status=status.HTTP_200_OK)
+
+            serializer = ProductSerializer(product)
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Product fetched successfully.",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+
+        except Exception as exc:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Server error while fetching product.",
+                "error": str(exc)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# products/views/list_products.py
+
+class AdminListProductsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        try:
+            products = Product.objects.filter(isDeleted=False).order_by("-created_at")
+            serializer = ProductSerializer(products, many=True)
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Products fetched successfully.",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+
+        except Exception as exc:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Server error while fetching products.",
+                "error": str(exc)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# products/views/delete_product.py
+
+class AdminDeleteProductAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def delete(self, request, pk):
+        try:
+            product = Product.objects.filter(pk=pk, isDeleted=False).first()
+            if not product:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Product not found."
+                }, status=status.HTTP_200_OK)
+
+            product.isDeleted = True
+            product.save()
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Product deleted successfully."
+            }, status=status.HTTP_200_OK)
+
+        except Exception as exc:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Server error while deleting product.",
+                "error": str(exc)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

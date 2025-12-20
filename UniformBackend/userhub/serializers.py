@@ -135,8 +135,35 @@ class VerifyUserSerializer(serializers.Serializer):
             raise serializers.ValidationError("is_verify must be true.")
         return attrs
 
-# from rest_framework import serializers
 
+
+# class FavouriteSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Favourite
+#         fields = [
+#             'id',
+#             'product',
+#             'user',
+#             'product_type',
+#             'is_like',
+#             'created_at'
+#         ]
+#         read_only_fields = ['user', 'is_like']
+
+
+class FavouriteSerializer(serializers.ModelSerializer):
+    product_type = serializers.CharField(
+        source="product.productType",
+        read_only=True
+    )
+
+    class Meta:
+        model = Favourite
+        fields = ["id", "product", "product_type", "is_like"]
+
+
+
+# from rest_framework import serializers
 
 # class NotificationSerializer(serializers.ModelSerializer):
 #     class Meta:
