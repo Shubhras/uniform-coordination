@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import React from 'react'
 
-const BrowseBYThemeHero = () => {
+const BrowseByThemeHero = () => {
     return (
         <section className="w-full mt-14">
             <div className="relative w-full h-[300px]  overflow-hidden">
@@ -52,4 +52,4 @@ const BrowseBYThemeHero = () => {
     )
 }
 
-export default BrowseBYThemeHero
+export default BrowseByThemeHero

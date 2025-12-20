@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Container from "./LandingContainer";
 import { FiPlus, FiMinus } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+
 
 const faqs = [
   {
@@ -21,6 +23,10 @@ const faqs = [
 ];
 
 const UniformLatestFAQPosts = () => {
+  const router = useRouter();
+  const handleClick = () => {
+    router.push("/faq");
+  };
   const [activeIndex, setActiveIndex] = useState(1);
 
   const toggleFAQ = (index) => {
@@ -30,9 +36,9 @@ const UniformLatestFAQPosts = () => {
   return (
     <section className="relative py-8 bg-[#fffdfb]">
       <Container>
-      
+
         <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-semibold text-[#402936] mb-3">
+          <h2 className="text-3xl md:text-4xl font-semibold text-[#402936] mb-3 cursor-pointer" onClick={handleClick}>
             FAQ’s
           </h2>
           <p className="text-[#402936] text-sm md:text-base">
@@ -46,11 +52,10 @@ const UniformLatestFAQPosts = () => {
             return (
               <div
                 key={index}
-                className={`rounded-xl px-6 py-5 transition-all duration-300 ${
-                  isOpen
+                className={`rounded-xl px-6 py-5 transition-all duration-300 ${isOpen
                     ? "bg-white text-[#402936] shadow-md"
                     : "bg-[#E8B4A9] text-white border border-[#E1D1C7]"
-                }`}
+                  }`}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
