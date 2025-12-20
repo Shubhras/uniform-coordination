@@ -37,7 +37,7 @@ const FaqSection = () => {
     };
 
     return (
-        <section className="relative pt-8 pb-20 bg-white px-5">
+        <section className="relative pt-8 pb-20 bg-[fffdfb] px-5">
             <Container>
                 {/* Header */}
                 <div className="text-center mb-8">
@@ -71,20 +71,20 @@ const FaqSection = () => {
                             <div
                                 key={index}
                                 className={`rounded-xl px-6 py-5 transition-all duration-300 ${isOpen
-                                    ? "bg-white shadow-md"
-                                    : "bg-[#F5F7FB]"
-                                    }`}
+                    ? "bg-white text-[#402936] shadow-md"
+                    : "bg-[#E8B4A9] text-white border border-[#E1D1C7]"
+                  }`}
                             >
                                 {/* Question */}
                                 <button
                                     onClick={() => toggleFAQ(index)}
                                     className="w-full flex items-center justify-between text-left"
                                 >
-                                    <span className="text-[#1C2C56] font-medium text-sm md:text-base">
+                                    <span className="font-semibold text-sm md:text-base">
                                         {faq.question}
                                     </span>
 
-                                    <span className="text-[#1C2C56] text-xl">
+                                    <span className=" text-xl">
                                         {isOpen ? <FiMinus /> : <FiPlus />}
                                     </span>
                                 </button>

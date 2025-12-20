@@ -12,8 +12,8 @@ import useCurrentSession from '@/utils/hooks/useCurrentSession'
 const navMenu = [
   { title: "Home", value: "home", to: "home", url: "/table-form" },
   { title: "Table Design", value: "tableDesign", to: "tableDesign", url: "/" },
-  { title: "Browse by Color", value: "", to: "", url: "/" },
-  { title: "Browse by Theme", value: "", to: "", url: "/" },
+  { title: "Browse by Color", value: "browseByColor", to: "browseByColor", url: "/browse-by-color" },
+  { title: "Browse by Theme", value: "browseByTheme", to: "browseByTheme", url: "/browse-by-theme" },
 ];
 
 const HaederPage = ({ toggleMode, mode }) => {
