@@ -1,12 +1,10 @@
 'use client'
 
 import HeroContent from './HeroContent'
-import NavigationBar from './NavigationBar'
 import Demos from './Demos'
 import TechStack from './TechStack'
 import OtherFeatures from './OtherFeatures'
 import Components from './Components'
-import LandingFooter from './LandingFooter'
 import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import UniformBusinessEnquiry from './UniformBusinessEnquiry'
@@ -14,6 +12,8 @@ import UniformLatestBlogPosts from './UniformLatestBlogPosts'
 import UniformLatestFAQPosts from './UniformLatestFAQPosts'
 import UniformAbouUsPage from './UniformAbouUsPage'
 import ChatbotSection from './ChatbotSection'
+import HaederPage from '../../header/HaederPage'
+import FooterPage from '../../footer/FooterPage'
 
 const UniformHome = () => {
     const mode = useTheme((state) => state.mode)
@@ -27,7 +27,7 @@ const UniformHome = () => {
 
     return (
         <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900">
-            <NavigationBar toggleMode={toggleMode} mode={mode} />
+          <HaederPage toggleMode={toggleMode} mode={mode} />
             <HeroContent mode={mode} />
             {/* <div className="relative">
                 <div
@@ -45,7 +45,7 @@ const UniformHome = () => {
             {/* <OtherFeatures /> */}
             {/* <Components /> */}
             <ChatbotSection />
-            <LandingFooter mode={mode} />
+            <FooterPage mode={mode} />
         </main>
     )
 }

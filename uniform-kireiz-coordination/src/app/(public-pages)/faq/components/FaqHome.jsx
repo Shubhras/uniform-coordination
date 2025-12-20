@@ -3,10 +3,11 @@
 import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import React from 'react'
-import NavigationBar from '../../kireiz-form/components/NavigationBar'
 import FaqHero from './FaqHero'
 import FaqSection from './FaqSection'
-import LandingFooter from '../../kireiz-form/components/LandingFooter'
+import HaederPage from '../../header/HaederPage'
+import FooterPage from '../../footer/FooterPage'
+import ChatbotSection from '../../chatbot-section/ChatbotSection'
 
 const FaqHome = () => {
     const mode = useTheme((state) => state.mode)
@@ -19,10 +20,11 @@ const FaqHome = () => {
     }
     return (
         <main className=" text-base bg-white dark:bg-gray-900">
-            <NavigationBar toggleMode={toggleMode} mode={mode} />
+            <HaederPage toggleMode={toggleMode} mode={mode} />
             <FaqHero />
             <FaqSection />
-            <LandingFooter mode={mode} />
+            <ChatbotSection/>
+            <FooterPage mode={mode} />
         </main>
     )
 }

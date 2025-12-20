@@ -4,8 +4,8 @@ import Image from 'next/image'
 
 const ChatbotSection = () => {
     return (
-        <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
-            <div className="my-10 flex justify-end px-4">
+        <section className="w-full bg-white  sm:px-6 md:px-8 ">
+            <div className=" mx-auto flex justify-end px-4">
 
                 {/* CHAT CONTAINER */}
                 <div className="relative flex items-center gap-6">
@@ -20,14 +20,13 @@ const ChatbotSection = () => {
                         {/* DOWNWARD SPEECH TAIL */}
                         <div
                             className="
-            absolute
-            right-1
-            bottom-[-8px]
-            w-0 h-0
-            border-l-[12px] border-r-[12px] border-t-[12px]
-            border-l-transparent border-r-transparent border-t-white
-        "
-                        />
+                                absolute
+                                right-1
+                                bottom-[-8px]
+                                w-0 h-0
+                                border-l-[12px] border-r-[12px] border-t-[12px]
+                                border-l-transparent border-r-transparent border-t-white
+                            "/>
                     </div>
 
 

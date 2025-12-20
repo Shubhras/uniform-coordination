@@ -2,13 +2,13 @@
 
 import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
-import LandingFooter from '../../kireiz-form/components/LandingFooter'
-import NavigationBar from '../../kireiz-form/components/NavigationBar'
 import HeroContent from './HeroContent'
 import CategorySection from './CategorySection'
 import ProfessionalSection from './ProfessionalSection'
-import ChatbotSection from './ChatbotSection'
 import UniformTemplate from './UniformTemplate'
+import HaederPage from '../../header/HaederPage'
+import FooterPage from '../../footer/FooterPage'
+import ChatbotSection from '../../chatbot-section/ChatbotSection'
 const MedicalHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
@@ -21,13 +21,13 @@ const MedicalHome = () => {
 
     return (
         <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900">
-            <NavigationBar toggleMode={toggleMode} mode={mode} />
+            <HaederPage toggleMode={toggleMode} mode={mode} />
             <HeroContent />
             <CategorySection />
             <UniformTemplate />
             <ProfessionalSection />
             <ChatbotSection />
-            <LandingFooter mode={mode} />
+            <FooterPage mode={mode} />
         </main>
     )
 }

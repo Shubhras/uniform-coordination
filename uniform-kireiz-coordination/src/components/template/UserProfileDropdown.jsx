@@ -9,9 +9,12 @@ import {
     PiUserDuotone,
     PiGearDuotone,
     PiPulseDuotone,
-    PiSignOutDuotone,
+    PiSignOutDuotone, 
+    PiShoppingCartThin
 } from 'react-icons/pi'
 import { IoIosLogOut } from "react-icons/io";
+
+
 import { CiUser } from 'react-icons/ci'
 import { FiBox, FiLock } from 'react-icons/fi'
 import { LuPalette } from 'react-icons/lu'
@@ -95,10 +98,11 @@ const _UserDropdown = () => {
         <>
             {session?.user?.email && (
                 <>
+                    <PiShoppingCartThin className='cursor-pointer z-10' size={25} />
                     <div className="cursor-pointer flex items-center">
                         <Avatar size={38} {...avatarProps} onClick={handleProfile} />
                     </div>
-                    <span>  <IoIosLogOut className='cursor-pointer z-10' size={25} onClick={handleSignOut} /></span>
+                    <IoIosLogOut className='cursor-pointer z-10' size={25} onClick={handleSignOut} />
                 </>
             )}
             {/* <Dropdown

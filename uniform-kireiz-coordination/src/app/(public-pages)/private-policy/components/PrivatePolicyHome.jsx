@@ -3,8 +3,9 @@
 import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import PrivatePolicyHero from './PrivatePolicyHero'
-import LandingFooter from '../../kireiz-form/components/LandingFooter'
-import NavigationBar from '../../kireiz-form/components/NavigationBar'
+import FooterPage from '../../footer/FooterPage';
+import HaederPage from '../../header/HaederPage';
+import ChatbotSection from '../../chatbot-section/ChatbotSection';
 const PrivatePolicyHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
@@ -17,9 +18,10 @@ const PrivatePolicyHome = () => {
 
     return (
         <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900">
-            <NavigationBar toggleMode={toggleMode} mode={mode} />
+            <HaederPage toggleMode={toggleMode} mode={mode} />
             <PrivatePolicyHero />
-            <LandingFooter mode={mode} />
+            <ChatbotSection/>
+           <FooterPage mode={mode} />
         </main>
     )
 }

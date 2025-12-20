@@ -3,9 +3,10 @@
 import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import React from 'react'
-import NavigationBar from '../../kireiz-form/components/NavigationBar'
 import BlogSection from './BlogSection'
-import LandingFooter from '../../kireiz-form/components/LandingFooter'
+import HaederPage from '../../header/HaederPage'
+import FooterPage from '../../footer/FooterPage'
+import ChatbotSection from '../../chatbot-section/ChatbotSection'
 
 const BlogHome = () => {
     const mode = useTheme((state) => state.mode)
@@ -18,9 +19,10 @@ const BlogHome = () => {
     }
     return (
         <main className=" text-base bg-white dark:bg-gray-900">
-            <NavigationBar toggleMode={toggleMode} mode={mode} />
+            <HaederPage toggleMode={toggleMode} mode={mode} />
             <BlogSection />
-            <LandingFooter mode={mode} />
+            <ChatbotSection/>
+            <FooterPage mode={mode} />
         </main>
     )
 }

@@ -1,7 +1,6 @@
 'use client'
 
 import HeroContent from './HeroContent'
-import NavigationBar from './NavigationBar'
 import Demos from './Demos'
 import TechStack from './TechStack'
 import OtherFeatures from './OtherFeatures'
@@ -15,6 +14,8 @@ import UniformLatestFAQPosts from './UniformLatestFAQPosts'
 import ChatbotSection from './ChatbotSection'
 import TableAbouUsPage from './TableAbouUsPage'
 import PlaceholderSection from './PlaceholderSection'
+import FooterPage from '../../footer/FooterPage'
+import HaederPage from '../../header/HaederPage'
 
 const TableHome = () => {
     const mode = useTheme((state) => state.mode)
@@ -28,7 +29,7 @@ const TableHome = () => {
 
     return (
         <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900">
-            <NavigationBar toggleMode={toggleMode} mode={mode} />
+            <HaederPage toggleMode={toggleMode} mode={mode} />
             <HeroContent mode={mode} />
             {/* <div className="relative">
                 <div
@@ -47,7 +48,8 @@ const TableHome = () => {
             {/* <OtherFeatures /> */}
             {/* <Components /> */}
             <ChatbotSection />
-            <LandingFooter mode={mode} />
+            {/* <LandingFooter mode={mode} /> */}
+            <FooterPage mode={mode} />
         </main>
     )
 }
