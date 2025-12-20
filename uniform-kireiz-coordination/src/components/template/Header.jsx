@@ -49,7 +49,7 @@ import { TbMenu2 } from "react-icons/tb";
 import NavList from '@/app/(public-pages)/kireiz-form/components/NavList';
 import AuthButtons from '@/app/(public-pages)/kireiz-form/components/AuthButtons';
 import NavOtherList from '@/app/(public-pages)/kireiz-form/components/NavOtherList';
-
+import useCurrentSession from '@/utils/hooks/useCurrentSession'
 const navMenu = [
     { title: "Home", value: "home", to: "home", url: "/kireiz-form" },
     { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign", url: "/dashboards/uniform-3d-design" },
@@ -57,8 +57,9 @@ const navMenu = [
     { title: `FAQ's`, value: "faq", href: "/guide/documentation/introduction", url: "/kireiz-form" },
 ];
 const Header = ({ toggleMode, mode }) => {
+      const { session } = useCurrentSession();
     const [isOpen, setIsOpen] = useState(false);
-    const [activeLoginUser, setActiveLoginUser] = useState("login");
+    const [activeLoginUser, setActiveLoginUser] = useState("");
     return (
         <header className="fixed inset-x-0 top-0 z-50 bg-[#1C2C56]">
             {/* <div className="w-full px-4 sm:px-6 lg:px-12"> */}
@@ -101,7 +102,9 @@ const Header = ({ toggleMode, mode }) => {
                     </nav>
                     {/* Right Side (Desktop only) */}
                     <div className="items-center gap-8 text-white">
-                        {activeLoginUser !== "login" ? <AuthButtons /> : <NavOtherList />}
+                        {/* {activeLoginUser !== "login" ? <AuthButtons /> : <NavOtherList />} */}
+                         {session?.user?.email == undefined && (<AuthButtons />)}
+            {session?.user?.email && (<NavOtherList />)}
                     </div>
 
                 </div>

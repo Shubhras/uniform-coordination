@@ -73,7 +73,7 @@ const dropdownItemList = [
 ]
 
 const _UserDropdown = () => {
-const router = useRouter()
+    const router = useRouter()
 
     const { session } = useCurrentSession()
     const pathname = usePathname()
@@ -88,15 +88,19 @@ const router = useRouter()
             : { icon: <PiUserDuotone /> }),
     }
 
-     const handleProfile = () => {
-    router.push("/dashboards/profile/settings");
-  };
+    const handleProfile = () => {
+        router.push("/dashboards/profile/settings");
+    };
     return (
         <>
-            <div className="cursor-pointer flex items-center">
-                <Avatar size={38} {...avatarProps}  onClick={handleProfile}/>
-            </div>
-            <span>  <IoIosLogOut className='cursor-pointer z-10' size={25}  onClick={handleSignOut} /></span>
+            {session?.user?.email && (
+                <>
+                    <div className="cursor-pointer flex items-center">
+                        <Avatar size={38} {...avatarProps} onClick={handleProfile} />
+                    </div>
+                    <span>  <IoIosLogOut className='cursor-pointer z-10' size={25} onClick={handleSignOut} /></span>
+                </>
+            )}
             {/* <Dropdown
             className="flex"
             toggleClassName="flex items-center"
