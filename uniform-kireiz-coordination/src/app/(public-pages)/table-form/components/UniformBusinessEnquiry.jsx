@@ -64,10 +64,24 @@ const UniformBusinessEnquiry = () => {
     const handleResize = () => {
       const width = window.innerWidth;
 
-      if (width >= 1440) setCardsPerView(3);
-      else if (width >= 1024) setCardsPerView(2);
-      // else if (width >= 600) setCardsPerView(1);
-      else setCardsPerView(1); // ✅ REQUIRED
+      // if (width >= 1440) setCardsPerView(3);
+      // else if (width >= 1024) setCardsPerView(2);
+      // // else if (width >= 600) setCardsPerView(1);
+      // else setCardsPerView(1); // ✅ REQUIRED
+
+      if (width >= 1440) {
+        setCardsPerView(4);      // xl / large desktop
+      } else if (width >= 1280) {
+        setCardsPerView(3);      // lg desktop
+      } else if (width >= 1024) {
+        setCardsPerView(2);      // laptop
+      } else if (width >= 768) {
+        setCardsPerView(2);      // tablet
+      } else if (width >= 640) {
+        setCardsPerView(2);      // large mobile
+      } else {
+        setCardsPerView(1);      // small mobile
+      }
     };
 
     handleResize();
@@ -224,7 +238,7 @@ const UniformBusinessEnquiry = () => {
                   onClick={handleMedicalFormDesigning}
                 >
                   {/* IMAGE */}
-                  <div className="relative w-full h-[420px] overflow-hidden rounded-tl-4xl rounded-br-4xl">
+                  <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl">
                     <Image
                       src={item.img}
                       alt={item.title}

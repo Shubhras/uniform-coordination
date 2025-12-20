@@ -34,11 +34,15 @@ export const publicRoutes = {
         key: 'medical-form',
         authority: [],
     },
-     '/dashboards/uniform-design': {
+    '/table-form': {
+        key: 'table-form',
+        authority: [],
+    },
+    '/dashboards/uniform-design': {
         key: 'dashboards/uniform-design',
         authority: [],
     },
-     '/dashboards/uniform-single': {
+    '/dashboards/uniform-single': {
         key: 'dashboards/uniform-single',
         authority: [],
     },
@@ -46,7 +50,7 @@ export const publicRoutes = {
         key: 'dashboards/uniform-3d-design',
         authority: [],
     },
-    
+
 }
 
 export const authRoutes = authRoute
