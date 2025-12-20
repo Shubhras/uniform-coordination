@@ -48,11 +48,7 @@ const bottomCards = [
     title: "Olive Chic",
     desc: "Modern natural tones with sophisticated greenery",
   },
-  {
-    img: "/img/table-form/themes/theme3.png",
-    title: "Classy Corporate",
-    desc: "Modern natural tones with sophisticated greenery",
-  },
+  
 ];
 
 const UniformBusinessEnquiry = () => {

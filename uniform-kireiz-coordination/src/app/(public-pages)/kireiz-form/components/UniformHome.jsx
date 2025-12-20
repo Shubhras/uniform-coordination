@@ -41,7 +41,7 @@ const UniformHome = () => {
             <TechStack />
             <UniformLatestBlogPosts/>
             <UniformLatestFAQPosts/>
-            {/* <UniformAbouUsPage/> */}
+            <UniformAbouUsPage/>
             {/* <OtherFeatures /> */}
             {/* <Components /> */}
             <ChatbotSection />
