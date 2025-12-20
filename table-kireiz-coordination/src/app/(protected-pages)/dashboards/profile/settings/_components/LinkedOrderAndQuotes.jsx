@@ -27,7 +27,7 @@ const orders = [
         title: 'Corporate Shirt',
         status: 'Submitted',
         statusIcon: <CiDeliveryTruck />,
-        statusColor: 'text-[#1C4FA8]',
+        statusColor: 'text-[#000000]',
         info: 'Today, 9AM–12PM · 12 guests',
         amount: '¥45,794',
     },
@@ -44,8 +44,8 @@ const LinkedOrderAndQuotes = () => {
             <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
                 {/* Header */}
                 <div className="flex items-center gap-2 mb-1">
-                    <FiBox size={23} className="text-[#003562]" />
-                    <h3 className="text-[#003562] text-lg font-semibold">
+                    <FiBox size={23} className="text-[#8a5a75]" />
+                    <h3 className="text-[#8a5a75] text-lg font-semibold">
                         Linked Orders & Quotes
                     </h3>
                 </div>
@@ -61,19 +61,19 @@ const LinkedOrderAndQuotes = () => {
                             onClick={() => setActiveTab(tab)}
                             className={`px-5 py-2 text-sm font-medium border rounded-md transition flex items-center gap-2
         ${activeTab === tab
-                                    ? 'bg-[#1C2C56] text-white'
-                                    : 'bg-white text-[#1C2C56] border-[#1C2C56]'
+                                    ? 'bg-[#8a5a75] text-white'
+                                    : 'bg-white text-[#8a5a75] border-[#8a5a75]'
                                 }`}
                         >
                             {tab === 'Drafted' && (
                                 <FiClock
-                                    className={activeTab === tab ? 'text-white' : 'text-[#1C2C56]'}
+                                    className={activeTab === tab ? 'text-white' : 'text-[#8a5a75]'}
                                 />
                             )}
 
                             {tab === 'Submitted Request' && (
                                 <FiCheckCircle
-                                    className={activeTab === tab ? 'text-white' : 'text-[#1C2C56]'}
+                                    className={activeTab === tab ? 'text-white' : 'text-[#8a5a75]'}
                                 />
                             )}
 
@@ -89,10 +89,10 @@ const LinkedOrderAndQuotes = () => {
                     {orders.map((order, i) => (
                         <div key={i}>
                             {/* Order Heading */}
-                            <p className="text-[#003562] text-sm font-medium mb-1">
+                            <p className="text-[#8a5a75] text-sm font-medium mb-1">
                                 {order.id}
                             </p>
-                            <h4 className="text-[#003562] text-base font-semibold mb-3">
+                            <h4 className="text-[#8a5a75] text-base font-semibold mb-3">
                                 {order.title}
                             </h4>
 
@@ -117,7 +117,7 @@ const LinkedOrderAndQuotes = () => {
                             {/* Action */}
                             <Button
                                 size="sm"
-                                className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md" onClick={openDialogViewOrder}>
+                                className="bg-[#8a5a75] px-6 hover:bg-[#8a5a75] text-white py-2 rounded-md" onClick={openDialogViewOrder}>
                                 View order
                             </Button>
                         </div>
@@ -126,7 +126,7 @@ const LinkedOrderAndQuotes = () => {
 
                 {/* Footer */}
                 <div className="mt-10 text-center">
-                    <button className="text-[#1C4FA8] text-sm font-medium">
+                    <button className="text-[#8a5a75] text-sm font-medium">
                         View All Orders
                     </button>
                 </div>

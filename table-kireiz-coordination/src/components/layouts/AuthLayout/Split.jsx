@@ -7,26 +7,19 @@ const Split = ({ children, content, ...rest }) => {
       <div className="relative flex justify-center items-center w-full lg:w-[60%] bg-gray h-full">
         {/* Logo */}
         <div className="absolute top-6 left-21 z-20">
-          <Link href="/kireiz-form" className="flex items-center">
-          <img
-            src="/img/others/auth-logo.png"
-            alt="KIREIZ FORM"
-            className="md:h-12 h-10 w-auto"
-          />
-          </Link>
-          {/* <Link href="/medical-form" className="flex items-center">
+          <Link href="/table-form" className="flex items-center">
             <img
-              src="/img/others/auth-logo.png"
-              alt="MEDICAL FORM"
+              src="/img/logo/logo-table.png"
+              alt="TABLE FORM"
               className="md:h-12 h-10 w-auto"
             />
-          </Link> */}
+          </Link>
         </div>
         {/* Image container (push image down so it never overlaps logo) */}
         <div className="flex-1 flex justify-center items-center z-0 mt-16">
           <img
-            src="/img/others/new-auth-imgtwo.png"
-            //src="/img/others/table-image1.png"
+            // src="/img/others/new-auth-imgtwo.png"
+            src="/img/others/table-image1.png"
             className="object-contain object-center h-full max-h-[75vh] w-full"
           />
         </div>

@@ -15,7 +15,7 @@ const ViewOrderPopup = ({ isOpen, onClose }) => {
                 {/* HEADER */}
                 <div className="border-b px-6 py-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-xl font-semibold text-[#1C2C56]">
+                        <h2 className="text-xl font-semibold text-[#8a5a75]">
                             Order #ORD-10234
                         </h2>
                         <p className="text-sm text-gray-500">
@@ -102,7 +102,7 @@ const ViewOrderPopup = ({ isOpen, onClose }) => {
                     </Button>
                     <Button
                         variant="solid"
-                        className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white px-8"
+                        className="bg-[#8a5a75] hover:bg-[#8a5a75] text-white px-8"
                         onClick={onClose}
                     >
                         OK

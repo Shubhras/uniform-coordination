@@ -9,21 +9,21 @@ import { LiaFileDownloadSolid } from 'react-icons/lia'
 
 const simulations = [
     {
-        img: '/img/kireiz-form/features/uniform-card-img-one.png',
+        img: '/img/kireiz-form/features/Venue.png',
         title: 'Medical & Nursing Care',
         date: 'Nov 15, 2025',
     }, {
-        img: '/img/kireiz-form/features/uniform-card-img-one.png',
+        img: '/img/kireiz-form/features/Venue.png',
         title: 'Medical & Nursing Care',
         date: 'Nov 15, 2025',
     },
     {
-        img: '/img/kireiz-form/features/uniform-card-img-two.png',
+        img: '/img/kireiz-form/features/Venue.png',
         title: 'Food Service & Dining',
         date: 'Nov 18, 2025',
     },
     {
-        img: '/img/kireiz-form/features/uniform-card-img-two.png',
+        img: '/img/kireiz-form/features/Venue.png',
         title: 'Food Service & Dining',
         date: 'Nov 18, 2025',
     },
@@ -35,7 +35,7 @@ const SimulationHistory = () => {
 
             {/* HEADER */}
             <div className="mb-6">
-                <h3 className="text-[#0F2A44] text-[18px] font-semibold flex items-center gap-1">
+                <h3 className="text-[#3E3E3E] text-[18px] font-semibold flex items-center gap-1">
                     <LuPalette size={23} />
                     Simulation History
                 </h3>
@@ -48,7 +48,7 @@ const SimulationHistory = () => {
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
                 {/* Left filters */}
                 <div className="flex gap-2">
-                    <button className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 px-5 rounded-md"
+                    <button className="bg-[#8a5a75] hover:bg-[#8a5a75] text-white py-2 px-5 rounded-md"
                     >
                         All
                     </button>
@@ -77,11 +77,11 @@ const SimulationHistory = () => {
                 {simulations.map((item, i) => (
                     <div
                         key={i}
-                        className="bg-white border border-[#CBD5E1] rounded-2xl p-6"
+                        className="bg-white border border-[#CBD5E1] rounded-2xl p-3"
                     >
                         {/* Image */}
                         <div className="flex justify-center mb-6">
-                            <div className="w-[240px] h-[240px] rounded-full  flex items-center justify-center overflow-hidden">
+                            <div className="w-[240px] h-[240px] flex items-center justify-center overflow-hidden">
                                 <Image
                                     src={item.img}
                                     width={240}
@@ -93,7 +93,7 @@ const SimulationHistory = () => {
                         </div>
 
                         {/* Text */}
-                        <h4 className="text-[#1C2C56] text-[16px] font-semibold">
+                        <h4 className="text-[#8a5a75] text-[16px] font-semibold">
                             {item.title}
                         </h4>
                         <p className="text-[#6B7280] text-[13px] mt-1">
@@ -104,7 +104,7 @@ const SimulationHistory = () => {
                         <div className="mt-6 flex gap-3">
                             {/* OPEN – wider */}
                             <Button
-                                className="flex-[2] bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md"
+                                className="flex-[2] bg-[#8a5a75] hover:bg-[#8a5a75] text-white py-2 rounded-md"
                                 size="sm"
                                 icon={<FiExternalLink size={16} />}
                             >
@@ -113,7 +113,7 @@ const SimulationHistory = () => {
 
                             {/* PDF – smaller */}
                             <Button
-                                className="flex-[1] border border-[#1C2C56] text-[#1C2C56] rounded-md"
+                                className="flex-[1] border border-[#8a5a75] text-[#8a5a75] rounded-md"
                                 size="sm"
                                 variant="default"
                                 icon={<LiaFileDownloadSolid />}

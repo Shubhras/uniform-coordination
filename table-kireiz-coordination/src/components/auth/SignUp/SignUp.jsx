@@ -47,7 +47,7 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
                   />
                   <p>
                     I Agree to privacy
-                    <span className="text-blue-400"> policy & terms</span>
+                    <span className="text-[#8B4513]"> policy & terms</span>
                   </p>
                 </label>
               </div>
@@ -59,7 +59,7 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
           <span>Already have an account? </span>
           <ActionLink
             href={signInUrl}
-            className="heading-text  text-blue-400"
+            className="heading-text  text-[#8B4513]"
             themeColor={false}
           >
             Sign in Instead

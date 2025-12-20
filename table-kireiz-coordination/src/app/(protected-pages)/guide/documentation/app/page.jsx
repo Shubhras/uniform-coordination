@@ -23,7 +23,7 @@ const Page = () => {
 const appConfig: AppConfig = {
     apiPrefix: '/api',
     // authenticatedEntryPath: '/dashboards/ecommerce',
-    authenticatedEntryPath: '/kireiz-form',
+    authenticatedEntryPath: '/table-form',
     unAuthenticatedEntryPath: '/sign-in',
     locale: 'en',
     activeNavTranslation: true
@@ -32,7 +32,7 @@ const appConfig: AppConfig = {
 const appConfig = {
     apiPrefix: '/api',
     // authenticatedEntryPath: '/dashboards/ecommerce',
-    authenticatedEntryPath: '/kireiz-form
+    authenticatedEntryPath: '/table-form
     unAuthenticatedEntryPath: '/sign-in',
     locale: 'en',
     activeNavTranslation: true

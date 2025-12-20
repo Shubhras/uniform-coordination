@@ -11,7 +11,7 @@ const FooterPage = ({ mode }) => {
 
     const handlePreview = () => {
         // router.push('/dashboards/ecommerce')
-        router.push('/kireiz-form')
+        router.push('/table-form')
     }
 
     return (
