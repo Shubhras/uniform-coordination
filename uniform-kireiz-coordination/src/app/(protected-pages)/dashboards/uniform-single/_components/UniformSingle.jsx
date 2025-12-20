@@ -4,7 +4,6 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { FiChevronDown } from 'react-icons/fi'
-
 const filters = ['All', 'Scrub', 'Lab Coats', 'Patient Care', 'Administrative']
 const sortOptions = ['Popular', 'Newest', 'Price: Low to High', 'Price: High to Low']
 

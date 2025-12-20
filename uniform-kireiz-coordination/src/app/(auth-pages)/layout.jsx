@@ -18,7 +18,8 @@ import Split from '@/components/layouts/AuthLayout/Split'
 const Layout = ({ children }) => {
     return (
         <div className="flex flex-auto flex-col h-[100vh]">
-            <Split>{children}</Split>
+            {/* <Split>{children}</Split> */}
+            {children}
         </div>
     )
 }
