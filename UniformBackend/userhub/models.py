@@ -1,5 +1,5 @@
 from django.db import models
-from uniformAdmin.models import Role
+from uniformAdmin.models import Role , Product
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 
@@ -63,6 +63,112 @@ class Users(models.Model):
         return True  
 
 
+
+# Cart
+class Cart(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+    is_delete = models.DateTimeField(auto_now_add=True)
+    is_update = models.DateField(auto_now_add=True)
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+
+    # total_price
+    def save(self, *args, **kwargs):
+        self.price = self.product.price 
+        self.total_price = self.quantity * self.price
+        super().save(*args, **kwargs)
+
+
+# ORDER
+class Order(models.Model):
+    STATUS = (
+        ("PENDING", "Pending"),
+        ("PAID", "Paid"),
+        ("FAILED", "Failed")
+    )
+
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    order_id = models.CharField(max_length=30, unique=True)
+
+    # customer
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+
+    # delivery
+    address_line1 = models.TextField()
+    address_line2 = models.TextField(blank=True, null=True)
+    city = models.CharField(max_length=50)
+    postal_code = models.CharField(max_length=10)
+    country = models.CharField(max_length=50)
+
+    # rental
+    rental_start_date = models.DateField()
+    rental_end_date = models.DateField()
+
+    # pricing
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2)
+    shipping_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    tax = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    fees = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2)
+
+    status = models.CharField(max_length=10, choices=STATUS, default="PENDING")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        self.total_amount = (
+            self.subtotal
+            + self.shipping_charge
+            + self.tax
+            + self.fees
+            - self.discount
+        )
+        super().save(*args, **kwargs)
+
+
+
+# OrderItem
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def save(self, *args, **kwargs):
+        self.price = self.product.price
+        self.total_price = self.quantity * self.price
+        super().save(*args, **kwargs)
+
+
+# PAYMENT 
+class Payment(models.Model):
+    STATUS = (
+        ("INITIATED", "Initiated"),
+        ("SUCCESS", "Success"),
+        ("FAILED", "Failed")
+    )
+
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    payment_id = models.CharField(max_length=100, unique=True)
+    gateway = models.CharField(max_length=20)
+    method = models.CharField(max_length=20)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    currency = models.CharField(max_length=10)
+    status = models.CharField(max_length=10, choices=STATUS)
+    gateway_response = models.JSONField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 #-----------------Notification --------------------

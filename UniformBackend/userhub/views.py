@@ -16,6 +16,8 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db import transaction
+
 
 from rest_framework.permissions import AllowAny
 from django.utils.http import urlsafe_base64_decode
@@ -817,3 +819,53 @@ class VerifyUserAPIView(APIView):
 #                 "message": str(e),
 #                 "data": None
 #             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+# ADD TO CART 
+class AddToCartAPIView(APIView):
+    def post(self, request):
+        try:
+            product = Product.objects.get(id=request.data["product_id"])
+            cart, _ = Cart.objects.get_or_create(user=request.user, is_active=True)
+            item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
+            item.quantity += int(request.data.get("quantity", 1))
+            item.save()
+            return Response({"msg": "Added to cart"})
+        except Product.DoesNotExist:
+            return Response({"error": "Product not found"}, status=404)
+
+
+# order 
+class CreateOrderAPIView(APIView):
+    @transaction.atomic
+    def post(self, request):
+        cart = Cart.objects.filter(user=request.user, is_active=True).first()
+        if not cart:
+            return Response({"error": "Cart empty"}, status=400)
+
+        items = cart.cartitem_set.all()
+        subtotal = sum(i.total_price for i in items)
+
+        order = Order.objects.create(
+            user=request.user,
+            order_id=f"ORD{uuid.uuid4().hex[:8]}",
+            subtotal=subtotal,
+            **request.data
+        )
+
+        for i in items:
+            OrderItem.objects.create(
+                order=order,
+                product=i.product,
+                quantity=i.quantity,
+                price=i.price,
+                total_price=i.total_price
+            )
+
+        cart.is_active = False
+        cart.save()
+
+        return Response(OrderSerializer(order).data, status=201)

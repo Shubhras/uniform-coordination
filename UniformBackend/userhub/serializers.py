@@ -134,6 +134,72 @@ class VerifyUserSerializer(serializers.Serializer):
         if attrs["is_verify"] is not True:
             raise serializers.ValidationError("is_verify must be true.")
         return attrs
+    
+
+# ___________________CART_____________________________
+
+class CartItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.name", read_only=True)
+
+    class Meta:
+        model = CartItem
+        fields = "__all__"
+
+class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(source="cartitem_set", many=True)
+
+    class Meta:
+        model = Cart
+        fields = ["id", "user", "is_active", "items"]
+
+# ORDER 
+class OrderItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.name", read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = "__all__"
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(source="orderitem_set", many=True)
+
+    class Meta:
+        model = Order
+        fields = "__all__"
+
+# PAYMENT 
+class PaymentSerializer(serializers.ModelSerializer):
+    order_id = serializers.CharField(source="order.order_id", read_only=True)
+
+    class Meta:
+        model = Payment
+        fields = "__all__"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # from rest_framework import serializers
 
