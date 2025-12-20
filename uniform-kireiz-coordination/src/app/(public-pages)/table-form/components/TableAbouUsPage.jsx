@@ -34,7 +34,7 @@ const testimonials = [
   },
 ];
 
-const UniformAbouUsPage = () => {
+const TableAbouUsPage = () => {
   const [index, setIndex] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(1);
 
@@ -148,5 +148,5 @@ const UniformAbouUsPage = () => {
   );
 };
 
-export default UniformAbouUsPage;
+export default TableAbouUsPage;
 

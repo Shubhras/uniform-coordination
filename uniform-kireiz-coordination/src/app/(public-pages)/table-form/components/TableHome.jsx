@@ -12,8 +12,9 @@ import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import UniformBusinessEnquiry from './UniformBusinessEnquiry'
 import UniformLatestBlogPosts from './UniformLatestBlogPosts'
 import UniformLatestFAQPosts from './UniformLatestFAQPosts'
-import UniformAbouUsPage from './UniformAbouUsPage'
 import ChatbotSection from './ChatbotSection'
+import TableAbouUsPage from './TableAbouUsPage'
+import PlaceholderSection from './PlaceholderSection'
 
 const TableHome = () => {
     const mode = useTheme((state) => state.mode)
@@ -39,9 +40,10 @@ const TableHome = () => {
             {/* <Demos mode={mode} /> */}
             {/*  How it works */}
             <TechStack />
-            <UniformLatestBlogPosts/>
-            <UniformLatestFAQPosts/>
-            <UniformAbouUsPage/>
+            <PlaceholderSection />
+            <UniformLatestBlogPosts />
+            <UniformLatestFAQPosts />
+            <TableAbouUsPage />
             {/* <OtherFeatures /> */}
             {/* <Components /> */}
             <ChatbotSection />

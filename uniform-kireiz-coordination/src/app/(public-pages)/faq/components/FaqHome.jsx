@@ -6,6 +6,7 @@ import React from 'react'
 import NavigationBar from '../../kireiz-form/components/NavigationBar'
 import FaqHero from './FaqHero'
 import FaqSection from './FaqSection'
+import LandingFooter from '../../kireiz-form/components/LandingFooter'
 
 const FaqHome = () => {
     const mode = useTheme((state) => state.mode)
@@ -21,6 +22,7 @@ const FaqHome = () => {
             <NavigationBar toggleMode={toggleMode} mode={mode} />
             <FaqHero />
             <FaqSection />
+            <LandingFooter mode={mode} />
         </main>
     )
 }

@@ -122,7 +122,7 @@ const stackList = [
 const TechStack = () => {
   return (
     <section className="w-full bg-[#fffdfb] px-4 sm:px-6 md:px-8 lg:px-12 ">
-      <div className="bg-[#F8D7DA33] rounded-3xl px-6 md:px-10 py-10 md:py-16">
+      <div className="bg-[#F8D7DA33] px-6 md:px-10 py-10 md:py-16">
 
         {/* HEADER */}
         <div className="text-center mb-14">
