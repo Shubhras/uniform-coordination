@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from uniformAdmin.models import AdminUser
+from .models import *
 from django.utils.timezone import now
 from rest_framework.permissions import IsAuthenticated
 from .utils import generate_custom_tokens
@@ -17,6 +18,7 @@ from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db import transaction
+from decimal import Decimal
 
 
 from rest_framework.permissions import AllowAny
@@ -822,50 +824,196 @@ class VerifyUserAPIView(APIView):
 
 
 
-
-
 # ADD TO CART 
+
 class AddToCartAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
-            product = Product.objects.get(id=request.data["product_id"])
-            cart, _ = Cart.objects.get_or_create(user=request.user, is_active=True)
-            item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
-            item.quantity += int(request.data.get("quantity", 1))
-            item.save()
-            return Response({"msg": "Added to cart"})
-        except Product.DoesNotExist:
-            return Response({"error": "Product not found"}, status=404)
-
-
-# order 
-class CreateOrderAPIView(APIView):
-    @transaction.atomic
-    def post(self, request):
-        cart = Cart.objects.filter(user=request.user, is_active=True).first()
-        if not cart:
-            return Response({"error": "Cart empty"}, status=400)
-
-        items = cart.cartitem_set.all()
-        subtotal = sum(i.total_price for i in items)
-
-        order = Order.objects.create(
-            user=request.user,
-            order_id=f"ORD{uuid.uuid4().hex[:8]}",
-            subtotal=subtotal,
-            **request.data
-        )
-
-        for i in items:
-            OrderItem.objects.create(
-                order=order,
-                product=i.product,
-                quantity=i.quantity,
-                price=i.price,
-                total_price=i.total_price
+            product_id = request.data.get("product_id")
+            quantity = int(request.data.get("quantity", 1))
+            product = Product.objects.get(id=product_id)
+        
+            cart, _ = Cart.objects.get_or_create(
+                user=request.user,
+                is_active=True
             )
 
-        cart.is_active = False
-        cart.save()
+            item, created = CartItem.objects.get_or_create(
+                cart=cart,
+                product=product
+            )
 
-        return Response(OrderSerializer(order).data, status=201)
+            if not created:
+                # If item already exists, increase quantity
+                item.quantity += quantity
+                item.save()
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "Item already in cart. Quantity updated.",
+                    "cart_item": {
+                        "id": item.id,
+                        "product": item.product.productName,
+                        "quantity": item.quantity,
+                        "price": float(item.price)
+                    }
+                }, status=status.HTTP_200_OK)
+            else:
+                 return Response({
+                    "status": True,
+                    "statusCode": 201,
+                    "message": "Item added to cart successfully.",
+                    "cart_item": {
+                        "id": item.id,
+                        "product": item.product.productName,
+                        "quantity": item.quantity,
+                        "price": float(item.price)
+                    }
+                }, status=status.HTTP_201_CREATED)
+
+        except Product.DoesNotExist:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "error": "Product not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+
+
+# CART LISTING
+class CartListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+
+    def get(self, request):
+        try:
+            cart = Cart.objects.get(user=request.user, is_active=True)
+            serializer = CartSerializer(cart)
+            return Response(serializer.data)
+
+        except Cart.DoesNotExist:
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Cart is empty",
+                "cart_items": []
+            }, status=status.HTTP_200_OK)
+
+
+# UPDATE
+class UpdateCartItemAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, item_id):
+        try:
+            item = CartItem.objects.get(
+                id=item_id,
+                cart__user=request.user
+            )
+            quantity = int(request.data.get("quantity"))
+
+            if quantity <= 0:
+                item.delete()
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "Item removed from cart"
+                }, status=status.HTTP_200_OK)
+   
+            item.quantity = quantity
+            item.save()
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Cart item quantity updated successfully",
+            },status=status.HTTP_200_OK)
+
+        except CartItem.DoesNotExist:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "error": "Cart item not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+
+# Delete
+class RemoveCartItemAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+
+    def delete(self, request, item_id):
+        try:
+            item = CartItem.objects.get(
+                id=item_id,
+                cart__user=request.user
+            )
+            item.delete()
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Item removed from cart successfully"
+            }, status=status.HTTP_200_OK)
+
+
+        except CartItem.DoesNotExist:
+            return Response({
+                "status":False,
+                "statusCode":404,
+                "error": "Item not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class OrderSummaryAPIView(APIView):
+    def get(self, request):
+        try:
+            cart = Cart.objects.get(user=request.user, is_active=True)
+            cart_items = CartItem.objects.filter(cart=cart)
+
+            if not cart_items.exists():
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "error": "Cart is empty"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            items_count = sum(item.quantity for item in cart_items)
+            subtotal = sum(item.total_price for item in cart_items)
+            shipping = Decimal("0.00")
+            tax = Decimal("0.00")
+            fees = Decimal("0.00")
+            discount = Decimal("0.00")
+
+            total_amount = subtotal + shipping + tax + fees - discount
+
+            items_list = []
+            for item in cart_items:
+                items_list.append({
+                    "name": item.product.productName,
+                    "quantity": item.quantity,
+                    "price": item.price,
+                    "total": item.total_price
+                })
+
+            return Response({
+                "items_count": items_count,
+                "items": items_list,
+                "subtotal": subtotal,
+                "shipping": None,
+                "tax": None,
+                "fees": None,
+                "discount": None,
+                "total_amount": total_amount
+            })
+
+        except Cart.DoesNotExist:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "error": "Cart is empty"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+     
+

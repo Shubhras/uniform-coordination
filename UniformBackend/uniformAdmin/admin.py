@@ -238,4 +238,46 @@ class SubCategoryAdmin(admin.ModelAdmin):
     
     
     
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'productName',
+        'productType',
+        'price',
+        'available_quantity',
+        'isActive',
+        'isPopular',
+        'isDeleted',
+        'created_at'
+    )
+ 
+    list_filter = (
+        'productType',
+        'isActive',
+        'isPopular',
+        'isDeleted',
+        'category',
+        'subcategory'
+    )
+ 
+    search_fields = (
+        'productName',
+        'slug',
+    )
+ 
+    prepopulated_fields = {
+        'slug': ('productName',)
+    }
+ 
+    filter_horizontal = (
+        'parts',
+    )
+ 
+    readonly_fields = (
+        'created_at',
+        'updated_at',
+    )
+ 
+    ordering = ('-created_at',)
     
