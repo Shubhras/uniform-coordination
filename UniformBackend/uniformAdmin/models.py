@@ -45,7 +45,19 @@ class AdminUserManager(BaseUserManager):
         if extra.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self.create_user(email, password, **extra)
+        # --- Add Role Logic Here ---
+        admin_role, created = Role.objects.get_or_create(
+            role_name="admin",
+            defaults={
+                # "role_name": "admin",
+                "slug": "admin",
+                "description": "Admin role with full access"
+            }
+        )
+
+        extra.setdefault("role", admin_role)
+
+        return self.create_user(email=email, password=password, **extra)
 
 
 # Custom Admin User Model
@@ -72,3 +84,256 @@ class AdminUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+class Fabric(models.Model):
+    MATERIAL_CHOICES = [
+        ("cotton", "Cotton"),
+        ("polyester", "Polyester"),
+        ("silk", "Silk"),
+        ("linen", "Linen"),
+    ]
+
+    fabricName = models.CharField(max_length=150, unique=True)
+    color = models.CharField(max_length=100)
+    materialType = models.CharField(max_length=60, choices=MATERIAL_CHOICES)
+    pricePerUnit = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.fabricName
+
+
+
+class Parts(models.Model):
+    CATEGORY_CHOICES = [
+        ("body", "Body"),
+        ("sleeves", "Sleeves"),
+        ("caps", "Caps"),
+        ("straps", "Straps"),
+        ("collars", "Collars"),
+        ("cuffs", "Cuffs"),
+        ("pockets", "Pockets"),
+        ("hoods", "Hoods"),
+
+    ]
+    partName = models.CharField(max_length=150, unique=True)
+    partImage = models.ImageField(upload_to='part_images/', blank=True, null=True)
+    category = models.CharField(max_length=60, choices=CATEGORY_CHOICES)
+    fabric = models.ForeignKey(Fabric, on_delete=models.CASCADE)
+    usageTemmpCount = models.IntegerField(default=0)
+    zIndex = models.IntegerField(default=0)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.partName
+    
+
+class Colors(models.Model):
+    colorName = models.CharField(max_length=250)
+    colorCode = models.TextField(null=True, blank=True)
+    compatibleFabric = models.ManyToManyField(Fabric, blank=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.colorName
+
+
+class Template(models.Model):
+    templateName = models.CharField(max_length=250)
+    templateImage = models.ImageField(upload_to='template_images/', blank=True, null=True)
+    part = models.ForeignKey(Parts, on_delete=models.SET_NULL, null=True, blank=True)
+    partUsageCount = models.IntegerField(default=0)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.templateName
+
+
+
+#Categories
+class Category(models.Model):
+    categoryName = models.CharField(max_length=250,unique=True)
+    slug = models.CharField(max_length=255, blank=True, null=True)
+    order = models.PositiveIntegerField(default=0,db_index=True) #new
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.categoryName) if self.categoryName else None
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.categoryName
+    
+    
+    
+class Blog(models.Model):
+    title = models.CharField(max_length=250,unique=True)
+    slug = models.CharField(max_length=255, blank=True, null=True)
+    category = models.ForeignKey(Category,on_delete=models.CASCADE,related_name="blogs")
+    image = models.ImageField(upload_to="blog_images/",null=True,blank=True)
+    description = models.TextField()
+
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.title:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
+ 
+ 
+class FAQ(models.Model):
+    title = models.CharField(max_length=255,unique=True)
+    # description = models.TextField(blank=True, null=True)
+
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+   
+   
+class FAQDescription(models.Model):
+    faq = models.ForeignKey(FAQ,related_name="descriptions", on_delete=models.CASCADE)
+    description = models.TextField()
+
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.faq.title}"
+   
+   
+class CatalogImage(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    image = models.ImageField(upload_to="catalog_images/")
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="catalog_images")
+    description = models.CharField(max_length=250)
+
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            # slug with underscore
+            self.slug = slugify(self.name).replace("-", "_")
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name   
+    
+
+class SubCategory(models.Model):
+    name = models.CharField(max_length=255)
+    subcategoryImage = models.ImageField(upload_to="subcategory/", blank=True, null=True)
+    category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,blank=True,related_name="subcategories")
+    slug = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            self.slug = slugify(self.name).replace("-", "_")
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class Product(models.Model):
+    productType = [ 
+    ('uniform', 'Uniform'),
+    ('table', 'Table'),
+    ]
+    productName = models.CharField(max_length=255)
+    slug = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    productType = models.CharField(max_length=20,choices=productType,default='uniform' ,blank=True, null=True)
+    category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,related_name="product_category")
+    subcategory = models.ForeignKey(SubCategory,on_delete=models.SET_NULL, null=True,related_name="product_subcategory")
+    parts = models.ManyToManyField(Parts,related_name="products_parts",blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_quantity = models.PositiveIntegerField(default=0)
+    available_quantity = models.PositiveIntegerField(default=0)
+    ProductImage = models.ImageField(upload_to='product_images/', blank=True, null=True)
+    discount = models.PositiveIntegerField(blank=True, null=True) 
+    isActive = models.BooleanField(default=True)
+    isPopular = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.productName:
+            self.slug = slugify(self.productName)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.productName
+
+    
+# class PDFTemplate(models.Model):
+#     PAPER_SIZES = (
+#         ('A4', 'A4'),
+#         ('Letter', 'Letter'),
+#     )
+
+#     name = models.CharField(max_length=100)
+
+#     template = models.ForeignKey(
+#         Template,                 
+#         on_delete=models.PROTECT, 
+#         related_name='pdf_layouts'
+#     )
+
+#     paper_size = models.CharField(max_length=10, choices=PAPER_SIZES)
+
+#     total_custom_fields = models.PositiveIntegerField(default=0)
+
+#     preview_pdf = models.FileField(
+#         upload_to='pdf_templates/previews/',
+#         null=True,
+#         blank=True
+#     )
+
+#     is_active = models.BooleanField(default=True)
+
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+
+#     def __str__(self):
+#         return f"{self.name} ({self.template.templateName})"
+    

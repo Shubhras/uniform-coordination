@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'uniformAdmin',
     'userhub',
 ]
-# AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
+AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
 
 
 MIDDLEWARE = [
@@ -105,6 +105,10 @@ DATABASES = {
     }
 }
 
+# AUTH_USER_MODEL = "uniformAdmin.AdminUser"  # replace yourapp with the actual app name
+# AUTH_USER_MODEL = "userhub.Users"
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -142,6 +146,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -149,10 +157,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        # "UniformWeb.authentication.UserJWTAuthentication", 
+        "userhub.authentication.CustomUserJWTAuthentication",# For Customers
+        "rest_framework_simplejwt.authentication.JWTAuthentication",  # For Admin
+        "rest_framework.authentication.SessionAuthentication",
+    ]
 }
+
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "moriji345@gmail.com"
+EMAIL_HOST_PASSWORD = "hqymjygpiifyfdfg"
 
 
 SIMPLE_JWT = {
@@ -161,3 +181,12 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
 }
+
+
+
+
+
+# import os
+
+# ONESIGNAL_APP_ID = os.getenv("ONESIGNAL_APP_ID")
+# ONESIGNAL_API_KEY = os.getenv("ONESIGNAL_API_KEY")
