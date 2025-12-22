@@ -26,6 +26,23 @@ urlpatterns = [
     # path("notifications/<int:pk>/", NotificationDetailAPIView.as_view()),
     # path("notifications/<int:pk>/update/", NotificationUpdateAPIView.as_view()),
     # path("notifications/<int:pk>/delete/", NotificationDeleteAPIView.as_view()),
+    
+    #<-------------------Model_Info------------------------------->
+    path('modelinfo/create/',ModelInfoCreateAPIView.as_view(), name = 'model_info-create'),
+    path('modelinfo/get-list/',ModelInfoListAPIView.as_view(), name = 'model_info-list'),
+    path('modelinfo/<int:id>/get/',ModelInfoDetailAPIView.as_view(), name = 'model_info-get'),
+    path('modelinfo/<int:id>/update/',ModelInfoUpdateAPIView.as_view(), name = 'model_info-update'),
+    path('modelinfo/delete/',ModelInfoDeleteAPIView.as_view(), name = 'model_info-delete'),
+
+    #<------------------------CustomUpdateModel---------------------->
+    path('customupdatemodel/create/',CustomUpdateModelCreateAPIView.as_view(), name = 'custom-create'),
+    path('customupdatemodel/get-list/',CustomUpdateModelListAPIView.as_view(), name = 'custom-get-list'),
+    path('customupdatemodel/<int:id>/get/',CustomUpdateModelDetailAPIView.as_view(), name = 'custom-get'),
+    path('customupdatemodel/<int:id>/update/',CustomUpdateModelUpdateAPIView.as_view(), name = 'custom-update'),
+    path('customupdatemodel/delete/',CustomUpdateModelDeleteAPIView.as_view(), name = 'custom-delete'),
+  
+
+
 
     
 

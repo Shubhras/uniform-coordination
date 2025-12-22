@@ -158,6 +158,8 @@ class VerifyUserSerializer(serializers.Serializer):
 #         return attrs
 
 class ModelInfoSerializer(serializers.ModelSerializer):
+    isActive = serializers.BooleanField(default=True)
+    isDeleted = serializers.BooleanField(default=False)
     class Meta:
         model = ModelInfo
         fields = [
@@ -172,8 +174,15 @@ class ModelInfoSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['created_at', 'updated_at']
     
-class CustomUpdateModelSerializer(serializers.Serializer):
+    def get_model_file(self, obj):
+        request = self.context.get('request')
+        if obj.model_file and request:
+            return request.build_absolute_uri(obj.model_file.url)
+        return None
+    
+class CustomUpdateModelSerializer(serializers.ModelSerializer):
     class Meta:
+        model = CustomUpdateModel
         fields = [
             'id',
             'user',

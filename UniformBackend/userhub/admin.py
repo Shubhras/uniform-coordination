@@ -82,3 +82,92 @@ class UsersAdmin(admin.ModelAdmin):
 #     )
 
 #     ordering = ("-id",)
+
+@admin.register(ModelInfo)
+class ModelInfoAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'product',
+        'isActive',
+        'isDeleted',
+        'created_at',
+        'updated_at',
+    )
+
+    list_filter = (
+        'isActive',
+        'isDeleted',
+        'created_at',
+    )
+
+    search_fields = (
+        'product__name',
+        'description',
+    )
+
+    readonly_fields = (
+        'created_at',
+        'updated_at',
+    )
+
+    ordering = ('-created_at',)
+
+    fieldsets = (
+        ("Basic Information", {
+            'fields': ('product', 'model_file', 'description')
+        }),
+        ("Status", {
+            'fields': ('isActive', 'isDeleted')
+        }),
+        ("Timestamps", {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+
+@admin.register(CustomUpdateModel)
+class CustomUpdateModelAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'id',
+        'user',
+        'model_info',
+        'isActive',
+        'isDeleted',
+        'created_at',
+        'updated_at',
+    )
+
+    list_filter = (
+        'isActive',
+        'isDeleted',
+        'created_at',
+    )
+
+    search_fields = (
+        'user__username',
+        'user__email',
+        'model_info__id',
+    )
+
+    readonly_fields = (
+        'created_at',
+        'updated_at',
+    )
+
+    ordering = ('-created_at',)
+
+    fieldsets = (
+        ("User & Model Info", {
+            'fields': ('user', 'model_info')
+        }),
+        ("Customization JSON Data", {
+            'fields': ('json_data',),
+            'description': "3D model ke user customization changes yahan JSON format me store hote hain"
+        }),
+        ("Status", {
+            'fields': ('isActive', 'isDeleted')
+        }),
+        ("Timestamps", {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )

@@ -113,11 +113,13 @@ class ModelInfo(models.Model):
     product = models.OneToOneField(Product,on_delete=models.CASCADE,related_name="model_info",null=True,blank=True)
     model_file = models.FileField(upload_to="3d_models/",null=True,blank=True)
     description = models.TextField(blank=True, null=True)
-    isActive = models.BooleanField(default=True,null=True,blank=True)
-    isDeleted = models.BooleanField(default=False,null=True,blank=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     updated_at = models.DateTimeField(auto_now=True,null=True,blank=True)
 
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.product.name
@@ -153,6 +155,7 @@ class CustomUpdateModel(models.Model):
         unique_together = ('user', 'model_info')
         verbose_name = "User Customization"
         verbose_name_plural = "User Customizations"
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.user} → {self.model_info}"
