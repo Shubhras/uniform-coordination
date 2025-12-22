@@ -8,14 +8,14 @@ const ViewOrderPopup = ({ isOpen, onClose }) => {
             isOpen={isOpen}
             onClose={onClose}
             onRequestClose={onClose}
-            className="w-full  md:min-w-3xl mx-auto "
+            className="w-full md:min-w-3xl mx-auto "
         >
             <div className="flex flex-col">
 
                 {/* HEADER */}
                 <div className="border-b px-6 py-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-xl font-semibold text-[#8a5a75]">
+                        <h2 className="text-xl font-semibold">
                             Order #ORD-10234
                         </h2>
                         <p className="text-sm text-gray-500">
@@ -102,7 +102,7 @@ const ViewOrderPopup = ({ isOpen, onClose }) => {
                     </Button>
                     <Button
                         variant="solid"
-                        className="bg-[#8a5a75] hover:bg-[#8a5a75] text-white px-8"
+                        className="bg-[#A0522D] hover:bg-[#A0522D] text-white px-8"
                         onClick={onClose}
                     >
                         OK

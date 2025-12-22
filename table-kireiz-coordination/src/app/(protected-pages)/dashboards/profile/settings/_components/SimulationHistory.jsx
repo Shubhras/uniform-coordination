@@ -35,7 +35,7 @@ const SimulationHistory = () => {
 
             {/* HEADER */}
             <div className="mb-6">
-                <h3 className="text-[#3E3E3E] text-[18px] font-semibold flex items-center gap-1">
+                <h3 className="text-[18px] font-semibold flex items-center gap-1">
                     <LuPalette size={23} />
                     Simulation History
                 </h3>
@@ -48,7 +48,7 @@ const SimulationHistory = () => {
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
                 {/* Left filters */}
                 <div className="flex gap-2">
-                    <button className="bg-[#8a5a75] hover:bg-[#8a5a75] text-white py-2 px-5 rounded-md"
+                    <button className="bg-[#A0522D] hover:bg-[#8a5a75] text-white py-2 px-5 rounded-md"
                     >
                         All
                     </button>
@@ -93,10 +93,10 @@ const SimulationHistory = () => {
                         </div>
 
                         {/* Text */}
-                        <h4 className="text-[#8a5a75] text-[16px] font-semibold">
+                        <h4 className=" text-[16px] font-semibold">
                             {item.title}
                         </h4>
-                        <p className="text-[#6B7280] text-[13px] mt-1">
+                        <p className=" text-[13px] mt-1">
                             {item.date}
                         </p>
 
@@ -104,7 +104,7 @@ const SimulationHistory = () => {
                         <div className="mt-6 flex gap-3">
                             {/* OPEN – wider */}
                             <Button
-                                className="flex-[2] bg-[#8a5a75] hover:bg-[#8a5a75] text-white py-2 rounded-md"
+                                className="flex-[2] bg-[#A0522D] hover:bg-[#A0522D] text-white py-2 rounded-md"
                                 size="sm"
                                 icon={<FiExternalLink size={16} />}
                             >
@@ -113,7 +113,7 @@ const SimulationHistory = () => {
 
                             {/* PDF – smaller */}
                             <Button
-                                className="flex-[1] border border-[#8a5a75] text-[#8a5a75] rounded-md"
+                                className="flex-[1] border border-[#A0522D] text-[#A0522D] rounded-md"
                                 size="sm"
                                 variant="default"
                                 icon={<LiaFileDownloadSolid />}

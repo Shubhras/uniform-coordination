@@ -116,8 +116,8 @@ export default function Footer({ pageContainerType = 'contained', className }) {
                         ©{year} KIREIZ FORM. All rights reserved.
                     </p>
                     <div className="flex gap-6 font-semibold text-[#2D3E72]">
-                        <Link href="#" className="hover:underline">Privacy & Policy</Link>
-                        <Link href="#" className="hover:underline">Terms & Condition</Link>
+                        <Link href='/private-policy'  className="hover:underline">Privacy & Policy</Link>
+                        <Link href='/terms-and-condition' className="hover:underline">Terms & Condition</Link>
                     </div>
                 </div>
             </div>

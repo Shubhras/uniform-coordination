@@ -34,7 +34,7 @@ const UniformLatestFAQPosts = () => {
   };
 
   return (
-    <section className="relative py-8 bg-[#fffdfb]">
+    <section className="relative py-8 bg-white">
       <Container>
 
         <div className="text-center mb-14">
@@ -53,24 +53,24 @@ const UniformLatestFAQPosts = () => {
               <div
                 key={index}
                 className={`rounded-xl px-6 py-5 transition-all duration-300 ${isOpen
-                    ? "bg-white text-[#402936] shadow-md"
-                    : "bg-[#E8B4A9] text-white border border-[#E1D1C7]"
+                    ? "bg-white text-black shadow-md"
+                    : "bg-[#E1D1C7] text-black border border-[#E1D1C7]"
                   }`}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
                   className="w-full flex items-center justify-between text-left"
                 >
-                  <span className=" font-semibold text-sm md:text-base">
+                  <span className=" font-medium text-sm md:text-base">
                     {faq.question}
                   </span>
 
                   <span className=" text-xl">
-                    {isOpen ? <FiMinus /> : <FiPlus />}
+                    {isOpen ? <FiMinus className="text-[#A0522D]" /> : <FiPlus />}
                   </span>
                 </button>
                 {isOpen && faq.answer && (
-                  <p className="mt-4 text-sm text-gray-600 leading-relaxed">
+                  <p className="mt-4 text-sm text-[#9C8174] leading-relaxed">
                     {faq.answer}
                   </p>
                 )}

@@ -1,10 +1,21 @@
+'use client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { PiPhone, PiInstagramLogoFill } from "react-icons/pi";
 import { FaLinkedin, FaInstagram, FaYoutube, FaTiktok } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import { SiG2 } from 'react-icons/si';
+import { IoIosArrowUp } from 'react-icons/io';
 
 const FooterPage = ({ mode }) => {
+
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        })
+    }
+
     const year = new Date().getFullYear()
 
     const router = useRouter()
@@ -86,9 +97,9 @@ const FooterPage = ({ mode }) => {
                     </div>
                 </div>
             </footer> */}
-            <footer className="bg-[#8A5A75] text-white pt-16">
+            <footer className="bg-[#E8B4A9] text-black pt-16">
                 <div className=" mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className=" relative grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="max-w-[300px]">
                             <img
                                 src="/img/logo/logo-table-footer.png"
@@ -99,7 +110,7 @@ const FooterPage = ({ mode }) => {
                             <p className="text-sm mb-4">
                                 Our vision is to provide convenience and help increase your sales business.
                             </p>
-                            <div className="font-semibold text-white mt-6 mb-3">
+                            <div className="font-semibold text-black mt-6 mb-3">
                                 Support
                             </div>
                             <div className="flex items-center gap-2 text-sm">
@@ -112,7 +123,7 @@ const FooterPage = ({ mode }) => {
                             </div>
                         </div>
                         <div className="flex flex-col justify-center max-w-[350px]">
-                            <h3 className="font-semibold mb-4 text-lg text-white">
+                            <h3 className="font-semibold mb-4 text-lg text-black">
                                 Contact Channels
                             </h3>
                             <div className="flex flex-wrap gap-3">
@@ -129,11 +140,7 @@ const FooterPage = ({ mode }) => {
                                     <FaYoutube className='text-lg' /> Youtube
                                 </button>
                                 <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
-                                    <img
-                                        src="/img/logo/icone-g2.png"
-                                        alt="G2"
-                                        className="w-5 h-5"
-                                    />
+                                    <SiG2 className='text-lg' />
                                     G2
                                 </button>
                                 <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
@@ -141,6 +148,15 @@ const FooterPage = ({ mode }) => {
                                 </button>
                             </div>
                         </div>
+
+                        <button
+                            onClick={scrollToTop}
+                            aria-label="Scroll to top"
+                            className="bg-white h-fit rounded-full p-3 hover:shadow-md transition absolute top-0 right-0"
+                        >
+                            <IoIosArrowUp size={20} className="text-black" />
+                        </button>
+
                     </div>
                 </div>
                 <div className="border-t border-white/20 mt-12 bg-white">
@@ -150,8 +166,8 @@ const FooterPage = ({ mode }) => {
                             ©{year} KIREIZ FORM. All rights reserved.
                         </p>
                         <div className="flex gap-6 font-semibold text-[#000000]">
-                            <Link href="#" className="hover:underline">Privacy & Policy</Link>
-                            <Link href="#" className="hover:underline">Terms & Condition</Link>
+                            <Link href='/private-policy' className="hover:underline">Privacy & Policy</Link>
+                            <Link href='/terms-and-condition' className="hover:underline">Terms & Condition</Link>
                         </div>
                     </div>
                 </div>

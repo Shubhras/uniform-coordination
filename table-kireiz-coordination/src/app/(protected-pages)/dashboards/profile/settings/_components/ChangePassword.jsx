@@ -66,7 +66,7 @@ const ChangePassword = () => {
     return (
         <div className='bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md'>
             <Form onSubmit={handleSubmit(onSubmit)}>
-                <h4 className="text-[#8a5a75] text-lg font-semibold mb-1 flex items-center gap-1">
+                <h4 className=" text-lg font-semibold mb-1 flex items-center gap-1">
                     <FiLock size={23} />
                     Change Password
                 </h4>
@@ -167,7 +167,7 @@ const ChangePassword = () => {
                         type="submit"
                         loading={isSubmitting}
                         size="sm"
-                        className="bg-[#8a5a75] hover:bg-[#8a5a75] px-6 text-white py-2 rounded-md"
+                        className="bg-[#A0522D] hover:bg-[#8a5a75] px-6 text-white py-2 rounded-md"
                     >
                         Update
                     </Button>

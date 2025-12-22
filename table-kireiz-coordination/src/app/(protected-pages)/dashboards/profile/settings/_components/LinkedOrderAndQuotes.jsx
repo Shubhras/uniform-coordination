@@ -44,8 +44,8 @@ const LinkedOrderAndQuotes = () => {
             <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
                 {/* Header */}
                 <div className="flex items-center gap-2 mb-1">
-                    <FiBox size={23} className="text-[#8a5a75]" />
-                    <h3 className="text-[#8a5a75] text-lg font-semibold">
+                    <FiBox size={23} className="" />
+                    <h3 className=" text-lg font-semibold">
                         Linked Orders & Quotes
                     </h3>
                 </div>
@@ -61,8 +61,8 @@ const LinkedOrderAndQuotes = () => {
                             onClick={() => setActiveTab(tab)}
                             className={`px-5 py-2 text-sm font-medium border rounded-md transition flex items-center gap-2
         ${activeTab === tab
-                                    ? 'bg-[#8a5a75] text-white'
-                                    : 'bg-white text-[#8a5a75] border-[#8a5a75]'
+                                    ? 'bg-[#A0522D] text-white'
+                                    : 'bg-white text-[#A0522D] border-[#A0522D]'
                                 }`}
                         >
                             {tab === 'Drafted' && (
@@ -89,10 +89,10 @@ const LinkedOrderAndQuotes = () => {
                     {orders.map((order, i) => (
                         <div key={i}>
                             {/* Order Heading */}
-                            <p className="text-[#8a5a75] text-sm font-medium mb-1">
+                            <p className="text-[#A0522D] text-sm font-medium mb-1">
                                 {order.id}
                             </p>
-                            <h4 className="text-[#8a5a75] text-base font-semibold mb-3">
+                            <h4 className="text-[#A0522D] text-base font-semibold mb-3">
                                 {order.title}
                             </h4>
 
@@ -117,7 +117,7 @@ const LinkedOrderAndQuotes = () => {
                             {/* Action */}
                             <Button
                                 size="sm"
-                                className="bg-[#8a5a75] px-6 hover:bg-[#8a5a75] text-white py-2 rounded-md" onClick={openDialogViewOrder}>
+                                className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md" onClick={openDialogViewOrder}>
                                 View order
                             </Button>
                         </div>

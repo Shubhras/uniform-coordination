@@ -44,7 +44,7 @@ export const SettingsMenu = ({ onChange }) => {
                             key={menu.value}
                             eventKey={menu.value}
                             className={`mb-2 ${currentView === menu.value
-                                ? 'border-b-2 border-[#8a5a75]'
+                                ? 'border-b-2 border-[#A0522D]'
                                 : ''
                                 }`}
                             isActive={currentPath === menu.value}

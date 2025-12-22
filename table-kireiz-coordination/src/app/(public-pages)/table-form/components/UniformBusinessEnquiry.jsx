@@ -113,7 +113,7 @@ const UniformBusinessEnquiry = () => {
     router.push("/medical-form");
   };
   return (
-    <section className="w-full bg-[#fffdfb] px-4 sm:px-6 md:px-8 lg:px-12">
+    <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
       <div className="">
 
         {/* TITLE */}
@@ -163,9 +163,8 @@ const UniformBusinessEnquiry = () => {
               <div
                 key={i}
                 className="
-          bg-[#F8D7DA33]
+          bg-[#E8B4A924]
           rounded-xl
-          border border-[#D4A6A6]
           shadow-sm
           px-4 py-5
           text-left
@@ -176,14 +175,14 @@ const UniformBusinessEnquiry = () => {
                 {/* ICON */}
                 <Icon
                   size={30}
-                  className="mb-3 text-[#8A5A75]"
+                  className="mb-3 text-[#A0522D]"
                 />
 
                 {/* TEXT */}
-                <p className="text-[#402936] font-semibold text-sm">
+                <p className="text-black font-semibold text-sm">
                   {item.title}
                 </p>
-                <p className="text-gray-600 text-xs mt-1">
+                <p className="text-[#7A7A7A] text-xs mt-1">
                   {item.desc}
                 </p>
               </div>
@@ -227,9 +226,8 @@ const UniformBusinessEnquiry = () => {
     cursor-pointer
     w-full
     p-3 rounded-tl-4xl rounded-br-4xl
-    bg-[#F5E9DB]
-    border
-    border-[#D4A6A6]
+    bg-[#FEF3C7]
+   
   "
                   onClick={handleMedicalFormDesigning}
                 >
@@ -253,7 +251,7 @@ const UniformBusinessEnquiry = () => {
           text-lg
           font-medium
           text-white
-          bg-[#D9B3B3]
+          bg-[#A0522D]
           rounded-xl
           
         "

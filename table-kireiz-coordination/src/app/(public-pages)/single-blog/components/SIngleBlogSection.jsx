@@ -64,25 +64,25 @@ const blogData = {
 const SingleBlogSection = () => {
     return (
         <section className="relative w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 py-20 md:py-24">
-            <div className="bg-[#F5F7FB] rounded-3xl px-1 md:px-10 lg:px-8 py-10 md:py-8">
+            <div className=" rounded-3xl px-1 md:px-10 lg:px-8 py-10 md:py-8">
 
                 {/* HEADER */}
                 <div className="text-center lg:mb-24 md:mb-18 mb-10">
-                    <h2 className="text-[#1C2C56] lg:text-4xl text-3xl font-semibold">
+                    <h2 className=" lg:text-4xl text-3xl font-semibold">
                         Blog
                     </h2>
-                    <div className="w-24 h-1 rounded-full bg-[#1C2C56] mx-auto mt-2" />
+                    <div className="w-24 h-1 rounded-full bg-[#E8B4A9] mx-auto mt-2" />
                     <p className="text-[#6B7280] text-sm mt-4 max-w-xl mx-auto">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
                     </p>
                 </div>
 
 
-                <h2 className=" text-center mb-5 lg:text-4xl text-3xl font-semibold text-[#1C2C56]">
+                <h2 className=" text-center mb-5 lg:text-4xl text-3xl font-semibold ">
                     Our Latest Blog Posts
                 </h2>
                 {/* Cards */}
-                <div className="w-full bg-[#F5F7FB] rounded-3xl p-3">
+                <div className="w-full  rounded-3xl p-3">
 
                     {/* Image */}
                     <div className="mb-6">
@@ -97,7 +97,7 @@ const SingleBlogSection = () => {
 
                     {/* Title + Date */}
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                        <h1 className="text-2xl md:text-3xl font-semibold text-[#1C2C56]">
+                        <h1 className="text-2xl md:text-3xl font-semibold ">
                             {blogData.title}
                         </h1>
                         <p className="text-sm text-gray-500">

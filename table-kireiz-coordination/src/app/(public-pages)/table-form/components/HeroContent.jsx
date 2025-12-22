@@ -4,67 +4,85 @@ import Image from "next/image";
 
 const HeroContent = () => {
   return (
-    <section className="relative w-full min-h-[620px] overflow-hidden mt-13">
+    <section className="relative w-full min-h-[520px] md:min-h-[620px] overflow-hidden mt-13">
 
       {/* BACKGROUND GRADIENT */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(104deg, rgba(232,180,169,0.25) 0%, rgba(255,182,163,0.55) 100%)",
+            "linear-gradient(104.14deg, rgba(232, 180, 169, 0.2) 8.75%, #FFFFDD 100.72%, rgba(255, 255, 255, 0) 100.72%)",
         }}
       />
 
-      <div className="relative grid grid-cols-1 md:grid-cols-2 min-h-[620px]">
+      <div className="relative grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 min-h-[520px] md:min-h-[620px]">
 
         {/* LEFT CONTENT */}
-        <div className="flex flex-col justify-center px-10 sm:px-16 lg:px-28">
-          <h1 className="text-[42px] md:text-[50px] lg:text-[60px] font-bold text-[#3B2B2F] leading-[1.12]">
-            Design your <br />
-            special day <br />
-            with calm <br />
-            and joy.
-          </h1>
+        <div className="
+          border-r border-b border-white
+          rounded-br-[100px] md:rounded-br-[200px]
+          h-full
+          pb-3 md:pb-4
+          pr-3 md:pr-4
+        ">
+          <div className="
+            border-r border-b border-[#A0522D]
+            rounded-br-[100px] md:rounded-br-[200px]
+            h-full
+          ">
+            <div className="
+              flex flex-col justify-center
+              px-4 sm:px-6 md:px-8 lg:px-12
+              py-14 sm:py-16 md:py-20
+            ">
+              <h1 className="
+                text-[30px] sm:text-[36px] md:text-[50px] lg:text-[60px]
+                font-bold
+                text-[#3B2B2F]
+                leading-[1.15]
+              ">
+                Design your <br />
+                special day <br />
+                with calm <br />
+                and joy.
+              </h1>
 
-          <div className="flex gap-4 mt-10">
-            <button className="px-6 py-3 rounded-md bg-[#C98B8B] text-white text-sm">
-              Browse by Color
-            </button>
-            <button className="px-6 py-3 rounded-md border border-[#C98B8B] text-sm">
-              Browse by Theme
-            </button>
+              <div className="flex flex-wrap gap-4 mt-8 md:mt-10">
+                <button className="px-6 py-3 rounded-md border border-white bg-[#A0522D] text-white text-sm">
+                  Browse by Color
+                </button>
+                <button className="px-6 py-3 rounded-md  border border-white  bg-[#EEC04F] text-sm text-white">
+                  Browse by Theme
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* RIGHT IMAGE AREA */}
-        <div className="relative w-full h-full">
-
-          {/* CURVE */}
-          <svg
-            viewBox="0 0 600 1000"
-            preserveAspectRatio="none"
-            className="absolute left-[-120px] top-0 h-full w-[260px]"
-          >
-            <path
-              d="
-                M300,0
-                C120,200 120,800 300,1000
-                L0,1000
-                L0,0
-                Z
-              "
-              fill="rgba(255,255,255,0.35)"
+        <div className="
+          border-l border-t border-[#A0522D]
+          rounded-tl-[100px] md:rounded-tl-[200px]
+          h-[260px] sm:h-[320px] md:h-full
+          pt-3 md:pt-4
+          pl-3 md:pl-4
+          md:mt-4
+        ">
+          <div className="
+            border-l border-t border-white
+            rounded-tl-[100px] md:rounded-tl-[200px]
+            h-full
+            relative
+            overflow-hidden
+          ">
+            <Image
+              src="/img/table-form/themes/theme2.png"
+              alt="Table Design"
+              fill
+              priority
+              className="object-cover rounded-tl-[100px] md:rounded-tl-[200px] pt-4 pl-4"
             />
-          </svg>
-
-          {/* IMAGE */}
-          <Image
-            src="/img/table-form/hero-image.png"
-            alt="Table Design"
-            fill
-            priority
-            className="object-cover"
-          />
+          </div>
         </div>
 
       </div>

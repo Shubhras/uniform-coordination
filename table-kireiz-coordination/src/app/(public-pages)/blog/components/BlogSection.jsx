@@ -101,25 +101,23 @@ const BlogSection = () => {
         router.push("/single-blog");
     };
 
-
-
     return (
         <section className=" w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 py-20 md:py-24">
-            <div className="bg-[#F5F7FB] rounded-3xl px-6 md:px-10 lg:px-8 py-10 md:py-8">
+            <div className=" rounded-3xl px-6 md:px-10 lg:px-8 py-10 md:py-8">
 
                 {/* HEADER */}
                 <div className="text-center mb-10">
-                    <h2 className="text-[#1C2C56] lg:text-4xl text-3xl font-semibold">
+                    <h2 className=" lg:text-4xl text-3xl font-semibold">
                         Blog
                     </h2>
-                    <div className="w-24 h-1 rounded-full bg-[#1C2C56] mx-auto mt-2" />
+                    <div className="w-24 h-1 rounded-full bg-[#E8B4A9] mx-auto mt-2" />
                     <p className="text-[#6B7280] text-sm mt-4 max-w-xl mx-auto">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
                     </p>
                 </div>
 
 
-                <h2 className="mb-5 lg:text-4xl text-3xl font-semibold text-[#1C2C56]">
+                <h2 className="mb-5 lg:text-4xl text-3xl font-semibold ">
                     Our Latest Blog Posts
                 </h2>
                 {/* Cards */}
@@ -127,7 +125,7 @@ const BlogSection = () => {
                     {blogPosts.map((post, index) => (
                         <div
                             key={index}
-                            className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden cursor-pointer"
+                            className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden cursor-pointer border border-[#E8B4A9]"
                             onClick={handleClick}
                         >
                             {/* Image */}

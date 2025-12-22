@@ -136,7 +136,7 @@ const PersonalInformation = () => {
     return (
         <>
             <div className='bg-[#E8EEF842] md:p-8 p-5 rounded-2xl  max-w-7xl mx-auto shadow-md'>
-                <h4 className="mb-8 text-[#8a5a75] text-lg font-semibold">Personal information</h4>
+                <h4 className="mb-8 text-lg font-semibold">Personal information</h4>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <div className="mb-8">
                         <Controller
@@ -171,7 +171,7 @@ const PersonalInformation = () => {
                                                     size="sm"
                                                     type="button"
                                                     // icon={<TbPlus />}
-                                                    className=" bg-[#8a5a75] hover:bg-[#8a5a75] text-white py-2 rounded-md px-6"
+                                                    className=" bg-[#A0522D] hover:bg-[#8a5a75] text-white py-2 rounded-md px-6"
                                                 >
                                                     Upload Image
                                                 </Button>
@@ -345,7 +345,7 @@ const PersonalInformation = () => {
                             type="submit"
                             size="sm"
                             loading={isSubmitting}
-                            className="bg-[#8a5a75] px-6 hover:bg-[#8a5a75] text-white py-2 rounded-md"
+                            className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"
                         >
                             Save Changes
                         </Button>
