@@ -134,6 +134,62 @@ class VerifyUserSerializer(serializers.Serializer):
         if attrs["is_verify"] is not True:
             raise serializers.ValidationError("is_verify must be true.")
         return attrs
+    
+
+# ___________________CART_____________________________
+
+class CartItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(
+        source="product.productName",
+        read_only=True
+    )
+
+    class Meta:
+        model = CartItem
+        fields = "__all__"
+        
+
+
+class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True, read_only=True)
+    cart_total = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Cart
+        fields = "__all__"
+
+    def get_cart_total(self, obj):
+        return sum(item.total_price for item in obj.items.all())
+
+
+
+class CustomerDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        models = CustomerDetails
+        fields ="__all__"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -24,6 +24,16 @@ urlpatterns = [
     # path("notifications/<int:pk>/update/", NotificationUpdateAPIView.as_view()),
     # path("notifications/<int:pk>/delete/", NotificationDeleteAPIView.as_view()),
 
+    #  CART  
+    path("cart/add/", AddToCartAPIView.as_view()),
+    path("cart/", CartListAPIView.as_view()),
+    path("cart/item/<int:item_id>/update/", UpdateCartItemAPIView.as_view()),
+    path("cart/item/<int:item_id>/delete/", RemoveCartItemAPIView.as_view()),
+    path("cart/order-summary/", OrderSummaryAPIView.as_view()),
+]
+
+   
     
 
-]
+
+
