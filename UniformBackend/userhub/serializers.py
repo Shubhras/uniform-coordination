@@ -204,8 +204,26 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 
 
-# from rest_framework import serializers
 
+
+class FavouriteSerializer(serializers.ModelSerializer):
+    product_type = serializers.CharField(
+        source="product.productType",
+        read_only=True
+    )
+
+    class Meta:
+        model = Favourite
+        fields = ["id", "product", "product_type", "is_like"]
+
+
+
+
+
+
+
+
+# from rest_framework import serializers
 
 # class NotificationSerializer(serializers.ModelSerializer):
 #     class Meta:

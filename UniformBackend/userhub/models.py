@@ -3,6 +3,10 @@ from uniformAdmin.models import Role , Product
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 import uuid
+from uniformAdmin.models import Product
+from django.utils.text import slugify
+
+
 class Users(models.Model):
 # class Users(AbstractBaseUser, PermissionsMixin):
     GENDER_CHOICES = [
@@ -64,6 +68,32 @@ class Users(models.Model):
 
 
 
+class Favourite(models.Model):
+    # PRODUCT_TYPE_CHOICES = [
+    #     ('uniform', 'Uniform'),
+    #     ('table', 'Table'),
+    # ]
+
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name="favourites")
+    user = models.ForeignKey(Users,on_delete=models.CASCADE,related_name="user_favourites")
+    # product_type = models.CharField(max_length=20,choices=PRODUCT_TYPE_CHOICES)
+    is_like = models.BooleanField(default=False)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('product', 'user')
+
+    def __str__(self):
+        return f"{self.user} - {self.product} - {self.is_like}"
+
+
+
+
+
+
 # Cart
 class Cart(models.Model):
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
@@ -74,7 +104,7 @@ class Cart(models.Model):
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE,related_name="items")
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey("unformAdmin.Product", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
@@ -133,7 +163,7 @@ class Order(models.Model):
     totel_amount=models.DecimalField(max_digits=10,decimal_places=2 )
     start_date =models.DateField(auto_now_add=True)
     return_date =models.DateField(auto_now_add=True)
-    # promocode =models.ForeignKey(promocode,on_delete=models.CASCADE)
+    promocode =models.ForeignKey("unformAdmin.Promocode",on_delete=models.CASCADE)
 
 
 

@@ -147,12 +147,10 @@ class ColorsSerializer(serializers.ModelSerializer):
         return instance
 
 
-
 class TemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Template
         fields = "__all__"
-
 
 
 
@@ -162,7 +160,7 @@ class BlogSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    # 🔹 WRITE image to DB
+    #  WRITE image to DB
     image = serializers.ImageField(required=False, allow_null=True)
 
     slug = serializers.SerializerMethodField()
@@ -176,7 +174,7 @@ class BlogSerializer(serializers.ModelSerializer):
             "slug",
             "category",
             "categoryName",
-            "image",        # ✅ ONLY ONE image field
+            "image",        #  ONLY ONE image field
             "description",
             "isActive",
             "created_at",
@@ -364,6 +362,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
             "category",           
             "subcategoryImage",
             "slug",
+            "order",
             "description",
             "isActive",
             "isDeleted",
@@ -391,6 +390,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
         return attrs
 
 
+
 class ProductSerializer(serializers.ModelSerializer):
     parts = serializers.PrimaryKeyRelatedField(
         queryset=Parts.objects.filter(isActive=True, isDeleted=False),
@@ -408,7 +408,7 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["slug", "created_at"]
 
-    # ✅ IMPORTANT: handle parts = "[1,2,3]" from form-data
+    #  IMPORTANT: handle parts = "[1,2,3]" from form-data
     def to_internal_value(self, data):
         data = data.copy()
 
@@ -442,3 +442,169 @@ class ProductSerializer(serializers.ModelSerializer):
             })
 
         return data
+
+
+
+class PromocodeSerializer(serializers.ModelSerializer):
+    promocodeName = serializers.CharField(
+        required=True,
+        error_messages={
+            "required": "Promocode name is required.",
+            "blank": "Promocode name cannot be blank."
+        }
+    )
+
+    promocodeType = serializers.ChoiceField(
+        choices=Promocode.PROMOCODE_TYPE_CHOICES,
+        required=True,
+        error_messages={
+            "required": "Promocode type is required.",
+            "invalid_choice": "Invalid promocode type."
+        }
+    )
+
+    promocodeImage = serializers.ImageField(required=False)
+
+    class Meta:
+        model = Promocode
+        fields = "__all__"
+        read_only_fields = ("slug", "created_at", "updated_at")
+
+    def validate(self, data):
+        promocode_type = data.get(
+            "promocodeType",
+            self.instance.promocodeType if self.instance else None
+        )
+        amount = data.get(
+            "amount",
+            self.instance.amount if self.instance else None
+        )
+
+        #  SINGLE amount field handling
+        if promocode_type == "fix_price":
+            if amount is None or amount <= 0:
+                raise serializers.ValidationError(
+                    "Amount must be greater than 0 for fix price promocode."
+                )
+
+        elif promocode_type == "discount":
+            if amount is None:
+                raise serializers.ValidationError(
+                    "Amount (percentage) is required for discount promocode."
+                )
+            if amount <= 0 or amount >= 100:
+                raise serializers.ValidationError(
+                    "Discount percentage must be between 1 and 99."
+                )
+
+        else:
+            raise serializers.ValidationError("Invalid promocode type.")
+
+        started_at = data.get(
+            "started_at",
+            self.instance.started_at if self.instance else None
+        )
+        ended_at = data.get(
+            "ended_at",
+            self.instance.ended_at if self.instance else None
+        )
+
+        if started_at and ended_at and started_at >= ended_at:
+            raise serializers.ValidationError(
+                "Ended date must be greater than started date."
+            )
+
+        return data
+
+    def validate_promocodeName(self, value):
+        qs = Promocode.objects.filter(
+            promocodeName__iexact=value,
+            isDeleted=False
+        )
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+        if qs.exists():
+            raise serializers.ValidationError(
+                "Promocode with this name already exists."
+            )
+        return value
+
+
+    def create(self, validated_data):
+        # HARD FIX for multipart BooleanField issue
+        if "isActive" in validated_data and validated_data["isActive"] is False:
+            validated_data.pop("isActive")
+
+        validated_data["isActive"] = True
+        return super().create(validated_data)
+
+
+
+class PrivacyPolicySerializer(serializers.ModelSerializer):
+
+    title = serializers.CharField(
+        required=True,
+        error_messages={
+            "required": "Title is required.",
+            "blank": "Title cannot be blank."
+        }
+    )
+
+    #  ADD THIS (required field)
+    privacyPolicyType = serializers.CharField(
+        required=True,
+        error_messages={
+            "required": "privacyPolicyType is required.",
+            "blank": "privacyPolicyType cannot be blank."
+        }
+    )
+
+    #  ADD THIS (required field)
+    type = serializers.CharField(
+        required=True,
+        error_messages={
+            "required": "type is required.",
+            "blank": "type cannot be blank."
+        }
+    )
+
+    class Meta:
+        model = PrivacyPolicy
+        fields = "__all__"
+        read_only_fields = ("slug", "created_at", "updated_at")
+
+    def validate_title(self, value):
+        qs = PrivacyPolicy.objects.filter(
+            title__iexact=value,
+            isDeleted=False
+        )
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+
+        if qs.exists():
+            # MUST BE STRING (NOT DICT)
+            raise serializers.ValidationError(
+                "title with this name already exists."
+            )
+
+        return value
+
+    def validate(self, data):
+        if not data.get("content"):
+            raise serializers.ValidationError(
+                "Content is required."
+            )
+        if not data.get("language"):
+            raise serializers.ValidationError(
+                "Language is required."
+            )
+        if not data.get("version"):
+            raise serializers.ValidationError(
+                "Version is required."
+            )
+        return data
+
+    # Fix multipart boolean issue
+    def create(self, validated_data):
+        validated_data["isActive"] = True
+        return super().create(validated_data)
