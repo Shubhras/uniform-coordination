@@ -139,15 +139,12 @@ class VerifyUserSerializer(serializers.Serializer):
 # ___________________CART_____________________________
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product_name = serializers.CharField(
-        source="product.productName",
-        read_only=True
-    )
+    product_name = serializers.CharField(source="product.productName",read_only=True)
+    product_image = serializers.ImageField(source="product.ProductImage",read_only=True)
 
     class Meta:
         model = CartItem
         fields = "__all__"
-        
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -163,15 +160,31 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 
-class CustomerDetailSerializer(serializers.ModelSerializer):
+class CustomerDetailsSerializer(serializers.ModelSerializer):
+   
     class Meta:
-        models = CustomerDetails
-        fields ="__all__"
+        model = CustomerDetails
+        fields = ['first_name', 
+                  'last_name', 'email',
+                  'phone','address_line_1', 
+                  'address_line_2',
+                  'city',
+                  'postal_code',
+                  'country',
+                  'Rental', 
+                  'payment_method']
 
+    
+# order 
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model =Order
+        fields ='__all__'
 
-
-
-
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = '__all__'        
 
 
 

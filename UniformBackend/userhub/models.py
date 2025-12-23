@@ -2,7 +2,7 @@ from django.db import models
 from uniformAdmin.models import Role , Product
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
-
+import uuid
 class Users(models.Model):
 # class Users(AbstractBaseUser, PermissionsMixin):
     GENDER_CHOICES = [
@@ -79,7 +79,8 @@ class CartItem(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
-    delete_at =models.DateTimeField(auto_now_add=True)
+    delete_at =models.BooleanField(default=False)
+    
 
 
     # total_price
@@ -108,6 +109,53 @@ class CustomerDetails(models.Model):
 
     def __str__(self):
         return f"{self.id} - {self.user}"
+    
+
+
+class Order(models.Model):
+    ORDER_TYPE_CHOICES = [
+        ('uniform', 'UNOFORM'),
+        ('table', 'TABLE'),
+        
+    ]
+    STATUS_CHOICE = [
+        ('pending','PENDING'),
+        ('paid','PAID'),
+        ('failed','FAILED'),
+    ]
+    user =models.ForeignKey(Users,on_delete=models.CASCADE)
+    order_id  =models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    cart = models.ForeignKey(Cart,on_delete=models.CASCADE)
+    customer =models.ForeignKey(CustomerDetails,on_delete=models.CASCADE)
+    Payment_method =models.CharField(max_length=50)
+    status = models.CharField(max_length=50,choices=STATUS_CHOICE)
+    order_type =models.CharField(max_length=50,choices=ORDER_TYPE_CHOICES)
+    totel_amount=models.DecimalField(max_digits=10,decimal_places=2 )
+    start_date =models.DateField(auto_now_add=True)
+    return_date =models.DateField(auto_now_add=True)
+    # promocode =models.ForeignKey(promocode,on_delete=models.CASCADE)
+
+
+
+
+
+class Payment(models.Model):
+    PAYMENT_STATUS = [
+        ('SUCCESS','Success'), 
+        ('FAILED','Failed'), 
+        ('PENDING','Pending')]
+    
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    payment_id = models.CharField(max_length=50, unique=True)
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS)
+    payment_method = models.CharField(max_length=20)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=10, default='INR')
+    paid_at = models.DateTimeField(blank=True, null=True)
+
+
+
+    
 #-----------------Notification --------------------
 
 

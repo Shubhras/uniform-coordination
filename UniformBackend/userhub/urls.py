@@ -30,9 +30,10 @@ urlpatterns = [
     #  CART  
     path("cart/add/", AddToCartAPIView.as_view()),
     path("cart/", CartListAPIView.as_view()),
-    path("cart/item/<int:item_id>/update/", UpdateCartItemAPIView.as_view()),
-    path("cart/item/<int:item_id>/delete/", RemoveCartItemAPIView.as_view()),
+    path("cart/item/update/", UpdateCartItemAPIView.as_view()),
+    path("cart/item/delete/", RemoveCartItemAPIView.as_view()),
     path("cart/order-summary/", OrderSummaryAPIView.as_view()),
+    path("Customer/detail/",CustomerDetailsCreateAPIView.as_view()),
 ]
 
    

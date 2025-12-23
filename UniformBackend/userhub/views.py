@@ -857,7 +857,7 @@ class AddToCartAPIView(APIView):
                         "id": item.id,
                         "product": item.product.productName,
                         "quantity": item.quantity,
-                        "price": float(item.price)
+                        "price": float(item.price)* quantity
                     }
                 }, status=status.HTTP_200_OK)
             else:
@@ -886,7 +886,6 @@ class AddToCartAPIView(APIView):
 class CartListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-
     def get(self, request):
         try:
             cart = Cart.objects.get(user=request.user, is_active=True)
@@ -906,14 +905,15 @@ class CartListAPIView(APIView):
 class UpdateCartItemAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def patch(self, request, item_id):
+    def patch(self, request):
         try:
+            item_id = request.data.get("item_id")
+            quantity = int(request.data.get("quantity"))
+
             item = CartItem.objects.get(
                 id=item_id,
                 cart__user=request.user
             )
-            quantity = int(request.data.get("quantity"))
-
             if quantity <= 0:
                 item.delete()
                 return Response({
@@ -921,14 +921,15 @@ class UpdateCartItemAPIView(APIView):
                     "statusCode": 200,
                     "message": "Item removed from cart"
                 }, status=status.HTTP_200_OK)
-   
+
             item.quantity = quantity
             item.save()
+
             return Response({
                 "status": True,
                 "statusCode": 200,
-                "message": "Cart item quantity updated successfully",
-            },status=status.HTTP_200_OK)
+                "message": "Cart item quantity updated successfully"
+            }, status=status.HTTP_200_OK)
 
         except CartItem.DoesNotExist:
             return Response({
@@ -938,13 +939,21 @@ class UpdateCartItemAPIView(APIView):
             }, status=status.HTTP_404_NOT_FOUND)
 
 
+
 # Delete
 class RemoveCartItemAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-
-    def delete(self, request, item_id):
+    def delete(self, request):
         try:
+            item_id = request.data.get("item_id")
+            if not item_id:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "error": "Item ID is required "
+                }, status=status.HTTP_400_BAD_REQUEST)
+
             item = CartItem.objects.get(
                 id=item_id,
                 cart__user=request.user
@@ -956,17 +965,18 @@ class RemoveCartItemAPIView(APIView):
                 "message": "Item removed from cart successfully"
             }, status=status.HTTP_200_OK)
 
-
         except CartItem.DoesNotExist:
             return Response({
-                "status":False,
-                "statusCode":404,
-                "error": "Item not found"},
-                status=status.HTTP_404_NOT_FOUND
-            )
+                "status": False,
+                "statusCode": 404,
+                "error": "Item not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+
 
 
 class OrderSummaryAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         try:
             cart = Cart.objects.get(user=request.user, is_active=True)
@@ -1016,4 +1026,94 @@ class OrderSummaryAPIView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
      
+class CustomerDetailsCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def post(self, request):
+        serializer = CustomerDetailsSerializer(data=request.data)
+
+        if serializer.is_valid():
+            customer = serializer.save(user=request.user)
+            return Response({
+                "status": True,
+                "statusCode":201,
+                "message": "Customer details saved",
+                "data": CustomerDetailsSerializer(customer).data
+            }, status=status.HTTP_201_CREATED)
+
+        return Response({
+            "status": False,
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+# order review 
+# class OrderReviewAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user
+
+#         try:
+#             cart = Cart.objects.get(user=user, is_active=True)
+#         except Cart.DoesNotExist:
+#             return Response(
+#                 {"status": False, "message": "Active cart not found"},
+#                 status=status.HTTP_404_NOT_FOUND
+#             )
+
+#         try:
+#             customer = CustomerDetails.objects.get(user=user)
+#         except CustomerDetails.DoesNotExist:
+#             return Response(
+#                 {"status": False, "message": "Customer details not found"},
+#                 status=status.HTTP_404_NOT_FOUND
+#             )
+
+#         order = Order.objects.filter(user=user, cart=cart).last()
+#         if not order:
+#             return Response(
+#                 {"status": False, "message": "Order not found"},
+#                 status=status.HTTP_404_NOT_FOUND
+#             )
+
+#         items = CartItem.objects.filter(cart=cart)
+#         subtotal = sum(item.total_price for item in items)
+
+#         return Response({
+#             "status": True,
+#             "data": {
+#                 "contact_information": {
+#                     "name": f"{customer.first_name} {customer.last_name}",
+#                     "email": customer.email,
+                
+#                 },
+#                 "delievery_address":[
+#                 {     
+#                     "address_line_1": customer.address_line_1,
+#                     "address_line_2": customer.address_line_2,
+#                     "city": customer.city,
+#                     "postal_code": customer.postal_code,
+#                     "country": customer.country
+
+#                 }
+#                 ],
+#                 "order_items": [
+#                     {
+#                         "product": item.product.name,
+#                         "qty": item.quantity,
+#                         "price": item.total_price
+#                     } for item in items
+#                 ],
+#                 "order_summary": {
+#                     "subtotal": subtotal,
+#                     "shopping":None,
+#                     "tax":None
+#                 }
+#             }
+#         }, status=status.HTTP_200_OK)
+
+
+class CreatePaymentAPI(APIView):
+    pass
