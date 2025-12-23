@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import Image from "next/image"
 import { FaRegHeart } from "react-icons/fa6"
+import { useRouter } from "next/navigation"
 
 const TABS = ["Newest", "Price", "Color", "Popular"]
 
@@ -62,7 +63,7 @@ const PRODUCTS = [
 
 const Cards = () => {
     const [activeTab, setActiveTab] = useState("Newest")
-
+    const router = useRouter();
     return (
         <section className="w-full bg-[#fffdfb] px-10 py-8">
 
@@ -172,7 +173,7 @@ const Cards = () => {
                                         Color : {item.color}
                                     </p>
                                     <div className="flex items-center gap-3">
-                                        <button className="flex-1  py-2 text-sm bg-[#A0614D] text-white rounded-lg">
+                                        <button className="flex-1  py-2 text-sm bg-[#A0614D] text-white rounded-lg" onClick={()=>router.push("/dashboards/uniform-3d-design")}>
                                             Preview in Canvas
                                         </button>
                                         <FaRegHeart

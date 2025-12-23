@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import Image from "next/image";
 import { FaRegHeart } from 'react-icons/fa6';
+import { useRouter } from 'next/navigation';
 
 const ThemeCards = () => {
     const [activeFilter, setActiveFilter] = useState("All");
-
+    const router = useRouter();
     const filters = ["All", "Wedding", "Corporate", "Parties", "Seasonal"];
 
     const bottomCards = [
@@ -56,6 +57,9 @@ const ThemeCards = () => {
         },
     ];
 
+    const handleCustomizeClick = () => {
+        router.push("/dashboards/uniform-3d-design")
+    }
     const filteredCards =
         activeFilter === "All"
             ? bottomCards
@@ -75,10 +79,9 @@ const ThemeCards = () => {
                             rounded-full
                             text-sm font-medium
                             transition
-                            ${
-                                activeFilter === filter
-                                    ? "bg-[#A0614D] text-white shadow"
-                                    : " text-[#6B7280] hover:bg-[#ead7c5]"
+                            ${activeFilter === filter
+                                ? "bg-[#A0614D] text-white shadow"
+                                : " text-[#6B7280] hover:bg-[#ead7c5]"
                             }
                         `}
                     >
@@ -134,6 +137,7 @@ const ThemeCards = () => {
                                             bg-[#A0614D]
                                             rounded-xl
                                         "
+                                        onClick={handleCustomizeClick}
                                     >
                                         View & Customize This Theme
                                     </button>

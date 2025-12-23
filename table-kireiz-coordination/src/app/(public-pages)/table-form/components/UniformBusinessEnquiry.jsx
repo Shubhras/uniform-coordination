@@ -48,7 +48,7 @@ const bottomCards = [
     title: "Olive Chic",
     desc: "Modern natural tones with sophisticated greenery",
   },
-  
+
 ];
 
 const UniformBusinessEnquiry = () => {
@@ -109,8 +109,8 @@ const UniformBusinessEnquiry = () => {
       prev === 0 ? bottomCards.length - cardsPerView : prev - 1
     );
   };
-  const handleMedicalFormDesigning = () => {
-    router.push("/medical-form");
+  const handleThemeClick = () => {
+    router.push("/browse-by-theme");
   };
   return (
     <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
@@ -223,13 +223,12 @@ const UniformBusinessEnquiry = () => {
     relative
     overflow-hidden
     shadow-md
-    cursor-pointer
+    
     w-full
     p-3 rounded-tl-4xl rounded-br-4xl
     bg-[#FEF3C7]
    
   "
-                  onClick={handleMedicalFormDesigning}
                 >
                   {/* IMAGE */}
                   <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl">
@@ -253,8 +252,9 @@ const UniformBusinessEnquiry = () => {
           text-white
           bg-[#A0522D]
           rounded-xl
-          
+          cursor-pointer
         "
+                        onClick={handleThemeClick}
                       >
                         Try This Theme
                       </button>

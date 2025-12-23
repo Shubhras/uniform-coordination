@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const HeroContent = () => {
+  const router = useRouter();
   return (
     <section className="relative w-full min-h-[520px] md:min-h-[620px] overflow-hidden mt-13">
 
@@ -48,10 +50,10 @@ const HeroContent = () => {
               </h1>
 
               <div className="flex flex-wrap gap-4 mt-8 md:mt-10">
-                <button className="px-6 py-3 rounded-md border border-white bg-[#A0522D] text-white text-sm">
+                <button className="px-6 py-3 rounded-md border border-white bg-[#A0522D] text-white text-sm" onClick={()=>router.push("/browse-by-color")}>
                   Browse by Color
                 </button>
-                <button className="px-6 py-3 rounded-md  border border-white  bg-[#EEC04F] text-sm text-white">
+                <button className="px-6 py-3 rounded-md  border border-white  bg-[#EEC04F] text-sm text-white" onClick={()=>router.push("/browse-by-theme")}>
                   Browse by Theme
                 </button>
               </div>
