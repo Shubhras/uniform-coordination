@@ -349,15 +349,15 @@ const Uniform3DmoduleDegisn = () => {
                       <button
                         key={i}
                         className="
-            w-[43px] h-[43px]
-            border border-gray-300
-            rounded-md
-            overflow-hidden
-            hover:border-blue-500
-            focus:border-blue-600
-            focus:ring-2 focus:ring-blue-300
-            transition
-          "
+                          w-[43px] h-[43px]
+                          border border-gray-300
+                          rounded-md
+                          overflow-hidden
+                          hover:border-blue-500
+                          focus:border-blue-600
+                          focus:ring-2 focus:ring-blue-300
+                          transition
+                        "
                       >
                         <img
                           src={tex}
