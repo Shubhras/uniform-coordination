@@ -143,7 +143,7 @@ class PartsAdmin(admin.ModelAdmin):
         }),
     )
 
-    # ✅ Image preview in admin
+    #  Image preview in admin
     def image_preview(self, obj):
         if obj.partImage:
             return format_html(
@@ -157,13 +157,7 @@ class PartsAdmin(admin.ModelAdmin):
     
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
-    list_display = (
-        "id",
-        "title",
-        "isActive",
-        "isDeleted",
-        "created_at"
-    )
+    list_display = ("id","title","isActive","isDeleted","created_at")
     search_fields = ("title",)
     list_filter = ("isActive", "isDeleted")
    
@@ -171,33 +165,11 @@ class FAQAdmin(admin.ModelAdmin):
     
 @admin.register(FAQDescription)
 class FAQDescriptionAdmin(admin.ModelAdmin):
-    list_display = (
-        "id",
-        "faq",
-        "isActive",
-        "isDeleted",
-        "created_at",
-        "updated_at",
-    )
-
-    list_filter = (
-        "isActive",
-        "isDeleted",
-        "created_at",
-    )
-
-    search_fields = (
-        "faq__title",
-        "description",
-    )
-
+    list_display = ("id","faq","isActive","isDeleted","created_at","updated_at",)
+    list_filter = ("isActive","isDeleted","created_at",)
+    search_fields = ("faq__title","description",)
     ordering = ("-created_at",)
-
-    readonly_fields = (
-        "created_at",
-        "updated_at",
-    )
-
+    readonly_fields = ("created_at","updated_at",)
     fieldsets = (
         ("FAQ Information", {
             "fields": ("faq", "description")
@@ -224,19 +196,27 @@ class CatalogImageAdmin(admin.ModelAdmin):
 @admin.register(SubCategory)
 class SubCategoryAdmin(admin.ModelAdmin):
     list_display = ("id","name","category","isActive","isDeleted","created_at",)
-
     list_filter = ("isActive","isDeleted","category",)
-
     search_fields = ("name",)
-
-    readonly_fields = (
-        "created_at",
-        "updated_at",
-    )
-
+    readonly_fields = ("created_at","updated_at",)
     ordering = ("-created_at",)
     
-
+    
+@admin.register(Promocode)
+class PromocodeAdmin(admin.ModelAdmin):
+    list_display = ("promocodeName","promocodeType","isActive","started_at","ended_at",)
+    search_fields = ("promocodeName",)
+    list_filter = ("promocodeType", "isActive")
+    readonly_fields = ("created_at", "updated_at")
+    
+    
+@admin.register(PrivacyPolicy)
+class PrivacyPolicyAdmin(admin.ModelAdmin):
+    list_display = ("title","privacyPolicyType","type","language","version","isActive","created_at",)
+    search_fields = ("title",)
+    list_filter = ("privacyPolicyType", "type", "language", "isActive")
+    
+    
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
@@ -250,7 +230,7 @@ class ProductAdmin(admin.ModelAdmin):
         'isDeleted',
         'created_at'
     )
-
+ 
     list_filter = (
         'productType',
         'isActive',
@@ -259,24 +239,24 @@ class ProductAdmin(admin.ModelAdmin):
         'category',
         'subcategory'
     )
-
+ 
     search_fields = (
         'productName',
         'slug',
     )
-
+ 
     prepopulated_fields = {
         'slug': ('productName',)
     }
-
+ 
     filter_horizontal = (
         'parts',
     )
-
+ 
     readonly_fields = (
         'created_at',
         'updated_at',
     )
-
+ 
     ordering = ('-created_at',)
     

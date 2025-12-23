@@ -1,9 +1,11 @@
 from django.db import models
-from uniformAdmin.models import Role
+from uniformAdmin.models import Role , Product
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from uniformAdmin.models import Product
 import uuid
+from django.utils.text import slugify
+
 
 class Users(models.Model):
 # class Users(AbstractBaseUser, PermissionsMixin):
@@ -66,7 +68,76 @@ class Users(models.Model):
 
 
 
+class Favourite(models.Model):
+    # PRODUCT_TYPE_CHOICES = [
+    #     ('uniform', 'Uniform'),
+    #     ('table', 'Table'),
+    # ]
 
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name="favourites")
+    user = models.ForeignKey(Users,on_delete=models.CASCADE,related_name="user_favourites")
+    # product_type = models.CharField(max_length=20,choices=PRODUCT_TYPE_CHOICES)
+    is_like = models.BooleanField(default=False)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('product', 'user')
+
+    def __str__(self):
+        return f"{self.user} - {self.product} - {self.is_like}"
+
+
+
+
+
+
+# Cart
+class Cart(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+    is_delete = models.DateTimeField(auto_now_add=True)
+    is_update = models.DateField(auto_now_add=True)
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE,related_name="items")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    delete_at =models.DateTimeField(auto_now_add=True)
+
+
+    # total_price
+    def save(self, *args, **kwargs):
+        self.price = self.product.price 
+        self.total_price = self.quantity * self.price
+        super().save(*args, **kwargs)
+
+
+class CustomerDetails(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    email = models.EmailField()
+    phone = models.CharField(max_length=15)
+    address_line_1 = models.CharField(max_length=255)
+    address_line_2 = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=10)
+    country = models.CharField(max_length=100)
+    payment_method = models.CharField(max_length=20)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    Rental =models.CharField(max_length=50)
+    
+
+    def __str__(self):
+        return f"{self.id} - {self.user}"
 #-----------------Notification --------------------
 
 

@@ -13,6 +13,7 @@ class UsersAdmin(admin.ModelAdmin):
 
 
 
+
 # @admin.register(Notifications)
 # class NotificationsAdmin(admin.ModelAdmin):
 #     list_display = (

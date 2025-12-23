@@ -7,6 +7,7 @@ from rest_framework import status
 from uniformAdmin.fabric import CustomPagination,IsAdministrator
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.db.models import Max
 
 
 
@@ -14,8 +15,48 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 #---------------------------Categories--------------------------
 
-class CategoryCreateAPIView(APIView):
+# class CategoryCreateAPIView(APIView):
    
+#     permission_classes = [IsAdministrator]
+#     authentication_classes = [JWTAuthentication] 
+
+#     def post(self, request):
+#         try:
+#             serializer = CategorySerializer(data=request.data)
+#             if serializer.is_valid():
+#                 serializer.save()
+#                 return Response({
+#                     "status": True,
+#                     "statusCode": 200,
+#                     "message": "Category created successfully.",
+#                     "data": serializer.data
+#                 }, status=status.HTTP_200_OK)
+
+#             if "categoryName" in serializer.errors:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 200,
+#                     "message": "Validation failed; Category with this categoryName already exists."
+#                 }, status=status.HTTP_200_OK)
+
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 200,
+#                 "message": "Validation failed.",
+#                 "error": serializer.errors
+#             }, status=status.HTTP_200_OK)
+
+#         except Exception as exc:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Server error while creating category.",
+#                 "error": str(exc)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class CategoryCreateAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
 
@@ -23,7 +64,14 @@ class CategoryCreateAPIView(APIView):
         try:
             serializer = CategorySerializer(data=request.data)
             if serializer.is_valid():
-                serializer.save()
+
+                #  FIX: set next order
+                last_order = Category.objects.filter(isDeleted=False).aggregate(
+                    max_order=Max("order")
+                )["max_order"] or 0
+
+                serializer.save(order=last_order + 1)
+
                 return Response({
                     "status": True,
                     "statusCode": 200,
@@ -52,6 +100,7 @@ class CategoryCreateAPIView(APIView):
                 "message": "Server error while creating category.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class CategoryListAPIView(APIView):
@@ -281,9 +330,9 @@ class CategoryReorderAPIView(APIView):
         if category_id is None or new_position is None:
             return Response({
                 "status": False,
-                "statusCode": 400,
+                "statusCode": 200,
                 "message": "category_id and new_position are required."
-            }, status=400)
+            }, status=200)
 
         try:
             category = Category.objects.get(id=category_id, isDeleted=False)

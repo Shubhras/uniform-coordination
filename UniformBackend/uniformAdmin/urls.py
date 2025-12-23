@@ -9,7 +9,8 @@ from .blog import *
 from .category import *
 from .subcategory import *
 from .catelogimage import *
-
+from .promocode import*
+from .privacyandpolicy import *
 
 urlpatterns = [
     path('login/', AdminLoginAPIView.as_view(), name='admin-login'),
@@ -97,4 +98,20 @@ urlpatterns = [
     path("product/get/<int:pk>/", AdminGetProductAPIView.as_view()),
     path("product/list/", AdminListProductsAPIView.as_view()),
     path("product/delete/<int:pk>/", AdminDeleteProductAPIView.as_view()),
+    
+    
+    path("promocode/create/", PromocodeCreateAPIView.as_view(),name="promocode-create"),
+    path("promocode/list/", PromocodeListAPIView.as_view(),name="promocode-list"),
+    path("promocode/detail/<int:pk>/", PromocodeDetailAPIView.as_view(),name="promocode-detail"),
+    path("promocode/update/<int:pk>/", PromocodeUpdateAPIView.as_view(),name="promocode-update"),
+    path("promocode/delete/<int:pk>/", PromocodeDeleteAPIView.as_view(),name="promocode-delete"),
+    
+    
+    path("privacy-policy/create/", PrivacyPolicyCreateAPIView.as_view(),name="privacypolicy-create"),
+    path("privacy-policy/list/", PrivacyPolicyListAPIView.as_view(),name="privacypolicy-list"),
+    path("privacy-policy/detail/<int:pk>/", PrivacyPolicyDetailAPIView.as_view(),name="privacypolicy-detail"),
+    path("privacy-policy/update/<int:pk>/", PrivacyPolicyUpdateAPIView.as_view(),name="privacypolicy-update"),
+    path("privacy-policy/delete/<int:pk>/", PrivacyPolicyDeleteAPIView.as_view(),name="privacypolicy-delete"),
+
+    
 ]

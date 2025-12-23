@@ -1,6 +1,11 @@
 import jwt
 from django.conf import settings
 from datetime import datetime, timedelta
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+
 
 import os
 from reportlab.platypus import (
@@ -41,35 +46,85 @@ def generate_custom_tokens(user):
 
 
 
-#================================================================
 
 
-# from rest_framework.response import Response
-# from rest_framework import status
 
 
-# def success_response(message, data=None):
-#     return Response(
-#         {
-#             "status": True,
-#             "statusCode": 200,
-#             "message": message,
-#             "data": data,
-#         },
-#         status=status.HTTP_200_OK
-#     )
+class BaseAPIView(APIView):
+    """
+    Common response handler for all APIs
+    """
+
+    def success_response(self, message, data=None):
+        return Response(
+            {
+                "status": True,
+                "statusCode": 200,
+                "message": message,
+                "data": data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
-# def error_response(message, status_code=400):
-#     return Response(
-#         {
-#             "status": False,
-#             "statusCode": status_code,
-#             "message": message,
-#             "data": None,
-#         },
-#         status=status.HTTP_400_BAD_REQUEST
-#     )
+    def error_response(self, message):
+        # Handle serializer validation errors
+        if isinstance(message, dict):
+            first_error = next(iter(message.values()))
+            if isinstance(first_error, list):
+                message = f"Validation Failed; {first_error[0]}"
+
+            else:
+                message = f"Validation Failed; {first_error}"
+
+        return Response(
+            {
+                "status": False,
+                "statusCode": 200,
+                "message": message,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+
+# class BaseAPIView(APIView):
+#     """
+#     Common response handler for all APIs
+#     """
+
+#     def success_response(self, message, data=None):
+#         return Response(
+#             {
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": message,
+#                 "data": data,
+#             },
+#             status=status.HTTP_200_OK,
+#         )
+
+#     def error_response(self, message):
+#         # Handle serializer validation errors properly with field names
+#         if isinstance(message, dict):
+#             error_messages = []
+
+#             for field, errors in message.items():
+#                 if isinstance(errors, list):
+#                     error_messages.append(f"{field} is required")
+#                 else:
+#                     error_messages.append(f"{field}: {errors}")
+
+#             message = "Validation Failed; " + ", ".join(error_messages)
+
+#         return Response(
+#             {
+#                 "status": False,
+#                 "statusCode": 200,
+#                 "message": message,
+#             },
+#             status=status.HTTP_200_OK,
+#         )
 
 
 
