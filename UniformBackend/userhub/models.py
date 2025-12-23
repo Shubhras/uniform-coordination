@@ -3,6 +3,9 @@ from uniformAdmin.models import Role
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from uniformAdmin.models import Product
+from django.utils.text import slugify
+
+
 class Users(models.Model):
 # class Users(AbstractBaseUser, PermissionsMixin):
     GENDER_CHOICES = [
@@ -84,6 +87,10 @@ class Favourite(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.product} - {self.is_like}"
+
+
+
+
 
 
 

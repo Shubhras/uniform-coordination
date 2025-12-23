@@ -33,8 +33,7 @@ class CustomPagination(PageNumberPagination):
     page_size_query_param = "page_size"
     max_page_size = 100  # Set a reasonable limit
 
-    
-    
+        
 #permission_classes = [IsAuthenticated, IsAdministrator]
 class FabricCreateView(APIView):
     permission_classes = [IsAdministrator]

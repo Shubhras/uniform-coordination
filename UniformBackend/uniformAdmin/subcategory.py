@@ -60,10 +60,10 @@ class SubCategoryCreateAPIView(APIView):
 
             return Response({
                 "status": False,
-                "statusCode": 400,
+                "statusCode": 200,
                 "message": serializer.errors,
                 "data": None
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({
@@ -201,10 +201,10 @@ class SubCategoryUpdateAPIView(APIView):
 
             return Response({
                 "status": False,
-                "statusCode": 400,
+                "statusCode": 200,
                 "message": serializer.errors,
                 "data": None
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({

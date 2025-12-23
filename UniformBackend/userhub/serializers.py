@@ -137,20 +137,6 @@ class VerifyUserSerializer(serializers.Serializer):
 
 
 
-# class FavouriteSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Favourite
-#         fields = [
-#             'id',
-#             'product',
-#             'user',
-#             'product_type',
-#             'is_like',
-#             'created_at'
-#         ]
-#         read_only_fields = ['user', 'is_like']
-
-
 class FavouriteSerializer(serializers.ModelSerializer):
     product_type = serializers.CharField(
         source="product.productType",
@@ -160,6 +146,11 @@ class FavouriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favourite
         fields = ["id", "product", "product_type", "is_like"]
+
+
+
+
+
 
 
 
