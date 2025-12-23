@@ -442,3 +442,57 @@ class ProductSerializer(serializers.ModelSerializer):
             })
 
         return data
+
+class SpecialConditionSerializer(serializers.ModelSerializer):
+    discount_percentage = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=2
+    )
+
+    class Meta:
+        model = SpecialCondition
+        fields = [
+            "id",
+            "title",
+            "condition_type",
+            "description",
+            "discount_percentage",
+            "priority_support",
+            "net_30_terms",
+            "free_samples",
+            "is_active",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ("id", "created_at", "updated_at")
+
+    def validate_discount_percentage(self, value):
+        if value < 0 or value > 100:
+            raise serializers.ValidationError(
+                "Discount percentage must be between 0 and 100."
+            )
+        return value
+    
+
+class SpecialConditionSerializer(serializers.ModelSerializer):
+    discount_percentage = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=2
+    )
+
+    class Meta:
+        model = SpecialCondition
+        fields = [
+            "id",
+            "title",
+            "condition_type",
+            "description",
+            "discount_percentage",
+            "priority_support",
+            "net_30_terms",
+            "free_samples",
+            "is_active",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ("id", "created_at", "updated_at")

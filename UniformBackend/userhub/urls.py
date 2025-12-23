@@ -40,7 +40,12 @@ urlpatterns = [
     path('customupdatemodel/<int:id>/get/',CustomUpdateModelDetailAPIView.as_view(), name = 'custom-get'),
     path('customupdatemodel/<int:id>/update/',CustomUpdateModelUpdateAPIView.as_view(), name = 'custom-update'),
     path('customupdatemodel/delete/',CustomUpdateModelDeleteAPIView.as_view(), name = 'custom-delete'),
-  
+    path('customupdatemodel/<int:customization_id>/export/',CustomUpdateModelExportPDFAPIView.as_view(), name = 'custom-get'),
+    
+    #<-----------------------------QuotationRequest-------------------->
+    path('quotationrequest/create/',QuotationRequestCreateAPIView.as_view(), name = 'QuotationRequest-create'),
+    path('quotationrequest/<uuid:uuid>/get/',QuotationRequestDetailAPIView.as_view(), name = 'QuotationRequest-get'),
+    path('quotationrequest/<uuid:uuid>/export/',QuotationRequestExportPDFAPIView.as_view(), name = 'QuotationRequest-export'),
 
 
 

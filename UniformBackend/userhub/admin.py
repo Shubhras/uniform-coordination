@@ -171,3 +171,90 @@ class CustomUpdateModelAdmin(admin.ModelAdmin):
             'fields': ('created_at', 'updated_at')
         }),
     )
+
+
+@admin.register(QuotationRequest)
+class QuotationRequestAdmin(admin.ModelAdmin):
+    # List page columns
+    list_display = (
+        'uuids',
+        'company_name',
+        'contact_person',
+        'email',
+        'phone_number',
+        'item_type',
+        'delivery_date',
+        'isActive',
+        'isDeleted',
+        'created_at',
+    )
+
+    # Filters on right side
+    list_filter = (
+        'isActive',
+        'isDeleted',
+        'delivery_date',
+        'created_at',
+    )
+
+    # Search box
+    search_fields = (
+        'company_name',
+        'contact_person',
+        'email',
+        'phone_number',
+        'item_type',
+    )
+
+    # Ordering (latest first)
+    ordering = ('-created_at',)
+
+    # Read-only fields
+    readonly_fields = (
+        'uuids',
+        'created_at',
+        'updated_at',
+    )
+
+    # Field layout in detail page
+    fieldsets = (
+        ('Company & Contact Info', {
+            'fields': (
+                'uuids',
+                'company_name',
+                'contact_person',
+                'email',
+                'phone_number',
+            )
+        }),
+        ('Customization Reference', {
+            'fields': ('customupdatemodel',)
+        }),
+        ('Uniform Request Details', {
+            'fields': (
+                'item_type',
+                'material',
+                'size_quantity',
+                'delivery_date',
+                'additional_note',
+            )
+        }),
+        ('Agreement', {
+            'fields': ('agreed_to_terms',)
+        }),
+        ('Status', {
+            'fields': (
+                'isActive',
+                'isDeleted',
+            )
+        }),
+        ('Timestamps', {
+            'fields': (
+                'created_at',
+                'updated_at',
+            )
+        }),
+    )
+
+    #  Pagination
+    list_per_page = 25

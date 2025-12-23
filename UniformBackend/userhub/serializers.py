@@ -4,6 +4,7 @@ from django.db import IntegrityError
 from .models import *  # adjust import if needed
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
+from datetime import date
 # from userhub.models import Notifications
 
 
@@ -188,9 +189,44 @@ class CustomUpdateModelSerializer(serializers.ModelSerializer):
             'user',
             'model_info',
             'json_data',
+            'design_specifications',   
             'isActive',
             'isDeleted',
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['created_at','updated_at']
+        read_only_fields = ['user','created_at','updated_at']
+    
+from rest_framework import serializers
+from .models import QuotationRequest
+
+class QuotationRequestSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = QuotationRequest
+        fields = [
+            "uuids",
+            "company_name",
+            "contact_person",
+            "email",
+            "phone_number",
+            "customupdatemodel",
+            "item_type",
+            "material",
+            "size_quantity",
+            "delivery_date",
+            "additional_note",
+            "agreed_to_terms",
+            "isActive",
+            "isDeleted",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ("uuids", "created_at", "updated_at")
+
+    def validate_agreed_to_terms(self, value):
+        if value is not True:
+            raise serializers.ValidationError(
+                "You must agree to privacy policy & terms."
+            )
+        return value

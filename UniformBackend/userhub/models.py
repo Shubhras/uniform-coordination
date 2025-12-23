@@ -3,6 +3,7 @@ from uniformAdmin.models import Role
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from uniformAdmin.models import Product
+import uuid
 
 class Users(models.Model):
 # class Users(AbstractBaseUser, PermissionsMixin):
@@ -122,7 +123,7 @@ class ModelInfo(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return self.product.name
+        return self.product.productName
 
 
 class CustomUpdateModel(models.Model):
@@ -146,6 +147,13 @@ class CustomUpdateModel(models.Model):
         null=True,blank=True
     )
 
+    design_specifications = models.JSONField(
+        default=dict,
+        null=True,
+        blank=True,
+        help_text="UI design specification data"
+    )
+
     created_at = models.DateTimeField(auto_now_add=True, null=True,blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True,blank=True)
     isActive = models.BooleanField(default=True, null=True,blank=True)
@@ -159,3 +167,44 @@ class CustomUpdateModel(models.Model):
 
     def __str__(self):
         return f"{self.user} → {self.model_info}"
+    
+
+class QuotationRequest(models.Model):
+    # Company & Contact
+    uuids = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    company_name = models.CharField(max_length=255,null=True,blank=True)
+    contact_person = models.CharField(max_length=255,null=True,blank=True)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=20,null=True,blank=True)
+    customupdatemodel = models.ForeignKey(
+        CustomUpdateModel,
+        on_delete=models.CASCADE,
+        related_name="quotation_requests",
+        null=True,blank=True
+                                          
+   )
+    # Uniform Request Details
+    item_type = models.CharField(max_length=100,null=True,blank=True)
+    material = models.CharField(max_length=100,null=True,blank=True)
+    size_quantity = models.TextField(
+        help_text="Mention sizes with quantities (e.g. M-10, L-20)",
+        null = True, blank = True
+    )
+    delivery_date = models.DateField()
+    additional_note = models.TextField(blank=True, null=True)
+
+    # Agreement
+    agreed_to_terms = models.BooleanField(default=False,null=True,blank=True)
+
+    # Meta
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.company_name} - {self.item_type}"

@@ -1,6 +1,5 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.http import HttpResponse
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from uniformAdmin.models import AdminUser
@@ -19,6 +18,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from rest_framework.permissions import AllowAny
 from django.utils.http import urlsafe_base64_decode
+from .utils import generate_customization_pdf,generate_quotation_pdf
 
 
 import re
@@ -977,7 +977,7 @@ class CustomUpdateModelCreateAPIView(APIView):
         try:
             serializer = CustomUpdateModelSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializer.save(user=request.user)
             return Response({
                 "statusCode":201,
                 "status":True,
@@ -1123,3 +1123,122 @@ class CustomUpdateModelDeleteAPIView(APIView):
             "message": f"{count} Custom Model permanently deleted.",
             "data": None
         }, status=status.HTTP_200_OK)
+
+'''class CustomUpdateModelExportPDFAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # 🔹 Latest customization first
+        queryset = CustomUpdateModel.objects.filter(
+            isDeleted=False,
+            user=request.user
+        ).order_by("-created_at")  # latest first
+
+        if not queryset.exists():
+            return Response({
+                "statusCode": 404,
+                "status": False,
+                "message": "No customization data found"
+            }, status=404)
+
+        # 🔹 Generate PDF
+        pdf_url = generate_customization_pdf(queryset, request.user)
+
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "message": "PDF generated successfully",
+            "pdf_url": request.build_absolute_uri(pdf_url)
+        })
+'''
+class CustomUpdateModelExportPDFAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, customization_id):
+        customization = CustomUpdateModel.objects.filter(
+            id=customization_id,
+            user=request.user,
+            isDeleted=False
+        ).first()
+
+        if not customization:
+            return Response({
+                "statusCode": 404,
+                "status": False,
+                "message": "Customization not found"
+            }, status=404)
+
+        pdf_url = generate_customization_pdf(customization, request.user)
+
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "message": "PDF generated successfully",
+            "pdf_url": request.build_absolute_uri(pdf_url)
+        })
+
+
+#<----------------------QuotationRequest------------------>
+class QuotationRequestCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self,request):
+        try:
+            serializer = QuotationRequestSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({
+                    'statusCode':201,
+                    'status':True,
+                    'message':'Quotation Request create sucsessfully. ',
+                    'data':serializer.data
+                },status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({
+                'statusCode':500,
+                'status':False,
+                'message':'Something went wrong on server',
+                'error':str(e)
+            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+           
+class QuotationRequestDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request,uuid):
+        quta = get_object_or_404(
+            QuotationRequest,
+            uuids=uuid,
+            isDeleted=False
+        )
+        serializer = QuotationRequestSerializer(quta)
+        return Response({
+            'statusCode':200,
+            'status':True,
+            'message':'Quotation Request info fetched successfully',
+            'data':serializer.data
+        },status=status.HTTP_200_OK)
+
+class QuotationRequestExportPDFAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, uuid):
+        quotation = QuotationRequest.objects.filter(
+            uuids=uuid,
+            isDeleted=False
+        ).first()
+
+        if not quotation:
+            return Response({
+                "statusCode": 404,
+                "status": False,
+                "message": "Quotation not found"
+            }, status=404)
+
+        pdf_url = generate_quotation_pdf(quotation, request)
+
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "message": "PDF generated successfully",
+            "pdf_url": request.build_absolute_uri(pdf_url)
+        })

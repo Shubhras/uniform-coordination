@@ -337,3 +337,45 @@ class Product(models.Model):
 #     def __str__(self):
 #         return f"{self.name} ({self.template.templateName})"
 
+
+class SpecialCondition(models.Model):
+    CONDITION_TYPE_CHOICES = (
+        ("corporate", "Corporate Standard"),
+        ("wholesale", "Wholesale Partner"),
+        ("enterprise", "Global Enterprise"),
+    )
+    title = models.CharField( max_length=100,help_text="Display title (e.g. Corporate Standard)")
+
+    condition_type = models.CharField(
+        max_length=20,
+        choices=CONDITION_TYPE_CHOICES,
+        unique=True
+    )
+
+    description = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Short description shown under title"
+    )
+
+    discount_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        help_text="Discount in percentage (e.g. 15.00)"
+    )
+
+    priority_support = models.BooleanField(default=False)
+    net_30_terms = models.BooleanField(default=False)
+    free_samples = models.BooleanField(default=False)
+
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.title} - {self.discount_percentage}%"
