@@ -21,6 +21,8 @@
     "@google/model-viewer": "^4.1.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^3.9.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.4.2",
     "@tanstack/match-sorter-utils": "^8.19.4",
     "@tanstack/react-table": "^8.20.5",
     "@tanstack/react-virtual": "^3.11.2",
@@ -61,6 +63,8 @@
     "simplebar-react": "^3.3.0",
     "swr": "^2.3.0",
     "tailwind-merge": "^2.5.2",
+    "three": "^0.182.0",
+    "valtio": "^2.2.0",
     "yet-another-react-lightbox": "^3.21.7",
     "zod": "^3.23.8",
     "zustand": "^5.0.2"
