@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button'
 import { FiExternalLink } from 'react-icons/fi'
 import { LuPalette } from 'react-icons/lu'
 import { LiaFileDownloadSolid } from 'react-icons/lia'
-
+import { useRouter } from 'next/navigation'
 const simulations = [
     {
         img: '/img/kireiz-form/features/uniform-card-img-one.png',
@@ -30,6 +30,11 @@ const simulations = [
 ]
 
 const SimulationHistory = () => {
+
+    const router = useRouter();
+    const handleRedirect = () => {
+        router.push('/dashboards/uniform-3d-design')
+    }
     return (
         <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
 
@@ -48,7 +53,7 @@ const SimulationHistory = () => {
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
                 {/* Left filters */}
                 <div className="flex gap-2">
-                    <button className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 px-5 rounded-md"
+                    {/* <button className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 px-5 rounded-md"
                     >
                         All
                     </button>
@@ -58,7 +63,7 @@ const SimulationHistory = () => {
                     <button className=" py-2 text-sm rounded-md border border-[#D0D7E2] px-5 text-[#0F2A44] flex items-center gap-2">
                         <LiaFileDownloadSolid size={16} />
                         Download
-                    </button>
+                    </button> */}
                 </div>
 
                 {/* Right filters */}
@@ -106,7 +111,7 @@ const SimulationHistory = () => {
                             <Button
                                 className="flex-[2] bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md"
                                 size="sm"
-                                icon={<FiExternalLink size={16} />}
+                                icon={<FiExternalLink size={16} />} onClick={handleRedirect}
                             >
                                 OPEN
                             </Button>
