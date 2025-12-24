@@ -9,6 +9,7 @@ const FALLBACK_MODEL = '' //'https://modelviewer.dev/shared-assets/models/Astron
 import Button from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
 import UniformCanvas from './UniformCanvas'
+import { controlsApi } from './UniformCanvas'
 import { uniformState } from './uniformStore'
 const PANELS = {
   color: {
@@ -174,29 +175,38 @@ const Uniform3DmoduleDegisn = () => {
     uniformState.active3dPart = key;
   }
 
-  function zoomIn() {
 
+  const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
+
+
+
+  function zoomIn() {
+    controlsApi.zoomIn()
   }
 
   function zoomOut() {
+    controlsApi.zoomOut()
   }
-  const zoomPercent = Math.round(((120 - fieldOfView) / 110) * 100);
 
   function rotate90() {
+    controlsApi.rotate90()
   }
-  function undoCamera() {
-  }
-  function redoCamera() {
 
+  function undoCamera() {
+    controlsApi.undo()
+  }
+
+  function redoCamera() {
+    controlsApi.redo()
   }
 
   const handleUniformDesignResult = () => {
     router.push("/dashboards/design-result");
   };
   return (
-    <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-15 ">
+    <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-11 ">
       <div className="flex gap-6">
-        <div className="w-[80px] flex flex-col items-center" style={{ minHeight: "750px" }}>
+        <div className="w-[80px] flex flex-col items-center" style={{ minHeight: "750px",maxHeight:"800px",overflow:"auto" }}>
           <div className="flex items-center gap-2 px-4 py-2 bg-[#1c2c56] text-white rounded-lg shadow text-sm mb-2">
             Top <span className="text-xs">›</span>
           </div>
@@ -417,8 +427,8 @@ const Uniform3DmoduleDegisn = () => {
         </div>
 
         {/* CENTER MODEL VIEWER */}
-        <div className="relative flex-1 flex flex-col items-center mt-6">
-          <div className="absolute top-10 w-[400px] h-[400px] bg-[#BEE0FF] rounded-full"></div>
+        <div className="relative flex-1 flex flex-col items-center mt-0">
+          <div className="absolute top-0 w-[400px] h-[400px] bg-[#BEE0FF] rounded-full"></div>
           {/* {mounted && (
                         <model-viewer
                             ref={mvRef}
@@ -449,39 +459,48 @@ const Uniform3DmoduleDegisn = () => {
                         />
                     </div> */}
           {/* BOTTOM TOOLBAR */}
-          <div className="absolute bottom-[30px] flex">
+          {/* <div className="absolute bottom-[100px] flex"> */}
+          <div className="
+              absolute 
+              top-[80vh]
+              flex
+            ">
+                {/* // bottom-[40px] 
+              // sm:bottom-[60px] 
+              // md:bottom-[80px] 
+              // lg:bottom-[100px]  */}
             <div className="z-20 mt-6 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl px-3 py-2 flex items-center gap-4">
-              <button className="p-2 rounded-md">
+              <button className="p-1 rounded-md">
                 <img src="/img/top-left-image/cursor.png" className="w-5 h-5 invert" />
               </button>
-              <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2">
+              <div className="w-px h-8 bg-gray-300"></div>
+              <button className="p-1">
                 <img src="/img/top-left-image/hand.png" className="w-5 h-5" />
               </button>
-              <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2" onClick={undoCamera}>
+              <div className="w-px h-8 bg-gray-300"></div>
+              <button className="p-1" onClick={undoCamera}>
                 <img src="/img/top-left-image/undo.png" className="w-5 h-5" />
               </button>
-              <button className="p-2" onClick={redoCamera}>
+              <button className="p-1" onClick={redoCamera}>
                 <img src="/img/top-left-image/redo.png" className="w-5 h-5" />
               </button>
-              <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2" onClick={zoomIn}>
+              <div className="w-px h-8 bg-gray-300"></div>
+              <button className="p-1" onClick={zoomIn}>
                 <span className="text-lg font-bold">+</span>
               </button>
               <span className="text-sm font-semibold text-gray-700">
                 {zoomPercent}%
               </span>
-              <button className="p-2" onClick={zoomOut}>
+              <button className="p-1" onClick={zoomOut}>
                 <span className="text-lg font-bold">−</span>
               </button>
-              <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2 flex items-center gap-1" onClick={rotate90}>
+              <div className="w-px h-8 bg-gray-300"></div>
+              <button className="p-1 flex items-center gap-1" onClick={rotate90}>
                 <img src="/img/top-left-image/rotate.png" className="w-5 h-5" />
                 <span className="text-sm text-gray-700">90°</span>
               </button>
-              <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2 flex items-center gap-1">
+              <div className="w-px h-8 bg-gray-300"></div>
+              <button className="p-1 flex items-center gap-1">
                 <img src="/img/top-left-image/Group.png" className="w-5 h-5" />
                 <span className="text-sm text-gray-700">3D</span>
               </button>
@@ -490,7 +509,7 @@ const Uniform3DmoduleDegisn = () => {
               <Button
                 type="submit"
                 variant="solid"
-                className="w-full ml-10 mt-7 bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-3" onClick={handleUniformDesignResult}
+                className="w-full h-10 ml-10 mt-8 bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2" onClick={handleUniformDesignResult}
               >
                 Confirm Design
               </Button>
