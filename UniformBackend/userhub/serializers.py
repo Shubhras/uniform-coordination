@@ -170,30 +170,6 @@ class CustomerDetailSerializer(serializers.ModelSerializer):
         fields ="__all__"
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class FavouriteSerializer(serializers.ModelSerializer):
     product_type = serializers.CharField(
         source="product.productType",
@@ -203,12 +179,6 @@ class FavouriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favourite
         fields = ["id", "product", "product_type", "is_like"]
-
-
-
-
-
-
 
 
 # from rest_framework import serializers
@@ -256,6 +226,7 @@ class ModelInfoSerializer(serializers.ModelSerializer):
         return None
     
 class CustomUpdateModelSerializer(serializers.ModelSerializer):
+    model_info = ModelInfoSerializer(read_only=True)
     class Meta:
         model = CustomUpdateModel
         fields = [
@@ -271,11 +242,22 @@ class CustomUpdateModelSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['user','created_at','updated_at']
     
-from rest_framework import serializers
-from .models import QuotationRequest
+
+class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
+    model_info = ModelInfoSerializer(read_only=True)
+
+    class Meta:
+        model = CustomUpdateModel
+        fields = [
+            'id',
+            'model_info',
+            'design_specifications',  
+            'isActive',
+            'created_at',
+        ]
 
 class QuotationRequestSerializer(serializers.ModelSerializer):
-
+    customupdatemodel = CustomUpdateModelQuotationSerializer(read_only=True)  
     class Meta:
         model = QuotationRequest
         fields = [

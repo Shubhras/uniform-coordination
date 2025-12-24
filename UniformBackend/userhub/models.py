@@ -242,36 +242,28 @@ class CustomUpdateModel(models.Model):
 
 class QuotationRequest(models.Model):
     # Company & Contact
-    uuids = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
+    STATUS_CHOICES = (
+        ("pending", "Pending"),
+        ("sent", "Sent"),
+        ("approved", "Approved"),
+        ("cancelled", "Cancelled"),
     )
+    uuids = models.UUIDField( primary_key=True,default=uuid.uuid4,editable=False)
     company_name = models.CharField(max_length=255,null=True,blank=True)
     contact_person = models.CharField(max_length=255,null=True,blank=True)
     email = models.EmailField()
     phone_number = models.CharField(max_length=20,null=True,blank=True)
     customupdatemodel = models.ForeignKey(
-        CustomUpdateModel,
-        on_delete=models.CASCADE,
-        related_name="quotation_requests",
-        null=True,blank=True
-                                          
-   )
-    # Uniform Request Details
+        CustomUpdateModel,on_delete=models.CASCADE,related_name="quotation_requests",null=True,blank=True)  # Uniform Request Details
     item_type = models.CharField(max_length=100,null=True,blank=True)
     material = models.CharField(max_length=100,null=True,blank=True)
     size_quantity = models.TextField(
-        help_text="Mention sizes with quantities (e.g. M-10, L-20)",
-        null = True, blank = True
-    )
+        help_text="Mention sizes with quantities (e.g. M-10, L-20)", null = True, blank = True)
     delivery_date = models.DateField()
     additional_note = models.TextField(blank=True, null=True)
-
-    # Agreement
     agreed_to_terms = models.BooleanField(default=False,null=True,blank=True)
+    quotation_status = models.CharField(max_length=20,choices=STATUS_CHOICES, default="pending")
 
-    # Meta
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

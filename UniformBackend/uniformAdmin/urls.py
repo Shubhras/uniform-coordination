@@ -113,5 +113,14 @@ urlpatterns = [
     path("privacy-policy/update/<int:pk>/", PrivacyPolicyUpdateAPIView.as_view(),name="privacypolicy-update"),
     path("privacy-policy/delete/<int:pk>/", PrivacyPolicyDeleteAPIView.as_view(),name="privacypolicy-delete"),
 
+    #<--------------------SpecialCondition--------------------->
+    path('specialcondition/create/',SpecialConditionCreateAPIView.as_view(), name = 'SpecialCondition-create'),
+    path('specialcondition/get-list/',SpecialConditionListAPIView.as_view(), name = 'SpecialCondition-get-list'),
+    path('specialcondition/<int:id>/get/',SpecialConditionDetailAPIView.as_view(), name = 'SpecialCondition-get-detail'),
+    path('specialcondition/<int:id>/update/',SpecialConditionUpdateAPIView.as_view(), name = 'SpecialCondition-update'),
+    path('specialcondition/delete/',SpecialConditionDeleteAPIView.as_view(), name = 'SpecialCondition-delete'),
     
+    #<-------------------QuotationRequestList------------------->
+    path('quotationrequest/get/',QuotationRequestListAPIView.as_view(), name = 'QuotationRequest-getlist'),
+
 ]

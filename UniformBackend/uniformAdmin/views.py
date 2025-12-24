@@ -14,10 +14,13 @@ from django.contrib.auth.tokens import default_token_generator
 from uniformAdmin.fabric import CustomPagination
 from rest_framework.parsers import MultiPartParser, FormParser
 from .models import *
-
+from userhub.models import QuotationRequest
+from userhub.serializers import QuotationRequestSerializer
+from django.db.models import Q
+from .fabric import CustomPagination
 class AdminLoginAPIView(APIView):
-    authentication_classes = []   # 🚀 IMPORTANT
-    permission_classes = []       # 🚀 IMPORTANT
+    authentication_classes = []   # IMPORTANT
+    permission_classes = []       # IMPORTANT
 
     def post(self, request):
         try:
@@ -486,3 +489,194 @@ class AdminDeleteProductAPIView(APIView):
                 "message": "Server error while deleting product.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#<------------------------------SpecialCondition----------------------->
+class SpecialConditionCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        try:
+            serializer = SpecialConditionSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({
+                'statusCode':201,
+                'status':True,
+                "message":'Special Condition create successfully. ',
+                'data':serializer.data
+            },status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({
+                'statusCode':500,
+                'status':False,
+                'message':'Something went wrong on server.',
+                'error':str(e)
+                },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+class  SpecialConditionListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        special = SpecialCondition.objects.filter(is_deleted=False).order_by('-created_at')
+        ids = request.GET.get('ids')
+        if ids:
+            try:
+                id_list = [int(i.strip()) for i in ids.split(",")]
+                special = special.filter(id__in = id_list)
+            except ValueError as ve:
+                return Response({
+                    'statusCode':400,
+                    'status':False,
+                    'message':'invalide id formate. ',
+                    'error':str(ve)
+                },status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = SpecialConditionSerializer(special,many=True,context={'request': request})
+        return Response({
+            'statusCode':200,
+            'status':True,
+            'message':'Special Condition fetched successfully',
+            'data':serializer.data
+        },status=status.HTTP_200_OK)
+    
+class SpecialConditionDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request,id):
+        special = get_object_or_404(SpecialCondition, id=id,is_deleted=False)
+        serializer = SpecialConditionSerializer(special,context={'request': request})
+        return Response({
+            'statusCode':200,
+            'status':True,
+            'message':'Special Condition fetched successfully. ',
+            'data':serializer.data
+        },status=status.HTTP_200_OK)
+
+class SpecialConditionUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self,request,id):
+        special = get_object_or_404(SpecialCondition,id=id,is_deleted=False)
+        serializer = SpecialConditionSerializer(special,data=request.data,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'statusCode':200,
+                'status':True,
+                'message':'Special Condition update succesfully.',
+                'data':serializer.data
+            },status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'statusCode':400,
+                'status':False,
+                'message':'Invalid data',
+                'error':serializer.errors
+            },status=status.HTTP_400_BAD_REQUEST)
+class SpecialConditionDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, id=None):
+
+        # delete all
+        if id == "all":
+            qs = SpecialCondition.objects.all()
+            count = qs.count()
+            qs.delete()
+            return Response({
+                "statusCode": 204,
+                "status": True,
+                "message": f"All {count} SpecialConditions deleted successfully",
+                "data": None
+            }, status=status.HTTP_204_NO_CONTENT)
+
+        #delete by body IDs (list)
+        ids = request.data.get("id")
+
+        if ids and isinstance(ids, list):
+            qs = SpecialCondition.objects.filter(id__in=ids)
+
+            if not qs.exists():
+                return Response({
+                    "statusCode": 404,
+                    "status": False,
+                    "message": "SpecialCondition not found",
+                    "data": None
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            qs.delete()
+            return Response({
+                "statusCode": 204,
+                "status": True,
+                "message": "SpecialCondition deleted successfully",
+                "data": None
+            }, status=status.HTTP_204_NO_CONTENT)
+
+        #single delete via URL
+        if id:
+            try:
+                obj = SpecialCondition.objects.get(id=id)
+                obj.delete()
+                return Response({
+                    "statusCode": 204,
+                    "status": True,
+                    "message": "SpecialCondition deleted successfully",
+                    "data": None
+                }, status=status.HTTP_204_NO_CONTENT)
+
+            except SpecialCondition.DoesNotExist:
+                return Response({
+                    "statusCode": 404,
+                    "status": False,
+                    "message": "SpecialCondition not found",
+                    "data": None
+                }, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({
+            "statusCode": 400,
+            "status": False,
+            "message": "Invalid delete request",
+            "data": None
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class QuotationRequestListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        queryset = QuotationRequest.objects.filter(isDeleted=False)
+
+        # Query Params
+        search = request.GET.get("search")
+        status_param = request.GET.get("status")
+        email = request.GET.get("email")
+
+        # Search (partial match)
+        if search:
+            queryset = queryset.filter(
+                Q(company_name__icontains=search) |
+                Q(email__icontains=search) |
+                Q(item_type__icontains=search) |
+                Q(uuids__icontains=search)   
+            )
+
+        #  Status filter
+        if status_param:
+            queryset = queryset.filter(quotation_status=status_param)
+
+        #  Email filter
+        if email:
+            queryset = queryset.filter(email__icontains=email)
+
+        paginator = CustomPagination()
+        paginated_queryset = paginator.paginate_queryset(queryset, request)
+
+
+        serializer = QuotationRequestSerializer(paginated_queryset, many=True)
+
+        return Response({
+            'statusCode':200,
+            "status": True,
+            'message':'Quotation Request fetch data successfully.',
+            "count": queryset.count(),
+            "data": serializer.data
+        },status=status.HTTP_200_OK)
