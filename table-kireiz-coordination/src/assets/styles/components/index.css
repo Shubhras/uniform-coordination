@@ -67,3 +67,11 @@
   scrollbar-width: thin;
   scrollbar-color: #d6a88b transparent;
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

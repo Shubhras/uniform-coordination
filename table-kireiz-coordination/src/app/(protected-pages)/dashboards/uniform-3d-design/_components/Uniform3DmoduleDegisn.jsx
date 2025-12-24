@@ -768,12 +768,12 @@ const Uniform3DmoduleDegisn = () => {
                     )}
                     {active === "category" && (
                         <div
-    ref={panelRef}
-    className="min-w-sm h-[calc(100vh-300px)]
+                            ref={panelRef}
+                            className="min-w-sm h-[calc(100vh-178px)]
     overflow-y-auto overflow-x-hidden
     bg-[#FFF5F1] border border-[#F3D3C8]
     rounded-2xl p-5 shadow-lg custom-scroll"
->
+                        >
 
                             <h4 className="text-sm font-semibold text-[#1C2C56] mb-4">
                                 Categories & Inventory
@@ -838,10 +838,10 @@ const Uniform3DmoduleDegisn = () => {
                                                 { name: "Crushed Velvet", img: "/img/table-form/tablecloth/fabric1.png" },
                                                 { name: "Damask Linen", img: "/img/table-form/tablecloth/fabric2.png" },
                                                 { name: "Gingham Cotton", img: "/img/table-form/tablecloth/fabric3.png" },
-                                                { name: "Raw Silk Dupioni", img: "/img/table-form/tablecloth/fabric4.png" },{ name: "Crushed Velvet", img: "/img/table-form/tablecloth/fabric1.png" },
+                                                { name: "Raw Silk Dupioni", img: "/img/table-form/tablecloth/fabric4.png" }, { name: "Crushed Velvet", img: "/img/table-form/tablecloth/fabric1.png" },
                                                 { name: "Damask Linen", img: "/img/table-form/tablecloth/fabric2.png" },
                                                 { name: "Gingham Cotton", img: "/img/table-form/tablecloth/fabric3.png" },
-                                                { name: "Raw Silk Dupioni", img: "/img/table-form/tablecloth/fabric4.png" },{ name: "Crushed Velvet", img: "/img/table-form/tablecloth/fabric1.png" },
+                                                { name: "Raw Silk Dupioni", img: "/img/table-form/tablecloth/fabric4.png" }, { name: "Crushed Velvet", img: "/img/table-form/tablecloth/fabric1.png" },
                                                 { name: "Damask Linen", img: "/img/table-form/tablecloth/fabric2.png" },
                                                 { name: "Gingham Cotton", img: "/img/table-form/tablecloth/fabric3.png" },
                                                 { name: "Raw Silk Dupioni", img: "/img/table-form/tablecloth/fabric4.png" },
@@ -1228,28 +1228,22 @@ const Uniform3DmoduleDegisn = () => {
                     <div className="bg-white shadow-xl rounded-xl p-2 flex gap-1 max-w-xs w-full">
 
                         {/* SINGLE TABLE */}
-                        <Button
-                            type="button"
-                            variant="solid"
-                            size="small"
+                        <button
                             onClick={() => setFullView(false)}
-                            className={` w-full flex items-center justify-center gap-2 px-4 py-0 rounded-lg text-sm transition-all
+                            className={` w-full flex items-center justify-center font-bold gap-2 px-4 py-2 rounded-lg text-sm transition-all
                                 ${!fullView
-                                    ? 'bg-[#A0522D] hover:bg-[#A0522D shadow'
+                                    ? 'bg-[#A0522D] hover:bg-[#A0522D shadow text-white '
                                     : 'bg-transparent text-gray-700 hover:bg-gray-100'
                                 }`}
                         >
                             <TbTable className="text-lg" />
                             Single Table
-                        </Button>
+                        </button>
 
                         {/* FULL VENUE */}
-                        <Button
-                            type="button"
-                            variant="solid"
-                            size="small"
+                        <button
                             onClick={() => setFullView(true)}
-                            className={` w-full flex items-center justify-center gap-2 px-4 rounded-lg text-sm transition-all
+                            className={` w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm transition-all
                                 ${fullView
                                     ? 'bg-[#A0522D] hover:bg-[#A0522D] text-white shadow'
                                     : 'bg-transparent text-gray-700 hover:bg-gray-100'
@@ -1257,13 +1251,12 @@ const Uniform3DmoduleDegisn = () => {
                         >
                             <RiTable2 className="text-lg" />
                             Full Venue
-                        </Button>
+                        </button>
 
                     </div>
 
-
-                    {/* <div className="absolute top-[-10] w-[360px] h-[360px] bg-[#BEE0FF] rounded-full"></div> */}
-                    <div className="relative z-10 rounded-2xl overflow-hidden">
+                    <div className="relative z-10 rounded-2xl overflow-hidden 
+                h-[620px] w-full flex items-center justify-center">
                         {
                             fullView ? <Image
                                 src="/img/table-form/themes/theme3.png"
@@ -1283,7 +1276,7 @@ const Uniform3DmoduleDegisn = () => {
                         }
 
                     </div>
-                    {/* BOTTOM TOOLBAR */}
+
                     <div className="flex items-center">
 
                         <div className="z-20 mt-6 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl px-3 py-2 flex items-center gap-4">
@@ -1333,9 +1326,8 @@ const Uniform3DmoduleDegisn = () => {
                         </div>
 
                     </div>
-
-
                 </div>
+
             </div>
 
         </section>
