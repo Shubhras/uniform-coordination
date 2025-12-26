@@ -91,17 +91,16 @@ const ThemeDetails = () => {
                 </div>
 
                 <div className="flex gap-3">
-                    <button className="w-auto min-w-max whitespace-nowrap text-base px-4 py-2 rounded-md border border-[#7B3C1D33] text-[#7B3C1D] font-medium">
+                    <button className="w-auto min-w-max whitespace-nowrap text-xl font-semibold px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white">
                         Back to Theme
                     </button>
 
-                    <button className="w-auto min-w-max whitespace-nowrap text-base px-4 py-2 rounded-md bg-[#7B3C1D] text-white font-medium">
+                    <button className="w-auto min-w-max whitespace-nowrap text-xl font-semibold  px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white ">
                         Customize in Canvas
                     </button>
                 </div>
 
             </div>
-
 
             {/* MAIN GRID */}
             <div className="flex items-start gap-8">
@@ -247,17 +246,16 @@ const ThemeDetails = () => {
                             Final pricing varies based on your customization choices in the Canvas.
                         </div>
 
-                        <div className="text-xs text-gray-600 flex gap-2 p-4">
+                        {/* <div className="text-xs text-gray-600 flex gap-2 p-4">
                             <span className="text-[#7B3C1D]"><CiDeliveryTruck size={20} />
                             </span>
                             Delivery & Setup<br />
                             Professional setup included within 25 miles.
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
-            {/* ITEMS INCLUDED */}
-
+            
         </section>
     );
 };

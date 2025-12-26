@@ -5,28 +5,28 @@ import { useRouter } from "next/navigation";
 
 const blogPosts = [
   {
-    img: "/img/kireiz-form/features/Rectangle177.png",
+    img: "/img/table-form/blog-image/blog1.png",
     date: "08-11-2025",
     category: "Category",
     title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   },
   {
-    img: "/img/kireiz-form/features/Rectangle177.png",
+    img: "/img/table-form/blog-image/blog2.png",
     date: "08-11-2025",
     category: "Category",
     title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   },
   {
-    img: "/img/kireiz-form/features/Rectangle177.png",
+    img: "/img/table-form/blog-image/blog3.png",
     date: "08-11-2025",
     category: "Category",
     title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   },
   {
-    img: "/img/kireiz-form/features/Rectangle177.png",
+    img: "/img/table-form/blog-image/blog1.png",
     date: "08-11-2025",
     category: "Category",
     title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -45,8 +45,8 @@ const UniformLatestBlogPosts = () => {
     router.push("/single-blog");
   };
   return (
-    <section className="w-full bg-[#FAF6F4] px-4 sm:px-6 md:px-8 lg:px-12">
-        <div className="px-6 md:px-10 py-10 md:py-16">
+    <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
+        <div className="px-6 md:px-10 py-10 md:py-16 ">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
             <h2 className="text-center md:text-left text-3xl font-semibold text-[#402936]">
               Our Latest Blog Posts
@@ -67,7 +67,7 @@ const UniformLatestBlogPosts = () => {
             {blogPosts.map((post, index) => (
               <div
                 key={index}
-                className="bg-white  p-2 rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden cursor-pointer" onClick={handleSingleBlogPage}
+                className="bg-white  p-2 rounded-2xl  border border-[#D4A6CF] hover:shadow-md overflow-hidden cursor-pointer hover:bg-[#FAF6F4] transition-all duration-200" onClick={handleSingleBlogPage}
               >
                 <div className="">
                   <Image

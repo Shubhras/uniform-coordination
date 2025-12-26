@@ -227,11 +227,15 @@ const UniformBusinessEnquiry = () => {
     w-full
     p-3 rounded-tl-4xl rounded-br-4xl
     bg-[#FEF3C7]
+    hover:bg-[#A0522D]
+    transition-all
+    duration-200
+    group
    
   "
                 >
                   {/* IMAGE */}
-                  <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl">
+                  <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl ">
                     <Image
                       src={item.img}
                       alt={item.title}
@@ -250,9 +254,13 @@ const UniformBusinessEnquiry = () => {
           text-lg
           font-medium
           text-white
+          group-hover:text-black
           bg-[#A0522D]
           rounded-xl
           cursor-pointer
+          group-hover:bg-[#FEF3C7]
+          transition-all
+          duration-200
         "
                         onClick={handleThemeClick}
                       >
@@ -262,11 +270,11 @@ const UniformBusinessEnquiry = () => {
                   </div>
 
                   {/* TEXT (UNCHANGED DATA) */}
-                  <div className="p-4">
-                    <h3 className="text-[#1C2C56] text-[18px] font-semibold">
+                  <div className="p-4 ">
+                    <h3 className="text-[#1C2C56] group-hover:text-white text-[18px] font-semibold">
                       {item.title}
                     </h3>
-                    <p className="text-[#6B7280] text-[14px] mt-2 leading-tight">
+                    <p className="text-[#6B7280] group-hover:text-white text-[14px] mt-2 leading-tight">
                       {item.desc}
                     </p>
                   </div>

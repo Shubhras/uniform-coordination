@@ -34,7 +34,7 @@ const UniformLatestFAQPosts = () => {
   };
 
   return (
-    <section className="relative py-8 bg-white">
+    <section className="relative py-10 bg-[#FAF6F4]">
       <Container>
 
         <div className="text-center mb-14">
@@ -52,7 +52,7 @@ const UniformLatestFAQPosts = () => {
             return (
               <div
                 key={index}
-                className={`rounded-xl px-6 py-5 transition-all duration-300 ${isOpen
+                className={`rounded-xl px-6 py-5 transition-all duration-300  ${isOpen
                     ? "bg-white text-black shadow-md"
                     : "bg-[#E1D1C7] text-black border border-[#E1D1C7]"
                   }`}

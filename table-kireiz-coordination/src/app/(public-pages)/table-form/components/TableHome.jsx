@@ -41,13 +41,14 @@ const TableHome = () => {
             {/* <Demos mode={mode} /> */}
             {/*  How it works */}
             <TechStack />
-            <PlaceholderSection />
+            {/* <PlaceholderSection /> */}
             <UniformLatestBlogPosts />
             <UniformLatestFAQPosts />
             {/* <TableAbouUsPage /> */}
             {/* <OtherFeatures /> */}
             {/* <Components /> */}
-            <ChatbotSection />
+            <Chatbot
+            Section />
             {/* <LandingFooter mode={mode} /> */}
             <FooterPage mode={mode} />
         </main>
