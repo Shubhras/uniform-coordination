@@ -162,8 +162,14 @@ REST_FRAMEWORK = {
         "userhub.authentication.CustomUserJWTAuthentication",# For Customers
         "rest_framework_simplejwt.authentication.JWTAuthentication",  # For Admin
         "rest_framework.authentication.SessionAuthentication",
-    ]
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
 }
+
 
 
 
@@ -184,8 +190,10 @@ SIMPLE_JWT = {
 
 
 
-
-
+"stripe payment"
+STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY")
+STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLISHABLE_KEY")
+STRIPE_WEBHOOK_SECRET =config("STRIPE_WEBHOOK_SECRET")
 # import os
 
 # ONESIGNAL_APP_ID = os.getenv("ONESIGNAL_APP_ID")

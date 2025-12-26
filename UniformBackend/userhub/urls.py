@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import *
-
+from .payment import *
 
 urlpatterns = [
     path('signup/', SignupAPIView.as_view(), name='user-signup'),
@@ -29,12 +29,24 @@ urlpatterns = [
     path("cart/", CartListAPIView.as_view()),
     path("cart/item/update/", UpdateCartItemAPIView.as_view()),
     path("cart/item/delete/", RemoveCartItemAPIView.as_view()),
-    path("cart/order-summary/", OrderSummaryAPIView.as_view()),
-    path("Customer/detail/",CustomerDetailsCreateAPIView.as_view()),
-]
+    path("cart/item-summary/", ItemSummaryAPIView.as_view()),
 
+
+    path("create/order/",CreateOrderAPIView.as_view()),
+    path('order/summary/', OrderSummaryAPIView.as_view(), name='order-summary'),
+    path("order/detail/",OrderDetailAPIView.as_view()),
+    path("order/list/",OrderListAPIView.as_view()),
+
+
+    # payment 
+    path("create/payment/",PaymentIntentAPIView.as_view()),
+    path("payment/detail/", UserPaymentDetailAPIView.as_view()),
+    path("payment/id/", UserSinglePaymentDetailAPIView.as_view()),
+    # path("admin/payment/", AdminPaymentReportAPIView.as_view()),
+    path("stripe/webhook/",StripeWebhookAPIView.as_view()),
+
+]
    
     
-
 
 

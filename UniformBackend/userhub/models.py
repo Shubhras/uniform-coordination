@@ -90,28 +90,28 @@ class Favourite(models.Model):
         return f"{self.user} - {self.product} - {self.is_like}"
 
 
-
-
-
-
 # Cart
 class Cart(models.Model):
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     is_delete = models.DateTimeField(auto_now_add=True)
     is_update = models.DateField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
 
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE,related_name="items")
-    product = models.ForeignKey("unformAdmin.Product", on_delete=models.CASCADE)
+    product = models.ForeignKey("uniformAdmin.Product", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
-    delete_at =models.BooleanField(default=False)
-    
+    delete_at = models.DateTimeField(null=True, blank=True)
 
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     # total_price
     def save(self, *args, **kwargs):
@@ -121,7 +121,7 @@ class CartItem(models.Model):
 
 
 class CustomerDetails(models.Model):
-    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    user = models.OneToOneField(Users, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField()
@@ -160,12 +160,10 @@ class Order(models.Model):
     Payment_method =models.CharField(max_length=50)
     status = models.CharField(max_length=50,choices=STATUS_CHOICE)
     order_type =models.CharField(max_length=50,choices=ORDER_TYPE_CHOICES)
-    totel_amount=models.DecimalField(max_digits=10,decimal_places=2 )
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     start_date =models.DateField(auto_now_add=True)
     return_date =models.DateField(auto_now_add=True)
-    promocode =models.ForeignKey("unformAdmin.Promocode",on_delete=models.CASCADE)
-
-
+    promocode =models.ForeignKey("uniformAdmin.Promocode",on_delete=models.CASCADE,null=True, blank=True)
 
 
 
@@ -177,12 +175,14 @@ class Payment(models.Model):
     
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     payment_id = models.CharField(max_length=50, unique=True)
+    customer_id = models.CharField(max_length=100, blank=True, null=True)  
+    payment_method_id = models.CharField(max_length=100, blank=True, null=True) 
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS)
     payment_method = models.CharField(max_length=20)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=10, default='INR')
     paid_at = models.DateTimeField(blank=True, null=True)
-
+    client_secret = models.CharField(max_length=255, blank=True, null=True) 
 
 
     
