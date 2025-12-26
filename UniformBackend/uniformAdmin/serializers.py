@@ -661,3 +661,25 @@ class PrivacyPolicySerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["isActive"] = True
         return super().create(validated_data)
+
+
+
+class QuotationTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = QuotationTemplate
+        fields = [
+            "id",
+            "title",
+            "slug",
+            "content",
+            "userType",
+            "language",
+            "version",
+            "is_active",
+            "is_deleted",
+            "created_at",
+            "updated_at",
+        ]
+
+        read_only_fields = ("id","userType","created_at","updated_at",)

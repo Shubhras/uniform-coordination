@@ -9,9 +9,9 @@ from .serializers import*
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.conf import settings
-
-
-#<---------------------ModelsInfo------------------->
+import os
+from .util.file_storage import save_large_json_to_file
+#<-------------------ModelsInfo------------------->
 class ModelInfoCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self,request):
@@ -164,159 +164,6 @@ class ModelInfoDeleteAPIView(APIView):
         }, status=status.HTTP_200_OK)
     
 #<-------------------------CustomUpdateModel--------------------->
-class CustomUpdateModelCreateAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    def post(self,request):
-        try:
-            serializer = CustomUpdateModelSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save(user=request.user)
-            return Response({
-                "statusCode":201,
-                "status":True,
-                "message":"Custom Update create successfully. ",
-                "data":serializer.data
-            },status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({
-                "statusCode":500,
-                "status":False,
-                "message":"Something went wrong on server",
-                "error":str(e)
-            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-
-class CustomUpdateModelListAPIView(APIView):
-    permission_classes=[IsAuthenticated]
-
-    def get(self,request):
-        custom = CustomUpdateModel.objects.filter(isDeleted=False).order_by('-created_at') 
-
-        ids = request.GET.get("ids")
-
-        if ids:
-            try:
-                id_list = [int(i.strip()) for i in ids.split(",")]
-                custom = custom.filter(id__in=id_list)
-            except ValueError:
-                return Response({
-                    "statusCode":400,
-                    "status":False,
-                    "message":"Invalid ID format. ",
-                },status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = CustomUpdateModelSerializer(custom,many=True)
-        return Response({
-                'statusCode':200,
-                'status':True,
-                'message': 'Custom Model info fetched successfully',
-                'data':serializer.data
-            },status=status.HTTP_200_OK)
-
-class CustomUpdateModelDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    def get(self,request,id):
-        custom = get_object_or_404(
-            CustomUpdateModel,
-            id=id,
-            isDeleted=False
-        )
-        serializer = CustomUpdateModelSerializer(custom)
-        return Response({
-            'statusCode':200,
-            'status':True,
-            'message':'Custom Model info fetched successfully',
-            'data':serializer.data
-        },status=status.HTTP_200_OK)
-
-class CustomUpdateModelUpdateAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    def put(self,request,id):
-        custom = get_object_or_404(
-            CustomUpdateModel,
-            id=id,
-            isDeleted=False
-        )
-        serializer = CustomUpdateModelSerializer(
-            custom,
-            data=request.data,
-            partial = True
-        )
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                "statusCode":200,
-                "status":True,
-                "message":"Custom Model Update Successfully. ",
-                "data":serializer.data
-            },status=status.HTTP_200_OK)
-    
-        return Response({
-            "statusCode":400,
-            "status":False,
-            "message":"Invalid data",
-            "errors": serializer.errors
-        },status=status.HTTP_400_BAD_REQUEST)
-            
-class CustomUpdateModelDeleteAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    def delete(self,request,id=None):
-        ids = request.data.get('id',None)
-        
-        #single delete
-        if id:
-            try:
-                obj = CustomUpdateModel.objects.get(id=id)
-                obj.delete()
-                return Response({
-                    'statusCode':204,
-                    'status':True,
-                    'message':'Custom Model permanently deleted.',
-                    'data':None
-                },status=status.HTTP_204_NO_CONTENT)
-            
-            except CustomUpdateModel.DoesNotExist:
-                return Response({
-                    'statusCode':404,
-                    'status':False,
-                    'message':'Custom Model not found.',
-                    'data':None
-                },status=status.HTTP_404_NOT_FOUND)
-            
-            
-        # Delete all
-        if ids == "all":
-            queryset = CustomUpdateModel.objects.all()
-            count = queryset.count()
-            queryset.delete()
-            return Response({
-                "statusCode": 200,
-                "status": True,
-                "message": f"All {count} Custom Model permanently deleted.",
-                "data": None
-            }, status=status.HTTP_200_OK)
-        
-        # Bulk delete
-        if not ids or not isinstance(ids, list):
-            return Response({
-                "statusCode": 400,
-                "status": False,
-                "message": "Please provide a list of IDs in 'id' field or 'all'.",
-                "data": None
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        queryset = CustomUpdateModel.objects.filter(id__in=ids)
-        count = queryset.count()
-        queryset.delete()
-
-        return Response({
-            "statusCode": 200,
-            "status": True,
-            "message": f"{count} Custom Model permanently deleted.",
-            "data": None
-        }, status=status.HTTP_200_OK)
-
 '''class CustomUpdateModelExportPDFAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -348,7 +195,7 @@ class CustomUpdateModelExportPDFAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, customization_id):
-        customization = CustomUpdateModel.objects.filter(
+        customization = CustomUpdateModels.objects.filter(
             id=customization_id,
             user=request.user,
             isDeleted=False
@@ -436,3 +283,122 @@ class QuotationRequestExportPDFAPIView(APIView):
             "pdf_url": request.build_absolute_uri(pdf_url)
         })
 
+class CustomUpdateModelsCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            data = request.data.copy()
+
+            # 🔥 large json nikaalo
+            large_json = data.pop("json_data", None)
+
+            json_path = None
+            if large_json:
+                json_path = save_large_json_to_file(large_json)
+
+            serializer = CustomUpdateModelsSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(
+                user=request.user,
+                json_file_path=json_path
+            )
+
+            return Response({
+                "statusCode": 201,
+                "status": True,
+                "message": "Custom Update created successfully",
+                "data": serializer.data
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({
+                "statusCode": 500,
+                "status": False,
+                "message": "Something went wrong on server",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class CustomUpdateModelsListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        qs = CustomUpdateModels.objects.filter(isDeleted=False)
+
+        ids = request.GET.get("ids")
+        if ids:
+            id_list = [int(i.strip()) for i in ids.split(",")]
+            qs = qs.filter(id__in=id_list)
+
+        serializer = CustomUpdateModelsSerializer(qs, many=True,context={"request": request})
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "data": serializer.data
+        })
+
+
+class CustomUpdateModelsDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id):
+        obj = get_object_or_404(CustomUpdateModels, id=id, isDeleted=False)
+        serializer = CustomUpdateModelsSerializer(obj,context={"request": request})
+
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "data": serializer.data
+        })
+
+
+
+
+class CustomUpdateModelsUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, id):
+        obj = get_object_or_404(CustomUpdateModels, id=id, isDeleted=False)
+
+        data = request.data.copy()
+        data.pop("json_data", None)  # 🔥 block large json
+
+        serializer = CustomUpdateModelsSerializer(
+            obj,
+            data=data,
+            partial=True
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "statusCode": 200,
+                "status": True,
+                "message": "Updated successfully",
+                "data": serializer.data
+            })
+
+        return Response(serializer.errors, status=400)
+
+
+class CustomUpdateModelsDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, id):
+        obj = get_object_or_404(CustomUpdateModels, id=id)
+
+        # 🔥 file bhi delete karo
+        if obj.json_file_path:
+            file_path = os.path.join(settings.MEDIA_ROOT, obj.json_file_path)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+        obj.delete()
+
+        return Response({
+            "statusCode": 204,
+            "status": True,
+            "message": "Deleted successfully"
+        }, status=status.HTTP_204_NO_CONTENT)

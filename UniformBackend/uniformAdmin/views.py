@@ -680,3 +680,286 @@ class QuotationRequestListAPIView(APIView):
             "count": queryset.count(),
             "data": serializer.data
         },status=status.HTTP_200_OK)
+    
+#<---------------------QuotationTemplate--------------------->
+'''
+class QuotationTemplateCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self,request):
+        try:
+            serializer = QuotationTemplateSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    'statusCode':201,
+                    'status':True,
+                    'message':'Quotation Template create successfully. ',
+                    'data':serializer.data
+                },status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    'statusCode':400,
+                    'status':False,
+                    'message':'Invalid data',
+                    'error':serializer.erros
+                },status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            return Response({
+                'statusCode':500,
+                'status':False,
+                'message':'Something went wrong on server. ',
+                'error':str(e)
+            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)'''
+
+
+from .utils import render_quotation_template
+
+class QuotationTemplateCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        quotation_id = request.data.get("quotation_id")
+        template_slug = request.data.get("template_slug")
+
+        if not quotation_id or not template_slug:
+            return Response(
+                {"message": "quotation_id and template_slug are required"},
+                status=400
+            )
+
+        quotation = QuotationRequest.objects.filter(
+            quotation_id=quotation_id,
+            isDeleted=False
+        ).first()
+
+        template = QuotationTemplate.objects.filter(
+            slug=template_slug,
+            is_active=True,
+            is_deleted=False
+        ).first()
+
+        if not quotation:
+            return Response({"message": "Quotation not found"}, status=404)
+
+        if not template:
+            return Response({"message": "Template not found"}, status=404)
+
+        rendered_text = render_quotation_template(
+            template.content,
+            quotation
+        )
+
+        return Response({
+            "quotation_id": quotation.quotation_id,
+            "rendered_content": rendered_text
+        })
+'''
+class QuotationTemplateListAPIView(APIView):
+
+    permission_classes = [IsAuthenticated]
+    
+    def get(self,request):
+        quotaion = QuotationRequest.objects.filter(is_deleted=False).order_by('-created_at')
+        ids = request.GET.get('ids')
+        
+        if ids:
+            try:
+                id_list = [int(i.strip()) for i in ids.split(",")]
+                quotation = quotation.filter(id__in = id_list)
+            
+            except ValueError as ve:
+                return Response({
+                    'statusCode':400,
+                    'status':False,
+                    'message':'Invalid id not found',
+                    'error': str(ve)
+                },status=status.HTTP_400_BAD_REQUEST)
+            
+        serializer = QuotationRequestSerializer(quotaion,many=True,context={'request': request})
+        return Response({
+            'statusCode':200,
+            'status':True,
+            'message':'Quotation Request find successfully. ',
+            'data': serializer.data
+        })'''
+
+
+class QuotationTemplateListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Fetch all quotations
+        quotations = QuotationRequest.objects.filter(isDeleted=False).order_by('-created_at')
+
+        # Optional: filter by ids
+        ids = request.GET.get('ids')
+        if ids:
+            try:
+                id_list = [int(i.strip()) for i in ids.split(",")]
+                quotations = quotations.filter(id__in=id_list)
+            except ValueError as ve:
+                return Response({
+                    'statusCode': 400,
+                    'status': False,
+                    'message': 'Invalid id format',
+                    'error': str(ve)
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Fetch active template (example: default quotation template)
+        template = QuotationTemplate.objects.filter(title="quotation", is_active=True, is_deleted=False).first()
+        if not template:
+            return Response({
+                'statusCode': 404,
+                'status': False,
+                'message': 'Quotation template not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Render each quotation using the template
+        rendered_data = []
+        for quotation in quotations:
+            rendered_content = render_quotation_template(template.content, quotation)
+            rendered_data.append({
+                'quotation_id': quotation.quotation_id,
+                'rendered_content': rendered_content
+            })
+
+        return Response({
+            'statusCode': 200,
+            'status': True,
+            'message': 'Quotations fetched and rendered successfully.',
+            'data': rendered_data
+        })
+'''
+class QuotationTemplateDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, quotation_id):
+        # Fetch the quotation using quotation_id
+        quotation = get_object_or_404(QuotationRequest, quotation_id=quotation_id, isDeleted=False)
+
+        serializer = QuotationRequestSerializer(quotation, context={'request': request})
+
+        return Response({
+            'statusCode': 200,
+            'status': True,
+            'message': 'Quotation found successfully using quotation_id.',
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+'''
+class QuotationTemplateDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, quotation_id=None):
+        if not quotation_id:
+            return Response({
+                'statusCode': 400,
+                'status': False,
+                'message': 'quotation_id is required in URL'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Fetch the quotation by quotation_id
+        quotation = QuotationRequest.objects.filter(quotation_id=quotation_id, isDeleted=False).first()
+        if not quotation:
+            return Response({
+                'statusCode': 404,
+                'status': False,
+                'message': f'Quotation with id {quotation_id} not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Fetch active template (default quotation template)
+        template = QuotationTemplate.objects.filter(title="quotation", is_active=True, is_deleted=False).first()
+        if not template:
+            return Response({
+                'statusCode': 404,
+                'status': False,
+                'message': 'Quotation template not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Render the quotation using the template
+        rendered_content = render_quotation_template(template.content, quotation)
+
+        return Response({
+            'statusCode': 200,
+            'status': True,
+            'message': 'Quotation fetched and rendered successfully.',
+            'data': {
+                'quotation_id': quotation.quotation_id,
+                'rendered_content': rendered_content
+            }
+        })
+
+class QuotationTemplateUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def put(self, request, quotation_id):
+        quotation = get_object_or_404(QuotationRequest, quotation_id=quotation_id, isDeleted=False)
+        serializer = QuotationRequestSerializer(quotation, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'statusCode': 200,
+                'status': True,
+                'message': 'Quotation updated successfully by quotation_id.',
+                'data': serializer.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'statusCode': 400,
+                'status': False,
+                'message': 'Invalid data',
+                'error': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class QuotationTemplateDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def delete(self, request, quotation_id=None):
+        # Delete multiple by quotation_ids (body)
+        ids = request.data.get('quotation_id')
+        if ids and isinstance(ids, list):
+            qs = QuotationRequest.objects.filter(quotation_id__in=ids)
+            if not qs.exists():
+                return Response({
+                    'statusCode': 404,
+                    'status': False,
+                    'message': 'Quotation Templates not found.',
+                    'data': None
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            qs.delete()
+            return Response({
+                'statusCode': 204,
+                'status': True,
+                'message': 'Quotation Templates deleted successfully.',
+                'data': None
+            }, status=status.HTTP_204_NO_CONTENT)
+        
+        # Single delete
+        if quotation_id:
+            try:
+                quotation = QuotationRequest.objects.get(quotation_id=quotation_id)
+                quotation.delete()
+                return Response({
+                    'statusCode': 204,
+                    'status': True,
+                    'message': 'Quotation Template deleted successfully.',
+                    'data': None
+                }, status=status.HTTP_204_NO_CONTENT)
+            except QuotationRequest.DoesNotExist:
+                return Response({
+                    'statusCode': 404,
+                    'status': False,
+                    'message': 'Quotation Template not found.',
+                    'data': None
+                }, status=status.HTTP_404_NOT_FOUND)
+        
+        return Response({
+            'statusCode': 400,
+            'status': False,
+            'message': 'Invalid quotation_id.',
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)

@@ -260,3 +260,81 @@ class ProductAdmin(admin.ModelAdmin):
  
     ordering = ('-created_at',)
     
+
+from django.contrib import admin
+from .models import QuotationTemplate
+
+
+@admin.register(QuotationTemplate)
+class QuotationTemplateAdmin(admin.ModelAdmin):
+
+    # Admin list page me kya dikhe
+    list_display = (
+        "slug",
+        "title",
+        "language",
+        "version",
+        "userType",
+        "is_active",
+        "is_deleted",
+        "created_at",
+    )
+
+    # Right side filters
+    list_filter = (
+        "title",
+        "language",
+        "is_active",
+        "is_deleted",
+    )
+
+    # Search bar
+    search_fields = (
+        "slug",
+        "content",
+    )
+
+    # Auto slug fill (agar manually na diya ho)
+    prepopulated_fields = {
+        "slug": ("title",)
+    }
+
+    # Fields grouping (detail page)
+    fieldsets = (
+        ("Template Info", {
+            "fields": (
+                "title",
+                "slug",
+                "language",
+                "version",
+            )
+        }),
+        ("Template Content", {
+            "fields": (
+                "content",
+            )
+        }),
+        ("Settings", {
+            "fields": (
+                "userType",
+                "is_active",
+                "is_deleted",
+            )
+        }),
+        ("Timestamps", {
+            "fields": (
+                "created_at",
+                "updated_at",
+            )
+        }),
+    )
+
+    # Read-only fields
+    readonly_fields = (
+        "userType",
+        "created_at",
+        "updated_at",
+    )
+
+    # Default ordering
+    ordering = ("-created_at",)

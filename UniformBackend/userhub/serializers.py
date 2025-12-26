@@ -224,30 +224,13 @@ class ModelInfoSerializer(serializers.ModelSerializer):
         if obj.model_file and request:
             return request.build_absolute_uri(obj.model_file.url)
         return None
-    
-class CustomUpdateModelSerializer(serializers.ModelSerializer):
-    model_info = ModelInfoSerializer(read_only=True)
-    class Meta:
-        model = CustomUpdateModel
-        fields = [
-            'id',
-            'user',
-            'model_info',
-            'json_data',
-            'design_specifications',   
-            'isActive',
-            'isDeleted',
-            'created_at',
-            'updated_at',
-        ]
-        read_only_fields = ['user','created_at','updated_at']
-    
+ 
 
 class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
     model_info = ModelInfoSerializer(read_only=True)
 
     class Meta:
-        model = CustomUpdateModel
+        model = CustomUpdateModels
         fields = [
             'id',
             'model_info',
@@ -262,6 +245,7 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
         model = QuotationRequest
         fields = [
             "uuids",
+            "quotation_id",
             "company_name",
             "contact_person",
             "email",
@@ -286,3 +270,38 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
                 "You must agree to privacy policy & terms."
             )
         return value
+    def create(self, validated_data):
+        if not validated_data.get("quotation_id"):
+            validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
+        return super().create(validated_data)
+
+class CustomUpdateModelsSerializer(serializers.ModelSerializer):
+    json_file_url = serializers.SerializerMethodField()
+    class Meta:
+        model = CustomUpdateModels
+        fields = [
+            "id",
+            "user",
+            "model_info",
+            "design_specifications",
+            "json_file_path",
+            "json_file_url",
+            "isActive",
+            "isDeleted",
+            "created_at"
+        ]
+        read_only_fields = ["user", "json_file_path"]
+
+    def get_json_file_url(self, obj):
+        request = self.context.get("request")
+
+        if not obj.json_file_path:
+            return None
+
+        if request:
+            return request.build_absolute_uri(
+                settings.MEDIA_URL + obj.json_file_path
+            )
+
+        # Agar request context na ho, relative URL return karega
+        return settings.MEDIA_URL + obj.json_file_path

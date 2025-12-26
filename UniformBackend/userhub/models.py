@@ -197,48 +197,26 @@ class ModelInfo(models.Model):
         return self.product.productName
 
 
-class CustomUpdateModel(models.Model):
-    user = models.ForeignKey(
-        Users,
-        on_delete=models.CASCADE,
-        related_name="customizations",
-        null = True, blank=True
-    )
+class CustomUpdateModels(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, blank=True)
+    model_info = models.ForeignKey(ModelInfo, on_delete=models.CASCADE, null=True, blank=True)
 
-    model_info = models.ForeignKey(
-        ModelInfo,
-        on_delete=models.CASCADE,
-        related_name="user_customizations",
-        null=True,blank=True
-    )
+    config_json = models.JSONField(default=dict, null=True, blank=True)
+    design_specifications = models.JSONField(default=dict, null=True, blank=True)
 
-    json_data = models.JSONField(
-        default=dict,
-        help_text="User customization data",
-        null=True,blank=True
-    )
+    json_file_path = models.CharField(max_length=500,null=True,blank=True,help_text="Stored JSON file path")
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    isDeleted = models.BooleanField(default=False)
 
-    design_specifications = models.JSONField(
-        default=dict,
-        null=True,
-        blank=True,
-        help_text="UI design specification data"
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True, null=True,blank=True)
-    updated_at = models.DateTimeField(auto_now=True, null=True,blank=True)
-    isActive = models.BooleanField(default=True, null=True,blank=True)
-    isDeleted = models.BooleanField(default=False, null=True,blank=True)
 
     class Meta:
         unique_together = ('user', 'model_info')
-        verbose_name = "User Customization"
-        verbose_name_plural = "User Customizations"
         ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.user} → {self.model_info}"
-    
 
 class QuotationRequest(models.Model):
     # Company & Contact
@@ -249,12 +227,13 @@ class QuotationRequest(models.Model):
         ("cancelled", "Cancelled"),
     )
     uuids = models.UUIDField( primary_key=True,default=uuid.uuid4,editable=False)
+    quotation_id =models.CharField(max_length=20,null=True,blank=True)
     company_name = models.CharField(max_length=255,null=True,blank=True)
     contact_person = models.CharField(max_length=255,null=True,blank=True)
     email = models.EmailField()
     phone_number = models.CharField(max_length=20,null=True,blank=True)
     customupdatemodel = models.ForeignKey(
-        CustomUpdateModel,on_delete=models.CASCADE,related_name="quotation_requests",null=True,blank=True)  # Uniform Request Details
+        CustomUpdateModels,on_delete=models.CASCADE,related_name="quotation_requests",null=True,blank=True)  # Uniform Request Details
     item_type = models.CharField(max_length=100,null=True,blank=True)
     material = models.CharField(max_length=100,null=True,blank=True)
     size_quantity = models.TextField(
@@ -271,3 +250,14 @@ class QuotationRequest(models.Model):
 
     def __str__(self):
         return f"{self.company_name} - {self.item_type}"
+    
+
+    def save(self, *args, **kwargs):
+        if not self.quotation_id:
+            # You can customize this pattern as needed
+            prefix = 'QUOT'
+            uid = uuid.uuid4().hex[:6].upper()
+            self.quotation_id = f"{prefix}-{uid}"
+        super().save(*args, **kwargs)
+
+ 

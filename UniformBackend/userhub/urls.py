@@ -33,12 +33,12 @@ urlpatterns = [
     path('modelinfo/delete/',ModelInfoDeleteAPIView.as_view(), name = 'model_info-delete'),
 
     #<------------------------CustomUpdateModel---------------------->
-    path('customupdatemodel/create/',CustomUpdateModelCreateAPIView.as_view(), name = 'custom-create'),
-    path('customupdatemodel/get-list/',CustomUpdateModelListAPIView.as_view(), name = 'custom-get-list'),
-    path('customupdatemodel/<int:id>/get/',CustomUpdateModelDetailAPIView.as_view(), name = 'custom-get'),
-    path('customupdatemodel/<int:id>/update/',CustomUpdateModelUpdateAPIView.as_view(), name = 'custom-update'),
-    path('customupdatemodel/delete/',CustomUpdateModelDeleteAPIView.as_view(), name = 'custom-delete'),
-    path('customupdatemodel/<int:customization_id>/export/',CustomUpdateModelExportPDFAPIView.as_view(), name = 'custom-get'),
+    path('customupdatemodels/create/',CustomUpdateModelsCreateAPIView.as_view(), name = 'custom-create'),
+    path('customupdatemodels/get-list/',CustomUpdateModelsListAPIView.as_view(), name = 'custom-get-list'),
+    path('customupdatemodels/<int:id>/get/',CustomUpdateModelsDetailAPIView.as_view(), name = 'custom-get'),
+    path('customupdatemodels/<int:id>/update/',CustomUpdateModelsUpdateAPIView.as_view(), name = 'custom-update'),
+    path('customupdatemodels/delete/',CustomUpdateModelsDeleteAPIView.as_view(), name = 'custom-delete'),
+    path('customupdatemodels/<int:customization_id>/export/',CustomUpdateModelExportPDFAPIView.as_view(), name = 'custom-get'),
     
     #<-----------------------------QuotationRequest-------------------->
     path('quotationrequest/create/',QuotationRequestCreateAPIView.as_view(), name = 'QuotationRequest-create'),
@@ -53,6 +53,10 @@ urlpatterns = [
     path("cart/item/<int:item_id>/update/", UpdateCartItemAPIView.as_view()),
     path("cart/item/<int:item_id>/delete/", RemoveCartItemAPIView.as_view()),
     path("cart/order-summary/", OrderSummaryAPIView.as_view()),
+
+
+
+
 ]
 
    

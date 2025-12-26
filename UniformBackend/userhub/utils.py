@@ -4,9 +4,8 @@ from datetime import datetime, timedelta
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
-
-
+import json
+import uuid
 import os
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
@@ -349,3 +348,21 @@ def generate_quotation_pdf(obj, request):
     doc.build(elements)
 
     return f"{settings.MEDIA_URL}exports/{file_name}"
+
+
+
+def save_large_json_to_file(json_data):
+    """
+    Large (95MB) JSON ko file me save karta hai
+    """
+    folder = os.path.join(settings.MEDIA_ROOT, "custom_json")
+    os.makedirs(folder, exist_ok=True)
+
+    filename = f"{uuid.uuid4()}.json"
+    full_path = os.path.join(folder, filename)
+
+    with open(full_path, "w", encoding="utf-8") as f:
+        json.dump(json_data, f)
+
+    # DB me relative path store hoga
+    return f"custom_json/{filename}"

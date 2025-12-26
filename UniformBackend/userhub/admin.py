@@ -125,9 +125,8 @@ class ModelInfoAdmin(admin.ModelAdmin):
         }),
     )
 
-@admin.register(CustomUpdateModel)
-class CustomUpdateModelAdmin(admin.ModelAdmin):
-
+@admin.register(CustomUpdateModels)
+class CustomUpdateModelsAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'user',
@@ -135,24 +134,25 @@ class CustomUpdateModelAdmin(admin.ModelAdmin):
         'isActive',
         'isDeleted',
         'created_at',
-        'updated_at',
+        'json_file_path',
     )
 
     list_filter = (
         'isActive',
         'isDeleted',
         'created_at',
+        'model_info',
     )
 
     search_fields = (
         'user__username',
         'user__email',
         'model_info__id',
+        'json_file_path',
     )
 
     readonly_fields = (
         'created_at',
-        'updated_at',
     )
 
     ordering = ('-created_at',)
@@ -162,16 +162,21 @@ class CustomUpdateModelAdmin(admin.ModelAdmin):
             'fields': ('user', 'model_info')
         }),
         ("Customization JSON Data", {
-            'fields': ('json_data',),
+            'fields': ('config_json', 'design_specifications'),
             'description': "3D model ke user customization changes yahan JSON format me store hote hain"
+        }),
+        ("JSON File Path", {
+            'fields': ('json_file_path',),
+            'description': "Stored JSON file ka path yahan dikhaye ga"
         }),
         ("Status", {
             'fields': ('isActive', 'isDeleted')
         }),
         ("Timestamps", {
-            'fields': ('created_at', 'updated_at')
+            'fields': ('created_at',)
         }),
     )
+
 
 
 @admin.register(QuotationRequest)

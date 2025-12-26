@@ -123,4 +123,13 @@ urlpatterns = [
     #<-------------------QuotationRequestList------------------->
     path('quotationrequest/get/',QuotationRequestListAPIView.as_view(), name = 'QuotationRequest-getlist'),
 
+    #<-------------------QuotationTamplate----------------------->
+    path('quotationrequest/create/',QuotationTemplateCreateAPIView.as_view(), name='QuotationRequest-create'),
+    path('quotationrequest/get-list/',QuotationTemplateListAPIView.as_view(), name='QuotationRequest-create'),
+    path('quotationrequest/<str:quotation_id>/get/',QuotationTemplateDetailAPIView.as_view(), name='QuotationRequest-create'),
+    path('quotationrequest/<str:quotation_id>/update/',QuotationTemplateUpdateAPIView.as_view(), name='QuotationRequest-create'),
+    path('quotationrequest/delete/',QuotationTemplateDeleteAPIView.as_view(), name='QuotationRequest-create'),
+
+
+
 ]

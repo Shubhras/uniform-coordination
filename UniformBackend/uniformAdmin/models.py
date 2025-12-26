@@ -455,3 +455,34 @@ class SpecialCondition(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.discount_percentage}%"
+    
+    
+class QuotationTemplate(models.Model):
+
+    TITLE_CHOICES = (
+        ("quotation", "Quotation"),
+        ("invoice", "Invoice"),
+        ("email", "Email"),
+    )
+
+    title = models.CharField(max_length=50,choices=TITLE_CHOICES )
+
+    slug = models.SlugField(unique=True, help_text="example: quotation-default")
+
+    content = models.TextField(help_text="Use placeholders like {CLIENT_NAME}, {ITEM_TYPE}")
+
+    userType = models.CharField( max_length=50, default="admin")
+
+    language = models.CharField(max_length=10,default="en")
+
+    version = models.CharField(max_length=20,blank=True, null=True)
+
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.slug} ({self.language})"
+
