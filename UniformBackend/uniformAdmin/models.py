@@ -2,6 +2,10 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
+
 
 
 # Create your models here.
@@ -486,3 +490,23 @@ class QuotationTemplate(models.Model):
     def __str__(self):
         return f"{self.slug} ({self.language})"
 
+
+class AdminNotification(models.Model):
+    PRIORITY_CHOICES = (
+        ("high", "High"),
+        ("medium", "Medium"),
+        ("low", "Low"),
+    )
+    # Generic relation (ANY MODEL)
+    content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
+    object_id = models.CharField(max_length=100) 
+    content_object = GenericForeignKey("content_type", "object_id")
+
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    priority = models.CharField(max_length=10,choices=PRIORITY_CHOICES,default="low")
+    is_seen = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

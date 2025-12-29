@@ -260,4 +260,3 @@ class QuotationRequest(models.Model):
             self.quotation_id = f"{prefix}-{uid}"
         super().save(*args, **kwargs)
 
- 

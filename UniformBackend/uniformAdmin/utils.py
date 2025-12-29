@@ -1,4 +1,6 @@
 from userhub.models import QuotationRequest
+from .models import AdminNotification
+from django.contrib.contenttypes.models import ContentType
 
 def render_quotation_template(template_text: str, quotation: QuotationRequest):
     if not template_text or not quotation:
@@ -20,3 +22,15 @@ def render_quotation_template(template_text: str, quotation: QuotationRequest):
         template_text = template_text.replace(key, str(value))
 
     return template_text
+
+
+def create_admin_notification(instance, title, message, priority="low"):
+    content_type = ContentType.objects.get_for_model(instance)
+
+    AdminNotification.objects.create(
+        content_type=content_type,
+        object_id=str(instance.pk),
+        title=title,
+        message=message,
+        priority=priority,
+    )

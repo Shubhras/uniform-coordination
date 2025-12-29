@@ -11,6 +11,7 @@ from django.utils.encoding import force_bytes
 from django.conf import settings
 import os
 from .util.file_storage import save_large_json_to_file
+from uniformAdmin.signal import create_admin_notification
 #<-------------------ModelsInfo------------------->
 class ModelInfoCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -227,6 +228,14 @@ class QuotationRequestCreateAPIView(APIView):
             serializer = QuotationRequestSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            quotation = serializer.save() 
+            # Call the helper function instead of writing objects.create directly
+            create_admin_notification(
+                instance=quotation,
+                title=f"New Quotation Request: {quotation.quotation_id }",
+                message=f"A new quotation request has been created by {quotation.company_name}.",
+                priority="high"
+            )
             return Response({
                     'statusCode':201,
                     'status':True,

@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from uniformAdmin.serializers import *
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -18,6 +18,8 @@ from userhub.models import QuotationRequest
 from userhub.serializers import QuotationRequestSerializer
 from django.db.models import Q
 from .fabric import CustomPagination
+
+
 class AdminLoginAPIView(APIView):
     authentication_classes = []   # IMPORTANT
     permission_classes = []       # IMPORTANT
@@ -963,3 +965,72 @@ class QuotationTemplateDeleteAPIView(APIView):
             'message': 'Invalid quotation_id.',
             'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
+    
+#<------------------AdminNotification------------------>
+
+class AdminNotificationListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            notifications = AdminNotification.objects.all().order_by("-created_at")
+            serializer = AdminNotificationSerializer(notifications, many=True)
+            return Response({
+                "statusCoce":200,
+                "status": True,
+                "message":"Notification Fetch Successfully",
+                "data": serializer.data
+            },status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response({
+                "statusCode":500,
+                "status":False,
+                "message":"Something went wrong on server.",
+                "error":str(e)
+            },status = status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class AdminNotificationDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        try:
+            notification_id = request.data.get("id")
+            delete_all = request.data.get("all", False)
+
+            #Delete ALL
+            if delete_all is True or not notification_id:
+                count = AdminNotification.objects.count()
+                AdminNotification.objects.all().delete()
+                return Response({
+                    "statusCode": 200,
+                    "status": True,
+                    "message": f"{count} notifications deleted successfully.",
+                    "data": None
+                }, status=status.HTTP_204_NO_CONTENT)
+
+            # Delete by ID
+            notification = AdminNotification.objects.get(id=notification_id)
+            notification.delete()
+            return Response({
+                "statusCode": 200,
+                "status": True,
+                "message": "AdminNotification deleted successfully.",
+                "data": None
+            }, status=status.HTTP_204_NO_CONTENT)
+
+        except AdminNotification.DoesNotExist:
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "message": "Invalid notification id.",
+                "data": None
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({
+                "statusCode": 500,
+                "status": False,
+                "message": "Something went wrong on server.",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -679,7 +679,12 @@ class QuotationTemplateSerializer(serializers.ModelSerializer):
             "is_active",
             "is_deleted",
             "created_at",
-            "updated_at",
-        ]
+            "updated_at",]
 
         read_only_fields = ("id","userType","created_at","updated_at",)
+
+
+class AdminNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdminNotification
+        fields = "__all__"

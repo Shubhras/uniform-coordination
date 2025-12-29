@@ -261,9 +261,6 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
     
 
-from django.contrib import admin
-from .models import QuotationTemplate
-
 
 @admin.register(QuotationTemplate)
 class QuotationTemplateAdmin(admin.ModelAdmin):
@@ -338,3 +335,78 @@ class QuotationTemplateAdmin(admin.ModelAdmin):
 
     # Default ordering
     ordering = ("-created_at",)
+
+
+@admin.register(AdminNotification)
+class AdminNotificationAdmin(admin.ModelAdmin):
+
+    # Admin list page columns
+    list_display = (
+        "id",
+        "title",
+        "priority",
+        "is_seen",
+        "content_type",
+        "object_id",
+        "created_at",
+    )
+
+    # Right-side filters
+    list_filter = (
+        "priority",
+        "is_seen",
+        "content_type",
+        "created_at",
+    )
+
+    # Search bar
+    search_fields = (
+        "title",
+        "message",
+        "object_id",
+    )
+
+    # Detail page field grouping
+    fieldsets = (
+        ("Notification Info", {
+            "fields": (
+                "title",
+                "message",
+                "priority",
+            )
+        }),
+        ("Related Object", {
+            "fields": (
+                "content_type",
+                "object_id",
+            )
+        }),
+        ("Status", {
+            "fields": (
+                "is_seen",
+            )
+        }),
+        ("Timestamps", {
+            "fields": (
+                "created_at",
+            )
+        }),
+    )
+
+    # Read-only fields
+    readonly_fields = (
+        "content_type",
+        "object_id",
+        "created_at",
+    )
+
+    # Default ordering
+    ordering = ("-created_at",)
+
+    # Optional: Quick actions
+    actions = ["mark_as_seen"]
+
+    def mark_as_seen(self, request, queryset):
+        queryset.update(is_seen=True)
+
+    mark_as_seen.short_description = "Mark selected notifications as seen"

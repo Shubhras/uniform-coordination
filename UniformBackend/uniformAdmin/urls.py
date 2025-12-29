@@ -130,6 +130,8 @@ urlpatterns = [
     path('quotationrequest/<str:quotation_id>/update/',QuotationTemplateUpdateAPIView.as_view(), name='QuotationRequest-create'),
     path('quotationrequest/delete/',QuotationTemplateDeleteAPIView.as_view(), name='QuotationRequest-create'),
 
-
-
+    #<---------------------AdminuserNotification------------------>
+    path("admin/notifications/get-list/", AdminNotificationListAPIView.as_view(),name='adminNotification-get_list'),
+    path("admin/notifications/delete/", AdminNotificationDeleteAPIView.as_view(),name="adminNotification-delete_all"),
+   
 ]
