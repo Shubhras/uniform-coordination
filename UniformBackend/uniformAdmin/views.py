@@ -996,10 +996,19 @@ class AdminNotificationDeleteAPIView(APIView):
     def delete(self, request):
         try:
             notification_id = request.data.get("id")
-            delete_all = request.data.get("all", False)
+            delete_all = request.data.get("delete_all", False)
+
+            if delete_all is False and not notification_id:
+            
+                return Response({
+                    "statusCode": 200,
+                    "status": True,
+                    "message": f"id requored",
+                    
+                }, status=status.HTTP_200_OK)
 
             #Delete ALL
-            if delete_all is True or not notification_id:
+            if delete_all is True:
                 count = AdminNotification.objects.count()
                 AdminNotification.objects.all().delete()
                 return Response({
@@ -1017,7 +1026,7 @@ class AdminNotificationDeleteAPIView(APIView):
                 "status": True,
                 "message": "AdminNotification deleted successfully.",
                 "data": None
-            }, status=status.HTTP_204_NO_CONTENT)
+            }, status=status.HTTP_200_OK)
 
         except AdminNotification.DoesNotExist:
             return Response({

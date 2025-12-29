@@ -131,7 +131,7 @@ urlpatterns = [
     path('quotationrequest/delete/',QuotationTemplateDeleteAPIView.as_view(), name='QuotationRequest-create'),
 
     #<---------------------AdminuserNotification------------------>
-    path("admin/notifications/get-list/", AdminNotificationListAPIView.as_view(),name='adminNotification-get_list'),
-    path("admin/notifications/delete/", AdminNotificationDeleteAPIView.as_view(),name="adminNotification-delete_all"),
+    path("notifications/get-list/", AdminNotificationListAPIView.as_view(),name='adminNotification-get_list'),
+    path("notifications/delete/", AdminNotificationDeleteAPIView.as_view(),name="adminNotification-delete_all"),
    
 ]
