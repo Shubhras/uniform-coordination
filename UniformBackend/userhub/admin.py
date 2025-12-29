@@ -12,20 +12,47 @@ class UsersAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display =('order','payment_id','payment_status','payment_method','amount','currency','paid_at')
+    list_display =('order',
+                   'payment_id',
+                   'payment_status',
+                   'payment_method',
+                   'amount','currency','paid_at')
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'is_active', 'is_delete', 'is_update', 'created_at')
+    list_display = ('id', 'user',
+                    'is_active',
+                    'is_delete', 
+                    'is_update', 
+                    'created_at')
    
-
 @admin.register(CartItem)
 class CartItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cart', 'product', 'quantity', 'price', 'total_price', 'isActive', 'isDeleted', 'created_at', 'updated_at')
-    
+   list_display = [
+        'id', 'cart', 
+        'product', 
+        'quantity', 
+        'price', 
+        'total_price',
+        'is_active', 
+        'created_at', 
+        'updated_at', 
+        'deleted_at'
+    ]
+
 @admin.register(CustomerDetails)
 class CustomerDetailsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'first_name', 'last_name', 'email', 'phone', 'city', 'country', 'payment_method', 'Rental', 'created_at', 'updated_at')
+    list_display = ('id',
+                     'user', 
+                     'first_name', 
+                     'last_name', 
+                     'email', 
+                     'phone',
+                     'city',
+                     'country', 
+                     'payment_method', 
+                     'Rental', 'created_at', 
+                     'updated_at')
    
 
 @admin.register(Order)

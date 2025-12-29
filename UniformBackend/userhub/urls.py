@@ -26,24 +26,26 @@ urlpatterns = [
 
     #  CART  
     path("cart/add/", AddToCartAPIView.as_view()),
-    path("cart/", CartListAPIView.as_view()),
+    path("cart/list/", CartListAPIView.as_view()),
     path("cart/item/update/", UpdateCartItemAPIView.as_view()),
     path("cart/item/delete/", RemoveCartItemAPIView.as_view()),
     path("cart/item-summary/", ItemSummaryAPIView.as_view()),
 
-
+    # order
     path("create/order/",CreateOrderAPIView.as_view()),
     path('order/summary/', OrderSummaryAPIView.as_view(), name='order-summary'),
-    path("order/detail/",OrderDetailAPIView.as_view()),
+    path("order/id/",OrderDetailAPIView.as_view()),
     path("order/list/",OrderListAPIView.as_view()),
 
 
     # payment 
-    path("create/payment/",PaymentIntentAPIView.as_view()),
-    path("payment/detail/", UserPaymentDetailAPIView.as_view()),
-    path("payment/id/", UserSinglePaymentDetailAPIView.as_view()),
-    # path("admin/payment/", AdminPaymentReportAPIView.as_view()),
-    path("stripe/webhook/",StripeWebhookAPIView.as_view()),
+    path("payments/create-intent/", CreatePaymentIntentAPIView.as_view()),
+    path("payments/", UserPaymentListAPIView.as_view()),
+    path("payments/detail/", UserPaymentDetailAPIView.as_view()),
+
+
+    path("admin/payments/", AdminPaymentListAPIView.as_view()),
+    path("admin/payments/detail/", AdminPaymentDetailAPIView.as_view()),
 
 ]
    

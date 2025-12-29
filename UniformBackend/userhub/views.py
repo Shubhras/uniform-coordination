@@ -1,30 +1,26 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
 from uniformAdmin.models import *
 from .models import *
-from django.utils.timezone import now
-from rest_framework.permissions import IsAuthenticated
+from django.utils.timezone import now ,timezone
+from rest_framework.permissions import IsAuthenticated ,AllowAny
 from .utils import generate_custom_tokens
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from .serializers import*
-import logging,uuid
+import logging
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db import IntegrityError, transaction
 from decimal import Decimal
-from uniformAdmin.models import Promocode 
 from django.db.models import Sum 
 from django.utils.dateparse import parse_date
 from .payment import CustomPagination
-from rest_framework.permissions import AllowAny
-from django.utils.http import urlsafe_base64_decode
-from django.utils import timezone
+
+# from django.utils import timezone
 import re
 logger = logging.getLogger(__name__)
 
@@ -928,7 +924,6 @@ class AddToCartAPIView(APIView):
 
 
 # CART LISTING
-
 class CartListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1335,7 +1330,7 @@ class OrderListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        orders = Order.objects.filter(user=request.user).order_by('-start_date')
+        orders = Order.objects.filter(user=request.user).order_by('-created_at')
 
         if not orders.exists():
             return Response({

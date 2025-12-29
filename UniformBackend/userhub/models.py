@@ -3,6 +3,7 @@ from uniformAdmin.models import Role , Product
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 import uuid
+from django.utils import timezone
 from uniformAdmin.models import Product
 from django.utils.text import slugify
 
@@ -99,25 +100,29 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
 
 
+
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE,related_name="items")
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey("uniformAdmin.Product", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2)  
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    delete_at = models.DateTimeField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(default=timezone.now) 
+    updated_at = models.DateTimeField(default=timezone.now)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    
+    is_active = models.BooleanField(default=True)  
 
-    isActive = models.BooleanField(default=True)
-    isDeleted = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
-
-    # total_price
     def save(self, *args, **kwargs):
-        self.price = self.product.price 
+        # Always update price and total_price
+        self.price = self.product.price
         self.total_price = self.quantity * self.price
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.product.productName} (x{self.quantity})"
+
 
 
 class CustomerDetails(models.Model):
@@ -135,6 +140,8 @@ class CustomerDetails(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     Rental =models.CharField(max_length=50)
+    isActive = models.BooleanField(default=True,null= True,blank=True)
+    isDeleted = models.BooleanField(default=False,null=True,blank=True)
     
 
     def __str__(self):
@@ -153,6 +160,7 @@ class Order(models.Model):
         ('paid','PAID'),
         ('failed','FAILED'),
     ]
+
     user =models.ForeignKey(Users,on_delete=models.CASCADE)
     order_id  =models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     cart = models.ForeignKey(Cart,on_delete=models.CASCADE)
@@ -164,6 +172,10 @@ class Order(models.Model):
     start_date =models.DateField(auto_now_add=True)
     return_date =models.DateField(auto_now_add=True)
     promocode =models.ForeignKey("uniformAdmin.Promocode",on_delete=models.CASCADE,null=True, blank=True)
+    is_active = models.BooleanField(default=True,null=True,blank=True)
+    is_delete = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    is_update = models.DateField(auto_now_add=True,null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
 
 
 
@@ -183,6 +195,11 @@ class Payment(models.Model):
     currency = models.CharField(max_length=10, default='INR')
     paid_at = models.DateTimeField(blank=True, null=True)
     client_secret = models.CharField(max_length=255, blank=True, null=True) 
+    is_active = models.BooleanField(default=True,null=True, blank=True)
+    is_delete = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+    is_update = models.DateField(auto_now_add=True,null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+
 
 
     
