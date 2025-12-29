@@ -4,7 +4,7 @@ import Image from 'next/image'
 
 const ChatbotSection = () => {
     return (
-        <section className="w-full bg-white  sm:px-6 md:px-8 ">
+        <section className="w-full bg-white  sm:px-6 md:px-8 mt-5 ">
             <div className=" mx-auto flex justify-end px-4">
 
                 {/* CHAT CONTAINER */}
