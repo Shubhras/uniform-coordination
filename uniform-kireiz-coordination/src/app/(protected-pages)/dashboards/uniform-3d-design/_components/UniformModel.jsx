@@ -52,5 +52,6 @@ export default function UniformModel() {
 
   if (!scene) return null
 
-  return <primitive object={scene} scale={0.1} position={[0, -10, 0]} />
+  // return <primitive object={scene} scale={0.1} position={[0, -10, 0]} />
+  return <primitive object={scene} scale={0.015} position={[0, -0.8, 0]} />
 }
