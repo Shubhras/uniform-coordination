@@ -11,6 +11,9 @@ import { useRouter } from 'next/navigation';
 import UniformCanvas from './UniformCanvas'
 import { controlsApi } from './UniformCanvas'
 import { uniformState } from './uniformStore'
+import { FiChevronRight, FiChevronDown } from "react-icons/fi";
+
+
 const PANELS = {
   color: {
     title: "Color",
@@ -119,7 +122,38 @@ const PANELS = {
       "/img/3dmodels/cuff4.png",
       "/img/3dmodels/cuff5.png",
     ]
-  }
+  },
+
+  pants: {
+    title: "Pants",
+    type: "options",
+    data: [
+      "/img/top-left-image/bottoms/pant1.png",
+      "/img/top-left-image/bottoms/pant2.png",
+      "/img/top-left-image/bottoms/pant3.png",
+      "/img/top-left-image/bottoms/pant4.png",
+      "/img/top-left-image/bottoms/pant5.png",
+    ]
+  },
+
+  pocket: {
+    title: "Pocket",
+    type: "options",
+    data: [
+      "/img/top-left-image/bottoms/pocket.png",
+      "/img/top-left-image/bottoms/pocket.png",
+    ]
+  },
+
+  aprons: {
+    title: "Aprons",
+    type: "options",
+    data: [
+      "/img/top-left-image/bottoms/apron.png",
+      "/img/top-left-image/bottoms/apron.png",
+
+    ]
+  },
 };
 
 
@@ -220,13 +254,58 @@ const Uniform3DmoduleDegisn = () => {
   const handleUniformDesignResult = () => {
     router.push("/dashboards/design-result");
   };
+  const [position, setPosition] = useState("top"); // top | bottom
+  const COMMON_BUTTONS = ["color", "size"];
+  const TOP_ONLY_BUTTONS = [
+    "fabric",
+    "top",
+    "collar",
+    "sleeves",
+    "cap",
+    "zipper",
+    "cuff",
+  ];
+  const BOTTOM_ONLY_BUTTONS = [
+    "legy", "Pants", "Pocket", "Aprons"
+  ];
+
+  const [showDropdown, setShowDropdown] = useState(false);
+
   return (
     <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-11 ">
       <div className="flex gap-6">
         <div className="w-[80px] flex flex-col items-center" >
-          <div className="flex items-center gap-2 px-4 py-2 bg-[#1c2c56] text-white rounded-lg shadow text-sm mb-2">
-            Top <span className="text-xs">›</span>
+          <div className="relative mb-2">
+            <button
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="w-full flex items-center justify-between px-4 py-2 bg-[#1c2c56] text-white rounded-lg shadow text-sm"
+            >
+              {position === "top" ? "Top" : "Bottom"}
+              <span className="text-lg">
+                {showDropdown ? <FiChevronDown /> : <FiChevronRight />}
+              </span>
+            </button>
+
+
+            {showDropdown && (
+              <div className="absolute top-full left-0 w-full bg-white border border-[#1c2c56] rounded-lg shadow z-50 overflow-hidden">
+                {["top", "bottom"].map(opt => (
+                  <button
+                    key={opt}
+                    onClick={() => {
+                      setPosition(opt);
+                      setShowDropdown(false);
+                    }}
+                    className="w-full px-4 py-2 text-sm flex items-center justify-between hover:bg-gray-100"
+                  >
+                    <span className="capitalize">{opt}</span>
+                    {position === opt && <span>✓</span>}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+
           <div className="flex flex-col gap-2 w-full">
             <button
               onClick={() => onIconClick("color")}
@@ -237,42 +316,17 @@ const Uniform3DmoduleDegisn = () => {
               <span className="text-xs text-gray-600">Color</span>
             </button>
 
-            <button
-              onClick={() => onIconClick("fabric")}
-              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "fabric" ? "ring-2 ring-blue-500" : ""
-                }`}
-            >
-              <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
-              <span className="text-xs text-gray-600">Fabric</span>
-            </button>
+            {position === "top" && (
+              <button
+                onClick={() => onIconClick("fabric")}
+                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "fabric" ? "ring-2 ring-blue-500" : ""
+                  }`}
+              >
+                <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
+                <span className="text-xs text-gray-600">Fabric</span>
+              </button>
+            )}
 
-            <button
-              onClick={() => onIconClick("legy")}
-              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
-                }`}
-            >
-              <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
-              <span className="text-xs text-gray-600">Legy</span>
-            </button>
-
-            <button
-              onClick={() => onIconClick("top")}
-              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
-                }`}
-            >
-              <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
-              <span className="text-xs text-gray-600">Top</span>
-            </button>
-
-
-            <button
-              onClick={() => onIconClick("collar")}
-              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "collar" ? "ring-2 ring-blue-500" : ""
-                }`}
-            >
-              <img src="/img/top-left-image/collar.png" className="w-12 h-12 mb-1" />
-              <span className="text-xs text-gray-600">Collar</span>
-            </button>
             <button
               onClick={() => onIconClick("size")}
               className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "size" ? "ring-2 ring-blue-500" : ""
@@ -281,38 +335,121 @@ const Uniform3DmoduleDegisn = () => {
               <img src="/img/top-left-image/measuring-tape.png" className="w-12 h-12 mb-1" />
               <span className="text-xs text-gray-600">Size</span>
             </button>
-            <button
-              onClick={() => onIconClick("sleeves")}
-              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "sleeves" ? "ring-2 ring-blue-500" : ""
-                }`}
-            >
-              <img src="/img/top-left-image/sleeves.png" className="w-12 h-12 mb-1" />
-              <span className="text-xs text-gray-600">Sleeves</span>
-            </button>
-            <button
-              onClick={() => onIconClick("cap")}
-              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "cap" ? "ring-2 ring-blue-500" : ""
-                }`}
-            >
-              <img src="/img/top-left-image/cap.png" className="w-12 h-12 mb-1" />
-              <span className="text-xs text-gray-600">Cap</span>
-            </button>
-            <button
-              onClick={() => onIconClick("zipper")}
-              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "zipper" ? "ring-2 ring-blue-500" : ""
-                }`}
-            >
-              <img src="/img/top-left-image/zipper.png" className="w-12 h-12 mb-1" />
-              <span className="text-xs text-gray-600">Zipper</span>
-            </button>
-            <button
-              onClick={() => onIconClick("cuff")}
-              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "cuff" ? "ring-2 ring-blue-500" : ""
-                }`}
-            >
-              <img src="/img/top-left-image/cuff.png" className="w-12 h-12 mb-1" />
-              <span className="text-xs text-gray-600">Cuff</span>
-            </button>
+
+            {position === "bottom" && (
+              <button
+                onClick={() => onIconClick("legy")}
+                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
+                  }`}
+              >
+                <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
+                <span className="text-xs text-gray-600">Legy</span>
+              </button>
+            )}
+
+            {position === "bottom" && (
+              <button
+                onClick={() => onIconClick("pants")}
+                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
+                  }`}
+              >
+                <img src="/img/top-left-image/bottoms/pant1.png" className="w-8 object-contain h-12 mb-1" />
+                <span className="text-xs text-gray-600">Pant</span>
+              </button>
+            )}
+
+            {position === "bottom" && (
+              <button
+                onClick={() => onIconClick("pocket")}
+                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
+                  }`}
+              >
+                <img src="/img/top-left-image/bottoms/pocket.png" className="w-8 object-contain h-12 mb-1" />
+                <span className="text-xs text-gray-600">Pocket</span>
+              </button>
+            )}
+
+            {position === "bottom" && (
+              <button
+                onClick={() => onIconClick("aprons")}
+                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
+                  }`}
+              >
+                <img src="/img/top-left-image/bottoms/apron.png" className="w-10 h-12 object-contain  mb-1" />
+                <span className="text-xs text-gray-600">Aprons</span>
+              </button>
+            )}
+
+            {/* {position === "top" && (
+              <button
+                onClick={() => onIconClick("top")}
+                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
+                  }`}
+              >
+                <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
+                <span className="text-xs text-gray-600">Top</span>
+              </button>
+            )} */}
+
+            {position === "top" && (
+              <button
+                onClick={() => onIconClick("collar")}
+                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "collar" ? "ring-2 ring-blue-500" : ""
+                  }`}
+              >
+                <img src="/img/top-left-image/collar.png" className="w-12 h-12 mb-1" />
+                <span className="text-xs text-gray-600">Collar</span>
+              </button>
+            )}
+
+            
+
+            {position === "top" && (
+              <button
+                onClick={() => onIconClick("sleeves")}
+                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "sleeves" ? "ring-2 ring-blue-500" : ""
+                  }`}
+              >
+                <img src="/img/top-left-image/sleeves.png" className="w-12 h-12 mb-1" />
+                <span className="text-xs text-gray-600">Sleeves</span>
+              </button>
+            )}
+            {position === "top" && (
+
+
+              <button
+                onClick={() => onIconClick("cap")}
+                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "cap" ? "ring-2 ring-blue-500" : ""
+                  }`}
+              >
+                <img src="/img/top-left-image/cap.png" className="w-12 h-12 mb-1" />
+                <span className="text-xs text-gray-600">Cap</span>
+              </button>
+            )}
+            {position === "top" && (
+
+
+              <button
+                onClick={() => onIconClick("zipper")}
+                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "zipper" ? "ring-2 ring-blue-500" : ""
+                  }`}
+              >
+                <img src="/img/top-left-image/zipper.png" className="w-12 h-12 mb-1" />
+                <span className="text-xs text-gray-600">Zipper</span>
+              </button>
+            )}
+            {position === "top" && (
+
+
+              <button
+                onClick={() => onIconClick("cuff")}
+                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "cuff" ? "ring-2 ring-blue-500" : ""
+                  }`}
+              >
+                <img src="/img/top-left-image/cuff.png" className="w-12 h-12 mb-1" />
+                <span className="text-xs text-gray-600">Cuff</span>
+              </button>
+            )}
           </div>
         </div>
         <div className="relative ">
@@ -349,7 +486,6 @@ const Uniform3DmoduleDegisn = () => {
                   ))}
                 </div>
               )}
-
 
               {showColorPicker && (
                 <ColorPickerPopup
@@ -415,6 +551,7 @@ const Uniform3DmoduleDegisn = () => {
                   ))}
                 </div>
               )}
+
               {PANELS[active].type === "size" && (
                 <div className="flex flex-col items-center
                  gap-2">
@@ -462,6 +599,7 @@ const Uniform3DmoduleDegisn = () => {
                   ))}
                 </div>
               )}
+
               {PANELS[active].type === "optionsTops" && (
                 <div className="grid grid-cols-3 gap-3">
                   {PANELS[active].data.map((opt, i) => (
@@ -516,7 +654,7 @@ const Uniform3DmoduleDegisn = () => {
               top-[80vh]
               flex
             ">
-                {/* // bottom-[40px] 
+            {/* // bottom-[40px] 
               // sm:bottom-[60px] 
               // md:bottom-[80px] 
               // lg:bottom-[100px]  */}
