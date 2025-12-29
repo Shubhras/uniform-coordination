@@ -149,24 +149,24 @@ export default function UniformCanvas() {
 
         // </Canvas>
         // <div className="w-full aspect-[16/9] sm:aspect-[4/3] lg:aspect-[3/2]">
-    //    <div className="w-full aspect-[21/9] sm:aspect-[16/9] lg:aspect-[18/9]">
-    <div className="w-full aspect-[18/9] sm:aspect-[15/9] lg:aspect-[15/9]">
-        <Canvas camera={{ position: [0, 1.5, 6], fov: 35 }}>
-            <ambientLight intensity={0.6} />
-            <directionalLight position={[5, 5, 5]} intensity={1} />
+        //    <div className="w-full aspect-[21/9] sm:aspect-[16/9] lg:aspect-[18/9]">
+        <div className="w-full aspect-[18/9] sm:aspect-[15/9] lg:aspect-[15/9]">
+            <Canvas camera={{ position: [0, 1.5, 6], fov: 35 }}>
+                <ambientLight intensity={0.6} />
+                <directionalLight position={[5, 5, 5]} intensity={1} />
 
-            <Suspense fallback={null}>
-                <UniformModel />
-                <Environment preset="studio" />
-            </Suspense>
+                <Suspense fallback={null}>
+                    <UniformModel />
+                    <Environment preset="studio" />
+                </Suspense>
 
-            <OrbitControls
-                ref={controlsRef}
-                enableZoom
-                enablePan
-                autoRotate={snap.autoRotate}
-            />
-        </Canvas>
+                <OrbitControls
+                    ref={controlsRef}
+                    enableZoom
+                    enablePan
+                    autoRotate={snap.autoRotate}
+                />
+            </Canvas>
         </div>
     )
 }
