@@ -31,7 +31,7 @@ const simulations = [
 
 const SimulationHistory = () => {
     return (
-        <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
+        <div className="w-full bg-[#F5F0EE30] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
 
             {/* HEADER */}
             <div className="mb-6">
@@ -45,9 +45,9 @@ const SimulationHistory = () => {
             </div>
 
             {/* FILTER BAR */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+            <div className="flex flex-wrap items-center justify-end gap-4 mb-8">
                 {/* Left filters */}
-                <div className="flex gap-2">
+                {/* <div className="flex gap-2">
                     <button className="bg-[#A0522D] hover:bg-[#8a5a75] text-white py-2 px-5 rounded-md"
                     >
                         All
@@ -59,7 +59,7 @@ const SimulationHistory = () => {
                         <LiaFileDownloadSolid size={16} />
                         Download
                     </button>
-                </div>
+                </div> */}
 
                 {/* Right filters */}
                 <div className="flex gap-3">
@@ -77,49 +77,49 @@ const SimulationHistory = () => {
                 {simulations.map((item, i) => (
                     <div
                         key={i}
-                        className="bg-white border border-[#CBD5E1] rounded-2xl p-3"
+                        className="bg-[#F5F0EE] border border-[#D0BEB6] rounded-2xl"
                     >
                         {/* Image */}
-                        <div className="flex justify-center mb-6">
-                            <div className="w-[240px] h-[240px] flex items-center justify-center overflow-hidden">
-                                <Image
-                                    src={item.img}
-                                    width={240}
-                                    height={240}
-                                    alt={item.title}
-                                    className="object-cover h-full w-full"
-                                />
-                            </div>
+                        <div className="flex justify-center mb-3">
+                            <Image
+                                src={item.img}
+                                alt={item.title}
+                                width={240}
+                                height={320}
+                                className="w-full h-auto object-cover"
+                            />
                         </div>
 
                         {/* Text */}
-                        <h4 className=" text-[16px] font-semibold">
-                            {item.title}
-                        </h4>
-                        <p className=" text-[13px] mt-1">
-                            {item.date}
-                        </p>
+                        <div className="p-3">
+                            <h4 className=" text-[16px] font-semibold">
+                                {item.title}
+                            </h4>
+                            <p className=" text-[13px] mt-1">
+                                {item.date}
+                            </p>
 
-                        {/* Buttons */}
-                        <div className="mt-6 flex gap-3">
-                            {/* OPEN – wider */}
-                            <Button
-                                className="flex-[2] bg-[#A0522D] hover:bg-[#A0522D] text-white py-2 rounded-md"
-                                size="sm"
-                                icon={<FiExternalLink size={16} />}
-                            >
-                                OPEN
-                            </Button>
+                            {/* Buttons */}
+                            <div className="mt-6 flex gap-3">
+                                {/* OPEN – wider */}
+                                <Button
+                                    className="flex-[2] bg-[#A0522D] hover:bg-[#A0522D] text-white py-2 rounded-md"
+                                    size="sm"
+                                    icon={<FiExternalLink size={16} />}
+                                >
+                                    OPEN
+                                </Button>
 
-                            {/* PDF – smaller */}
-                            <Button
-                                className="flex-[1] border border-[#A0522D] text-[#A0522D] rounded-md"
-                                size="sm"
-                                variant="default"
-                                icon={<LiaFileDownloadSolid />}
-                            >
-                                PDF
-                            </Button>
+                                {/* PDF – smaller */}
+                                <Button
+                                    className="flex-[1] border border-[#A0522D] text-[#A0522D] rounded-md"
+                                    size="sm"
+                                    variant="default"
+                                    icon={<LiaFileDownloadSolid />}
+                                >
+                                    PDF
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 ))}

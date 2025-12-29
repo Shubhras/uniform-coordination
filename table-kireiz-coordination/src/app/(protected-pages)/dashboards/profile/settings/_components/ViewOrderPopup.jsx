@@ -97,16 +97,12 @@ const ViewOrderPopup = ({ isOpen, onClose }) => {
 
                 {/* FOOTER */}
                 <div className="border-t px-6 py-4 flex justify-end gap-3">
-                    <Button variant="plain" onClick={onClose}>
+                    <button onClick={onClose} className="border border-[#A0522D] px-6 text-[#A0522D] py-2 rounded-md">
                         Close
-                    </Button>
-                    <Button
-                        variant="solid"
-                        className="bg-[#A0522D] hover:bg-[#A0522D] text-white px-8"
-                        onClick={onClose}
-                    >
-                        OK
-                    </Button>
+                    </button>
+                    <button className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"  onClick={onClose}>
+                      Ok
+                    </button>
                 </div>
 
             </div>
