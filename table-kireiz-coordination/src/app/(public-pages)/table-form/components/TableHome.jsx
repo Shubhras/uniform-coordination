@@ -47,8 +47,7 @@ const TableHome = () => {
             {/* <TableAbouUsPage /> */}
             {/* <OtherFeatures /> */}
             {/* <Components /> */}
-            <Chatbot
-            Section />
+            <ChatbotSection />
             {/* <LandingFooter mode={mode} /> */}
             <FooterPage mode={mode} />
         </main>

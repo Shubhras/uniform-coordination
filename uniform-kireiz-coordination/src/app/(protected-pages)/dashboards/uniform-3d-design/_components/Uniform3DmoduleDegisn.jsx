@@ -223,7 +223,7 @@ const Uniform3DmoduleDegisn = () => {
   return (
     <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-11 ">
       <div className="flex gap-6">
-        <div className="w-[80px] flex flex-col items-center" style={{ minHeight: "750px",maxHeight:"800px",overflow:"auto" }}>
+        <div className="w-[80px] flex flex-col items-center" >
           <div className="flex items-center gap-2 px-4 py-2 bg-[#1c2c56] text-white rounded-lg shadow text-sm mb-2">
             Top <span className="text-xs">›</span>
           </div>
