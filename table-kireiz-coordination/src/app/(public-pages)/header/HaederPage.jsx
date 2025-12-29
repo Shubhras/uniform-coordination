@@ -14,8 +14,8 @@ const navMenu = [
   { title: "Table Design", value: "tableDesign", to: "tableDesign", url: "/" },
   { title: "Browse by Color", value: "browseByColor", to: "browseByColor", url: "/browse-by-color" },
   { title: "Browse by Theme", value: "browseByTheme", to: "browseByTheme", url: "/browse-by-theme" },
-  { title: "Faq", value: "faq", to: "faq", url: "/faq" },
-  { title: "Blog", value: "blog", to: "blog", url: "/blog" },
+  // { title: "Faq", value: "faq", to: "faq", url: "/faq" },
+  // { title: "Blog", value: "blog", to: "blog", url: "/blog" },
 ];
 
 const HaederPage = ({ toggleMode, mode }) => {

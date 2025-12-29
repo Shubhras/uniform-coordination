@@ -7,6 +7,7 @@ import { PiPhone, PiInstagramLogoFill } from "react-icons/pi";
 import { FaLinkedin, FaInstagram, FaYoutube, FaTiktok } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { SiG2 } from 'react-icons/si'
+import { IoIosArrowUp } from 'react-icons/io'
 // const FooterContent = () => {
 //     return (
 //         <div className="flex items-center justify-between flex-auto w-full">
@@ -37,6 +38,13 @@ import { SiG2 } from 'react-icons/si'
 // }
 
 export default function Footer({ pageContainerType = 'contained', className }) {
+
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        })
+    }
     const year = new Date().getFullYear()
     return (
         // <footer
@@ -125,7 +133,7 @@ export default function Footer({ pageContainerType = 'contained', className }) {
         // </footer>
         <footer className="bg-[#E8B4A9] text-black pt-16">
             <div className=" mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="relative grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="max-w-[300px]">
                         <img
                             src="/img/logo/logo-table-footer.png"
@@ -174,6 +182,15 @@ export default function Footer({ pageContainerType = 'contained', className }) {
                             </button>
                         </div>
                     </div>
+
+
+                    <button
+                        onClick={scrollToTop}
+                        aria-label="Scroll to top"
+                        className="bg-white h-fit rounded-full p-3 hover:shadow-md transition absolute top-0 right-0"
+                    >
+                        <IoIosArrowUp size={20} className="text-black" />
+                    </button>
                 </div>
             </div>
             <div className="border-t border-white/20 mt-12 bg-white">
@@ -183,7 +200,7 @@ export default function Footer({ pageContainerType = 'contained', className }) {
                         ©{year} KIREIZ FORM. All rights reserved.
                     </p>
                     <div className="flex gap-6 font-semibold text-[#000000]">
-                        <Link href='/private-policy'  className="hover:underline">Privacy & Policy</Link>
+                        <Link href='/private-policy' className="hover:underline">Privacy & Policy</Link>
                         <Link href='/terms-and-condition' className="hover:underline">Terms & Condition</Link>
                     </div>
                 </div>

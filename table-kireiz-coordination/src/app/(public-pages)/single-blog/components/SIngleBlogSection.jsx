@@ -4,7 +4,7 @@ import Container from "@/components/shared/Container";
 import Image from "next/image";
 
 const blogData = {
-    img: "/img/kireiz-form/features/Rectangle177.png",
+    img: "/img/table-form/blog-image/blog2.png",
     title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     date: "08-11-2025",
     description: `

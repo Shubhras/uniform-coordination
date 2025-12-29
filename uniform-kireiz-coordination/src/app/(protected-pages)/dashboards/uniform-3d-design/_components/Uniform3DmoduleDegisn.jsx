@@ -79,16 +79,15 @@ const PANELS = {
   size: {
     title: "Size",
     type: "size",
-    data: ["XS", "S", "M", "L", "XL"]
+    data: ["XS", "S", "M", "L", "XL", "XXL", "XXXL"]
   },
 
   sleeves: {
     title: "Sleeves",
     type: "options",
     data: [
-      "/img/avatars/thumb-1.jpg",
-      "/img/avatars/thumb-1.jpg",
-      "/img/avatars/thumb-1.jpg",
+      "/img/3dmodels/sleves1.png",
+      "/img/3dmodels/sleves2.png",
     ]
   },
 
@@ -105,8 +104,8 @@ const PANELS = {
     title: "Zipper",
     type: "options",
     data: [
-      "/img/avatars/thumb-1.jpg",
-      "/img/avatars/thumb-1.jpg",
+      "/img/top-left-image/zipper.png",
+      "/img/top-left-image/zipper.png",
     ]
   },
 
@@ -114,8 +113,11 @@ const PANELS = {
     title: "Cuff",
     type: "options",
     data: [
-      "/img/avatars/thumb-1.jpg",
-      "/img/avatars/thumb-1.jpg",
+      "/img/3dmodels/cuff1.png",
+      "/img/3dmodels/cuff2.png",
+      "/img/3dmodels/cuff3.png",
+      "/img/3dmodels/cuff4.png",
+      "/img/3dmodels/cuff5.png",
     ]
   }
 };
@@ -123,6 +125,21 @@ const PANELS = {
 
 
 const Uniform3DmoduleDegisn = () => {
+  const [counts, setCounts] = useState({});
+
+  const increment = (size) => {
+    setCounts((prev) => ({
+      ...prev,
+      [size]: (prev[size] || 0) + 1,
+    }));
+  };
+
+  const decrement = (size) => {
+    setCounts((prev) => ({
+      ...prev,
+      [size]: Math.max((prev[size] || 0) - 1, 0),
+    }));
+  };
   const router = useRouter()
   // const mvRef = useRef(null)
   // const [modelSrc, setModelSrc] = useState(SAMPLE_MODEL)
@@ -221,6 +238,15 @@ const Uniform3DmoduleDegisn = () => {
             </button>
 
             <button
+              onClick={() => onIconClick("fabric")}
+              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "fabric" ? "ring-2 ring-blue-500" : ""
+                }`}
+            >
+              <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
+              <span className="text-xs text-gray-600">Fabric</span>
+            </button>
+
+            <button
               onClick={() => onIconClick("legy")}
               className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
                 }`}
@@ -228,6 +254,7 @@ const Uniform3DmoduleDegisn = () => {
               <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
               <span className="text-xs text-gray-600">Legy</span>
             </button>
+
             <button
               onClick={() => onIconClick("top")}
               className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
@@ -237,14 +264,7 @@ const Uniform3DmoduleDegisn = () => {
               <span className="text-xs text-gray-600">Top</span>
             </button>
 
-            <button
-              onClick={() => onIconClick("fabric")}
-              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "fabric" ? "ring-2 ring-blue-500" : ""
-                }`}
-            >
-              <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
-              <span className="text-xs text-gray-600">Fabric</span>
-            </button>
+
             <button
               onClick={() => onIconClick("collar")}
               className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "collar" ? "ring-2 ring-blue-500" : ""
@@ -383,21 +403,52 @@ const Uniform3DmoduleDegisn = () => {
               {PANELS[active].type === "options" && (
                 <div className="grid grid-cols-3 gap-3">
                   {PANELS[active].data.map((opt, i) => (
-                    <button key={i} className="p-2 border rounded-lg shadow" >
-                      <img src={opt} className="w-full" />
+                    <button key={i} className="p-2 rounded-lg shadow relative">
+                      <img src={opt} className="w-full h-full object-cover" />
+
+                      <p className="text-xs absolute bottom-1 left-1/2 -translate-x-1/2
+                px-2 rounded-full bg-[#1C2C56] text-white">
+                        {PANELS[active].title}
+                      </p>
                     </button>
+
                   ))}
                 </div>
               )}
               {PANELS[active].type === "size" && (
-                <div className="flex gap-2">
+                <div className="flex flex-col items-center
+                 gap-2">
                   {PANELS[active].data.map((size, i) => (
-                    <button
-                      key={i}
-                      className="px-3 py-2 border rounded-lg shadow text-sm"
+                    <div
+                      key={size}
+                      className=" shadow-md text-[#003560] rounded-md flex items-center justify-between gap-3 px-4 py-2 w-full"
                     >
-                      {size}
-                    </button>
+                      {/* Size label */}
+                      <span className="text-sm font-medium ">
+                        {size}
+                      </span>
+
+                      {/* Counter */}
+                      <div className="flex items-center gap-2 my-2">
+                        <button
+                          onClick={() => increment(size)}
+                          className="font-bold text-lg border-r border-gray-300 px-2"
+                        >
+                          +
+                        </button>
+
+                        <span className="text-sm text-center px-2 ">
+                          {counts[size] || 0}
+                        </span>
+
+                        <button
+                          onClick={() => decrement(size)}
+                          className="text-[#1C2C56] px-2 font-bold text-lg border-l border-gray-300"
+                        >
+                          −
+                        </button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
