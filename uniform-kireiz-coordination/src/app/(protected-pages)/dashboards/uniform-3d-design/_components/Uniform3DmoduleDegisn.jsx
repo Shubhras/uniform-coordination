@@ -635,7 +635,7 @@ const Uniform3DmoduleDegisn = () => {
                     )} */}
 
           {/* <UniformCanvas /> */}
-          <div className="relative z-10 py-30">
+          <div className="relative z-10 py-16">
             <Image
               src="/img/uniform/uniform.png"
               alt="Uniform"
