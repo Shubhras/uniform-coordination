@@ -2,6 +2,7 @@ from django.urls import path
 from .views import *
 from .threed import *
 
+from .payment import *
 
 urlpatterns = [
     path('signup/', SignupAPIView.as_view(), name='user-signup'),
@@ -49,18 +50,29 @@ urlpatterns = [
 
     #  CART  
     path("cart/add/", AddToCartAPIView.as_view()),
-    path("cart/", CartListAPIView.as_view()),
-    path("cart/item/<int:item_id>/update/", UpdateCartItemAPIView.as_view()),
-    path("cart/item/<int:item_id>/delete/", RemoveCartItemAPIView.as_view()),
-    path("cart/order-summary/", OrderSummaryAPIView.as_view()),
+    path("cart/list/", CartListAPIView.as_view()),
+    path("cart/item/update/", UpdateCartItemAPIView.as_view()),
+    path("cart/item/delete/", RemoveCartItemAPIView.as_view()),
+    path("cart/item-summary/", ItemSummaryAPIView.as_view()),
+
+    # order
+    path("create/order/",CreateOrderAPIView.as_view()),
+    path('order/summary/', OrderSummaryAPIView.as_view(), name='order-summary'),
+    path("order/id/",OrderDetailAPIView.as_view()),
+    path("order/list/",OrderListAPIView.as_view()),
 
 
+    # payment 
+    path("payments/create-intent/", CreatePaymentIntentAPIView.as_view()),
+    path("payments/", UserPaymentListAPIView.as_view()),
+    path("payments/detail/", UserPaymentDetailAPIView.as_view()),
 
+
+    path("admin/payments/", AdminPaymentListAPIView.as_view()),
+    path("admin/payments/detail/", AdminPaymentDetailAPIView.as_view()),
 
 ]
-
    
     
-
 
 

@@ -7,6 +7,7 @@ import ForgotPasswordForm from "./ForgotPasswordForm";
 import useTimeOutMessage from "@/utils/hooks/useTimeOutMessage";
 import { useRouter } from "next/navigation";
 import { FiChevronLeft } from "react-icons/fi";
+import SplitForgotPassword from "@/components/layouts/AuthLayout/SplitForgotPass";
 
 export const ForgotPassword = ({
   signInUrl = "/sign-in",
@@ -22,6 +23,7 @@ export const ForgotPassword = ({
   };
 
   return (
+    <SplitForgotPassword>
     <div className="mx-4">
       <div className="mb-6">
         {emailSent ? (
@@ -56,7 +58,7 @@ export const ForgotPassword = ({
         setEmailSent={setEmailSent}
         onForgotPasswordSubmit={onForgotPasswordSubmit}
       >
-        <Button block variant="solid" type="button" onClick={handleContinue}>
+        <Button block variant="solid" type="button" className="bg-[#1C2C56] hover:bg-[#152243] text-white" onClick={handleContinue}>
           Continue
         </Button>
       </ForgotPasswordForm>
@@ -73,6 +75,7 @@ export const ForgotPassword = ({
         </ActionLink>
       </div>
     </div>
+    </SplitForgotPassword>
   );
 };
 

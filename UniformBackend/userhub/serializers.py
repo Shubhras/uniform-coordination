@@ -8,9 +8,6 @@ from datetime import date
 # from userhub.models import Notifications
 
 
-
-
-
 class UserSignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, min_length=6)
     email = serializers.EmailField(required=True)
@@ -135,39 +132,28 @@ class VerifyUserSerializer(serializers.Serializer):
         if attrs["is_verify"] is not True:
             raise serializers.ValidationError("is_verify must be true.")
         return attrs
-    
 
-# ___________________CART_____________________________
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product_name = serializers.CharField(
-        source="product.productName",
-        read_only=True
-    )
-
     class Meta:
         model = CartItem
-        fields = "__all__"
-        
+        fields = '__all__'
 
-
-class CartSerializer(serializers.ModelSerializer):
+class OrderSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
-    cart_total = serializers.SerializerMethodField()
 
     class Meta:
-        model = Cart
-        fields = "__all__"
+        model = Order
+        fields = '__all__'
 
-    def get_cart_total(self, obj):
-        return sum(item.total_price for item in obj.items.all())
+class PaymentSerializer(serializers.ModelSerializer):
+    cartitem =CartItemSerializer(read_only=True)
+    order = OrderSerializer(read_only=True)
 
-
-
-class CustomerDetailSerializer(serializers.ModelSerializer):
     class Meta:
-        models = CustomerDetails
-        fields ="__all__"
+        model = Payment
+        fields = '__all__'
+
 
 
 class FavouriteSerializer(serializers.ModelSerializer):

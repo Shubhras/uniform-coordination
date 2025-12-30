@@ -5,6 +5,7 @@ import ActionLink from "@/components/shared/ActionLink";
 import useTimeOutMessage from "@/utils/hooks/useTimeOutMessage";
 import useTheme from "@/utils/hooks/useTheme";
 import OauthSignIn from "../SignIn/OauthSignIn";
+import SplitSignup from "@/components/layouts/AuthLayout/SplitSignup";
 
 export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
   const [message, setMessage] = useTimeOutMessage();
@@ -13,6 +14,7 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
 
   return (
     <>
+    <SplitSignup>
       <div className="mx-4">
         <div className="mb-4">
           <h2 className="font-[Plus Jakarta Sans]  font-medium text-[24px] tracking-[0.18px] text-[#1C2C56] mb-1">
@@ -72,6 +74,7 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
           <OauthSignIn setMessage={setMessage} onOauthSignIn={onOauthSignIn} />
         </div>
       </div>
+      </SplitSignup>
     </>
   );
 };
