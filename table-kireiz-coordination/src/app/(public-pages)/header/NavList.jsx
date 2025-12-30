@@ -16,7 +16,7 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick }) => {
         const newTabs = [...propTabs]
         const selectedTab = newTabs.splice(idx, 1)
         newTabs.unshift(selectedTab[0])
-
+border
         setActive(newTabs[0])
         onTabClick?.()
     }
@@ -72,7 +72,7 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick }) => {
                 <button
                     key={tab.title}
                     className={classNames(
-                        'relative px-4 py-2 rounded-xl heading-text text-white',
+                        'relative px-4 py-2 rounded-xl heading-text text-white ',
                         tabClassName
                     )}
                     onClick={() => handleRedirect(tab, idx)}

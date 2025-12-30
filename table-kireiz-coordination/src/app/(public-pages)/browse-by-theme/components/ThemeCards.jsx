@@ -70,6 +70,7 @@ const ThemeCards = () => {
 
             {/* ================= FILTER SECTION ================= */}
             <div className="flex gap-3 flex-wrap items-center pt-6">
+                <h4 className='text-sm font-medium'>Filters :</h4>
                 {filters.map((filter) => (
                     <button
                         key={filter}

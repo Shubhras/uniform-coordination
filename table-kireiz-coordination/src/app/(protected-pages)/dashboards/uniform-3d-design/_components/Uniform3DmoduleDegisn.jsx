@@ -858,7 +858,7 @@ const Uniform3DmoduleDegisn = () => {
                                         </button>
                                     ))}
                                 </div>
-                            )}
+                            )}  
 
                             {/* TABLECLOTHS DETAIL - Updated */}
                             {categoryView === "tablecloths" && (

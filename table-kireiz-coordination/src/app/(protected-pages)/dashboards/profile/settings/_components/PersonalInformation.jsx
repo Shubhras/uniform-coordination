@@ -135,7 +135,7 @@ const PersonalInformation = () => {
 
     return (
         <>
-            <div className='bg-[#E8EEF842] md:p-8 p-5 rounded-2xl  max-w-7xl mx-auto shadow-md'>
+            <div className='bg-[#F5F0EE30] md:p-8 p-5 rounded-2xl  max-w-7xl mx-auto shadow-md'>
                 <h4 className="mb-8 text-lg font-semibold">Personal information</h4>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <div className="mb-8">

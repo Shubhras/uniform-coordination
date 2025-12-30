@@ -37,7 +37,7 @@ const FaqSection = () => {
     };
 
     return (
-        <section className="relative pt-8 pb-20 bg-[fffdfb] px-5">
+        <section className="relative pt-8 pb-20 bg-[#FAF6F4] px-5">
             <Container>
                 {/* Header */}
                 <div className="text-center mb-8">
@@ -68,34 +68,31 @@ const FaqSection = () => {
                         const isOpen = activeIndex === index;
 
                         return (
-                            <div
-                                key={index}
-                                className={`rounded-xl px-6 py-5 transition-all duration-300 ${isOpen
-                    ? "bg-white text-[#402936] shadow-md"
-                    : "bg-[#E8B4A9] text-white border border-[#E1D1C7]"
+                          <div
+                key={index}
+                className={`rounded-xl px-6 py-5 transition-all duration-300  ${isOpen
+                    ? "bg-white text-black shadow-md"
+                    : "bg-[#E1D1C7] text-black border border-[#E1D1C7]"
                   }`}
-                            >
-                                {/* Question */}
-                                <button
-                                    onClick={() => toggleFAQ(index)}
-                                    className="w-full flex items-center justify-between text-left"
-                                >
-                                    <span className="font-semibold text-sm md:text-base">
-                                        {faq.question}
-                                    </span>
+              >
+                <button
+                  onClick={() => toggleFAQ(index)}
+                  className="w-full flex items-center justify-between text-left"
+                >
+                  <span className=" font-medium text-sm md:text-base">
+                    {faq.question}
+                  </span>
 
-                                    <span className=" text-xl">
-                                        {isOpen ? <FiMinus /> : <FiPlus />}
-                                    </span>
-                                </button>
-
-                                {/* Answer */}
-                                {isOpen && faq.answer && (
-                                    <p className="mt-4 text-sm text-gray-600 leading-relaxed">
-                                        {faq.answer}
-                                    </p>
-                                )}
-                            </div>
+                  <span className=" text-xl">
+                    {isOpen ? <FiMinus className="text-[#A0522D]" /> : <FiPlus />}
+                  </span>
+                </button>
+                {isOpen && faq.answer && (
+                  <p className="mt-4 text-sm text-[#9C8174] leading-relaxed">
+                    {faq.answer}
+                  </p>
+                )}
+              </div>
                         );
                     })}
                 </div>

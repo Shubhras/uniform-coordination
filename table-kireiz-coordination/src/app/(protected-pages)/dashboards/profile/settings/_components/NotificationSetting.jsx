@@ -127,7 +127,7 @@ const NotificationSetting = () => {
   }
 
   return (
-    <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
+    <div className="w-full bg-[#F5F0EE30] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
       {/* Header */}
       <div className="flex flex-col gap-1 mb-4">
         <div className="flex items-center gap-2">
@@ -146,7 +146,7 @@ const NotificationSetting = () => {
         {currentNotifications.map((item) => (
           <div
             key={item.id}
-            className="bg-[#F2F7FF]  p-4 flex justify-between items-start"
+            className="bg-[#F5F0EE30] shadow-lg  p-4 flex justify-between items-start"
           >
             <div className="flex items-start gap-3">
               {/* Icon */}

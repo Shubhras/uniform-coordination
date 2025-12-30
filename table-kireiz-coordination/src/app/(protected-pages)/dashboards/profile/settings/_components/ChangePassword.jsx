@@ -64,7 +64,7 @@ const ChangePassword = () => {
     const progressPercent = (progressValue / 3) * 100
 
     return (
-        <div className='bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md'>
+        <div className='bg-[#F5F0EE30] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md'>
             <Form onSubmit={handleSubmit(onSubmit)}>
                 <h4 className=" text-lg font-semibold mb-1 flex items-center gap-1">
                     <FiLock size={23} />
