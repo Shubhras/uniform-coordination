@@ -2,6 +2,8 @@ from django.db import models
 from uniformAdmin.models import Role , Product
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
+import uuid
+from django.utils import timezone
 from uniformAdmin.models import Product
 import uuid
 from django.utils.text import slugify
@@ -90,37 +92,42 @@ class Favourite(models.Model):
         return f"{self.user} - {self.product} - {self.is_like}"
 
 
-
-
-
-
 # Cart
 class Cart(models.Model):
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     is_delete = models.DateTimeField(auto_now_add=True)
     is_update = models.DateField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE,related_name="items")
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
+    product = models.ForeignKey("uniformAdmin.Product", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2)  
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    delete_at =models.DateTimeField(auto_now_add=True)
+    
+    created_at = models.DateTimeField(default=timezone.now) 
+    updated_at = models.DateTimeField(default=timezone.now)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    
+    is_active = models.BooleanField(default=True)  
 
-
-    # total_price
     def save(self, *args, **kwargs):
-        self.price = self.product.price 
+        # Always update price and total_price
+        self.price = self.product.price
         self.total_price = self.quantity * self.price
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f"{self.product.productName} (x{self.quantity})"
+
+
 
 class CustomerDetails(models.Model):
-    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    user = models.OneToOneField(Users, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField()
@@ -134,10 +141,69 @@ class CustomerDetails(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     Rental =models.CharField(max_length=50)
+    isActive = models.BooleanField(default=True,null= True,blank=True)
+    isDeleted = models.BooleanField(default=False,null=True,blank=True)
     
 
     def __str__(self):
         return f"{self.id} - {self.user}"
+    
+
+
+class Order(models.Model):
+    ORDER_TYPE_CHOICES = [
+        ('uniform', 'UNOFORM'),
+        ('table', 'TABLE'),
+        
+    ]
+    STATUS_CHOICE = [
+        ('pending','PENDING'),
+        ('paid','PAID'),
+        ('failed','FAILED'),
+    ]
+
+    user =models.ForeignKey(Users,on_delete=models.CASCADE)
+    order_id  =models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    cart = models.ForeignKey(Cart,on_delete=models.CASCADE)
+    customer =models.ForeignKey(CustomerDetails,on_delete=models.CASCADE)
+    Payment_method =models.CharField(max_length=50)
+    status = models.CharField(max_length=50,choices=STATUS_CHOICE)
+    order_type =models.CharField(max_length=50,choices=ORDER_TYPE_CHOICES)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    start_date =models.DateField(auto_now_add=True)
+    return_date =models.DateField(auto_now_add=True)
+    promocode =models.ForeignKey("uniformAdmin.Promocode",on_delete=models.CASCADE,null=True, blank=True)
+    is_active = models.BooleanField(default=True,null=True,blank=True)
+    is_delete = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    is_update = models.DateField(auto_now_add=True,null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+
+
+
+class Payment(models.Model):
+    PAYMENT_STATUS = [
+        ('SUCCESS','Success'), 
+        ('FAILED','Failed'), 
+        ('PENDING','Pending')]
+    
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    payment_id = models.CharField(max_length=50, unique=True)
+    customer_id = models.CharField(max_length=100, blank=True, null=True)  
+    payment_method_id = models.CharField(max_length=100, blank=True, null=True) 
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS)
+    payment_method = models.CharField(max_length=20)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=10, default='INR')
+    paid_at = models.DateTimeField(blank=True, null=True)
+    client_secret = models.CharField(max_length=255, blank=True, null=True) 
+    is_active = models.BooleanField(default=True,null=True, blank=True)
+    is_delete = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+    is_update = models.DateField(auto_now_add=True,null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+
+
+
+    
 #-----------------Notification --------------------
 
 

@@ -185,7 +185,7 @@ const _Notification = ({ className }) => {
             </ScrollBar>
             <Dropdown.Item variant="header">
                 <div className="pt-4">
-                    <Button
+                    <Button className=" bg-[#162347] hover:bg-[#162347]"
                         block
                         variant="solid"
                         onClick={handleViewAllActivity}

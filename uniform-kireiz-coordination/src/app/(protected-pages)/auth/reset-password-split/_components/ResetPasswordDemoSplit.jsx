@@ -29,7 +29,8 @@ const ResetPasswordDemoSplit = () => {
   return (
     <SplitResetPassword>
       <ResetPassword
-        signInUrl="/auth/sign-in-split"
+        // signInUrl="/auth/sign-in-split"
+          signInUrl="/sign-in"
         onResetPasswordSubmit={handleResetPassword}
       />
     </SplitResetPassword>

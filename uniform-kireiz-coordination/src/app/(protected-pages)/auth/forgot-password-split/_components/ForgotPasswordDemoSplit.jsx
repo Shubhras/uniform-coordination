@@ -24,7 +24,8 @@ const ForgotPasswordDemoSplit = () => {
   return (
     <SplitForgotPassword>
       <ForgotPassword
-        signInUrl="/auth/sign-in-split"
+        // signInUrl="/auth/sign-in-split"
+         signInUrl="/sign-in"
         onForgotPasswordSubmit={handleForgotPasswordSubmit}
       />
     </SplitForgotPassword>

@@ -7,17 +7,17 @@ const HeroContent = () => {
   const router = useRouter();
 
   const handleStartDesigning = () => {
-    router.push("/design");
+    router.push("/kireiz-form");
   };
 
   return (
-    <section className="w-full bg-white px-6">
+    <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
       <div
         className="
-          max-w-6xl mx-auto my-0
+         mx-auto my-0
           flex flex-col md:flex-row 
           gap-8 md:gap-10
-          md:h-[700px]
+          md:h-[700px] 
         "
       >
         {/* LEFT SECTION */}

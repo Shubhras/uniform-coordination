@@ -10,6 +10,10 @@ import LandingFooter from './LandingFooter'
 import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import UniformBusinessEnquiry from './UniformBusinessEnquiry'
+import UniformLatestBlogPosts from './UniformLatestBlogPosts'
+import UniformLatestFAQPosts from './UniformLatestFAQPosts'
+import UniformAbouUsPage from './UniformAbouUsPage'
+import ChatbotSection from './ChatbotSection'
 
 const UniformHome = () => {
     const mode = useTheme((state) => state.mode)
@@ -32,10 +36,15 @@ const UniformHome = () => {
                 <HeroContent mode={mode} />
             </div> */}
             <UniformBusinessEnquiry />
-            <Demos mode={mode} />
+            {/* <Demos mode={mode} /> */}
+            {/*  How it works */}
             <TechStack />
-            <OtherFeatures />
-            <Components />
+            <UniformLatestBlogPosts/>
+            <UniformLatestFAQPosts/>
+            {/* <UniformAbouUsPage/> */}
+            {/* <OtherFeatures /> */}
+            {/* <Components /> */}
+            <ChatbotSection />
             <LandingFooter mode={mode} />
         </main>
     )

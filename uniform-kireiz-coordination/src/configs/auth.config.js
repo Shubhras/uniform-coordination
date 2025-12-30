@@ -33,7 +33,7 @@ export default {
     ],
     callbacks: {
         async session(payload) {
-            /** apply extra user attributes here, for example, we add 'authority' & 'id' in this section */
+            /** apply extra user attributes here, for example, we add 'authority' & 'id' in this section */  
             return {
                 ...payload.session,
                 user: {

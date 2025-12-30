@@ -11,27 +11,72 @@ import {
     PiPulseDuotone,
     PiSignOutDuotone,
 } from 'react-icons/pi'
-
+import { IoIosLogOut } from "react-icons/io";
+import { CiUser } from 'react-icons/ci'
+import { FiBox, FiLock } from 'react-icons/fi'
+import { LuPalette } from 'react-icons/lu'
+import { IoNotificationsOutline } from 'react-icons/io5'
+import { usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 const dropdownItemList = [
+    // {
+    //     label: 'Profile',
+    //     path: '/concepts/account/settings',
+    //     icon: <PiUserDuotone />,
+    // },
+    // {
+    //     label: 'Account Setting',
+    //     path: '/concepts/account/settings',
+    //     icon: <PiGearDuotone />,
+    // },
+    // {
+    //     label: 'Activity Log',
+    //     path: '/concepts/account/activity-log',
+    //     icon: <PiPulseDuotone />,
+    // },
     {
-        label: 'Profile',
-        path: '/concepts/account/settings',
-        icon: <PiUserDuotone />,
+        label: 'Personal Information',
+        path: '/dashboards/profile/personal-information',
+        icon: <CiUser />,
     },
     {
-        label: 'Account Setting',
-        path: '/concepts/account/settings',
-        icon: <PiGearDuotone />,
+        label: 'Change Password',
+        path: '/dashboards/profile/change-password',
+        icon: <FiLock />,
     },
     {
-        label: 'Activity Log',
-        path: '/concepts/account/activity-log',
-        icon: <PiPulseDuotone />,
+        label: 'Simulation History',
+        path: '/dashboards/profile/simulation-history',
+        icon: <LuPalette />,
     },
+    {
+        label: 'Linked Order & Quotes',
+        path: '/dashboards/profile/linked-order',
+        icon: <FiBox />,
+    },
+    {
+        label: 'Notification Setting',
+        path: '/dashboards/profile/notification-setting',
+        icon: <IoNotificationsOutline />,
+    },
+    {
+        label: 'Design Result',
+        path: '/dashboards/project',
+        icon: "",
+    },
+    {
+        label: 'Delivery Request Form',
+        path: '/dashboards/delivery-request',
+        icon: "",
+    },
+
 ]
 
 const _UserDropdown = () => {
+    const router = useRouter()
+
     const { session } = useCurrentSession()
+    const pathname = usePathname()
 
     const handleSignOut = async () => {
         await signOut()
@@ -43,8 +88,20 @@ const _UserDropdown = () => {
             : { icon: <PiUserDuotone /> }),
     }
 
+    const handleProfile = () => {
+        router.push("/dashboards/profile/settings");
+    };
     return (
-        <Dropdown
+        <>
+            {session?.user?.email && (
+                <>
+                    <div className="cursor-pointer flex items-center">
+                        <Avatar size={38} {...avatarProps} onClick={handleProfile} />
+                    </div>
+                    <span>  <IoIosLogOut className='cursor-pointer z-10' size={25} onClick={handleSignOut} /></span>
+                </>
+            )}
+            {/* <Dropdown
             className="flex"
             toggleClassName="flex items-center"
             renderTitle={
@@ -68,20 +125,30 @@ const _UserDropdown = () => {
                 </div>
             </Dropdown.Item>
             <Dropdown.Item variant="divider" />
-            {dropdownItemList.map((item) => (
-                <Dropdown.Item
-                    key={item.label}
-                    eventKey={item.label}
-                    className="px-0"
-                >
-                    <Link className="flex h-full w-full px-2" href={item.path}>
-                        <span className="flex gap-2 items-center w-full">
+            {dropdownItemList.map((item) => {
+                const isActive = pathname === item.path
+
+                return (
+                    <Dropdown.Item
+                        key={item.label}
+                        eventKey={item.label}
+                        className="px-0"
+                    >
+                        <Link
+                            href={item.path}
+                            className={`flex h-full w-full mx-3 pb-1 pt-3 items-center gap-2 border-b-1
+                    ${isActive
+                                    ? 'border-[#1C2C56]'
+                                    : 'border-transparent'}
+                `}
+                        >
                             <span className="text-xl">{item.icon}</span>
                             <span>{item.label}</span>
-                        </span>
-                    </Link>
-                </Dropdown.Item>
-            ))}
+                        </Link>
+                    </Dropdown.Item>
+                )
+            })}
+
             <Dropdown.Item variant="divider" />
             <Dropdown.Item
                 eventKey="Sign Out"
@@ -92,8 +159,10 @@ const _UserDropdown = () => {
                     <PiSignOutDuotone />
                 </span>
                 <span>Sign Out</span>
-            </Dropdown.Item>
-        </Dropdown>
+            </Dropdown.Item> 
+        </Dropdown>*/}
+        </>
+
     )
 }
 

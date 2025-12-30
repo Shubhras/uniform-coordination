@@ -6,15 +6,18 @@ const AuthButtons = () => {
   const [active, setActive] = useState("login");
   const router = useRouter();
 
+  
   const handleClick = (type) => {
     setActive(type);
     if (type === "login") {
-      router.push("/auth/sign-in-split");
+      // router.push("/auth/sign-in-split");
+      router.push("/sign-in");
     } else {
-      router.push("/auth/sign-up-split");
+      //router.push("/auth/sign-up-split");
+      router.push("/sign-up")
     }
     console.log('clickeddddddddddd');
-    
+
   };
 
   return (

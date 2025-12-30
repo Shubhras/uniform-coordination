@@ -10,9 +10,66 @@ class UsersAdmin(admin.ModelAdmin):
     search_fields = ('email', 'userName', 'firstName', 'lastName')
     readonly_fields = ('createdAt', 'updatedAt')
 
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display =('order',
+                   'payment_id',
+                   'payment_status',
+                   'payment_method',
+                   'amount','currency','paid_at')
 
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user',
+                    'is_active',
+                    'is_delete', 
+                    'is_update', 
+                    'created_at')
+   
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+   list_display = [
+        'id', 'cart', 
+        'product', 
+        'quantity', 
+        'price', 
+        'total_price',
+        'is_active', 
+        'created_at', 
+        'updated_at', 
+        'deleted_at'
+    ]
 
+@admin.register(CustomerDetails)
+class CustomerDetailsAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                     'user', 
+                     'first_name', 
+                     'last_name', 
+                     'email', 
+                     'phone',
+                     'city',
+                     'country', 
+                     'payment_method', 
+                     'Rental', 'created_at', 
+                     'updated_at')
+   
 
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = (
+        'order_id', 
+        'user', 
+        'customer', 
+        'Payment_method', 
+        'status', 
+        'order_type', 
+        'total_amount',
+        'promocode',  
+        'start_date', 
+        'return_date'
+    )
+    
 
 # @admin.register(Notifications)
 # class NotificationsAdmin(admin.ModelAdmin):
