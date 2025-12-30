@@ -13,7 +13,7 @@ const ChatbotSection = () => {
                     {/* MESSAGE BUBBLE */}
                     {/* MESSAGE BUBBLE */}
                     <div className="relative bg-white px-8 py-4 rounded-xl shadow-lg max-w-lg">
-                        <p className="text-[#1C2C56] text-lg ">
+                        <p className="text-[#1A202C] text-lg ">
                             Need help with designs or orders? Ask me anything!
                         </p>
 
@@ -33,7 +33,7 @@ const ChatbotSection = () => {
                     {/* CHATBOT ICON */}
                     <div className="relative w-[100px] h-[100px]">
                         <Image
-                            src="/img/logo/chatbot.png"
+                            src="/img/table-form/table-chatbot.png"
                             alt="Chatbot"
                             fill
                             className="object-contain h-full w-full "

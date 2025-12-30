@@ -2,8 +2,10 @@
 import React, { useState } from 'react'
 import ThankyouPopup from '../../thankyou-popup/ThankyouPopup'
 import PaymentFailedPopup from '../../payment-failed-popup/PaymentFailedPopup';
+import { useRouter } from 'next/navigation';
 
 const Overview = () => {
+    const router = useRouter();
     const [dialogThankyouPopupOpen, setDialogThankyouPopupOpen] = useState(false);
     const [dialogCancelPopupOpen, setDialogCancelPopupOpen] = useState(false);
     const openDialogThankyouPopup = () => {
@@ -154,7 +156,7 @@ const Overview = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-4">
                         <div></div>
                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-10 w-full ">
-                            <button className="w-full px-6 py-3 bg-[#8B4513] text-white rounded-md">
+                            <button className="w-full px-6 py-3 bg-[#8B4513] text-white rounded-md"  onClick={() => router.back()}>
                                 Edit Delivery
                             </button>
                             <button className="w-full px-6 py-3 bg-[#8B4513] text-white rounded-md" onClick={openDialogThankyouPopup}>

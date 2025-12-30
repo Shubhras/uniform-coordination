@@ -683,7 +683,7 @@ const Uniform3DmoduleDegisn = () => {
                                     : "bg-white shadow-sm hover:bg-gray-50"
                                 }`}
                         >
-                            <img src={item.img} className="w-7 h-7" />
+                            <img src={item.img} className="w-10" />
                             <span className="text-xs text-gray-600">
                                 {item.label}
                             </span>

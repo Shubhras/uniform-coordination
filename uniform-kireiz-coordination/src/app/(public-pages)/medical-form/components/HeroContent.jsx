@@ -99,11 +99,11 @@ const HeroContent = () => {
                 <div className="relative mx-auto">
 
                     {/* ===== DESKTOP ===== */}
-                    <div className="hidden lg:block relative min-h-[600px] mb-25">
+                    <div className="hidden lg:block relative min-h-[80vh] mb-25">
 
                         {/* LEFT WHITE CARD */}
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[45%] z-0 bottom-[55px]">
-                            <div className="bg-white rounded-tl-[60px] rounded-tr-[60px] rounded-br-[60px] px-16 py-20 shadow-[0_30px_80px_rgba(28,44,86,0.15)]">
+                        <div className="absolute left-0  w-[45%] z-0 -bottom-10">
+                            <div className="bg-gradient-to-r to-[#dce4f7] from-white rounded-tl-[60px] rounded-tr-[60px] rounded-br-[60px] px-16 py-40 shadow-[0_30px_80px_rgba(28,44,86,0.15)]">
 
                                 <h1 className="text-[#1C2C56] text-5xl font-bold leading-tight mb-4">
                                     Medical Care <br /> Uniforms
@@ -124,11 +124,11 @@ const HeroContent = () => {
                         </div>
 
                         {/* RIGHT IMAGE */}
-                        <div className="absolute right-0 bottom-0 w-[62%] h-[600px] z-10 overflow-hidden">
+                        <div className="absolute right-0 bottom-0 w-[62%] h-[80vh] z-10 overflow-hidden">
                             <img
                                 src="/img/medical-form/hero/doctors.png"
                                 alt="Medical Team"
-                                className="w-full h-full object-cover object-right-bottom"
+                                className="w-full h-full object-fill object-right-bottom"
                             />
                         </div>
                     </div>

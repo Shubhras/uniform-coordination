@@ -336,7 +336,7 @@ const Uniform3DmoduleDegisn = () => {
               <span className="text-xs text-gray-600">Size</span>
             </button>
 
-            {position === "bottom" && (
+            {/* {position === "bottom" && (
               <button
                 onClick={() => onIconClick("legy")}
                 className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
@@ -345,7 +345,7 @@ const Uniform3DmoduleDegisn = () => {
                 <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
                 <span className="text-xs text-gray-600">Legy</span>
               </button>
-            )}
+            )} */}
 
             {position === "bottom" && (
               <button
@@ -402,7 +402,7 @@ const Uniform3DmoduleDegisn = () => {
               </button>
             )}
 
-            
+
 
             {position === "top" && (
               <button
@@ -617,7 +617,7 @@ const Uniform3DmoduleDegisn = () => {
 
         {/* CENTER MODEL VIEWER */}
         <div className="relative flex-1 flex flex-col items-center mt-0">
-          <div className="absolute top-0 w-[400px] h-[400px] bg-[#BEE0FF] rounded-full"></div>
+          <div className="absolute top-30 w-[400px] h-[400px] bg-[#BEE0FF] rounded-full"></div>
           {/* {mounted && (
                         <model-viewer
                             ref={mvRef}
@@ -634,7 +634,17 @@ const Uniform3DmoduleDegisn = () => {
                         />
                     )} */}
 
-          <UniformCanvas />
+          {/* <UniformCanvas /> */}
+          <div className="relative z-10 py-30">
+            <Image
+              src="/img/uniform/uniform.png"
+              alt="Uniform"
+              width={450}
+              height={800}
+              className="object-contain"
+              priority
+            />
+          </div>
 
           {/* <div className="absolute top-[-10] w-[360px] h-[360px] bg-[#BEE0FF] rounded-full"></div>
                     <div className="relative z-10">
