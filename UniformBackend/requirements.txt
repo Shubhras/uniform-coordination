@@ -10,3 +10,5 @@ openpyxl
 mysqlclient
 pillow
 requests
+reportlab==4.1.0
+openpyxl==3.1.2

@@ -94,8 +94,6 @@ class PrivacyPolicyListAPIView(BaseAPIView):
             return self.error_response(f"Internal server error: {str(e)}")
 
 
-
-
 #===================
 
 class PrivacyPolicyDetailAPIView(BaseAPIView):
@@ -113,8 +111,6 @@ class PrivacyPolicyDetailAPIView(BaseAPIView):
             )
         except Exception as e:
             return self.error_response(f"Internal server error: {str(e)}")
-
-
 
 
 #==================

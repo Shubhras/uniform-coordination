@@ -171,28 +171,6 @@ class CustomerDetailSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class FavouriteSerializer(serializers.ModelSerializer):
     product_type = serializers.CharField(
         source="product.productType",

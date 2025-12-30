@@ -11,7 +11,7 @@ from .subcategory import *
 from .catelogimage import *
 from .promocode import*
 from .privacyandpolicy import *
-
+from .unitprice import*
 urlpatterns = [
     path('login/', AdminLoginAPIView.as_view(), name='admin-login'),
     path('change-password/', AdminChangePasswordAPIView.as_view(), name='admin-change-password'),
@@ -113,5 +113,7 @@ urlpatterns = [
     path("privacy-policy/update/<int:pk>/", PrivacyPolicyUpdateAPIView.as_view(),name="privacypolicy-update"),
     path("privacy-policy/delete/<int:pk>/", PrivacyPolicyDeleteAPIView.as_view(),name="privacypolicy-delete"),
 
-    
+
+    path("unit-price/list/",UnitPriceListAPIView.as_view(),name="unite-price-list"),
+    path("unit-price/export/",UnitPriceExportAPIView.as_view(),name="unit-price-export"),
 ]

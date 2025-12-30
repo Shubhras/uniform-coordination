@@ -4,8 +4,13 @@ from datetime import datetime, timedelta
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
-
+from openpyxl import Workbook
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from uniformAdmin.models import*
+import io 
+import csv
+from django.http import HttpResponse
 
 
 def generate_custom_tokens(user):
@@ -37,7 +42,7 @@ def generate_custom_tokens(user):
 
 
 
-
+#======================================================================
 
 
 
@@ -78,42 +83,5 @@ class BaseAPIView(APIView):
         )
 
 
-
-# class BaseAPIView(APIView):
-#     """
-#     Common response handler for all APIs
-#     """
-
-#     def success_response(self, message, data=None):
-#         return Response(
-#             {
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": message,
-#                 "data": data,
-#             },
-#             status=status.HTTP_200_OK,
-#         )
-
-#     def error_response(self, message):
-#         # Handle serializer validation errors properly with field names
-#         if isinstance(message, dict):
-#             error_messages = []
-
-#             for field, errors in message.items():
-#                 if isinstance(errors, list):
-#                     error_messages.append(f"{field} is required")
-#                 else:
-#                     error_messages.append(f"{field}: {errors}")
-
-#             message = "Validation Failed; " + ", ".join(error_messages)
-
-#         return Response(
-#             {
-#                 "status": False,
-#                 "statusCode": 200,
-#                 "message": message,
-#             },
-#             status=status.HTTP_200_OK,
-#         )
+#=============================================================================
 

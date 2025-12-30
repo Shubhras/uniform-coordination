@@ -608,3 +608,12 @@ class PrivacyPolicySerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["isActive"] = True
         return super().create(validated_data)
+
+
+class UnitPriceSerializer(serializers.Serializer):
+    type = serializers.CharField()
+    itemName = serializers.CharField()
+    unit = serializers.CharField()
+    basePrice = serializers.DecimalField(max_digits=10, decimal_places=2)
+    bulk = serializers.DecimalField(max_digits=10, decimal_places=2)
+    action = serializers.CharField()
