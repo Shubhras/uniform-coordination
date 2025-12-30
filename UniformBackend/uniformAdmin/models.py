@@ -17,6 +17,7 @@ class Role(models.Model):
         ("sales_rep", "Sales Rep"),
         ("corporate", "Corporate"),
         ("customer", "Customer"),
+        ("b2b_user", "B2B User"),
     ]
     role_name = models.CharField(max_length=60, choices=ROLE_CHOICES)
     slug = models.CharField(max_length=255, blank=True, null=True)
@@ -69,7 +70,14 @@ class AdminUserManager(BaseUserManager):
 
 # Custom Admin User Model
 class AdminUser(AbstractBaseUser, PermissionsMixin):
+    TIER_CHOICES = [
+        ("gold", "Gold"),
+        ("silver", "Silver"),
+        ("bronze", "Bronze"),
+    ]
     name = models.CharField(max_length=255, blank=True, null=True)
+    company_name = models.CharField(max_length=255, blank=True, null=True)
+    tier = models.CharField(max_length=60, choices=TIER_CHOICES,default="silver",blank=True, null=True)
     email = models.EmailField(unique=True)
     mobile = models.CharField(max_length=15, unique=True, null=True, blank=True)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)

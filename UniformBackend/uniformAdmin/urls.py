@@ -11,14 +11,14 @@ from .subcategory import *
 from .catelogimage import *
 from .promocode import*
 from .privacyandpolicy import *
-
+from .auth import *
 urlpatterns = [
-    path('login/', AdminLoginAPIView.as_view(), name='admin-login'),
-    path('change-password/', AdminChangePasswordAPIView.as_view(), name='admin-change-password'),
-    path('update-profile/', AdminUpdateProfileAPIView.as_view(), name='admin-change-password'),
-    path('profile/', AdminDetailAPIView.as_view(), name='admin-details'),
-    path('logout/', AdminLogoutAPIView.as_view(), name='admin-details'),
-    path('forgot-password/', AdminForgotPasswordAPIView.as_view(), name='forgot-password'),
+    path('login/', LoginAPIView.as_view(), name='admin-login'),
+    path('change-password/',ChangePasswordAPIView.as_view(), name='admin-change-password'),
+    path('update-profile/', UpdateProfileAPIView.as_view(), name='admin-change-password'),
+    path('profile/',ProfileAPIView.as_view(), name='admin-details'),
+    path('logout/', LogoutAPIView.as_view(), name='admin-details'),
+    path('forgot-password/', ForgotPasswordAPIView.as_view(), name='forgot-password'),
 
     # Fabric URLs
     path('fabric/create/', FabricCreateView.as_view()),
