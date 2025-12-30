@@ -3,12 +3,13 @@ module.exports = {
     {
       name: "uniform-kireiz-coordination",
       script: "npm",
-      args: "run start", // Uses "start" instead of "dev"
-      watch: false, // Set to false for production
+      args: "run start",
+      // cwd: "/home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/uniform-kireiz-coordination",
+      watch: false,
       env: {
         NODE_ENV: "production",
-        PORT: 7000, // Ensure this port matches your script
-      },
-    },
-  ],
-};
+        PORT: 7000
+      }
+    }
+  ]
+}
