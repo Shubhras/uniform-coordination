@@ -167,7 +167,7 @@ const DeliveryInformation = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-4">
                     <div></div>
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-10 w-full ">
-                        <button className="w-full px-6 py-3 bg-[#8B4513] text-white rounded-md ">
+                        <button className="w-full px-6 py-3 bg-[#8B4513] text-white rounded-md "  onClick={() => router.back()}>
                             Back to Cart
                         </button>
                         <button className=" w-full px-6 py-3 bg-[#8B4513] text-white rounded-md " onClick={handleClick}>

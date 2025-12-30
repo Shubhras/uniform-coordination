@@ -43,9 +43,9 @@ const themeItems = [
 
 const ThemeDetails = () => {
     const images = [
-        "/img/table-form/themes/theme3.png",
-        "/img/table-form/themes/theme3.png",
-        "/img/table-form/themes/theme3.png",
+        "/img/table-form/blog-image/blog1.png",
+        "/img/table-form/blog-image/blog2.png",
+        "/img/table-form/blog-image/blog3.png",
     ];
     const scrollRef = useRef(null);
     const [activeIndex, setActiveIndex] = useState(0);
@@ -79,9 +79,9 @@ const ThemeDetails = () => {
     return (
         <section className="w-full px-10 py-8 mt-14">
             {/* HEADER */}
-            <div className="flex items-start mb-6 gap-8">
+            <div className="flex items-start md:flex-row flex-col flex-wrap mb-6 gap-8">
                 <div className="flex-1 w-full">
-                    <div className="flex items-center gap-2 text-[#7B3C1D] font-bold text-5xl">
+                    <div className="flex items-center gap-2 text-[#7B3C1D] font-bold xl:text-4xl text-2xl">
                         <FiChevronLeft size={30} />
                         <span>Romantic Wedding</span>
                     </div>
@@ -91,11 +91,11 @@ const ThemeDetails = () => {
                 </div>
 
                 <div className="flex gap-3">
-                    <button className="w-auto min-w-max whitespace-nowrap text-xl font-semibold px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white">
+                    <button className="w-auto min-w-max whitespace-nowrap text-lg font-medium px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white">
                         Back to Theme
                     </button>
 
-                    <button className="w-auto min-w-max whitespace-nowrap text-xl font-semibold  px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white ">
+                    <button className="w-auto min-w-max whitespace-nowrap text-lg font-medium  px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white ">
                         Customize in Canvas
                     </button>
                 </div>
@@ -103,9 +103,9 @@ const ThemeDetails = () => {
             </div>
 
             {/* MAIN GRID */}
-            <div className="flex items-start gap-8">
+            <div className="flex items-start md:flex-row flex-col-reverse gap-8">
                 {/* LEFT CONTENT */}
-                <div className="w-[70%] space-y-6">
+                <div className="md:w-[70%] w-full space-y-6">
                     <div className="relative rounded-xl overflow-hidden shadow">
                         {/* SCROLLABLE IMAGES */}
                         <div
@@ -164,7 +164,7 @@ const ThemeDetails = () => {
                     )}
 
                     <div>
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center justify-between mb-3 py-5">
                             <h3 className="text-[#7B3C1D] font-semibold">
                                 Items Included in This Theme
                             </h3>
@@ -231,7 +231,7 @@ const ThemeDetails = () => {
                 </div>
 
                 {/* RIGHT SIDEBAR */}
-                <div className=" w-[30%] bg-[#EFE7E3] rounded-xl h-fit border border-[#E1E1E1] overflow-hidden">
+                <div className=" md:w-[30%] w-full bg-[#EFE7E3] rounded-xl h-fit border border-[#E1E1E1] overflow-hidden">
                     <h4 className=" text-center text-lg font-medium text-gray-700 p-6">
                         Estimated Package Value
                     </h4>
