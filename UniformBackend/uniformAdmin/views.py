@@ -968,27 +968,63 @@ class QuotationTemplateDeleteAPIView(APIView):
     
 #<------------------AdminNotification------------------>
 
+# class AdminNotificationListAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         try:
+#             notifications = AdminNotification.objects.all().order_by("-created_at")
+#             serializer = AdminNotificationSerializer(notifications, many=True)
+#             return Response({
+#                 "statusCoce":200,
+#                 "status": True,
+#                 "message":"Notification Fetch Successfully",
+#                 "data": serializer.data
+#             },status=status.HTTP_200_OK)
+        
+#         except Exception as e:
+#             return Response({
+#                 "statusCode":500,
+#                 "status":False,
+#                 "message":"Something went wrong on server.",
+#                 "error":str(e)
+#             },status = status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class AdminNotificationListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
-            notifications = AdminNotification.objects.all().order_by("-created_at")
-            serializer = AdminNotificationSerializer(notifications, many=True)
+            queryset = AdminNotification.objects.all().order_by("-created_at")
+
+            total_notifications = queryset.count()
+            unseen_count = queryset.filter(is_seen=False).count()
+
+            paginator = CustomPagination()
+            page = paginator.paginate_queryset(queryset, request)
+
+            serializer = AdminNotificationSerializer(page, many=True)
+
+            # ONLY current page notifications mark as seen
+            page_ids = [obj.id for obj in page]
+            AdminNotification.objects.filter(id__in=page_ids,is_seen=False).update(is_seen=True)
+
             return Response({
-                "statusCoce":200,
+                "statusCode": 200,
                 "status": True,
-                "message":"Notification Fetch Successfully",
+                "message": "Notification fetched successfully",
+                "total_notifications": total_notifications,
+                "unseen_count": unseen_count,
                 "data": serializer.data
             },status=status.HTTP_200_OK)
-        
+
         except Exception as e:
             return Response({
-                "statusCode":500,
-                "status":False,
-                "message":"Something went wrong on server.",
-                "error":str(e)
-            },status = status.HTTP_500_INTERNAL_SERVER_ERROR)
+                "statusCode": 500,
+                "status": False,
+                "message": "Something went wrong on server.",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AdminNotificationDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
