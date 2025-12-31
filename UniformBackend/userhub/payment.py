@@ -6,8 +6,9 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Order,Payment 
+from .models import *
 from uniformAdmin.models import AdminUser
+from django.http import HttpResponse
 from .serializers import *
 import stripe
 import json
@@ -32,6 +33,8 @@ class CustomPagination(PageNumberPagination):
         })
 
 # class CreatePaymentIntentAPIView(APIView):
+
+
 #     permission_classes = [IsAuthenticated]
 
 #     def post(self, request):
@@ -148,6 +151,7 @@ class CustomPagination(PageNumberPagination):
 #         }, status=200)
 
 
+
 # Currency → Bank Transfer Mapping
 CURRENCY_BANK_TRANSFER_MAPPING = {
     "usd": ["us_bank_account"],  # ACH
@@ -211,6 +215,7 @@ class CreatePaymentIntentAPIView(APIView):
             # Normalize Stripe internal value to user-facing
             if payment_method in JPN_METHOD_REVERSE_MAPPING:
                 payment_method = JPN_METHOD_REVERSE_MAPPING[payment_method]
+                print("//////////////",payment_method)
 
             if payment_method not in JPN_SUPPORTED_METHODS:
                 return Response({
@@ -218,6 +223,7 @@ class CreatePaymentIntentAPIView(APIView):
                 }, status=400)
 
             stripe_payment_methods = [JPN_METHOD_MAPPING[payment_method]]
+            print("//////////////?????????????????",stripe_payment_methods)
 
         else:  # USD, EUR, GBP
             if payment_method == "bank transfer":
@@ -283,6 +289,8 @@ class CreatePaymentIntentAPIView(APIView):
             "payment_client_secret": payment.client_secret,
             "payment_status": payment.payment_status
         }, status=200)
+
+
 
 
 
@@ -388,6 +396,7 @@ class AdminPaymentListAPIView(APIView):
  
  
 class AdminPaymentDetailAPIView(APIView):
+     # permission_classes = [IsAdminUser]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -423,87 +432,150 @@ class AdminPaymentDetailAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-    
+
+
 @method_decorator(csrf_exempt, name="dispatch")
 class StripeWebhookAPIView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
 
     def post(self, request):
         payload = request.body
         sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
 
-        # -------------------------------
-        # FOR TESTING ONLY: SKIP SIGNATURE VERIFICATION
-        try:
-            event = json.loads(payload)
-        except ValueError:
-            return Response({"status": "error", "message": "Invalid payload"}, status=400)
-        # -------------------------------
-        
-        """
-        # PRODUCTION: USE THIS
         try:
             event = stripe.Webhook.construct_event(
                 payload,
                 sig_header,
                 settings.STRIPE_WEBHOOK_SECRET
             )
-        except ValueError:
-            return Response({"status": "error", "message": "Invalid payload"}, status=400)
         except stripe.error.SignatureVerificationError:
-            return Response({"status": "error", "message": "Invalid signature"}, status=400)
-        """
+            return HttpResponse(status=400)
+        except Exception:
+            return HttpResponse(status=400)
 
-        response_data = {"status": "ignored"}  
+        # ✅ Payment success event
+        if event["type"] == "checkout.session.completed":
+            session = event["data"]["object"]
 
-        # PAYMENT SUCCESS
-        if event.get("type") == "payment_intent.succeeded":
-            intent = event["data"]["object"]
+            # Extra safety check
+            if session.get("payment_status") != "paid":
+                return HttpResponse(status=200)
 
-            try:
-                payment = Payment.objects.get(payment_id=intent["id"])
-            except Payment.DoesNotExist:
-                response_data = {"status": "error", "message": "Payment not found"}
-                return Response(response_data, status=200)
+            order_id = session["metadata"].get("order_id")
 
-            if payment.payment_status != "SUCCESS":
-                payment.payment_status = "SUCCESS"
-                payment.save()
-
-                order = payment.order
-                order.status = "paid"
-                order.save()
-
-            response_data = {
-                "status": "success",
-                "payment_id": intent["id"],
-                "message": "Payment marked as SUCCESS"
-            }
-
-        # PAYMENT FAILED
-        elif event.get("type") == "payment_intent.payment_failed":
-            intent = event["data"]["object"]
+            if not order_id:
+                return HttpResponse(status=200)
 
             try:
-                payment = Payment.objects.get(payment_id=intent["id"])
-            except Payment.DoesNotExist:
-                response_data = {"status": "error", "message": "Payment not found"}
-                return Response(response_data, status=200)
+                order = Order.objects.get(order_id=order_id)
 
-            if payment.payment_status != "FAILED":
-                payment.payment_status = "FAILED"
-                payment.save()
+                # Amount verification
+                if session.amount_total != int(order.total_amount * 100):
+                    return HttpResponse(status=400)
 
-                order = payment.order
-                order.status = "cancelled"
+                order.status = "PAID"
+                order.transaction_id = session.payment_intent
                 order.save()
-            
-            response_data = {
-                "status": "failed",
-                "payment_id": intent["id"],
-                "message": "Payment marked as FAILED"
-            }
 
-        return Response(response_data, status=200) 
+                Payment.objects.filter(order=order).update(
+                    payment_status="SUCCESS",
+                    payment_id=session.payment_intent
+                )
 
+            except Order.DoesNotExist:
+                pass
+
+        return HttpResponse(status=200)
+
+# @method_decorator(csrf_exempt, name="dispatch")
+# class StripeWebhookAPIView(APIView):
+#     permission_classes = [AllowAny]
+#     authentication_classes = []
+
+#     def post(self, request):
+#         payload = request.body.decode("utf-8")
+#         sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
+
+#         if not sig_header:
+#             return Response(
+#                 {"status": "error", "message": "Missing Stripe signature"},
+#                 status=400
+#             )
+
+#         try:
+#             event = stripe.Webhook.construct_event(
+#                 payload=payload,
+#                 sig_header=sig_header,
+#                 secret=settings.STRIPE_WEBHOOK_SECRET
+#             )
+#         except ValueError:
+#             return Response(
+#                 {"status": "error", "message": "Invalid payload"},
+#                 status=400
+#             )
+#         except stripe.error.SignatureVerificationError:
+#             return Response(
+#                 {"status": "error", "message": "Invalid signature"},
+#                 status=400
+#             )
+
+#         # -------------------------------
+#         # PAYMENT SUCCESS
+#         if event["type"] == "payment_intent.succeeded":
+#             intent = event["data"]["object"]
+
+#             try:
+#                 payment = Payment.objects.get(payment_id=intent["id"])
+#             except Payment.DoesNotExist:
+#                 return Response(
+#                     {"status": "error", "message": "Payment not found"},
+#                     status=200
+#                 )
+
+#             if payment.payment_status != "SUCCESS":
+#                 payment.payment_status = "SUCCESS"
+#                 payment.save()
+
+#                 order = payment.order
+#                 order.status = "paid"
+#                 order.save()
+
+#             return Response(
+#                 {
+#                     "status": "success",
+#                     "payment_id": intent["id"],
+#                     "message": "Payment marked as SUCCESS"
+#                 },
+#                 status=200
+#             )
+
+#         # -------------------------------
+#         # PAYMENT FAILED
+#         elif event["type"] == "payment_intent.payment_failed":
+#             intent = event["data"]["object"]
+
+#             try:
+#                 payment = Payment.objects.get(payment_id=intent["id"])
+#             except Payment.DoesNotExist:
+#                 return Response(
+#                     {"status": "error", "message": "Payment not found"},
+#                     status=200
+#                 )
+
+#             if payment.payment_status != "FAILED":
+#                 payment.payment_status = "FAILED"
+#                 payment.save()
+
+#                 order = payment.order
+#                 order.status = "cancelled"
+#                 order.save()
+
+#             return Response(
+#                 {
+#                     "status": "failed",
+#                     "payment_id": intent["id"],
+#                     "message": "Payment marked as FAILED"
+#                 },
+#                 status=200
+#             )
+
+#         return Response({"status": "ignored"}, status=200)

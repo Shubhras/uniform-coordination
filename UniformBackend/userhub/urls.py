@@ -1,7 +1,6 @@
 from django.urls import path
 from .views import *
 from .threed import *
-
 from .payment import *
 
 urlpatterns = [
@@ -66,8 +65,8 @@ urlpatterns = [
     path("payments/create-intent/", CreatePaymentIntentAPIView.as_view()),
     path("payments/", UserPaymentListAPIView.as_view()),
     path("payments/detail/", UserPaymentDetailAPIView.as_view()),
-
-
+    path("stripe/webhook",StripeWebhookAPIView.as_view()),
+     
     path("admin/payments/", AdminPaymentListAPIView.as_view()),
     path("admin/payments/detail/", AdminPaymentDetailAPIView.as_view()),
 
