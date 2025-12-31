@@ -1,5 +1,5 @@
 import dashboardsRoute from './dashboardsRoute'
-import conceptsRoute from './conceptsRoute'
+// import conceptsRoute from './conceptsRoute'
 import uiComponentsRoute from './uiComponentsRoute'
 import authRoute from './authRoute'
 import authDemoRoute from './authDemoRoute'
@@ -9,7 +9,7 @@ export const protectedRoutes = {
     ...dashboardsRoute,
     ...uiComponentsRoute,
     ...authDemoRoute,
-    ...conceptsRoute,
+    // ...conceptsRoute,
     // ...guideRoute,
 }
 
@@ -24,14 +24,6 @@ export const publicRoutes = {
     },
     '/single-blog': {
         key: 'single-blog',
-        authority: [],
-    },
-    '/kireiz-form': {
-        key: 'kireiz-form',
-        authority: [],
-    },
-    '/medical-form': {
-        key: 'medical-form',
         authority: [],
     },
     '/table-form': {
