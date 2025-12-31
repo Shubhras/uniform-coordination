@@ -1,164 +1,126 @@
-#<=======================Serializers==========================>
-from django.contrib.auth import authenticate
-from rest_framework import serializers
-import re
-from .models import *
-class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
 
-    def validate(self, attrs):
-        user = authenticate(
-            email=attrs.get("email"),
-            password=attrs.get("password")
-        )
-
-        if not user:
-            raise serializers.ValidationError("Invalid email or password")
-
-        if not user.is_active:
-            raise serializers.ValidationError("User is inactive")
-
-        attrs["user"] = user
-        return attrs
-
-
-class ChangePasswordSerializer(serializers.Serializer):
-    current_password = serializers.CharField(write_only=True)
-    new_password = serializers.CharField(write_only=True)
-    confirm_new_password = serializers.CharField(write_only=True)
-
-    def validate_old_password(self, value):
-        user = self.context["request"].user
-        if not user.check_password(value):
-            raise serializers.ValidationError("Old password is incorrect")
-        return value
-
-    def validate(self, attrs):
-        if attrs["new_password"] != attrs["confirm_new_password"]:
-            raise serializers.ValidationError("New password and confirm password do not match")
-        return attrs
-
-
-
-class AdminUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AdminUser
-        fields = ['name', 'mobile', 'language']
-
-    def validate_mobile(self, value):
-        if not re.match(r'^[6-9]\d{9}$', value):
-            raise serializers.ValidationError("Enter a valid 10-digit mobile number")
-
-        user = self.instance
-        if AdminUser.objects.filter(mobile=value).exclude(id=user.id).exists():
-            raise serializers.ValidationError("Mobile number already exists")
-        return value
-
-    def validate(self, attrs):
-        if not attrs:
-            raise serializers.ValidationError("Please provide at least one field to update")
-        return attrs
-    
-
-class AdminProfileSerializer(serializers.ModelSerializer):
-    role_name = serializers.CharField(source='role.role_name', read_only=True)
-
-    class Meta:
-        model = AdminUser
-        exclude = ['password']
-        read_only_fields = [
-            'id', 'email', 'name', 'mobile', 'language',
-            'is_staff', 'is_superuser', 'last_login', 'created_at', 'updated_at'
-        ]
-
-class LogoutSerializer(serializers.Serializer):
-    refresh_token = serializers.CharField(required=True)
-
-
-class ForgetPasswordSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-
-    def validate_email(self, value):
-        if not AdminUser.objects.filter(email=value).exists():
-            raise serializers.ValidationError("No user found with this email")
-        return value
-
-
-#<==============================APIView===========================>
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken,TokenError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+from django.db import transaction
+from django.utils import timezone
 from django.contrib.auth.tokens import default_token_generator
+from .models import AdminUser
+from .serializers import *
+#use only temprarey check api 
+from rest_framework.permissions import BasePermission
+
+class IsAdminUserJWT(BasePermission):
+    message = "Only admin users are allowed."
+
+    def has_permission(self, request, view):
+        jwt_auth = JWTAuthentication()
+        try:
+            header = jwt_auth.get_header(request)
+            raw_token = jwt_auth.get_raw_token(header)
+            validated_token = jwt_auth.get_validated_token(raw_token)
+        except Exception:
+            return False
+
+        # Role must be admin
+        role = validated_token.get("role")
+        if role != "admin":
+            return False
+
+        # Fetch AdminUser safely
+        try:
+            user_id = validated_token.get("user_id")
+            admin_user = AdminUser.objects.get(id=user_id)
+            request.user = admin_user  # override request.user
+        except AdminUser.DoesNotExist:
+            return False
+
+        return True
 
 
 class LoginAPIView(APIView):
     authentication_classes = []
-    permission_classes = [AllowAny]
+    permission_classes = []
 
     def post(self, request):
-        serializer = LoginSerializer(data=request.data)
+        serializer = AdminLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = serializer.validated_data["user"]
+        user = serializer.validated_data['user']
+
+        remember_me = request.data.get("remember_me", False)
 
         refresh = RefreshToken.for_user(user)
+        refresh["user_id"] = str(user.id)
+        refresh["role"] = "admin"
 
-        # JWT custom claims
-        refresh["user_id"] = user.id
-        refresh["email"] = user.email
-        refresh["role"] = user.role.role_name if user.role else None
-        refresh["is_staff"] = user.is_staff
+        if remember_me:
+            refresh.set_exp(lifetime=timezone.timedelta(days=30))
+            refresh.access_token.set_exp(lifetime=timezone.timedelta(days=30))
+        else:
+            refresh.set_exp(lifetime=timezone.timedelta(days=1))
+            refresh.access_token.set_exp(lifetime=timezone.timedelta(hours=1))
+
+        user.last_login = timezone.now()
+        user.save(update_fields=["last_login"])
 
         return Response({
             "status": True,
             "statusCode": 200,
             "message": "Login successful",
             "data": {
-                "user": {
+                "admin": {
                     "id": user.id,
                     "email": user.email,
-                    "role": user.role.role_name if user.role else None,
+                    "name": user.name,
+                    "role": user.role.role_name if user.role else None
                 },
                 "access_token": str(refresh.access_token),
                 "refresh_token": str(refresh)
             }
         }, status=status.HTTP_200_OK)
-
-
-
+    
 class ChangePasswordAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUserJWT]
 
     def post(self, request):
-        serializer = ChangePasswordSerializer(
+        serializer = AdminChangePasswordSerializer(
             data=request.data,
-            context={"request": request}
+            context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
 
         user = request.user
-        user.set_password(serializer.validated_data["new_password"])
-        user.save()
+
+        with transaction.atomic():
+            user.set_password(serializer.validated_data["new_password"])
+            user.last_login = None
+            user.save()
+
+            tokens = OutstandingToken.objects.filter(user=user)
+            for token in tokens:
+                BlacklistedToken.objects.get_or_create(token=token)
 
         return Response({
             "status": True,
             "statusCode": 200,
-            "message": "Password changed successfully"
+            "message": "Password changed successfully. Please login again."
         }, status=status.HTTP_200_OK)
 
-
+    
 class UpdateProfileAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUserJWT]
 
     def put(self, request):
-        user = request.user
         serializer = AdminUpdateSerializer(
-            instance=user,
+            request.user,
             data=request.data,
-            partial=True
+            partial=True   # ✅ partial update allowed
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -170,23 +132,20 @@ class UpdateProfileAPIView(APIView):
             "data": serializer.data
         }, status=status.HTTP_200_OK)
 
-
-
 class ProfileAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUserJWT]
 
     def get(self, request):
-        user = request.user  
-        serializer = AdminProfileSerializer(user)
+        serializer = AdminDetailSerializer(request.user)
         return Response({
             "status": True,
             "statusCode": 200,
-            "message": "Profile fetched successfully",
+            "message": "Admin profile fetched successfully",
             "data": serializer.data
         }, status=status.HTTP_200_OK)
- 
+
 class LogoutAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUserJWT]
 
     def post(self, request):
         refresh_token = request.data.get("refresh_token")
@@ -194,49 +153,50 @@ class LogoutAPIView(APIView):
             return Response({
                 "status": False,
                 "statusCode": 400,
-                "error": "Bad Request",
-                "details": "Refresh token is required for logout"
-            }, status=400)
+                "message": "Refresh token required"
+            }, status=status.HTTP_200_OK)
 
-        try:
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Logout successful"
-            }, status=200)
+        token = RefreshToken(refresh_token)
+        token.blacklist()
 
-        except TokenError:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "error": "Invalid token",
-                "details": "Token is already blacklisted or malformed"
-            }, status=400)  
+        tokens = OutstandingToken.objects.filter(user=request.user)
+        for t in tokens:
+            BlacklistedToken.objects.get_or_create(token=t)
 
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "message": "Logout successful"
+        }, status=status.HTTP_200_OK)
 
 class ForgotPasswordAPIView(APIView):
-    authentication_classes = []  
+    authentication_classes = []
     permission_classes = []
 
     def post(self, request):
-        serializer = ForgetPasswordSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        email = request.data.get("email")
+        if not email:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Email is required"
+            }, status=status.HTTP_200_OK)
 
-        email = serializer.validated_data['email']
-        user = AdminUser.objects.get(email=email, is_staff=True)
+        try:
+            user = AdminUser.objects.get(email=email, is_staff=True)
+        except AdminUser.DoesNotExist:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "Admin not found"
+            }, status=status.HTTP_200_OK)
 
-        # Generate password reset token
         token = default_token_generator.make_token(user)
-
-        # Construct reset link (frontend URL)
-        base_url = "http://23.23.88.239:7001/forgotpassword/"
-        full_reset_link = f"{base_url}?token={token}&user_id={user.pk}"
+        reset_link = f"http://23.23.88.239:7001/forgotpassword/?token={token}&user_id={user.id}"
 
         return Response({
-            "statusCode": 200,
             "status": True,
-            "message": "Password reset email sent",
-            "reset_link": full_reset_link
+            "statusCode": 200,
+            "message": "Password reset link generated",
+            "reset_link": reset_link
         }, status=status.HTTP_200_OK)

@@ -306,7 +306,7 @@ class AdminForgotPasswordAPIView(APIView):
             )
 
 
-# products/views/create_product.py
+
 
 class AdminCreateProductAPIView(APIView):
     permission_classes = [IsAuthenticated]

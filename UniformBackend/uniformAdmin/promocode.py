@@ -19,6 +19,7 @@ from rest_framework.exceptions import ValidationError
 
 
 
+
 class PromocodeCreateAPIView(BaseAPIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
