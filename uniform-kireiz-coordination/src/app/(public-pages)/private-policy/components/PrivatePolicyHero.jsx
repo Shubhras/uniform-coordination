@@ -3,11 +3,11 @@ import React from 'react'
 
 const PrivatePolicyHero = () => {
     return (
-        <section className="relative w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 py-20 md:py-24 mt-15">
+        <section className="relative w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 py-20 mt-15">
             <div className="max-w-7xl mx-auto text-[#374151] space-y-8">
 
                 {/* HEADING */}
-                <h1 className="text-3xl md:text-4xl font-semibold text-[#8B4513]">
+                <h1 className="text-3xl md:text-4xl font-semibold text-[#1C2C56]">
                     Privacy Policy
                 </h1>
 
@@ -162,7 +162,7 @@ const PrivatePolicyHero = () => {
 
                     <p className="mt-2">
                         <strong>Email:</strong>{' '}
-                        <span className="text-[#8B4513]">support@kireiz.com</span>
+                        <span className="text-[#1C2C56]">support@kireiz.com</span>
                     </p>
                 </div>
 

@@ -13,14 +13,15 @@ const validationSchema = z
     email: z.string({ required_error: "Please enter your email" }),
     userName: z.string({ required_error: "Please enter your name" }),
     password: z.string({ required_error: "Password Required" }),
-    confirmPassword: z.string({
-      required_error: "Confirm Password Required",
-    }),
+    // confirmPassword: z.string({
+    //   required_error: "Confirm Password Required",
+    // }),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Password not match",
-    path: ["confirmPassword"],
-  });
+  // .refine((data) => data.password === data.confirmPassword, {
+  //   message: "Password not match",
+  //   path: ["confirmPassword"],
+  // }
+// );
 
 const SignUpForm = (props) => {
   const { onSignUp, className, setMessage, termConditionHint } = props;
@@ -34,12 +35,14 @@ const SignUpForm = (props) => {
   } = useForm({
     resolver: zodResolver(validationSchema),
   });
+  console.log(errors)
 
-  const handleSignUp = async (values) => {
-    if (onSignUp) {
-      onSignUp({ values, setSubmitting, setMessage });
-    }
-  };
+ const handleSignUp = async (values) => {
+  if (onSignUp) {
+    onSignUp({ values, setSubmitting, setMessage });
+  }
+};
+
 
   return (
     <div className={className}>
