@@ -19,7 +19,12 @@ const SignUpClient = () => {
             )
             router.push('/sign-in')
         } catch (error) {
-            setMessage(error)
+            const errorMessage =
+                error?.response?.data?.message ||
+                error?.message ||
+                'Signup failed'
+
+            setMessage(errorMessage)
         } finally {
             setSubmitting(false)
         }

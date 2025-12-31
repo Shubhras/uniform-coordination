@@ -9,7 +9,6 @@ import SplitSignup from "@/components/layouts/AuthLayout/SplitSignup";
 
 export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
   const [message, setMessage] = useTimeOutMessage();
-
   const mode = useTheme((state) => state.mode);
 
   return (
