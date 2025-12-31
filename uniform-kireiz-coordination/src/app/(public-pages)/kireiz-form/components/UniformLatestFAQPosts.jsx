@@ -28,8 +28,8 @@ const UniformLatestFAQPosts = () => {
   };
 
   return (
-    <section className="relative py-16 md:py-0 bg-white">
-      <Container>
+    <section className="relative mx-auto px-5 md:px-8 lg:px-12 py-16 md:py-0 bg-white">
+      {/* <Container> */}
       
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-semibold text-[#1C2C56] mb-3">
@@ -73,7 +73,7 @@ const UniformLatestFAQPosts = () => {
             );
           })}
         </div>
-      </Container>
+      {/* </Container> */}
     </section>
   );
 };

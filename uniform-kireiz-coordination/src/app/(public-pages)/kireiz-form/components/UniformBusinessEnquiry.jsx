@@ -98,7 +98,7 @@ const UniformBusinessEnquiry = () => {
     router.push("/medical-form");
   };
   return (
-    <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
+    <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12">
       <div className="mx-auto bg-[#EEF3FB] rounded-tr-[120px]">
 
         {/* TITLE */}
@@ -169,7 +169,7 @@ const UniformBusinessEnquiry = () => {
         </div>
         {/* Divider */}
         <div className="w-full h-px bg-gray-300 my-14" />
-        <h2 className="text-center text-3xl font-semibold text-[#1C2C56]">
+        <h2 className="text-center text-3xl font-semibold text-[#1C2C56] px-1">
           Industry-Specific Uniform Solutions
         </h2>
         <div className="flex justify-end gap-3 mt-6 mr-6">

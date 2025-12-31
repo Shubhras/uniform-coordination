@@ -65,10 +65,10 @@ const CategorySection = () => {
     router.push("/dashboards/uniform-design");
   };
     return (
-        <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
+        <section className="w-full bg-white px-5 md:px-8 lg:px-12">
             <div className="space-y-10 mt-10">
                 {/* TITLE */}
-                <div className=" mb-10 px-4">
+                <div className=" mb-10">
 
                     {/* TITLE */}
                     <div className="text-center mb-6">

@@ -35,7 +35,7 @@ const features = [
 
 const ProfessionalSection = () => {
     return (
-        <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
+        <section className="w-full bg-white px-5 md:px-8 lg:px-12">
             <div className="px-8 py-10 bg-[#E6ECF770] mt-10">
 
                 {/* SECTION TITLE */}

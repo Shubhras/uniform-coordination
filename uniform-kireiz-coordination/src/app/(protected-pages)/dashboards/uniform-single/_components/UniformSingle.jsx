@@ -26,7 +26,7 @@ const UniformSingle = () => {
 
     return (
         <section className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10 mt-15 ">
-            <div className="w-full mx-auto px-4">
+            <div className="w-full mx-auto">
                 <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p>
                 {/* FILTER + SORT */}
                 {/* <div className="flex flex-col lg:flex-row justify-between gap-4 mb-5">
@@ -89,7 +89,7 @@ const UniformSingle = () => {
                     {/* MAIN CONTENT */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start ">
                         {/* LEFT INFO CARD */}
-                        <div className="order-2 lg:order-1 bg-white border border-[#1C2C56] rounded-[20px] p-8 flex flex-col h-full">
+                        <div className="order-2 lg:order-1 bg-white border border-[#1C2C56] rounded-[20px] md:p-8 p-5 flex flex-col h-full">
                             <div className="flex flex-col gap-5">
                                 <h3 className="text-[#1C2C56] text-2xl font-semibold">
                                     Item Name
@@ -152,7 +152,7 @@ const UniformSingle = () => {
                                 </button>
                             </div>
                             <div
-                                className="absolute w-[380px] h-[380px] rounded-full transition-colors duration-300"
+                                className="absolute md:w-[380px] md:h-[380px] w-[300px] h-[300px] rounded-full transition-colors duration-300"
                                 style={{ backgroundColor: circleColor }}
                             />
                             <div className="relative z-10">

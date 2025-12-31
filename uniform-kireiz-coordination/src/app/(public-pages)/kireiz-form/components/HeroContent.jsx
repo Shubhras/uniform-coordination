@@ -11,13 +11,13 @@ const HeroContent = () => {
   };
 
   return (
-    <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
+    <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12 pt-24 md:pt-0">
       <div
         className="
-         mx-auto my-0
+          mx-auto
           flex flex-col md:flex-row 
           gap-8 md:gap-10
-          md:h-[700px] 
+          md:h-[700px]
         "
       >
         {/* LEFT SECTION */}
@@ -25,7 +25,6 @@ const HeroContent = () => {
           className="
             flex flex-col 
             justify-center 
-            h-full 
             space-y-3
             max-w-lg
           "
@@ -52,13 +51,13 @@ const HeroContent = () => {
         </div>
 
         {/* RIGHT SECTION */}
-        <div className="h-full flex justify-center md:justify-end">
+        <div className="flex justify-center md:justify-end">
           <Image
             src="/img/kireiz-form/hero/uniform-home-page.png"
             width={925}
             height={630}
             alt="Uniform Designs"
-            className="h-full w-auto object-contain" 
+            className="w-full max-w-[420px] md:max-w-none h-auto md:h-full object-contain"
             priority
           />
         </div>
