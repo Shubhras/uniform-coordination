@@ -8,6 +8,8 @@ from rest_framework import status
 
 from rest_framework.permissions import AllowAny
 from .models import Promocode
+from rest_framework.views import APIView
+
 from .serializers import PromocodeSerializer
 from userhub.utils import BaseAPIView
 from .fabric import IsAdministrator, CustomPagination
@@ -19,7 +21,7 @@ from rest_framework.exceptions import ValidationError
 
 
 
-class PromocodeCreateAPIView(BaseAPIView):
+class PromocodeCreateAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
 
