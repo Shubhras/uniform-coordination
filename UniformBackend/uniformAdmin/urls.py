@@ -133,5 +133,16 @@ urlpatterns = [
     #<---------------------AdminuserNotification------------------>
     path("notifications/get-list/", AdminNotificationListAPIView.as_view(),name='adminNotification-get_list'),
     path("notifications/delete/", AdminNotificationDeleteAPIView.as_view(),name="adminNotification-delete_all"),
+
+    #<------------------------B2B-------------------------------->
+    path('admin-user/create/',AdminUserCreateAPIView.as_view(), name = 'admin-user-create'),
+    path('admin-user/get-list/',AdminUserListAPIView.as_view(), name = 'admin-user-get-list'),
+    path('admin-user/<int:id>/get/',AdminUserDetailAPIView.as_view(), name = 'admin-user-detail-get'),
+    path('admin-user/<int:id>/update/',AdminUserUpdateAPIView.as_view(), name = 'admin-user-update'),
+    path('admin-user/delete/',AdminUserDeleteAPIView.as_view(), name = 'admin-user-delete'),
+   
+    
+   
+   
    
 ]

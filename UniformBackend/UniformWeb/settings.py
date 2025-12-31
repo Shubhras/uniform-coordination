@@ -160,17 +160,36 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# REST_FRAMEWORK = {
+#     "DEFAULT_AUTHENTICATION_CLASSES": [
+#         # "UniformWeb.authentication.UserJWTAuthentication", 
+#         "userhub.authentication.CustomUserJWTAuthentication",# For Customers
+#         "rest_framework_simplejwt.authentication.JWTAuthentication",  # For Admin
+#         "rest_framework.authentication.SessionAuthentication",
+#     ],
+#     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+#     "DEFAULT_PERMISSION_CLASSES": (
+#         "rest_framework.permissions.IsAuthenticated",
+#     ),
+#     'PAGE_SIZE': 10,
+#     'DEFAULT_RENDERER_CLASSES': (
+#         'rest_framework.renderers.JSONRenderer',
+#         "rest_framework.permissions.IsAuthenticated",
+#     ),
+# }
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        # "UniformWeb.authentication.UserJWTAuthentication", 
-        "userhub.authentication.CustomUserJWTAuthentication",# For Customers
-        "rest_framework_simplejwt.authentication.JWTAuthentication",  # For Admin
+        "rest_framework_simplejwt.authentication.JWTAuthentication",  
         "rest_framework.authentication.SessionAuthentication",
+        "userhub.authentication.CustomUserJWTAuthentication",# For Customers
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
     ),
 }
 

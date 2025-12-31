@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 import re
 from .models import *
+from .utils import get_default_b2b_role
 # User = get_user_model()
 import json
 
@@ -106,7 +107,8 @@ class AdminUpdateSerializer(serializers.ModelSerializer):
 
 
 class AdminDetailSerializer(serializers.ModelSerializer):
-    role_name = serializers.CharField(source='role.name', read_only=True)
+    role_name = serializers.CharField(source='role.role_name', read_only=True)
+
 
     class Meta:
         model = AdminUser
@@ -716,3 +718,51 @@ class AdminNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminNotification
         fields = "__all__"
+from rest_framework import serializers
+from .models import AdminUser
+from .utils import get_default_b2b_role
+
+
+#<====================B2B=========================>
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = AdminUser
+        fields = [
+            "id",
+            "name",
+            "company_name",
+            "email",
+            "mobile",
+            "tier",
+            "password",
+            "is_active",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+    def create(self, validated_data):
+        password = validated_data.pop("password")
+
+        validated_data["role"] = get_default_b2b_role()
+        validated_data["is_staff"] = False
+
+        user = AdminUser.objects.create_user(
+            password=password,
+            **validated_data
+        )
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if password:
+            instance.set_password(password)
+
+        instance.save()
+        return instance

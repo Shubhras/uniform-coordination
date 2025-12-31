@@ -1,4 +1,3 @@
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -15,9 +14,10 @@ from .serializers import *
 #use only temprarey check api 
 from rest_framework.permissions import BasePermission
 
+
 class IsAdminUserJWT(BasePermission):
     message = "Only admin users are allowed."
-
+   
     def has_permission(self, request, view):
         jwt_auth = JWTAuthentication()
         try:
@@ -37,10 +37,12 @@ class IsAdminUserJWT(BasePermission):
             user_id = validated_token.get("user_id")
             admin_user = AdminUser.objects.get(id=user_id)
             request.user = admin_user  # override request.user
+            
         except AdminUser.DoesNotExist:
             return False
 
         return True
+
 
 
 class LoginAPIView(APIView):
@@ -56,7 +58,7 @@ class LoginAPIView(APIView):
         remember_me = request.data.get("remember_me", False)
 
         refresh = RefreshToken.for_user(user)
-        refresh["user_id"] = str(user.id)
+        refresh["user_id"] = user.id
         refresh["role"] = "admin"
 
         if remember_me:
@@ -120,7 +122,7 @@ class UpdateProfileAPIView(APIView):
         serializer = AdminUpdateSerializer(
             request.user,
             data=request.data,
-            partial=True   # ✅ partial update allowed
+            partial=True   
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -136,7 +138,13 @@ class ProfileAPIView(APIView):
     permission_classes = [IsAdminUserJWT]
 
     def get(self, request):
-        serializer = AdminDetailSerializer(request.user)
+        user_id = request.auth.get("user_id")
+        admin_user = AdminUser.objects.get(id=user_id)
+        print("DEBUG request.user:", request.user)
+        print("DEBUG type:", type(request.user))
+        print("DEBUG role obj:", getattr(request.user, 'role', None))
+        serializer = AdminDetailSerializer(admin_user)
+        #serializer = AdminDetailSerializer(request.user)
         return Response({
             "status": True,
             "statusCode": 200,

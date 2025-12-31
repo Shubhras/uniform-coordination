@@ -34,3 +34,16 @@ def create_admin_notification(instance, title, message, priority="low"):
         message=message,
         priority=priority,
     )
+
+
+#<===============B2B=================>
+def get_default_b2b_role():
+    from .models import Role
+    role, _ = Role.objects.get_or_create(
+        role_name="b2b_user",
+        defaults={
+            "slug": "b2b-user",
+            "description": "Default B2B User"
+        }
+    )
+    return role
