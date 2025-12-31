@@ -45,23 +45,21 @@ urlpatterns = [
     path('quotationrequest/<uuid:uuid>/get/',QuotationRequestDetailAPIView.as_view(), name = 'QuotationRequest-get'),
     path('quotationrequest/<uuid:uuid>/export/',QuotationRequestExportPDFAPIView.as_view(), name = 'QuotationRequest-export'),
 
-
-
-    #  CART  
+    #<-------------------Card API------------------------------->
     path("cart/add/", AddToCartAPIView.as_view()),
     path("cart/list/", CartListAPIView.as_view()),
     path("cart/item/update/", UpdateCartItemAPIView.as_view()),
     path("cart/item/delete/", RemoveCartItemAPIView.as_view()),
     path("cart/item-summary/", ItemSummaryAPIView.as_view()),
 
-    # order
+    #<-------------------ORDER API------------------------------->
     path("create/order/",CreateOrderAPIView.as_view()),
     path('order/summary/', OrderSummaryAPIView.as_view(), name='order-summary'),
     path("order/id/",OrderDetailAPIView.as_view()),
     path("order/list/",OrderListAPIView.as_view()),
 
 
-    # payment 
+    #<-------------------Payment API------------------------------->
     path("payments/create-intent/", CreatePaymentIntentAPIView.as_view()),
     path("payments/", UserPaymentListAPIView.as_view()),
     path("payments/detail/", UserPaymentDetailAPIView.as_view()),
@@ -69,6 +67,9 @@ urlpatterns = [
      
     path("admin/payments/", AdminPaymentListAPIView.as_view()),
     path("admin/payments/detail/", AdminPaymentDetailAPIView.as_view()),
+
+    #<-------------------Dashboardes------------------------------->
+    path("admindesh/",AdminDashAPIView.as_view(),name="admin-desh-info")
 
 ]
    

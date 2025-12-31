@@ -688,3 +688,10 @@ class AdminNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminNotification
         fields = "__all__"
+class UnitPriceSerializer(serializers.Serializer):
+    type = serializers.CharField()
+    itemName = serializers.CharField()
+    unit = serializers.CharField()
+    basePrice = serializers.DecimalField(max_digits=10, decimal_places=2)
+    bulk = serializers.DecimalField(max_digits=10, decimal_places=2)
+    action = serializers.CharField()

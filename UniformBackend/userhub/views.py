@@ -4,7 +4,7 @@ from rest_framework import status
 from uniformAdmin.models import *
 from .models import *
 from django.utils.timezone import now
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated ,IsAdminUser
 from .utils import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
@@ -16,10 +16,10 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.db import IntegrityError, transaction
 from decimal import Decimal
-from django.db.models import Sum 
+from django.db.models import Sum ,Count
 from django.utils.dateparse import parse_date
 from .payment import CustomPagination
-
+from django.db.models.functions import TruncDay
 # from django.utils import timezone
 import re
 logger = logging.getLogger(__name__)
@@ -1389,3 +1389,98 @@ class OrderDetailAPIView(APIView):
                 "data": {}
             }, status=status.HTTP_404_NOT_FOUND)
 
+class AdminDashAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        pending_quotes = QuotationRequest.objects.filter(quotation_status='pending').count()
+        total_templates = QuotationTemplate.objects.count()
+
+        summary_cards = [
+            {"key": "pending_quotes", "title": "Pending Quotes", "value": pending_quotes},
+            {"key": "total_templates", "title": "Total Templates", "value": total_templates},
+        ]
+
+        #  Quote Status Distribution
+        status_data = QuotationRequest.objects.values('quotation_status').annotate(count=Count('quotation_id'))
+        quote_status_distribution = {
+            "type": "donut",
+            "data": [{"label": item['quotation_status'].capitalize(), "value": item['count']} for item in status_data]
+        }
+
+        # Yearly quote status
+        yearly_data = (
+            QuotationRequest.objects
+            .filter(created_at__year=now().year)
+            .values('quotation_status')
+            .annotate(count=Count('quotation_id'))
+        )
+        quote_status_yearly = {
+            "type": "donut",
+            "title": "Yearly Quote Status",
+            "data": [{"label": item['quotation_status'].capitalize(), "value": item['count']} for item in yearly_data]
+        }
+
+        #  Weekly Quotation Volume
+        weekly = (
+            QuotationRequest.objects
+            .filter(created_at__gte=now() - timedelta(days=7))
+            .annotate(day=TruncDay('created_at'))
+            .values('day')
+            .annotate(count=Count('quotation_id'))
+            .order_by('day')
+        )
+
+        monthly_quotation_volume = {
+            "type": "line",
+            "filter": "weekly",
+            "data": [{"label": item['day'].strftime('%a'), "value": item['count']} for item in weekly]
+        }
+
+        # Pending Sales Actions
+   
+        #  Most Used Fabrics 
+        most_used_fabrics = (
+            Fabric.objects
+            .annotate(count=Count('id'))  
+            .values('fabricName', 'count')
+            .order_by('-count')[:4]
+        )
+
+        
+        #  Recent Updates 
+        recent_products = Product.objects.order_by('-updated_at').values('productName', 'updated_at')
+        recent_colors = Colors.objects.order_by('-updated_at').values('colorName', 'updated_at')
+        recent_parts = Parts.objects.order_by('-updated_at').values('partName', 'updated_at')
+
+       
+        combined_updates = []
+
+        for item in recent_products:
+            combined_updates.append({"type": "Product", "title": item['productName'], "date": item['updated_at']})
+        for item in recent_colors:
+            combined_updates.append({"type": "Color", "title": item['colorName'], "date": item['updated_at']})
+        for item in recent_parts:
+            combined_updates.append({"type": "Part", "title": item['partName'], "date": item['updated_at']})
+
+        # Sort by updated_at descending
+        combined_updates.sort(key=lambda x: x['date'], reverse=True)
+        recent_updates = combined_updates[:3]
+        for item in recent_updates:
+            item['date'] = item['date'].date()
+
+   
+        #  Return Response
+        return Response({
+            "summary_cards": summary_cards,
+            "charts": {
+                "quote_status_distribution": quote_status_distribution,
+                "quote_status_yearly": quote_status_yearly,
+                "monthly_quotation_volume": monthly_quotation_volume
+            },
+            "lists": {
+                "pending_sales_actions": None,
+                "most_used_fabrics": most_used_fabrics,
+                "recent_updates": recent_updates
+            }
+        })
