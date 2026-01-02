@@ -10,17 +10,17 @@ const CartSummary = () => {
 
     const router = useRouter()
 
-const handleClick = () => {
+    const handleClick = () => {
         router.push("/delivery-information");
     };
     return (
-        <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 mt-14">
+        <section className="w-full bg-white px-5 md:px-8 lg:px-12 mt-14">
             <div className="py-10">
 
-                <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-6">
 
                     {/* LEFT – CART ITEMS */}
-                    <div className="bg-[#FBF4F3] rounded-xl p-6">
+                    <div className="bg-[#FBF4F3] rounded-xl p-5">
                         <h2 className="text-xl font-medium mb-6">
                             Items in your Cart (4)
                         </h2>
@@ -94,7 +94,7 @@ const handleClick = () => {
                     </div>
 
                     {/* RIGHT – ORDER SUMMARY */}
-                    <div className="bg-white rounded-xl p-6 h-fit">
+                    <div className="bg-white rounded-xl p-5 h-fit break-words">
                         <h3 className="text-xl font-medium border-b border-[#E9E9E9] pb-4">Order Summary</h3>
 
                         <div className="space-y-3 text-sm py-2">

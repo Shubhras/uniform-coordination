@@ -113,18 +113,17 @@ const UniformBusinessEnquiry = () => {
     router.push("/browse-by-theme");
   };
   return (
-    <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
-      <div className="">
+    <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12">
 
-        {/* TITLE */}
-        <h2 className="text-center text-3xl font-semibold text-[#402936] pt-14">
-          Why Choose KIREIZ SPACE
-        </h2>
+      {/* TITLE */}
+      <h2 className="text-center text-3xl font-semibold text-[#402936] pt-14">
+        Why Choose KIREIZ SPACE
+      </h2>
 
-        {/* TOP FEATURE CARDS */}
+      {/* TOP FEATURE CARDS */}
 
-        <div
-          className="
+      <div
+        className="
     mt-10
     grid 
     gap-4 sm:gap-5 md:gap-6 lg:gap-8 xl:gap-10
@@ -132,37 +131,36 @@ const UniformBusinessEnquiry = () => {
     sm:grid-cols-2
     md:grid-cols-3
     lg:grid-cols-4
-    ml-6 mr-6
   "
-        >
-          {[
-            {
-              icon: LuPalette,
-              title: "Visual Design Tools",
-              desc: "See your designs come to life",
-            },
-            {
-              icon: FaArrowTrendUp,
-              title: "Professional Results",
-              desc: "Industry-specific solutions",
-            },
-            {
-              icon: FiDollarSign,
-              title: "Bulk Pricing & Delivery",
-              desc: "Rental options & bulk pricing",
-            },
-            {
-              icon: LuRocket,
-              title: "Custom Branding",
-              desc: "From design to delivery",
-            },
-          ].map((item, i) => {
-            const Icon = item.icon;
+      >
+        {[
+          {
+            icon: LuPalette,
+            title: "Visual Design Tools",
+            desc: "See your designs come to life",
+          },
+          {
+            icon: FaArrowTrendUp,
+            title: "Professional Results",
+            desc: "Industry-specific solutions",
+          },
+          {
+            icon: FiDollarSign,
+            title: "Bulk Pricing & Delivery",
+            desc: "Rental options & bulk pricing",
+          },
+          {
+            icon: LuRocket,
+            title: "Custom Branding",
+            desc: "From design to delivery",
+          },
+        ].map((item, i) => {
+          const Icon = item.icon;
 
-            return (
-              <div
-                key={i}
-                className="
+          return (
+            <div
+              key={i}
+              className="
           bg-[#E8B4A924]
           rounded-xl
           shadow-sm
@@ -171,31 +169,31 @@ const UniformBusinessEnquiry = () => {
           hover:shadow-md
           transition
         "
-              >
-                {/* ICON */}
-                <Icon
-                  size={30}
-                  className="mb-3 text-[#A0522D]"
-                />
+            >
+              {/* ICON */}
+              <Icon
+                size={30}
+                className="mb-3 text-[#A0522D]"
+              />
 
-                {/* TEXT */}
-                <p className="text-black font-semibold text-sm">
-                  {item.title}
-                </p>
-                <p className="text-[#7A7A7A] text-xs mt-1">
-                  {item.desc}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-        {/* Divider */}
-        <div className="w-full h-px bg-gray-300 my-14" />
-        <h2 className="text-center text-3xl font-semibold text-[#402936]">
-          Explore Our Table Themes
-        </h2>
-        <div className="flex justify-end gap-3 mt-6 mr-6">
-          {/* <button
+              {/* TEXT */}
+              <p className="text-black font-semibold text-sm">
+                {item.title}
+              </p>
+              <p className="text-[#7A7A7A] text-xs mt-1">
+                {item.desc}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+      {/* Divider */}
+      <div className="w-full h-px bg-gray-300 my-14" />
+      <h2 className="text-center text-3xl font-semibold text-[#402936]">
+        Explore Our Table Themes
+      </h2>
+      <div className="flex justify-end gap-3 mt-6 mr-6">
+        {/* <button
             onClick={handlePrev}
             className="h-10 w-10 border rounded-full flex items-center justify-center hover:bg-gray-100"
           >
@@ -207,19 +205,19 @@ const UniformBusinessEnquiry = () => {
           >
             <FiArrowRight className="text-lg text-gray-600" />
           </button> */}
-          <FiArrowLeft onClick={handlePrev} size={25} className="text-lg cursor-pointer text-[#5D4A4A]" />
-          <FiArrowRight onClick={handleNext} size={25} className="text-lg text-[#5D4A4A] ml-8 cursor-pointer" />
-        </div>
+        <FiArrowLeft onClick={handlePrev} size={25} className="text-lg cursor-pointer text-[#5D4A4A]" />
+        <FiArrowRight onClick={handleNext} size={25} className="text-lg text-[#5D4A4A] ml-8 cursor-pointer" />
+      </div>
 
-        {/* INDUSTRY SLIDER */}
-        <div className="mt-6 overflow-hidden pb-12 ">
-          <div className="flex gap-6 transition-transform duration-500 ease-in-out justify-center ">
-            {bottomCards
-              .slice(index, index + cardsPerView)
-              .map((item, i) => (
-                <div
-                  key={i}
-                  className="
+      {/* INDUSTRY SLIDER */}
+      <div className="mt-6 overflow-hidden pb-12 ">
+        <div className="flex gap-6 transition-transform duration-500 ease-in-out justify-center ">
+          {bottomCards
+            .slice(index, index + cardsPerView)
+            .map((item, i) => (
+              <div
+                key={i}
+                className="
     relative
     overflow-hidden
     shadow-md
@@ -233,21 +231,21 @@ const UniformBusinessEnquiry = () => {
     group
    
   "
-                >
-                  {/* IMAGE */}
-                  <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl ">
-                    <Image
-                      src={item.img}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                      priority={i === 0}
-                    />
+              >
+                {/* IMAGE */}
+                <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl ">
+                  <Image
+                    src={item.img}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                    priority={i === 0}
+                  />
 
-                    {/* OVERLAY BUTTON */}
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%]">
-                      <button
-                        className="
+                  {/* OVERLAY BUTTON */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%]">
+                    <button
+                      className="
           w-full
           py-3
            border border-white
@@ -262,29 +260,28 @@ const UniformBusinessEnquiry = () => {
           transition-all
           duration-200
         "
-                        onClick={handleThemeClick}
-                      >
-                        Try This Theme
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* TEXT (UNCHANGED DATA) */}
-                  <div className="p-4 ">
-                    <h3 className="text-[#1C2C56] group-hover:text-white text-[18px] font-semibold">
-                      {item.title}
-                    </h3>
-                    <p className="text-[#6B7280] group-hover:text-white text-[14px] mt-2 leading-tight">
-                      {item.desc}
-                    </p>
+                      onClick={handleThemeClick}
+                    >
+                      Try This Theme
+                    </button>
                   </div>
                 </div>
 
-              ))}
-          </div>
-        </div>
+                {/* TEXT (UNCHANGED DATA) */}
+                <div className="p-4 ">
+                  <h3 className="text-[#1C2C56] group-hover:text-white text-[18px] font-semibold">
+                    {item.title}
+                  </h3>
+                  <p className="text-[#6B7280] group-hover:text-white text-[14px] mt-2 leading-tight">
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
 
+            ))}
+        </div>
       </div>
+
     </section>
   );
 };

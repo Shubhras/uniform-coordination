@@ -17,7 +17,6 @@ const AuthButtons = () => {
       router.push("/sign-up")
     }
    // console.log('clickeddddddddddd');
-
   };
 
   return (

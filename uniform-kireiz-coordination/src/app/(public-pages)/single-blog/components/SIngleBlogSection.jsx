@@ -63,8 +63,8 @@ const blogData = {
 
 const SingleBlogSection = () => {
     return (
-        <section className="relative w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 py-20 md:py-24">
-            <div className="bg-[#F5F7FB] rounded-3xl px-1 md:px-10 lg:px-8 py-10 md:py-8">
+        <section className="relative w-full bg-white  px-5 md:px-8 lg:px-12 pt-20 md:pt-24">
+            <div className="bg-[#F5F7FB] rounded-3xl px-1 md:px-10 lg:px-8 py-8">
 
                 {/* HEADER */}
                 <div className="text-center lg:mb-24 md:mb-18 mb-10">
