@@ -17,9 +17,7 @@ from rest_framework.permissions import IsAuthenticated ,BasePermission,AllowAny
 
 
 
-
-class FAQCreateAPIView(APIView):
-    
+class FAQCreateAPIView(APIView):    
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
 
@@ -56,6 +54,51 @@ class FAQCreateAPIView(APIView):
 
 
 
+# class FAQListAPIView(APIView):
+#     permission_classes = [AllowAny]
+    
+#     def get(self, request):
+#         try:
+#             search = request.query_params.get("search", "").strip()
+
+#             faqs = FAQ.objects.filter(isDeleted=False, isActive=True)
+
+#             if search:
+#                 faqs = faqs.filter(title__icontains=search)
+
+#             faqs = faqs.order_by("-created_at")
+
+#             paginator = CustomPagination()
+#             page = paginator.paginate_queryset(faqs, request)
+#             serializer = FAQSerializer(page, many=True, context={"request": request})
+
+#             response = {
+#                 "count": paginator.page.paginator.count,
+#                 "next": paginator.get_next_link(),
+#                 "previous": paginator.get_previous_link(),
+#                 "statusCode": 200,
+#                 "status": True,
+#                 "message": "FAQ list fetched successfully.",
+#                 "data": serializer.data,
+#                 "pagination": {
+#                     "page": paginator.page.number,
+#                     "page_size": paginator.get_page_size(request),
+#                     "total_pages": paginator.page.paginator.num_pages,
+#                     "total_items": paginator.page.paginator.count
+#                 }
+#             }
+#             return Response(response, status=status.HTTP_200_OK)
+
+#         except Exception as exc:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Server error while fetching FAQ list.",
+#                 "error": str(exc)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 class FAQListAPIView(APIView):
     permission_classes = [AllowAny]
     
@@ -65,7 +108,10 @@ class FAQListAPIView(APIView):
 
             faqs = FAQ.objects.filter(isDeleted=False, isActive=True)
 
-            if search:
+            # ✅ TYPE-BASED SEARCH (ONLY ADDITION)
+            if search.lower() in ["uniform", "table"]:
+                faqs = faqs.filter(type=search.lower())
+            elif search:
                 faqs = faqs.filter(title__icontains=search)
 
             faqs = faqs.order_by("-created_at")
@@ -133,6 +179,7 @@ class FAQDetailAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
 class FAQUpdateAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]  # <-- ensures request.user is AdminUser
@@ -184,6 +231,7 @@ class FAQUpdateAPIView(APIView):
                 "message": "Server error while updating FAQ.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class FAQDeleteAPIView(APIView):

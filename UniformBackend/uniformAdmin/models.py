@@ -189,12 +189,16 @@ class Category(models.Model):
     
     
 class Blog(models.Model):
+    BLOG_TYPE_CHOICES = (
+        ('uniform', 'Uniform'),
+        ('table', 'Table'),
+    )
     title = models.CharField(max_length=250,unique=True)
     slug = models.CharField(max_length=255, blank=True, null=True)
     category = models.ForeignKey(Category,on_delete=models.CASCADE,related_name="blogs")
     image = models.ImageField(upload_to="blog_images/",null=True,blank=True)
     description = models.TextField()
-
+    type = models.CharField(max_length=20,choices=BLOG_TYPE_CHOICES,default='uniform')
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -210,12 +214,15 @@ class Blog(models.Model):
  
  
 class FAQ(models.Model):
+    FAQ_TYPE_CHOICES = (
+        ('uniform', 'Uniform'),
+        ('table', 'Table'),
+    )
     title = models.CharField(max_length=255,unique=True)
     # description = models.TextField(blank=True, null=True)
-
+    type = models.CharField(max_length=20,choices=FAQ_TYPE_CHOICES,default='uniform')
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

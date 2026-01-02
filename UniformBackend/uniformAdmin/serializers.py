@@ -174,6 +174,7 @@ class BlogSerializer(serializers.ModelSerializer):
             "slug",
             "category",
             "categoryName",
+            "type",
             "image",        #  ONLY ONE image field
             "description",
             "isActive",
@@ -222,7 +223,7 @@ class FAQSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FAQ
-        fields = ["id", "title", "descriptions", "isActive", "created_at", "updated_at"]
+        fields = ["id", "title","type", "descriptions", "isActive", "created_at", "updated_at"]
 
     # Make title unique
     def validate_title(self, value):
@@ -688,6 +689,8 @@ class AdminNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminNotification
         fields = "__all__"
+        
+        
 class UnitPriceSerializer(serializers.Serializer):
     type = serializers.CharField()
     itemName = serializers.CharField()
