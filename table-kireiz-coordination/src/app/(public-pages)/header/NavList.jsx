@@ -72,7 +72,7 @@ border
                 <button
                     key={tab.title}
                     className={classNames(
-                        'relative px-4 py-2 rounded-xl heading-text text-white ',
+                        'relative px-4 py-2 heading-text text-white ',
                         tabClassName
                     )}
                     onClick={() => handleRedirect(tab, idx)}
@@ -85,11 +85,11 @@ border
                                 bounce: 0.3,
                                 duration: 0.6,
                             }}
-                            className="absolute inset-0 rounded-xl"
+                            className="absolute inset-0 "
                         />
                     )}
 
-                    <span className="relative z-10">
+                    <span className="relative z-10 ">
                         {tab.title}
                     </span>
                 </button>

@@ -1,5 +1,5 @@
 import dashboardsRoute from './dashboardsRoute'
-import conceptsRoute from './conceptsRoute'
+// import conceptsRoute from './conceptsRoute'
 import uiComponentsRoute from './uiComponentsRoute'
 import authRoute from './authRoute'
 import authDemoRoute from './authDemoRoute'
@@ -9,7 +9,7 @@ export const protectedRoutes = {
     ...dashboardsRoute,
     ...uiComponentsRoute,
     ...authDemoRoute,
-    ...conceptsRoute,
+    // ...conceptsRoute,
     ...guideRoute,
 }
 

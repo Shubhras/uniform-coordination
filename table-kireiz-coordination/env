@@ -2,7 +2,7 @@
 AUTH_SECRET=lmsdZgyoJ+vIJLrxo3lVVoq5uP0tKKclr
 
 # Base URL for NextAuth callbacks
-NEXTAUTH_URL=http://localhost:3000/
+NEXTAUTH_URL=http://localhost:7001/
 
 AUTH_TRUST_HOST=true
 
