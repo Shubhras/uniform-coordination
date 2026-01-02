@@ -1,14 +1,14 @@
-asgiref
-Django==5.2.7
+asgiref==3.8.1
+Django==4.2.19
 djangorestframework==3.16.1
-djangorestframework_simplejwt==5.5.1
+djangorestframework-simplejwt==5.5.1
 PyJWT==2.10.1
 python-decouple==3.8
 sqlparse==0.5.3
 django-cors-headers==4.9.0
-openpyxl
-mysqlclient
-pillow
-requests
+openpyxl==3.1.2
+mysqlclient==2.2.4
+pillow==11.0.0
+requests==2.32.3
 reportlab==4.1.0
-stripe ==14.1.0
+stripe==14.1.0
