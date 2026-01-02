@@ -19,6 +19,7 @@ from decimal import Decimal
 from django.db.models import Sum 
 from django.utils.dateparse import parse_date
 from .payment import CustomPagination
+from uniformAdmin.signal import *
 
 # from django.utils import timezone
 import re
@@ -1198,6 +1199,15 @@ class CreateOrderAPIView(APIView):
         order.start_date = start_date
         order.return_date = return_date
         order.save()
+        # order = order.save() 
+# Call the helper function instead of writing objects.create directly
+        create_admin_order_notification(
+                instance=order,
+                title=f"New Order created: {order.order_id }",
+                message=f"A new Order request has been created by {order.user}.",
+                priority="high",
+                object_id=order.order_id 
+            )
 
         # Prepare response
         response_data = {

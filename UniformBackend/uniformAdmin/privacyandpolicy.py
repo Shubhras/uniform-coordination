@@ -11,7 +11,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated ,BasePermission,AllowAny
 
 
-
 class PrivacyPolicyCreateAPIView(BaseAPIView):   
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]

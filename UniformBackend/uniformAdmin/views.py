@@ -20,293 +20,449 @@ from django.db.models import Q
 from .fabric import CustomPagination
 
 
-class AdminLoginAPIView(APIView):
-    authentication_classes = []   # IMPORTANT
-    permission_classes = []       # IMPORTANT
 
-    def post(self, request):
-        try:
-            serializer = AdminLoginSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            user = serializer.validated_data['user']
+# class AdminLoginAPIView(APIView):
+#     authentication_classes = []   # IMPORTANT
+#     permission_classes = []       # IMPORTANT
 
-            remember_me = request.data.get('remember_me', False)
-            if isinstance(remember_me, str):
-                remember_me = remember_me.lower() == 'true'
+#     def post(self, request):
+#         try:
+#             serializer = AdminLoginSerializer(data=request.data)
+#             serializer.is_valid(raise_exception=True)
+#             user = serializer.validated_data['user']
 
-            refresh = RefreshToken.for_user(user)
-            refresh["user_id"] = str(user.id)
-            refresh["role"] = "admin"
+#             remember_me = request.data.get('remember_me', False)
+#             if isinstance(remember_me, str):
+#                 remember_me = remember_me.lower() == 'true'
 
-            if remember_me:
-                refresh.set_exp(lifetime=timedelta(days=30))
-                refresh.access_token.set_exp(lifetime=timedelta(days=30))
-            else:
-                refresh.set_exp(lifetime=timedelta(days=1))
-                refresh.access_token.set_exp(lifetime=timedelta(hours=1))
+#             refresh = RefreshToken.for_user(user)
+#             refresh["user_id"] = str(user.id)
+#             refresh["role"] = "admin"
 
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Login successful",
-                "data": {
-                    "admin": {
-                        "id": user.id,
-                        "email": user.email,
-                        "role": user.role.role_name if user.role else None,
-                        "name": user.name,
-                        "remember_me": remember_me,
-                    },
-                    "access_token": str(refresh.access_token),
-                    "refresh_token": str(refresh),
-                }
-            }, status=status.HTTP_200_OK)
+#             if remember_me:
+#                 refresh.set_exp(lifetime=timedelta(days=30))
+#                 refresh.access_token.set_exp(lifetime=timedelta(days=30))
+#             else:
+#                 refresh.set_exp(lifetime=timedelta(days=1))
+#                 refresh.access_token.set_exp(lifetime=timedelta(hours=1))
 
-        except ValidationError as ve:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "message": "Invalid email or password",
-                "errors": ve.detail
-            }, status=status.HTTP_200_OK)
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Login successful",
+#                 "data": {
+#                     "admin": {
+#                         "id": user.id,
+#                         "email": user.email,
+#                         "role": user.role.role_name if user.role else None,
+#                         "name": user.name,
+#                         "remember_me": remember_me,
+#                     },
+#                     "access_token": str(refresh.access_token),
+#                     "refresh_token": str(refresh),
+#                 }
+#             }, status=status.HTTP_200_OK)
 
-        except Exception as e:
-            return Response({
-                "status": False,
-                "statusCode": 500,
-                "message": "Something went wrong",
-                "errors": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#         except ValidationError as ve:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 400,
+#                 "message": "Invalid email or password",
+#                 "errors": ve.detail
+#             }, status=status.HTTP_200_OK)
 
-class AdminChangePasswordAPIView(APIView):
-    permission_classes = [IsAuthenticated]  
+#         except Exception as e:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Something went wrong",
+#                 "errors": str(e)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def post(self, request):
-        try:
-            serializer = AdminChangePasswordSerializer(data=request.data, context={'request': request})
-            serializer.is_valid(raise_exception=True)
-            user = request.user
+# class AdminChangePasswordAPIView(APIView):
+#     permission_classes = [IsAuthenticated]  
 
-            # Set new password
-            with transaction.atomic():
-                user.set_password(serializer.validated_data['new_password'])
-                user.save()
+#     def post(self, request):
+#         try:
+#             serializer = AdminChangePasswordSerializer(data=request.data, context={'request': request})
+#             serializer.is_valid(raise_exception=True)
+#             user = request.user
 
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Password changed successfully"
-            }, status=status.HTTP_200_OK)
+#             # Set new password
+#             with transaction.atomic():
+#                 user.set_password(serializer.validated_data['new_password'])
+#                 user.save()
 
-        except ValidationError as ve:
-            # **Return 400 for validation errors**
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "message": "Validation Error",
-                "errors": ve.detail
-            }, status=status.HTTP_200_OK)
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Password changed successfully"
+#             }, status=status.HTTP_200_OK)
 
-        except Exception as e:
-            # **Only unexpected errors return 500**
-            return Response({
-                "status": False,
-                "statusCode": 500,
-                "message": "Something went wrong",
-                "errors": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#         except ValidationError as ve:
+#             # **Return 400 for validation errors**
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 400,
+#                 "message": "Validation Error",
+#                 "errors": ve.detail
+#             }, status=status.HTTP_200_OK)
+
+#         except Exception as e:
+#             # **Only unexpected errors return 500**
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Something went wrong",
+#                 "errors": str(e)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class AdminUpdateProfileAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+# class AdminUpdateProfileAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
 
-    def patch(self, request):
-        try:
-            user = request.user  
-            serializer = AdminUpdateSerializer(user, data=request.data, partial=True)
+#     def patch(self, request):
+#         try:
+#             user = request.user  
+#             serializer = AdminUpdateSerializer(user, data=request.data, partial=True)
             
-            if serializer.is_valid(raise_exception=True):
+#             if serializer.is_valid(raise_exception=True):
+#                 serializer.save()
+#                 return Response({
+#                     "status": True,
+#                     "statusCode": 200,
+#                     'message': 'Profile updated successfully',
+#                     'data': serializer.data
+#                 }, status=status.HTTP_200_OK)
+
+#         except ValidationError as ve:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 400,
+#                 'message': 'Validation error',
+#                 'errors': ve.message_dict
+#             }, status=status.HTTP_200_OK)
+
+#         except ObjectDoesNotExist:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 404,
+#                 'error': 'User not found'
+#             }, status=status.HTTP_200_OK)
+
+#         except Exception as e:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 'error': 'Something went wrong',
+#                 'details': str(e)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+
+
+# class AdminDetailAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         try:
+#             user = request.user
+
+#             jwt_auth = JWTAuthentication()
+
+#             header = jwt_auth.get_header(request)
+#             raw_token = jwt_auth.get_raw_token(header)
+#             validated_token = jwt_auth.get_validated_token(raw_token)
+
+#             role = validated_token.get('role')
+
+#             if role != 'admin':
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 403,
+#                     "error": "Forbidden",
+#                     "details": "Only admin users can access this endpoint"
+#                 }, status=status.HTTP_200_OK)
+
+#             serializer = AdminDetailSerializer(user)
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Admin details retrieved successfully",
+#                 "data": serializer.data
+#             }, status=status.HTTP_200_OK)
+
+#         except AttributeError:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 404,
+#                 "error": "User not found",
+#                 "details": "The authenticated user does not exist"
+#             }, status=status.HTTP_200_OK)
+
+#         except Exception as e:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "error": "Something went wrong",
+#                 "details": str(e)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# class AdminLogoutAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request):
+#         try:
+#             refresh_token = request.data.get("refresh_token")
+#             if not refresh_token:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "error": "Bad Request",
+#                     "details": "Refresh token is required for logout"
+#                 }, status=status.HTTP_200_OK)
+
+#             try:
+#                 token = RefreshToken(refresh_token)
+#                 token.blacklist()  
+#             except TokenError:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "error": "Invalid token",
+#                     "details": "Token is already blacklisted or malformed"
+#                 }, status=status.HTTP_200_OK)
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Logout successful"
+#             }, status=status.HTTP_200_OK)
+
+#         except Exception as e:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "error": "Something went wrong",
+#                 "details": str(e)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# class AdminForgotPasswordAPIView(APIView):
+#     # authentication_classes = [JWTAuthentication] 
+#     # permission_classes = [IsAuthenticated]  
+
+#     def post(self, request):
+#         """Send password reset email to admin and return reset link in response"""
+#         ip = request.META.get('REMOTE_ADDR')
+#         user_agent = request.META.get('HTTP_USER_AGENT', 'unknown')
+
+#         try:
+#             email = request.data.get("email")
+#             if not email:
+#                 return Response(
+#                     {"statusCode": 400, "status": False, "message": "Email is required"},
+#                     status=status.HTTP_200_OK
+#                 )
+#             try:
+#                 user = AdminUser.objects.get(email=email, is_staff=True)  
+#             except AdminUser.DoesNotExist:
+#                 return Response(
+#                     {"statusCode": 404, "status": False, "message": "Admin not found"},
+#                     status=status.HTTP_200_OK
+#                 )
+
+#             token = default_token_generator.make_token(user)
+#             base_url = "http://23.23.88.239:7001/forgotpassword/"
+#             full_reset_link = f"{base_url}?token={token}&user_id={user.pk}"
+
+
+#             # try:
+#             #     send_mail(
+#             #         subject="Admin Password Reset Request",
+#             #         message=f"Click the link to reset your password: {full_reset_link}",
+#             #         from_email="your-email@gmail.com",
+#             #         recipient_list=[email],
+#             #         fail_silently=False,
+#             #     )
+#             #     logger.info(f"[Forgot Password] Reset email sent to: {email} | IP: {ip}")
+#             # except Exception as e:
+#             #     logger.error(f"[Forgot Password] Failed to send reset email to {email}: {e} | IP: {ip}")
+#             #     return Response(
+#             #         {"statusCode": 500, "status": False, "message": "Failed to send email", "error": str(e)},
+#             #         status=status.HTTP_500_INTERNAL_SERVER_ERROR
+#             #     )
+
+#             return Response({
+#                 "statusCode": 200,
+#                 "status": True,
+#                 "message": "Password reset email sent",
+#                 "reset_link": full_reset_link
+#             }, status=status.HTTP_200_OK)           
+
+#         except Exception as e:
+#             # logger.exception(f"[Forgot Password] Unexpected error: {e} | IP: {ip}")
+#             return Response(
+#                 {"statusCode": 500, "status": False, "message": "An unexpected error occurred", "error": str(e)},
+#                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
+#             )
+
+#<--------------------TableTheme------------------
+class TableThemeCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    
+    def post(self,request):
+        try:
+            serializer = TableThemeSerializer(data=request.data)
+            if serializer.is_valid():
                 serializer.save()
                 return Response({
-                    "status": True,
-                    "statusCode": 200,
-                    'message': 'Profile updated successfully',
-                    'data': serializer.data
-                }, status=status.HTTP_200_OK)
-
-        except ValidationError as ve:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                'message': 'Validation error',
-                'errors': ve.message_dict
-            }, status=status.HTTP_200_OK)
-
-        except ObjectDoesNotExist:
-            return Response({
-                "status": False,
-                "statusCode": 404,
-                'error': 'User not found'
-            }, status=status.HTTP_200_OK)
-
+                    "statusCode":201,
+                    "status":True,
+                    "message":"Table Theme create successfully.",
+                    "data":serializer.data
+                },status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    "statusCode":400,
+                    "status":True,
+                    "message":"Validation failed Table name issue.",
+                    "error":serializer.errors
+                },status=status.HTTP_400_BAD_REQUEST)
+        
         except Exception as e:
             return Response({
-                "status": False,
-                "statusCode": 500,
-                'error': 'Something went wrong',
-                'details': str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+                "statusCode":500,
+                "status":False,
+                "message":"Server error while creating table",
+                "error":str(e)
+            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-class AdminDetailAPIView(APIView):
+class TableThemeListAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
-    def get(self, request):
+    def get(self,request):
         try:
-            user = request.user
+            themes = TableTheme.objects.filter(isDeleted=False)
+            serializer = TableThemeSerializer(themes,many=True)
+            return Response({
+                "statusCode":200,
+                "status":True,
+                "message":"Table Themes Successfully fetch.",
+                "data":serializer.data
+            },status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response({
+                "statusCode":500,
+                "status":False,
+                "message":"Server error while creating table",
+                "error":str(e)
+            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+  
 
-            jwt_auth = JWTAuthentication()
-
-            header = jwt_auth.get_header(request)
-            raw_token = jwt_auth.get_raw_token(header)
-            validated_token = jwt_auth.get_validated_token(raw_token)
-
-            role = validated_token.get('role')
-
-            if role != 'admin':
+class TableThemeDetailAPIView(APIView):
+    def get(self, request, id):
+        try:
+            theme = TableTheme.objects.get(id=id, isDeleted=False)
+            if not theme.is_active:
                 return Response({
                     "status": False,
                     "statusCode": 403,
-                    "error": "Forbidden",
-                    "details": "Only admin users can access this endpoint"
-                }, status=status.HTTP_200_OK)
+                    "message": "This table theme is inactive or deleted",
+                    "data": None
+                }, status=status.HTTP_403_FORBIDDEN)
 
-            serializer = AdminDetailSerializer(user)
+            serializer = TableThemeSerializer(theme)
             return Response({
                 "status": True,
                 "statusCode": 200,
-                "message": "Admin details retrieved successfully",
+                "message": "Table theme fetched successfully",
                 "data": serializer.data
             }, status=status.HTTP_200_OK)
 
-        except AttributeError:
+        except TableTheme.DoesNotExist:
             return Response({
                 "status": False,
                 "statusCode": 404,
-                "error": "User not found",
-                "details": "The authenticated user does not exist"
-            }, status=status.HTTP_200_OK)
+                "message": "Table theme not found",
+                "data": None
+            }, status=status.HTTP_404_NOT_FOUND)
+        
 
-        except Exception as e:
+class TableThemeUpdateAPIView(APIView):
+    def put(self, request, id):
+        try:
+            theme = TableTheme.objects.get(id=id, isDeleted=False)
+        except TableTheme.DoesNotExist:
             return Response({
                 "status": False,
-                "statusCode": 500,
-                "error": "Something went wrong",
-                "details": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                "statusCode": 404,
+                "message": "Table theme not found",
+                "data": None
+            }, status=status.HTTP_404_NOT_FOUND)
 
+        if not theme.is_active:
+            return Response({
+                "status": False,
+                "statusCode": 403,
+                "message": "This table theme is inactive and cannot be updated",
+                "data": None
+            }, status=status.HTTP_403_FORBIDDEN)
 
-class AdminLogoutAPIView(APIView):
+        # Partial update
+        serializer = TableThemeSerializer(theme, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Table theme updated successfully",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Validation error",
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class TableThemeDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
-    def post(self, request):
+    def delete(self, request, pk):
         try:
-            refresh_token = request.data.get("refresh_token")
-            if not refresh_token:
+            theme = TableTheme.objects.filter(pk=pk, isDeleted=False).first()
+            if not theme:
                 return Response({
                     "status": False,
-                    "statusCode": 400,
-                    "error": "Bad Request",
-                    "details": "Refresh token is required for logout"
+                    "statusCode": 404,
+                    "message": "Table theme not found."
                 }, status=status.HTTP_200_OK)
 
-            try:
-                token = RefreshToken(refresh_token)
-                token.blacklist()  
-            except TokenError:
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "Invalid token",
-                    "details": "Token is already blacklisted or malformed"
-                }, status=status.HTTP_200_OK)
+            theme.isDeleted = True
+            theme.save()
 
             return Response({
                 "status": True,
                 "statusCode": 200,
-                "message": "Logout successful"
+                "message": "Table theme deleted successfully."
             }, status=status.HTTP_200_OK)
 
-        except Exception as e:
+        except Exception as exc:
             return Response({
                 "status": False,
                 "statusCode": 500,
-                "error": "Something went wrong",
-                "details": str(e)
+                "message": "Server error while deleting table theme.",
+                "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+# products/views/update_product.py
 
-
-class AdminForgotPasswordAPIView(APIView):
-    # authentication_classes = [JWTAuthentication] 
-    # permission_classes = [IsAuthenticated]  
-
-    def post(self, request):
-        """Send password reset email to admin and return reset link in response"""
-        ip = request.META.get('REMOTE_ADDR')
-        user_agent = request.META.get('HTTP_USER_AGENT', 'unknown')
-
-        try:
-            email = request.data.get("email")
-            if not email:
-                return Response(
-                    {"statusCode": 400, "status": False, "message": "Email is required"},
-                    status=status.HTTP_200_OK
-                )
-            try:
-                user = AdminUser.objects.get(email=email, is_staff=True)  
-            except AdminUser.DoesNotExist:
-                return Response(
-                    {"statusCode": 404, "status": False, "message": "Admin not found"},
-                    status=status.HTTP_200_OK
-                )
-
-            token = default_token_generator.make_token(user)
-            base_url = "http://23.23.88.239:7001/forgotpassword/"
-            full_reset_link = f"{base_url}?token={token}&user_id={user.pk}"
-
-
-            # try:
-            #     send_mail(
-            #         subject="Admin Password Reset Request",
-            #         message=f"Click the link to reset your password: {full_reset_link}",
-            #         from_email="your-email@gmail.com",
-            #         recipient_list=[email],
-            #         fail_silently=False,
-            #     )
-            #     logger.info(f"[Forgot Password] Reset email sent to: {email} | IP: {ip}")
-            # except Exception as e:
-            #     logger.error(f"[Forgot Password] Failed to send reset email to {email}: {e} | IP: {ip}")
-            #     return Response(
-            #         {"statusCode": 500, "status": False, "message": "Failed to send email", "error": str(e)},
-            #         status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            #     )
-
-            return Response({
-                "statusCode": 200,
-                "status": True,
-                "message": "Password reset email sent",
-                "reset_link": full_reset_link
-            }, status=status.HTTP_200_OK)           
-
-        except Exception as e:
-            # logger.exception(f"[Forgot Password] Unexpected error: {e} | IP: {ip}")
-            return Response(
-                {"statusCode": 500, "status": False, "message": "An unexpected error occurred", "error": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-
-# products/views/create_product.py
 
 class AdminCreateProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -325,7 +481,7 @@ class AdminCreateProductAPIView(APIView):
                     "data": serializer.data
                 }, status=status.HTTP_201_CREATED)
 
-            # 🔹 Specific validation messages
+            #  Specific validation messages
             if "productName" in serializer.errors:
                 return Response({
                     "status": False,
@@ -357,7 +513,6 @@ class AdminCreateProductAPIView(APIView):
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# products/views/update_product.py
 
 class AdminUpdateProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -795,7 +950,7 @@ class QuotationTemplateListAPIView(APIView):
         # Fetch all quotations
         quotations = QuotationRequest.objects.filter(isDeleted=False).order_by('-created_at')
 
-        # Optional: filter by ids
+        # filter by ids
         ids = request.GET.get('ids')
         if ids:
             try:

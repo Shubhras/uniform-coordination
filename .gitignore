@@ -1,7 +1,7 @@
 # Node modules
 /node_modules
 /uniform-kireiz-coordination/node_modules
-
+/table-kireiz-coordination/node_modules
 # Logs
 npm-debug.log*
 yarn-debug.log*

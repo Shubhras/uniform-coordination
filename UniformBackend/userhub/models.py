@@ -274,7 +274,6 @@ class CustomUpdateModels(models.Model):
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    isDeleted = models.BooleanField(default=False)
 
 
     class Meta:
@@ -299,7 +298,7 @@ class QuotationRequest(models.Model):
     email = models.EmailField()
     phone_number = models.CharField(max_length=20,null=True,blank=True)
     customupdatemodel = models.ForeignKey(
-        CustomUpdateModels,on_delete=models.CASCADE,related_name="quotation_requests",null=True,blank=True)  # Uniform Request Details
+        CustomUpdateModels,on_delete=models.SET_NULL,related_name="quotation_requests",null=True,blank=True)  # Uniform Request Details
     item_type = models.CharField(max_length=100,null=True,blank=True)
     material = models.CharField(max_length=100,null=True,blank=True)
     size_quantity = models.TextField(
@@ -312,6 +311,7 @@ class QuotationRequest(models.Model):
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 import re
 from .models import *
+from .utils import get_default_b2b_role
 # User = get_user_model()
 import json
 
@@ -33,20 +34,50 @@ class AdminLoginSerializer(serializers.Serializer):
         return data
 
 
+# class AdminChangePasswordSerializer(serializers.Serializer):
+#     current_password = serializers.CharField(write_only=True)
+#     new_password = serializers.CharField(write_only=True)
+#     confirm_new_password = serializers.CharField(write_only=True)
+
+
+#     def validate_new_password(self, value):
+#         """
+#         Validate strong password rules:
+#         - Minimum 6 characters
+#         - At least one letter
+#         - At least one number
+#         - At least one special character (@,#,$, etc.)
+#         """
+#         if len(value) < 6:
+#             raise serializers.ValidationError("Password must be at least 6 characters long.")
+#         if not re.search(r"[A-Za-z]", value):
+#             raise serializers.ValidationError("Password must contain at least one letter.")
+#         if not re.search(r"[0-9]", value):
+#             raise serializers.ValidationError("Password must contain at least one number.")
+#         if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
+#             raise serializers.ValidationError("Password must contain at least one special character like @,#,$.")
+#         return value
+    
+
+#     def validate(self, data):
+#         user = self.context['request'].user
+
+#         # Check current password
+#         if not user.check_password(data.get('current_password')):
+#             raise serializers.ValidationError({"current_password": "Current password is incorrect"})
+
+#         # Check new password match
+#         if data.get('new_password') != data.get('confirm_new_password'):
+#             raise serializers.ValidationError({"confirm_new_password": "New passwords do not match"})
+
+#         return data
+
 class AdminChangePasswordSerializer(serializers.Serializer):
     current_password = serializers.CharField(write_only=True)
     new_password = serializers.CharField(write_only=True)
     confirm_new_password = serializers.CharField(write_only=True)
 
-
     def validate_new_password(self, value):
-        """
-        Validate strong password rules:
-        - Minimum 6 characters
-        - At least one letter
-        - At least one number
-        - At least one special character (@,#,$, etc.)
-        """
         if len(value) < 6:
             raise serializers.ValidationError("Password must be at least 6 characters long.")
         if not re.search(r"[A-Za-z]", value):
@@ -56,20 +87,18 @@ class AdminChangePasswordSerializer(serializers.Serializer):
         if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
             raise serializers.ValidationError("Password must contain at least one special character like @,#,$.")
         return value
-    
 
     def validate(self, data):
-        user = self.context['request'].user
+        user = self.context['request'].user 
 
-        # Check current password
         if not user.check_password(data.get('current_password')):
             raise serializers.ValidationError({"current_password": "Current password is incorrect"})
 
-        # Check new password match
         if data.get('new_password') != data.get('confirm_new_password'):
             raise serializers.ValidationError({"confirm_new_password": "New passwords do not match"})
 
         return data
+
 
 class AdminUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -78,7 +107,8 @@ class AdminUpdateSerializer(serializers.ModelSerializer):
 
 
 class AdminDetailSerializer(serializers.ModelSerializer):
-    role_name = serializers.CharField(source='role.name', read_only=True)
+    role_name = serializers.CharField(source='role.role_name', read_only=True)
+
 
     class Meta:
         model = AdminUser
@@ -390,6 +420,10 @@ class SubCategorySerializer(serializers.ModelSerializer):
         return attrs
 
 
+class TableThemeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TableTheme
+        fields = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
     parts = serializers.PrimaryKeyRelatedField(
@@ -695,3 +729,47 @@ class UnitPriceSerializer(serializers.Serializer):
     basePrice = serializers.DecimalField(max_digits=10, decimal_places=2)
     bulk = serializers.DecimalField(max_digits=10, decimal_places=2)
     action = serializers.CharField()
+
+#<====================B2B=========================>
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = AdminUser
+        fields = [
+            "id",
+            "name",
+            "company_name",
+            "email",
+            "mobile",
+            "tier",
+            "password",
+            "is_active",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+    def create(self, validated_data):
+        password = validated_data.pop("password")
+
+        validated_data["role"] = get_default_b2b_role()
+        validated_data["is_staff"] = False
+
+        user = AdminUser.objects.create_user(
+            password=password,
+            **validated_data
+        )
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if password:
+            instance.set_password(password)
+
+        instance.save()
+        return instance
