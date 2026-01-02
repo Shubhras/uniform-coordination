@@ -39,7 +39,7 @@ const SplitSignup = ({ children, content, ...rest }) => {
           "
         >
           <img
-            src="/img/others/new-auth-imgthree.png"
+            src="/img/others/table-image1.png"
             alt="Signup Illustration"
             className="
               object-contain object-center

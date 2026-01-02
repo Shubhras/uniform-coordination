@@ -23,7 +23,7 @@ const SplitForgotPassword = ({ children, content, ...rest }) => {
         {/* Logo */}
         <div className="absolute top-[5%] left-[5%] z-20">
           <img
-            src="/img/others/auth-logo.png"
+            src="/img/others/table-image1.png"
             alt="KIREIZ FORM"
             className="md:h-12 h-10 w-auto cursor-pointer"
             onClick={handleRedirectHome}
@@ -38,7 +38,7 @@ const SplitForgotPassword = ({ children, content, ...rest }) => {
           "
         >
           <img
-            src="/img/others/new-auth-imgone.png"
+            src="/img/others/table-image1.png"
             alt="Forgot Password Illustration"
             className="
               object-contain object-center

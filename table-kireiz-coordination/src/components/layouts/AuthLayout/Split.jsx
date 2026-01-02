@@ -34,7 +34,7 @@ const Split = ({ children, content, ...rest }) => {
           "
         >
           <img
-            src="/img/others/new-auth-imgtwo.png"
+            src="/img/others/table-image1.png"
             alt="Auth Image"
             className="
               object-contain object-center
