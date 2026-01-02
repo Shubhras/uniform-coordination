@@ -207,7 +207,7 @@ const Uniform3DmoduleDegisn = () => {
 
   function applyBaseColorToModel(hex) {
     uniformState.color = hex
-
+uniformState.partColors[uniformState.active3dPart] = hex
   }
 
   /** LEFT ICON SELECT */
@@ -479,6 +479,7 @@ const Uniform3DmoduleDegisn = () => {
                         applyBaseColorToModel(hex)
                         setColor(hex)
                         uniformState.color = hex
+                        uniformState.partColors[uniformState.active3dPart] = hex
                       }}
                       className="w-10 h-10 rounded-full shadow border"
                       style={{ background: hex }}
@@ -661,13 +662,9 @@ const Uniform3DmoduleDegisn = () => {
           {/* <div className="absolute bottom-[100px] flex"> */}
           <div className="
               absolute 
-              top-[80vh]
+              top-[75vh]
               flex
             ">
-            {/* // bottom-[40px] 
-              // sm:bottom-[60px] 
-              // md:bottom-[80px] 
-              // lg:bottom-[100px]  */}
             <div className="z-20 mt-6 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl px-3 py-2 flex items-center gap-4">
               <button className="p-1 rounded-md">
                 <img src="/img/top-left-image/cursor.png" className="w-5 h-5 invert" />
