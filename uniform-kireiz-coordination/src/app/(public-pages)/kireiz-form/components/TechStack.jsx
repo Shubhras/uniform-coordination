@@ -121,7 +121,7 @@ const stackList = [
 
 const TechStack = () => {
   return (
-    <section className="w-full bg-white px-4 sm:px-6 lg:px-12 py-16">
+    <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12 py-16">
       {/* HEADER */}
       <div className="text-center mb-14">
         <h2 className="text-2xl md:text-3xl font-semibold text-[#1C2C56]">

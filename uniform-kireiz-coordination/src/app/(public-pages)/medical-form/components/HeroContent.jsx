@@ -94,7 +94,7 @@ const HeroContent = () => {
         //         </div>
         //     </div>
         // </section>
-        <section className="w-full bg-white px-4 sm:px-0 md:px-0 lg:px-0">
+        <section className="w-full bg-white md:px-0 lg:px-0">
             <div className="w-full bg-[#dce4f7] rounded-br-[100px] overflow-hidden">
                 <div className="relative mx-auto">
 

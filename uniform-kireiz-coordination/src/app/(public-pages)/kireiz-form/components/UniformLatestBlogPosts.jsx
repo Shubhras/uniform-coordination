@@ -45,7 +45,7 @@ const UniformLatestBlogPosts = () => {
     router.push("/single-blog");
   };
   return (
-    <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
+    <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12">
       <div className="py-14 md:py-16">
         <div className="bg-[#F5F7FB] rounded-3xl px-6 md:px-10 py-10 md:py-16">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">

@@ -6,7 +6,8 @@ import React from 'react'
 import BlogSection from './BlogSection'
 import HaederPage from '../../header/HaederPage'
 import FooterPage from '../../footer/FooterPage'
-import ChatbotSection from '../../chatbot-section/ChatbotSection'
+import ChatbotSection from '../../kireiz-form/components/ChatbotSection'
+// import ChatbotSection from '../../chatbot-section/ChatbotSection'
 
 const BlogHome = () => {
     const mode = useTheme((state) => state.mode)

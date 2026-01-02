@@ -26,7 +26,7 @@ const UniformHome = () => {
     }
 
     return (
-        <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900">
+        <main className="text-base bg-white dark:bg-gray-900">
           <HaederPage toggleMode={toggleMode} mode={mode} />
             <HeroContent mode={mode} />
             {/* <div className="relative">

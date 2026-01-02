@@ -1,6 +1,6 @@
 "use client";
 
-import Container from "@/components/shared/Container";
+// import Container from "@/components/shared/Container";
 import { useState } from "react";
 import { FiPlus, FiMinus, FiSearch } from "react-icons/fi";
 
@@ -38,7 +38,7 @@ const FaqSection = () => {
 
     return (
         <section className="relative pt-8 pb-20 bg-white px-5">
-            <Container>
+            {/* <Container> */}
                 {/* Header */}
                 <div className="text-center mb-8">
                     {/* <h2 className="text-3xl md:text-4xl font-semibold text-[#1C2C56] mb-3">
@@ -99,7 +99,7 @@ const FaqSection = () => {
                         );
                     })}
                 </div>
-            </Container>
+            {/* </Container> */}
         </section>
     );
 };

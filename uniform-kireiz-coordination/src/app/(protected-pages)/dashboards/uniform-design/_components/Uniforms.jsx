@@ -34,9 +34,8 @@ const Uniforms = () => {
     const products = imagesByTab[activeTab]
 
     return (
-        <section className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10 mt-15">
-            <div className="w-full mx-auto px-4">
-
+        <section className="w-full bg-white flex flex-col lg:flex-row px-5 md:px-8 lg:px-12 py-5 gap-10 mt-15"> 
+            <div className="w-full mx-auto">
                 <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p>
 
                 {/* FILTER + SORT */}
@@ -49,7 +48,7 @@ const Uniforms = () => {
                             <button
                                 key={item}
                                 onClick={() => setActiveFilter(item)}
-                                className={`text-sm px-3 py-1 rounded-md transition
+                                className={`text-sm px-4 py-1 rounded-md transition
                   ${activeFilter === item
                                         ? 'bg-[#1C2C56] text-white'
                                         : 'text-[#1C2C56] hover:bg-[#1C2C5615]'
