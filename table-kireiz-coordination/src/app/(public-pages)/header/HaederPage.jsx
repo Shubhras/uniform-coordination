@@ -29,7 +29,7 @@ const HaederPage = ({ toggleMode, mode }) => {
   }
   return (
     <header className="fixed inset-x-0 top-0 z-50 bg-[#E8B4A9]">
-      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12">
+      <div className="w-full mx-auto px-5 md:px-8 lg:px-12">
         <div className="flex h-14 items-center justify-between">
           <Drawer
             title="Navigation"

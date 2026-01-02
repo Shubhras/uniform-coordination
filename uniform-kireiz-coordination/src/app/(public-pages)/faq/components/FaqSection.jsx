@@ -37,7 +37,7 @@ const FaqSection = () => {
     };
 
     return (
-        <section className="relative pt-8 pb-20 bg-white px-5">
+        <section className="relative py-8 bg-white px-5">
             {/* <Container> */}
                 {/* Header */}
                 <div className="text-center mb-8">
