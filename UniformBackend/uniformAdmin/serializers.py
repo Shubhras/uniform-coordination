@@ -420,6 +420,10 @@ class SubCategorySerializer(serializers.ModelSerializer):
         return attrs
 
 
+class TableThemeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TableTheme
+        fields = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
     parts = serializers.PrimaryKeyRelatedField(

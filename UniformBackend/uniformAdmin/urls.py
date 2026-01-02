@@ -140,9 +140,13 @@ urlpatterns = [
     path('admin-user/<int:id>/get/',AdminUserDetailAPIView.as_view(), name = 'admin-user-detail-get'),
     path('admin-user/<int:id>/update/',AdminUserUpdateAPIView.as_view(), name = 'admin-user-update'),
     path('admin-user/delete/',AdminUserDeleteAPIView.as_view(), name = 'admin-user-delete'),
-   
-    
-   
+
+    #<----------------------Table_Theme ---------------------------->
+    path('tabletheme/create/',TableThemeCreateAPIView.as_view(), name = 'Table_Theme-create'),
+    path('tabletheme/get/',TableThemeListAPIView.as_view(), name = 'Table_Theme-get-list'),
+    path('tabletheme/<int:id>/',TableThemeDetailAPIView.as_view(), name = 'Table_Theme-get-detail'),
+    path('tabletheme<int:id>/',TableThemeUpdateAPIView.as_view(), name = 'Table_Theme-update'),
+    path('tabletheme/delete.',TableThemeDeleteAPIView.as_view(), name = 'Table_Theme-delete'),
    
    
 ]

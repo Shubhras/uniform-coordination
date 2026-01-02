@@ -287,6 +287,22 @@ class SubCategory(models.Model):
 
     def __str__(self):
         return self.name
+    
+    
+class TableTheme(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    image = models.ImageField(upload_to="table_themes/")
+    order = models.PositiveIntegerField(default=0, db_index=True,blank=True, null=True) 
+    is_active = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+    def __str__(self):
+        return self.title
+
 
 
 class Product(models.Model):

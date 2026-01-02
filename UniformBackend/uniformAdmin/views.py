@@ -18,7 +18,7 @@ from userhub.models import QuotationRequest
 from userhub.serializers import QuotationRequestSerializer
 from django.db.models import Q
 from .fabric import CustomPagination
-from .auth import IsAdminUserJWT
+
 
 
 # class AdminLoginAPIView(APIView):
@@ -306,7 +306,162 @@ from .auth import IsAdminUserJWT
 #                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
 #             )
 
+#<--------------------TableTheme------------------
+class TableThemeCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    
+    def post(self,request):
+        try:
+            serializer = TableThemeSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "statusCode":201,
+                    "status":True,
+                    "message":"Table Theme create successfully.",
+                    "data":serializer.data
+                },status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    "statusCode":400,
+                    "status":True,
+                    "message":"Validation failed Table name issue.",
+                    "error":serializer.errors
+                },status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            return Response({
+                "statusCode":500,
+                "status":False,
+                "message":"Server error while creating table",
+                "error":str(e)
+            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class TableThemeListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self,request):
+        try:
+            themes = TableTheme.objects.filter(isDeleted=False)
+            serializer = TableThemeSerializer(themes,many=True)
+            return Response({
+                "statusCode":200,
+                "status":True,
+                "message":"Table Themes Successfully fetch.",
+                "data":serializer.data
+            },status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response({
+                "statusCode":500,
+                "status":False,
+                "message":"Server error while creating table",
+                "error":str(e)
+            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+  
+
+class TableThemeDetailAPIView(APIView):
+    def get(self, request, id):
+        try:
+            theme = TableTheme.objects.get(id=id, isDeleted=False)
+            if not theme.is_active:
+                return Response({
+                    "status": False,
+                    "statusCode": 403,
+                    "message": "This table theme is inactive or deleted",
+                    "data": None
+                }, status=status.HTTP_403_FORBIDDEN)
+
+            serializer = TableThemeSerializer(theme)
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Table theme fetched successfully",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+
+        except TableTheme.DoesNotExist:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "Table theme not found",
+                "data": None
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+
+class TableThemeUpdateAPIView(APIView):
+    def put(self, request, id):
+        try:
+            theme = TableTheme.objects.get(id=id, isDeleted=False)
+        except TableTheme.DoesNotExist:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "Table theme not found",
+                "data": None
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        if not theme.is_active:
+            return Response({
+                "status": False,
+                "statusCode": 403,
+                "message": "This table theme is inactive and cannot be updated",
+                "data": None
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        # Partial update
+        serializer = TableThemeSerializer(theme, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Table theme updated successfully",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Validation error",
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class TableThemeDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def delete(self, request, pk):
+        try:
+            theme = TableTheme.objects.filter(pk=pk, isDeleted=False).first()
+            if not theme:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Table theme not found."
+                }, status=status.HTTP_200_OK)
+
+            theme.isDeleted = True
+            theme.save()
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Table theme deleted successfully."
+            }, status=status.HTTP_200_OK)
+
+        except Exception as exc:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Server error while deleting table theme.",
+                "error": str(exc)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+# products/views/update_product.py
 
 
 class AdminCreateProductAPIView(APIView):
@@ -326,7 +481,7 @@ class AdminCreateProductAPIView(APIView):
                     "data": serializer.data
                 }, status=status.HTTP_201_CREATED)
 
-            # 🔹 Specific validation messages
+            #  Specific validation messages
             if "productName" in serializer.errors:
                 return Response({
                     "status": False,
@@ -358,7 +513,6 @@ class AdminCreateProductAPIView(APIView):
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# products/views/update_product.py
 
 class AdminUpdateProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1044,198 +1198,3 @@ class AdminNotificationDeleteAPIView(APIView):
                 "message": "Something went wrong on server.",
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-#<====================B2B=========================>
-class AdminUserCreateAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
-
-    def post(self, request):
-        try:
-            serializer = AdminUserSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({
-                    "statusCode":201,
-                    "status": True,
-                    "message": "B2B user created successfully",
-                    "data": serializer.data
-                }, status=status.HTTP_201_CREATED)
-
-            return Response({
-                "statusCode":400,
-                "status": False,
-                "message":"Invalide data",
-                "errors": serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        except Exception as e:
-            return Response({
-                "statusCode":500,
-                "status":False,
-                "message":"Somthink went wrong on server",
-                "error":str(e)
-             },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-class AdminUserListAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
-
-    def get(self, request):
-        queryset = AdminUser.objects.all().order_by("-id")
-
-        # SEARCH
-        search = request.query_params.get("search")
-        if search:
-            queryset = queryset.filter(
-                Q(name__icontains=search) |
-                Q(company_name__icontains=search) |
-                Q(email__icontains=search) |
-                Q(mobile__icontains=search) |
-                Q(tier__icontains=search)
-            )
-
-        # PAGINATION
-        paginator = CustomPagination()
-        page = paginator.paginate_queryset(queryset, request)
-
-        serializer = AdminUserSerializer(page, many=True)
-        return paginator.get_paginated_response(serializer.data)
-
-class AdminUserDetailAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
-
-    def get(self, request, id):
-        try:
-            user = get_object_or_404(AdminUser, id=id)
-            serializer = AdminUserSerializer(user)
-            return Response({
-                "statusCode":200,
-                "status": True,
-                "message":"User data fetch successfully. ",
-                "data": serializer.data
-            },status = status.HTTP_200_OK)
-        
-        except Exception as e:
-            return Response({
-                "statusCode":500,
-                "status":False,
-                "message":"Somthing went wrong on server",
-                "error":str(e)
-            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    
-class AdminUserUpdateAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
-
-    def put(self, request, id):
-        user = get_object_or_404(AdminUser, id=id)
-
-        serializer = AdminUserSerializer(
-            user,
-            data=request.data,
-            partial=True   
-        )
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                "status": True,
-                "message": "User updated successfully",
-                "data": serializer.data
-            })
-
-        return Response({
-            "status": False,
-            "errors": serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AdminUserDeleteAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
-
-    def delete(self, request):
-        try:
-            user_id = request.query_params.get("id")
-            delete_all = request.query_params.get("all")
-            ids = request.data.get("ids", [])
-
-            # CONFLICT CHECK
-            if delete_all and (user_id or ids):
-                return Response({
-                    "statusCode":400,
-                    "status": False,
-                    "message": "Cannot use 'all' with id or ids"
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            # DELETE ALL
-            if delete_all == "true":
-                count = AdminUser.objects.count()
-                if count == 0:
-                    return Response({
-                        "statusCode":404,
-                        "status": False,
-                        "message": "No users found to delete"
-                    }, status=status.HTTP_404_NOT_FOUND)
-
-                AdminUser.objects.all().delete()
-                return Response({
-                    "statusCode":204,
-                    "status": True,
-                    "message": f"{count} users deleted successfully"
-                }, status=status.HTTP_204_NO_CONTENT)
-
-            # DELETE BY SINGLE ID
-            if user_id:
-                try:
-                    user = AdminUser.objects.get(id=user_id)
-                except AdminUser.DoesNotExist:
-                    return Response({
-                        "statusCode":404,
-                        "status": False,
-                        "message": "User not found"
-                    }, status=status.HTTP_404_NOT_FOUND)
-
-                user.delete()
-                return Response({
-                    "statusCode":204,
-                    "status": True,
-                    "message": "User deleted successfully"
-                }, status=status.HTTP_204_NO_CONTENT)
-
-            # BULK DELETE (ids list)
-            if ids:
-                if not isinstance(ids, list):
-                    return Response({
-                        "statusCode":400,
-                        "status": False,
-                        "message": "ids must be a list"
-                    }, status=status.HTTP_400_BAD_REQUEST)
-
-                users = AdminUser.objects.filter(id__in=ids)
-                if not users.exists():
-                    return Response({
-                        "statusCode":404,
-                        "status": False,
-                        "message": "No matching users found"
-                    }, status=status.HTTP_404_NOT_FOUND)
-
-                deleted_count = users.count()
-                users.delete()
-                return Response({
-                    "statusCode":204,
-                    "status": True,
-                    "message": f"{deleted_count} users deleted successfully"
-                }, status=status.HTTP_204_NO_CONTENT)
-
-            # NOTHING PROVIDED
-            return Response({
-                "statusCode":400,
-                "status": False,
-                "message": "Provide id, ids or all=true"
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        except Exception as e:
-            return Response({
-                "statuscode":500,
-                "status": False,
-                "error": str(e)
-            }, statuss=status.HTTP_500_INTERNAL_SERVER_ERROR)
