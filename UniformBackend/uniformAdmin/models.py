@@ -115,7 +115,6 @@ class Fabric(models.Model):
         return self.fabricName
 
 
-
 class Parts(models.Model):
     CATEGORY_CHOICES = [
         ("body", "Body"),

@@ -16,10 +16,10 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.db import IntegrityError, transaction
 from decimal import Decimal
-from django.db.models import Sum ,Count
+from django.db.models import Sum ,Count,Max
 from django.utils.dateparse import parse_date
 from .payment import CustomPagination
-from django.db.models.functions import TruncDay
+from django.db.models.functions import TruncDay ,TruncMonth
 # from django.utils import timezone
 import re
 logger = logging.getLogger(__name__)
@@ -1389,98 +1389,172 @@ class OrderDetailAPIView(APIView):
                 "data": {}
             }, status=status.HTTP_404_NOT_FOUND)
 
+
 class AdminDashAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        pending_quotes = QuotationRequest.objects.filter(quotation_status='pending').count()
+
+        # =========================
+        # SUMMARY CARDS
+        # =========================
+        pending_quotes = QuotationRequest.objects.filter(
+            quotation_status="pending",
+            isDeleted=False
+        ).count()
+
+        total_pending_quot = QuotationRequest.objects.filter(isDeleted=False).count()
+
+        total_pending_quot_percentage = (
+            round((pending_quotes / total_pending_quot) * 100, 2)
+            if total_pending_quot else 0
+        )
+
         total_templates = QuotationTemplate.objects.count()
 
-        summary_cards = [
-            {"key": "pending_quotes", "title": "Pending Quotes", "value": pending_quotes},
-            {"key": "total_templates", "title": "Total Templates", "value": total_templates},
+        # =========================
+        # QUOTE STATUS DISTRIBUTION 
+        # =========================
+        ALL_STATUSES = ["pending", "sent", "approved"]
+
+        status_qs = (
+            QuotationRequest.objects
+            .filter(isDeleted=False)
+            .values("quotation_status")
+            .annotate(count=Count("uuids"))
+        )
+
+        status_dict = {
+            item["quotation_status"]: item["count"]
+            for item in status_qs
+        }
+
+        total_quotes = sum(status_dict.values()) or 1
+
+        quote_status_distribution = {
+            "data": [
+                {
+                    "label": status.capitalize(),
+                    "value": status_dict.get(status, 0),
+                    "percentage": round(
+                        (status_dict.get(status, 0) / total_quotes) * 100, 2
+                    )
+                }
+                for status in ALL_STATUSES
+            ]
+        }
+
+        # =========================
+        # WEEKLY / MONTHLY / YEARLY
+        # =========================
+        quotation_volume = {
+            "data": {
+                "weekly": [],
+                "monthly": [],
+                "yearly": []
+            }
+        }
+
+        # Weekly
+        weekly_qs = (
+            QuotationRequest.objects
+            .filter(created_at__gte=now() - timedelta(days=7), isDeleted=False)
+            .annotate(day=TruncDay("created_at"))
+            .values("day")
+            .annotate(count=Count("uuids"))
+            .order_by("day")
+        )
+
+        quotation_volume["data"]["weekly"] = [
+            {"day": item["day"].strftime("%a"), "value": item["count"]}
+            for item in weekly_qs
         ]
 
-        #  Quote Status Distribution
-        status_data = QuotationRequest.objects.values('quotation_status').annotate(count=Count('quotation_id'))
-        quote_status_distribution = {
-            "type": "donut",
-            "data": [{"label": item['quotation_status'].capitalize(), "value": item['count']} for item in status_data]
-        }
-
-        # Yearly quote status
-        yearly_data = (
+        # Monthly
+        monthly_qs = (
             QuotationRequest.objects
-            .filter(created_at__year=now().year)
-            .values('quotation_status')
-            .annotate(count=Count('quotation_id'))
-        )
-        quote_status_yearly = {
-            "type": "donut",
-            "title": "Yearly Quote Status",
-            "data": [{"label": item['quotation_status'].capitalize(), "value": item['count']} for item in yearly_data]
-        }
-
-        #  Weekly Quotation Volume
-        weekly = (
-            QuotationRequest.objects
-            .filter(created_at__gte=now() - timedelta(days=7))
-            .annotate(day=TruncDay('created_at'))
-            .values('day')
-            .annotate(count=Count('quotation_id'))
-            .order_by('day')
+            .filter(created_at__year=now().year, isDeleted=False)
+            .annotate(month=TruncMonth("created_at"))
+            .values("month")
+            .annotate(count=Count("uuids"))
+            .order_by("month")
         )
 
-        monthly_quotation_volume = {
-            "type": "line",
-            "filter": "weekly",
-            "data": [{"label": item['day'].strftime('%a'), "value": item['count']} for item in weekly]
-        }
+        quotation_volume["data"]["monthly"] = [
+            {"month": item["month"].strftime("%b"), "value": item["count"]}
+            for item in monthly_qs
+        ]
 
-        # Pending Sales Actions
-   
-        #  Most Used Fabrics 
+        # Yearly
+        yearly_qs = (
+            QuotationRequest.objects
+            .filter(isDeleted=False)
+            .extra(select={"year": "EXTRACT(year FROM created_at)"})
+            .values("year")
+            .annotate(count=Count("uuids"))
+            .order_by("year")
+        )
+
+        quotation_volume["data"]["yearly"] = [
+            {"year": str(int(item["year"])), "value": item["count"]}
+            for item in yearly_qs
+        ]
+
+        # =========================
+        # MOST USED FABRICS
+        # =========================
         most_used_fabrics = (
             Fabric.objects
-            .annotate(count=Count('id'))  
-            .values('fabricName', 'count')
-            .order_by('-count')[:4]
+            .filter(parts__isDeleted=False)
+            .annotate(total_count=Count("parts"))
+            .values("fabricName", "total_count")
+            .order_by("-total_count")[:4]
         )
 
-        
-        #  Recent Updates 
-        recent_products = Product.objects.order_by('-updated_at').values('productName', 'updated_at')
-        recent_colors = Colors.objects.order_by('-updated_at').values('colorName', 'updated_at')
-        recent_parts = Parts.objects.order_by('-updated_at').values('partName', 'updated_at')
-
-       
+        # =========================
+        # RECENT UPDATES
+        # =========================
         combined_updates = []
 
-        for item in recent_products:
-            combined_updates.append({"type": "Product", "title": item['productName'], "date": item['updated_at']})
-        for item in recent_colors:
-            combined_updates.append({"type": "Color", "title": item['colorName'], "date": item['updated_at']})
-        for item in recent_parts:
-            combined_updates.append({"type": "Part", "title": item['partName'], "date": item['updated_at']})
+        for p in Product.objects.order_by("-updated_at").values("productName", "updated_at"):
+            combined_updates.append({
+                "name": p["productName"],
+                "date": p["updated_at"].date()
+            })
 
-        # Sort by updated_at descending
-        combined_updates.sort(key=lambda x: x['date'], reverse=True)
+        for c in Colors.objects.order_by("-updated_at").values("colorName", "updated_at"):
+            combined_updates.append({
+                "name": c["colorName"],
+                "date": c["updated_at"].date()
+            })
+
+        for pt in Parts.objects.order_by("-updated_at").values("partName", "updated_at"):
+            combined_updates.append({
+                "name": pt["partName"],
+                "date": pt["updated_at"].date()
+            })
+
+        combined_updates.sort(key=lambda x: x["date"], reverse=True)
         recent_updates = combined_updates[:3]
-        for item in recent_updates:
-            item['date'] = item['date'].date()
 
-   
-        #  Return Response
+        # FINAL RESPONSE
+
         return Response({
-            "summary_cards": summary_cards,
-            "charts": {
-                "quote_status_distribution": quote_status_distribution,
-                "quote_status_yearly": quote_status_yearly,
-                "monthly_quotation_volume": monthly_quotation_volume
-            },
-            "lists": {
-                "pending_sales_actions": None,
+             "status": True,
+             "statusCode": 200,
+             "message": "Dashboard data fetched successfully",
+            "data": {
+                "Pending_quotes": {
+                    "total": pending_quotes,
+                    "percentage": total_pending_quot_percentage,
+                },
+                "Templates": {
+                    "total": total_templates,
+                },
+                "Quote_status_distribution": quote_status_distribution,
+                "Mounthly_quotation_volume": quotation_volume,
+                "Pending_Sales_Representation_Action": None,
                 "most_used_fabrics": most_used_fabrics,
-                "recent_updates": recent_updates
+                "Recently_update_product_color_part": recent_updates,
             }
-        })
+        },status=status.HTTP_200_OK)
