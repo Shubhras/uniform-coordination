@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 class SignupAPIView(APIView):
-
+    permission_classes=[AllowAny]
     def post(self, request, *args, **kwargs):
         data = request.data.copy()
         data["userType"] = data.get("userType")
@@ -47,14 +47,9 @@ class SignupAPIView(APIView):
         try:
             if serializer.is_valid():
                 user = serializer.save()
-
-                # ---------------------------------------
-                # EMAIL VERIFICATION 
-                # ---------------------------------------
                 
-                uid = urlsafe_base64_encode(force_bytes(user.id))
-                # verify_link = f"{settings.FRONTEND_URL}/verify-email/{uid}"
-                
+                 # EMAIL VERIFICATION 
+                uid = urlsafe_base64_encode(force_bytes(user.id))                
                 verify_link = request.build_absolute_uri(f"/api/v1/userhub/verify-email/{uid}/")
 
 
@@ -84,22 +79,28 @@ class SignupAPIView(APIView):
                 }, status=status.HTTP_201_CREATED)
 
             else:
-                # Extract first validation error message
-                error_message = "Validation failed."
-                
 
                 errors = serializer.errors
+                missing_fields = []
+
                 if isinstance(errors, dict):
                     for field, messages in errors.items():
                         if isinstance(messages, list) and messages:
-                            error_message = f"Validation failed;{messages[0]}"
-                            break
-                            
+                            # collect fields with "required" error
+                            if "required" in messages[0].lower():
+                                missing_fields.append(field)
+
+                if missing_fields:
+                    fields_str = ", ".join(missing_fields)
+                    error_message = f"Validation failed; {fields_str} : This field is required."
+                else:
+                    error_message = "Validation failed."
+                                            
                 return Response({
                     "status": False,
                     "statusCode": 400,
                     "message": error_message
-                }, status=status.HTTP_400_BAD_REQUEST)
+                }, status=status.HTTP_200_OK)
 
         except Exception as exc:
             logger.exception("Signup error")
@@ -113,7 +114,7 @@ class SignupAPIView(APIView):
 
 
 class LoginAPIView(APIView):
-
+    permission_classes = [AllowAny]
     def post(self, request):
         try:
             email = request.data.get("email")
@@ -136,7 +137,7 @@ class LoginAPIView(APIView):
                     "status": False,
                     "statusCode": 400,
                     "message": missing_fields[0],
-                }, status=400)
+                }, status=200)
             # ----------------------------------------
 
             serializer = LoginSerializer(data=request.data)
@@ -152,7 +153,7 @@ class LoginAPIView(APIView):
                     "status": False,
                     "statusCode": 403,
                     "message": "Please verify your email before logging in."
-                }, status=403)
+                }, status=200)
            ##
             
 
@@ -162,7 +163,7 @@ class LoginAPIView(APIView):
                     "status": False,
                     "statusCode": 403,
                     "message": "You are not allowed to login in this section."
-                }, status=403)
+                }, status=200)
 
             # Update last login
             user.lastLogin = now()
@@ -206,7 +207,7 @@ class LoginAPIView(APIView):
                 error_msg = str(ve.detail)
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 400,
                 "message": f"Validation failed ; {error_msg}",
             }, status=200)
 

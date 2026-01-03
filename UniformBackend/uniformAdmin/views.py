@@ -467,9 +467,8 @@ class TableThemeDeleteAPIView(APIView):
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+        
 # products/views/update_product.py
-
-
 class AdminCreateProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -487,6 +486,24 @@ class AdminCreateProductAPIView(APIView):
                     "data": serializer.data
                 }, status=status.HTTP_201_CREATED)
 
+             #  ONLY CHANGE STARTS HERE
+            if "theme" in serializer.errors:
+                error_msg = serializer.errors["theme"][0]
+
+                if "not allowed" in error_msg:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "Theme is not allowed for Uniform"
+                    }, status=status.HTTP_200_OK)
+
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Validation failed;Please Select Themes"
+                }, status=status.HTTP_200_OK)
+
+            
             #  Specific validation messages
             if "productName" in serializer.errors:
                 return Response({
