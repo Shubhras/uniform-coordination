@@ -102,8 +102,8 @@ const BlogSection = () => {
     };
 
     return (
-        <section className=" w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 py-20 md:py-24">
-            <div className=" rounded-3xl px-6 md:px-10 lg:px-8 py-10 md:py-8">
+        <section className=" w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+            <div className=" rounded-3xl py-10 md:py-8">
 
                 {/* HEADER */}
                 <div className="text-center mb-10">

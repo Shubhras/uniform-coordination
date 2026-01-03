@@ -1,49 +1,109 @@
-import { useState } from 'react'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
 
 const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
-
-    const onDialogOk = () => {
-        onClose()
-    }
-
     return (
         <Dialog
             isOpen={isOpen}
             onClose={onClose}
             onRequestClose={onClose}
-           className="min-w-[800px] max-w-[800px] w-full"
-            >
-            <div className="flex w-full flex-col h-full justify-between">
-                <div className="flex justify-between items-center px-2 pt-6 pb-4 ">
-                    <h2 className="text-xl font-semibold text-center w-full">
+            className="
+                w-full
+                max-w-[800px]
+                mx-4
+                sm:mx-auto
+            "
+        >
+            <div className="flex flex-col h-full max-h-[90vh]">
+
+                {/* HEADER */}
+                <div className="
+                    relative
+                    px-4 sm:px-6
+                    pt-5 pb-4
+                    border-b
+                    flex
+                    flex-col
+                    sm:flex-row
+                    sm:items-center
+                    sm:justify-between
+                    gap-2
+                ">
+                    <h2 className="
+                        text-lg
+                        sm:text-xl
+                        font-semibold
+                        text-center
+                        sm:text-left
+                    ">
                         Terms & Conditions
                     </h2>
-                    <span className="absolute right-8 text-sm text-gray-500">
+
+                    <span className="
+                        text-xs
+                        sm:text-sm
+                        text-gray-500
+                        text-center
+                        sm:text-right
+                    ">
                         Last Updated: December 1, 2025
                     </span>
                 </div>
-                <div className="min-h-100 max-h-150 overflow-y-auto">
-                  <h5 className="font-medium mt-3 mb-3"> 1. AGREEMENT TO TERMS</h5>   
-                    <p>
-                        
+
+                {/* CONTENT */}
+                <div className="
+                    px-4 sm:px-6
+                    py-4
+                    overflow-y-auto
+                    flex-1
+                ">
+                    <h5 className="font-medium mt-3 mb-3">
+                        1. AGREEMENT TO TERMS
+                    </h5>
+                    <p className="text-sm sm:text-base leading-relaxed">
                         By placing an order for custom uniforms through KIREIZU UNIFORM, you acknowledge.
                     </p>
-                    
                 </div>
-                <div className="text-right mt-6">
-                    <Button className="ltr:mr-2 rtl:ml-2" variant="plain" onClick={onClose}>
+
+                {/* FOOTER */}
+                <div className="
+                    px-4 sm:px-6
+                    py-4
+                    border-t
+                    flex
+                    flex-col-reverse
+                    sm:flex-row
+                    sm:justify-end
+                    gap-3
+                ">
+                    <Button
+                        variant="plain"
+                        className="w-full sm:w-auto"
+                        onClick={onClose}
+                    >
                         Cancel
                     </Button>
-                    <Button variant="solid"  className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white px-10 py-2 rounded-md" onClick={onDialogOk}>
+
+                    <Button
+                        variant="solid"
+                        className="
+                            w-full sm:w-auto
+                            bg-[#1C2C56]
+                            hover:bg-[#1C2C56]
+                            text-white
+                            px-10
+                            py-2
+                            rounded-md
+                        "
+                        onClick={onClose}
+                    >
                         I Agree
                     </Button>
                 </div>
+
             </div>
         </Dialog>
-    );
+    )
 }
 
 export default TermsAndConditionsPopup
-

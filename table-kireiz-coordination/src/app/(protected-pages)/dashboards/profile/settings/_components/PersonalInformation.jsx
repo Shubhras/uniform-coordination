@@ -135,23 +135,28 @@ const PersonalInformation = () => {
 
     return (
         <>
-            <div className='bg-[#F5F0EE30] md:p-8 p-5 rounded-2xl  max-w-7xl mx-auto shadow-md'>
-                <h4 className="mb-8 text-lg font-semibold">Personal information</h4>
+            <div className="bg-[#F5F0EE30] p-4 sm:p-5 md:p-8 rounded-2xl max-w-7xl mx-auto shadow-md">
+                <h4 className="mb-6 sm:mb-8 text-base sm:text-lg font-semibold">
+                    Personal information
+                </h4>
+
                 <Form onSubmit={handleSubmit(onSubmit)}>
+                    {/* Avatar Upload */}
                     <div className="mb-8">
                         <Controller
                             name="img"
                             control={control}
                             render={({ field }) => (
-                                <div className="flex items-center sm:flex-row flex-col  justify-center sm:justify-start gap-4 p-5 bg-[#E0D1C7DB] rounded-lg">
+                                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 sm:p-5 bg-[#E0D1C7DB] rounded-lg">
                                     <Avatar
-                                        size={100}
-                                        className="border-1 border-white bg-gray-100 text-gray-300 shadow-lg"
+                                        size={90}
+                                        className="border border-white bg-gray-100 text-gray-300 shadow-lg"
                                         icon={<CiUser />}
                                         src={field.value}
                                     />
-                                    <div className="flex    flex-col sm:items-start items-center gap-2 flex-wrap">
-                                        <div className='flex items-center  gap-2'>
+
+                                    <div className="flex flex-col items-center sm:items-start gap-3 w-full">
+                                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                                             <Upload
                                                 showList={false}
                                                 uploadLimit={1}
@@ -159,9 +164,7 @@ const PersonalInformation = () => {
                                                 onChange={(files) => {
                                                     if (files.length > 0) {
                                                         field.onChange(
-                                                            URL.createObjectURL(
-                                                                files[0],
-                                                            ),
+                                                            URL.createObjectURL(files[0])
                                                         )
                                                     }
                                                 }}
@@ -170,30 +173,33 @@ const PersonalInformation = () => {
                                                     variant="solid"
                                                     size="sm"
                                                     type="button"
-                                                    // icon={<TbPlus />}
-                                                    className=" bg-[#A0522D] hover:bg-[#8a5a75] text-white py-2 rounded-md px-6"
+                                                    className="w-full sm:w-auto bg-[#A0522D] hover:bg-[#8a5a75] text-white py-2 rounded-md px-6"
                                                 >
                                                     Upload Image
                                                 </Button>
                                             </Upload>
+
                                             <Button
                                                 size="sm"
                                                 type="button"
-                                                className="border px-6 py-2 rounded-md"
-                                                onClick={() => {
-                                                    field.onChange('')
-                                                }}
+                                                className="w-full sm:w-auto border px-6 py-2 rounded-md"
+                                                onClick={() => field.onChange('')}
                                             >
                                                 Remove
                                             </Button>
                                         </div>
-                                        <p className='text-[#A0522D] text-center text-xs'>Recommended: 500x500px, JPG/PNG</p>
+
+                                        <p className="text-[#A0522D] text-xs text-center sm:text-left">
+                                            Recommended: 500x500px, JPG/PNG
+                                        </p>
                                     </div>
                                 </div>
                             )}
                         />
                     </div>
-                    <div className="grid md:grid-cols-2 gap-4">
+
+                    {/* Name */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         <FormItem
                             label="First name"
                             invalid={Boolean(errors.firstName)}
@@ -203,15 +209,11 @@ const PersonalInformation = () => {
                                 name="firstName"
                                 control={control}
                                 render={({ field }) => (
-                                    <Input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="First Name"
-                                        {...field}
-                                    />
+                                    <Input placeholder="First Name" {...field} />
                                 )}
                             />
                         </FormItem>
+
                         <FormItem
                             label="Last name"
                             invalid={Boolean(errors.lastName)}
@@ -221,16 +223,13 @@ const PersonalInformation = () => {
                                 name="lastName"
                                 control={control}
                                 render={({ field }) => (
-                                    <Input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Last Name"
-                                        {...field}
-                                    />
+                                    <Input placeholder="Last Name" {...field} />
                                 )}
                             />
                         </FormItem>
                     </div>
+
+                    {/* Email */}
                     <FormItem
                         label="Email"
                         invalid={Boolean(errors.email)}
@@ -240,22 +239,17 @@ const PersonalInformation = () => {
                             name="email"
                             control={control}
                             render={({ field }) => (
-                                <Input
-                                    type="email"
-                                    autoComplete="off"
-                                    placeholder="Email"
-                                    {...field}
-                                />
+                                <Input type="email" placeholder="Email" {...field} />
                             )}
                         />
                     </FormItem>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div className='flex items-end gap-4 w-full'>
+
+                    {/* Phone + Position */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="flex flex-col sm:flex-row items-end gap-3 w-full">
                             <FormItem
-                                invalid={
-                                    Boolean(errors.phoneNumber) ||
-                                    Boolean(errors.dialCode)
-                                }
+                                className="w-full sm:w-[150px]"
+                                invalid={Boolean(errors.phoneNumber) || Boolean(errors.dialCode)}
                             >
                                 <label className="form-label mb-2">Phone number</label>
                                 <Controller
@@ -266,20 +260,15 @@ const PersonalInformation = () => {
                                             instanceId="dial-code"
                                             options={dialCodeList}
                                             {...field}
-                                            className="w-[150px] border border-gray-300 rounded-md"
+                                            className="w-full border border-gray-300 rounded-md"
                                             components={{
                                                 Option: (props) => (
-                                                    <CustomSelectOption
-                                                        variant="phone"
-                                                        {...props}
-                                                    />
+                                                    <CustomSelectOption variant="phone" {...props} />
                                                 ),
                                                 Control: CustomControl,
                                             }}
-                                            placeholder=""
                                             value={dialCodeList.filter(
-                                                (option) =>
-                                                    option.dialCode === field.value,
+                                                (option) => option.dialCode === field.value
                                             )}
                                             onChange={(option) =>
                                                 field.onChange(option?.dialCode)
@@ -288,12 +277,10 @@ const PersonalInformation = () => {
                                     )}
                                 />
                             </FormItem>
+
                             <FormItem
                                 className="w-full"
-                                invalid={
-                                    Boolean(errors.phoneNumber) ||
-                                    Boolean(errors.dialCode)
-                                }
+                                invalid={Boolean(errors.phoneNumber)}
                                 errorMessage={errors.phoneNumber?.message}
                             >
                                 <Controller
@@ -301,16 +288,14 @@ const PersonalInformation = () => {
                                     control={control}
                                     render={({ field }) => (
                                         <NumericInput
-                                            autoComplete="off"
                                             placeholder="Phone Number"
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            onBlur={field.onBlur}
+                                            {...field}
                                         />
                                     )}
                                 />
                             </FormItem>
                         </div>
+
                         <FormItem
                             label="Position"
                             invalid={Boolean(errors.position)}
@@ -320,38 +305,36 @@ const PersonalInformation = () => {
                                 name="position"
                                 control={control}
                                 render={({ field }) => (
-                                    <Input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Position"
-                                        {...field}
-                                    />
+                                    <Input placeholder="Position" {...field} />
                                 )}
                             />
                         </FormItem>
-
                     </div>
-                    <div className="flex justify-end gap-4">
+
+                    {/* Actions */}
+                    <div className="flex flex-col sm:flex-row justify-end gap-3">
                         <Button
                             variant="default"
                             type="button"
                             size="sm"
-                            className="border px-6 py-2 rounded-md"
+                            className="w-full sm:w-auto border px-6 py-2 rounded-md"
                         >
                             Cancel
                         </Button>
+
                         <Button
                             variant="solid"
                             type="submit"
                             size="sm"
                             loading={isSubmitting}
-                            className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"
+                            className="w-full sm:w-auto bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"
                         >
                             Save Changes
                         </Button>
                     </div>
-                </Form >
+                </Form>
             </div>
+
 
         </>
     )
