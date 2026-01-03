@@ -153,4 +153,9 @@ urlpatterns = [
 
     path("unit-price/list/",UnitPriceListAPIView.as_view(),name="unite-price-list"),
     path("unit-price/export/",UnitPriceExportAPIView.as_view(),name="unit-price-export"),
+
+
+     #<-------------------Dashboardes------------------------------->
+    path("admindesh/",AdminDashAPIView.as_view(),name="admin-desh-info")
+
 ]
