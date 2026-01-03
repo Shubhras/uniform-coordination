@@ -1,6 +1,8 @@
 from userhub.models import QuotationRequest
 from .models import AdminNotification
 from django.contrib.contenttypes.models import ContentType
+from django.core.mail import send_mail
+from django.conf import settings
 
 def render_quotation_template(template_text: str, quotation: QuotationRequest):
     if not template_text or not quotation:
@@ -33,4 +35,28 @@ def create_admin_notification(instance, title, message, priority="low"):
         title=title,
         message=message,
         priority=priority,
+    )
+
+
+#<===============B2B=================>
+def get_default_b2b_role():
+    from .models import Role
+    role, _ = Role.objects.get_or_create(
+        role_name="b2b_user",
+        defaults={
+            "slug": "b2b-user",
+            "description": "Default B2B User"
+        }
+    )
+    return role
+
+#<============Email id function===========>
+
+def send_reset_email(subject, message, recipient_email):
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [recipient_email],
+        fail_silently=False,
     )

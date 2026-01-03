@@ -4,6 +4,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Q
+from rest_framework import status
+
 from .serializers import FabricSerializer
 from .models import Fabric
 
@@ -53,6 +55,25 @@ class FabricCreateView(APIView):
                 }
                 logger.info(f"FabricCreateView POST - 200 - {response}")
                 return Response(response)
+
+
+            # ONLY ADDITION STARTS HERE
+            if "theme" in serializer.errors:
+                error_msg = serializer.errors["theme"][0]
+
+                if "not allowed" in error_msg:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "Theme is not allowed for Uniform"
+                    }, status=status.HTTP_200_OK)
+
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Validation failed;Please Select Themes"
+                }, status=status.HTTP_200_OK)
+            # ONLY ADDITION ENDS HERE
 
             response = {
                 "statusCode": 400,

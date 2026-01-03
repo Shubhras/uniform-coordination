@@ -1,14 +1,9 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 from django.db import models
 from django.utils.text import slugify
-from django.core.validators import MinValueValidator, MaxValueValidator
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-
-
-
-
-# Create your models here.
 
 # Role Table
 class Role(models.Model):
@@ -17,6 +12,7 @@ class Role(models.Model):
         ("sales_rep", "Sales Rep"),
         ("corporate", "Corporate"),
         ("customer", "Customer"),
+        ("b2b_user", "B2B User"),
     ]
     role_name = models.CharField(max_length=60, choices=ROLE_CHOICES)
     slug = models.CharField(max_length=255, blank=True, null=True)
@@ -69,7 +65,14 @@ class AdminUserManager(BaseUserManager):
 
 # Custom Admin User Model
 class AdminUser(AbstractBaseUser, PermissionsMixin):
+    TIER_CHOICES = [
+        ("gold", "Gold"),
+        ("silver", "Silver"),
+        ("bronze", "Bronze"),
+    ]
     name = models.CharField(max_length=255, blank=True, null=True)
+    company_name = models.CharField(max_length=255, blank=True, null=True)
+    tier = models.CharField(max_length=60, choices=TIER_CHOICES,default="silver",blank=True, null=True)
     email = models.EmailField(unique=True)
     mobile = models.CharField(max_length=15, unique=True, null=True, blank=True)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
@@ -98,14 +101,20 @@ class Fabric(models.Model):
         ("silk", "Silk"),
         ("linen", "Linen"),
     ]
+    
+    FABRIC_TYPE_CHOICES = [
+        ('uniform', 'Uniform'),
+        ('table', 'Table'),
+    ]
 
     fabricName = models.CharField(max_length=150, unique=True)
     color = models.CharField(max_length=100)
     materialType = models.CharField(max_length=60, choices=MATERIAL_CHOICES)
+    fabricType = models.CharField(max_length=20,choices=FABRIC_TYPE_CHOICES,default='uniform')
+    theme = models.ForeignKey('TableTheme',on_delete=models.SET_NULL,null=True,blank=True,related_name="fabrics")
     pricePerUnit = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     isActive = models.BooleanField(default=True)
-    isDeleted = models.BooleanField(default=False)
-    
+    isDeleted = models.BooleanField(default=False)    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -126,11 +135,19 @@ class Parts(models.Model):
         ("hoods", "Hoods"),
 
     ]
+    
+    PART_TYPE_CHOICES = [
+        ('uniform', 'Uniform'),
+        ('table', 'Table'),
+    ]
+    
     partName = models.CharField(max_length=150, unique=True)
     partImage = models.ImageField(upload_to='part_images/', blank=True, null=True)
     category = models.CharField(max_length=60, choices=CATEGORY_CHOICES)
+    partType = models.CharField(max_length=20,choices=PART_TYPE_CHOICES,default='uniform')
     fabric = models.ForeignKey(Fabric, on_delete=models.CASCADE)
     usageTemmpCount = models.IntegerField(default=0)
+    theme = models.ForeignKey('TableTheme',on_delete=models.SET_NULL,null=True,blank=True,related_name="parts")
     zIndex = models.IntegerField(default=0)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
@@ -270,7 +287,6 @@ class CatalogImage(models.Model):
 class SubCategory(models.Model):
     name = models.CharField(max_length=255)
     subcategoryImage = models.ImageField(upload_to="subcategory/", blank=True, null=True)
-    order = models.PositiveIntegerField(default=0, db_index=True,blank=True, null=True)   
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,blank=True,related_name="subcategories")
     slug = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -286,6 +302,22 @@ class SubCategory(models.Model):
 
     def __str__(self):
         return self.name
+    
+    
+class TableTheme(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    image = models.ImageField(upload_to="table_themes/")
+    order = models.PositiveIntegerField(default=0, db_index=True,blank=True, null=True) 
+    is_active = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+    def __str__(self):
+        return self.title
+
 
 
 class Product(models.Model):
@@ -297,6 +329,7 @@ class Product(models.Model):
     slug = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     productType = models.CharField(max_length=20,choices=productType,default='uniform' ,blank=True, null=True)
+    theme = models.ForeignKey(TableTheme,on_delete=models.SET_NULL,null=True,blank=True,related_name="products")
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,related_name="product_category")
     subcategory = models.ForeignKey(SubCategory,on_delete=models.SET_NULL, null=True,related_name="product_subcategory")
     parts = models.ManyToManyField(Parts,related_name="products_parts",blank=True)
@@ -319,16 +352,15 @@ class Product(models.Model):
     def __str__(self):
         return self.productName
 
-    
 
 
 class Promocode(models.Model):
-
+ 
     PROMOCODE_TYPE_CHOICES = [
         ("fix_price", "Fix Price"),
         ("discount", "Discount"),
     ]
-
+ 
     promocodeName = models.CharField(max_length=150, unique=True)
     slug = models.SlugField(max_length=180, unique=True, blank=True)
     promocodeImage = models.ImageField(upload_to="promocode/", null=True, blank=True)
@@ -341,29 +373,28 @@ class Promocode(models.Model):
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+ 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.promocodeName).replace("-", "_")
         super().save(*args, **kwargs)
-
+ 
     def __str__(self):
         return self.promocodeName
-   
-    
-  
-class PrivacyPolicy(models.Model):
 
+    
+class PrivacyPolicy(models.Model):
+ 
     POLICY_TYPE_CHOICES = [
         ("terms_and_conditions", "Terms and Conditions"),
         ("privacy_and_policy", "Privacy and Policy"),
     ]
-
+ 
     TABLE_TYPE_CHOICES = [
         ("uniform", "Uniform"),
         ("table", "Table"),
     ]
-
+ 
     privacyPolicyType = models.CharField(
         max_length=50,
         choices=POLICY_TYPE_CHOICES
@@ -381,17 +412,108 @@ class PrivacyPolicy(models.Model):
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+ 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title).replace("-", "_")
         super().save(*args, **kwargs)
-
+ 
     def __str__(self):
         return self.title
-  
-  
     
+
+class SpecialCondition(models.Model):
+    CONDITION_TYPE_CHOICES = (
+        ("corporate", "Corporate Standard"),
+        ("wholesale", "Wholesale Partner"),
+        ("enterprise", "Global Enterprise"),
+    )
+    title = models.CharField( max_length=100,help_text="Display title (e.g. Corporate Standard)")
+ 
+    condition_type = models.CharField(
+        max_length=20,
+        choices=CONDITION_TYPE_CHOICES,
+        unique=True
+    )
+ 
+    description = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Short description shown under title"
+    )
+ 
+    discount_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        help_text="Discount in percentage (e.g. 15.00)"
+    )
+ 
+    priority_support = models.BooleanField(default=False)
+    net_30_terms = models.BooleanField(default=False)
+    free_samples = models.BooleanField(default=False)
+ 
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+ 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+ 
+    class Meta:
+        ordering = ["-created_at"]
+ 
+    def __str__(self):
+        return f"{self.title} - {self.discount_percentage}%"   
+
+   
+class QuotationTemplate(models.Model):
+ 
+    TITLE_CHOICES = (
+        ("quotation", "Quotation"),
+        ("invoice", "Invoice"),
+        ("email", "Email"),
+    )
+ 
+    title = models.CharField(max_length=50,choices=TITLE_CHOICES )
+ 
+    slug = models.SlugField(unique=True, help_text="example: quotation-default")
+ 
+    content = models.TextField(help_text="Use placeholders like {CLIENT_NAME}, {ITEM_TYPE}")
+ 
+    userType = models.CharField( max_length=50, default="admin")
+ 
+    language = models.CharField(max_length=10,default="en")
+ 
+    version = models.CharField(max_length=20,blank=True, null=True)
+ 
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+ 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+ 
+    def __str__(self):
+        return f"{self.slug} ({self.language})"
+
+
+class AdminNotification(models.Model):
+    PRIORITY_CHOICES = (
+        ("high", "High"),
+        ("medium", "Medium"),
+        ("low", "Low"),
+    )
+    # Generic relation (ANY MODEL)
+    content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
+    object_id = models.CharField(max_length=100)
+    content_object = GenericForeignKey("content_type", "object_id") 
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    priority = models.CharField(max_length=10,choices=PRIORITY_CHOICES,default="low")
+    is_seen = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+ 
+    def __str__(self):
+        return self.title
+      
 # class PDFTemplate(models.Model):
 #     PAPER_SIZES = (
 #         ('A4', 'A4'),
@@ -423,97 +545,3 @@ class PrivacyPolicy(models.Model):
 
 #     def __str__(self):
 #         return f"{self.name} ({self.template.templateName})"
-
-
-class SpecialCondition(models.Model):
-    CONDITION_TYPE_CHOICES = (
-        ("corporate", "Corporate Standard"),
-        ("wholesale", "Wholesale Partner"),
-        ("enterprise", "Global Enterprise"),
-    )
-    title = models.CharField( max_length=100,help_text="Display title (e.g. Corporate Standard)")
-
-    condition_type = models.CharField(
-        max_length=20,
-        choices=CONDITION_TYPE_CHOICES,
-        unique=True
-    )
-
-    description = models.TextField(
-        blank=True,
-        null=True,
-        help_text="Short description shown under title"
-    )
-
-    discount_percentage = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        help_text="Discount in percentage (e.g. 15.00)"
-    )
-
-    priority_support = models.BooleanField(default=False)
-    net_30_terms = models.BooleanField(default=False)
-    free_samples = models.BooleanField(default=False)
-
-    is_active = models.BooleanField(default=True)
-    is_deleted = models.BooleanField(default=False)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):
-        return f"{self.title} - {self.discount_percentage}%"
-    
-    
-class QuotationTemplate(models.Model):
-
-    TITLE_CHOICES = (
-        ("quotation", "Quotation"),
-        ("invoice", "Invoice"),
-        ("email", "Email"),
-    )
-
-    title = models.CharField(max_length=50,choices=TITLE_CHOICES )
-
-    slug = models.SlugField(unique=True, help_text="example: quotation-default")
-
-    content = models.TextField(help_text="Use placeholders like {CLIENT_NAME}, {ITEM_TYPE}")
-
-    userType = models.CharField( max_length=50, default="admin")
-
-    language = models.CharField(max_length=10,default="en")
-
-    version = models.CharField(max_length=20,blank=True, null=True)
-
-    is_active = models.BooleanField(default=True)
-    is_deleted = models.BooleanField(default=False)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.slug} ({self.language})"
-
-
-class AdminNotification(models.Model):
-    PRIORITY_CHOICES = (
-        ("high", "High"),
-        ("medium", "Medium"),
-        ("low", "Low"),
-    )
-    # Generic relation (ANY MODEL)
-    content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
-    object_id = models.CharField(max_length=100) 
-    content_object = GenericForeignKey("content_type", "object_id")
-
-    title = models.CharField(max_length=255)
-    message = models.TextField()
-    priority = models.CharField(max_length=10,choices=PRIORITY_CHOICES,default="low")
-    is_seen = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.title

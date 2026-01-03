@@ -19,6 +19,8 @@ from decimal import Decimal
 from django.db.models import Sum 
 from django.utils.dateparse import parse_date
 from .payment import CustomPagination
+from uniformAdmin.signal import *
+from rest_framework.permissions import AllowAny
 
 # from django.utils import timezone
 import re
@@ -27,23 +29,18 @@ logger = logging.getLogger(__name__)
 
 
 class SignupAPIView(APIView):
-
+    permission_classes=[AllowAny]
     def post(self, request, *args, **kwargs):
-        request.data._mutable = True
-        request.data["userType"] = request.data.get("userType")
+        # request.data._mutable = True
+        # request.data["userType"] = request.data.get("userType")
         serializer = UserSignupSerializer(data=request.data)
 
         try:
             if serializer.is_valid():
                 user = serializer.save()
-
-                # ---------------------------------------
-                # EMAIL VERIFICATION 
-                # ---------------------------------------
                 
-                uid = urlsafe_base64_encode(force_bytes(user.id))
-                # verify_link = f"{settings.FRONTEND_URL}/verify-email/{uid}"
-                
+                 # EMAIL VERIFICATION 
+                uid = urlsafe_base64_encode(force_bytes(user.id))                
                 verify_link = request.build_absolute_uri(f"/api/v1/userhub/verify-email/{uid}/")
 
 
@@ -73,17 +70,23 @@ class SignupAPIView(APIView):
                 }, status=status.HTTP_201_CREATED)
 
             else:
-                # Extract first validation error message
-                error_message = "Validation failed."
-                
 
                 errors = serializer.errors
+                missing_fields = []
+
                 if isinstance(errors, dict):
                     for field, messages in errors.items():
                         if isinstance(messages, list) and messages:
-                            error_message = f"Validation failed;{messages[0]}"
-                            break
-                            
+                            # collect fields with "required" error
+                            if "required" in messages[0].lower():
+                                missing_fields.append(field)
+
+                if missing_fields:
+                    fields_str = ", ".join(missing_fields)
+                    error_message = f"Validation failed; {fields_str} : This field is required."
+                else:
+                    error_message = "Validation failed."
+                                            
                 return Response({
                     "status": False,
                     "statusCode": 400,
@@ -102,7 +105,7 @@ class SignupAPIView(APIView):
 
 
 class LoginAPIView(APIView):
-
+    permission_classes = [AllowAny]
     def post(self, request):
         try:
             email = request.data.get("email")
@@ -1198,6 +1201,15 @@ class CreateOrderAPIView(APIView):
         order.start_date = start_date
         order.return_date = return_date
         order.save()
+        # order = order.save() 
+# Call the helper function instead of writing objects.create directly
+        create_admin_order_notification(
+                instance=order,
+                title=f"New Order created: {order.order_id }",
+                message=f"A new Order request has been created by {order.user}.",
+                priority="high",
+                object_id=order.order_id 
+            )
 
         # Prepare response
         response_data = {

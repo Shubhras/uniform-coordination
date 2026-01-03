@@ -109,7 +109,7 @@ const DesignResultPage = () => {
     }
     return (
         <>
-            <div className="w-full max-w-7xl mx-auto md:px-4 px-2 md:py-10 py-5">
+            <div className="w-full max-w-7xl mx-auto md:px-4 px-2">
                 <div className="bg-white rounded-2xl md:p-8 p-0">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                         {/* ================= LEFT SECTION ================= */}
@@ -123,15 +123,15 @@ const DesignResultPage = () => {
                             </div>
 
                             {/* Image with Blue Circle */}
-                            <div className="relative flex justify-center items-center h-[520px] w-full">
-                                <div className="absolute sm:w-[420px] sm:h-[420px] w-[300px] h-[300px] bg-[#BFE3F9] rounded-full" />
+                            <div className="relative flex justify-center items-center h-[720px] w-full">
+                                <div style={{position:"absolute",top:"45px"}} className="absolute sm:w-[350px] sm:h-[350px] w-[300px] h-[300px] bg-[#BFE3F9] rounded-full" />
 
-                                <Image
+                                <Image style={{top:"-35px"}}
                                     src="/img/uniform/uniform.png"
                                     alt="Uniform"
                                     width={360}
                                     height={720}
-                                    className="relative z-10 object-contain"
+                                    className="relative z-10 object-contain "
                                     priority
                                 />
                             </div>
