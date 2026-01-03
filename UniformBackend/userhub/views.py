@@ -266,59 +266,6 @@ class GetProfileAPIView(APIView):
             }, status=500)
 
 
-
-# class UpdateProfileAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def put(self, request):
-#         try:
-#             user = request.user
-
-#             allowed_fields = [
-#                 "firstName", "lastName", "phone",
-#                 "gender", "language", "userName"
-#             ]
-
-#             for field in allowed_fields:
-#                 if field in request.data:
-#                     setattr(user, field, request.data[field])
-
-#             # NEW — Update userType (as you requested)
-#             if "userType" in request.data:
-#                 user.userType = request.data["userType"]
-                
-#             # EMAIL VERIFICATION FLAG (FRONTEND CONTROLLED)
-#             if request.data.get("is_verify") is True:
-#                 user.is_verify = True    
-
-#             # Handle profile image
-#             if "profileImage" in request.FILES:
-#                 user.profileImage = request.FILES["profileImage"]
-
-#             user.save()
-
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": "Profile updated successfully."
-#             }, status=200)
-
-#         except IntegrityError:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 400,
-#                 "message": "Username already exists.",
-#             }, status=400)
-
-#         except Exception as exc:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "message": "Unable to update profile.",
-#                 "error": str(exc)
-#             }, status=500)
-
-
 class UpdateProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -430,9 +377,9 @@ class ForgotPasswordAPIView(APIView):
             except Users.DoesNotExist:
                 return Response({
                     "status": False,
-                    "statusCode": 404,
+                    "statusCode": 400,
                     "message": "No account found with this email."
-                }, status=404)
+                }, status=400)
 
             # Create reset token
             # reset_token = uuid.uuid4().hex
@@ -441,11 +388,11 @@ class ForgotPasswordAPIView(APIView):
             user_id = user.id
 
             # Build reset link
-            frontend_url = "http://localhost:3000/auth/reset-password"
+            frontend_url = "http://localhost:7000/auth/reset-password"
             reset_link = f"{frontend_url}?user_id={user_id}"
 
             # -------------------------------
-            # ✅ SMTP: Send Reset Email Here
+            # SMTP: Send Reset Email Here
             # -------------------------------
             subject = "Reset Your Password"
             message = f"Hello,\n\nClick the link below to reset your password:\n{reset_link}\n\nIf you did not request this, please ignore this email."
@@ -496,7 +443,7 @@ class ResetPasswordAPIView(APIView):
             if new_password != confirm_password:
                 return Response({
                     "status": False,
-                    "statusCode": 200,
+                    "statusCode": 400,
                     "message": "New password and confirm password do not match."
                 }, status=200)
 
@@ -506,9 +453,9 @@ class ResetPasswordAPIView(APIView):
             except Users.DoesNotExist:
                 return Response({
                     "status": False,
-                    "statusCode": 404,
+                    "statusCode": 400,
                     "message": "Invalid user."
-                }, status=404)
+                }, status=400)
 
             # Update password
             user.password = make_password(new_password)
