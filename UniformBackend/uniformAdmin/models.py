@@ -12,6 +12,7 @@ class Role(models.Model):
         ("sales_rep", "Sales Rep"),
         ("corporate", "Corporate"),
         ("customer", "Customer"),
+        ("b2b","B2B"),   # remove 
         
     ]
     role_name = models.CharField(max_length=60, choices=ROLE_CHOICES)
@@ -71,6 +72,7 @@ class AdminUser(AbstractBaseUser, PermissionsMixin):
         ("bronze", "Bronze"),
     ]
     name = models.CharField(max_length=255, blank=True, null=True)
+    company_name = models.CharField(max_length=255, blank=True, null=True)
     tier = models.CharField(max_length=60, choices=TIER_CHOICES,default="silver",blank=True, null=True)
     email = models.EmailField(unique=True)
     mobile = models.CharField(max_length=15, unique=True, null=True, blank=True)
@@ -113,7 +115,6 @@ class Fabric(models.Model):
 
     def __str__(self):
         return self.fabricName
-
 
 
 class Parts(models.Model):
@@ -280,6 +281,22 @@ class SubCategory(models.Model):
 
     def __str__(self):
         return self.name
+    
+    
+class TableTheme(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    image = models.ImageField(upload_to="table_themes/")
+    order = models.PositiveIntegerField(default=0, db_index=True,blank=True, null=True) 
+    is_active = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+    def __str__(self):
+        return self.title
+
 
 
 class Product(models.Model):

@@ -1,0 +1,15 @@
+# Authentication Secret
+AUTH_SECRET=lmsdZgyoJ+vIJLrxo3lVVoq5uP0tKKclr
+
+# Base URL for NextAuth callbacks
+NEXTAUTH_URL=http://localhost:3000/
+
+AUTH_TRUST_HOST=true
+
+# OAuth Provider (Google)
+GOOGLE_AUTH_CLIENT_ID=***********************************.apps.googleusercontent.com
+GOOGLE_AUTH_CLIENT_SECRET=***********************************
+
+# OAuth Provider (Github)
+GITHUB_AUTH_CLIENT_ID=***********************************
+GITHUB_AUTH_CLIENT_SECRET=***********************************

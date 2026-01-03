@@ -1,0 +1,82 @@
+"use client";
+import { useState } from "react";
+import Alert from "@/components/ui/Alert";
+import Button from "@/components/ui/Button";
+import ActionLink from "@/components/shared/ActionLink";
+import ForgotPasswordForm from "./ForgotPasswordForm";
+import useTimeOutMessage from "@/utils/hooks/useTimeOutMessage";
+import { useRouter } from "next/navigation";
+import { FiChevronLeft } from "react-icons/fi";
+import SplitForgotPassword from "@/components/layouts/AuthLayout/SplitForgotPass";
+
+export const ForgotPassword = ({
+  signInUrl = "/sign-in",
+  onForgotPasswordSubmit,
+}) => {
+  const [emailSent, setEmailSent] = useState(false);
+  const [message, setMessage] = useTimeOutMessage();
+
+  const router = useRouter();
+
+  const handleContinue = () => {
+    router.push(signInUrl);
+  };
+
+  return (
+    <SplitForgotPassword>
+    <div className="mx-4">
+      <div className="mb-6">
+        {emailSent ? (
+          <>
+            <h2 className="font-[Plus Jakarta Sans] font-medium text-[28px] tracking-[0.18px] text-[#003560] mb-2">
+              Check your email
+            </h2>
+            <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
+              We have sent a password recovery to your email
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 className="font-[Plus Jakarta Sans]  font-medium text-[28px] tracking-[0.18px] text-[#1C2C56] mb-2">
+              Forgot Password
+            </h2>
+            <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
+              Enter your email and we'll send you instructions to reset your
+              password
+            </p>
+          </>
+        )}
+      </div>
+      {message && (
+        <Alert showIcon className="mb-4" type="danger">
+          <span className="break-all">{message}</span>
+        </Alert>
+      )}
+      <ForgotPasswordForm
+        emailSent={emailSent}
+        setMessage={setMessage}
+        setEmailSent={setEmailSent}
+        onForgotPasswordSubmit={onForgotPasswordSubmit}
+      >
+        <Button block variant="solid" type="button" className="bg-[#1C2C56] hover:bg-[#152243] text-white" onClick={handleContinue}>
+          Continue
+        </Button>
+      </ForgotPasswordForm>
+      <div className="mt-4 text-center text-base">
+        <ActionLink
+          href={signInUrl}
+          className="heading-text text-[#8B4513]"
+          themeColor={false}
+        >
+          <span className="flex justify-center items-center gap-2">
+            <FiChevronLeft size={24} />
+            <span>Back to Login</span>
+          </span>
+        </ActionLink>
+      </div>
+    </div>
+    </SplitForgotPassword>
+  );
+};
+
+export default ForgotPassword;
