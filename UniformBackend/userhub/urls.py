@@ -68,9 +68,7 @@ urlpatterns = [
     path("admin/payments/", AdminPaymentListAPIView.as_view()),
     path("admin/payments/detail/", AdminPaymentDetailAPIView.as_view()),
 
-    #<-------------------Dashboardes------------------------------->
-    path("admindesh/",AdminDashAPIView.as_view(),name="admin-desh-info")
-
+   
 ]
    
     

@@ -9,19 +9,20 @@ from .utils import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from .serializers import*
-import logging
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db import IntegrityError, transaction
 from decimal import Decimal
-from django.db.models import Sum ,Count,Max
+from django.db.models import Count
 from django.utils.dateparse import parse_date
 from .payment import CustomPagination
-from django.db.models.functions import TruncDay ,TruncMonth
+from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
 # from django.utils import timezone
 import re
+import traceback
+import logging
 logger = logging.getLogger(__name__)
 
 
@@ -1389,172 +1390,3 @@ class OrderDetailAPIView(APIView):
                 "data": {}
             }, status=status.HTTP_404_NOT_FOUND)
 
-
-class AdminDashAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-
-        # =========================
-        # SUMMARY CARDS
-        # =========================
-        pending_quotes = QuotationRequest.objects.filter(
-            quotation_status="pending",
-            isDeleted=False
-        ).count()
-
-        total_pending_quot = QuotationRequest.objects.filter(isDeleted=False).count()
-
-        total_pending_quot_percentage = (
-            round((pending_quotes / total_pending_quot) * 100, 2)
-            if total_pending_quot else 0
-        )
-
-        total_templates = QuotationTemplate.objects.count()
-
-        # =========================
-        # QUOTE STATUS DISTRIBUTION 
-        # =========================
-        ALL_STATUSES = ["pending", "sent", "approved"]
-
-        status_qs = (
-            QuotationRequest.objects
-            .filter(isDeleted=False)
-            .values("quotation_status")
-            .annotate(count=Count("uuids"))
-        )
-
-        status_dict = {
-            item["quotation_status"]: item["count"]
-            for item in status_qs
-        }
-
-        total_quotes = sum(status_dict.values()) or 1
-
-        quote_status_distribution = {
-            "data": [
-                {
-                    "label": status.capitalize(),
-                    "value": status_dict.get(status, 0),
-                    "percentage": round(
-                        (status_dict.get(status, 0) / total_quotes) * 100, 2
-                    )
-                }
-                for status in ALL_STATUSES
-            ]
-        }
-
-        # =========================
-        # WEEKLY / MONTHLY / YEARLY
-        # =========================
-        quotation_volume = {
-            "data": {
-                "weekly": [],
-                "monthly": [],
-                "yearly": []
-            }
-        }
-
-        # Weekly
-        weekly_qs = (
-            QuotationRequest.objects
-            .filter(created_at__gte=now() - timedelta(days=7), isDeleted=False)
-            .annotate(day=TruncDay("created_at"))
-            .values("day")
-            .annotate(count=Count("uuids"))
-            .order_by("day")
-        )
-
-        quotation_volume["data"]["weekly"] = [
-            {"day": item["day"].strftime("%a"), "value": item["count"]}
-            for item in weekly_qs
-        ]
-
-        # Monthly
-        monthly_qs = (
-            QuotationRequest.objects
-            .filter(created_at__year=now().year, isDeleted=False)
-            .annotate(month=TruncMonth("created_at"))
-            .values("month")
-            .annotate(count=Count("uuids"))
-            .order_by("month")
-        )
-
-        quotation_volume["data"]["monthly"] = [
-            {"month": item["month"].strftime("%b"), "value": item["count"]}
-            for item in monthly_qs
-        ]
-
-        # Yearly
-        yearly_qs = (
-            QuotationRequest.objects
-            .filter(isDeleted=False)
-            .extra(select={"year": "EXTRACT(year FROM created_at)"})
-            .values("year")
-            .annotate(count=Count("uuids"))
-            .order_by("year")
-        )
-
-        quotation_volume["data"]["yearly"] = [
-            {"year": str(int(item["year"])), "value": item["count"]}
-            for item in yearly_qs
-        ]
-
-        # =========================
-        # MOST USED FABRICS
-        # =========================
-        most_used_fabrics = (
-            Fabric.objects
-            .filter(parts__isDeleted=False)
-            .annotate(total_count=Count("parts"))
-            .values("fabricName", "total_count")
-            .order_by("-total_count")[:4]
-        )
-
-        # =========================
-        # RECENT UPDATES
-        # =========================
-        combined_updates = []
-
-        for p in Product.objects.order_by("-updated_at").values("productName", "updated_at"):
-            combined_updates.append({
-                "name": p["productName"],
-                "date": p["updated_at"].date()
-            })
-
-        for c in Colors.objects.order_by("-updated_at").values("colorName", "updated_at"):
-            combined_updates.append({
-                "name": c["colorName"],
-                "date": c["updated_at"].date()
-            })
-
-        for pt in Parts.objects.order_by("-updated_at").values("partName", "updated_at"):
-            combined_updates.append({
-                "name": pt["partName"],
-                "date": pt["updated_at"].date()
-            })
-
-        combined_updates.sort(key=lambda x: x["date"], reverse=True)
-        recent_updates = combined_updates[:3]
-
-        # FINAL RESPONSE
-
-        return Response({
-             "status": True,
-             "statusCode": 200,
-             "message": "Dashboard data fetched successfully",
-            "data": {
-                "Pending_quotes": {
-                    "total": pending_quotes,
-                    "percentage": total_pending_quot_percentage,
-                },
-                "Templates": {
-                    "total": total_templates,
-                },
-                "Quote_status_distribution": quote_status_distribution,
-                "Mounthly_quotation_volume": quotation_volume,
-                "Pending_Sales_Representation_Action": None,
-                "most_used_fabrics": most_used_fabrics,
-                "Recently_update_product_color_part": recent_updates,
-            }
-        },status=status.HTTP_200_OK)
