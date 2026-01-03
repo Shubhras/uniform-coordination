@@ -1,27 +1,28 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from uniformAdmin.models import *
-from .models import *
+from rest_framework_simplejwt.tokens import RefreshToken
+from uniformAdmin.models import AdminUser
 from django.utils.timezone import now
 from rest_framework.permissions import IsAuthenticated
-from .utils import *
+from .utils import generate_custom_tokens
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django.conf import settings
 from .serializers import*
-import logging
+import logging,uuid
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
-from django.db import IntegrityError, transaction
-from decimal import Decimal
-from django.db.models import Sum 
-from django.utils.dateparse import parse_date
-from .payment import CustomPagination
 
-# from django.utils import timezone
+from rest_framework.permissions import AllowAny
+from django.utils.http import urlsafe_base64_decode
+
+
 import re
+
 logger = logging.getLogger(__name__)
 
 
@@ -29,9 +30,14 @@ logger = logging.getLogger(__name__)
 class SignupAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
-        request.data._mutable = True
-        request.data["userType"] = request.data.get("userType")
-        serializer = UserSignupSerializer(data=request.data)
+        data = request.data.copy()
+        data["userType"] = data.get("userType")
+
+        serializer = UserSignupSerializer(data=data)
+
+        # request.data._mutable = True
+        # request.data["userType"] = request.data.get("userType")
+        # serializer = UserSignupSerializer(data=request.data)
 
         try:
             if serializer.is_valid():
@@ -133,16 +139,16 @@ class LoginAPIView(APIView):
             user = serializer.validated_data["user"]
 
 
-            # =====================================================
+           ##
             #  EMAIL VERIFICATION CHECK 
-            # =====================================================
+           ##
             if not user.is_verify:
                 return Response({
                     "status": False,
                     "statusCode": 403,
                     "message": "Please verify your email before logging in."
                 }, status=403)
-            # =====================================================
+           ##
             
 
             # Check matching userType
@@ -255,6 +261,58 @@ class GetProfileAPIView(APIView):
 
 
 
+# class UpdateProfileAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def put(self, request):
+#         try:
+#             user = request.user
+
+#             allowed_fields = [
+#                 "firstName", "lastName", "phone",
+#                 "gender", "language", "userName"
+#             ]
+
+#             for field in allowed_fields:
+#                 if field in request.data:
+#                     setattr(user, field, request.data[field])
+
+#             # NEW — Update userType (as you requested)
+#             if "userType" in request.data:
+#                 user.userType = request.data["userType"]
+                
+#             # EMAIL VERIFICATION FLAG (FRONTEND CONTROLLED)
+#             if request.data.get("is_verify") is True:
+#                 user.is_verify = True    
+
+#             # Handle profile image
+#             if "profileImage" in request.FILES:
+#                 user.profileImage = request.FILES["profileImage"]
+
+#             user.save()
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Profile updated successfully."
+#             }, status=200)
+
+#         except IntegrityError:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 400,
+#                 "message": "Username already exists.",
+#             }, status=400)
+
+#         except Exception as exc:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Unable to update profile.",
+#                 "error": str(exc)
+#             }, status=500)
+
+
 class UpdateProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -318,6 +376,7 @@ class UpdateProfileAPIView(APIView):
                 "message": "Unable to update profile.",
                 "error": str(exc)
             }, status=500)
+
 
 
 
@@ -403,6 +462,7 @@ class ForgotPasswordAPIView(APIView):
                 "message": "Unable to process forgot password.",
                 "error": str(exc)
             }, status=500)
+
 
 
 class ResetPasswordAPIView(APIView):
@@ -594,106 +654,6 @@ class VerifyUserAPIView(APIView):
         }, status=200)
 
 
-class ToggleFavouriteAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        user = request.user
-        product_id = request.data.get("product_id")
-
-        # Validate product_id presence
-        if not product_id:
-            return Response(
-                {
-                    "status": False,
-                    "message": "product_id is required"
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        #  Validate product_id type
-        if not str(product_id).isdigit():
-            return Response(
-                {
-                    "status": False,
-                    "message": "product_id must be a valid integer"
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        try:
-            #  Validate product existence & state
-            product = Product.objects.get(
-                id=int(product_id),
-                isDeleted=False,
-                isActive=True
-            )
-
-            #  Atomic toggle
-            with transaction.atomic():
-                favourite, created = Favourite.objects.select_for_update().get_or_create(
-                    user=user,
-                    product=product,
-                    defaults={
-                        "is_like": True,
-                        "isDeleted": False,
-                        "isActive": True
-                    }
-                )
-
-                #  Revive soft-deleted favourite
-                if not created and favourite.isDeleted:
-                    favourite.isDeleted = False
-                    favourite.is_like = True
-                    favourite.save()
-
-                #  Toggle like
-                elif not created:
-                    favourite.is_like = not favourite.is_like
-                    favourite.save()
-
-        except Product.DoesNotExist:
-            return Response(
-                {
-                    "status": False,
-                    "message": "Product not found or inactive"
-                },
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        except IntegrityError:
-            return Response(
-                {
-                    "status": False,
-                    "message": "Favourite integrity conflict"
-                },
-                status=status.HTTP_409_CONFLICT
-            )
-
-        except Exception as e:
-            return Response(
-                {
-                    "status": False,
-                    "message": "Something went wrong",
-                    "error": str(e)
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-        return Response(
-            {
-                "status": True,
-                "message": "Product liked" if favourite.is_like else "Product disliked",
-                "data": {
-                    "product_id": product.id,
-                    "product_type": product.productType,  #  derived safely
-                    "is_like": favourite.is_like
-                }
-            },
-            status=status.HTTP_200_OK
-        )
-
-
 
 #-----------------Notification-------------------------
 
@@ -862,530 +822,3 @@ class ToggleFavouriteAPIView(APIView):
 #                 "message": str(e),
 #                 "data": None
 #             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-# ADD TO CART 
-
-class AddToCartAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        try:
-            product_id = request.data.get("product_id")
-            quantity = int(request.data.get("quantity", 1))
-            product = Product.objects.get(id=product_id)
-        
-            cart, _ = Cart.objects.get_or_create(
-                user=request.user,
-                is_active=True
-            )
-
-            item, created = CartItem.objects.get_or_create(
-                cart=cart,
-                product=product
-            )
-
-            if not created:
-                # If item already exists, increase quantity
-                item.quantity += quantity
-                item.save()
-                return Response({
-                    "status": True,
-                    "statusCode": 200,
-                    "message": "Item already in cart. Quantity updated.",
-                    "cart_item": {
-                        "id": item.id,
-                        "product": item.product.productName,
-                        "quantity": item.quantity,
-                        "price": float(item.price)* quantity
-                    }
-                }, status=status.HTTP_200_OK)
-            else:
-                 return Response({
-                    "status": True,
-                    "statusCode": 201,
-                    "message": "Item added to cart successfully.",
-                    "cart_item": {
-                        "id": item.id,
-                        "product": item.product.productName,
-                        "quantity": item.quantity,
-                        "price": float(item.price)
-                    }
-                }, status=status.HTTP_201_CREATED)
-
-        except Product.DoesNotExist:
-            return Response({
-                "status": False,
-                "statusCode": 404,
-                "error": "Product not found"
-            }, status=status.HTTP_404_NOT_FOUND)
-
-
-
-# CART LISTING
-class CartListAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        try:
-            cart = Cart.objects.get(user=request.user, is_active=True)
-            cart_items = CartItem.objects.filter(cart=cart).order_by('id')
-            paginator = CustomPagination()
-            paginated_items = paginator.paginate_queryset(cart_items, request)
-            serializer = CartItemSerializer(paginated_items, many=True)
-            return paginator.get_paginated_response(serializer.data)
-
-        except Cart.DoesNotExist:
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Cart is empty",
-                "data": [],
-                "pagination": {
-                    "currentPage": 1,
-                    "limit": 0,
-                    "totalItems": 0,
-                    "totalPages": 0,
-                    "nextPage": False,
-                    "previousPage": False
-                }
-            }, status=status.HTTP_200_OK)
-
-# UPDATE
-class UpdateCartItemAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def patch(self, request):
-        try:
-            item_id = request.data.get("item_id")
-            quantity = int(request.data.get("quantity"))
-
-            item = CartItem.objects.get(
-                id=item_id,
-                cart__user=request.user
-            )
-            if quantity <= 0:
-                item.delete()
-                return Response({
-                    "status": True,
-                    "statusCode": 200,
-                    "message": "Item removed from cart"
-                }, status=status.HTTP_200_OK)
-
-            item.quantity = quantity
-            item.save()
-
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Cart item quantity updated successfully"
-            }, status=status.HTTP_200_OK)
-
-        except CartItem.DoesNotExist:
-            return Response({
-                "status": False,
-                "statusCode": 404,
-                "error": "Cart item not found"
-            }, status=status.HTTP_404_NOT_FOUND)
-
-
-
-# Delete
-class RemoveCartItemAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def delete(self, request):
-        try:
-            item_id = request.data.get("item_id")
-            if not item_id:
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "Item ID is required "
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            item = CartItem.objects.get(
-                id=item_id,
-                cart__user=request.user
-            )
-            item.delete()
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Item removed from cart successfully"
-            }, status=status.HTTP_200_OK)
-
-        except CartItem.DoesNotExist:
-            return Response({
-                "status": False,
-                "statusCode": 404,
-                "error": "Item not found"
-            }, status=status.HTTP_404_NOT_FOUND)
-
-
-
-class ItemSummaryAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        try:
-            cart = Cart.objects.get(user=request.user, is_active=True)
-            cart_items = CartItem.objects.filter(cart=cart)
-
-            if not cart_items.exists():
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "Cart is empty"
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            items_count = sum(item.quantity for item in cart_items)
-            subtotal = sum(item.total_price for item in cart_items)
-            shipping = Decimal("0.00")
-            tax = Decimal("0.00")
-            fees = Decimal("0.00")
-            discount = Decimal("0.00")
-
-            total_amount = subtotal + shipping + tax + fees - discount
-
-            items_list = []
-            for item in cart_items:
-                items_list.append({
-                    "name": item.product.productName,
-                    "quantity": item.quantity,
-                    "price": item.price,
-                    "total": item.total_price
-                })
-
-            return Response({
-                "items_count": items_count,
-                "items": items_list,
-                "subtotal": subtotal,
-                "shipping": None,
-                "tax": None,
-                "fees": None,
-                "discount": None,
-                "total_amount": total_amount
-            })
-
-        except Cart.DoesNotExist:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "error": "Cart is empty"
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CreateOrderAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        data = request.data
-        user = request.user
-
-        customer_data = data.get("customer", {})
-        address_data = data.get("delivery_address", {})
-        payment_data = data.get("payment", {})
-        cart_id = data.get("cart_id")
-
-        if not cart_id:
-            return Response({"error": "cart_id is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            cart = Cart.objects.get(id=cart_id, user=user, is_active=True)
-        except Cart.DoesNotExist:
-            return Response({"error": "Cart not found."}, status=status.HTTP_400_BAD_REQUEST)
-
-        customer, _ = CustomerDetails.objects.update_or_create(
-            user=user,
-            defaults={
-                "first_name": customer_data.get("first_name"),
-                "last_name": customer_data.get("last_name"),
-                "email": customer_data.get("email"),
-                "phone": customer_data.get("phone"),
-                "address_line_1": address_data.get("address_line_1"),
-                "address_line_2": address_data.get("address_line_2"),
-                "city": address_data.get("city"),
-                "postal_code": address_data.get("postal_code"),
-                "country": address_data.get("country"),
-                "payment_method": payment_data.get("payment_method"),
-            }
-        )
-
-        cart_items = cart.items.all()
-        if not cart_items.exists():
-            return Response({"error": "No items found in this cart."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Cart total
-        total_amount = sum((item.total_price for item in cart_items), Decimal("0.00"))
-        discount_amount = Decimal("0.00")
-
-        # Rental dates
-        rental_data = data.get("rental", {})
-        start_date = parse_date(rental_data.get("start_date"))
-        return_date = parse_date(rental_data.get("return_date"))
-
-        if not start_date or not return_date or return_date < start_date:
-            return Response({"error": "Invalid rental dates."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # ================= PROMOCODE =================
-        promocode_data = data.get("promocode")
-        promocode = None
-        original_amount = total_amount
-        now = timezone.now()
-
-        if promocode_data and promocode_data.get("code"):
-            code = promocode_data.get("code")
-            try:
-                promocode = Promocode.objects.get(
-                    promocodeName=code,
-                    isActive=True,
-                    isDeleted=False
-                )
-            except Promocode.DoesNotExist:
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "Promocode not found or invalid."
-                }, status=400)
-
-            # Date validation
-            if promocode.started_at and promocode.started_at > now:
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "Promocode not active yet."
-                }, status=400)
-
-            if promocode.ended_at and promocode.ended_at < now:
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "Promocode expired."
-                }, status=400)
-
-            # User already used
-            if Order.objects.filter(user=user, promocode=promocode).exists():
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "You have already used this promocode."
-                }, status=400)
-
-            # Calculate discount
-            if promocode.promocodeType == "fix_price" and promocode.amount:
-                discount_amount = Decimal(promocode.amount)
-            elif promocode.promocodeType == "discount" and promocode.amount:
-                discount_amount = original_amount * (Decimal(promocode.amount) / 100)
-
-            total_amount = original_amount - discount_amount
-
-        # Ensure total_amount is not negative
-        if total_amount < 0:
-            total_amount = Decimal("0.00")
-
-        # Create order
-        order = Order.objects.create(
-            user=user,
-            cart=cart,
-            customer=customer,
-            Payment_method=payment_data.get("payment_method"),
-            total_amount=total_amount,
-            status="created",   
-            order_type="uniform",
-            promocode=promocode
-        )
-
-        order.start_date = start_date
-        order.return_date = return_date
-        order.save()
-
-        # Prepare response
-        response_data = {
-            "cart": {
-                "cart_id": cart.id,
-                "items": [{"id": item.id, "total_price": float(item.total_price)} for item in cart_items]
-            },
-            "customer": {
-                "first_name": customer.first_name,
-                "last_name": customer.last_name,
-                "email": customer.email,
-                "phone": customer.phone
-            },
-            "delivery_address": {
-                "address_line_1": customer.address_line_1,
-                "address_line_2": customer.address_line_2,
-                "city": customer.city,
-                "postal_code": customer.postal_code,
-                "country": customer.country
-            },
-            "rental": {
-                "start_date": start_date.strftime("%Y-%m-%d"),
-                "return_date": return_date.strftime("%Y-%m-%d"),
-                "duration_days": (return_date - start_date).days + 1
-            },
-            "payment": {
-                "payment_method": customer.payment_method
-            },
-            "promocode": {
-                "code": promocode.promocodeName if promocode else None
-            },
-            "order": {
-                "order_id": str(order.order_id),
-                "total_amount": float(total_amount),
-                "discount": float(discount_amount),
-                "order_status": order.status
-            }
-        }
-
-        return Response({
-            "status": True,
-            "statusCode": 201,
-            "message": "Order created successfully",
-            "data": response_data
-        })
-
-
-class OrderSummaryAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        order_id = request.data.get("order_id")
-        if not order_id:
-            return Response(
-                {"error": "Order ID is required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        try:
-            order = Order.objects.get(order_id=order_id, user=request.user)
-        except Order.DoesNotExist:
-            return Response(
-                {"error": "Order not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        customer = order.customer
-        cart_items = order.cart.items.all()  # all items in this order's cart
-
-        order_items_list = []
-        for item in cart_items:
-            order_items_list.append({
-                "name": item.product.productName,
-                "quantity": item.quantity,
-                "price_per_item": float(item.price),
-                "total_price": float(item.total_price),
-                "thumbnail": item.product.ProductImage.url if item.product.ProductImage else None
-            })
-
-        duration_days = (order.return_date - order.start_date).days + 1
-
-
-        subtotal = float(sum(item.total_price for item in cart_items))
-        total_amount = float(order.total_amount)
-        discount = float(subtotal - total_amount) if subtotal > total_amount else 0.0
-
-        response_data = {
-            "contact_information": {
-                "name": f"{customer.first_name} {customer.last_name}",
-                "email": customer.email,
-                "phone": customer.phone
-            },
-            "delivery_address": {
-                "address": f"{customer.address_line_1}, "
-                           f"{customer.address_line_2}, "
-                           f"{customer.city}, "
-                           f"{customer.postal_code}, "
-                           f"{customer.country}"
-            },
-            "rental_period": {
-                "start": order.start_date.strftime("%Y-%m-%d"),
-                "return": order.return_date.strftime("%Y-%m-%d"),
-                "duration": f"{duration_days} days"
-            },
-            "order_items": order_items_list,
-            "payment": {
-                "payment_method": order.Payment_method 
-            },
-            "promocode": {
-                "code": order.promocode.promocodeName if order.promocode else None
-            },
-            "order_summary": {
-                "subtotal": subtotal,
-                "discount": discount,
-                "total": total_amount
-            }
-        }
-
-        return Response({
-            "status": True,
-            "statusCode": 200,
-            "message": "Order review fetched successfully",
-            "data": response_data
-        })
-
-
-class OrderListAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        orders = Order.objects.filter(user=request.user).order_by('-created_at')
-
-        if not orders.exists():
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "No orders found",
-                "data": [],
-                "pagination": {
-                    "currentPage": 1,
-                    "limit": 0,
-                    "totalItems": 0,
-                    "totalPages": 0,
-                    "nextPage": False,
-                    "previousPage": False
-                }
-            }, status=status.HTTP_200_OK)
-
-        paginator = CustomPagination()
-        paginated_orders = paginator.paginate_queryset(orders, request)
-        serializer = OrderSerializer(paginated_orders, many=True)
-        return paginator.get_paginated_response(serializer.data)
-
-
-
-class OrderDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        order_id = request.data.get("order_id")
-
-        if not order_id:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "message": "order_id is required",
-                "data": {}
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            order = Order.objects.get(
-                order_id=order_id,
-                user=request.user
-            )
-
-            serializer = OrderSerializer(order)
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Order fetched successfully",
-                "data": serializer.data
-            }, status=status.HTTP_200_OK)
-
-        except Order.DoesNotExist:
-            return Response({
-                "status": False,
-                "statusCode": 404,
-                "message": "Order not found",
-                "data": {}
-            }, status=status.HTTP_404_NOT_FOUND)
-

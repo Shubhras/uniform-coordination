@@ -27,9 +27,14 @@ SECRET_KEY = 'django-insecure-a)&ww89mdf0z@0z_&lm=9ia79zry+d_wi((4x=5-*!ysby@&fz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
-
+ALLOWED_HOSTS = [
+    "192.168.29.193",
+    "192.168.1.31",
+    "127.0.0.1",
+    "localhost",
+    "localhost:7000",
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -53,6 +58,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -168,6 +174,9 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
     'PAGE_SIZE': 10,
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -175,6 +184,18 @@ REST_FRAMEWORK = {
 }
 
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8000",
+    "http://192.168.1.31:8000",
+    "http://localhost:7000",
+    "http://localhost:7001",
+    
+
+]
+
+CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
