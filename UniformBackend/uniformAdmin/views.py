@@ -18,6 +18,12 @@ from userhub.models import QuotationRequest
 from userhub.serializers import QuotationRequestSerializer
 from django.db.models import Q
 from .fabric import CustomPagination
+import traceback
+from django.utils.timezone import now
+from .fabric import  IsAdministrator 
+from django.db.models import Count
+from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
+
 
 
 
@@ -1197,4 +1203,228 @@ class AdminNotificationDeleteAPIView(APIView):
                 "status": False,
                 "message": "Something went wrong on server.",
                 "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class AdminDashAPIView(APIView):
+    # permission_classes = [IsAdministrator]
+    permission_classes  =[IsAuthenticated]   #need to remove after take clone 
+    
+
+    def get(self, request):
+        try:
+            # ================= PENDING QUOTES (TODAY vs YESTERDAY) =================
+            today = now().date()
+            yesterday = today - timedelta(days=1)
+
+            pending_today = QuotationRequest.objects.filter(
+                quotation_status="pending",
+                isDeleted=False,
+                created_at__date=today
+            ).count()
+
+            pending_yesterday = QuotationRequest.objects.filter(
+                quotation_status="pending",
+                isDeleted=False,
+                created_at__date=yesterday
+            ).count()
+
+            if pending_yesterday:
+                pending_change_percentage = round(
+                    ((pending_today - pending_yesterday) / pending_yesterday) * 100, 2
+                )
+            else:
+                pending_change_percentage = 100 if pending_today else 0
+
+            total_templates = Template.objects.count()
+
+            # ================= B2B USERS (MONTH vs PREVIOUS MONTH) =================
+            today_dt = now()
+            current_month_start = today_dt.replace(day=1)
+
+            previous_month_end = current_month_start - timedelta(days=1)
+            previous_month_start = previous_month_end.replace(day=1)
+
+            current_month_b2b = AdminUser.objects.filter(
+                role__role_name="b2b",
+                created_at__gte=current_month_start
+            ).count()
+
+            previous_month_b2b = AdminUser.objects.filter(
+                role__role_name="b2b",
+                created_at__gte=previous_month_start,
+                created_at__lte=previous_month_end
+            ).count()
+
+            if previous_month_b2b:
+                b2b_change_percentage = round(
+                    ((current_month_b2b - previous_month_b2b) / previous_month_b2b) * 100, 2
+                )
+            else:
+                b2b_change_percentage = 100 if current_month_b2b else 0
+
+            # ================= QUOTE STATUS DISTRIBUTION =================
+            ALL_STATUSES = ["pending", "sent", "approved"]
+
+            status_qs = (
+                QuotationRequest.objects
+                .filter(isDeleted=False)
+                .values("quotation_status")
+                .annotate(count=Count("uuids"))
+            )
+
+            status_dict = {i["quotation_status"]: i["count"] for i in status_qs}
+            total_quotes = sum(status_dict.values()) or 1
+
+            quote_status_distribution = {
+                "data": [
+                    {
+                        "label": status.capitalize(),
+                        "value": status_dict.get(status, 0),
+                        "percentage": round(
+                            (status_dict.get(status, 0) / total_quotes) * 100, 2
+                        )
+                    }
+                    for status in ALL_STATUSES
+                ]
+            }
+
+            # ================= QUOTATION VOLUME =================
+            # Weekly
+            DAY_MAP = {1: "Sun", 2: "Mon", 3: "Tue", 4: "Wed", 5: "Thu", 6: "Fri", 7: "Sat"}
+            weekly_result = {i: 0 for i in range(1, 8)}
+
+            week_qs = (
+                QuotationRequest.objects
+                .filter(
+                    isDeleted=False,
+                    created_at__year=today_dt.year,
+                    created_at__week=today_dt.isocalendar()[1]
+                )
+                .annotate(day=ExtractWeekDay("created_at"))
+                .values("day")
+                .annotate(value=Count("quotation_id"))
+            )
+
+            for item in week_qs:
+                weekly_result[item["day"]] = item["value"]
+
+            weekly_data = [{"label": DAY_MAP[d], "value": weekly_result[d]} for d in range(1, 8)]
+
+            # Monthly
+            monthly_result = {i: 0 for i in range(1, 6)}
+            month_qs = (
+                QuotationRequest.objects
+                .filter(
+                    isDeleted=False,
+                    created_at__year=today_dt.year,
+                    created_at__month=today_dt.month
+                )
+                .annotate(week=ExtractWeek("created_at"))
+                .values("week")
+                .annotate(value=Count("quotation_id"))
+            )
+
+            for item in month_qs:
+                week_no = (item["week"] % 5) or 5
+                monthly_result[week_no] += item["value"]
+
+            monthly_data = [{"label": f"Week {w}", "value": monthly_result[w]} for w in range(1, 6)]
+
+            # Yearly
+            MONTH_MAP = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+                         7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
+
+            yearly_result = {m: 0 for m in range(1, 13)}
+
+            year_qs = (
+                QuotationRequest.objects
+                .filter(isDeleted=False, created_at__year=today_dt.year)
+                .annotate(month=ExtractMonth("created_at"))
+                .values("month")
+                .annotate(value=Count("quotation_id"))
+            )
+
+            for item in year_qs:
+                yearly_result[item["month"]] = item["value"]
+
+            yearly_data = [
+                {"label": f"{MONTH_MAP[m]} {today_dt.year}", "value": yearly_result[m]}
+                for m in range(1, 13)
+            ]
+
+            quotation_volume = {
+                "weekly": weekly_data,
+                "monthly": monthly_data,
+                "yearly": yearly_data
+            }
+
+            # ================= MOST USED FABRICS =================
+            fabrics_qs = (
+                Fabric.objects
+                .filter(parts__isDeleted=False)
+                .annotate(total_count=Count("parts"))
+                .values("fabricName", "total_count")
+                .order_by("-total_count")[:4]
+            )
+            most_used_fabrics =[{
+                 "fabric_name": f["fabricName"],
+                 "count": f["total_count"]
+            }
+            for f in fabrics_qs
+            ]
+
+            # ================= RECENT UPDATES =================
+            items = []
+
+            for p in Product.objects.values("productName", "updated_at"):
+                items.append({"name":p["productName"],"date":p["updated_at"],"type":"product"})
+
+            for c in Colors.objects.values("colorName", "updated_at"):
+                items.append({"name":c["colorName"],"date":c["updated_at"],"type": "color"})
+
+            for pt in Parts.objects.values("partName", "updated_at"):
+                items.append({"name":pt["partName"],"date":pt["updated_at"],"type": "part"})
+
+            items.sort(key=lambda x: x["date"], reverse=True)
+            recent_updates = []
+            for item in items[:3]:
+                     key_name = ""
+                     if item["type"] == "product":
+                          key_name = "productname"
+                     elif item["type"] == "color":
+                          key_name = "colorname"
+                     elif item["type"] == "part":
+                          key_name = "partcname"
+                     recent_updates.append({
+                         key_name:item["name"],
+                         "type":item["type"],
+                         "created_date": item["date"].strftime("%b %d, %Y")
+                     }) 
+
+            # ================= RESPONSE =================
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Dashboard data fetched successfully",
+                "data": {
+                    "Pending_quotes": {"total": pending_today, "change_percentage": pending_change_percentage},
+                    "Templates": {"total": total_templates},
+                    "B2B_Users": {"total": current_month_b2b, "change_percentage": b2b_change_percentage},
+                    "Quote_status_distribution": quote_status_distribution,
+                    "Quotation_volume": quotation_volume,
+                    "Pending_Sales_Representation_Action": {"amy": 2, "jok": 1, "bob": 2},
+                    "most_used_fabrics": most_used_fabrics,
+                    "Recently_update_product_color_part": recent_updates,
+                }
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Failed to fetch dashboard data",
+                "error": str(e),
+                "trace": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -12,7 +12,8 @@ class Role(models.Model):
         ("sales_rep", "Sales Rep"),
         ("corporate", "Corporate"),
         ("customer", "Customer"),
-        ("b2b_user", "B2B User"),
+        ("b2b","B2B"),   # remove 
+        
     ]
     role_name = models.CharField(max_length=60, choices=ROLE_CHOICES)
     slug = models.CharField(max_length=255, blank=True, null=True)
@@ -114,7 +115,6 @@ class Fabric(models.Model):
 
     def __str__(self):
         return self.fabricName
-
 
 
 class Parts(models.Model):
