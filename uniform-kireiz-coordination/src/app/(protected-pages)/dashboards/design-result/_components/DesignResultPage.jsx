@@ -109,7 +109,7 @@ const DesignResultPage = () => {
     }
     return (
         <>
-            <div className="w-full max-w-7xl mx-auto md:px-4 px-2">
+            <div className="w-full max-w-7xl mx-auto">
                 <div className="bg-white rounded-2xl md:p-8 p-0">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                         {/* ================= LEFT SECTION ================= */}
@@ -124,9 +124,9 @@ const DesignResultPage = () => {
 
                             {/* Image with Blue Circle */}
                             <div className="relative flex justify-center items-center h-[720px] w-full">
-                                <div style={{position:"absolute",top:"45px"}} className="absolute sm:w-[350px] sm:h-[350px] w-[300px] h-[300px] bg-[#BFE3F9] rounded-full" />
+                                <div style={{ position: "absolute", top: "45px" }} className="absolute sm:w-[350px] sm:h-[350px] w-[300px] h-[300px] bg-[#BFE3F9] rounded-full" />
 
-                                <Image style={{top:"-35px"}}
+                                <Image style={{ top: "-35px" }}
                                     src="/img/uniform/uniform.png"
                                     alt="Uniform"
                                     width={360}
@@ -192,68 +192,71 @@ const DesignResultPage = () => {
                             </div>
 
                             {/* Buttons */}
-                            <div className="flex justify-between items-center mt-10 gap-4">
+                            <div className="flex flex-col sm:flex-row justify-between items-center mt-10 gap-4 w-full">
 
-                                {/* LEFT BUTTONS */}
-                                <div className="flex gap-4">
-                                    {/* Save Design */}
-                                    <button
-                                        className="
-      h-[55px]
-        w-[140px]
-        flex flex-col items-center justify-center
-        gap-2
-        text-xs
-        border border-[#E5E7EB]
-        rounded-lg
-        bg-[#F7FBFF]
-        text-[#1C2C56]
-        hover:bg-[#EEF5FF]
-        transition
-      "
-                                    >
-                                        <FiSave size={18} />
-                                        <span>Save Design</span>
-                                    </button>
-
-                                    {/* Export PDF */}
-                                    <button
-                                        className="
-      h-[55px]
-        w-[140px]
-        flex flex-col items-center justify-center
-        gap-2
-        text-xs
-        border border-[#E5E7EB]
-        rounded-lg
-        bg-[#F7FBFF]
-        text-[#1C2C56]
-        hover:bg-[#EEF5FF]
-        transition
-      "
-                                    >
-                                        <FiFileText size={18} />
-                                        <span>Export PDF</span>
-                                    </button>
-                                </div>
-
-                                {/* NEXT BUTTON */}
+                                {/* Save Design */}
                                 <button
                                     className="
+      w-full sm:w-auto
+      flex-1
+      flex flex-col items-center justify-center
+      gap-2
+      text-xs
+      border border-[#E5E7EB]
+      rounded-lg
+      bg-[#F7FBFF]
+      text-[#1C2C56]
+      hover:bg-[#EEF5FF]
+      transition
+      py-2
+      h-[55px]
+    "
+                                >
+                                    <FiSave size={18} />
+                                    <span>Save Design</span>
+                                </button>
+
+                                {/* Export PDF */}
+                                <button
+                                    className="
+      w-full sm:w-auto
+      flex-1
+      flex flex-col items-center justify-center
+      gap-2
+      text-xs
+      border border-[#E5E7EB]
+      rounded-lg
+      bg-[#F7FBFF]
+      text-[#1C2C56]
+      hover:bg-[#EEF5FF]
+      transition
+      py-2
+      h-[55px]
+    "
+                                >
+                                    <FiFileText size={18} />
+                                    <span>Export PDF</span>
+                                </button>
+
+                                {/* Next (larger on sm+) */}
+                                <button
+                                    className="
+      w-full sm:w-auto
+      flex-[2]
       h-[55px]
       bg-[#1C2C56]
       text-white
       px-12
+      py-4
       rounded-md
       flex items-center justify-center
-      flex-1
     "
                                     onClick={handleRedirect}
                                 >
                                     Next
                                 </button>
-
                             </div>
+
 
                         </div>
 

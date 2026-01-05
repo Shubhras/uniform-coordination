@@ -69,7 +69,7 @@ const DeliveryRequestForm = () => {
     return (
         <>
             {/* <div className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10"> */}
-            <div className="w-full bg-white py-8 px-4">
+            <div className="w-full bg-white ">
                 {/* <div className="w-full lg:w-1/2 px-4 ">
                     <h5 className="font-medium mb-3">Design Result</h5>
                     <div className="relative w-[250px] h-[250px] mx-auto">

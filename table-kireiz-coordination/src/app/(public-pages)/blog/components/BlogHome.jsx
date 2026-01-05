@@ -6,7 +6,7 @@ import React from 'react'
 import BlogSection from './BlogSection'
 import HaederPage from '../../header/HaederPage'
 import FooterPage from '../../footer/FooterPage'
-import ChatbotSection from '../../chatbot-section/ChatbotSection'
+import ChatbotSection from '../../table-form/components/ChatbotSection'
 
 const BlogHome = () => {
     const mode = useTheme((state) => state.mode)
