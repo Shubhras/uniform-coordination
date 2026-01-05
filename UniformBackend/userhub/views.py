@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 class SignupAPIView(APIView):
-
+    
     def post(self, request, *args, **kwargs):
         request.data._mutable = True
         request.data["userType"] = request.data.get("userType")
@@ -105,6 +105,7 @@ class SignupAPIView(APIView):
 class LoginAPIView(APIView):
 
     def post(self, request):
+        
         try:
             email = request.data.get("email")
             password = request.data.get("password")
@@ -560,6 +561,7 @@ class UpdatePasswordAPIView(APIView):
 
 
 class VerifyUserAPIView(APIView):
+    
     def post(self, request):
         serializer = VerifyUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

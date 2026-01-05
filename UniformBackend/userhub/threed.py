@@ -299,7 +299,7 @@ class CustomUpdateModelsCreateAPIView(APIView):
         try:
             data = request.data.copy()
 
-            # 🔥 large json nikaalo
+            # large json nikaalo
             large_json = data.pop("json_data", None)
 
             json_path = None
@@ -372,7 +372,7 @@ class CustomUpdateModelsUpdateAPIView(APIView):
         obj = get_object_or_404(CustomUpdateModels, id=id, isDeleted=False)
 
         data = request.data.copy()
-        data.pop("json_data", None)  # 🔥 block large json
+        data.pop("json_data", None)  # block large json
 
         serializer = CustomUpdateModelsSerializer(
             obj,
@@ -392,22 +392,84 @@ class CustomUpdateModelsUpdateAPIView(APIView):
         return Response(serializer.errors, status=400)
 
 
+# class CustomUpdateModelsDeleteAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def delete(self, request, id):
+#         obj = get_object_or_404(CustomUpdateModels, id=id)
+
+#         # file bhi delete karo
+#         if obj.json_file_path:
+#             file_path = os.path.join(settings.MEDIA_ROOT, obj.json_file_path)
+#             if os.path.exists(file_path):
+#                 os.remove(file_path)
+
+#         obj.delete()
+
+#         return Response({
+#             "statusCode": 204,
+#             "status": True,
+#             "message": "Deleted successfully"
+#         }, status=status.HTTP_204_NO_CONTENT)
+
+
 class CustomUpdateModelsDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def delete(self, request, id):
-        obj = get_object_or_404(CustomUpdateModels, id=id)
+    def delete(self, request):
+        ids = request.data.get("ids", [])
+        delete_all = request.data.get("all", False)
 
-        # 🔥 file bhi delete karo
-        if obj.json_file_path:
-            file_path = os.path.join(settings.MEDIA_ROOT, obj.json_file_path)
-            if os.path.exists(file_path):
-                os.remove(file_path)
+        # CASE 1: DELETE ALL
+        if delete_all:
+            queryset = CustomUpdateModels.objects.all()
 
-        obj.delete()
+            if not queryset.exists():
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "No records found to delete."
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            for obj in queryset:
+                if obj.json_file_path:
+                    file_path = os.path.join(settings.MEDIA_ROOT, obj.json_file_path)
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                obj.delete()
+
+            return Response({
+                "status": True,
+                "statusCode": 204,
+                "message": "All records deleted successfully."
+            }, status=status.HTTP_204_NO_CONTENT)
+
+        # DELETE BY IDS
+        if not ids or not isinstance(ids, list):
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Please provide a list of IDs in 'ids' field or set 'all=true'."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = CustomUpdateModels.objects.filter(id__in=ids)
+
+        if not queryset.exists():
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "No records found for given IDs."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        for obj in queryset:
+            if obj.json_file_path:
+                file_path = os.path.join(settings.MEDIA_ROOT, obj.json_file_path)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+            obj.delete()
 
         return Response({
-            "statusCode": 204,
             "status": True,
-            "message": "Deleted successfully"
+            "statusCode": 204,
+            "message": f"{queryset.count()} record(s) deleted successfully."
         }, status=status.HTTP_204_NO_CONTENT)
