@@ -7,6 +7,7 @@ import SettingMobileMenu from './SettingMobileMenu'
 import Loading from '@/components/shared/Loading'
 import { useSettingsStore } from '../_store/settingsStore'
 
+const MyProfile = lazy(() => import('./MyProfile'))
 const PersonalInformation = lazy(() => import('./PersonalInformation'))
 const ChangePassword = lazy(() => import('./ChangePassword'))
 const SimulationHistory = lazy(() => import('./SimulationHistory'))
@@ -29,6 +30,7 @@ const Settings = () => {
                     <Suspense
                         fallback={<Loading loading={true} className="w-full" />}
                     >
+                        {currentView === 'my-profile' && <MyProfile />}
                         {currentView === 'personal-information' && <PersonalInformation />}
                         {currentView === 'change-password' && <ChangePassword />}
                         {currentView === 'simulation-history' && <SimulationHistory />}

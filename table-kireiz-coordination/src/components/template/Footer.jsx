@@ -132,7 +132,7 @@ export default function Footer({ pageContainerType = 'contained', className }) {
         //     </div>
         // </footer>
         <footer className="bg-[#E8B4A9] text-black pt-16">
-            <div className=" mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+            <div className=" mx-auto px-5 md:px-8 lg:px-12">
                 <div className="relative grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="max-w-[300px]">
                         <img
