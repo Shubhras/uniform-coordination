@@ -36,7 +36,7 @@ const SimulationHistory = () => {
         router.push('/dashboards/uniform-3d-design')
     }
     return (
-        <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
+        <div className="w-full bg-[#E8EEF842] md:p-8 p-4 rounded-2xl max-w-7xl mx-auto shadow-md">
 
             {/* HEADER */}
             <div className="mb-6">
@@ -67,11 +67,11 @@ const SimulationHistory = () => {
                 </div>
 
                 {/* Right filters */}
-                <div className="flex gap-3">
-                    <select className="py-2 text-sm rounded-md border border-[#D0D7E2] px-5 text-[#0F2A44]">
+                <div className="flex flex-col sm:flex-row gap-3 w-full justify-end">
+                    <select className="w-full sm:w-auto py-2 text-sm rounded-md border border-[#D0D7E2] px-4 sm:px-5 text-[#0F2A44]">
                         <option>Sort: New first</option>
                     </select>
-                    <select className="py-2 text-sm rounded-md border border-[#D0D7E2] px-5 text-[#0F2A44]">
+                    <select className="w-full sm:w-auto py-2 text-sm rounded-md border border-[#D0D7E2] px-4 sm:px-5 text-[#0F2A44]">
                         <option>Last 30 Days</option>
                     </select>
                 </div>

@@ -135,23 +135,23 @@ const PersonalInformation = () => {
 
     return (
         <>
-            <div className='bg-[#E8EEF842] md:p-8 p-5 rounded-2xl  max-w-7xl mx-auto shadow-md'>
-                <h4 className="mb-8 text-[#003562] text-lg font-semibold">Personal information</h4>
+            <div className='bg-[#E8EEF842] p-4 sm:p-5 md:p-8 rounded-2xl max-w-7xl mx-auto shadow-md'>
+                <h4 className="text-[#003562] mb-6 sm:mb-8 text-base sm:text-lg font-semibold">Personal information</h4>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <div className="mb-8">
                         <Controller
                             name="img"
                             control={control}
                             render={({ field }) => (
-                                <div className="flex items-center sm:flex-row flex-col  justify-center sm:justify-start gap-4 p-5 bg-[#1C4FA81F] rounded-lg">
+                                <div className="flex flex-col sm:flex-row items-center gap-4 p-4 sm:p-5 rounded-lg bg-[#1C4FA81F]">
                                     <Avatar
                                         size={100}
-                                        className="border-1 border-white bg-gray-100 text-gray-300 shadow-lg"
+                                        className="border border-white bg-gray-100 text-gray-300 shadow-lg"
                                         icon={<CiUser />}
                                         src={field.value}
                                     />
-                                    <div className="flex    flex-col sm:items-start items-center gap-2 flex-wrap">
-                                        <div className='flex items-center  gap-2'>
+                                    <div className="flex flex-col items-center sm:items-start gap-3 w-full">
+                                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                                             <Upload
                                                 showList={false}
                                                 uploadLimit={1}
@@ -171,7 +171,7 @@ const PersonalInformation = () => {
                                                     size="sm"
                                                     type="button"
                                                     // icon={<TbPlus />}
-                                                    className=" bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md px-6"
+                                                    className=" bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md px-6 w-full sm:w-auto "
                                                 >
                                                     Upload Image
                                                 </Button>
@@ -249,13 +249,11 @@ const PersonalInformation = () => {
                             )}
                         />
                     </FormItem>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div className='flex items-end gap-4 w-full'>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="flex flex-col sm:flex-row items-end gap-3 w-full">
                             <FormItem
-                                invalid={
-                                    Boolean(errors.phoneNumber) ||
-                                    Boolean(errors.dialCode)
-                                }
+                                className="w-full sm:w-3/4"
+                                invalid={Boolean(errors.phoneNumber) || Boolean(errors.dialCode)}
                             >
                                 <label className="form-label mb-2">Phone number</label>
                                 <Controller
@@ -266,20 +264,15 @@ const PersonalInformation = () => {
                                             instanceId="dial-code"
                                             options={dialCodeList}
                                             {...field}
-                                            className="w-[150px] border border-gray-300 rounded-md"
+                                            className="w-full border border-gray-300 rounded-md"
                                             components={{
                                                 Option: (props) => (
-                                                    <CustomSelectOption
-                                                        variant="phone"
-                                                        {...props}
-                                                    />
+                                                    <CustomSelectOption variant="phone" {...props} />
                                                 ),
                                                 Control: CustomControl,
                                             }}
-                                            placeholder=""
                                             value={dialCodeList.filter(
-                                                (option) =>
-                                                    option.dialCode === field.value,
+                                                (option) => option.dialCode === field.value
                                             )}
                                             onChange={(option) =>
                                                 field.onChange(option?.dialCode)
@@ -288,12 +281,10 @@ const PersonalInformation = () => {
                                     )}
                                 />
                             </FormItem>
+
                             <FormItem
                                 className="w-full"
-                                invalid={
-                                    Boolean(errors.phoneNumber) ||
-                                    Boolean(errors.dialCode)
-                                }
+                                invalid={Boolean(errors.phoneNumber)}
                                 errorMessage={errors.phoneNumber?.message}
                             >
                                 <Controller
@@ -301,16 +292,14 @@ const PersonalInformation = () => {
                                     control={control}
                                     render={({ field }) => (
                                         <NumericInput
-                                            autoComplete="off"
                                             placeholder="Phone Number"
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            onBlur={field.onBlur}
+                                            {...field}
                                         />
                                     )}
                                 />
                             </FormItem>
                         </div>
+
                         <FormItem
                             label="Position"
                             invalid={Boolean(errors.position)}
@@ -320,23 +309,18 @@ const PersonalInformation = () => {
                                 name="position"
                                 control={control}
                                 render={({ field }) => (
-                                    <Input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Position"
-                                        {...field}
-                                    />
+                                    <Input placeholder="Position" {...field} />
                                 )}
                             />
                         </FormItem>
-
                     </div>
-                    <div className="flex justify-end gap-4">
+
+                    <div className="flex flex-col sm:flex-row justify-end gap-3">
                         <Button
                             variant="default"
                             type="button"
                             size="sm"
-                            className="border px-6 py-2 rounded-md"
+                            className="w-full sm:w-auto border px-6 py-2 rounded-md"
                         >
                             Cancel
                         </Button>
@@ -345,7 +329,8 @@ const PersonalInformation = () => {
                             type="submit"
                             size="sm"
                             loading={isSubmitting}
-                            className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+                            className="w-full sm:w-auto bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+
                         >
                             Save Changes
                         </Button>

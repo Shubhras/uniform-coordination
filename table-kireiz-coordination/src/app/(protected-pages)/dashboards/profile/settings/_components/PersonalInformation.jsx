@@ -147,7 +147,7 @@ const PersonalInformation = () => {
                             name="img"
                             control={control}
                             render={({ field }) => (
-                                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 sm:p-5 bg-[#E0D1C7DB] rounded-lg">
+                                <div className="flex flex-col sm:flex-row items-center gap-4 p-4 sm:p-5 bg-[#E0D1C7DB] rounded-lg">
                                     <Avatar
                                         size={90}
                                         className="border border-white bg-gray-100 text-gray-300 shadow-lg"
@@ -248,7 +248,7 @@ const PersonalInformation = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div className="flex flex-col sm:flex-row items-end gap-3 w-full">
                             <FormItem
-                                className="w-full sm:w-[150px]"
+                                className="w-full sm:w-3/4"
                                 invalid={Boolean(errors.phoneNumber) || Boolean(errors.dialCode)}
                             >
                                 <label className="form-label mb-2">Phone number</label>
@@ -334,8 +334,6 @@ const PersonalInformation = () => {
                     </div>
                 </Form>
             </div>
-
-
         </>
     )
 }

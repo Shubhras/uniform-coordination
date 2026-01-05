@@ -154,7 +154,7 @@ const ChangePassword = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex justify-end gap-4">
+                <div className="flex flex-col sm:flex-row justify-end gap-3">
                     <Button
                         type="button"
                         variant="default"
