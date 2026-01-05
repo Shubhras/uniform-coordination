@@ -71,7 +71,7 @@ class CategoryAdmin(admin.ModelAdmin):
             "fields": ("categoryName", "slug")
         }),
         ("Status", {
-            "fields": ("isActive", "isDeleted")
+            "fields": ("isActive", "isDeleted","categoryImage","description")
         }),
         ("Timestamps", {
             "fields": ("created_at", "updated_at")
@@ -157,7 +157,13 @@ class PartsAdmin(admin.ModelAdmin):
     
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
-    list_display = ("id","title","isActive","isDeleted","created_at")
+    list_display = (
+        "id",
+        "title",
+        "isActive",
+        "isDeleted",
+        "created_at"
+    )
     search_fields = ("title",)
     list_filter = ("isActive", "isDeleted")
    
@@ -165,11 +171,33 @@ class FAQAdmin(admin.ModelAdmin):
     
 @admin.register(FAQDescription)
 class FAQDescriptionAdmin(admin.ModelAdmin):
-    list_display = ("id","faq","isActive","isDeleted","created_at","updated_at",)
-    list_filter = ("isActive","isDeleted","created_at",)
-    search_fields = ("faq__title","description",)
+    list_display = (
+        "id",
+        "faq",
+        "isActive",
+        "isDeleted",
+        "created_at",
+        "updated_at",
+    )
+
+    list_filter = (
+        "isActive",
+        "isDeleted",
+        "created_at",
+    )
+
+    search_fields = (
+        "faq__title",
+        "description",
+    )
+
     ordering = ("-created_at",)
-    readonly_fields = ("created_at","updated_at",)
+
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+    )
+
     fieldsets = (
         ("FAQ Information", {
             "fields": ("faq", "description")
@@ -196,217 +224,18 @@ class CatalogImageAdmin(admin.ModelAdmin):
 @admin.register(SubCategory)
 class SubCategoryAdmin(admin.ModelAdmin):
     list_display = ("id","name","category","isActive","isDeleted","created_at",)
+
     list_filter = ("isActive","isDeleted","category",)
+
     search_fields = ("name",)
-    readonly_fields = ("created_at","updated_at",)
-    ordering = ("-created_at",)
-    
-    
-@admin.register(Promocode)
-class PromocodeAdmin(admin.ModelAdmin):
-    list_display = ("promocodeName","promocodeType","isActive","started_at","ended_at",)
-    search_fields = ("promocodeName",)
-    list_filter = ("promocodeType", "isActive")
-    readonly_fields = ("created_at", "updated_at")
-    
-    
-@admin.register(PrivacyPolicy)
-class PrivacyPolicyAdmin(admin.ModelAdmin):
-    list_display = ("title","privacyPolicyType","type","language","version","isActive","created_at",)
-    search_fields = ("title",)
-    list_filter = ("privacyPolicyType", "type", "language", "isActive")
-    
-    
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = (
-        'id',
-        'productName',
-        'productType',
-        'price',
-        'available_quantity',
-        'isActive',
-        'isPopular',
-        'isDeleted',
-        'created_at'
-    )
- 
-    list_filter = (
-        'productType',
-        'isActive',
-        'isPopular',
-        'isDeleted',
-        'category',
-        'subcategory'
-    )
- 
-    search_fields = (
-        'productName',
-        'slug',
-    )
- 
-    prepopulated_fields = {
-        'slug': ('productName',)
-    }
- 
-    filter_horizontal = (
-        'parts',
-    )
- 
+
     readonly_fields = (
-        'created_at',
-        'updated_at',
-    )
- 
-    ordering = ('-created_at',)
-    
-
-
-@admin.register(QuotationTemplate)
-class QuotationTemplateAdmin(admin.ModelAdmin):
-
-    # Admin list page me kya dikhe
-    list_display = (
-        "slug",
-        "title",
-        "language",
-        "version",
-        "userType",
-        "is_active",
-        "is_deleted",
-        "created_at",
-    )
-
-    # Right side filters
-    list_filter = (
-        "title",
-        "language",
-        "is_active",
-        "is_deleted",
-    )
-
-    # Search bar
-    search_fields = (
-        "slug",
-        "content",
-    )
-
-    # Auto slug fill (agar manually na diya ho)
-    prepopulated_fields = {
-        "slug": ("title",)
-    }
-
-    # Fields grouping (detail page)
-    fieldsets = (
-        ("Template Info", {
-            "fields": (
-                "title",
-                "slug",
-                "language",
-                "version",
-            )
-        }),
-        ("Template Content", {
-            "fields": (
-                "content",
-            )
-        }),
-        ("Settings", {
-            "fields": (
-                "userType",
-                "is_active",
-                "is_deleted",
-            )
-        }),
-        ("Timestamps", {
-            "fields": (
-                "created_at",
-                "updated_at",
-            )
-        }),
-    )
-
-    # Read-only fields
-    readonly_fields = (
-        "userType",
         "created_at",
         "updated_at",
     )
 
-    # Default ordering
     ordering = ("-created_at",)
-
-
-@admin.register(AdminNotification)
-class AdminNotificationAdmin(admin.ModelAdmin):
-
-    # Admin list page columns
-    list_display = (
-        "id",
-        "title",
-        "priority",
-        "is_seen",
-        "content_type",
-        "object_id",
-        "created_at",
-    )
-
-    # Right-side filters
-    list_filter = (
-        "priority",
-        "is_seen",
-        "content_type",
-        "created_at",
-    )
-
-    # Search bar
-    search_fields = (
-        "title",
-        "message",
-        "object_id",
-    )
-
-    # Detail page field grouping
-    fieldsets = (
-        ("Notification Info", {
-            "fields": (
-                "title",
-                "message",
-                "priority",
-            )
-        }),
-        ("Related Object", {
-            "fields": (
-                "content_type",
-                "object_id",
-            )
-        }),
-        ("Status", {
-            "fields": (
-                "is_seen",
-            )
-        }),
-        ("Timestamps", {
-            "fields": (
-                "created_at",
-            )
-        }),
-    )
-
-    # Read-only fields
-    readonly_fields = (
-        "content_type",
-        "object_id",
-        "created_at",
-    )
-
-    # Default ordering
-    ordering = ("-created_at",)
-
-    # Optional: Quick actions
-    actions = ["mark_as_seen"]
-
-    def mark_as_seen(self, request, queryset):
-        queryset.update(is_seen=True)
-
-    mark_as_seen.short_description = "Mark selected notifications as seen"
+    
+    
+    
+    

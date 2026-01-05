@@ -13,6 +13,7 @@ from .promocode import*
 from .privacyandpolicy import *
 from .unitprice import*
 from .auth import * 
+from .home_page import *
 urlpatterns = [
     path('login/', LoginAPIView.as_view(), name='admin-login'),
     path('change-password/',ChangePasswordAPIView.as_view(), name='admin-change-password'),
@@ -156,6 +157,9 @@ urlpatterns = [
 
 
      #<-------------------Dashboardes------------------------------->
-    path("admindesh/",AdminDashAPIView.as_view(),name="admin-desh-info")
+    path("admindesh/",AdminDashAPIView.as_view(),name="admin-desh-info"),
+
+    #<-------------------Homepage------------------------------->
+    path("uniform-home/", HomePageAPIView.as_view(), name="home-page"),
 
 ]

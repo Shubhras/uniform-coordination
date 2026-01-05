@@ -189,6 +189,8 @@ class Template(models.Model):
 #Categories
 class Category(models.Model):
     categoryName = models.CharField(max_length=250,unique=True)
+    categoryImage = models.ImageField(upload_to="category/", blank=True, null=True)
+    description = models.CharField(max_length=250,blank=True, null=True)
     slug = models.CharField(max_length=255, blank=True, null=True)
     order = models.PositiveIntegerField(default=0,db_index=True) #new
     isActive = models.BooleanField(default=True)
