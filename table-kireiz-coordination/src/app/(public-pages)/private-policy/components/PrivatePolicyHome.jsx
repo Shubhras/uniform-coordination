@@ -5,7 +5,7 @@ import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import PrivatePolicyHero from './PrivatePolicyHero'
 import FooterPage from '../../footer/FooterPage';
 import HaederPage from '../../header/HaederPage';
-import ChatbotSection from '../../chatbot-section/ChatbotSection';
+import ChatbotSection from '../../table-form/components/ChatbotSection';
 const PrivatePolicyHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
@@ -17,7 +17,7 @@ const PrivatePolicyHome = () => {
     }
 
     return (
-        <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900">
+        <main className="text-base bg-white dark:bg-gray-900">
             <HaederPage toggleMode={toggleMode} mode={mode} />
             <PrivatePolicyHero />
             <ChatbotSection/>

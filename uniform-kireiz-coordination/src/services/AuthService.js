@@ -3,7 +3,7 @@ import ApiService from './ApiService'
 export async function apiSignUp(data) {
     console.log(data)
     return ApiService.fetchDataWithAxios({
-        url: '/auth/sign-up',
+        url: '/v1/userhub/signup/',
         method: 'post',
         data,
     })

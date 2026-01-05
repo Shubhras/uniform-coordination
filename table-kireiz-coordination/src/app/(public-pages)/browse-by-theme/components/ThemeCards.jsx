@@ -78,7 +78,7 @@ const ThemeCards = () => {
                         className={`
                             px-5 py-2
                             rounded-full
-                            text-sm font-medium
+                            text-xs sm:text-sm font-medium
                             transition
                             ${activeFilter === filter
                                 ? "bg-[#A0614D] text-white shadow"

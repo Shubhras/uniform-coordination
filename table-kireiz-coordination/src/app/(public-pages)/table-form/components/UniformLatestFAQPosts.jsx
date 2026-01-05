@@ -54,7 +54,7 @@ const UniformLatestFAQPosts = () => {
                 key={index}
                 className={`rounded-xl px-6 py-5 transition-all duration-300  ${isOpen
                     ? "bg-white text-black shadow-md"
-                    : "bg-[#E1D1C7] text-black border border-[#E1D1C7]"
+                    : "bg-[#E1D1C7] text-black"
                   }`}
               >
                 <button

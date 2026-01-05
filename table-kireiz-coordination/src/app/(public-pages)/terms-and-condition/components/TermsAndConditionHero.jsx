@@ -3,8 +3,12 @@ import React from 'react'
 
 const TermsAndConditionsContent = () => {
     return (
-        <section className="relative w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 py-20 md:py-24 mt-15">
+        <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 py-10 mt-15">
             <div className="max-w-7xl mx-auto text-[#374151] space-y-8">
+
+                <h1 className="text-3xl md:text-4xl font-semibold text-[#8B4513]">
+                    Terms and Conditions
+                </h1>
 
                 {/* Introduction */}
                 <div className="space-y-3">

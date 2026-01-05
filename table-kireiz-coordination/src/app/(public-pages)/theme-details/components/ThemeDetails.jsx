@@ -1,4 +1,5 @@
 'use client'
+import { useRouter } from "next/navigation";
 import React, { useRef, useState } from "react";
 import { AiOutlineExpand } from "react-icons/ai";
 import { CiCircleInfo, CiDeliveryTruck } from "react-icons/ci";
@@ -76,34 +77,37 @@ const ThemeDetails = () => {
         const index = Math.round(el.scrollLeft / el.offsetWidth);
         setActiveIndex(index);
     };
+
+    const router = useRouter();
     return (
-        <section className="w-full px-10 py-8 mt-14">
+        <section className="w-full mx-auto px-4 sm:px-5 md:px-8 lg:px-12 py-8 sm:py-10 mt-15">
             {/* HEADER */}
-            <div className="flex items-start md:flex-row flex-col flex-wrap mb-6 gap-8">
+            <div className="flex flex-col md:flex-row md:items-start gap-6 md:gap-8 mb-6">
                 <div className="flex-1 w-full">
-                    <div className="flex items-center gap-2 text-[#7B3C1D] font-bold xl:text-4xl text-2xl">
-                        <FiChevronLeft size={30} />
+                    <div className="flex items-center gap-2 text-[#7B3C1D] font-bold text-xl sm:text-2xl md:text-3xl xl:text-4xl">
+                        <FiChevronLeft size={26} className="sm:hidden" onClick={() => router.back()} />
+                        <FiChevronLeft size={30} className="hidden sm:block" onClick={() => router.back()} />
                         <span>Romantic Wedding</span>
                     </div>
-                    <p className="text-sm text-[#8B5A3C] mt-2 pl-10">
+
+                    <p className="text-xs sm:text-sm md:text-base text-[#8B5A3C] mt-2 pl-8 sm:pl-10">
                         Elegant whites, ivories, and delicate floral accents
                     </p>
                 </div>
 
-                <div className="flex gap-3">
-                    <button className="w-auto min-w-max whitespace-nowrap text-lg font-medium px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white">
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <button className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white">
                         Back to Theme
                     </button>
 
-                    <button className="w-auto min-w-max whitespace-nowrap text-lg font-medium  px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white ">
+                    <button className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white">
                         Customize in Canvas
                     </button>
                 </div>
-
             </div>
 
             {/* MAIN GRID */}
-            <div className="flex items-start md:flex-row flex-col-reverse gap-8">
+            <div className="flex flex-col-reverse md:flex-row gap-6 md:gap-8">
                 {/* LEFT CONTENT */}
                 <div className="md:w-[70%] w-full space-y-6">
                     <div className="relative rounded-xl overflow-hidden shadow">
@@ -111,7 +115,7 @@ const ThemeDetails = () => {
                         <div
                             ref={scrollRef}
                             onScroll={handleScroll}
-                            className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar"
+                            className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar touch-pan-x"
                         >
                             {images.map((img, i) => (
                                 <img
@@ -119,31 +123,31 @@ const ThemeDetails = () => {
                                     src={img}
                                     alt="Theme Preview"
                                     onClick={() => setOpen(true)}
-                                    className="w-full h-[500px] object-cover flex-shrink-0 snap-center cursor-pointer"
+                                    className="w-full h-[240px] sm:h-[360px] md:h-[500px] object-cover flex-shrink-0 snap-center cursor-pointer"
                                 />
                             ))}
                         </div>
 
                         {/* PRESET LOOK */}
-                        <span className="absolute top-4 left-4 bg-white text-[#7B3C1D] text-xs px-4 py-1 rounded-full shadow">
+                        <span className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-white text-[#7B3C1D] text-[10px] sm:text-xs px-3 sm:px-4 py-1 rounded-full shadow">
                             Preset Look
                         </span>
 
                         {/* EXPAND ICON */}
                         <button
                             onClick={() => setOpen(true)}
-                            className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-md hover:bg-black/70"
+                            className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-black/50 text-white p-2 sm:p-2.5 rounded-md hover:bg-black/70"
                         >
                             <AiOutlineExpand size={18} />
                         </button>
 
                         {/* DOTS */}
-                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                        <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-3">
                             {images.map((_, i) => (
                                 <span
                                     key={i}
                                     onClick={() => scrollToIndex(i)}
-                                    className={`w-2 h-2 rounded-full transition ${activeIndex === i ? "bg-white" : "bg-white/50"
+                                    className={`w-3 h-3 sm:w-2 sm:h-2 rounded-full transition ${activeIndex === i ? "bg-white" : "bg-white/50"
                                         }`}
                                 />
                             ))}
@@ -158,17 +162,17 @@ const ThemeDetails = () => {
                         >
                             <img
                                 src={images[activeIndex]}
-                                className="max-w-[90%] max-h-[90%] rounded-lg"
+                                className="max-w-[92%] max-h-[92%] rounded-lg"
                             />
                         </div>
                     )}
 
                     <div>
-                        <div className="flex items-center justify-between mb-3 py-5">
-                            <h3 className="text-[#7B3C1D] font-semibold">
+                        <div className="flex items-center justify-between mb-3 py-4 sm:py-5">
+                            <h3 className="text-[#7B3C1D] font-semibold text-sm sm:text-base">
                                 Items Included in This Theme
                             </h3>
-                            <span className="text-xs text-[#8B5A3C] px-2 py-1 shadow-sm rounded-full">
+                            <span className="text-[10px] sm:text-xs text-[#8B5A3C] px-2 py-1 shadow-sm rounded-full">
                                 14 items total
                             </span>
                         </div>
@@ -185,15 +189,15 @@ const ThemeDetails = () => {
                                         {/* HEADER */}
                                         <button
                                             onClick={() => toggleSection(index)}
-                                            className="w-full flex items-center justify-between p-5"
+                                            className="w-full flex items-center justify-between p-4 sm:p-5"
                                         >
-                                            <div className="flex items-center gap-3 text-[#7B3C1D] font-medium">
+                                            <div className="flex items-center gap-3 text-[#7B3C1D] font-medium text-sm sm:text-base">
                                                 <FiBox size={18} />
                                                 {section.title}
                                             </div>
 
                                             <FiChevronDown
-                                                size={20}
+                                                size={18}
                                                 className={`text-[#7B3C1D] transition-transform duration-300 ${isOpen ? "rotate-180" : ""
                                                     }`}
                                             />
@@ -201,11 +205,13 @@ const ThemeDetails = () => {
 
                                         {/* CONTENT */}
                                         <div
-                                            className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+                                            className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen
+                                                ? "max-h-[1000px] opacity-100"
+                                                : "max-h-0 opacity-0"
                                                 }`}
                                         >
-                                            <div className="px-5 py-5 bg-white">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="px-4 sm:px-5 py-4 sm:py-5 bg-white">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                     {section.items.map((item, i) => (
                                                         <div
                                                             key={i}
@@ -213,8 +219,12 @@ const ThemeDetails = () => {
                                                         >
                                                             <div className="w-10 h-10 rounded bg-[#E8DDD7]" />
                                                             <div>
-                                                                <p className="text-sm font-medium text-[#2C1810]">{item.name}</p>
-                                                                <p className="text-xs text-[#8B5A3C]">{item.qty}</p>
+                                                                <p className="text-sm font-medium text-[#2C1810]">
+                                                                    {item.name}
+                                                                </p>
+                                                                <p className="text-xs text-[#8B5A3C]">
+                                                                    {item.qty}
+                                                                </p>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -225,38 +235,38 @@ const ThemeDetails = () => {
                                 );
                             })}
                         </div>
-
-
                     </div>
                 </div>
 
                 {/* RIGHT SIDEBAR */}
-                <div className=" md:w-[30%] w-full bg-[#EFE7E3] rounded-xl h-fit border border-[#E1E1E1] overflow-hidden">
-                    <h4 className=" text-center text-lg font-medium text-gray-700 p-6">
+                <div className="w-full md:w-[30%] bg-[#EFE7E3] rounded-xl h-fit border border-[#E1E1E1] overflow-hidden">
+                    <h4 className="text-center text-sm sm:text-base md:text-lg font-medium text-gray-700 p-4">
                         Estimated Package Value
                     </h4>
 
-                    <div className="bg-white p-6 space-y-4 ">
-                        <h5 className="text-center text-[#7B3C1D] font-semibold text-2xl">
+                    <div className="bg-white p-4 space-y-4">
+                        <h5 className="text-center text-[#7B3C1D] font-semibold text-lg sm:text-xl md:text-2xl">
                             Price
                         </h5>
 
                         <div className="bg-[#FBF9F7] p-4 text-xs text-gray-600 flex gap-2 font-medium">
-                            <span className="text-[#7B3C1D]"><CiCircleInfo size={20} /></span>
+                            <span className="text-[#7B3C1D]">
+                                <CiCircleInfo size={18} />
+                            </span>
                             Final pricing varies based on your customization choices in the Canvas.
                         </div>
 
                         {/* <div className="text-xs text-gray-600 flex gap-2 p-4">
-                            <span className="text-[#7B3C1D]"><CiDeliveryTruck size={20} />
-                            </span>
-                            Delivery & Setup<br />
-                            Professional setup included within 25 miles.
-                        </div> */}
+                    <span className="text-[#7B3C1D]"><CiDeliveryTruck size={20} />
+                    </span>
+                    Delivery & Setup<br />
+                    Professional setup included within 25 miles.
+                </div> */}
                     </div>
                 </div>
             </div>
-            
         </section>
+
     );
 };
 

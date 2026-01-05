@@ -41,96 +41,95 @@ const LinkedOrderAndQuotes = () => {
     }
     return (
         <>
-            <div className="w-full bg-[#F5F0EE30] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
-                {/* Header */}
-                <div className="flex items-center gap-2 mb-1">
-                    <FiBox size={23} className="" />
-                    <h3 className=" text-lg font-semibold">
-                        Linked Orders & Quotes
-                    </h3>
+           <div className="w-full bg-[#F5F0EE30] p-4 sm:p-5 md:p-8 rounded-2xl max-w-7xl mx-auto shadow-md">
+
+    {/* Header */}
+    <div className="flex items-center gap-2 mb-1">
+        <FiBox size={18} />
+        <h3 className="text-base sm:text-lg font-semibold">
+            Linked Orders & Quotes
+        </h3>
+    </div>
+    <p className="text-xs sm:text-sm text-gray-500 mb-5">
+        Orders and quotes connected to your profile
+    </p>
+
+    {/* Tabs */}
+    <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 overflow-x-auto   ">
+        {tabs.map((tab) => (
+            <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`py-2 px-4 sm:px-5 text-xs sm:text-sm font-medium border rounded-full transition flex items-center gap-2 whitespace-nowrap
+                ${activeTab === tab
+                        ? 'bg-[#A0522D] text-white'
+                        : 'bg-white text-[#A0522D] border-[#A0522D]'
+                    }`}
+            >
+                {tab === 'Drafted' && (
+                    <FiClock size={14} />
+                )}
+                {tab === 'Submitted Request' && (
+                    <FiCheckCircle size={14} />
+                )}
+                {tab}
+            </button>
+        ))}
+    </div>
+
+    {/* Orders */}
+    <div className="space-y-5">
+        {orders.map((order, i) => (
+            <div
+                key={i}
+                className="bg-white rounded-xl shadow-md p-4 sm:p-5"
+            >
+                {/* Order meta */}
+                <p className="text-[#A0522D] text-xs font-medium mb-1">
+                    {order.id}
+                </p>
+                <h4 className="text-[#A0522D] text-sm sm:text-base font-semibold mb-2">
+                    {order.title}
+                </h4>
+
+                {/* Status */}
+                <div
+                    className={`flex items-center gap-2 text-xs sm:text-sm font-medium mb-2 ${order.statusColor}`}
+                >
+                    {order.statusIcon}
+                    Status: {order.status}
                 </div>
-                <p className="text-sm text-gray-500 mb-6">
-                    Orders and quotes connected to your profile
+
+                <p className="text-xs sm:text-sm text-gray-500 mb-1">
+                    {order.info}
                 </p>
 
-                {/* Tabs */}
-                <div className="flex gap-3 mb-6">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`px-5 py-2 text-sm font-medium border rounded-md transition flex items-center gap-2
-        ${activeTab === tab
-                                    ? 'bg-[#A0522D] text-white'
-                                    : 'bg-white text-[#A0522D] border-[#A0522D]'
-                                }`}
-                        >
-                            {tab === 'Drafted' && (
-                                <FiClock
-                                    className={activeTab === tab ? 'text-white' : 'text-[#8a5a75]'}
-                                />
-                            )}
+                <p className="text-xs sm:text-sm text-gray-700 mb-4">
+                    Amount: {order.amount}
+                </p>
 
-                            {tab === 'Submitted Request' && (
-                                <FiCheckCircle
-                                    className={activeTab === tab ? 'text-white' : 'text-[#8a5a75]'}
-                                />
-                            )}
-
-                            {tab}
-                        </button>
-
-                    ))}
-                </div>
-
-
-                {/* Orders */}
-                <div className="space-y-8">
-                    {orders.map((order, i) => (
-                        <div key={i}>
-                            {/* Order Heading */}
-                            <p className="text-[#A0522D] text-sm font-medium mb-1">
-                                {order.id}
-                            </p>
-                            <h4 className="text-[#A0522D] text-base font-semibold mb-3">
-                                {order.title}
-                            </h4>
-
-                            {/* Card */}
-                            <div className="bg-white rounded-xl shadow-md p-5 mb-3">
-                                <div
-                                    className={`flex items-center gap-2 text-sm font-medium mb-2 ${order.statusColor}`}
-                                >
-                                    {order.statusIcon}
-                                    Status: {order.status}
-                                </div>
-
-                                <p className="text-sm text-gray-500 mb-1">
-                                    {order.info}
-                                </p>
-
-                                <p className="text-sm text-gray-700">
-                                    Amount: {order.amount}
-                                </p>
-                            </div>
-
-                            {/* Action */}
-                            <Button
-                                size="sm"
-                                className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md" onClick={openDialogViewOrder}>
-                                View order
-                            </Button>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Footer */}
-                <div className="mt-10 text-center">
-                    <button className="text-[#8a5a75] text-sm font-medium">
-                        View All Orders
-                    </button>
-                </div>
+                {/* Action */}
+                <Button
+                    size="sm"
+                    onClick={openDialogViewOrder}
+                    className="w-full sm:w-auto bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"
+                >
+                    View order
+                </Button>
             </div>
+        ))}
+    </div>
+
+    {/* Footer */}
+    <div className="mt-8 text-center">
+        <button className="text-[#8a5a75] text-xs sm:text-sm font-medium">
+            View All Orders
+        </button>
+    </div>
+
+</div>
+
+
 
             <ViewOrderPopup
                 isOpen={dialogViewOrderOpen}

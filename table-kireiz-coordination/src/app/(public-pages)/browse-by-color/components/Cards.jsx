@@ -82,7 +82,7 @@ const Cards = () => {
                 {/* BY CATEGORY */}
                 {activeTab === "By Category" && (
                     <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex md:flex-row flex-col flex-wrap gap-3">
                             {CATEGORIES.map(cat => (
                                 <label key={cat} className="flex items-center gap-2 text-sm">
                                     <input type="radio" name="category" className="accent-[#A0614D]" />
@@ -95,8 +95,8 @@ const Cards = () => {
 
                 {/* BY COLOR */}
                 {activeTab === "By Color" && (
-                    <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
-                        <div className="grid grid-cols-5 sm:grid-cols-8 gap-3">
+                    <div className="absolute top-14 sm:top-16 left-0 w-full  max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
+                        <div className="flex  flex-wrap gap-3">
                             {COLORS.map(c => (
                                 <label key={c.name} className="cursor-pointer">
                                     <input
@@ -107,11 +107,13 @@ const Cards = () => {
                                         onChange={() => setSelectedColor(c.name)}
                                         className="sr-only"
                                     />
-                                    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[#575757] flex items-center justify-center ${c.class}`}>
+                                    <div className={`relative w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white flex items-center justify-center ${c.class}`}>
                                         {selectedColor === c.name && (
-                                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                            </svg>
+                                            <div className=" bg-white rounded-full  absolute top-0 -right-1">
+                                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            </div>
                                         )}
                                     </div>
                                 </label>
@@ -123,7 +125,7 @@ const Cards = () => {
                 {/* BY MATERIAL */}
                 {activeTab === "By Material" && (
                     <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex md:flex-row flex-col flex-wrap gap-3">
                             {MATERIALS.map(mat => (
                                 <label key={mat} className="flex items-center gap-2 text-sm">
                                     <input type="radio" name="material" className="accent-[#A0614D]" />
@@ -137,7 +139,7 @@ const Cards = () => {
                 {/* BY FUNCTION */}
                 {activeTab === "By Function" && (
                     <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex md:flex-row flex-col flex-wrap gap-3">
                             {FUNCTIONS.map(fun => (
                                 <label key={fun} className="flex items-center gap-2 text-sm">
                                     <input type="radio" name="function" className="accent-[#A0614D]" />
