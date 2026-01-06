@@ -54,7 +54,7 @@ urlpatterns = [
 
     #<-------------------ORDER API------------------------------->
     path("create/order/",CreateOrderAPIView.as_view()),
-    path('order/summary/', OrderSummaryAPIView.as_view(), name='order-summary'),
+    path('order/summary/', OrderSummaryAPIView.as_view(), name='order-summary'),  #show full checkout/order review
     path("order/id/",OrderDetailAPIView.as_view()),
     path("order/list/",OrderListAPIView.as_view()),
 
@@ -68,7 +68,6 @@ urlpatterns = [
     path("admin/payments/", AdminPaymentListAPIView.as_view()),
     path("admin/payments/detail/", AdminPaymentDetailAPIView.as_view()),
 
-   
 ]
    
     

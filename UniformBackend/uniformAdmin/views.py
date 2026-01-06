@@ -20,7 +20,8 @@ from django.db.models import Q
 from .fabric import CustomPagination
 import traceback
 from django.utils.timezone import now
-from .fabric import  IsAdministrator 
+# from .fabric import  IsAdministrator 
+from .auth import IsAdminUserJWT
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
 
@@ -1208,13 +1209,9 @@ class AdminNotificationDeleteAPIView(APIView):
 
 
 class AdminDashAPIView(APIView):
-    # permission_classes = [IsAdministrator]
-    permission_classes  =[IsAuthenticated]   #need to remove after take clone 
-    
-
+    permission_classes = [IsAdminUserJWT]
     def get(self, request):
         try:
-            # ================= PENDING QUOTES (TODAY vs YESTERDAY) =================
             today = now().date()
             yesterday = today - timedelta(days=1)
 
@@ -1239,7 +1236,6 @@ class AdminDashAPIView(APIView):
 
             total_templates = Template.objects.count()
 
-            # ================= B2B USERS (MONTH vs PREVIOUS MONTH) =================
             today_dt = now()
             current_month_start = today_dt.replace(day=1)
 
@@ -1264,7 +1260,7 @@ class AdminDashAPIView(APIView):
             else:
                 b2b_change_percentage = 100 if current_month_b2b else 0
 
-            # ================= QUOTE STATUS DISTRIBUTION =================
+            
             ALL_STATUSES = ["pending", "sent", "approved"]
 
             status_qs = (
@@ -1290,7 +1286,7 @@ class AdminDashAPIView(APIView):
                 ]
             }
 
-            # ================= QUOTATION VOLUME =================
+           
             # Weekly
             DAY_MAP = {1: "Sun", 2: "Mon", 3: "Tue", 4: "Wed", 5: "Thu", 6: "Fri", 7: "Sat"}
             weekly_result = {i: 0 for i in range(1, 8)}
@@ -1360,7 +1356,6 @@ class AdminDashAPIView(APIView):
                 "yearly": yearly_data
             }
 
-            # ================= MOST USED FABRICS =================
             fabrics_qs = (
                 Fabric.objects
                 .filter(parts__isDeleted=False)
@@ -1375,7 +1370,7 @@ class AdminDashAPIView(APIView):
             for f in fabrics_qs
             ]
 
-            # ================= RECENT UPDATES =================
+            
             items = []
 
             for p in Product.objects.values("productName", "updated_at"):
@@ -1403,7 +1398,7 @@ class AdminDashAPIView(APIView):
                          "created_date": item["date"].strftime("%b %d, %Y")
                      }) 
 
-            # ================= RESPONSE =================
+           
             return Response({
                 "status": True,
                 "statusCode": 200,

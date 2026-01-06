@@ -4,7 +4,7 @@ from rest_framework import status
 from uniformAdmin.models import *
 from .models import *
 from django.utils.timezone import now
-from rest_framework.permissions import IsAuthenticated ,IsAdminUser
+from rest_framework.permissions import IsAuthenticated ,AllowAny
 from .utils import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
@@ -19,20 +19,18 @@ from django.db.models import Count
 from django.utils.dateparse import parse_date
 from .payment import CustomPagination
 from uniformAdmin.signal import *
-
 # from django.utils import timezone
 import re
-import traceback
 import logging
 logger = logging.getLogger(__name__)
 
 
 
 class SignupAPIView(APIView):
-
+   
     def post(self, request, *args, **kwargs):
-        request.data._mutable = True
-        request.data["userType"] = request.data.get("userType")
+        # request.data._mutable = True
+        # request.data["userType"] = request.data.get("userType")
         serializer = UserSignupSerializer(data=request.data)
 
         try:
@@ -104,7 +102,7 @@ class SignupAPIView(APIView):
 
 
 class LoginAPIView(APIView):
-
+   
     def post(self, request):
         try:
             email = request.data.get("email")
@@ -561,6 +559,7 @@ class UpdatePasswordAPIView(APIView):
 
 
 class VerifyUserAPIView(APIView):
+    
     def post(self, request):
         serializer = VerifyUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -864,7 +863,6 @@ class ToggleFavouriteAPIView(APIView):
 #                 "message": str(e),
 #                 "data": None
 #             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 # ADD TO CART 
 
 class AddToCartAPIView(APIView):
@@ -875,53 +873,57 @@ class AddToCartAPIView(APIView):
             product_id = request.data.get("product_id")
             quantity = int(request.data.get("quantity", 1))
             product = Product.objects.get(id=product_id)
-        
+            
             cart, _ = Cart.objects.get_or_create(
                 user=request.user,
                 is_active=True
             )
-
             item, created = CartItem.objects.get_or_create(
                 cart=cart,
                 product=product
             )
 
             if not created:
-                # If item already exists, increase quantity
                 item.quantity += quantity
                 item.save()
                 return Response({
                     "status": True,
                     "statusCode": 200,
                     "message": "Item already in cart. Quantity updated.",
-                    "cart_item": {
+                    "data": {
                         "id": item.id,
                         "product": item.product.productName,
                         "quantity": item.quantity,
-                        "price": float(item.price)* quantity
+                        "price": float(item.price) * item.quantity
                     }
                 }, status=status.HTTP_200_OK)
             else:
-                 return Response({
+                return Response({
                     "status": True,
                     "statusCode": 201,
                     "message": "Item added to cart successfully.",
-                    "cart_item": {
+                    "data": {
                         "id": item.id,
                         "product": item.product.productName,
                         "quantity": item.quantity,
                         "price": float(item.price)
                     }
                 }, status=status.HTTP_201_CREATED)
-
+       
         except Product.DoesNotExist:
             return Response({
                 "status": False,
                 "statusCode": 404,
-                "error": "Product not found"
+                "message": "Product not found",
+                "data": None
             }, status=status.HTTP_404_NOT_FOUND)
-
-
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": str(e),
+                "data": None
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # CART LISTING
 class CartListAPIView(APIView):
@@ -929,12 +931,14 @@ class CartListAPIView(APIView):
 
     def get(self, request):
         try:
+           
             cart = Cart.objects.get(user=request.user, is_active=True)
             cart_items = CartItem.objects.filter(cart=cart).order_by('id')
             paginator = CustomPagination()
             paginated_items = paginator.paginate_queryset(cart_items, request)
             serializer = CartItemSerializer(paginated_items, many=True)
             return paginator.get_paginated_response(serializer.data)
+        
 
         except Cart.DoesNotExist:
             return Response({
@@ -960,7 +964,6 @@ class UpdateCartItemAPIView(APIView):
         try:
             item_id = request.data.get("item_id")
             quantity = int(request.data.get("quantity"))
-
             item = CartItem.objects.get(
                 id=item_id,
                 cart__user=request.user
@@ -975,13 +978,12 @@ class UpdateCartItemAPIView(APIView):
 
             item.quantity = quantity
             item.save()
-
             return Response({
                 "status": True,
                 "statusCode": 200,
                 "message": "Cart item quantity updated successfully"
             }, status=status.HTTP_200_OK)
-
+        
         except CartItem.DoesNotExist:
             return Response({
                 "status": False,
@@ -1004,7 +1006,6 @@ class RemoveCartItemAPIView(APIView):
                     "statusCode": 400,
                     "error": "Item ID is required "
                 }, status=status.HTTP_400_BAD_REQUEST)
-
             item = CartItem.objects.get(
                 id=item_id,
                 cart__user=request.user
@@ -1015,7 +1016,7 @@ class RemoveCartItemAPIView(APIView):
                 "statusCode": 200,
                 "message": "Item removed from cart successfully"
             }, status=status.HTTP_200_OK)
-
+        
         except CartItem.DoesNotExist:
             return Response({
                 "status": False,
@@ -1117,11 +1118,9 @@ class CreateOrderAPIView(APIView):
         if not cart_items.exists():
             return Response({"error": "No items found in this cart."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Cart total
+
         total_amount = sum((item.total_price for item in cart_items), Decimal("0.00"))
         discount_amount = Decimal("0.00")
-
-        # Rental dates
         rental_data = data.get("rental", {})
         start_date = parse_date(rental_data.get("start_date"))
         return_date = parse_date(rental_data.get("return_date"))
@@ -1129,7 +1128,7 @@ class CreateOrderAPIView(APIView):
         if not start_date or not return_date or return_date < start_date:
             return Response({"error": "Invalid rental dates."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # ================= PROMOCODE =================
+        
         promocode_data = data.get("promocode")
         promocode = None
         original_amount = total_amount
@@ -1150,7 +1149,7 @@ class CreateOrderAPIView(APIView):
                     "error": "Promocode not found or invalid."
                 }, status=400)
 
-            # Date validation
+        
             if promocode.started_at and promocode.started_at > now:
                 return Response({
                     "status": False,
@@ -1165,7 +1164,7 @@ class CreateOrderAPIView(APIView):
                     "error": "Promocode expired."
                 }, status=400)
 
-            # User already used
+    
             if Order.objects.filter(user=user, promocode=promocode).exists():
                 return Response({
                     "status": False,
@@ -1181,7 +1180,7 @@ class CreateOrderAPIView(APIView):
 
             total_amount = original_amount - discount_amount
 
-        # Ensure total_amount is not negative
+    
         if total_amount < 0:
             total_amount = Decimal("0.00")
 
@@ -1200,8 +1199,7 @@ class CreateOrderAPIView(APIView):
         order.start_date = start_date
         order.return_date = return_date
         order.save()
-        # order = order.save() 
-# Call the helper function instead of writing objects.create directly
+
         create_admin_order_notification(
                 instance=order,
                 title=f"New Order created: {order.order_id }",
@@ -1210,7 +1208,7 @@ class CreateOrderAPIView(APIView):
                 object_id=order.order_id 
             )
 
-        # Prepare response
+    
         response_data = {
             "cart": {
                 "cart_id": cart.id,
@@ -1276,7 +1274,7 @@ class OrderSummaryAPIView(APIView):
             )
 
         customer = order.customer
-        cart_items = order.cart.items.all()  # all items in this order's cart
+        cart_items = order.cart.items.all()  
 
         order_items_list = []
         for item in cart_items:
