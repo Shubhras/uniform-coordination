@@ -9,10 +9,11 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from decouple import config
 from pathlib import Path
 from datetime import timedelta
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,9 +28,17 @@ SECRET_KEY = 'django-insecure-a)&ww89mdf0z@0z_&lm=9ia79zry+d_wi((4x=5-*!ysby@&fz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
-
+ALLOWED_HOSTS = [
+    "192.168.29.193",
+    "192.168.1.31",
+    "127.0.0.1",
+    "localhost",
+    "localhost:7000",
+    "localhost:7001",
+    "192.168.1.56",
+    "54.81.43.26"
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -53,6 +62,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -160,40 +170,38 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# REST_FRAMEWORK = {
-#     "DEFAULT_AUTHENTICATION_CLASSES": [
-#         # "UniformWeb.authentication.UserJWTAuthentication", 
-#         "userhub.authentication.CustomUserJWTAuthentication",# For Customers
-#         "rest_framework_simplejwt.authentication.JWTAuthentication",  # For Admin
-#         "rest_framework.authentication.SessionAuthentication",
-#     ],
-#     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-#     "DEFAULT_PERMISSION_CLASSES": (
-#         "rest_framework.permissions.IsAuthenticated",
-#     ),
-#     'PAGE_SIZE': 10,
-#     'DEFAULT_RENDERER_CLASSES': (
-#         'rest_framework.renderers.JSONRenderer',
-#         "rest_framework.permissions.IsAuthenticated",
-#     ),
-# }
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         # "rest_framework_simplejwt.authentication.JWTAuthentication",  
         "rest_framework.authentication.SessionAuthentication",
         "userhub.authentication.CustomUserJWTAuthentication",# For Customers
     ],
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
     ),
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 10,
-    "DEFAULT_RENDERER_CLASSES": (
-        "rest_framework.renderers.JSONRenderer",
+    'PAGE_SIZE': 10,
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
     ),
 }
 
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8000",
+    "http://192.168.1.31:8000",
+    "http://192.168.1.56:8000",
+    "http://localhost:7000",
+    "http://localhost:7001",
+    "http://0.0.0.0:8000",
+    "http://54.81.43.26",
+    
+
+]
+
+CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -221,3 +229,15 @@ STRIPE_WEBHOOK_SECRET =config("STRIPE_WEBHOOK_SECRET")
 
 # ONESIGNAL_APP_ID = os.getenv("ONESIGNAL_APP_ID")
 # ONESIGNAL_API_KEY = os.getenv("ONESIGNAL_API_KEY")
+
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",   # your source static files
+]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"   # collected files for production

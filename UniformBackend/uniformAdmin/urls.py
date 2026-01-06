@@ -13,6 +13,7 @@ from .promocode import*
 from .privacyandpolicy import *
 from .unitprice import*
 from .auth import * 
+from .home_page import *
 urlpatterns = [
     path('login/', LoginAPIView.as_view(), name='admin-login'),
     path('change-password/',ChangePasswordAPIView.as_view(), name='admin-change-password'),
@@ -136,18 +137,18 @@ urlpatterns = [
     path("notifications/delete/", AdminNotificationDeleteAPIView.as_view(),name="adminNotification-delete_all"),
 
     #<------------------------B2B-------------------------------->
-    path('admin-user/create/',AdminUserCreateAPIView.as_view(), name = 'admin-user-create'),
-    path('admin-user/get-list/',AdminUserListAPIView.as_view(), name = 'admin-user-get-list'),
-    path('admin-user/<int:id>/get/',AdminUserDetailAPIView.as_view(), name = 'admin-user-detail-get'),
-    path('admin-user/<int:id>/update/',AdminUserUpdateAPIView.as_view(), name = 'admin-user-update'),
-    path('admin-user/delete/',AdminUserDeleteAPIView.as_view(), name = 'admin-user-delete'),
+    # path('admin-user/create/',AdminUserCreateAPIView.as_view(), name = 'admin-user-create'),
+    # path('admin-user/get-list/',AdminUserListAPIView.as_view(), name = 'admin-user-get-list'),
+    # path('admin-user/<int:id>/get/',AdminUserDetailAPIView.as_view(), name = 'admin-user-detail-get'),
+    # path('admin-user/<int:id>/update/',AdminUserUpdateAPIView.as_view(), name = 'admin-user-update'),
+    # path('admin-user/delete/',AdminUserDeleteAPIView.as_view(), name = 'admin-user-delete'),
 
     #<----------------------Table_Theme ---------------------------->
     path('tabletheme/create/',TableThemeCreateAPIView.as_view(), name = 'Table_Theme-create'),
-    path('tabletheme/get/',TableThemeListAPIView.as_view(), name = 'Table_Theme-get-list'),
-    path('tabletheme/<int:id>/',TableThemeDetailAPIView.as_view(), name = 'Table_Theme-get-detail'),
-    path('tabletheme<int:id>/',TableThemeUpdateAPIView.as_view(), name = 'Table_Theme-update'),
-    path('tabletheme/delete.',TableThemeDeleteAPIView.as_view(), name = 'Table_Theme-delete'),
+    path('tabletheme/get-list/',TableThemeListAPIView.as_view(), name = 'Table_Theme-get-list'),
+    path('tabletheme/<int:id>/get/',TableThemeDetailAPIView.as_view(), name = 'Table_Theme-get-detail'),
+    path('tabletheme/<int:id>/update/',TableThemeUpdateAPIView.as_view(), name = 'Table_Theme-update'),
+    path('tabletheme/delete/',TableThemeDeleteAPIView.as_view(), name = 'Table_Theme-delete'),
    
    
 
@@ -156,6 +157,9 @@ urlpatterns = [
 
 
      #<-------------------Dashboardes------------------------------->
-    path("admindesh/",AdminDashAPIView.as_view(),name="admin-desh-info")
+    path("admindesh/",AdminDashAPIView.as_view(),name="admin-desh-info"),
+
+    #<-------------------Homepage------------------------------->
+    path("uniform-home/", HomePageAPIView.as_view(), name="home-page"),
 
 ]

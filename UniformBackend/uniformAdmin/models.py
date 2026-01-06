@@ -102,14 +102,20 @@ class Fabric(models.Model):
         ("silk", "Silk"),
         ("linen", "Linen"),
     ]
+    
+    FABRIC_TYPE_CHOICES = [
+        ('uniform', 'Uniform'),
+        ('table', 'Table'),
+    ]
 
     fabricName = models.CharField(max_length=150, unique=True)
     color = models.CharField(max_length=100)
     materialType = models.CharField(max_length=60, choices=MATERIAL_CHOICES)
+    fabricType = models.CharField(max_length=20,choices=FABRIC_TYPE_CHOICES,default='uniform')
+    theme = models.ForeignKey('TableTheme',on_delete=models.SET_NULL,null=True,blank=True,related_name="fabrics")
     pricePerUnit = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     isActive = models.BooleanField(default=True)
-    isDeleted = models.BooleanField(default=False)
-    
+    isDeleted = models.BooleanField(default=False)    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -129,11 +135,19 @@ class Parts(models.Model):
         ("hoods", "Hoods"),
 
     ]
+    
+    PART_TYPE_CHOICES = [
+        ('uniform', 'Uniform'),
+        ('table', 'Table'),
+    ]
+    
     partName = models.CharField(max_length=150, unique=True)
     partImage = models.ImageField(upload_to='part_images/', blank=True, null=True)
     category = models.CharField(max_length=60, choices=CATEGORY_CHOICES)
+    partType = models.CharField(max_length=20,choices=PART_TYPE_CHOICES,default='uniform')
     fabric = models.ForeignKey(Fabric, on_delete=models.CASCADE)
     usageTemmpCount = models.IntegerField(default=0)
+    theme = models.ForeignKey('TableTheme',on_delete=models.SET_NULL,null=True,blank=True,related_name="parts")
     zIndex = models.IntegerField(default=0)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
@@ -175,6 +189,8 @@ class Template(models.Model):
 #Categories
 class Category(models.Model):
     categoryName = models.CharField(max_length=250,unique=True)
+    categoryImage = models.ImageField(upload_to="category/", blank=True, null=True)
+    description = models.CharField(max_length=250,blank=True, null=True)
     slug = models.CharField(max_length=255, blank=True, null=True)
     order = models.PositiveIntegerField(default=0,db_index=True) #new
     isActive = models.BooleanField(default=True)
@@ -192,12 +208,16 @@ class Category(models.Model):
     
     
 class Blog(models.Model):
+    BLOG_TYPE_CHOICES = (
+        ('uniform', 'Uniform'),
+        ('table', 'Table'),
+    )
     title = models.CharField(max_length=250,unique=True)
     slug = models.CharField(max_length=255, blank=True, null=True)
     category = models.ForeignKey(Category,on_delete=models.CASCADE,related_name="blogs")
     image = models.ImageField(upload_to="blog_images/",null=True,blank=True)
     description = models.TextField()
-
+    type = models.CharField(max_length=20,choices=BLOG_TYPE_CHOICES,default='uniform')
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -213,12 +233,15 @@ class Blog(models.Model):
  
  
 class FAQ(models.Model):
+    FAQ_TYPE_CHOICES = (
+        ('uniform', 'Uniform'),
+        ('table', 'Table'),
+    )
     title = models.CharField(max_length=255,unique=True)
     # description = models.TextField(blank=True, null=True)
-
+    type = models.CharField(max_length=20,choices=FAQ_TYPE_CHOICES,default='uniform')
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -308,6 +331,7 @@ class Product(models.Model):
     slug = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     productType = models.CharField(max_length=20,choices=productType,default='uniform' ,blank=True, null=True)
+    theme = models.ForeignKey(TableTheme,on_delete=models.SET_NULL,null=True,blank=True,related_name="products")
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,related_name="product_category")
     subcategory = models.ForeignKey(SubCategory,on_delete=models.SET_NULL, null=True,related_name="product_subcategory")
     parts = models.ManyToManyField(Parts,related_name="products_parts",blank=True)
@@ -329,6 +353,7 @@ class Product(models.Model):
 
     def __str__(self):
         return self.productName
+
 
 
 class Promocode(models.Model):
@@ -358,6 +383,7 @@ class Promocode(models.Model):
  
     def __str__(self):
         return self.promocodeName
+
     
 class PrivacyPolicy(models.Model):
  
@@ -480,8 +506,7 @@ class AdminNotification(models.Model):
     # Generic relation (ANY MODEL)
     content_type = models.ForeignKey(ContentType,on_delete=models.CASCADE)
     object_id = models.CharField(max_length=100)
-    content_object = GenericForeignKey("content_type", "object_id")
- 
+    content_object = GenericForeignKey("content_type", "object_id") 
     title = models.CharField(max_length=255)
     message = models.TextField()
     priority = models.CharField(max_length=10,choices=PRIORITY_CHOICES,default="low")
