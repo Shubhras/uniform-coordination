@@ -1,4 +1,3 @@
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -11,7 +10,7 @@ from django.utils import timezone
 from django.contrib.auth.tokens import default_token_generator
 from .models import AdminUser
 from .serializers import *
-#use only temprarey check api 
+from rest_framework.views import APIView
 from rest_framework.permissions import BasePermission
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from threading import Thread
@@ -19,35 +18,132 @@ from .utils import send_reset_email
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from .fabric import CustomPagination
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
 
-class IsAdminUserJWT(BasePermission):
-    message = "Only admin users are allowed."
+
+# class IsAdminUserJWT(BasePermission):
+#     message = "Only admin users are allowed."
    
-    def has_permission(self, request, view):
-        jwt_auth = JWTAuthentication()
-        try:
-            header = jwt_auth.get_header(request)
-            raw_token = jwt_auth.get_raw_token(header)
-            validated_token = jwt_auth.get_validated_token(raw_token)
-        except Exception:
-            return False
+#     def has_permission(self, request, view):
+#         jwt_auth = JWTAuthentication()
+#         try:
+#             header = jwt_auth.get_header(request)
+#             raw_token = jwt_auth.get_raw_token(header)
+#             validated_token = jwt_auth.get_validated_token(raw_token)
+#         except Exception:
+#             return False
 
-        # Role must be admin
-        role = validated_token.get("role")
-        if role != "admin":
-            return False
+#         # Role must be admin
+#         role = validated_token.get("role")
+#         if role != "admin":
+#             return False
 
-        # Fetch AdminUser safely
-        try:
-            user_id = validated_token.get("user_id")
-            admin_user = AdminUser.objects.get(id=user_id)
-            request.user = admin_user  # override request.user
+#         # Fetch AdminUser safely
+#         try:
+#             user_id = validated_token.get("user_id")
+#             admin_user = AdminUser.objects.get(id=user_id)
+#             request.user = admin_user  # override request.user
             
+#         except AdminUser.DoesNotExist:
+#             return False
+
+#         return True
+
+# uniformAdmin/auth.py
+
+
+import jwt  # PyJWT library
+from django.conf import settings
+
+class IsAdminUserJWT(BaseAuthentication):
+    """
+    Custom JWT Authentication for AdminUser
+    """
+
+    def authenticate(self, request):
+        # Get Authorization header
+        auth_header = request.headers.get("Authorization")
+        if not auth_header:
+            return None  # No token provided
+
+        # Extract token (accept with or without "Bearer ")
+        if " " in auth_header:
+            prefix, token = auth_header.split(" ", 1)
+            if prefix.lower() != "bearer":
+                raise AuthenticationFailed("Invalid token prefix")
+        else:
+            token = auth_header  # token sent directly without "Bearer"
+
+        # Decode JWT
+        try:
+            decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed("Token has expired")
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed("Invalid token")
+
+        # Get user_id from token
+        user_id = decoded.get("user_id")
+        if not user_id:
+            raise AuthenticationFailed("Token missing user ID")
+
+        # Fetch admin user from DB
+        try:
+            user = AdminUser.objects.get(id=user_id, is_active=True)
         except AdminUser.DoesNotExist:
-            return False
+            raise AuthenticationFailed("User not found or inactive")
 
-        return True
+        # Optional: verify role is admin
+        role = decoded.get("role")
+        if role != "admin":
+            raise AuthenticationFailed("You do not have admin access")
 
+        # Return tuple (user, token) so request.user is set
+        return (user, token)
+
+
+# class LoginAPIView(APIView):
+#     authentication_classes = []
+#     permission_classes = []
+
+#     def post(self, request):
+#         serializer = AdminLoginSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+
+#         user = serializer.validated_data['user']
+
+#         remember_me = request.data.get("remember_me", False)
+
+#         refresh = RefreshToken.for_user(user)
+#         refresh["user_id"] = user.id
+#         refresh["role"] = "admin"
+
+#         if remember_me:
+#             refresh.set_exp(lifetime=timezone.timedelta(days=30))
+#             refresh.access_token.set_exp(lifetime=timezone.timedelta(days=30))
+#         else:
+#             refresh.set_exp(lifetime=timezone.timedelta(days=1))
+#             refresh.access_token.set_exp(lifetime=timezone.timedelta(hours=1))
+
+#         user.last_login = timezone.now()
+#         user.save(update_fields=["last_login"])
+
+#         return Response({
+#             "status": True,
+#             "statusCode": 200,
+#             "message": "Login successful",
+#             "data": {
+#                 "admin": {
+#                     "id": user.id,
+#                     "email": user.email,
+#                     "name": user.name,
+#                     "role": user.role.role_name if user.role else None
+#                 },
+#                 "access_token": str(refresh.access_token),
+#                 "refresh_token": str(refresh)
+#             }
+#         }, status=status.HTTP_200_OK)
 
 
 class LoginAPIView(APIView):
@@ -56,9 +152,16 @@ class LoginAPIView(APIView):
 
     def post(self, request):
         serializer = AdminLoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
 
-        user = serializer.validated_data['user']
+        if not serializer.is_valid():
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Validation error",
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        user = serializer.validated_data["user"]
 
         remember_me = request.data.get("remember_me", False)
 
@@ -91,16 +194,23 @@ class LoginAPIView(APIView):
                 "refresh_token": str(refresh)
             }
         }, status=status.HTTP_200_OK)
-    
+     
 class ChangePasswordAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
+    authentication_classes = [IsAdminUserJWT]
+    #permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = AdminChangePasswordSerializer(
             data=request.data,
             context={'request': request}
         )
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            return Response({
+                "statusCode":400,
+                "status":False,
+                "message":"Validation Error",
+                "error":serializer.errors
+            },status=status.HTTP_400_BAD_REQUEST)
 
         user = request.user
 
@@ -121,7 +231,8 @@ class ChangePasswordAPIView(APIView):
 
     
 class UpdateProfileAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
+    authentication_classes = [IsAdminUserJWT]
+    #permission_classes = [IsAdminUserJWT]
 
     def put(self, request):
         serializer = AdminUpdateSerializer(
@@ -140,23 +251,34 @@ class UpdateProfileAPIView(APIView):
         }, status=status.HTTP_200_OK)
 
 class ProfileAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
+    authentication_classes = [IsAdminUserJWT]
+    #permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        admin_user = request.user
+       try:
+            admin_user = request.user
 
-        # admin_user = AdminUser.objects.get(id=user_id)
-        serializer = AdminDetailSerializer(admin_user)
-        #serializer = AdminDetailSerializer(request.user)
-        return Response({
-            "status": True,
-            "statusCode": 200,
-            "message": "Admin profile fetched successfully",
-            "data": serializer.data
-        }, status=status.HTTP_200_OK)
+            # admin_user = AdminUser.objects.get(id=user_id)
+            serializer = AdminDetailSerializer(admin_user)
+            #serializer = AdminDetailSerializer(request.user)
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Admin profile fetched successfully",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+       
+       except Exception as e:
+           return Response({
+               "statusCode":500,
+               "status":False,
+               "message":"Somthing went wrong server",
+               "error":str(e)
+           },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LogoutAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
+    authentication_classes = [IsAdminUserJWT]
+    #permission_classes = [IsAdminUserJWT]
 
     def post(self, request):
         refresh_token = request.data.get("refresh_token")
@@ -252,25 +374,34 @@ class AdminUserListAPIView(APIView):
     permission_classes = [IsAdminUserJWT]
 
     def get(self, request):
-        queryset = AdminUser.objects.all().order_by("-id")
+        try:
+            queryset = AdminUser.objects.all().order_by("-id")
 
-        # SEARCH
-        search = request.query_params.get("search")
-        if search:
-            queryset = queryset.filter(
-                Q(name__icontains=search) |
-                Q(company_name__icontains=search) |
-                Q(email__icontains=search) |
-                Q(mobile__icontains=search) |
-                Q(tier__icontains=search)
-            )
+            # SEARCH
+            search = request.query_params.get("search")
+            if search:
+                queryset = queryset.filter(
+                    Q(name__icontains=search) |
+                    Q(company_name__icontains=search) |
+                    Q(email__icontains=search) |
+                    Q(mobile__icontains=search) |
+                    Q(tier__icontains=search)
+                )
 
-        # PAGINATION
-        paginator = CustomPagination()
-        page = paginator.paginate_queryset(queryset, request)
+            # PAGINATION
+            paginator = CustomPagination()
+            page = paginator.paginate_queryset(queryset, request)
 
-        serializer = AdminUserSerializer(page, many=True)
-        return paginator.get_paginated_response(serializer.data)
+            serializer = AdminUserSerializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+        
+        except ValidationError as ve:
+            return Response({
+                "statusCode":400,
+                "status":False,
+                "message":"Validation Error",
+                "error":str(ve)
+            },status=status.HTTP_400_BAD_REQUEST)
 
 class AdminUserDetailAPIView(APIView):
     permission_classes = [IsAdminUserJWT]
@@ -310,13 +441,16 @@ class AdminUserUpdateAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response({
+                "statusCode":200,
                 "status": True,
                 "message": "User updated successfully",
                 "data": serializer.data
-            })
+            },status=status.HTTP_200_OK)
 
         return Response({
+            "statusCode":400,
             "status": False,
+            "message":"Validation Error",
             "errors": serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
 
