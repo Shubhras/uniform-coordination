@@ -192,6 +192,7 @@ class ModelInfoDeleteAPIView(APIView):
             "pdf_url": request.build_absolute_uri(pdf_url)
         })
 '''
+
 class CustomUpdateModelExportPDFAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -217,7 +218,6 @@ class CustomUpdateModelExportPDFAPIView(APIView):
             "message": "PDF generated successfully",
             "pdf_url": request.build_absolute_uri(pdf_url)
         })
-
 
 #<----------------------QuotationRequest------------------>
 class QuotationRequestCreateAPIView(APIView):
