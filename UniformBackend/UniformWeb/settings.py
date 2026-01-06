@@ -9,10 +9,11 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from decouple import config
 from pathlib import Path
 from datetime import timedelta
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -228,3 +229,15 @@ STRIPE_WEBHOOK_SECRET =config("STRIPE_WEBHOOK_SECRET")
 
 # ONESIGNAL_APP_ID = os.getenv("ONESIGNAL_APP_ID")
 # ONESIGNAL_API_KEY = os.getenv("ONESIGNAL_API_KEY")
+
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",   # your source static files
+]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"   # collected files for production
