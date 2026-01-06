@@ -36,6 +36,7 @@ ALLOWED_HOSTS = [
     "localhost:7000",
     "localhost:7001",
     "192.168.1.56",
+    "54.81.43.26"
 ]
 # Application definition
 
@@ -168,23 +169,6 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# REST_FRAMEWORK = {
-#     "DEFAULT_AUTHENTICATION_CLASSES": [
-#         # "UniformWeb.authentication.UserJWTAuthentication", 
-#         "userhub.authentication.CustomUserJWTAuthentication",# For Customers
-#         "rest_framework_simplejwt.authentication.JWTAuthentication",  # For Admin
-#         "rest_framework.authentication.SessionAuthentication",
-#     ],
-#     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-#     "DEFAULT_PERMISSION_CLASSES": (
-#         "rest_framework.permissions.IsAuthenticated",
-#     ),
-#     'PAGE_SIZE': 10,
-#     'DEFAULT_RENDERER_CLASSES': (
-#         'rest_framework.renderers.JSONRenderer',
-#         "rest_framework.permissions.IsAuthenticated",
-#     ),
-# }
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         # "rest_framework_simplejwt.authentication.JWTAuthentication",  
@@ -210,6 +194,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:7000",
     "http://localhost:7001",
     "http://0.0.0.0:8000",
+    "http://54.81.43.26",
     
 
 ]
