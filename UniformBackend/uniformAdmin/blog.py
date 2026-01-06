@@ -70,6 +70,65 @@ class BlogCreateAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+# class BlogListAPIView(APIView):
+#     """List all blogs"""
+#     permission_classes = [AllowAny]
+
+#     def get(self, request):
+#         try:
+#             search = request.query_params.get("search", "").strip()
+#             category_id = request.query_params.get("category")
+
+#             blogs = Blog.objects.filter(isDeleted=False)
+
+    
+#             if search:
+#                 blogs = blogs.filter(title__icontains=search)
+
+        
+#             if category_id:
+#                 blogs = blogs.filter(category_id=category_id)
+
+#             blogs = blogs.order_by("-created_at")
+
+            
+#             paginator = CustomPagination()
+#             page = paginator.paginate_queryset(blogs, request)
+
+#             serializer = BlogSerializer(
+#                 page,
+#                 many=True,
+#                 context={"request": request}
+#             )
+
+#             response = {
+#                 "count": paginator.page.paginator.count,
+#                 "next": paginator.get_next_link(),
+#                 "previous": paginator.get_previous_link(),
+#                 "statusCode": 200,
+#                 "status": True,
+#                 "message": "Blog list fetched successfully.",
+#                 "data": serializer.data,
+#                 "pagination": {
+#                     "page": paginator.page.number,
+#                     "page_size": paginator.get_page_size(request),
+#                     "total_pages": paginator.page.paginator.num_pages,
+#                     "total_items": paginator.page.paginator.count
+#                 }
+#             }
+
+#             return Response(response, status=status.HTTP_200_OK)
+
+#         except Exception as exc:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Server error while fetching blogs.",
+#                 "error": str(exc)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 class BlogListAPIView(APIView):
     """List all blogs"""
     permission_classes = [AllowAny]
@@ -81,17 +140,17 @@ class BlogListAPIView(APIView):
 
             blogs = Blog.objects.filter(isDeleted=False)
 
-    
-            if search:
+            # ✅ TYPE FILTER (ONLY ADDITION)
+            if search.lower() in ["uniform", "table"]:
+                blogs = blogs.filter(type=search.lower())
+            elif search:
                 blogs = blogs.filter(title__icontains=search)
 
-        
             if category_id:
                 blogs = blogs.filter(category_id=category_id)
 
             blogs = blogs.order_by("-created_at")
 
-            
             paginator = CustomPagination()
             page = paginator.paginate_queryset(blogs, request)
 
@@ -126,6 +185,7 @@ class BlogListAPIView(APIView):
                 "message": "Server error while fetching blogs.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class BlogDetailAPIView(APIView):

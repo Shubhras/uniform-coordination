@@ -7,7 +7,7 @@ from django.db.models import Q
 from .serializers import *
 from .models import *
 from .fabric import IsAdministrator, CustomPagination
-
+from rest_framework import status
 
 
 
@@ -27,6 +27,25 @@ class PartsCreateView(APIView):
                     "message": "Part created successfully",
                     "data": serializer.data
                 })
+                
+                
+            if "theme" in serializer.errors:
+                error_msg = serializer.errors["theme"][0]
+
+                if "not allowed" in error_msg:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "Theme is not allowed for Uniform"
+                    }, status=status.HTTP_200_OK)
+
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Validation failed;Please Select Themes"
+                }, status=status.HTTP_200_OK)
+            
+                
 
             return Response({
                 "statusCode": 400,

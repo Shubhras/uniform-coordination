@@ -5,7 +5,7 @@ from .models import*
 
 @admin.register(Users)
 class UsersAdmin(admin.ModelAdmin):
-    list_display = ('id', 'userName', 'email', 'firstName', 'lastName', 'isActive', 'isDeleted', 'loginType', 'createdAt')
+    list_display = ('id', 'userName', 'email', 'firstName','userType', 'lastName', 'isActive', 'isDeleted', 'loginType', 'createdAt')
     list_filter = ('isActive', 'isDeleted', 'loginType', 'createdAt')
     search_fields = ('email', 'userName', 'firstName', 'lastName')
     readonly_fields = ('createdAt', 'updatedAt')
@@ -247,6 +247,7 @@ class QuotationRequestAdmin(admin.ModelAdmin):
         'phone_number',
         'item_type',
         'delivery_date',
+        'quotation_status',
         'isActive',
         'isDeleted',
         'created_at',
@@ -254,6 +255,7 @@ class QuotationRequestAdmin(admin.ModelAdmin):
 
     # Filters on right side
     list_filter = (
+          'quotation_status',
         'isActive',
         'isDeleted',
         'delivery_date',
@@ -267,6 +269,7 @@ class QuotationRequestAdmin(admin.ModelAdmin):
         'email',
         'phone_number',
         'item_type',
+           'quotation_status',
     )
 
     # Ordering (latest first)
@@ -305,6 +308,13 @@ class QuotationRequestAdmin(admin.ModelAdmin):
         ('Agreement', {
             'fields': ('agreed_to_terms',)
         }),
+          ('Quotation Status', {     
+
+            'fields': (
+
+                'quotation_status',)
+
+          }),
         ('Status', {
             'fields': (
                 'isActive',
@@ -321,3 +331,4 @@ class QuotationRequestAdmin(admin.ModelAdmin):
 
     #  Pagination
     list_per_page = 25
+

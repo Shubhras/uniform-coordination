@@ -1,50 +1,55 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from uniformAdmin.models import *
-from .models import *
+from rest_framework_simplejwt.tokens import RefreshToken
+from uniformAdmin.models import AdminUser
 from django.utils.timezone import now
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated ,IsAdminUser
 from .utils import *
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django.conf import settings
 from .serializers import*
-import logging
+import logging,uuid
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db import IntegrityError, transaction
 from decimal import Decimal
-from django.db.models import Sum 
+from django.db.models import Count
 from django.utils.dateparse import parse_date
 from .payment import CustomPagination
 from uniformAdmin.signal import *
+from uniformAdmin.models import *
+from rest_framework.permissions import AllowAny
+from django.utils.http import urlsafe_base64_decode
+from uniformAdmin.signal import *
 
-# from django.utils import timezone
 import re
 logger = logging.getLogger(__name__)
 
 
 
 class SignupAPIView(APIView):
-    
+    permission_classes=[AllowAny]
     def post(self, request, *args, **kwargs):
-        request.data._mutable = True
-        request.data["userType"] = request.data.get("userType")
-        serializer = UserSignupSerializer(data=request.data)
+        data = request.data.copy()
+        data["userType"] = data.get("userType")
+
+        serializer = UserSignupSerializer(data=data)
+
+        # request.data._mutable = True
+        # request.data["userType"] = request.data.get("userType")
+        # serializer = UserSignupSerializer(data=request.data)
 
         try:
             if serializer.is_valid():
                 user = serializer.save()
-
-                # ---------------------------------------
-                # EMAIL VERIFICATION 
-                # ---------------------------------------
                 
-                uid = urlsafe_base64_encode(force_bytes(user.id))
-                # verify_link = f"{settings.FRONTEND_URL}/verify-email/{uid}"
-                
+                 # EMAIL VERIFICATION 
+                uid = urlsafe_base64_encode(force_bytes(user.id))                
                 verify_link = request.build_absolute_uri(f"/api/v1/userhub/verify-email/{uid}/")
 
 
@@ -74,22 +79,28 @@ class SignupAPIView(APIView):
                 }, status=status.HTTP_201_CREATED)
 
             else:
-                # Extract first validation error message
-                error_message = "Validation failed."
-                
 
                 errors = serializer.errors
+                missing_fields = []
+
                 if isinstance(errors, dict):
                     for field, messages in errors.items():
                         if isinstance(messages, list) and messages:
-                            error_message = f"Validation failed;{messages[0]}"
-                            break
-                            
+                            # collect fields with "required" error
+                            if "required" in messages[0].lower():
+                                missing_fields.append(field)
+
+                if missing_fields:
+                    fields_str = ", ".join(missing_fields)
+                    error_message = f"Validation failed; {fields_str} : This field is required."
+                else:
+                    error_message = "Validation failed."
+                                            
                 return Response({
                     "status": False,
                     "statusCode": 400,
                     "message": error_message
-                }, status=status.HTTP_400_BAD_REQUEST)
+                }, status=status.HTTP_200_OK)
 
         except Exception as exc:
             logger.exception("Signup error")
@@ -103,7 +114,7 @@ class SignupAPIView(APIView):
 
 
 class LoginAPIView(APIView):
-
+    permission_classes = [AllowAny]
     def post(self, request):
         
         try:
@@ -127,7 +138,7 @@ class LoginAPIView(APIView):
                     "status": False,
                     "statusCode": 400,
                     "message": missing_fields[0],
-                }, status=400)
+                }, status=200)
             # ----------------------------------------
 
             serializer = LoginSerializer(data=request.data)
@@ -135,16 +146,16 @@ class LoginAPIView(APIView):
             user = serializer.validated_data["user"]
 
 
-            # =====================================================
+           ##
             #  EMAIL VERIFICATION CHECK 
-            # =====================================================
+           ##
             if not user.is_verify:
                 return Response({
                     "status": False,
                     "statusCode": 403,
                     "message": "Please verify your email before logging in."
-                }, status=403)
-            # =====================================================
+                }, status=200)
+           ##
             
 
             # Check matching userType
@@ -153,7 +164,7 @@ class LoginAPIView(APIView):
                     "status": False,
                     "statusCode": 403,
                     "message": "You are not allowed to login in this section."
-                }, status=403)
+                }, status=200)
 
             # Update last login
             user.lastLogin = now()
@@ -197,7 +208,7 @@ class LoginAPIView(APIView):
                 error_msg = str(ve.detail)
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 400,
                 "message": f"Validation failed ; {error_msg}",
             }, status=200)
 
@@ -254,7 +265,6 @@ class GetProfileAPIView(APIView):
                 "message": "Unable to fetch profile.",
                 "error": str(exc)
             }, status=500)
-
 
 
 class UpdateProfileAPIView(APIView):
@@ -323,6 +333,7 @@ class UpdateProfileAPIView(APIView):
 
 
 
+
 class DeleteProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -367,9 +378,9 @@ class ForgotPasswordAPIView(APIView):
             except Users.DoesNotExist:
                 return Response({
                     "status": False,
-                    "statusCode": 404,
+                    "statusCode": 400,
                     "message": "No account found with this email."
-                }, status=404)
+                }, status=400)
 
             # Create reset token
             # reset_token = uuid.uuid4().hex
@@ -378,11 +389,11 @@ class ForgotPasswordAPIView(APIView):
             user_id = user.id
 
             # Build reset link
-            frontend_url = "http://localhost:3000/auth/reset-password"
+            frontend_url = "http://localhost:7000/auth/reset-password"
             reset_link = f"{frontend_url}?user_id={user_id}"
 
             # -------------------------------
-            # ✅ SMTP: Send Reset Email Here
+            # SMTP: Send Reset Email Here
             # -------------------------------
             subject = "Reset Your Password"
             message = f"Hello,\n\nClick the link below to reset your password:\n{reset_link}\n\nIf you did not request this, please ignore this email."
@@ -405,6 +416,7 @@ class ForgotPasswordAPIView(APIView):
                 "message": "Unable to process forgot password.",
                 "error": str(exc)
             }, status=500)
+
 
 
 class ResetPasswordAPIView(APIView):
@@ -432,7 +444,7 @@ class ResetPasswordAPIView(APIView):
             if new_password != confirm_password:
                 return Response({
                     "status": False,
-                    "statusCode": 200,
+                    "statusCode": 400,
                     "message": "New password and confirm password do not match."
                 }, status=200)
 
@@ -442,9 +454,9 @@ class ResetPasswordAPIView(APIView):
             except Users.DoesNotExist:
                 return Response({
                     "status": False,
-                    "statusCode": 404,
+                    "statusCode": 400,
                     "message": "Invalid user."
-                }, status=404)
+                }, status=400)
 
             # Update password
             user.password = make_password(new_password)
@@ -595,106 +607,6 @@ class VerifyUserAPIView(APIView):
             "statusCode": 200,
             "message": "User verified successfully."
         }, status=200)
-
-
-class ToggleFavouriteAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        user = request.user
-        product_id = request.data.get("product_id")
-
-        # Validate product_id presence
-        if not product_id:
-            return Response(
-                {
-                    "status": False,
-                    "message": "product_id is required"
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        #  Validate product_id type
-        if not str(product_id).isdigit():
-            return Response(
-                {
-                    "status": False,
-                    "message": "product_id must be a valid integer"
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        try:
-            #  Validate product existence & state
-            product = Product.objects.get(
-                id=int(product_id),
-                isDeleted=False,
-                isActive=True
-            )
-
-            #  Atomic toggle
-            with transaction.atomic():
-                favourite, created = Favourite.objects.select_for_update().get_or_create(
-                    user=user,
-                    product=product,
-                    defaults={
-                        "is_like": True,
-                        "isDeleted": False,
-                        "isActive": True
-                    }
-                )
-
-                #  Revive soft-deleted favourite
-                if not created and favourite.isDeleted:
-                    favourite.isDeleted = False
-                    favourite.is_like = True
-                    favourite.save()
-
-                #  Toggle like
-                elif not created:
-                    favourite.is_like = not favourite.is_like
-                    favourite.save()
-
-        except Product.DoesNotExist:
-            return Response(
-                {
-                    "status": False,
-                    "message": "Product not found or inactive"
-                },
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        except IntegrityError:
-            return Response(
-                {
-                    "status": False,
-                    "message": "Favourite integrity conflict"
-                },
-                status=status.HTTP_409_CONFLICT
-            )
-
-        except Exception as e:
-            return Response(
-                {
-                    "status": False,
-                    "message": "Something went wrong",
-                    "error": str(e)
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-        return Response(
-            {
-                "status": True,
-                "message": "Product liked" if favourite.is_like else "Product disliked",
-                "data": {
-                    "product_id": product.id,
-                    "product_type": product.productType,  #  derived safely
-                    "is_like": favourite.is_like
-                }
-            },
-            status=status.HTTP_200_OK
-        )
 
 
 

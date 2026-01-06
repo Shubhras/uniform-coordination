@@ -116,17 +116,72 @@ class AdminDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['id',"email","name","mobile","language",'is_staff', 'is_superuser', 'last_login', 'date_joined']
 
 
+
+
+
 class FabricSerializer(serializers.ModelSerializer):
+    theme = serializers.PrimaryKeyRelatedField(
+        queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = Fabric
         fields = '__all__'
 
+    def validate(self, data):
+        fabric_type = data.get("fabricType")
+        theme = data.get("theme")
+
+        # Table → theme REQUIRED
+        if fabric_type == "table" and not theme:
+            raise serializers.ValidationError({
+                "theme": "Theme is required when fabric type is table."
+            })
+
+        # Uniform → theme NOT allowed
+        if fabric_type == "uniform" and theme:
+            raise serializers.ValidationError({
+                "theme": "Theme is not allowed in uniform."
+            })
+
+        return data
+
+
+
+
 
 class PartsSerializer(serializers.ModelSerializer):
+    theme = serializers.PrimaryKeyRelatedField(
+        queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = Parts
         fields = "__all__"
         read_only_fields = ["id", "created_at", "updated_at", "usageTemmpCount"]
+
+    def validate(self, data):
+        part_type = data.get("partType")
+        theme = data.get("theme")
+
+        # TABLE → theme required
+        if part_type == "table" and not theme:
+            raise serializers.ValidationError({
+                "theme": "Please Select themes for Table."
+            })
+
+        # UNIFORM → theme NOT allowed
+        if part_type == "uniform" and theme:
+            raise serializers.ValidationError({
+                "theme": "Theme is not allowed for uniform."
+            })
+
+        return data
+
 
 
 class FabricMiniSerializer(serializers.ModelSerializer):
@@ -204,6 +259,7 @@ class BlogSerializer(serializers.ModelSerializer):
             "slug",
             "category",
             "categoryName",
+            "type",
             "image",        #  ONLY ONE image field
             "description",
             "isActive",
@@ -252,7 +308,7 @@ class FAQSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FAQ
-        fields = ["id", "title", "descriptions", "isActive", "created_at", "updated_at"]
+        fields = ["id", "title","type", "descriptions", "isActive", "created_at", "updated_at"]
 
     # Make title unique
     def validate_title(self, value):
@@ -464,17 +520,23 @@ class ProductSerializer(serializers.ModelSerializer):
         required=False
     )
 
+    theme = serializers.PrimaryKeyRelatedField(
+        queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = Product
         fields = [
-            "id", "productName", "slug", "description", "productType",
+            "id", "productName", "slug", "description", "productType","theme", 
             "category", "subcategory", "parts", "price", "discount",
             "total_quantity", "available_quantity",
             "ProductImage", "isActive", "created_at"
         ]
         read_only_fields = ["slug", "created_at"]
 
-    #  IMPORTANT: handle parts = "[1,2,3]" from form-data
+    # IMPORTANT: handle parts = "[1,2,3]" from form-data
     def to_internal_value(self, data):
         data = data.copy()
 
@@ -488,26 +550,47 @@ class ProductSerializer(serializers.ModelSerializer):
                 })
 
         return super().to_internal_value(data)
-
-    #  Category → Subcategory + quantity validation
+    
     def validate(self, data):
+        product_type = data.get("productType")
+
+        # Explicitly check if theme was sent in payload
+        theme_provided = "theme" in self.initial_data
+        theme_value = data.get("theme")
+
+        # Category → Subcategory validation
         category = data.get("category")
         subcategory = data.get("subcategory")
-
         if subcategory and subcategory.category != category:
             raise serializers.ValidationError({
                 "subcategory": "Selected subcategory does not belong to selected category"
             })
 
+        # Quantity validation
         total_qty = data.get("total_quantity", 0)
         avail_qty = data.get("available_quantity", 0)
-
         if avail_qty > total_qty:
             raise serializers.ValidationError({
                 "available_quantity": "Available quantity cannot exceed total quantity"
             })
 
+        # FINAL THEME RULES (CORRECT)
+        if product_type == "table" and not theme_value:
+            raise serializers.ValidationError({
+                "theme": "Theme is required when product type is table."
+            })
+
+        if product_type == "uniform" and theme_provided:
+            raise serializers.ValidationError({
+                "theme": "Theme is not allowed for uniform products."
+            })
+
         return data
+
+    
+    
+    
+    
 
 class SpecialConditionSerializer(serializers.ModelSerializer):
     discount_percentage = serializers.DecimalField(
@@ -754,6 +837,8 @@ class AdminNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminNotification
         fields = "__all__"
+        
+        
 class UnitPriceSerializer(serializers.Serializer):
     type = serializers.CharField()
     itemName = serializers.CharField()
