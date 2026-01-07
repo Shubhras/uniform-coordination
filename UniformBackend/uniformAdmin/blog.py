@@ -135,19 +135,31 @@ class BlogListAPIView(APIView):
 
     def get(self, request):
         try:
-            search = request.query_params.get("search", "").strip()
+            search = (request.query_params.get("search") or "").strip()
             category_id = request.query_params.get("category")
+            blog_type = (request.query_params.get("type") or "").strip().lower()
 
             blogs = Blog.objects.filter(isDeleted=False)
 
-            # ✅ TYPE FILTER (ONLY ADDITION)
-            if search.lower() in ["uniform", "table"]:
-                blogs = blogs.filter(type=search.lower())
-            elif search:
-                blogs = blogs.filter(title__icontains=search)
+            #  SEARCH FILTER
+            if search:
+                search_lower = search.lower()
 
+                # Match special keys
+                if search_lower in ["uniform", "table"]:
+                    blogs = blogs.filter(slug=search_lower)
+
+                # Otherwise search in title
+                else:
+                    blogs = blogs.filter(title__icontains=search)
+
+            # CATEGORY FILTER
             if category_id:
                 blogs = blogs.filter(category_id=category_id)
+
+            #  TYPE FILTER
+            if blog_type:
+                blogs = blogs.filter(type=blog_type)
 
             blogs = blogs.order_by("-created_at")
 
@@ -185,7 +197,6 @@ class BlogListAPIView(APIView):
                 "message": "Server error while fetching blogs.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 
 class BlogDetailAPIView(APIView):

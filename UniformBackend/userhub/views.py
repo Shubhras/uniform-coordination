@@ -1,14 +1,17 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from uniformAdmin.models import *
-from .models import *
+from rest_framework_simplejwt.tokens import RefreshToken
+from uniformAdmin.models import AdminUser
 from django.utils.timezone import now
 from rest_framework.permissions import IsAuthenticated ,IsAdminUser
 from .utils import *
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django.conf import settings
 from .serializers import*
+import logging,uuid
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
@@ -19,13 +22,14 @@ from django.db.models import Count
 from django.utils.dateparse import parse_date
 from .payment import CustomPagination
 from uniformAdmin.signal import *
+from uniformAdmin.models import *
 from rest_framework.permissions import AllowAny
 # from django.utils import timezone
 
+from django.utils.http import urlsafe_base64_decode
+from uniformAdmin.signal import *
 
 import re
-import traceback
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -196,6 +200,7 @@ class SignupAPIView(APIView):
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
+        
         try:
             email = request.data.get("email")
             password = request.data.get("password")
@@ -225,16 +230,16 @@ class LoginAPIView(APIView):
             user = serializer.validated_data["user"]
 
 
-            # =====================================================
+           ##
             #  EMAIL VERIFICATION CHECK 
-            # =====================================================
+           ##
             if not user.is_verify:
                 return Response({
                     "status": False,
                     "statusCode": 403,
                     "message": "Please verify your email before logging in."
-                }, status=403)
-            # =====================================================
+                }, status=200)
+           ##
             
 
             # Check matching userType
@@ -243,7 +248,7 @@ class LoginAPIView(APIView):
                     "status": False,
                     "statusCode": 403,
                     "message": "You are not allowed to login in this section."
-                }, status=403)
+                }, status=200)
 
             # Update last login
             user.lastLogin = now()
@@ -346,7 +351,6 @@ class GetProfileAPIView(APIView):
             }, status=500)
 
 
-
 class UpdateProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -413,6 +417,7 @@ class UpdateProfileAPIView(APIView):
 
 
 
+
 class DeleteProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -443,24 +448,25 @@ class ForgotPasswordAPIView(APIView):
     def post(self, request):
         try:
             email = request.data.get("email")
+            user_type = request.data.get("userType")  
 
-            if not email:
+            if not email and not user_type:
                 return Response({
                     "status": False,
                     "statusCode": 400,
                     "message": "Validation failed.",
-                    "error": {"email": "Email is required."}
+                    "error": {"email": "Email and user_type are required."}
                 }, status=400)
 
             # Check user exists
             try:
-                user = Users.objects.get(email=email, isDeleted=False)
+                user = Users.objects.get(email=email, isDeleted=False, userType=user_type)
             except Users.DoesNotExist:
                 return Response({
                     "status": False,
-                    "statusCode": 404,
-                    "message": "No account found with this email."
-                }, status=404)
+                    "statusCode": 400,
+                    "message": "No account found with this email and user type."
+                }, status=400)
 
             # Create reset token
             # reset_token = uuid.uuid4().hex
@@ -469,11 +475,11 @@ class ForgotPasswordAPIView(APIView):
             user_id = user.id
 
             # Build reset link
-            frontend_url = "http://localhost:3000/auth/reset-password"
+            frontend_url = "http://localhost:7000/auth/reset-password"
             reset_link = f"{frontend_url}?user_id={user_id}"
 
             # -------------------------------
-            #  SMTP: Send Reset Email Here
+            # SMTP: Send Reset Email Here
             # -------------------------------
             subject = "Reset Your Password"
             message = f"Hello,\n\nClick the link below to reset your password:\n{reset_link}\n\nIf you did not request this, please ignore this email."
@@ -496,6 +502,7 @@ class ForgotPasswordAPIView(APIView):
                 "message": "Unable to process forgot password.",
                 "error": str(exc)
             }, status=500)
+
 
 
 class ResetPasswordAPIView(APIView):
@@ -524,7 +531,7 @@ class ResetPasswordAPIView(APIView):
             if new_password != confirm_password:
                 return Response({
                     "status": False,
-                    "statusCode": 200,
+                    "statusCode": 400,
                     "message": "New password and confirm password do not match."
                 }, status=200)
 
@@ -534,9 +541,9 @@ class ResetPasswordAPIView(APIView):
             except Users.DoesNotExist:
                 return Response({
                     "status": False,
-                    "statusCode": 404,
+                    "statusCode": 400,
                     "message": "Invalid user."
-                }, status=404)
+                }, status=400)
 
             # Update password
             user.password = make_password(new_password)
@@ -687,106 +694,6 @@ class VerifyUserAPIView(APIView):
             "statusCode": 200,
             "message": "User verified successfully."
         }, status=200)
-
-
-class ToggleFavouriteAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        user = request.user
-        product_id = request.data.get("product_id")
-
-        # Validate product_id presence
-        if not product_id:
-            return Response(
-                {
-                    "status": False,
-                    "message": "product_id is required"
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        #  Validate product_id type
-        if not str(product_id).isdigit():
-            return Response(
-                {
-                    "status": False,
-                    "message": "product_id must be a valid integer"
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        try:
-            #  Validate product existence & state
-            product = Product.objects.get(
-                id=int(product_id),
-                isDeleted=False,
-                isActive=True
-            )
-
-            #  Atomic toggle
-            with transaction.atomic():
-                favourite, created = Favourite.objects.select_for_update().get_or_create(
-                    user=user,
-                    product=product,
-                    defaults={
-                        "is_like": True,
-                        "isDeleted": False,
-                        "isActive": True
-                    }
-                )
-
-                #  Revive soft-deleted favourite
-                if not created and favourite.isDeleted:
-                    favourite.isDeleted = False
-                    favourite.is_like = True
-                    favourite.save()
-
-                #  Toggle like
-                elif not created:
-                    favourite.is_like = not favourite.is_like
-                    favourite.save()
-
-        except Product.DoesNotExist:
-            return Response(
-                {
-                    "status": False,
-                    "message": "Product not found or inactive"
-                },
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        except IntegrityError:
-            return Response(
-                {
-                    "status": False,
-                    "message": "Favourite integrity conflict"
-                },
-                status=status.HTTP_409_CONFLICT
-            )
-
-        except Exception as e:
-            return Response(
-                {
-                    "status": False,
-                    "message": "Something went wrong",
-                    "error": str(e)
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-        return Response(
-            {
-                "status": True,
-                "message": "Product liked" if favourite.is_like else "Product disliked",
-                "data": {
-                    "product_id": product.id,
-                    "product_type": product.productType,  #  derived safely
-                    "is_like": favourite.is_like
-                }
-            },
-            status=status.HTTP_200_OK
-        )
 
 
 
