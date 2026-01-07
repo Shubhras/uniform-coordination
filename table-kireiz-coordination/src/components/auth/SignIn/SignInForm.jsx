@@ -29,10 +29,6 @@ const SignInForm = (props) => {
     formState: { errors },
     control,
   } = useForm({
-    defaultValues: {
-      email: "admin-01@ecme.com",
-      password: "123Qwe",
-    },
     resolver: zodResolver(validationSchema),
   });
 

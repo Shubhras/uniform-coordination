@@ -1,5 +1,5 @@
 const appConfig = {
-    apiPrefix: '/api',
+    apiPrefix: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`,
     // authenticatedEntryPath: '/dashboards/ecommerce',
     authenticatedEntryPath: '/table-form',
     unAuthenticatedEntryPath: '/sign-in',
