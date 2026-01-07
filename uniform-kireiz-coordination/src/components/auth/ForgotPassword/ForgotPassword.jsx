@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { FiChevronLeft } from "react-icons/fi";
 import SplitForgotPassword from "@/components/layouts/AuthLayout/SplitForgotPass";
 
-export const ForgotPassword = ({
+export const  ForgotPassword = ({
   signInUrl = "/sign-in",
   onForgotPasswordSubmit,
 }) => {
