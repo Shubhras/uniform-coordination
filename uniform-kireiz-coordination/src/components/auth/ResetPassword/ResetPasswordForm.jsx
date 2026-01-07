@@ -66,6 +66,7 @@ const ResetPasswordForm = (props) => {
                   autoComplete="off"
                   placeholder="New Password"
                   {...field}
+                  required
                 />
               )}
             />
@@ -82,6 +83,7 @@ const ResetPasswordForm = (props) => {
                   autoComplete="off"
                   placeholder="Confirm Password"
                   {...field}
+                  required
                 />
               )}
             />

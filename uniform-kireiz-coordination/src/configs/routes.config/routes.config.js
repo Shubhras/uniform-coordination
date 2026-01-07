@@ -22,7 +22,7 @@ export const publicRoutes = {
         key: 'blog',
         authority: [],
     },
-    '/single-blog': {
+    '/single-blog/*': {
         key: 'single-blog',
         authority: [],
     },
@@ -62,3 +62,16 @@ export const publicRoutes = {
 }
 
 export const authRoutes = authRoute
+export const isPublicRoute = (pathname) => {
+    return Object.keys(publicRoutes).some(route => {
+        if (route === pathname) return true
+
+        // dynamic match like /single-blog/2
+        if (route.endsWith('/*')) {
+            const base = route.replace('/*', '')
+            return pathname.startsWith(base + '/')
+        }
+
+        return false
+    })
+}

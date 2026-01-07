@@ -1,17 +1,47 @@
 import ApiService from './ApiService'
 
+// export async function apiSignUp(data) {
+//     alert("Signup API called");
+//     console.log(data)
+//     return ApiService.fetchDataWithAxios({
+//         url: '/v1/userhub/signup/',
+//         method: 'post',
+//         data,
+//     })
+// }
 export async function apiSignUp(data) {
-    console.log(data)
+    const payload = {
+        ...data,
+        userType: "uniform",
+    }
     return ApiService.fetchDataWithAxios({
         url: '/v1/userhub/signup/',
         method: 'post',
-        data,
+        data: payload,
+    })
+}
+
+/**
+ * LOGIN
+ */
+export async function apiLogin(data) {
+    const payload = {
+        ...data,
+        userType: 'uniform',
+    }
+
+    console.log('Login payload:', payload)
+
+    return ApiService.fetchDataWithAxios({
+        url: '/v1/userhub/login/',
+        method: 'post',
+        data: payload,
     })
 }
 
 export async function apiForgotPassword(data) {
     return ApiService.fetchDataWithAxios({
-        url: '/auth/forgot-password',
+        url: '/v1/userhub/forgot-password/',
         method: 'post',
         data,
     })
@@ -19,7 +49,7 @@ export async function apiForgotPassword(data) {
 
 export async function apiResetPassword(data) {
     return ApiService.fetchDataWithAxios({
-        url: '/auth/reset-password',
+        url: '/v1/userhub/reset-password/',
         method: 'post',
         data,
     })
