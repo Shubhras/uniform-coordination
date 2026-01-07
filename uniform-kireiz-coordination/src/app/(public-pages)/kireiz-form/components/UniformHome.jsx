@@ -1,5 +1,6 @@
 'use client'
-
+import { useEffect, useState } from 'react'
+import { apiGetHomeData } from '@/services/HomeService'
 import HeroContent from './HeroContent'
 import Demos from './Demos'
 import TechStack from './TechStack'
@@ -20,11 +21,27 @@ const UniformHome = () => {
     const setMode = useTheme((state) => state.setMode)
     const schema = useTheme((state) => state.themeSchema)
     const setSchema = useTheme((state) => state.setSchema)
-
+    const [homeData, setHomeData] = useState(null)
+    const [loading, setLoading] = useState(true)
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }
-
+    useEffect(() => {
+        const fetchHomeData = async () => {
+          try {
+            const res = await apiGetHomeData()
+            if (res?.status) {
+              setHomeData(res.data)
+            }
+          } catch (err) {
+            console.error('Home API error', err)
+          } finally {
+            setLoading(false)
+          }
+        }
+    
+        fetchHomeData()
+      }, [])
     return (
         <main className="text-base bg-white dark:bg-gray-900">
           <HaederPage toggleMode={toggleMode} mode={mode} />
@@ -35,12 +52,12 @@ const UniformHome = () => {
                 ></div>
                 <HeroContent mode={mode} />
             </div> */}
-            <UniformBusinessEnquiry />
+            <UniformBusinessEnquiry categories={homeData?.categories} />
             {/* <Demos mode={mode} /> */}
             {/*  How it works */}
             <TechStack />
-            <UniformLatestBlogPosts/>
-            <UniformLatestFAQPosts/>
+            <UniformLatestBlogPosts blogs={homeData?.blogs} loading={loading} />
+            <UniformLatestFAQPosts faqs={homeData?.faqs} loading={loading} />
             <UniformAbouUsPage/>
             {/* <OtherFeatures /> */}
             {/* <Components /> */}
