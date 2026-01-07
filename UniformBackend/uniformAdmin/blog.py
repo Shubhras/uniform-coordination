@@ -33,7 +33,7 @@ class BlogCreateAPIView(APIView):
                 blog = serializer.save()
                 return Response({
                     "status": True,
-                    "statusCode": 201,
+                    "statusCode": 200,
                     "message": "Blog created successfully.",
                     "data": BlogSerializer(blog, context={"request": request}).data
                 }, status=status.HTTP_201_CREATED)
