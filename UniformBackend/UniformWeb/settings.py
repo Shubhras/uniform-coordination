@@ -37,7 +37,9 @@ ALLOWED_HOSTS = [
     "localhost:7000",
     "localhost:7001",
     "192.168.1.56",
-    "54.81.43.26"
+    "54.81.43.26",
+    "0.0.0.0:8000",
+    "0.0.0.0"
 ]
 # Application definition
 
@@ -54,6 +56,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'uniformAdmin',
     'userhub',
+    # 'drf_yasg',
 ]
 AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
 

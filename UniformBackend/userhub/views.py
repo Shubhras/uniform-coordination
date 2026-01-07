@@ -17,90 +17,179 @@ from decimal import Decimal
 from django.utils.dateparse import parse_date
 from .payment import CustomPagination
 from uniformAdmin.signal import *
+from uniformAdmin.models import *
+from rest_framework.permissions import AllowAny
+# from django.utils import timezone
+
+from django.utils.http import urlsafe_base64_decode
+from uniformAdmin.signal import *
+
 import re
 from uniformAdmin.models import *
 logger = logging.getLogger(__name__)
 
 
 
+# class SignupAPIView(APIView):
+#     permission_classes=[AllowAny]
+#     def post(self, request, *args, **kwargs):
+#         # request.data._mutable = True
+#         # request.data["userType"] = request.data.get("userType")
+#         serializer = UserSignupSerializer(data=request.data)
+
+#         try:
+#             if serializer.is_valid():
+#                 user = serializer.save()
+                
+#                  # EMAIL VERIFICATION 
+#                 uid = urlsafe_base64_encode(force_bytes(user.id))                
+#                 verify_link = request.build_absolute_uri(f"/api/v1/userhub/verify-email/{uid}/")
+
+
+#                 send_mail(
+#                     subject="Verify your email",
+#                     message=f"Click here to verify your email, it's you:\n{verify_link}",
+#                     from_email=settings.EMAIL_HOST_USER,
+#                     recipient_list=[user.email],
+#                     fail_silently=False
+#                 )
+
+#                 # Serialize full safe user response
+#                 response_data = UserResponseSerializer(
+#                     user,
+#                     context={'request': request}
+#                 ).data
+
+#                 # Convert profileImage to full URL
+#                 if user.profileImage:
+#                     response_data["profileImage"] = request.build_absolute_uri(user.profileImage.url)
+
+#                 return Response({
+#                     "status": True,
+#                     "statusCode": 201,
+#                     "message": "User created successfully.",
+#                     "data": response_data
+#                 }, status=status.HTTP_201_CREATED)
+
+#             else:
+
+#                 errors = serializer.errors
+#                 missing_fields = []
+
+#                 if isinstance(errors, dict):
+#                     for field, messages in errors.items():
+#                         if isinstance(messages, list) and messages:
+#                             # collect fields with "required" error
+#                             if "required" in messages[0].lower():
+#                                 missing_fields.append(field)
+
+#                 if missing_fields:
+#                     fields_str = ", ".join(missing_fields)
+#                     error_message = f"Validation failed; {fields_str} : This field is required."
+#                 else:
+#                     error_message = "Validation failed."
+                                            
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "message": error_message
+#                 }, status=status.HTTP_400_BAD_REQUEST)
+
+#         except Exception as exc:
+#             logger.exception("Signup error")
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                     "message": "Server error while creating user.",
+#                 "error": str(exc)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 class SignupAPIView(APIView):
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
-        data = request.data.copy()
-        data["userType"] = data.get("userType")
-
-        serializer = UserSignupSerializer(data=data)
-
-        # request.data._mutable = True
-        # request.data["userType"] = request.data.get("userType")
-        # serializer = UserSignupSerializer(data=request.data)
+        serializer = UserSignupSerializer(data=request.data)
 
         try:
             if serializer.is_valid():
                 user = serializer.save()
-                
-                 # EMAIL VERIFICATION 
-                uid = urlsafe_base64_encode(force_bytes(user.id))                
-                verify_link = request.build_absolute_uri(f"/api/v1/userhub/verify-email/{uid}/")
 
+                # EMAIL VERIFICATION
+                uid = urlsafe_base64_encode(force_bytes(user.id))
+                verify_link = request.build_absolute_uri(
+                    f"/api/v1/userhub/verify-email/{uid}/"
+                )
 
                 send_mail(
                     subject="Verify your email",
                     message=f"Click here to verify your email, it's you:\n{verify_link}",
                     from_email=settings.EMAIL_HOST_USER,
                     recipient_list=[user.email],
-                    fail_silently=False
+                    fail_silently=False,
                 )
 
-                # Serialize full safe user response
                 response_data = UserResponseSerializer(
-                    user,
-                    context={'request': request}
+                    user, context={"request": request}
                 ).data
 
-                # Convert profileImage to full URL
                 if user.profileImage:
-                    response_data["profileImage"] = request.build_absolute_uri(user.profileImage.url)
+                    response_data["profileImage"] = request.build_absolute_uri(
+                        user.profileImage.url
+                    )
 
-                return Response({
-                    "status": True,
-                    "statusCode": 201,
-                    "message": "User created successfully.",
-                    "data": response_data
-                }, status=status.HTTP_201_CREATED)
+                return Response(
+                    {
+                        "status": True,
+                        "statusCode": 201,
+                        "message": "User created successfully.",
+                        "data": response_data,
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
 
-            else:
+            # -------------------------------
+            #  VALIDATION FAILED
+            # -------------------------------
+            errors = serializer.errors
+            error_message = "Validation failed."
 
-                errors = serializer.errors
-                missing_fields = []
-
-                if isinstance(errors, dict):
+            if isinstance(errors, dict):
+                if "non_field_errors" in errors:
+                    error_message = errors["non_field_errors"][0]
+                else:
+                    missing_fields = []
                     for field, messages in errors.items():
                         if isinstance(messages, list) and messages:
-                            # collect fields with "required" error
                             if "required" in messages[0].lower():
                                 missing_fields.append(field)
 
-                if missing_fields:
-                    fields_str = ", ".join(missing_fields)
-                    error_message = f"Validation failed; {fields_str} : This field is required."
-                else:
-                    error_message = "Validation failed."
-                                            
-                return Response({
+                    if missing_fields:
+                        fields_str = ", ".join(missing_fields)
+                        error_message = f"{fields_str} : This field is required."
+
+            # IMPORTANT: ALWAYS RETURN RESPONSE
+            return Response(
+                {
                     "status": False,
                     "statusCode": 400,
-                    "message": error_message
-                }, status=status.HTTP_200_OK)
+                    "message": error_message,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         except Exception as exc:
             logger.exception("Signup error")
-            return Response({
-                "status": False,
-                "statusCode": 500,
+            return Response(
+                {
+                    "status": False,
+                    "statusCode": 500,
                     "message": "Server error while creating user.",
-                "error": str(exc)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    "error": str(exc),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 
@@ -189,7 +278,7 @@ class LoginAPIView(APIView):
                     "refreshToken": refresh_token,
                     **user_data
                 }
-            })
+            },status=200)
 
         except serializers.ValidationError as ve:
             error_msg = ""
@@ -209,7 +298,7 @@ class LoginAPIView(APIView):
                 "statusCode": 500,
                 "message": "Server error during login.",
                 "error": str(exc)
-            })
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -288,13 +377,13 @@ class UpdateProfileAPIView(APIView):
 
             user.save()
 
-            # ✅ SERIALIZE COMPLETE UPDATED USER DATA
+            # SERIALIZE COMPLETE UPDATED USER DATA
             response_data = UserResponseSerializer(
                 user,
                 context={"request": request}
             ).data
 
-            # ✅ Ensure full profileImage URL
+            # Ensure full profileImage URL
             if user.profileImage:
                 response_data["profileImage"] = request.build_absolute_uri(
                     user.profileImage.url
@@ -312,7 +401,7 @@ class UpdateProfileAPIView(APIView):
                 "status": False,
                 "statusCode": 400,
                 "message": "Username already exists.",
-            }, status=400)
+            }, status=200)
 
         except Exception as exc:
             return Response({
@@ -348,29 +437,31 @@ class DeleteProfileAPIView(APIView):
             }, status=500)
 
 
-
 class ForgotPasswordAPIView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
     def post(self, request):
         try:
             email = request.data.get("email")
+            user_type = request.data.get("userType")  
 
-            if not email:
+            if not email and not user_type:
                 return Response({
                     "status": False,
                     "statusCode": 400,
                     "message": "Validation failed.",
-                    "error": {"email": "Email is required."}
+                    "error": {"email": "Email and user_type are required."}
                 }, status=400)
 
             # Check user exists
             try:
-                user = Users.objects.get(email=email, isDeleted=False)
+                user = Users.objects.get(email=email, isDeleted=False, userType=user_type)
             except Users.DoesNotExist:
                 return Response({
                     "status": False,
                     "statusCode": 400,
-                    "message": "No account found with this email."
+                    "message": "No account found with this email and user type."
                 }, status=400)
 
             # Create reset token
@@ -411,7 +502,8 @@ class ForgotPasswordAPIView(APIView):
 
 
 class ResetPasswordAPIView(APIView):
-
+    permission_classes = [AllowAny]
+    
     def post(self, request):
         try:
             user_id = request.data.get("userId")
@@ -471,7 +563,6 @@ class ResetPasswordAPIView(APIView):
 
 class UpdatePasswordAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
     def validate_password(self, password):
         """
         Validates password:
@@ -564,6 +655,7 @@ class UpdatePasswordAPIView(APIView):
 
 
 class VerifyUserAPIView(APIView):
+    permission_classes = [AllowAny]
     
     def post(self, request):
         serializer = VerifyUserSerializer(data=request.data)
@@ -870,6 +962,7 @@ class CartListAPIView(APIView):
                 "pagination": None
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 # UPDATE
 class UpdateCartItemAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -990,6 +1083,7 @@ class ItemSummaryAPIView(APIView):
                 "statusCode": 400,
                 "error": "Cart is empty"
             }, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class CreateOrderAPIView(APIView):
