@@ -17,15 +17,34 @@ const ForgotPasswordClient = () => {
             setSubmitting(true)
             // await apiForgotPassword(values)
             const response = await apiForgotPassword(values)
-            const data = response?.data
-            toast.push(
-                <Notification title="Email sent!" type="success">
-                    We have sent you an email to reset your password
-                </Notification>,
-            )
+            if (response?.status === true) {
 
-            setEmailSent(true)
-            router.push('/reset-password')
+                toast.push(
+                    <Notification title="Email sent!" type="success">
+                        We have sent you an email to reset your password
+                    </Notification>,
+                )
+
+                setEmailSent(true)
+                // router.push('/reset-password')
+                const resetLink = response?.resetLink;
+                console.log(response?.resetLink)
+
+                if (!resetLink) {
+                    console.error("Reset link missing");
+                    return;
+                }
+
+                // If backend sends full URL
+                if (resetLink.startsWith("http")) {
+                    const url = new URL(resetLink);
+                    router.push(url.pathname + url.search);
+                } else {
+                    // If backend sends relative path
+                    router.push(resetLink);
+                }
+            }
+
         } catch (error) {
             const errorMessage =
                 error?.response?.data?.message ||

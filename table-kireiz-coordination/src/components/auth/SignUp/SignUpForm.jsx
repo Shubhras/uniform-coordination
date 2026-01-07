@@ -15,14 +15,7 @@ const validationSchema = z
     phone: z.string({ required_error: "Please enter your mobile no." }),
     email: z.string({ required_error: "Please enter your email" }),
     password: z.string({ required_error: "Password Required" }),
-    // confirmPassword: z.string({
-    //   required_error: "Confirm Password Required",
-    // }),
   })
-// .refine((data) => data.password === data.confirmPassword, {
-//   message: "Password not match",
-//   path: ["confirmPassword"],
-// });
 
 const SignUpForm = (props) => {
   const { onSignUp, className, setMessage, termConditionHint } = props;

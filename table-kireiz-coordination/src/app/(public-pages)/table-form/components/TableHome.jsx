@@ -16,6 +16,8 @@ import TableAbouUsPage from './TableAbouUsPage'
 import PlaceholderSection from './PlaceholderSection'
 import FooterPage from '../../footer/FooterPage'
 import HaederPage from '../../header/HaederPage'
+import { useEffect, useState } from 'react'
+import { apiGetHomeData } from '@/services/HomeService'
 
 const TableHome = () => {
     const mode = useTheme((state) => state.mode)
@@ -27,6 +29,27 @@ const TableHome = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }
 
+    const [homeData, setHomeData] = useState(null)
+    const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+        const fetchHomeData = async () => {
+            try {
+                setLoading(true)
+                const res = await apiGetHomeData()
+                if (res?.status) {
+                    setHomeData(res.data)
+                }
+            } catch (err) {
+                console.error('Home API error', err)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchHomeData()
+    }, [])
+
     return (
         <main className="text-base bg-white dark:bg-gray-900">
             <HaederPage toggleMode={toggleMode} mode={mode} />
@@ -37,12 +60,12 @@ const TableHome = () => {
                 ></div>
                 <HeroContent mode={mode} />
             </div> */}
-            <UniformBusinessEnquiry />
+            <UniformBusinessEnquiry categories={homeData?.categories}/>
             {/* <Demos mode={mode} /> */}
             {/*  How it works */}
             <TechStack />
             {/* <PlaceholderSection /> */}
-            <UniformLatestBlogPosts />
+            <UniformLatestBlogPosts   blogs={homeData?.blogs} loading={loading}/>
             <UniformLatestFAQPosts />
             {/* <TableAbouUsPage /> */}
             {/* <OtherFeatures /> */}
