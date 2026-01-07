@@ -64,6 +64,8 @@ urlpatterns = [
     path("payments/", UserPaymentListAPIView.as_view()),
     path("payments/detail/", UserPaymentDetailAPIView.as_view()),
     path("stripe/webhook",StripeWebhookAPIView.as_view()),
+    # path("payments/create-NP/",CreateNPPaymentAPIView.as_view(),name="CREATE NP Kakebarai"),
+    # path("NP/webhook/",NPPaymentWebhookAPIView.as_view(),name="NP_webhook"),
      
     path("admin/payments/", AdminPaymentListAPIView.as_view()),
     path("admin/payments/detail/", AdminPaymentDetailAPIView.as_view()),

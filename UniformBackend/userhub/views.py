@@ -6,28 +6,19 @@ from uniformAdmin.models import AdminUser
 from django.utils.timezone import now
 from rest_framework.permissions import IsAuthenticated ,AllowAny
 from .utils import *
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404
 from django.conf import settings
 from .serializers import*
-import logging,uuid
+import logging
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from django.core.mail import send_mail
-from django.conf import settings
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 from decimal import Decimal
-from django.db.models import Count
 from django.utils.dateparse import parse_date
 from .payment import CustomPagination
 from uniformAdmin.signal import *
-# from django.utils import timezone
 import re
-import logging
 from uniformAdmin.models import *
-from rest_framework.permissions import AllowAny
-from django.utils.http import urlsafe_base64_decode
 logger = logging.getLogger(__name__)
 
 
@@ -114,7 +105,7 @@ class SignupAPIView(APIView):
 
 
 class LoginAPIView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     def post(self, request):
         
         try:
@@ -869,6 +860,15 @@ class CartListAPIView(APIView):
                     "previousPage": False
                 }
             }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": str(e),
+                "data": [],
+                "pagination": None
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # UPDATE
 class UpdateCartItemAPIView(APIView):
@@ -996,284 +996,319 @@ class CreateOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        data = request.data
-        user = request.user
-
-        customer_data = data.get("customer", {})
-        address_data = data.get("delivery_address", {})
-        payment_data = data.get("payment", {})
-        cart_id = data.get("cart_id")
-
-        if not cart_id:
-            return Response({"error": "cart_id is required."}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
-            cart = Cart.objects.get(id=cart_id, user=user, is_active=True)
-        except Cart.DoesNotExist:
-            return Response({"error": "Cart not found."}, status=status.HTTP_400_BAD_REQUEST)
+            data = request.data
+            user = request.user
 
-        customer, _ = CustomerDetails.objects.update_or_create(
-            user=user,
-            defaults={
-                "first_name": customer_data.get("first_name"),
-                "last_name": customer_data.get("last_name"),
-                "email": customer_data.get("email"),
-                "phone": customer_data.get("phone"),
-                "address_line_1": address_data.get("address_line_1"),
-                "address_line_2": address_data.get("address_line_2"),
-                "city": address_data.get("city"),
-                "postal_code": address_data.get("postal_code"),
-                "country": address_data.get("country"),
-                "payment_method": payment_data.get("payment_method"),
-            }
-        )
+            customer_data = data.get("customer", {})
+            address_data = data.get("delivery_address", {})
+            payment_data = data.get("payment", {})
+            cart_id = data.get("cart_id")
 
-        cart_items = cart.items.all()
-        if not cart_items.exists():
-            return Response({"error": "No items found in this cart."}, status=status.HTTP_400_BAD_REQUEST)
+            if not cart_id:
+                return Response({"error": "cart_id is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-
-        total_amount = sum((item.total_price for item in cart_items), Decimal("0.00"))
-        discount_amount = Decimal("0.00")
-        rental_data = data.get("rental", {})
-        start_date = parse_date(rental_data.get("start_date"))
-        return_date = parse_date(rental_data.get("return_date"))
-
-        if not start_date or not return_date or return_date < start_date:
-            return Response({"error": "Invalid rental dates."}, status=status.HTTP_400_BAD_REQUEST)
-
-        
-        promocode_data = data.get("promocode")
-        promocode = None
-        original_amount = total_amount
-        now = timezone.now()
-
-        if promocode_data and promocode_data.get("code"):
-            code = promocode_data.get("code")
             try:
-                promocode = Promocode.objects.get(
-                    promocodeName=code,
-                    isActive=True,
-                    isDeleted=False
-                )
-            except Promocode.DoesNotExist:
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "Promocode not found or invalid."
-                }, status=400)
+                cart = Cart.objects.get(id=cart_id, user=user, is_active=True)
+            except Cart.DoesNotExist:
+                return Response({"error": "Cart not found."}, status=status.HTTP_400_BAD_REQUEST)
 
-        
-            if promocode.started_at and promocode.started_at > now:
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "Promocode not active yet."
-                }, status=400)
-
-            if promocode.ended_at and promocode.ended_at < now:
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "Promocode expired."
-                }, status=400)
-
-    
-            if Order.objects.filter(user=user, promocode=promocode).exists():
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "You have already used this promocode."
-                }, status=400)
-
-            # Calculate discount
-            if promocode.promocodeType == "fix_price" and promocode.amount:
-                discount_amount = Decimal(promocode.amount)
-            elif promocode.promocodeType == "discount" and promocode.amount:
-                discount_amount = original_amount * (Decimal(promocode.amount) / 100)
-
-            total_amount = original_amount - discount_amount
-
-    
-        if total_amount < 0:
-            total_amount = Decimal("0.00")
-
-        # Create order
-        order = Order.objects.create(
-            user=user,
-            cart=cart,
-            customer=customer,
-            Payment_method=payment_data.get("payment_method"),
-            total_amount=total_amount,
-            status="created",   
-            order_type="uniform",
-            promocode=promocode
-        )
-
-        order.start_date = start_date
-        order.return_date = return_date
-        order.save()
-
-        create_admin_order_notification(
-                instance=order,
-                title=f"New Order created: {order.order_id }",
-                message=f"A new Order request has been created by {order.user}.",
-                priority="high",
-                object_id=order.order_id 
+            customer, _ = CustomerDetails.objects.update_or_create(
+                user=user,
+                defaults={
+                    "first_name": customer_data.get("first_name"),
+                    "last_name": customer_data.get("last_name"),
+                    "email": customer_data.get("email"),
+                    "phone": customer_data.get("phone"),
+                    "address_line_1": address_data.get("address_line_1"),
+                    "address_line_2": address_data.get("address_line_2"),
+                    "city": address_data.get("city"),
+                    "postal_code": address_data.get("postal_code"),
+                    "country": address_data.get("country"),
+                    "payment_method": payment_data.get("payment_method"),
+                }
             )
 
-    
-        response_data = {
-            "cart": {
-                "cart_id": cart.id,
-                "items": [{"id": item.id, "total_price": float(item.total_price)} for item in cart_items]
-            },
-            "customer": {
-                "first_name": customer.first_name,
-                "last_name": customer.last_name,
-                "email": customer.email,
-                "phone": customer.phone
-            },
-            "delivery_address": {
-                "address_line_1": customer.address_line_1,
-                "address_line_2": customer.address_line_2,
-                "city": customer.city,
-                "postal_code": customer.postal_code,
-                "country": customer.country
-            },
-            "rental": {
-                "start_date": start_date.strftime("%Y-%m-%d"),
-                "return_date": return_date.strftime("%Y-%m-%d"),
-                "duration_days": (return_date - start_date).days + 1
-            },
-            "payment": {
-                "payment_method": customer.payment_method
-            },
-            "promocode": {
-                "code": promocode.promocodeName if promocode else None
-            },
-            "order": {
-                "order_id": str(order.order_id),
-                "total_amount": float(total_amount),
-                "discount": float(discount_amount),
-                "order_status": order.status
+            cart_items = cart.items.all()
+            if not cart_items.exists():
+                return Response({"error": "No items found in this cart."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+            total_amount = sum((item.total_price for item in cart_items), Decimal("0.00"))
+            discount_amount = Decimal("0.00")
+            rental_data = data.get("rental", {})
+            start_date = parse_date(rental_data.get("start_date"))
+            return_date = parse_date(rental_data.get("return_date"))
+
+            if not start_date or not return_date or return_date < start_date:
+                return Response({"error": "Invalid rental dates."}, status=status.HTTP_400_BAD_REQUEST)
+
+            
+            promocode_data = data.get("promocode")
+            promocode = None
+            original_amount = total_amount
+            now = timezone.now()
+
+            if promocode_data and promocode_data.get("code"):
+                code = promocode_data.get("code")
+                try:
+                    promocode = Promocode.objects.get(
+                        promocodeName=code,
+                        isActive=True,
+                        isDeleted=False
+                    )
+                except Promocode.DoesNotExist:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "error": "Promocode not found or invalid."
+                    }, status=400)
+
+            
+                if promocode.started_at and promocode.started_at > now:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "error": "Promocode not active yet."
+                    }, status=400)
+
+                if promocode.ended_at and promocode.ended_at < now:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "error": "Promocode expired."
+                    }, status=400)
+
+        
+                if Order.objects.filter(user=user, promocode=promocode).exists():
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "error": "You have already used this promocode."
+                    }, status=400)
+
+                # Calculate discount
+                if promocode.promocodeType == "fix_price" and promocode.amount:
+                    discount_amount = Decimal(promocode.amount)
+                elif promocode.promocodeType == "discount" and promocode.amount:
+                    discount_amount = original_amount * (Decimal(promocode.amount) / 100)
+
+                total_amount = original_amount - discount_amount
+
+        
+            if total_amount < 0:
+                total_amount = Decimal("0.00")
+
+            # Create order
+            order = Order.objects.create(
+                user=user,
+                cart=cart,
+                customer=customer,
+                Payment_method=payment_data.get("payment_method"),
+                total_amount=total_amount,
+                status="created",   
+                order_type="uniform",
+                promocode=promocode
+            )
+
+            order.start_date = start_date
+            order.return_date = return_date
+            order.save()
+
+            create_admin_order_notification(
+                    instance=order,
+                    title=f"New Order created: {order.order_id }",
+                    message=f"A new Order request has been created by {order.user}.",
+                    priority="high",
+                    object_id=order.order_id 
+                )
+
+            response_data = {
+                "cart": {
+                    "cart_id": cart.id,
+                    "items": [{"id": item.id, "total_price": float(item.total_price)} for item in cart_items]
+                },
+                "customer": {
+                    "first_name": customer.first_name,
+                    "last_name": customer.last_name,
+                    "email": customer.email,
+                    "phone": customer.phone
+                },
+                "delivery_address": {
+                    "address_line_1": customer.address_line_1,
+                    "address_line_2": customer.address_line_2,
+                    "city": customer.city,
+                    "postal_code": customer.postal_code,
+                    "country": customer.country
+                },
+                "rental": {
+                    "start_date": start_date.strftime("%Y-%m-%d"),
+                    "return_date": return_date.strftime("%Y-%m-%d"),
+                    "duration_days": (return_date - start_date).days + 1
+                },
+                "payment": {
+                    "payment_method": customer.payment_method
+                },
+                "promocode": {
+                    "code": promocode.promocodeName if promocode else None
+                },
+                "order": {
+                    "order_id": str(order.order_id),
+                    "total_amount": float(total_amount),
+                    "discount": float(discount_amount),
+                    "order_status": order.status
+                }
             }
-        }
 
-        return Response({
-            "status": True,
-            "statusCode": 201,
-            "message": "Order created successfully",
-            "data": response_data
-        })
-
+            return Response({
+                "status": True,
+                "statusCode": 201,
+                "message": "Order created successfully",
+                "data": response_data
+            },status=status.HTTP_201_CREATED)
+        except Exception:
+            return Response(
+                {
+                    "status": False,
+                    "statusCode": 500,
+                    "error": "Internal server error."
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class OrderSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        order_id = request.data.get("order_id")
-        if not order_id:
-            return Response(
-                {"error": "Order ID is required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
         try:
-            order = Order.objects.get(order_id=order_id, user=request.user)
-        except Order.DoesNotExist:
-            return Response(
-                {"error": "Order not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            order_id = request.data.get("order_id")
+            if not order_id:
+                return Response(
+                    {"error": "Order ID is required."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        customer = order.customer
-        cart_items = order.cart.items.all()  
+            try:
+                order = Order.objects.get(order_id=order_id, user=request.user)
+            except Order.DoesNotExist:
+                return Response(
+                    {"error": "Order not found."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
 
-        order_items_list = []
-        for item in cart_items:
-            order_items_list.append({
-                "name": item.product.productName,
-                "quantity": item.quantity,
-                "price_per_item": float(item.price),
-                "total_price": float(item.total_price),
-                "thumbnail": item.product.ProductImage.url if item.product.ProductImage else None
-            })
+            customer = order.customer
+            cart_items = order.cart.items.all()  
 
-        duration_days = (order.return_date - order.start_date).days + 1
+            order_items_list = []
+            for item in cart_items:
+                order_items_list.append({
+                    "name": item.product.productName,
+                    "quantity": item.quantity,
+                    "price_per_item": float(item.price),
+                    "total_price": float(item.total_price),
+                    "thumbnail": item.product.ProductImage.url if item.product.ProductImage else None
+                })
+
+            duration_days = (order.return_date - order.start_date).days + 1
 
 
-        subtotal = float(sum(item.total_price for item in cart_items))
-        total_amount = float(order.total_amount)
-        discount = float(subtotal - total_amount) if subtotal > total_amount else 0.0
+            subtotal = float(sum(item.total_price for item in cart_items))
+            total_amount = float(order.total_amount)
+            discount = float(subtotal - total_amount) if subtotal > total_amount else 0.0
 
-        response_data = {
-            "contact_information": {
-                "name": f"{customer.first_name} {customer.last_name}",
-                "email": customer.email,
-                "phone": customer.phone
-            },
-            "delivery_address": {
-                "address": f"{customer.address_line_1}, "
-                           f"{customer.address_line_2}, "
-                           f"{customer.city}, "
-                           f"{customer.postal_code}, "
-                           f"{customer.country}"
-            },
-            "rental_period": {
-                "start": order.start_date.strftime("%Y-%m-%d"),
-                "return": order.return_date.strftime("%Y-%m-%d"),
-                "duration": f"{duration_days} days"
-            },
-            "order_items": order_items_list,
-            "payment": {
-                "payment_method": order.Payment_method 
-            },
-            "promocode": {
-                "code": order.promocode.promocodeName if order.promocode else None
-            },
-            "order_summary": {
-                "subtotal": subtotal,
-                "discount": discount,
-                "total": total_amount
+            response_data = {
+                "contact_information": {
+                    "name": f"{customer.first_name} {customer.last_name}",
+                    "email": customer.email,
+                    "phone": customer.phone
+                },
+                "delivery_address": {
+                    "address": f"{customer.address_line_1}, "
+                            f"{customer.address_line_2}, "
+                            f"{customer.city}, "
+                            f"{customer.postal_code}, "
+                            f"{customer.country}"
+                },
+                "rental_period": {
+                    "start": order.start_date.strftime("%Y-%m-%d"),
+                    "return": order.return_date.strftime("%Y-%m-%d"),
+                    "duration": f"{duration_days} days"
+                },
+                "order_items": order_items_list,
+                "payment": {
+                    "payment_method": order.Payment_method 
+                },
+                "promocode": {
+                    "code": order.promocode.promocodeName if order.promocode else None
+                },
+                "order_summary": {
+                    "subtotal": subtotal,
+                    "discount": discount,
+                    "total": total_amount
+                }
             }
-        }
 
-        return Response({
-            "status": True,
-            "statusCode": 200,
-            "message": "Order review fetched successfully",
-            "data": response_data
-        })
-
-
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Order review fetched successfully",
+                "data": response_data
+            })
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "statusCode": 500,
+                    "error": "Something went wrong while fetching order summary.",
+                    "details": str(e) 
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 class OrderListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        orders = Order.objects.filter(user=request.user).order_by('-created_at')
+        try:
+            orders = Order.objects.filter(user=request.user).order_by('-created_at')
 
-        if not orders.exists():
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "No orders found",
-                "data": [],
-                "pagination": {
-                    "currentPage": 1,
-                    "limit": 0,
-                    "totalItems": 0,
-                    "totalPages": 0,
-                    "nextPage": False,
-                    "previousPage": False
-                }
-            }, status=status.HTTP_200_OK)
+            if not orders.exists():
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "No orders found",
+                    "data": [],
+                    "pagination": {
+                        "currentPage": 1,
+                        "limit": 0,
+                        "totalItems": 0,
+                        "totalPages": 0,
+                        "nextPage": False,
+                        "previousPage": False
+                    }
+                }, status=status.HTTP_200_OK)
 
-        paginator = CustomPagination()
-        paginated_orders = paginator.paginate_queryset(orders, request)
-        serializer = OrderSerializer(paginated_orders, many=True)
-        return paginator.get_paginated_response(serializer.data)
+            paginator = CustomPagination()
+            paginated_orders = paginator.paginate_queryset(orders, request)
+            serializer = OrderSerializer(paginated_orders, many=True)
 
+            paginated_response = paginator.get_paginated_response(serializer.data)
+            paginated_response.data["status"] = True
+            paginated_response.data["statusCode"] = 200
+            paginated_response.data["message"] = "Order list fetched successfully"
+
+            return paginated_response
+
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "statusCode": 500,
+                    "message": "Something went wrong while fetching order list",
+                    "error": str(e)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+  
 
 
 class OrderDetailAPIView(APIView):
