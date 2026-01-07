@@ -50,7 +50,7 @@ class SignupAPIView(APIView):
                 
                  # EMAIL VERIFICATION 
                 uid = urlsafe_base64_encode(force_bytes(user.id))                
-                verify_link = request.build_absolute_uri(f"/api/v1/userhub/verify-email/{uid}/")
+                verify_link = request.build_absolute_uri(f"http://localhost:7001/email-verification-page/?user_id={uid}")
 
 
                 send_mail(
@@ -390,7 +390,7 @@ class ForgotPasswordAPIView(APIView):
             user_id = user.id
 
             # Build reset link
-            frontend_url = "http://localhost:7000/auth/reset-password"
+            frontend_url = "http://localhost:7001/reset-password"
             reset_link = f"{frontend_url}?user_id={user_id}"
 
             # -------------------------------
