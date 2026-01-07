@@ -11,7 +11,7 @@ from datetime import date
 class UserSignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, min_length=6)
     email = serializers.EmailField(required=True)
-    userName = serializers.CharField(required=True, max_length=255)
+    userName = serializers.CharField(required=False, max_length=255)
     userType = serializers.CharField(required=True)
 
     class Meta:

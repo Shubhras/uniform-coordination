@@ -143,8 +143,10 @@ class ProfileAPIView(APIView):
     permission_classes = [IsAdminUserJWT]
 
     def get(self, request):
-        user_id = request.auth.get("user_id")
-        admin_user = AdminUser.objects.get(id=user_id)
+        admin_user = request.user   # already authenticated
+        # serializer = AdminDetailSerializer(admin_user)
+        # user_id = request.auth.get("user_id")
+        # admin_user = AdminUser.objects.get(id=user_id)
         print("DEBUG request.user:", request.user)
         print("DEBUG type:", type(request.user))
         print("DEBUG role obj:", getattr(request.user, 'role', None))

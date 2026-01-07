@@ -362,23 +362,24 @@ class ForgotPasswordAPIView(APIView):
     def post(self, request):
         try:
             email = request.data.get("email")
+            user_type = request.data.get("userType")  
 
-            if not email:
+            if not email and not user_type:
                 return Response({
                     "status": False,
                     "statusCode": 400,
                     "message": "Validation failed.",
-                    "error": {"email": "Email is required."}
+                    "error": {"email": "Email and user_type are required."}
                 }, status=400)
 
             # Check user exists
             try:
-                user = Users.objects.get(email=email, isDeleted=False)
+                user = Users.objects.get(email=email, isDeleted=False, userType=user_type)
             except Users.DoesNotExist:
                 return Response({
                     "status": False,
                     "statusCode": 400,
-                    "message": "No account found with this email."
+                    "message": "No account found with this email and user type."
                 }, status=400)
 
             # Create reset token
