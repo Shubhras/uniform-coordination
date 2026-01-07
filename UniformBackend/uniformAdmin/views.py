@@ -319,7 +319,7 @@ class TableThemeCreateAPIView(APIView):
     
     def post(self,request):
         try:
-            serializer = TableThemeSerializer(data=request.data)
+            serializer = TableThemeSerializer(data=request.data,context={"request": request})
             if serializer.is_valid():
                 serializer.save()
                 return Response({
@@ -351,7 +351,7 @@ class TableThemeListAPIView(APIView):
     def get(self,request):
         try:
             themes = TableTheme.objects.filter(isDeleted=False)
-            serializer = TableThemeSerializer(themes,many=True)
+            serializer = TableThemeSerializer(themes,many=True, context={"request": request})
             return Response({
                 "statusCode":200,
                 "status":True,
@@ -371,16 +371,8 @@ class TableThemeListAPIView(APIView):
 class TableThemeDetailAPIView(APIView):
     def get(self, request, id):
         try:
-            theme = TableTheme.objects.get(id=id, isDeleted=False)
-            if not theme.is_active:
-                return Response({
-                    "status": False,
-                    "statusCode": 403,
-                    "message": "This table theme is inactive or deleted",
-                    "data": None
-                }, status=status.HTTP_403_FORBIDDEN)
-
-            serializer = TableThemeSerializer(theme)
+            theme = TableTheme.objects.get(id=id, isDeleted=False,)
+            serializer = TableThemeSerializer(theme,context={"request": request})
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -396,78 +388,103 @@ class TableThemeDetailAPIView(APIView):
                 "data": None
             }, status=status.HTTP_404_NOT_FOUND)
         
-
 class TableThemeUpdateAPIView(APIView):
     def put(self, request, id):
         try:
             theme = TableTheme.objects.get(id=id, isDeleted=False)
-        except TableTheme.DoesNotExist:
-            return Response({
-                "status": False,
-                "statusCode": 404,
-                "message": "Table theme not found",
-                "data": None
-            }, status=status.HTTP_404_NOT_FOUND)
 
-        if not theme.is_active:
-            return Response({
-                "status": False,
-                "statusCode": 403,
-                "message": "This table theme is inactive and cannot be updated",
-                "data": None
-            }, status=status.HTTP_403_FORBIDDEN)
+            serializer = TableThemeSerializer(
+                theme,
+                data=request.data,
+                partial=True,  # KEY FIX
+                context={"request": request}
+            )
 
-        # Partial update
-        serializer = TableThemeSerializer(theme, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Table theme updated successfully",
-                "data": serializer.data
-            }, status=status.HTTP_200_OK)
-        else:
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "Table theme updated successfully",
+                    "data": serializer.data
+                }, status=status.HTTP_200_OK)
+
             return Response({
                 "status": False,
                 "statusCode": 400,
                 "message": "Validation error",
                 "errors": serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
+
+        except TableTheme.DoesNotExist:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "Table theme not found"
+            }, status=status.HTTP_404_NOT_FOUND)
         
 
 class TableThemeDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
-    def delete(self, request, pk):
-        try:
-            theme = TableTheme.objects.filter(pk=pk, isDeleted=False).first()
-            if not theme:
+    def delete(self, request, pk=None):
+        ids = request.data.get('ids', None)  
+
+        # Single delete by URL pk
+        if pk:
+            try:
+                theme = TableTheme.objects.get(pk=pk, isDeleted=False)
+                theme.isDeleted = True
+                theme.save()
+
                 return Response({
-                    "status": False,
+                    "statusCode": 204,
+                    "status": True,
+                    "message": "Table theme deleted successfully.",
+                    "data": None
+                }, status=status.HTTP_204_NO_CONTENT)
+
+            except TableTheme.DoesNotExist:
+                return Response({
                     "statusCode": 404,
-                    "message": "Table theme not found."
-                }, status=status.HTTP_200_OK)
+                    "status": False,
+                    "message": "Table theme not found.",
+                    "data": None
+                }, status=status.HTTP_404_NOT_FOUND)
 
-            theme.isDeleted = True
-            theme.save()
-
+        # Delete all
+        if ids == "all":
+            queryset = TableTheme.objects.filter(isDeleted=False)
+            count = queryset.count()
+            queryset.update(isDeleted=True)
             return Response({
-                "status": True,
                 "statusCode": 200,
-                "message": "Table theme deleted successfully."
+                "status": True,
+                "message": f"All {count} table themes deleted successfully.",
+                "data": None
             }, status=status.HTTP_200_OK)
 
-        except Exception as exc:
+        # Bulk delete by list of IDs
+        if not ids or not isinstance(ids, list):
             return Response({
+                "statusCode": 400,
                 "status": False,
-                "statusCode": 500,
-                "message": "Server error while deleting table theme.",
-                "error": str(exc)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        
+                "message": "Please provide a list of IDs in 'ids' field or 'all'.",
+                "data": None
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = TableTheme.objects.filter(id__in=ids, isDeleted=False)
+        count = queryset.count()
+        queryset.update(isDeleted=True)
+
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "message": f"{count} table themes deleted successfully.",
+            "data": None
+        }, status=status.HTTP_200_OK)
+
 # products/views/update_product.py
 class AdminCreateProductAPIView(APIView):
     permission_classes = [IsAuthenticated]

@@ -116,6 +116,7 @@ class SignupAPIView(APIView):
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
+        
         try:
             email = request.data.get("email")
             password = request.data.get("password")
@@ -573,6 +574,7 @@ class UpdatePasswordAPIView(APIView):
 
 
 class VerifyUserAPIView(APIView):
+    
     def post(self, request):
         serializer = VerifyUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

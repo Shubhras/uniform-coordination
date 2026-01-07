@@ -475,14 +475,44 @@ class SubCategorySerializer(serializers.ModelSerializer):
 
         return attrs
 
-
 class TableThemeSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(required=False)
+
     class Meta:
         model = TableTheme
-        fields = '__all__'
+        fields = [
+            'id',
+            'title',
+            'description',
+            'image',
+            'order',
+            'is_active',
+            'isDeleted',
+            'created_at',
+            'updated_at'
+        ]
 
+    def create(self, validated_data):
+        if 'is_active' not in self.initial_data:
+            validated_data['is_active'] = True
+        return super().create(validated_data)
 
+    def update(self, instance, validated_data):
+    
+        if 'is_active' not in self.initial_data:
+            validated_data.pop('is_active', None)
+        return super().update(instance, validated_data)
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        if instance.image and request:
+            data['image'] = request.build_absolute_uri(instance.image.url)
+        else:
+            data['image'] = None
+        return data
+
+    
 class ProductSerializer(serializers.ModelSerializer):
     parts = serializers.PrimaryKeyRelatedField(
         queryset=Parts.objects.filter(isActive=True, isDeleted=False),

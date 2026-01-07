@@ -145,10 +145,10 @@ urlpatterns = [
 
     #<----------------------Table_Theme ---------------------------->
     path('tabletheme/create/',TableThemeCreateAPIView.as_view(), name = 'Table_Theme-create'),
-    path('tabletheme/get/',TableThemeListAPIView.as_view(), name = 'Table_Theme-get-list'),
-    path('tabletheme/<int:id>/',TableThemeDetailAPIView.as_view(), name = 'Table_Theme-get-detail'),
-    path('tabletheme<int:id>/',TableThemeUpdateAPIView.as_view(), name = 'Table_Theme-update'),
-    path('tabletheme/delete.',TableThemeDeleteAPIView.as_view(), name = 'Table_Theme-delete'),
+    path('tabletheme/get-list/',TableThemeListAPIView.as_view(), name = 'Table_Theme-get-list'),
+    path('tabletheme/<int:id>/get/',TableThemeDetailAPIView.as_view(), name = 'Table_Theme-get-detail'),
+    path('tabletheme/<int:id>/update/',TableThemeUpdateAPIView.as_view(), name = 'Table_Theme-update'),
+    path('tabletheme/delete/',TableThemeDeleteAPIView.as_view(), name = 'Table_Theme-delete'),
    
    
 
