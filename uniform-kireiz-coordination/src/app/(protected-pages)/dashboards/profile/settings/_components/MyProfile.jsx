@@ -35,7 +35,7 @@ const MyProfile = () => {
             {/* ================= Profile Card ================= */}
             <div className="relative bg-[#F6FAFF] rounded-2xl shadow-md md:p-6 p-2 flex flex-col lg:flex-row gap-6">
 
-                {/* Avatar Column */}
+
                 {/* Avatar Column */}
                 <div className="flex flex-col items-center lg:items-start">
 
@@ -149,6 +149,52 @@ const MyProfile = () => {
                         <HiCheckCircle size={14} />
                         Verified Account
                     </span>
+                </div>
+            </div>
+
+            {/* ================= Middle Section ================= */}
+            <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden">
+
+                {/* Header */}
+                <div className="flex justify-between items-center px-6 py-4 border-b border-[#E2E8F0]">
+                    <div>
+                        <h4 className="text-sm font-semibold text-[#003562]">
+                            Quotation Status
+                        </h4>
+                        <p className="text-xs text-gray-500 mt-1">
+                            RQ-2025-0194 · November 26, 2025
+                        </p>
+                    </div>
+
+                    <Button
+                        size="sm"
+                        className="bg-[#1C2C56] hover:bg-[#0c2452] text-white"
+                    >
+                        View Design
+                    </Button>
+                </div>
+
+                {/* List */}
+                <div className="p-6 space-y-3 bg-[#F6FAFF]">
+                    {[
+                        'Acme Corp',
+                        'Umbrella Corp',
+                        'Cyberdyne',
+                    ].map((company, i) => (
+                        <div
+                            key={i}
+                            className="flex justify-between items-center bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl px-5 py-4"
+                        >
+                            <p className="text-sm font-medium text-[#0F172A]">
+                                {company}
+                            </p>
+
+                            <button className="flex items-center gap-2 text-xs text-[#2563A8] font-medium">
+                                <FiFileText size={14} />
+                                View PDF
+                            </button>
+                        </div>
+                    ))}
                 </div>
             </div>
 

@@ -5,7 +5,7 @@ import SignUp from '@/components/auth/SignUp'
 import { apiSignUp } from '@/services/AuthService'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import EmailVerificationPopup from '@/app/(public-pages)/email-verification-page/EmailVerificationPage'
+// import EmailVerificationPopup from '@/app/(public-pages)/email-verification-page/EmailVerificationPage'
 
 const SignUpClient = () => {
     const router = useRouter()

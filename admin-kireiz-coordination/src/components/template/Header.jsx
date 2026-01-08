@@ -46,9 +46,9 @@ import Drawer from "@/components/ui/Drawer";
 import Image from "next/image";
 import Link from "next/link";
 import { TbMenu2 } from "react-icons/tb";
-import NavList from '@/app/(public-pages)/kireiz-form/components/NavList';
-import AuthButtons from '@/app/(public-pages)/kireiz-form/components/AuthButtons';
-import NavOtherList from '@/app/(public-pages)/kireiz-form/components/NavOtherList';
+import NavList from '@/app/(public-pages)/admin-form/components/NavList';
+import AuthButtons from '@/app/(public-pages)/admin-form/components/AuthButtons';
+import NavOtherList from '@/app/(public-pages)/admin-form/components/NavOtherList';
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 const navMenu = [
     { title: "Home", value: "home", to: "home", url: "/kireiz-form" },

@@ -100,7 +100,7 @@ const Drawer = (props) => {
                     [placement]: isOpen ? 0 : motionStyle[placement],
                 }}
             >
-                {title || closable ? (
+                {/* {title || closable ? (
                     <div className={classNames('drawer-header', headerClass)}>
                         {typeof title === 'string' ? (
                             <h4>{title}</h4>
@@ -109,7 +109,7 @@ const Drawer = (props) => {
                         )}
                         {closable && renderCloseButton}
                     </div>
-                ) : null}
+                ) : null} */}
                 <div className={classNames('drawer-body', bodyClass)}>
                     {children}
                 </div>
