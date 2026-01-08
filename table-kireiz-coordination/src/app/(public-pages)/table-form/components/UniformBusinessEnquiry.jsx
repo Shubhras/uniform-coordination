@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { LuPalette, LuRocket } from "react-icons/lu";
@@ -51,10 +51,18 @@ const bottomCards = [
 
 ];
 
-const UniformBusinessEnquiry = () => {
+const UniformBusinessEnquiry = ({ categories = [] }) => {
   const [cardsPerView, setCardsPerView] = useState(3);
   const router = useRouter();
   const [index, setIndex] = useState(0);
+
+  const cards = useMemo(() => {
+    return categories.map((item) => ({
+      img: item.categoryImage,
+      title: item.categoryName,
+      desc: item.description,
+    }));
+  }, [categories]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -212,7 +220,7 @@ const UniformBusinessEnquiry = () => {
       {/* INDUSTRY SLIDER */}
       <div className="mt-6 overflow-hidden pb-12 ">
         <div className="flex gap-6 transition-transform duration-500 ease-in-out justify-center ">
-          {bottomCards
+          {cards
             .slice(index, index + cardsPerView)
             .map((item, i) => (
               <div
@@ -240,6 +248,7 @@ const UniformBusinessEnquiry = () => {
                     fill
                     className="object-cover"
                     priority={i === 0}
+                    unoptimized
                   />
 
                   {/* OVERLAY BUTTON */}

@@ -58,6 +58,18 @@ export const publicRoutes = {
         key: 'terms-and-condition',
         authority: [],
     },
+     '/email-verification-page': {
+        key: 'email-verification-page',
+        authority: [],
+    },
+    '/account-verified-popup': {
+        key: 'account-verified-popup',
+        authority: [],
+    },
+     '/reset-password': {
+        key: 'reset-password',
+        authority: [],
+    },
 
 }
 

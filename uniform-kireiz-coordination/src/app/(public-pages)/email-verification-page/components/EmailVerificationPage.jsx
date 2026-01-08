@@ -5,7 +5,7 @@ import Image from "next/image";
 import { HiBadgeCheck } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 
-const EmailVerifiedPage = () => {
+const EmailVerificatinoPage = () => {
     const router = useRouter();
 
     return (
@@ -72,4 +72,4 @@ const EmailVerifiedPage = () => {
     );
 };
 
-export default EmailVerifiedPage;
+export default EmailVerificatinoPage;
