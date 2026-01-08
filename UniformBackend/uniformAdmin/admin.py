@@ -237,5 +237,11 @@ class SubCategoryAdmin(admin.ModelAdmin):
     ordering = ("-created_at",)
     
     
-    
-    
+
+@admin.register(Colors)
+class ColorsAdmin(admin.ModelAdmin):
+    list_display = ("colorName", "colorCode", "isActive", "isDeleted", "created_at")
+    list_filter = ("isActive", "isDeleted")
+    search_fields = ("colorName", "colorCode")
+    filter_horizontal = ("compatibleFabric",)  
+
