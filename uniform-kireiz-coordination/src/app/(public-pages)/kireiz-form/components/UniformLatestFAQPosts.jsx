@@ -30,7 +30,7 @@
 //   return (
 //     <section className="relative mx-auto px-5 md:px-8 lg:px-12 py-16 md:py-0 bg-white">
 //       {/* <Container> */}
-      
+
 //         <div className="text-center mb-14">
 //           <h2 className="text-3xl md:text-4xl font-semibold text-[#1C2C56] mb-3">
 //             FAQ’s
@@ -102,9 +102,8 @@ const UniformLatestFAQPosts = ({ faqs = [], loading }) => {
           return (
             <div
               key={faq.id}
-              className={`rounded-xl px-6 py-5 ${
-                isOpen ? "bg-white shadow-md" : "bg-[#F5F7FB]"
-              }`}
+              className={`rounded-xl px-6 py-5 ${isOpen ? "bg-white shadow-md" : "bg-[#F5F7FB]"
+                }`}
             >
               <button
                 onClick={() => setActiveIndex(isOpen ? null : index)}
@@ -128,6 +127,12 @@ const UniformLatestFAQPosts = ({ faqs = [], loading }) => {
             </div>
           );
         })}
+        {/* Empty State (Same logic as Blogs) */}
+        {!faqs.length && (
+          <p className="text-center text-gray-500 mt-10">
+            No FAQs available
+          </p>
+        )}
       </div>
     </section>
   );

@@ -1,20 +1,42 @@
 'use client'
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState,useEffect } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import Button from '@/components/ui/Button'
 import { FiEdit2, FiLock, FiMail, FiBox } from 'react-icons/fi'
 import { HiCheckCircle } from 'react-icons/hi'
+import { useSession } from 'next-auth/react'
 import {
     FiChevronRight,
     FiFileText,
     FiDownload,
 } from 'react-icons/fi'
 import { GoArrowRight } from 'react-icons/go'
+import { apiGetProfile } from '@/services/AuthProfileService'
 
 const MyProfile = () => {
     const fileRef = useRef(null)
+    const { data: session } = useSession()
+    const [profile, setProfile] = useState(null)
     const [image, setImage] = useState(null)
+    const [loading, setLoading] = useState(true)
+    useEffect(() => {
+        if (!session?.accessToken) return
+        const fetchProfile = async () => {
+            try {
+                const res = await apiGetProfile(session.accessToken)
+                //console.log('resssssssssss', res);
+                setProfile(res?.data)
+                setImage(res.data.profileImage)
+            } catch (error) {
+                console.error('Profile API error:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
 
+        fetchProfile()
+    }, [session?.accessToken])
+    //console.log('11',session.accessToken)
     const handleSelectImage = (e) => {
         const file = e.target.files[0]
         if (!file) return
@@ -97,18 +119,18 @@ const MyProfile = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-10">
                             <div>
                                 <p className="text-xs text-gray-500">First Name</p>
-                                <p className="text-sm font-medium text-[#0F172A]">John</p>
+                                <p className="text-sm font-medium text-[#0F172A]">{profile?.firstName || '-'}</p>
                             </div>
 
                             <div>
                                 <p className="text-xs text-gray-500">Last Name</p>
-                                <p className="text-sm font-medium text-[#0F172A]">Doe</p>
+                                <p className="text-sm font-medium text-[#0F172A]">{profile?.lastName || '-'}</p>
                             </div>
 
                             <div>
                                 <p className="text-xs text-gray-500">Email Address</p>
                                 <p className="text-sm font-medium flex items-center gap-1 text-[#0F172A]">
-                                    john@company.com
+                                {profile?.email || '-'}
                                     <HiCheckCircle className="text-green-500" />
                                 </p>
                             </div>
@@ -116,14 +138,14 @@ const MyProfile = () => {
                             <div>
                                 <p className="text-xs text-gray-500">Phone Number</p>
                                 <p className="text-sm font-medium text-[#0F172A]">
-                                    +81 90-1234-5678
+                                {profile?.phone || '-'}
                                 </p>
                             </div>
 
                             <div>
                                 <p className="text-xs text-gray-500">Position</p>
                                 <p className="text-sm font-medium text-[#0F172A]">
-                                    Manager
+                                {profile?.roleName || '-'}
                                 </p>
                             </div>
                         </div>
