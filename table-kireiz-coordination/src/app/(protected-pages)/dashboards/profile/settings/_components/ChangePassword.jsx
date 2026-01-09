@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -9,6 +9,12 @@ import { Form, FormItem } from '@/components/ui/Form'
 import { HiCheck } from 'react-icons/hi'
 import PasswordInput from '@/components/shared/PasswordInput'
 import { FiLock } from 'react-icons/fi'
+
+/* ✅ ADDED (same as reference file) */
+import { useSession } from 'next-auth/react'
+import { apiUpdatePassword } from '@/services/AuthProfileService'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
 
 /* ----------------_toggle schema ---------------- */
 const passwordSchema = z
@@ -30,6 +36,10 @@ const validationSchema = z
 
 /* ---------------- component ---------------- */
 const ChangePassword = () => {
+    /* ✅ ADDED */
+    const { data: session } = useSession()
+    const [loading, setLoading] = useState(false)
+
     const {
         handleSubmit,
         control,
@@ -54,10 +64,32 @@ const ChangePassword = () => {
         [newPassword, confirmPassword],
     )
 
-    // ✅ ONLY CHANGE IS HERE
+    // ✅ API IMPLEMENTED (same pattern as reference)
     const onSubmit = async (values) => {
-        console.log('Change Password Form Data:', values)
+        try {
+            setLoading(true)
+            if (!session?.accessToken) return
+
+            const payload = {
+                currentPassword: values.currentPassword,
+                newPassword: values.newPassword,
+                confirmPassword: values.confirmPassword,
+            }
+
+            await apiUpdatePassword(session.accessToken, payload)
+
+            toast.push(
+                <Notification title="Password success!" type="success">
+                    Password updated successfully
+                </Notification>,
+            )
+        } catch (error) {
+            console.error('Password update failed:', error)
+        } finally {
+            setLoading(false)
+        }
     }
+
     const progressValue =
         [rules.length, rules.number, rules.symbol].filter(Boolean).length
 
@@ -165,7 +197,7 @@ const ChangePassword = () => {
                     </Button>
                     <Button
                         type="submit"
-                        loading={isSubmitting}
+                        loading={loading || isSubmitting}
                         size="sm"
                         className="bg-[#A0522D] hover:bg-[#8a5a75] px-6 text-white py-2 rounded-md"
                     >
@@ -174,7 +206,6 @@ const ChangePassword = () => {
                 </div>
             </Form>
         </div>
-
     )
 }
 
@@ -183,8 +214,9 @@ export default ChangePassword
 /* ---------------- helper ---------------- */
 const Rule = ({ label, active }) => (
     <div
-        className={`flex items-center gap-2 ${active ? 'text-green-600' : 'text-gray-400'
-            }`}
+        className={`flex items-center gap-2 ${
+            active ? 'text-green-600' : 'text-gray-400'
+        }`}
     >
         <HiCheck />
         <span>{label}</span>

@@ -16,6 +16,7 @@ const EmailVerificationPage = () => {
 
     const [loading, setLoading] = useState(true);
     const [isVerified, setIsVerified] = useState(false);
+    const [response, setResponse] = useState(null);
 
     const maskEmail = (email) => {
         if (!email) return "";
@@ -34,7 +35,9 @@ const EmailVerificationPage = () => {
             });
 
             if (res?.status || res?.data?.success) {
+                setResponse(res);
                 setIsVerified(true);
+                router.push("/sign-in")
             }
         } catch (error) {
             console.error("Email verification failed", error);
@@ -42,10 +45,6 @@ const EmailVerificationPage = () => {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        verifyUserEmail();
-    }, [userId]);
 
     return (
         <>
@@ -81,7 +80,7 @@ const EmailVerificationPage = () => {
                     {/* NOTE */}
                     <p className="text-sm text-gray-500 mt-4">
                         Please verify your email address.{" "}
-                        <span className="text-blue-600 underline cursor-pointer">
+                        <span className="text-blue-600 underline cursor-pointer" onClick={verifyUserEmail}>
                             Click here
                         </span>
                     </p>
@@ -111,6 +110,7 @@ const EmailVerificationPage = () => {
 
             {/* SUCCESS POPUP */}
             <AccountVerifiedPopup
+                response={response}
                 isOpen={isVerified}
                 onClose={() => setIsVerified(false)}
             />

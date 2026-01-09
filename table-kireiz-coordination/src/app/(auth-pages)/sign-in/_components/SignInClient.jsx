@@ -22,23 +22,30 @@ const SignInClient = () => {
     //     })
     // }
 
-     const router = useRouter()
+    const router = useRouter()
     const handleSignIn = async ({ values, setSubmitting, setMessage }) => {
         try {
-            console.log("SignInClient values:", values);
+            // console.log("SignInClient values:", values);
+            // setSubmitting(true)
+            // const response = await apiLogin(values)
+            // const data = response
+            // if (!data?.status) {
+            //     setMessage(data?.message || 'Invalid email or password')
+            //     return
+            // }
+            // toast.push(
+            //     <Notification title="Login success!" type="success">
+            //         Login successfully
+            //     </Notification>,
+            // )
+            //  router.push('/table-form');
             setSubmitting(true)
-            const response = await apiLogin(values)
-            const data = response
-            if (!data?.status) {
-                setMessage(data?.message || 'Invalid email or password')
-                return
-            }
-            toast.push(
-                <Notification title="Login success!" type="success">
-                    Login successfully
-                </Notification>,
-            )
-             router.push('/table-form');
+            onSignInWithCredentials(values, callbackUrl || '').then((data) => {
+                if (data?.error) {
+                    setMessage(data.error)
+                    setSubmitting(false)
+                }
+            })
         } catch (error) {
             const errorMessage =
                 error?.response?.data?.message ||
@@ -50,7 +57,6 @@ const SignInClient = () => {
             setSubmitting(false)
         }
     }
-
 
     const handleOAuthSignIn = async ({ type }) => {
         if (type === 'google') {

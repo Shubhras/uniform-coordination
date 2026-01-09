@@ -15,6 +15,7 @@ import { LuPalette } from 'react-icons/lu'
 const { MenuItem } = Menu
 
 const menuList = [
+        { label: 'My Profile', value: 'my-profile', icon: <TbUserSquare /> },
     { label: 'Personal Information', value: 'personal-information', icon: <TbUserSquare /> },
     { label: 'Change Password', value: 'change-password', icon: <FiLock /> },
     { label: 'Simulation History', value: 'simulation-history', icon: <LuPalette /> },

@@ -1,4 +1,4 @@
-import ApiService from './ApiService'
+import ApiService from "./ApiService";
 
 // export async function apiSignUp(data) {
 //     alert("Signup API called");
@@ -10,47 +10,51 @@ import ApiService from './ApiService'
 //     })
 // }
 export async function apiSignUp(data) {
-    const payload = {
-        ...data,
-        userType: "uniform",
-    }
-    return ApiService.fetchDataWithAxios({
-        url: '/v1/userhub/signup/',
-        method: 'post',
-        data: payload,
-    })
+  const payload = {
+    ...data,
+    userType: "uniform",
+  };
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/userhub/signup/",
+    method: "post",
+    data: payload,
+  });
 }
 
 /**
  * LOGIN
  */
 export async function apiLogin(data) {
-    const payload = {
-        ...data,
-        userType: 'uniform',
-    }
+  const payload = {
+    ...data,
+    userType: "uniform",
+  };
 
-    console.log('Login payload:', payload)
+  console.log("Login payload:", payload);
 
-    return ApiService.fetchDataWithAxios({
-        url: '/v1/userhub/login/',
-        method: 'post',
-        data: payload,
-    })
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/userhub/login/",
+    method: "post",
+    data: payload,
+  });
 }
 
 export async function apiForgotPassword(data) {
-    return ApiService.fetchDataWithAxios({
-        url: '/v1/userhub/forgot-password/',
-        method: 'post',
-        data,
-    })
+  const payload = {
+    ...data,
+    userType: "uniform",
+  };
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/userhub/forgot-password/",
+    method: "post",
+    data: payload,
+  });
 }
 
 export async function apiResetPassword(data) {
-    return ApiService.fetchDataWithAxios({
-        url: '/v1/userhub/reset-password/',
-        method: 'post',
-        data,
-    })
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/userhub/reset-password/",
+    method: "post",
+    data,
+  });
 }

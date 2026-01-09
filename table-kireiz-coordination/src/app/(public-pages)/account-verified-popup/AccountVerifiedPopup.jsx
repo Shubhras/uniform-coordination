@@ -4,10 +4,11 @@ import Button from '@/components/ui/Button'
 import Image from 'next/image'
 import { HiBadgeCheck } from 'react-icons/hi'
 import { useRouter } from 'next/navigation'
+import { Dialog } from '@/components/ui'
 
-const AccountVerifiedPopup = ({ isOpen, onClose }) => {
+const AccountVerifiedPopup = ({ response, isOpen, onClose }) => {
     const router = useRouter()
-
+    if (!response) return;
     return (
         <Dialog
             isOpen={isOpen}
@@ -18,7 +19,7 @@ const AccountVerifiedPopup = ({ isOpen, onClose }) => {
         >
 
             {/* CARD */}
-            <div className="bg-white rounded-xl px-10 py-12 text-center shadow-2xl w-full max-w-2xl">
+            <div className="px-10 py-12 text-center w-full max-w-2xl">
 
                 {/* LOGO + BRAND */}
                 <div className="flex items-center gap-3 mb-8">
@@ -38,12 +39,12 @@ const AccountVerifiedPopup = ({ isOpen, onClose }) => {
 
                 {/* VERIFIED MESSAGE */}
                 <div className="mx-auto flex items-center justify-center text-[#8a5a75] text-2xl font-semibold text-center mb-10">
-                    <span>
-                        Your account has been successfully{' '}
-                        <span className="inline-flex items-center gap-1">
-                            verified
-                            <HiBadgeCheck size={28} />
-                        </span>
+                    <span className='inline-flex items-center gap-1'>
+                        {response?.message}<HiBadgeCheck size={28} />
+                        {/* <span className="inline-flex items-center gap-1"> */}
+                        {/* verified */}
+
+                        {/* </span> */}
                     </span>
                 </div>
 
@@ -61,7 +62,7 @@ const AccountVerifiedPopup = ({ isOpen, onClose }) => {
 
                     <Button
                         variant="solid"
-                        className="bg-[#8a5a75] text-white px-8 w-full sm:w-auto"
+                        className="bg-[#8a5a75] text-white hover:bg-[#8f5f7a] px-8 w-full sm:w-auto"
                         onClick={() => router.push('/sign-in')}
                     >
                         Now you can login
