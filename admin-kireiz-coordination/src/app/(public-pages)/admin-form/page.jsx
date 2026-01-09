@@ -1,8 +1,8 @@
-import UniformHome from './components/UniformHome'
+import AdminHome from './components/AdminHome'
 // import Landing from './components/UniformHome'
 
 const Page = () => {
-    return <UniformHome />
+    return <AdminHome />
 }
 
 export default Page

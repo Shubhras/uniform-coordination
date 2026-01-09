@@ -36,6 +36,8 @@ const blogPosts = [
 
 const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
   const router = useRouter();
+  const trimText = (text, limit = 15) =>
+    text?.split(" ").slice(0, limit).join(" ") + "...";
 
   const handleAllBlogsPage = () => {
     router.push("/blog");
@@ -70,7 +72,7 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
               key={index}
               className="bg-white  p-2 rounded-2xl  border border-[#D4A6CF] hover:shadow-md overflow-hidden cursor-pointer hover:bg-[#FAF6F4] transition-all duration-200" onClick={handleSingleBlogPage}
             >
-              <div className="">
+              <div className="p-1">
                 <Image
                   src={post.image}
                   alt={post.title}
@@ -91,7 +93,7 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
                     {post.description}
                   </p>
                 </div> */}
-              <div className="px-5 pb-6">
+              <div className="p-2">
                 <p className="text-xs text-gray-500 mb-2">
                   {post.category}
                 </p>

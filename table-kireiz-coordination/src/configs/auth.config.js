@@ -26,7 +26,7 @@ export default {
                     id: user.id,
                     name: user.userName,
                     email: user.email,
-                    image: user.avatar,
+                    image: user.avatar,   
                 }
             },
         }),
@@ -45,3 +45,60 @@ export default {
         },
     },
 }
+
+
+// import validateCredential from '../server/actions/user/validateCredential'
+// import Credentials from 'next-auth/providers/credentials'
+// import Github from 'next-auth/providers/github'
+// import Google from 'next-auth/providers/google'
+
+// export default {
+//     providers: [
+//         Github({
+//             clientId: process.env.GITHUB_AUTH_CLIENT_ID,
+//             clientSecret: process.env.GITHUB_AUTH_CLIENT_SECRET,
+//         }),
+//         Google({
+//             clientId: process.env.GOOGLE_AUTH_CLIENT_ID,
+//             clientSecret: process.env.GOOGLE_AUTH_CLIENT_SECRET,
+//         }),
+//         Credentials({
+//             async authorize(credentials) {
+//                 const user = await validateCredential(credentials)
+
+//                 if (!user || !user.id) {
+//                     return null
+//                 }
+
+//                 return {
+//                     id: String(user.id), // 🔴 ENSURE STRING
+//                     name: user.userName,
+//                     email: user.email,
+//                     image: user.avatar,
+//                 }
+//             },
+//         }),
+//     ],
+
+//     // 🔴 REQUIRED FOR MIDDLEWARE
+//     session: {
+//         strategy: 'jwt',
+//     },
+
+//     // 🔴 REQUIRED FOR TOKEN DECRYPTION
+//     secret: process.env.NEXTAUTH_SECRET,
+
+//     callbacks: {
+//         async session({ session, token }) {
+//             return {
+//                 ...session,
+//                 user: {
+//                     ...session.user,
+//                     id: token.sub,
+//                     authority: ['admin', 'user'],
+//                 },
+//             }
+//         },
+//     },
+// }
+
