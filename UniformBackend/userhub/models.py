@@ -307,11 +307,11 @@ class QuotationRequest(models.Model):
     additional_note = models.TextField(blank=True, null=True)
     agreed_to_terms = models.BooleanField(default=False,null=True,blank=True)
     quotation_status = models.CharField(max_length=20,choices=STATUS_CHOICES, default="pending")
-
+    cancelled_by = models.CharField(max_length=10,null=True, blank=True)
+    cancel_reason = models.TextField(null=True, blank=True)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

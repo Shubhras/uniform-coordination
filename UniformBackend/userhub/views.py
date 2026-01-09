@@ -1313,3 +1313,64 @@ class OrderDetailAPIView(APIView):
                 "data": {}
             }, status=status.HTTP_404_NOT_FOUND)
 
+
+class UserQuotationStatusUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]  
+
+    def post(self, request):
+        quotation_id = request.data.get("quotation_id")
+        action = request.data.get("action")
+
+        # Debug logs
+        print("Request user:", request.user)
+        print("Authenticated:", request.user.is_authenticated)
+        print("User role:", getattr(request.user, "role_name", None))
+
+        # Validate role: Only 'normal' users can cancel
+        user_role = getattr(request.user, "role_name", None)
+        if not user_role or user_role.lower() != "normal":
+            return Response({
+                "statusCode": 403,
+                "status": False,
+                "error": "Unauthorized. Only normal users can cancel."
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        # Fetch quotation
+        try:
+            quotation = QuotationRequest.objects.get(quotation_id=quotation_id)
+        except QuotationRequest.DoesNotExist:
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "error": "Quotation not found"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Only cancel action allowed
+        if action != "cancel":
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "error": "Invalid action. Normal users can only cancel quotations."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Reason must be provided
+        reason = request.data.get("reason")
+        if not reason:
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "error": "Cancellation reason is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Perform cancellation
+        quotation.quotation_status = "cancelled"
+        quotation.cancel_reason = reason
+        quotation.cancelled_by = user_role  # store role
+        quotation.save()
+
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "message": "Quotation cancelled successfully",
+            "cancelled_by": user_role
+        }, status=status.HTTP_200_OK)

@@ -20,6 +20,8 @@ from django.db.models import Q
 from .fabric import CustomPagination
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+import jwt  # PyJWT library
+from django.conf import settings
 
 
 # class IsAdminUserJWT(BasePermission):
@@ -52,9 +54,6 @@ from rest_framework.exceptions import AuthenticationFailed
 
 # uniformAdmin/auth.py
 
-
-import jwt  # PyJWT library
-from django.conf import settings
 
 class IsAdminUserJWT(BaseAuthentication):
     """
@@ -102,6 +101,53 @@ class IsAdminUserJWT(BaseAuthentication):
         # Return tuple (user, token) so request.user is set
         return (user, token)
 
+#<-----------------------Authentication access Admin,B2B,Sales-------------------->
+
+class MultiRoleJWTAuth(BaseAuthentication):
+    """
+    JWT Authentication for Admin, Sales, and B2B users
+    """
+
+    def authenticate(self, request):
+        auth_header = request.headers.get("Authorization")
+        if not auth_header:
+            return None
+
+        # Extract token
+        if " " in auth_header:
+            prefix, token = auth_header.split(" ", 1)
+            if prefix.lower() != "bearer":
+                raise AuthenticationFailed("Invalid token prefix")
+        else:
+            token = auth_header
+
+        # Decode JWT
+        try:
+            decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed("Token expired")
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed("Invalid token")
+
+        user_id = decoded.get("user_id")
+        role_name = decoded.get("role")
+
+        if not user_id or not role_name:
+            raise AuthenticationFailed("Invalid token")
+
+        try:
+            user = AdminUser.objects.get(id=user_id, is_active=True)
+        except AdminUser.DoesNotExist:
+            raise AuthenticationFailed("User not found")
+
+        # attach role instance for convenience
+        user.role_instance = user.role  # original Role instance
+        user.role_name = user.role.role_name if user.role else None
+
+        if user.role_name.lower() != role_name.lower():
+            raise AuthenticationFailed("Role mismatch")
+
+        return (user, token)
 
 # class LoginAPIView(APIView):
 #     authentication_classes = []
@@ -146,29 +192,80 @@ class IsAdminUserJWT(BaseAuthentication):
 #         }, status=status.HTTP_200_OK)
 
 
-class LoginAPIView(APIView):
+# class LoginAPIView(APIView):
+#     authentication_classes = []
+#     permission_classes = []
+
+#     def post(self, request):
+#         serializer = AdminLoginSerializer(data=request.data)
+
+#         if not serializer.is_valid():
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 400,
+#                 "message": "Validation error",
+#                 "errors": serializer.errors
+#             }, status=status.HTTP_400_BAD_REQUEST)
+
+#         user = serializer.validated_data["user"]
+
+#         remember_me = request.data.get("remember_me", False)
+
+#         refresh = RefreshToken.for_user(user)
+#         refresh["user_id"] = user.id
+#         refresh["role"] = "admin"
+
+#         if remember_me:
+#             refresh.set_exp(lifetime=timezone.timedelta(days=30))
+#             refresh.access_token.set_exp(lifetime=timezone.timedelta(days=30))
+#         else:
+#             refresh.set_exp(lifetime=timezone.timedelta(days=1))
+#             refresh.access_token.set_exp(lifetime=timezone.timedelta(hours=1))
+
+#         user.last_login = timezone.now()
+#         user.save(update_fields=["last_login"])
+
+#         return Response({
+#             "status": True,
+#             "statusCode": 200,
+#             "message": "Login successful",
+#             "data": {
+#                 "admin": {
+#                     "id": user.id,
+#                     "email": user.email,
+#                     "name": user.name,
+#                     "role": user.role.role_name if user.role else None
+#                 },
+#                 "access_token": str(refresh.access_token),
+#                 "refresh_token": str(refresh)
+#             }
+#         }, status=status.HTTP_200_OK)
+
+
+
+class AdminLoginAPIView(APIView):
     authentication_classes = []
     permission_classes = []
 
     def post(self, request):
         serializer = AdminLoginSerializer(data=request.data)
-
         if not serializer.is_valid():
             return Response({
                 "status": False,
                 "statusCode": 400,
                 "message": "Validation error",
                 "errors": serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=400)
 
         user = serializer.validated_data["user"]
-
         remember_me = request.data.get("remember_me", False)
 
+        # JWT token generate
         refresh = RefreshToken.for_user(user)
         refresh["user_id"] = user.id
-        refresh["role"] = "admin"
+        refresh["role"] = user.role.role_name if user.role else "user"
 
+        # Token expiration
         if remember_me:
             refresh.set_exp(lifetime=timezone.timedelta(days=30))
             refresh.access_token.set_exp(lifetime=timezone.timedelta(days=30))
@@ -176,6 +273,7 @@ class LoginAPIView(APIView):
             refresh.set_exp(lifetime=timezone.timedelta(days=1))
             refresh.access_token.set_exp(lifetime=timezone.timedelta(hours=1))
 
+        # Update last login
         user.last_login = timezone.now()
         user.save(update_fields=["last_login"])
 
@@ -184,7 +282,7 @@ class LoginAPIView(APIView):
             "statusCode": 200,
             "message": "Login successful",
             "data": {
-                "admin": {
+                "user": {
                     "id": user.id,
                     "email": user.email,
                     "name": user.name,
@@ -193,8 +291,9 @@ class LoginAPIView(APIView):
                 "access_token": str(refresh.access_token),
                 "refresh_token": str(refresh)
             }
-        }, status=status.HTTP_200_OK)
-     
+        }, status=200)
+ 
+    
 class ChangePasswordAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
     #permission_classes = [IsAuthenticated]
@@ -278,7 +377,7 @@ class ProfileAPIView(APIView):
 
 class LogoutAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
-    #permission_classes = [IsAdminUserJWT]
+    permission_classes = [IsAdminUserJWT]
 
     def post(self, request):
         refresh_token = request.data.get("refresh_token")
@@ -340,38 +439,72 @@ class ForgotPasswordAPIView(APIView):
 
 
 #<----------------------B2B--------------->
+# class AdminUserCreateAPIView(APIView):
+#     authentication_classes = [IsAdminUserJWT]
+
+#     def post(self, request):
+#         try:
+#             serializer = AdminUserSerializer(data=request.data)
+#             if serializer.is_valid():
+#                 serializer.save()
+#                 return Response({
+#                     "statusCode":201,
+#                     "status": True,
+#                     "message": "B2B user created successfully",
+#                     "data": serializer.data
+#                 }, status=status.HTTP_201_CREATED)
+
+#             return Response({
+#                 "statusCode":400,
+#                 "status": False,
+#                 "message":"Invalide data",
+#                 "errors": serializer.errors
+#             }, status=status.HTTP_400_BAD_REQUEST)
+        
+#         except Exception as e:
+#             return Response({
+#                 "statusCode":500,
+#                 "status":False,
+#                 "message":"Somthink went wrong on server",
+#                 "error":str(e)
+#              },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class AdminUserCreateAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
+    authentication_classes = [IsAdminUserJWT]
 
     def post(self, request):
         try:
-            serializer = AdminUserSerializer(data=request.data)
+            # Automatically attach the admin ID from the logged-in user
+            data = request.data.copy()
+            data["created_by_admin_id"] = request.user.id  # admin ID attach
+
+            serializer = AdminUserSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({
-                    "statusCode":201,
+                    "statusCode": 201,
                     "status": True,
                     "message": "B2B user created successfully",
                     "data": serializer.data
                 }, status=status.HTTP_201_CREATED)
 
             return Response({
-                "statusCode":400,
+                "statusCode": 400,
                 "status": False,
-                "message":"Invalide data",
+                "message": "Invalid data",
                 "errors": serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
         except Exception as e:
             return Response({
-                "statusCode":500,
-                "status":False,
-                "message":"Somthink went wrong on server",
-                "error":str(e)
-             },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                "statusCode": 500,
+                "status": False,
+                "message": "Something went wrong on server",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AdminUserListAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
+    authentication_classes = [IsAdminUserJWT]
 
     def get(self, request):
         try:
@@ -404,7 +537,7 @@ class AdminUserListAPIView(APIView):
             },status=status.HTTP_400_BAD_REQUEST)
 
 class AdminUserDetailAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
+    authentication_classes = [IsAdminUserJWT]
 
     def get(self, request, id):
         try:
@@ -427,7 +560,7 @@ class AdminUserDetailAPIView(APIView):
 
     
 class AdminUserUpdateAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
+    authentication_classes = [IsAdminUserJWT]
 
     def put(self, request, id):
         user = get_object_or_404(AdminUser, id=id)
@@ -456,7 +589,7 @@ class AdminUserUpdateAPIView(APIView):
 
 
 class AdminUserDeleteAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
+    authentication_classes = [IsAdminUserJWT]
 
     def delete(self, request):
         try:

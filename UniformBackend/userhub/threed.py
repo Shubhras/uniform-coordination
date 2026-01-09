@@ -473,3 +473,4 @@ class CustomUpdateModelsDeleteAPIView(APIView):
             "statusCode": 204,
             "message": f"{queryset.count()} record(s) deleted successfully."
         }, status=status.HTTP_204_NO_CONTENT)
+

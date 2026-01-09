@@ -23,9 +23,7 @@ from django.utils.timezone import now
 from .fabric import  IsAdministrator 
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
-
-
-
+from .auth import IsAdminUserJWT,MultiRoleJWTAuth
 
 # class AdminLoginAPIView(APIView):
 #     authentication_classes = []   # IMPORTANT
@@ -1462,3 +1460,79 @@ class AdminDashAPIView(APIView):
                 "error": str(e),
                 "trace": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+ 
+class QuotationStatusUpdateAPIView(APIView):
+    authentication_classes = [MultiRoleJWTAuth]  # JWT Multi-Role
+    permission_classes = []
+
+    def post(self, request):
+        quotation_id = request.data.get("quotation_id")
+        action = request.data.get("action")
+
+        # Debug logs
+        print("Request user:", request.user)
+        print("Authenticated:", request.user.is_authenticated)
+        print("User role:", getattr(request.user, "role_name", None))
+
+        # Validate role
+        user_role = getattr(request.user, "role_name", None)
+        if not user_role or user_role.lower() not in ["admin", "sales", "b2b"]:
+            return Response({
+                "statusCode":403,
+                "status":False,
+                "error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        # Fetch quotation
+        try:
+            quotation = QuotationRequest.objects.get(quotation_id=quotation_id)
+        except QuotationRequest.DoesNotExist:
+            return Response({
+                "statusCode":400,
+                "status":False,
+                "error": "Quotation not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # APPROVE
+        if action == "approve":
+            quotation.quotation_status = "approved"
+            quotation.save()
+            return Response({
+                "statusCode":200,
+                "status":True,
+                "message": "Approved successfully"
+                },status=status.HTTP_200_OK)
+
+        # SEND
+        if action == "send":
+            if quotation.quotation_status != "approved":
+                return Response({"error": "Approve first"}, status=400)
+            quotation.quotation_status = "sent"
+            quotation.save()
+            return Response({
+                "statusCode":200,
+                "status":True,
+                "message": "Sent successfully"
+                },status=status.HTTP_200_OK)
+
+        # CANCEL
+        if action == "cancel":
+            reason = request.data.get("reason")
+            if not reason:
+                return Response({"error": "Reason required"}, status=400)
+
+            quotation.quotation_status = "cancelled"
+            quotation.cancel_reason = reason
+            quotation.cancelled_by = user_role  # store role name
+            quotation.save()
+
+            return Response({
+                "statusCode":200,
+                "statu":True,
+                "message": "Quotation cancelled",
+                "cancelled_by": user_role
+            },status=status.HTTP_200_OK)
+
+        return Response({
+            "statusCode":400,
+            "status":False,
+            "error": "Invalid action"
+            }, status=status.HTTP_400_BAD_REQUEST)
