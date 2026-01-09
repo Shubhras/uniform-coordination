@@ -25,7 +25,7 @@ const SignUpClient = () => {
                 )
                 setShowEmailPopup(true)
                 // setEmail(response?.data?.email)
-                // router.push('/sign-in')
+                router.push('/sign-in')
             }
         } catch (error) {
             const errorMessage =

@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import Button from '@/components/ui/Button'
 import Upload from '@/components/ui/Upload'
 import Input from '@/components/ui/Input'
@@ -18,7 +18,11 @@ import { z } from 'zod'
 import { HiOutlineUser } from 'react-icons/hi'
 import { TbPlus } from 'react-icons/tb'
 import { CiUser } from 'react-icons/ci'
-
+import { apiGetProfile, apiUpdateProfile } from '@/services/AuthProfileService'
+import { useSettingsStore } from '../_store/settingsStore'
+import { useSession } from 'next-auth/react'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
 const { Control } = components
 
 const validationSchema = z.object({
@@ -28,12 +32,13 @@ const validationSchema = z.object({
         .string()
         .min(1, { message: 'Email required' })
         .email({ message: 'Invalid email' }),
-    dialCode: z.string().min(1, { message: 'Please select your country code' }),
+    //dialCode: z.string().min(1, { message: 'Please select your country code' }),
     phoneNumber: z
         .string()
         .min(1, { message: 'Please input your mobile number' }),
     position: z.string().min(1, { message: 'Position required' }),
-    img: z.string(),
+    //img: z.string(),
+    img: z.any().optional(),
 })
 
 const CustomSelectOption = (props) => {
@@ -73,15 +78,28 @@ const CustomControl = ({ children, ...props }) => {
 }
 
 const PersonalInformation = () => {
-    const { data, mutate } = useSWR(
-        '/api/settings/profile/',
-        () => apiGetSettingsProfile(),
-        {
-            revalidateOnFocus: false,
-            revalidateIfStale: false,
-            revalidateOnReconnect: false,
-        },
-    )
+
+    const { data: session } = useSession()
+    const { currentView } = useSettingsStore()
+    const [loading, setLoading] = useState(false)
+    const {
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting },
+        control,
+    } = useForm({
+        resolver: zodResolver(validationSchema),
+    })
+
+    // const { data, mutate } = useSWR(
+    //     '/api/settings/profile/',
+    //     () => apiGetSettingsProfile(),
+    //     {
+    //         revalidateOnFocus: false,
+    //         revalidateIfStale: false,
+    //         revalidateOnReconnect: false,
+    //     },
+    // )
 
     const dialCodeList = useMemo(() => {
         const newCountryList = JSON.parse(JSON.stringify(countryList))
@@ -108,27 +126,74 @@ const PersonalInformation = () => {
         return valid
     }
 
-    const {
-        handleSubmit,
-        reset,
-        formState: { errors, isSubmitting },
-        control,
-    } = useForm({
-        resolver: zodResolver(validationSchema),
-    })
+    // useEffect(() => {
+    //     if (data) {
+    //         reset(data)
+    //     }
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [data])
 
     useEffect(() => {
-        if (data) {
-            reset(data)
+        if (currentView !== 'personal-information') return
+
+        const fetchProfile = async () => {
+            try {
+                if (!session?.accessToken) return
+                setLoading(true)
+                const res = await apiGetProfile(session.accessToken)
+                //console.log(res);
+
+                const profile = res?.data
+                //console.log(profile);
+
+                // ✅ Map API response to form fields
+                reset({
+                    firstName: profile.firstName || '',
+                    lastName: profile.lastName || '',
+                    email: profile.email || '',
+                    position: profile.roleName || '',
+                    img: profile.profileImage || '',
+                    phoneNumber: profile.phone || '',
+                })
+            } catch (error) {
+                console.error('Failed to fetch profile:', error)
+            } finally {
+                setLoading(false)
+            }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data])
+
+        fetchProfile()
+    }, [currentView, reset])
 
     const onSubmit = async (values) => {
-        console.log('Form Data:', values) // <-- log all form data
-        await sleep(500)
-        if (data) {
-            mutate({ ...data, ...values }, false)
+        setLoading(true)
+        try {
+            if (!session?.accessToken) return
+
+            setLoading(true)
+
+            const payload = {
+                firstName: values.firstName,
+                lastName: values.lastName,
+                phone: values.phoneNumber || null,
+                // profileImage: values.img || null,
+            }
+            if (values.img instanceof File) {
+                payload.profileImage = values.img
+            }
+            //console.log('call',payload);
+            await apiUpdateProfile(session.accessToken, payload)
+            toast.push(
+                <Notification title="Profile success!" type="success">
+                    Profile updated successfully
+                </Notification>,
+            )
+            //console.log('Profile updated successfully')
+
+        } catch (error) {
+            console.error('Profile update failed:', error)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -148,11 +213,22 @@ const PersonalInformation = () => {
                             control={control}
                             render={({ field }) => (
                                 <div className="flex flex-col sm:flex-row items-center gap-4 p-4 sm:p-5 bg-[#E0D1C7DB] rounded-lg">
-                                    <Avatar
+                                    {/* <Avatar
                                         size={90}
                                         className="border border-white bg-gray-100 text-gray-300 shadow-lg"
                                         icon={<CiUser />}
                                         src={field.value}
+                                    /> */}
+
+                                    <Avatar
+                                        size={100}
+                                        className="border border-white bg-gray-100 text-gray-300 shadow-lg"
+                                        icon={<CiUser />}
+                                        src={
+                                            field.value instanceof File
+                                                ? URL.createObjectURL(field.value) // preview new upload
+                                                : field.value // show existing URL
+                                        }
                                     />
 
                                     <div className="flex flex-col items-center sm:items-start gap-3 w-full">
@@ -163,9 +239,9 @@ const PersonalInformation = () => {
                                                 beforeUpload={beforeUpload}
                                                 onChange={(files) => {
                                                     if (files.length > 0) {
-                                                        field.onChange(
-                                                            URL.createObjectURL(files[0])
-                                                        )
+                                                        field.onChange(files[0]) // store the File object
+                                                    } else {
+                                                        field.onChange(null)
                                                     }
                                                 }}
                                             >
@@ -209,7 +285,12 @@ const PersonalInformation = () => {
                                 name="firstName"
                                 control={control}
                                 render={({ field }) => (
-                                    <Input placeholder="First Name" {...field} />
+                                    <Input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="First Name"
+                                        {...field}
+                                    />
                                 )}
                             />
                         </FormItem>
@@ -223,7 +304,12 @@ const PersonalInformation = () => {
                                 name="lastName"
                                 control={control}
                                 render={({ field }) => (
-                                    <Input placeholder="Last Name" {...field} />
+                                    <Input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="Last Name"
+                                        {...field}
+                                    />
                                 )}
                             />
                         </FormItem>
@@ -238,8 +324,14 @@ const PersonalInformation = () => {
                         <Controller
                             name="email"
                             control={control}
+                            disabled
                             render={({ field }) => (
-                                <Input type="email" placeholder="Email" {...field} />
+                                <Input
+                                    type="email"
+                                    autoComplete="off"
+                                    placeholder="Email"
+                                    {...field}
+                                />
                             )}
                         />
                     </FormItem>
@@ -247,7 +339,7 @@ const PersonalInformation = () => {
                     {/* Phone + Position */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div className="flex flex-col sm:flex-row items-end gap-3 w-full">
-                            <FormItem
+                            {/* <FormItem
                                 className="w-full sm:w-3/4"
                                 invalid={Boolean(errors.phoneNumber) || Boolean(errors.dialCode)}
                             >
@@ -276,7 +368,7 @@ const PersonalInformation = () => {
                                         />
                                     )}
                                 />
-                            </FormItem>
+                            </FormItem> */}
 
                             <FormItem
                                 className="w-full"
