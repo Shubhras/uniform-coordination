@@ -180,7 +180,11 @@ const FaqSection = () => {
                         Loading FAQs...
                     </p>
                 )}
-
+                {!loading && faqs.length === 0 && (
+                    <p className="text-center text-gray-500 text-sm">
+                        No FAQs available
+                    </p>
+                )}
                 {!loading &&
                     faqs.map((faq, index) => {
                         const isOpen = activeIndex === index;
@@ -188,11 +192,10 @@ const FaqSection = () => {
                         return (
                             <div
                                 key={index}
-                                className={`rounded-xl px-6 py-5 transition-all duration-300 ${
-                                    isOpen
+                                className={`rounded-xl px-6 py-5 transition-all duration-300 ${isOpen
                                         ? "bg-white shadow-md"
                                         : "bg-[#F5F7FB]"
-                                }`}
+                                    }`}
                             >
                                 {/* Question */}
                                 <button

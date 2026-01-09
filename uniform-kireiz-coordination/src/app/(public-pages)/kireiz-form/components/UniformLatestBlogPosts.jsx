@@ -121,7 +121,7 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
         <div className="bg-[#F5F7FB] rounded-3xl px-6 py-10">
           <div className="flex justify-between mb-10">
             <h2 className="text-3xl font-semibold text-[#1C2C56]">
-              Our Latest Blog Posts111
+              Our Latest Blog Posts
             </h2>
             <button
               onClick={() => router.push("/blog")}

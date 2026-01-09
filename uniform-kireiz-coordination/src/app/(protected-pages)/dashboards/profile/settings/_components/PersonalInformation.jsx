@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import Button from '@/components/ui/Button'
 import Upload from '@/components/ui/Upload'
 import Input from '@/components/ui/Input'
@@ -18,7 +18,9 @@ import { z } from 'zod'
 import { HiOutlineUser } from 'react-icons/hi'
 import { TbPlus } from 'react-icons/tb'
 import { CiUser } from 'react-icons/ci'
-
+import { apiGetProfile, apiUpdateProfile } from '@/services/AuthProfileService'
+import { useSettingsStore } from '../_store/settingsStore'
+import { useSession } from 'next-auth/react'
 const { Control } = components
 
 const validationSchema = z.object({
@@ -73,6 +75,18 @@ const CustomControl = ({ children, ...props }) => {
 }
 
 const PersonalInformation = () => {
+    const { data: session } = useSession()
+    const { currentView } = useSettingsStore()
+    const [loading, setLoading] = useState(false)
+    const {
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting },
+        control,
+    } = useForm({
+        resolver: zodResolver(validationSchema),
+    })
+
     const { data, mutate } = useSWR(
         '/api/settings/profile/',
         () => apiGetSettingsProfile(),
@@ -108,30 +122,73 @@ const PersonalInformation = () => {
         return valid
     }
 
-    const {
-        handleSubmit,
-        reset,
-        formState: { errors, isSubmitting },
-        control,
-    } = useForm({
-        resolver: zodResolver(validationSchema),
-    })
-
+    // useEffect(() => {
+    //     if (data) {
+    //         reset(data)
+    //     }
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [data])
     useEffect(() => {
-        if (data) {
-            reset(data)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data])
+        if (currentView !== 'personal-information') return
 
+        const fetchProfile = async () => {
+            try {
+                if (!session?.accessToken) return
+                setLoading(true)
+                const res = await apiGetProfile(session.accessToken)
+                //console.log(res);
+
+                const profile = res?.data
+                //console.log(profile);
+
+                // ✅ Map API response to form fields
+                reset({
+                    firstName: profile.firstName || '',
+                    lastName: profile.lastName || '',
+                    email: profile.email || '',
+                    position: profile.roleName || '',
+                    img: profile.profileImage || '',
+                    phoneNumber: profile.phone || '',
+                })
+            } catch (error) {
+                console.error('Failed to fetch profile:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchProfile()
+    }, [currentView, reset])
+    // const onSubmit = async (values) => {
+    //     console.log('Form Data:', values) // <-- log all form data
+    //     await sleep(500)
+    //     if (data) {
+    //         mutate({ ...data, ...values }, false)
+    //     }
+    // }
     const onSubmit = async (values) => {
-        console.log('Form Data:', values) // <-- log all form data
-        await sleep(500)
-        if (data) {
-            mutate({ ...data, ...values }, false)
+        try {
+            if (!session?.accessToken) return
+
+            setLoading(true)
+
+            const payload = {
+                firstName: values.firstName,
+                lastName: values.lastName,
+                phone: values.phoneNumber || null,
+                profileImage: values.img || null,
+            }
+
+            await apiUpdateProfile(session.accessToken, payload)
+
+            //console.log('Profile updated successfully')
+
+        } catch (error) {
+            console.error('Profile update failed:', error)
+        } finally {
+            setLoading(false)
         }
     }
-
 
     return (
         <>
@@ -144,15 +201,25 @@ const PersonalInformation = () => {
                             control={control}
                             render={({ field }) => (
                                 <div className="flex flex-col sm:flex-row items-center gap-4 p-4 sm:p-5 rounded-lg bg-[#1C4FA81F]">
-                                    <Avatar
+                                    {/* <Avatar
                                         size={100}
                                         className="border border-white bg-gray-100 text-gray-300 shadow-lg"
                                         icon={<CiUser />}
                                         src={field.value}
+                                    /> */}
+                                    <Avatar
+                                        size={100}
+                                        className="border border-white bg-gray-100 text-gray-300 shadow-lg"
+                                        icon={<CiUser />}
+                                        src={
+                                            field.value instanceof File
+                                                ? URL.createObjectURL(field.value) // preview new upload
+                                                : field.value // show existing URL
+                                        }
                                     />
                                     <div className="flex flex-col items-center sm:items-start gap-3 w-full">
                                         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                                            <Upload
+                                            {/* <Upload
                                                 showList={false}
                                                 uploadLimit={1}
                                                 beforeUpload={beforeUpload}
@@ -163,6 +230,18 @@ const PersonalInformation = () => {
                                                                 files[0],
                                                             ),
                                                         )
+                                                    }
+                                                }}
+                                            > */}
+                                            <Upload
+                                                showList={false}
+                                                uploadLimit={1}
+                                                beforeUpload={beforeUpload}
+                                                onChange={(files) => {
+                                                    if (files.length > 0) {
+                                                        field.onChange(files[0]) // store the File object
+                                                    } else {
+                                                        field.onChange(null)
                                                     }
                                                 }}
                                             >
@@ -239,6 +318,7 @@ const PersonalInformation = () => {
                         <Controller
                             name="email"
                             control={control}
+                            disabled
                             render={({ field }) => (
                                 <Input
                                     type="email"
@@ -308,6 +388,7 @@ const PersonalInformation = () => {
                             <Controller
                                 name="position"
                                 control={control}
+                                disabled
                                 render={({ field }) => (
                                     <Input placeholder="Position" {...field} />
                                 )}
