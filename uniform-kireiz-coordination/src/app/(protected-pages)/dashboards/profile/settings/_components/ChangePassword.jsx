@@ -9,7 +9,11 @@ import { Form, FormItem } from '@/components/ui/Form'
 import { HiCheck } from 'react-icons/hi'
 import PasswordInput from '@/components/shared/PasswordInput'
 import { FiLock } from 'react-icons/fi'
-
+import { useSession } from 'next-auth/react'
+import { apiUpdatePassword } from '@/services/AuthProfileService'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
+import { useState } from 'react'
 /* ----------------_toggle schema ---------------- */
 const passwordSchema = z
     .string()
@@ -30,6 +34,8 @@ const validationSchema = z
 
 /* ---------------- component ---------------- */
 const ChangePassword = () => {
+    const { data: session } = useSession()
+    const [loading, setLoading] = useState(false)
     const {
         handleSubmit,
         control,
@@ -55,8 +61,33 @@ const ChangePassword = () => {
     )
 
     // ✅ ONLY CHANGE IS HERE
+    // const onSubmit = async (values) => {
+    //     console.log('Change Password Form Data:', values)
+    // }
     const onSubmit = async (values) => {
-        console.log('Change Password Form Data:', values)
+        try {
+            setLoading(true)
+            if (!session?.accessToken) return
+
+            const payload = {
+                currentPassword: values.currentPassword,
+                newPassword: values.newPassword,
+                confirmPassword: values.confirmPassword,
+            }
+            await apiUpdatePassword(session.accessToken, payload)
+            toast.push(
+                <Notification title="Password success!" type="success">
+                    Password updated successfully
+                </Notification>,
+            )
+            // optional success toast
+            // toast.success('Password updated successfully')
+
+        } catch (error) {
+            console.error('Password update failed:', error)
+        } finally {
+            setLoading(false)
+        }
     }
     const progressValue =
         [rules.length, rules.number, rules.symbol].filter(Boolean).length
@@ -154,7 +185,7 @@ const ChangePassword = () => {
                 </div>
 
                 {/* Actions */}
-                    <div className="flex flex-col sm:flex-row justify-end gap-3">
+                <div className="flex flex-col sm:flex-row justify-end gap-3">
                     <Button
                         type="button"
                         variant="default"
@@ -165,7 +196,7 @@ const ChangePassword = () => {
                     </Button>
                     <Button
                         type="submit"
-                        loading={isSubmitting}
+                        loading={loading || isSubmitting}
                         size="sm"
                         className="bg-[#1C2C56] hover:bg-[#1C2C56] px-6 text-white py-2 rounded-md"
                     >

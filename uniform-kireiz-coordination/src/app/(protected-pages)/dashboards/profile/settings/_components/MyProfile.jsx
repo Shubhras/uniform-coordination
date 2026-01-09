@@ -82,7 +82,7 @@ const MyProfile = () => {
                         />
 
                         {/* Actions */}
-                        <div className="flex gap-4 text-xs">
+                        {/* <div className="flex gap-4 text-xs">
                             <button
                                 onClick={() => fileRef.current.click()}
                                 className="text-blue-600 font-medium hover:underline"
@@ -98,7 +98,7 @@ const MyProfile = () => {
                                     Remove
                                 </button>
                             )}
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* ✅ Verified badge – MOBILE */}
