@@ -21,6 +21,8 @@ import { CiUser } from 'react-icons/ci'
 import { apiGetProfile, apiUpdateProfile } from '@/services/AuthProfileService'
 import { useSettingsStore } from '../_store/settingsStore'
 import { useSession } from 'next-auth/react'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
 const { Control } = components
 
 const validationSchema = z.object({
@@ -30,12 +32,13 @@ const validationSchema = z.object({
         .string()
         .min(1, { message: 'Email required' })
         .email({ message: 'Invalid email' }),
-    dialCode: z.string().min(1, { message: 'Please select your country code' }),
+    //dialCode: z.string().min(1, { message: 'Please select your country code' }),
     phoneNumber: z
         .string()
         .min(1, { message: 'Please input your mobile number' }),
     position: z.string().min(1, { message: 'Position required' }),
-    img: z.string(),
+    //img: z.string(),
+    img: z.any().optional(),
 })
 
 const CustomSelectOption = (props) => {
@@ -87,15 +90,15 @@ const PersonalInformation = () => {
         resolver: zodResolver(validationSchema),
     })
 
-    const { data, mutate } = useSWR(
-        '/api/settings/profile/',
-        () => apiGetSettingsProfile(),
-        {
-            revalidateOnFocus: false,
-            revalidateIfStale: false,
-            revalidateOnReconnect: false,
-        },
-    )
+    // const { data, mutate } = useSWR(
+    //     '/api/settings/profile/',
+    //     () => apiGetSettingsProfile(),
+    //     {
+    //         revalidateOnFocus: false,
+    //         revalidateIfStale: false,
+    //         revalidateOnReconnect: false,
+    //     },
+    // )
 
     const dialCodeList = useMemo(() => {
         const newCountryList = JSON.parse(JSON.stringify(countryList))
@@ -167,20 +170,28 @@ const PersonalInformation = () => {
     //     }
     // }
     const onSubmit = async (values) => {
+        setLoading(true)
         try {
             if (!session?.accessToken) return
-
+            
             setLoading(true)
-
+            
             const payload = {
                 firstName: values.firstName,
                 lastName: values.lastName,
                 phone: values.phoneNumber || null,
-                profileImage: values.img || null,
+               // profileImage: values.img || null,
             }
-
+            if (values.img instanceof File) {
+                payload.profileImage = values.img
+            }
+            //console.log('call',payload);
             await apiUpdateProfile(session.accessToken, payload)
-
+            toast.push(
+                <Notification title="Profile success!" type="success">
+                    Profile updated successfully
+                </Notification>,
+            )
             //console.log('Profile updated successfully')
 
         } catch (error) {
@@ -331,7 +342,7 @@ const PersonalInformation = () => {
                     </FormItem>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div className="flex flex-col sm:flex-row items-end gap-3 w-full">
-                            <FormItem
+                            {/* <FormItem
                                 className="w-full sm:w-3/4"
                                 invalid={Boolean(errors.phoneNumber) || Boolean(errors.dialCode)}
                             >
@@ -360,13 +371,14 @@ const PersonalInformation = () => {
                                         />
                                     )}
                                 />
-                            </FormItem>
+                            </FormItem> */}
 
                             <FormItem
                                 className="w-full"
                                 invalid={Boolean(errors.phoneNumber)}
                                 errorMessage={errors.phoneNumber?.message}
                             >
+                                 <label className="form-label mb-2">Phone number</label>
                                 <Controller
                                     name="phoneNumber"
                                     control={control}
