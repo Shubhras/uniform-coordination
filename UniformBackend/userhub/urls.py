@@ -68,7 +68,9 @@ urlpatterns = [
      
     path("admin/payments/", AdminPaymentListAPIView.as_view()),
     path("admin/payments/detail/", AdminPaymentDetailAPIView.as_view()),
-
+    
+    path("quotationstatus/user/",UserQuotationStatusUpdateAPIView.as_view(), name = "QuotationStatus-post"),
+   
    
 ]
    

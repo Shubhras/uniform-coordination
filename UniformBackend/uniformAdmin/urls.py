@@ -15,7 +15,7 @@ from .unitprice import*
 from .auth import * 
 from .home_page import *
 urlpatterns = [
-    path('login/', LoginAPIView.as_view(), name='admin-login'),
+    path('login/', AdminLoginAPIView.as_view(), name='admin-login'),
     path('change-password/',ChangePasswordAPIView.as_view(), name='admin-change-password'),
     path('update-profile/', UpdateProfileAPIView.as_view(), name='admin-change-password'),
     path('profile/',ProfileAPIView.as_view(), name='admin-details'),
@@ -126,22 +126,22 @@ urlpatterns = [
     path('quotationrequest/get/',QuotationRequestListAPIView.as_view(), name = 'QuotationRequest-getlist'),
 
     #<-------------------QuotationTamplate----------------------->
-    path('quotationrequest/create/',QuotationTemplateCreateAPIView.as_view(), name='QuotationRequest-create'),
-    path('quotationrequest/get-list/',QuotationTemplateListAPIView.as_view(), name='QuotationRequest-create'),
-    path('quotationrequest/<str:quotation_id>/get/',QuotationTemplateDetailAPIView.as_view(), name='QuotationRequest-create'),
-    path('quotationrequest/<str:quotation_id>/update/',QuotationTemplateUpdateAPIView.as_view(), name='QuotationRequest-create'),
-    path('quotationrequest/delete/',QuotationTemplateDeleteAPIView.as_view(), name='QuotationRequest-create'),
+    path('quotationrequesttamplate/create/',QuotationTemplateCreateAPIView.as_view(), name='QuotationRequest-create'),
+    path('quotationrequesttamplate/get-list/',QuotationTemplateListAPIView.as_view(), name='QuotationRequest-create'),
+    path('quotationrequesttamplate/<str:quotation_id>/get/',QuotationTemplateDetailAPIView.as_view(), name='QuotationRequest-create'),
+    path('quotationrequesttamplate/<str:quotation_id>/update/',QuotationTemplateUpdateAPIView.as_view(), name='QuotationRequest-create'),
+    path('quotationrequesttamplate/delete/',QuotationTemplateDeleteAPIView.as_view(), name='QuotationRequest-create'),
 
     #<---------------------AdminuserNotification------------------>
     path("notifications/get-list/", AdminNotificationListAPIView.as_view(),name='adminNotification-get_list'),
     path("notifications/delete/", AdminNotificationDeleteAPIView.as_view(),name="adminNotification-delete_all"),
 
     #<------------------------B2B-------------------------------->
-    # path('admin-user/create/',AdminUserCreateAPIView.as_view(), name = 'admin-user-create'),
-    # path('admin-user/get-list/',AdminUserListAPIView.as_view(), name = 'admin-user-get-list'),
-    # path('admin-user/<int:id>/get/',AdminUserDetailAPIView.as_view(), name = 'admin-user-detail-get'),
-    # path('admin-user/<int:id>/update/',AdminUserUpdateAPIView.as_view(), name = 'admin-user-update'),
-    # path('admin-user/delete/',AdminUserDeleteAPIView.as_view(), name = 'admin-user-delete'),
+    path('admin-user/create/',AdminUserCreateAPIView.as_view(), name = 'admin-user-create'),
+    path('admin-user/get-list/',AdminUserListAPIView.as_view(), name = 'admin-user-get-list'),
+    path('admin-user/<int:id>/get/',AdminUserDetailAPIView.as_view(), name = 'admin-user-detail-get'),
+    path('admin-user/<int:id>/update/',AdminUserUpdateAPIView.as_view(), name = 'admin-user-update'),
+    path('admin-user/delete/',AdminUserDeleteAPIView.as_view(), name = 'admin-user-delete'),
 
     #<----------------------Table_Theme ---------------------------->
     path('tabletheme/create/',TableThemeCreateAPIView.as_view(), name = 'Table_Theme-create'),
@@ -161,5 +161,8 @@ urlpatterns = [
 
     #<-------------------Homepage------------------------------->
     path("uniform-home/", HomePageAPIView.as_view(), name="home-page"),
+    #<----------------------QuotationStatus--------------------->
+    path("quotationstatus/admin/",QuotationStatusUpdateAPIView.as_view(), name = "QuotationStatus-post"),
+   
 
 ]
