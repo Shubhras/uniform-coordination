@@ -3,6 +3,7 @@ from .views import *
 from .threed import *
 from .payment import *
 
+
 urlpatterns = [
     path('signup/', SignupAPIView.as_view(), name='user-signup'),
     path('login/', LoginAPIView.as_view(), name="user-login"),

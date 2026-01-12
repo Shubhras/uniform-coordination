@@ -59,7 +59,7 @@ class BlogAdmin(admin.ModelAdmin):
     
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("id","categoryName","slug","isActive","isDeleted", "created_at","updated_at")
+    list_display = ("id","categoryName","slug","type","isActive","isDeleted", "created_at","updated_at")
     list_filter = ("isActive", "isDeleted", "created_at")
     search_fields = ("categoryName", "slug")
     ordering = ("-created_at",)
@@ -223,8 +223,7 @@ class CatalogImageAdmin(admin.ModelAdmin):
     
 @admin.register(SubCategory)
 class SubCategoryAdmin(admin.ModelAdmin):
-    list_display = ("id","name","category","isActive","isDeleted","created_at",)
-
+    list_display = ("id","name","category","type","isActive","isDeleted","created_at",)
     list_filter = ("isActive","isDeleted","category",)
 
     search_fields = ("name",)
