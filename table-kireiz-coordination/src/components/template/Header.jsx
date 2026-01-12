@@ -51,6 +51,7 @@ import NavList from '@/app/(public-pages)/header/NavList';
 import NavOtherList from '@/app/(public-pages)/header/NavOtherList';
 import AuthButtons from '@/app/(public-pages)/header/AuthButtons';
 import { IoClose } from 'react-icons/io5';
+import { useRouter } from 'next/navigation';
 const navMenu = [
     { title: "Home", value: "home", to: "home", url: "/table-form" },
     //   { title: "Table Design", value: "tableDesign", to: "tableDesign", url: "/" },
@@ -65,6 +66,7 @@ const Header = ({ toggleMode, mode }) => {
     const { session } = useCurrentSession();
     const [isOpen, setIsOpen] = useState(false);
     const [activeLoginUser, setActiveLoginUser] = useState("");
+    const router= useRouter();
     return (
         <header className="fixed inset-x-0 top-0 z-50 bg-[#E8B4A9]">
             <div className="mx-auto px-5 md:px-8 lg:px-12">

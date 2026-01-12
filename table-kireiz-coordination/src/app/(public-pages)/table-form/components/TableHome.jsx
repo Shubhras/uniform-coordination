@@ -66,7 +66,7 @@ const TableHome = () => {
             <TechStack />
             {/* <PlaceholderSection /> */}
             <UniformLatestBlogPosts   blogs={homeData?.blogs} loading={loading}/>
-            <UniformLatestFAQPosts />
+            <UniformLatestFAQPosts  faqs={homeData?.faqs} loading={loading}/>
             {/* <TableAbouUsPage /> */}
             {/* <OtherFeatures /> */}
             {/* <Components /> */}

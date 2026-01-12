@@ -15,8 +15,6 @@ const ResetPasswordClient = () => {
     const userId = searchParams.get('user_id')
     console.log(userId)
 
-
-
     // const handleResetPassword = async (payload) => {
     //     const { values, setSubmitting, setMessage, setResetComplete } = payload
     //     try {

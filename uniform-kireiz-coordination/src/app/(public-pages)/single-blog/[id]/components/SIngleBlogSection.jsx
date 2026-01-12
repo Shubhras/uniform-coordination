@@ -158,14 +158,15 @@ const SingleBlogSection = () => {
     if (id) fetchBlog();
   }, [id]);
 
-  if (loading) {
-    return <p className="text-center py-40">Loading blog...</p>;
-  }
-
   if (!blogData) {
-    return <p className="text-center py-40">Blog not found</p>;
+    return (
+      <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+        <div className="py-20 text-center text-gray-500">
+          Blog not found
+        </div>
+      </section>
+    );
   }
-
   return (
     <section className="relative w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 py-20 md:py-24">
       <div className="bg-[#F5F7FB] rounded-3xl px-1 md:px-10 lg:px-8 py-10 md:py-8">
@@ -186,36 +187,43 @@ const SingleBlogSection = () => {
         </h2>
 
         {/* Blog Content */}
-        <div className="w-full bg-[#F5F7FB] rounded-3xl p-3">
+        {
+          loading ? <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+            <div className="py-20 text-center text-gray-500">
+              Loading blog...
+            </div>
+          </section> :
+            <div className="w-full bg-[#F5F7FB] rounded-3xl p-3">
 
-          {/* Image */}
-          <div className="mb-6">
-            <Image
-              src={blogData.img}
-              alt={blogData.title}
-              width={900}
-              height={450}
-              className="w-full lg:h-[600px] lg:object-cover object-contain rounded-2xl"
-              unoptimized
-            />
-          </div>
+              {/* Image */}
+              <div className="mb-6">
+                <Image
+                  src={blogData.img}
+                  alt={blogData.title}
+                  width={900}
+                  height={450}
+                  className="w-full lg:h-[600px] lg:object-cover object-contain rounded-2xl"
+                  unoptimized
+                />
+              </div>
 
-          {/* Title + Date */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <h1 className="text-2xl md:text-3xl font-semibold text-[#1C2C56]">
-              {blogData.title}
-            </h1>
-            <p className="text-sm text-gray-500">
-              {blogData.date}
-            </p>
-          </div>
+              {/* Title + Date */}
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <h1 className="text-2xl md:text-3xl font-semibold text-[#1C2C56]">
+                  {blogData.title}
+                </h1>
+                <p className="text-sm text-gray-500">
+                  {blogData.date}
+                </p>
+              </div>
 
-          {/* Description */}
-          <div
-            className="text-gray-700 text-sm md:text-base leading-relaxed space-y-4"
-            dangerouslySetInnerHTML={{ __html: blogData.description }}
-          />
-        </div>
+              {/* Description */}
+              <div
+                className="text-gray-700 text-sm md:text-base leading-relaxed space-y-4"
+                dangerouslySetInnerHTML={{ __html: blogData.description }}
+              />
+            </div>
+        }
       </div>
     </section>
   );

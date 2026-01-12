@@ -3,37 +3,6 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-const blogPosts = [
-  {
-    img: "/img/table-form/blog-image/blog1.png",
-    date: "08-11-2025",
-    category: "Category",
-    title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    img: "/img/table-form/blog-image/blog2.png",
-    date: "08-11-2025",
-    category: "Category",
-    title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    img: "/img/table-form/blog-image/blog3.png",
-    date: "08-11-2025",
-    category: "Category",
-    title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    img: "/img/table-form/blog-image/blog1.png",
-    date: "08-11-2025",
-    category: "Category",
-    title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-];
-
 const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
   const router = useRouter();
   const trimText = (text, limit = 15) =>
@@ -43,8 +12,8 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
     router.push("/blog");
   };
 
-  const handleSingleBlogPage = () => {
-    router.push("/single-blog");
+  const handleSingleBlogPage = (id) => {
+    router.push(`/single-blog/${id}`);
   };
   if (loading) return <p className="text-center">Loading blogs...</p>;
   return (
@@ -70,7 +39,8 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
           {blogs.map((post, index) => (
             <div
               key={index}
-              className="bg-white  p-2 rounded-2xl  border border-[#D4A6CF] hover:shadow-md overflow-hidden cursor-pointer hover:bg-[#FAF6F4] transition-all duration-200" onClick={handleSingleBlogPage}
+              className="bg-white  p-2 rounded-2xl  border border-[#D4A6CF] hover:shadow-md overflow-hidden cursor-pointer hover:bg-[#FAF6F4] transition-all duration-200"
+              onClick={() => handleSingleBlogPage(post.id)}
             >
               <div className="p-1">
                 <Image

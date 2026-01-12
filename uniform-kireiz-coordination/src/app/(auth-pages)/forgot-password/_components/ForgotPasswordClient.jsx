@@ -5,7 +5,7 @@ import { toast } from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import { useRouter } from 'next/navigation'
 const ForgotPasswordClient = () => {
-     const router = useRouter()
+    const router = useRouter()
     const handleForgotPasswordSubmit = async ({
         values,
         setSubmitting,
@@ -15,24 +15,38 @@ const ForgotPasswordClient = () => {
         try {
             setSubmitting(true)
             // await apiForgotPassword(values)
-                const response = await apiForgotPassword(values)
-                const data = response?.data
-                // if (!data) {
-                //     setMessage(data?.message || 'No account found with that email')
-                //     return
-                // }
-            toast.push(
-                <Notification title="Email sent!" type="success">
-                    We have sent you an email to reset your password
-                </Notification>,
-            )
+            const response = await apiForgotPassword(values)
+            if (response?.status === true) {
 
-            setEmailSent(true)
-             router.push('/reset-password')
+                toast.push(
+                    <Notification title="Email sent!" type="success">
+                        We have sent you an email to reset your password
+                    </Notification>,
+                )
+
+                setEmailSent(true)
+                // router.push('/reset-password')
+                const resetLink = response?.resetLink;
+                console.log(response?.resetLink)
+
+                if (!resetLink) {
+                    console.error("Reset link missing");
+                    return;
+                }
+
+                // If backend sends full URL
+                if (resetLink.startsWith("http")) {
+                    const url = new URL(resetLink);
+                    router.push(url.pathname + url.search);
+                } else {
+                    // If backend sends relative path
+                    router.push(resetLink);
+                }
+            }
         } catch (error) {
             const errorMessage =
-            error?.response?.data?.message ||
-            'No account found with this email'
+                error?.response?.data?.message ||
+                'No account found with this email'
             setMessage(errorMessage)
         } finally {
             setSubmitting(false)

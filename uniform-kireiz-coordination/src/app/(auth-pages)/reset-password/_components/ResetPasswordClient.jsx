@@ -1,14 +1,16 @@
 'use client'
 import ResetPassword from '@/components/auth/ResetPassword'
 import { apiResetPassword } from '@/services/AuthService'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 const ResetPasswordClient = () => {
+    const router = useRouter();
     const searchParams = useSearchParams()
+    const userId = searchParams.get('user_id')
 
     /** Token or Verification Code ensures the request is tied to the correct user */
-    const token = searchParams.get('token')
+    // const token = searchParams.get('token')
 
     const handleResetPassword = async (payload) => {
         const { values, setSubmitting, setMessage, setResetComplete } = payload
@@ -16,7 +18,7 @@ const ResetPasswordClient = () => {
             setSubmitting(true)
             await apiResetPassword({
                 ...values,
-                userId: 9,
+                userId,
             })
             toast.push(
                 <Notification title="Password reset successful!" type="success">
@@ -24,6 +26,7 @@ const ResetPasswordClient = () => {
                 </Notification>
             )
             setResetComplete?.(true)
+            router.push('/sign-in')
 
         } catch (error) {
             setMessage(error)
