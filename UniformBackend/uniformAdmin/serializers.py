@@ -48,10 +48,10 @@ class AdminLoginSerializer(serializers.Serializer):
         try:
             user = AdminUser.objects.get(email=email)
         except AdminUser.DoesNotExist:
-            raise serializers.ValidationError("Invalid credentials")
+            raise serializers.ValidationError("Invalid credentials Not match User Name")
 
         if not user.check_password(password):
-            raise serializers.ValidationError("Invalid credentials")
+            raise serializers.ValidationError("Invalid credentials Not match Password")
 
         # Remove the strict is_staff check
         # if not user.is_staff:

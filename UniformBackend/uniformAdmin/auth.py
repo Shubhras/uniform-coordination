@@ -250,12 +250,20 @@ class AdminLoginAPIView(APIView):
     def post(self, request):
         serializer = AdminLoginSerializer(data=request.data)
         if not serializer.is_valid():
+            errors = serializer.errors
+            first_error = None
+
+            if isinstance(errors, dict):
+                for key, value in errors.items():
+                    if isinstance(value, list) and value:
+                        first_error = value[0]
+                        break
+
             return Response({
                 "status": False,
                 "statusCode": 400,
-                "message": "Validation error",
-                "errors": serializer.errors
-            }, status=400)
+                "message": first_error or "Invalid input",
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         user = serializer.validated_data["user"]
         remember_me = request.data.get("remember_me", False)

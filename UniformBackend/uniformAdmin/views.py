@@ -1517,7 +1517,11 @@ class QuotationStatusUpdateAPIView(APIView):
         if action == "cancel":
             reason = request.data.get("reason")
             if not reason:
-                return Response({"error": "Reason required"}, status=400)
+                return Response({
+                    "statusCode":400,
+                    "status":False,
+                    "error": "Reason required"
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
             quotation.quotation_status = "cancelled"
             quotation.cancel_reason = reason

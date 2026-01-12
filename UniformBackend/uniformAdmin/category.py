@@ -104,8 +104,10 @@ class CategoryCreateAPIView(APIView):
 
 
 class CategoryListAPIView(APIView):
-    permission_classes = [AllowAny]
-    
+    #permission_classes = [AllowAny]
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication] 
+
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
