@@ -196,6 +196,17 @@ const PersonalInformation = () => {
 
         } catch (error) {
             console.error('Profile update failed:', error)
+
+            const errorMessage =
+                error?.response?.data?.message ||
+                error?.response?.data?.error ||
+                'Something went wrong. Please try again.'
+
+            toast.push(
+                <Notification title="Profile update failed" type="danger">
+                    {errorMessage}
+                </Notification>
+            )
         } finally {
             setLoading(false)
         }

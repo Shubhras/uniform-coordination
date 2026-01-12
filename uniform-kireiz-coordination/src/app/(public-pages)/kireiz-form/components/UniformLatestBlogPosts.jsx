@@ -110,8 +110,8 @@ const trimText = (text, limit = 15) =>
 
 const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
   const router = useRouter();
-  const handleSingleBlogPage = () => {
-    router.push("/single-blog");
+  const handleClick = (id) => {
+    router.push(`/single-blog/${id}`);
   };
   if (loading) return <p className="text-center">Loading blogs...</p>;
 
@@ -132,13 +132,13 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
           </div>
 
           <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {blogs.map((post,index) => (
+            {blogs.map((post, index) => (
               <div
                 // key={post.id}
                 key={index}
                 className="bg-white rounded-2xl shadow-sm cursor-pointer"
-                onClick={() => router.push("/single-blog")}
-                // onClick={handleSingleBlogPage}
+                onClick={() => handleClick(post.id)}
+              // onClick={handleSingleBlogPage}
               >
                 <div className="p-3">
                   <Image

@@ -165,7 +165,7 @@ const MyProfile = () => {
 
                 {/* Verified Badge */}
                 <div className="hidden lg:block">
-                    <span className="flex items-center gap-1 text-[11px] text-[#7A3E1D] bg-[#E6D2C4] px-2.5 py-1 rounded-full">
+                    <span className="flex items-center gap-1 text-[11px] text-green-600 bg-green-50 px-2.5 py-1 rounded-full">
                         <HiCheckCircle size={14} />
                         Verified Account
                     </span>

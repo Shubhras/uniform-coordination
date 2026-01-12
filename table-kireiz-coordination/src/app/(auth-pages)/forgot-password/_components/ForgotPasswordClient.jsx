@@ -17,33 +17,33 @@ const ForgotPasswordClient = () => {
             setSubmitting(true)
             // await apiForgotPassword(values)
             const response = await apiForgotPassword(values)
-            if (response?.status === true) {
+                if (response?.status === true) {
 
-                toast.push(
-                    <Notification title="Email sent!" type="success">
-                        We have sent you an email to reset your password
-                    </Notification>,
-                )
+                    toast.push(
+                        <Notification title="Email sent!" type="success">
+                            We have sent you an email to reset your password
+                        </Notification>,
+                    )
 
-                setEmailSent(true)
-                // router.push('/reset-password')
-                const resetLink = response?.resetLink;
-                console.log(response?.resetLink)
+                    setEmailSent(true)
+                    // router.push('/reset-password')
+                    const resetLink = response?.resetLink;
+                    console.log(response?.resetLink)
 
-                if (!resetLink) {
-                    console.error("Reset link missing");
-                    return;
+                    if (!resetLink) {
+                        console.error("Reset link missing");
+                        return;
+                    }
+
+                    // If backend sends full URL
+                    if (resetLink.startsWith("http")) {
+                        const url = new URL(resetLink);
+                        router.push(url.pathname + url.search);
+                    } else {
+                        // If backend sends relative path
+                        router.push(resetLink);
+                    }
                 }
-
-                // If backend sends full URL
-                if (resetLink.startsWith("http")) {
-                    const url = new URL(resetLink);
-                    router.push(url.pathname + url.search);
-                } else {
-                    // If backend sends relative path
-                    router.push(resetLink);
-                }
-            }
 
         } catch (error) {
             const errorMessage =

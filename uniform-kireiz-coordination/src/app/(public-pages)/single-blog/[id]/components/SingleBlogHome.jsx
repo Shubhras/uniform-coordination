@@ -4,9 +4,9 @@ import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import React from 'react'
 import SingleBlogSection from './SIngleBlogSection'
-import HaederPage from '../../header/HaederPage'
-import FooterPage from '../../footer/FooterPage'
-import ChatbotSection from '../../chatbot-section/ChatbotSection'
+import HaederPage from '../../../header/HaederPage'
+import FooterPage from '../../../footer/FooterPage'
+import ChatbotSection from '../../../chatbot-section/ChatbotSection'
 
 const SingleBlogHome = () => {
     const mode = useTheme((state) => state.mode)

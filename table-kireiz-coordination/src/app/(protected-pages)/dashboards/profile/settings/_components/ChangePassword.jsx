@@ -44,6 +44,7 @@ const ChangePassword = () => {
         handleSubmit,
         control,
         watch,
+        reset,
         formState: { errors, isSubmitting },
     } = useForm({
         resolver: zodResolver(validationSchema),
@@ -77,14 +78,25 @@ const ChangePassword = () => {
             }
 
             await apiUpdatePassword(session.accessToken, payload)
-
             toast.push(
                 <Notification title="Password success!" type="success">
                     Password updated successfully
                 </Notification>,
             )
+            reset()
         } catch (error) {
             console.error('Password update failed:', error)
+
+            const errorMessage =
+                error?.response?.data?.message ||
+                error?.response?.data?.error ||
+                'Something went wrong. Please try again.'
+
+            toast.push(
+                <Notification title="Password update failed" type="danger">
+                    {errorMessage}
+                </Notification>
+            )
         } finally {
             setLoading(false)
         }
@@ -214,9 +226,8 @@ export default ChangePassword
 /* ---------------- helper ---------------- */
 const Rule = ({ label, active }) => (
     <div
-        className={`flex items-center gap-2 ${
-            active ? 'text-green-600' : 'text-gray-400'
-        }`}
+        className={`flex items-center gap-2 ${active ? 'text-green-600' : 'text-gray-400'
+            }`}
     >
         <HiCheck />
         <span>{label}</span>
