@@ -134,10 +134,11 @@ const formatDate = (date) => {
 const SingleBlogSection = () => {
   const { id } = useParams();
   const [blogData, setBlogData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchBlog = async () => {
+      setLoading(true);
       try {
         const res = await apiGetBlogDetail(id);
         if (res?.status) {

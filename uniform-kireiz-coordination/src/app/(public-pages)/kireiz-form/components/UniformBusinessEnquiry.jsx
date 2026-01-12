@@ -254,6 +254,7 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
   /* 🔥 Convert API categories → existing card structure */
   const cards = useMemo(() => {
     return categories.map((item) => ({
+      id: item.id,
       img: item.categoryImage,
       title: item.categoryName,
       desc: item.description,
@@ -291,8 +292,8 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
     );
   };
 
-  const handleMedicalFormDesigning = () => {
-    router.push("/medical-form");
+  const handleMedicalFormDesigning = (id) => {
+    router.push(`/medical-form/${id}`);
   };
 
   return (
@@ -382,7 +383,7 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
                     rounded-[15px] shadow-md p-4 cursor-pointer
                     w-full sm:w-[280px] md:w-[300px] lg:w-[320px]
                   "
-                  onClick={handleMedicalFormDesigning}
+                  onClick={() => handleMedicalFormDesigning(item.id)}
                 >
                   <div className="flex justify-center mb-6">
                     <div className="w-[180px] h-[200px] md:w-[200px] md:h-[220px] rounded-full overflow-hidden">
