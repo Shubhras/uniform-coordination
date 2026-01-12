@@ -380,6 +380,7 @@ class CategorySerializer(serializers.ModelSerializer):
             "id",
             "categoryName",
             "slug",
+            "type", 
             "isActive",
             "order",
             "created_at",
@@ -466,6 +467,8 @@ class CatalogImageSerializer(serializers.ModelSerializer):
 
 
 
+
+
 class SubCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SubCategory
@@ -475,6 +478,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
             "category",           
             "subcategoryImage",
             "slug",
+            "type", 
             "order",
             "description",
             "isActive",

@@ -188,9 +188,14 @@ class Template(models.Model):
 
 #Categories
 class Category(models.Model):
+    CATEGORY_TYPE = [
+    ('uniform', 'Uniform'),
+    ('table', 'Table'),
+    ]
     categoryName = models.CharField(max_length=250,unique=True)
     categoryImage = models.ImageField(upload_to="category/", blank=True, null=True)
-    description = models.CharField(max_length=250,blank=True, null=True)
+    description = models.CharField(max_length=250,blank=True, null=True) 
+    type = models.CharField(max_length=20,choices=CATEGORY_TYPE,default='uniform')    
     slug = models.CharField(max_length=255, blank=True, null=True)
     order = models.PositiveIntegerField(default=0,db_index=True) #new
     isActive = models.BooleanField(default=True)
@@ -199,13 +204,15 @@ class Category(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.categoryName) if self.categoryName else None
+        if not self.slug and self.categoryName:
+            self.slug = slugify(self.categoryName).replace("-", "_")
         super().save(*args, **kwargs)
     
     def __str__(self):
         return self.categoryName
     
     
+
     
 class Blog(models.Model):
     BLOG_TYPE_CHOICES = (
@@ -224,8 +231,9 @@ class Blog(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        if self.title:
-            self.slug = slugify(self.title)
+        if not self.slug:
+            # slug with underscore
+            self.slug = slugify(self.title).replace("-", "_")
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -287,11 +295,17 @@ class CatalogImage(models.Model):
     
 
 class SubCategory(models.Model):
+    SUBCATEGORY_TYPE = [
+    ('uniform', 'Uniform'),
+    ('table', 'Table'),
+    ]
     name = models.CharField(max_length=255)
     subcategoryImage = models.ImageField(upload_to="subcategory/", blank=True, null=True)
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,blank=True,related_name="subcategories")
     slug = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    type = models.CharField(max_length=20,choices=SUBCATEGORY_TYPE,default='uniform')
+    order = models.PositiveIntegerField(default=0,db_index=True)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -385,8 +399,7 @@ class Promocode(models.Model):
         return self.promocodeName
 
     
-class PrivacyPolicy(models.Model):
- 
+class PrivacyPolicy(models.Model): 
     POLICY_TYPE_CHOICES = [
         ("terms_and_conditions", "Terms and Conditions"),
         ("privacy_and_policy", "Privacy and Policy"),

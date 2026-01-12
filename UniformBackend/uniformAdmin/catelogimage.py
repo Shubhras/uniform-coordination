@@ -27,11 +27,12 @@ class CatalogImageCreateAPIView(APIView):
                     "data": serializer.data
                 }, status=status.HTTP_200_OK)
 
+
+            first_error = next(iter(serializer.errors.values()))[0]
             return Response({
                 "status": False,
                 "statusCode": 200,
-                "message": "Validation failed.",
-                "error": serializer.errors
+                "message": f"Validation failed;{first_error}"
             }, status=status.HTTP_200_OK)
 
         except Exception as e:
