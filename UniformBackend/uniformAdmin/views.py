@@ -1293,8 +1293,6 @@ class AdminDashAPIView(APIView):
                 )
             else:
                 b2b_change_percentage = 100 if current_month_b2b else 0
-
-            
             ALL_STATUSES = ["pending", "sent", "approved"]
 
             status_qs = (
@@ -1314,13 +1312,8 @@ class AdminDashAPIView(APIView):
                         "value": status_dict.get(status, 0),
                         "percentage": round(
                             (status_dict.get(status, 0) / total_quotes) * 100, 2
-                        )
-                    }
-                    for status in ALL_STATUSES
-                ]
-            }
-
-           
+                        )} for status in ALL_STATUSES
+                ] }
             # Weekly
             DAY_MAP = {1: "Sun", 2: "Mon", 3: "Tue", 4: "Wed", 5: "Thu", 6: "Fri", 7: "Sat"}
             weekly_result = {i: 0 for i in range(1, 8)}
@@ -1336,12 +1329,10 @@ class AdminDashAPIView(APIView):
                 .values("day")
                 .annotate(value=Count("quotation_id"))
             )
-
             for item in week_qs:
                 weekly_result[item["day"]] = item["value"]
 
             weekly_data = [{"label": DAY_MAP[d], "value": weekly_result[d]} for d in range(1, 8)]
-
             # Monthly
             monthly_result = {i: 0 for i in range(1, 6)}
             month_qs = (
@@ -1355,7 +1346,6 @@ class AdminDashAPIView(APIView):
                 .values("week")
                 .annotate(value=Count("quotation_id"))
             )
-
             for item in month_qs:
                 week_no = (item["week"] % 5) or 5
                 monthly_result[week_no] += item["value"]
@@ -1365,9 +1355,7 @@ class AdminDashAPIView(APIView):
             # Yearly
             MONTH_MAP = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
                          7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
-
             yearly_result = {m: 0 for m in range(1, 13)}
-
             year_qs = (
                 QuotationRequest.objects
                 .filter(isDeleted=False, created_at__year=today_dt.year)
@@ -1375,7 +1363,6 @@ class AdminDashAPIView(APIView):
                 .values("month")
                 .annotate(value=Count("quotation_id"))
             )
-
             for item in year_qs:
                 yearly_result[item["month"]] = item["value"]
 
@@ -1383,13 +1370,11 @@ class AdminDashAPIView(APIView):
                 {"label": f"{MONTH_MAP[m]} {today_dt.year}", "value": yearly_result[m]}
                 for m in range(1, 13)
             ]
-
             quotation_volume = {
                 "weekly": weekly_data,
                 "monthly": monthly_data,
                 "yearly": yearly_data
             }
-
             fabrics_qs = (
                 Fabric.objects
                 .filter(parts__isDeleted=False)
@@ -1403,19 +1388,13 @@ class AdminDashAPIView(APIView):
             }
             for f in fabrics_qs
             ]
-
-            
             items = []
-
             for p in Product.objects.values("productName", "updated_at"):
                 items.append({"name":p["productName"],"date":p["updated_at"],"type":"product"})
-
             for c in Colors.objects.values("colorName", "updated_at"):
                 items.append({"name":c["colorName"],"date":c["updated_at"],"type": "color"})
-
             for pt in Parts.objects.values("partName", "updated_at"):
                 items.append({"name":pt["partName"],"date":pt["updated_at"],"type": "part"})
-
             items.sort(key=lambda x: x["date"], reverse=True)
             recent_updates = []
             for item in items[:3]:
@@ -1431,8 +1410,6 @@ class AdminDashAPIView(APIView):
                          "type":item["type"],
                          "created_date": item["date"].strftime("%b %d, %Y")
                      }) 
-
-           
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -1448,7 +1425,6 @@ class AdminDashAPIView(APIView):
                     "Recently_update_product_color_part": recent_updates,
                 }
             }, status=status.HTTP_200_OK)
-
         except Exception as e:
             return Response({
                 "status": False,
@@ -1456,4 +1432,52 @@ class AdminDashAPIView(APIView):
                 "message": "Failed to fetch dashboard data",
                 "error": str(e),
                 "trace": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AdminOrderUpdateAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
+
+    def patch(self, request):
+        try:
+            order_id = request.data.get('order_id')
+
+            if not order_id:
+                return Response({
+                    "status": False,
+                    "message": "order_id is required"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                order = Order.objects.get(order_id=order_id)
+            except Order.DoesNotExist:
+                return Response({
+                    "status": False,
+                    "message": "Order not found"
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            serializer = AdminOrderUpdateSerializer(
+                order,
+                data=request.data,
+                partial=True
+            )
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "status": True,
+                    "message": "Order updated successfully",
+                    "data": serializer.data
+                }, status=status.HTTP_200_OK)
+
+            return Response({
+                "status": False,
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "message": "Something went wrong",
+                "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

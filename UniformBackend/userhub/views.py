@@ -190,18 +190,16 @@ class SignupAPIView(APIView):
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-
-
-class LoginAPIView(APIView):
-    # permission_classes = [AllowAny]
+  
+class UserLoginAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         
         try:
             email = request.data.get("email")
             password = request.data.get("password")
             user_type = request.data.get("userType")  
-
+            
             # ------- CLEAN VALIDATION FIX ----------
             missing_fields = []
 
@@ -221,7 +219,7 @@ class LoginAPIView(APIView):
                 }, status=200)
             # ----------------------------------------
 
-            serializer = LoginSerializer(data=request.data)
+            serializer = UserLoginSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             user = serializer.validated_data["user"]
 
@@ -869,12 +867,14 @@ class AddToCartAPIView(APIView):
         try:
             product_id = request.data.get("product_id")
             quantity = int(request.data.get("quantity", 1))
+
             product = Product.objects.get(id=product_id)
-            
+
             cart, _ = Cart.objects.get_or_create(
                 user=request.user,
                 is_active=True
             )
+
             item, created = CartItem.objects.get_or_create(
                 cart=cart,
                 product=product
@@ -883,44 +883,32 @@ class AddToCartAPIView(APIView):
             if not created:
                 item.quantity += quantity
                 item.save()
-                return Response({
-                    "status": True,
-                    "statusCode": 200,
-                    "message": "Item already in cart. Quantity updated.",
-                    "data": {
-                        "id": item.id,
-                        "product": item.product.productName,
-                        "quantity": item.quantity,
-                        "price": float(item.price) * item.quantity
-                    }
-                }, status=status.HTTP_200_OK)
             else:
-                return Response({
-                    "status": True,
-                    "statusCode": 201,
-                    "message": "Item added to cart successfully.",
-                    "data": {
-                        "id": item.id,
-                        "product": item.product.productName,
-                        "quantity": item.quantity,
-                        "price": float(item.price)
-                    }
-                }, status=status.HTTP_201_CREATED)
-       
+                item.quantity = quantity
+                item.save()
+
+            serializer = CartItemSerializer(item)
+
+            return Response({
+                "status": True,
+                "statusCode": 200 if not created else 201,
+                "message": "Item already in cart. Quantity updated."
+                if not created else "Item added to cart successfully.",
+                "data": {
+                    "id": serializer.data["id"],
+                    "product": serializer.data["product_name"],
+                    "quantity": serializer.data["quantity"],
+                    "price": float(serializer.data["price"])
+                }
+            })
+
         except Product.DoesNotExist:
             return Response({
                 "status": False,
                 "statusCode": 404,
                 "message": "Product not found",
                 "data": None
-            }, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({
-                "status": False,
-                "statusCode": 500,
-                "message": str(e),
-                "data": None
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            }, status=404)
 
 # CART LISTING
 class CartListAPIView(APIView):
@@ -1085,7 +1073,6 @@ class ItemSummaryAPIView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class CreateOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1198,9 +1185,9 @@ class CreateOrderAPIView(APIView):
                 user=user,
                 cart=cart,
                 customer=customer,
-                Payment_method=payment_data.get("payment_method"),
+                payment_method=payment_data.get("payment_method"),
                 total_amount=total_amount,
-                status="created",   
+                status="pending",   
                 order_type="uniform",
                 promocode=promocode
             )
@@ -1270,6 +1257,7 @@ class CreateOrderAPIView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+
 class OrderSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1279,9 +1267,7 @@ class OrderSummaryAPIView(APIView):
             if not order_id:
                 return Response(
                     {"error": "Order ID is required."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
+                    status=status.HTTP_400_BAD_REQUEST)
             try:
                 order = Order.objects.get(order_id=order_id, user=request.user)
             except Order.DoesNotExist:
@@ -1289,7 +1275,6 @@ class OrderSummaryAPIView(APIView):
                     {"error": "Order not found."},
                     status=status.HTTP_404_NOT_FOUND
                 )
-
             customer = order.customer
             cart_items = order.cart.items.all()  
 
@@ -1330,7 +1315,7 @@ class OrderSummaryAPIView(APIView):
                 },
                 "order_items": order_items_list,
                 "payment": {
-                    "payment_method": order.Payment_method 
+                    "payment_method": order.payment_method
                 },
                 "promocode": {
                     "code": order.promocode.promocodeName if order.promocode else None
@@ -1402,8 +1387,6 @@ class OrderListAPIView(APIView):
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-  
-
 
 class OrderDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1441,3 +1424,36 @@ class OrderDetailAPIView(APIView):
                 "data": {}
             }, status=status.HTTP_404_NOT_FOUND)
 
+
+class UserCancelOrderAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        order_id = request.data.get("order_id")
+        if not order_id:
+            return Response(
+                {"status": False, 
+                 "statusCode":400,
+                 "message": "order_id is required"
+                 }, status=status.HTTP_400_BAD_REQUEST )
+        
+        try:
+            order = Order.objects.get(order_id=order_id, user=request.user)
+        except Order.DoesNotExist:
+            return Response(
+                {"status": False,
+                  "statusCode":404,
+                  "message": "Order not found or you do not have permission"},
+                status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = UserCancelOrderSerializer(order, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": True,
+                             "statusCode":200,
+                             "message": "Order cancelled successfully"
+                        }, status=status.HTTP_200_OK)
+        return Response({
+            "status": False, 
+            "errors": serializer.errors},
+              status=status.HTTP_400_BAD_REQUEST)

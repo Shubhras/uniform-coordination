@@ -87,12 +87,12 @@ class UserResponseSerializer(serializers.ModelSerializer):
             "updatedAt",
         ]
         read_only_fields = fields
-
-
-class LoginSerializer(serializers.Serializer):
+ 
+class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(required=True, write_only=True)
     userType = serializers.CharField(required=True)
+    
 
 
     def validate(self, data):
@@ -134,18 +134,73 @@ class VerifyUserSerializer(serializers.Serializer):
             raise serializers.ValidationError("is_verify must be true.")
         return attrs
 
-
 class CartItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(
+        source="product.productName", read_only=True
+    )
+
     class Meta:
         model = CartItem
-        fields = '__all__'
+        fields = [
+            'id',
+            'product_name',
+            'quantity',
+            'price',
+            'total_price'
+        ]
 
-class OrderSerializer(serializers.ModelSerializer):
+class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
 
     class Meta:
+        model = Cart
+        fields = ['id', 'user', 'is_active', 'created_at', 'items']
+
+
+class CustomerDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomerDetails
+        fields = "__all__"
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="product.productName")
+    thumbnail = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CartItem
+        fields = ['name', 'quantity', 'price', 'total_price', 'thumbnail']
+
+    def get_thumbnail(self, obj):
+        if obj.product.ProductImage:
+            return obj.product.ProductImage.url
+        return None
+
+
+class UserCancelOrderSerializer(serializers.ModelSerializer):
+    cancel_reason = serializers.CharField(required=True,allow_blank=False)
+
+    class Meta:
         model = Order
-        fields = '__all__'
+        fields = ['order_id', 'cancel_reason']
+
+    def update(self, instance, validated_data):
+        if instance.status in ["completed", "cancelled", "paid"]:
+            raise serializers.ValidationError(f"Order cannot be cancelled because it is {instance.status}")
+
+        instance.status = "cancelled"
+        instance.cancel_reason = validated_data.get("cancel_reason")
+        instance.cancelled_by = "user"
+        instance.save()
+        return instance
+
+        
+class OrderSerializer(serializers.ModelSerializer):
+    cart = CartSerializer(read_only=True)
+    customer = CustomerDetailsSerializer(read_only=True)
+
+    class Meta:
+        model = Order
+        fields = "__all__"
 
 class PaymentSerializer(serializers.ModelSerializer):
     cartitem =CartItemSerializer(read_only=True)
@@ -154,8 +209,6 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = '__all__'
-
-
 
 class FavouriteSerializer(serializers.ModelSerializer):
     product_type = serializers.CharField(

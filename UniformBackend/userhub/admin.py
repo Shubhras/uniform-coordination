@@ -59,16 +59,25 @@ class CustomerDetailsAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
         'order_id', 
-        'user', 
+        'get_user_email', 
         'customer', 
-        'Payment_method', 
+        'payment_method', 
         'status', 
+        'cancelled_by',         
+        'cancel_reason',
         'order_type', 
         'total_amount',
         'promocode',  
         'start_date', 
         'return_date'
     )
+
+    raw_id_fields = ('user', 'cart', 'customer', 'promocode')  # <-- avoids fetching deleted FK objects
+
+    def get_user_email(self, obj):
+        return obj.user.email if obj.user else "User missing"
+    get_user_email.short_description = "User"
+
     
 
 # @admin.register(Notifications)

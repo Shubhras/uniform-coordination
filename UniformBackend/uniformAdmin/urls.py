@@ -156,10 +156,12 @@ urlpatterns = [
     path("unit-price/export/",UnitPriceExportAPIView.as_view(),name="unit-price-export"),
 
 
-     #<-------------------Dashboardes------------------------------->
+    #<-------------------Dashboardes------------------------------->
     path("admindesh/",AdminDashAPIView.as_view(),name="admin-desh-info"),
 
     #<-------------------Homepage------------------------------->
     path("uniform-home/", HomePageAPIView.as_view(), name="home-page"),
+
+    path("admin/order/update/",AdminOrderUpdateAPIView.as_view(),name="admin-update-status")
 
 ]

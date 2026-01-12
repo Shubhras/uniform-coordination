@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 import re
 from .models import *
 from .utils import get_default_b2b_role
+from userhub.models import Order
 # User = get_user_model()
 import json
 
@@ -894,3 +895,33 @@ class AdminUserSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+
+class AdminOrderUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = [
+            'order_id',
+            'status',
+            'cancel_reason',
+            'cancelled_by'
+        ]
+
+    def validate(self, data):
+        status = data.get('status', self.instance.status)
+        status = status.lower()  
+
+        if status == 'cancelled':
+            cancel_reason = data.get('cancel_reason')
+
+            if not cancel_reason:
+                raise serializers.ValidationError({
+                    "cancel_reason": "Cancel reason is required when admin cancels the order."
+                })
+
+            data['cancelled_by'] = 'admin'
+
+        return data
+

@@ -6,7 +6,7 @@ from .payment import *
 
 urlpatterns = [
     path('signup/', SignupAPIView.as_view(), name='user-signup'),
-    path('login/', LoginAPIView.as_view(), name="user-login"),
+    path('login/', UserLoginAPIView.as_view(), name="user-login"),
     path("profile/", GetProfileAPIView.as_view(), name="get_profile"),
     path("profile/update/", UpdateProfileAPIView.as_view(), name="update_profile"),
     path("profile/delete/", DeleteProfileAPIView.as_view(), name="delete_profile"),
@@ -58,10 +58,11 @@ urlpatterns = [
     path('order/summary/', OrderSummaryAPIView.as_view(), name='order-summary'),  #show full checkout/order review
     path("order/id/",OrderDetailAPIView.as_view()),
     path("order/list/",OrderListAPIView.as_view()),
+    path('user/order/cancel/',UserCancelOrderAPIView.as_view(),name='user-order-cancel'),
 
 
     #<-------------------Payment API------------------------------->
-    path("payments/create-intent/", CreatePaymentIntentAPIView.as_view()),
+    path("payments/create-intent/",CreatePaymentIntentAPIView.as_view()),
     path("payments/", UserPaymentListAPIView.as_view()),
     path("payments/detail/", UserPaymentDetailAPIView.as_view()),
     path("stripe/webhook",StripeWebhookAPIView.as_view()),

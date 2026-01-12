@@ -158,27 +158,43 @@ class Order(models.Model):
     ]
     STATUS_CHOICE = [
         ('pending','PENDING'),
+        ('confirmed','CONFIRMED'),
+        ('cancelled','CANCELLED'),
+        ('completed','COMPLETED'),
+        ('processing','PROCESSING'),
         ('paid','PAID'),
-        ('failed','FAILED'),
     ]
-
-    user =models.ForeignKey(Users,on_delete=models.CASCADE)
-    order_id  =models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
-    cart = models.ForeignKey(Cart,on_delete=models.CASCADE)
-    customer =models.ForeignKey(CustomerDetails,on_delete=models.CASCADE)
-    Payment_method =models.CharField(max_length=50)
-    status = models.CharField(max_length=50,choices=STATUS_CHOICE)
+    id = models.BigAutoField(primary_key=True) 
+    user =models.ForeignKey(Users,on_delete=models.SET_NULL,null=True,blank=True)
+    order_id = models.CharField(max_length=100, unique=True) 
+    cart = models.ForeignKey(Cart,on_delete=models.SET_NULL,null=True,blank=True)
+    customer =models.ForeignKey(CustomerDetails,on_delete=models.SET_NULL,null=True,blank=True)
+    payment_method = models.CharField(max_length=50,null=True,blank=True) 
+    currency = models.CharField(max_length=10,null=True,blank=True) 
+    status = models.CharField(max_length=50,choices=STATUS_CHOICE,default='pending')
     order_type =models.CharField(max_length=50,choices=ORDER_TYPE_CHOICES)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     start_date =models.DateField(auto_now_add=True)
     return_date =models.DateField(auto_now_add=True)
-    promocode =models.ForeignKey("uniformAdmin.Promocode",on_delete=models.CASCADE,null=True, blank=True)
+    cancel_reason = models.CharField(max_length=50,null=True, blank=True)
+    cancelled_by = models.CharField(max_length=20, null=True, blank=True)
+    promocode =models.ForeignKey("uniformAdmin.Promocode",on_delete=models.SET_NULL,null=True, blank=True)
     is_active = models.BooleanField(default=True,null=True,blank=True)
     is_delete = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     is_update = models.DateField(auto_now_add=True,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
 
 
+    def save(self, *args, **kwargs):
+        if not self.order_id:
+            prefix = "ORD"
+            uid = uuid.uuid4().hex[:6].upper()
+            self.order_id = f"{prefix}-{uid}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Order {self.order_id}"
+    
 
 class Payment(models.Model):
     PAYMENT_STATUS = [
