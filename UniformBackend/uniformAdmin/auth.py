@@ -24,6 +24,7 @@ import jwt  # PyJWT library
 from django.conf import settings
 
 
+
 # class IsAdminUserJWT(BasePermission):
 #     message = "Only admin users are allowed."
    
