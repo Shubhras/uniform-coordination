@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { FiChevronDown } from 'react-icons/fi'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import { apiGetProductById } from '@/services/ProductService'
 const Uniforms = () => {
     const router = useRouter()
     const handleUniformDesigning = () => {
@@ -33,8 +34,31 @@ const Uniforms = () => {
 
     const products = imagesByTab[activeTab]
 
+    const { id } = useParams();
+    const [productData, setProductData] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const res = await apiGetProductById(id);
+                if (res?.status) {
+                    setProductData(res.data);
+                }
+            } catch (err) {
+                console.error("Failed to load category detail", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) fetchProduct();
+    }, [id]);
+
+    console.log(productData)
+
     return (
-        <section className="w-full bg-white flex flex-col lg:flex-row px-5 md:px-8 lg:px-12 py-5 gap-10 mt-15"> 
+        <section className="w-full bg-white flex flex-col lg:flex-row px-5 md:px-8 lg:px-12 py-5 gap-10 mt-15">
             <div className="w-full mx-auto">
                 <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p>
 

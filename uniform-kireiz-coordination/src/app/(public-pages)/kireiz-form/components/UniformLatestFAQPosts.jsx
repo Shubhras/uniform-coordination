@@ -111,7 +111,7 @@ const UniformLatestFAQPosts = ({ faqs = [], loading }) => {
               >
                 <span className="font-medium text-[#1C2C56]">
                   {faq.title}
-                </span>
+                </span> 
                 {isOpen ? <FiMinus /> : <FiPlus />}
               </button>
 

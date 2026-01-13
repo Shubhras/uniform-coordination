@@ -31,6 +31,8 @@ import {
     FiArchive,
 } from "react-icons/fi"
 import { useRouter } from 'next/navigation'
+import { apiSaveDesign } from '@/services/SaveDesignService'
+import { useSession } from 'next-auth/react'
 
 const iconMap = {
     "Cut Style": FiScissors,
@@ -45,6 +47,10 @@ const DesignResultPage = () => {
     const router = useRouter();
     const [dialogTermsOpen, setDialogTermsOpen] = useState(false);
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false);
+    const { data: session } = useSession()
+    console.log("session", session)
+
+
     const {
         handleSubmit,
         reset,
@@ -107,6 +113,40 @@ const DesignResultPage = () => {
     const handleRedirect = () => {
         router.push('/dashboards/delivery-request')
     }
+
+    const handleSaveDesign = async () => {
+        if (!session?.accessToken) return
+
+        const payload = {
+            user: session?.user?.id,
+            model_info: 13,
+            config_json: {
+                color: "Navy Blue",
+                size: "M",
+                material: "Polyester",
+            },
+            design_specifications: {
+                cut_style: "Modern Fit",
+                collar_type: "V-Neck Reinforced",
+                sleeve_length: "Short",
+                pocket_configuration: "1 Chest, 2 Lower Patch",
+                pant: "Straight Pant",
+            },
+            json_file_path: "uploads/configs/user7_model13.json",
+            isActive: true,
+        };
+
+        try {
+            const response = await apiSaveDesign(payload);
+            console.log("Design Saved Successfully:", response);
+            alert("Design saved successfully");
+        } catch (error) {
+            console.error("Save Design Error:", error);
+            alert("Failed to save design");
+        }
+    };
+
+
     return (
         <>
             <div className="w-full max-w-7xl mx-auto">
@@ -196,26 +236,26 @@ const DesignResultPage = () => {
 
                                 {/* Save Design */}
                                 <button
+                                    onClick={handleSaveDesign}
                                     className="
-      w-full sm:w-auto
-      flex-1
-      flex flex-col items-center justify-center
-      gap-2
-      text-xs
-      border border-[#E5E7EB]
-      rounded-lg
-      bg-[#F7FBFF]
-      text-[#1C2C56]
-      hover:bg-[#EEF5FF]
-      transition
-      py-2
-      h-[55px]
+        w-full sm:w-auto
+        flex-1
+        flex flex-col items-center justify-center
+        gap-2
+        text-xs
+        border border-[#E5E7EB]
+        rounded-lg
+        bg-[#F7FBFF]
+        text-[#1C2C56]
+        hover:bg-[#EEF5FF]
+        transition
+        py-2
+        h-[55px]
     "
                                 >
                                     <FiSave size={18} />
                                     <span>Save Design</span>
                                 </button>
-
                                 {/* Export PDF */}
                                 <button
                                     className="
