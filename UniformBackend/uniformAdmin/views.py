@@ -19,12 +19,15 @@ from userhub.serializers import QuotationRequestSerializer
 from django.db.models import Q
 from .fabric import CustomPagination
 import traceback
+import stripe
 from django.utils.timezone import now
 # from .fabric import  IsAdministrator 
 from .auth import IsAdminUserJWT
+from django.conf import settings
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 
@@ -1243,7 +1246,8 @@ class AdminNotificationDeleteAPIView(APIView):
 
 
 class AdminDashAPIView(APIView):
-    permission_classes = [IsAdminUserJWT]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         try:
             today = now().date()
@@ -1436,48 +1440,90 @@ class AdminDashAPIView(APIView):
 
 
 class AdminOrderUpdateAPIView(APIView):
-    authentication_classes = [IsAdminUserJWT]
+    permission_classes = [IsAuthenticated]
 
-    def patch(self, request):
+    def patch(self, request, order_id):
         try:
-            order_id = request.data.get('order_id')
+            order = Order.objects.get(order_id=order_id)
+        except Order.DoesNotExist:
+            return Response({"status": False, "statusCode": 404, "message": "Order not found"}, status=404)
 
-            if not order_id:
-                return Response({
-                    "status": False,
-                    "message": "order_id is required"
-                }, status=status.HTTP_400_BAD_REQUEST)
+        serializer = AdminOrderUpdateSerializer(order, data=request.data, partial=True)
+        if serializer.is_valid():
+            data = serializer.validated_data
 
-            try:
-                order = Order.objects.get(order_id=order_id)
-            except Order.DoesNotExist:
-                return Response({
-                    "status": False,
-                    "message": "Order not found"
-                }, status=status.HTTP_404_NOT_FOUND)
+            if data.get('status') == 'cancelled':
+                order.status = 'cancelled'
+                order.admin_cancel_reason = data['admin_cancel_reason']
+                order.cancelled_by = 'admin'
+            else:
+                order.status = data['status']
 
-            serializer = AdminOrderUpdateSerializer(
-                order,
-                data=request.data,
-                partial=True
-            )
-
-            if serializer.is_valid():
-                serializer.save()
-                return Response({
-                    "status": True,
-                    "message": "Order updated successfully",
-                    "data": serializer.data
-                }, status=status.HTTP_200_OK)
-
+            order.save()
             return Response({
-                "status": False,
-                "errors": serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
+                "status": True,
+                "statusCode": 200,
+                "message": "Order updated successfully",
+                "data": {
+                    "order_id": order.order_id,
+                    "status": order.status,
+                    "user_cancel_reason": order.cancel_reason,
+                    "admin_cancel_reason": order.admin_cancel_reason,
+                    "cancelled_by": order.cancelled_by
+                }
+            })
+        return Response({"status": False, "statusCode": 400, "message": serializer.errors}, status=400)
 
-        except Exception as e:
-            return Response({
-                "status": False,
-                "message": "Something went wrong",
-                "error": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# class AdminRefundProcessAPIView(APIView):
+#     permission_classes = [IsAdminUser]
+
+#     def patch(self, request, refund_id):
+#         refund = get_object_or_404(Refund, id=refund_id)
+#         payment = refund.payment
+
+#         refund_type = request.data.get('refund_type')
+#         refund_amount = 0
+
+#         # Calculate refund amount
+#         if refund_type == 'full':
+#             refund_amount = payment.amount
+#         elif refund_type == 'partial':
+#             refund_amount = float(request.data.get('refund_amount', 0))
+#         elif refund_type == 'percentage':
+#             percentage = float(request.data.get('refund_percentage', 0))
+#             refund_amount = (payment.amount * percentage) / 100
+#         else:
+#             return Response({"status": False, "message": "Invalid refund_type"}, status=400)
+
+#         if refund_amount > payment.amount:
+#             return Response({"status": False, "message": "Refund cannot exceed paid amount"}, status=400)
+
+#         # Stripe Refund
+#         try:
+#             stripe_refund = stripe.Refund.create(
+#                 payment_intent=payment.payment_id,
+#                 amount=int(refund_amount * 100)
+#             )
+#         except stripe.error.StripeError as e:
+#             return Response({"status": False, "message": str(e)}, status=400)
+
+#         # Update Refund object
+#         refund.refund_amount = refund_amount
+#         refund.status = 'processed'
+#         refund.payment_gateway_id = stripe_refund['id']
+#         refund.admin_note = request.data.get('admin_note', '')
+#         refund.processed_at = timezone.now()
+#         refund.save()
+
+#         # Optional: cancel order if full refund
+#         if refund_amount == payment.amount:
+#             refund.order.status = 'cancelled'
+#             refund.order.save()
+
+#         return Response({
+#             "status": True,
+#             "message": "Refund processed successfully",
+#             "refund_amount": refund_amount
+#         })

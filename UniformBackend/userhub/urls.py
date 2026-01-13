@@ -47,20 +47,18 @@ urlpatterns = [
     path('quotationrequest/<uuid:uuid>/export/',QuotationRequestExportPDFAPIView.as_view(), name = 'QuotationRequest-export'),
 
     #<-------------------Card API------------------------------->
-    path("cart/add/", AddToCartAPIView.as_view()),
-    path("cart/list/", CartListAPIView.as_view()),
-    path("cart/item/update/", UpdateCartItemAPIView.as_view()),
-    path("cart/item/delete/", RemoveCartItemAPIView.as_view()),
-    path("cart/item-summary/", ItemSummaryAPIView.as_view()),
+    path("cart/add/",AddToCartAPIView.as_view()),
+    path("cart/list/",CartListAPIView.as_view()),
+    path("cart/item/update/",UpdateCartItemAPIView.as_view()),
+    path("cart/item/delete/",RemoveCartItemAPIView.as_view()),
+    path("cart/item-summary/",ItemSummaryAPIView.as_view()),
 
     #<-------------------ORDER API------------------------------->
     path("create/order/",CreateOrderAPIView.as_view()),
-    path('order/summary/', OrderSummaryAPIView.as_view(), name='order-summary'),  #show full checkout/order review
+    path('order/summary/',OrderSummaryAPIView.as_view(), name='order-summary'),  #show full checkout/order review
     path("order/id/",OrderDetailAPIView.as_view()),
     path("order/list/",OrderListAPIView.as_view()),
-    path('user/order/cancel/',UserCancelOrderAPIView.as_view(),name='user-order-cancel'),
-
-
+    
     #<-------------------Payment API------------------------------->
     path("payments/create-intent/",CreatePaymentIntentAPIView.as_view()),
     path("payments/", UserPaymentListAPIView.as_view()),
@@ -69,8 +67,11 @@ urlpatterns = [
     # path("payments/create-NP/",CreateNPPaymentAPIView.as_view(),name="CREATE NP Kakebarai"),
     # path("NP/webhook/",NPPaymentWebhookAPIView.as_view(),name="NP_webhook"),
      
-    path("admin/payments/", AdminPaymentListAPIView.as_view()),
-    path("admin/payments/detail/", AdminPaymentDetailAPIView.as_view()),
+    path("admin/payments/",AdminPaymentListAPIView.as_view()),
+    path("admin/payments/detail/",AdminPaymentDetailAPIView.as_view()),
+
+    path('user/order/cancel/<str:order_id>/',UserCancelOrderAPIView.as_view(), name='user-order-cancel'),
+    path('user/refunds/', UserRefundRequestAPIView.as_view(), name='user-refund-list'),
 
 ]
    

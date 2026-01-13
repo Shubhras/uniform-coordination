@@ -505,7 +505,6 @@ class StripeWebhookAPIView(APIView):
 
     def post(self, request):
         try:
-
             payload = request.body
             sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
 
@@ -521,35 +520,64 @@ class StripeWebhookAPIView(APIView):
             event_type = event["type"]
             intent = event["data"]["object"]
 
-            try:
-                payment = Payment.objects.select_related("order").get(
-                    payment_id=intent["id"]
-                )
-            except Payment.DoesNotExist:
-                return HttpResponse(status=200)
-            
-            if int(intent.amount) != int(payment.amount * 100):
-                return HttpResponse(status=400)
+            # ---------------- Payment Events ----------------
+            if event_type.startswith("payment_intent."):
+                try:
+                    payment = Payment.objects.select_related("order").get(
+                        payment_id=intent["id"]
+                    )
+                except Payment.DoesNotExist:
+                    return HttpResponse(status=200)
 
-            if event_type == "payment_intent.succeeded":
-                if payment.payment_status != "SUCCESS":
+                if int(intent.amount) != int(payment.amount * 100):
+                    return HttpResponse(status=400)
+
+                if event_type == "payment_intent.succeeded":
                     payment.payment_status = "SUCCESS"
                     payment.save(update_fields=["payment_status"])
 
                     payment.order.status = "PAID"
                     payment.order.save(update_fields=["status"])
 
-            elif event_type == "payment_intent.processing":
-                payment.payment_status = "PROCESSING"
-                payment.save(update_fields=["payment_status"])
+                elif event_type == "payment_intent.processing":
+                    payment.payment_status = "PROCESSING"
+                    payment.save(update_fields=["payment_status"])
 
-            elif event_type == "payment_intent.payment_failed":
-                payment.payment_status = "FAILED"
-                payment.save(update_fields=["payment_status"])
+                elif event_type == "payment_intent.payment_failed":
+                    payment.payment_status = "FAILED"
+                    payment.save(update_fields=["payment_status"])
 
-                payment.order.status = "CANCELLED"
-                payment.order.save(update_fields=["status"])
+                    payment.order.status = "CANCELLED"
+                    payment.order.save(update_fields=["status"])
+
+            # ---------------- Refund Events ----------------
+            elif event_type in ["charge.refunded", "charge.refund.updated"]:
+                stripe_refund_id = intent.get("id")
+                try:
+                    refund = Refund.objects.get(payment_gateway_id=stripe_refund_id)
+                except Refund.DoesNotExist:
+                    return HttpResponse(status=200)  
+
+                refund.status = "processed"
+                refund.processed_at = timezone.now()
+                refund.save(update_fields=["status", "processed_at"])
+
+            
+                if refund.refund_amount >= refund.payment.amount:
+                    refund.order.status = "cancelled"
+                    refund.order.save(update_fields=["status"])
+
+            elif event_type == "charge.refund.failed":
+                stripe_refund_id = intent.get("id")
+                try:
+                    refund = Refund.objects.get(payment_gateway_id=stripe_refund_id)
+                except Refund.DoesNotExist:
+                    return HttpResponse(status=200)
+
+                refund.status = "failed"
+                refund.save(update_fields=["status"])
+
             return HttpResponse(status=200)
-        
+
         except Exception:
             return HttpResponse(status=200)

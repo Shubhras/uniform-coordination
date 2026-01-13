@@ -1038,12 +1038,13 @@ class ItemSummaryAPIView(APIView):
 
             items_count = sum(item.quantity for item in cart_items)
             subtotal = sum(item.total_price for item in cart_items)
-            shipping = Decimal("0.00")
-            tax = Decimal("0.00")
-            fees = Decimal("0.00")
-            discount = Decimal("0.00")
+            shipping = None
+            tax = None
+            fees = None
+            
+            total_discount = sum(((item.price - item.final_price) * item.quantity) for item in cart_items)
 
-            total_amount = subtotal + shipping + tax + fees - discount
+            total_amount = subtotal + Decimal("0.00") + Decimal("0.00") + Decimal("0.00") - total_discount
 
             items_list = []
             for item in cart_items:
@@ -1051,17 +1052,18 @@ class ItemSummaryAPIView(APIView):
                     "name": item.product.productName,
                     "quantity": item.quantity,
                     "price": item.price,
-                    "total": item.total_price
+                    "total": item.total_price,
+                    "discount": (item.price - item.final_price) 
                 })
 
             return Response({
                 "items_count": items_count,
                 "items": items_list,
                 "subtotal": subtotal,
-                "shipping": None,
-                "tax": None,
-                "fees": None,
-                "discount": None,
+                "shipping": shipping,
+                "tax": tax,
+                "fees": fees,
+                "discount": total_discount,  
                 "total_amount": total_amount
             })
 
@@ -1071,7 +1073,6 @@ class ItemSummaryAPIView(APIView):
                 "statusCode": 400,
                 "error": "Cart is empty"
             }, status=status.HTTP_400_BAD_REQUEST)
-
 
 class CreateOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1331,8 +1332,8 @@ class OrderSummaryAPIView(APIView):
                 "status": True,
                 "statusCode": 200,
                 "message": "Order review fetched successfully",
-                "data": response_data
-            })
+                "data": response_data},status=status.HTTP_200_OK)
+        
         except Exception as e:
             return Response(
                 {
@@ -1341,8 +1342,9 @@ class OrderSummaryAPIView(APIView):
                     "error": "Something went wrong while fetching order summary.",
                     "details": str(e) 
                 },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
 class OrderListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1385,75 +1387,106 @@ class OrderListAPIView(APIView):
                     "message": "Something went wrong while fetching order list",
                     "error": str(e)
                 },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class OrderDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        order_id = request.data.get("order_id")
+            try:
+                order_id = request.data.get("order_id")
 
-        if not order_id:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "message": "order_id is required",
-                "data": {}
-            }, status=status.HTTP_400_BAD_REQUEST)
+                if not order_id:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "order_id is required",
+                        "data": {}
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            order = Order.objects.get(
-                order_id=order_id,
-                user=request.user
-            )
+                try:
+                    order = Order.objects.get(
+                        order_id=order_id,
+                        user=request.user
+                    )
 
-            serializer = OrderSerializer(order)
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Order fetched successfully",
-                "data": serializer.data
-            }, status=status.HTTP_200_OK)
+                    serializer = OrderSerializer(order)
+                    return Response({
+                        "status": True,
+                        "statusCode": 200,
+                        "message": "Order fetched successfully",
+                        "data": serializer.data
+                    }, status=status.HTTP_200_OK)
 
-        except Order.DoesNotExist:
-            return Response({
-                "status": False,
-                "statusCode": 404,
-                "message": "Order not found",
-                "data": {}
-            }, status=status.HTTP_404_NOT_FOUND)
-
+                except Order.DoesNotExist:
+                    return Response({
+                        "status": False,
+                        "statusCode": 404,
+                        "message": "Order not found",
+                        "data": {}
+                    }, status=status.HTTP_404_NOT_FOUND)
+            except Exception:
+                return Response(
+                    {
+                        "status": False,
+                        "statusCode": 500,
+                        "error": "Internal server error."
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )    
 
 class UserCancelOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def patch(self, request):
-        order_id = request.data.get("order_id")
-        if not order_id:
-            return Response(
-                {"status": False, 
-                 "statusCode":400,
-                 "message": "order_id is required"
-                 }, status=status.HTTP_400_BAD_REQUEST )
-        
+    def patch(self, request, order_id):
         try:
             order = Order.objects.get(order_id=order_id, user=request.user)
         except Order.DoesNotExist:
-            return Response(
-                {"status": False,
-                  "statusCode":404,
-                  "message": "Order not found or you do not have permission"},
-                status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = UserCancelOrderSerializer(order, data=request.data)
+            return Response({"status": False, "statusCode": 404, "message": "Order not found"}, status=404)
+
+        serializer = UserCancelOrderSerializer(order, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"status": True,
-                             "statusCode":200,
-                             "message": "Order cancelled successfully"
-                        }, status=status.HTTP_200_OK)
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Order cancelled successfully",
+                "data": {
+                    "order_id": order.order_id,
+                    "status": order.status,
+                    "user_cancel_reason": order.cancel_reason }
+            })
         return Response({
             "status": False, 
-            "errors": serializer.errors},
-              status=status.HTTP_400_BAD_REQUEST)
+            "statusCode": 400,
+            "message": serializer.errors}, status=400)
+
+
+class UserRefundRequestAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = UserRefundRequestSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+
+        if serializer.is_valid():
+            refund = serializer.save()
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Refund request created successfully",
+                "data": {
+                    "refund_id": refund.id,
+                    "order_id": refund.order.order_id,
+                    "refund_amount": refund.refund_amount,
+                    "refund_status": refund.status
+                }
+            }, status=status.HTTP_200_OK)
+
+        return Response({
+            "status": False,
+            "statusCode": 400,
+            "message": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)

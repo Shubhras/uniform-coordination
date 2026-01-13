@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 import re
 from .models import *
 from .utils import get_default_b2b_role
-from userhub.models import Order
+from userhub.models import *
 # User = get_user_model()
 import json
 
@@ -896,32 +896,67 @@ class AdminUserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-
-
 class AdminOrderUpdateSerializer(serializers.ModelSerializer):
+    admin_cancel_reason = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = Order
+        fields = ['status', 'admin_cancel_reason']
+
+    def validate(self, attrs):
+        order = self.instance
+        new_status = attrs.get('status', None)
+
+        if order.status in ['completed', 'paid']:
+            raise serializers.ValidationError("Cannot update order because it is already completed or paid.")
+
+        if new_status == 'cancelled' and not attrs.get('admin_cancel_reason'):
+            raise serializers.ValidationError("Admin cancel reason is required when cancelling an order.")
+        
+        return attrs
+
+class AdminRefundSerializer(serializers.ModelSerializer):
+    order_id = serializers.CharField(source='order.order_id', read_only=True)
+    user_name = serializers.CharField(source='user.username', read_only=True)
+    payment_id = serializers.CharField(source='payment.payment_id', read_only=True)
+
+    class Meta:
+        model = Refund
         fields = [
+            'id',
+            'order',
             'order_id',
+            'payment',
+            'payment_id',
+            'user',
+            'user_name',
+            'refund_amount',
+            'reason',
             'status',
-            'cancel_reason',
-            'cancelled_by'
+            'admin_note',
+            'refund_method',
+            'payment_gateway_id',
+            'currency',
+            'created_at',
+            'processed_at',
+        ]
+        read_only_fields = [
+            'id',
+            'order',
+            'user',
+            'payment',
+            'created_at',
+            'processed_at',
+            'payment_id',
+            'order_id',
+            'user_name'
         ]
 
-    def validate(self, data):
-        status = data.get('status', self.instance.status)
-        status = status.lower()  
-
-        if status == 'cancelled':
-            cancel_reason = data.get('cancel_reason')
-
-            if not cancel_reason:
-                raise serializers.ValidationError({
-                    "cancel_reason": "Cancel reason is required when admin cancels the order."
-                })
-
-            data['cancelled_by'] = 'admin'
-
-        return data
-
+    def validate_refund_amount(self, value):
+        if self.instance and self.instance.payment:
+            max_amount = self.instance.payment.amount
+            if value <= 0:
+                raise serializers.ValidationError("Refund amount must be greater than zero.")
+            if value > max_amount:
+                raise serializers.ValidationError(f"Refund amount cannot exceed paid amount ({max_amount}).")
+        return value

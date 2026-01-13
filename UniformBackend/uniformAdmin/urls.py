@@ -162,6 +162,8 @@ urlpatterns = [
     #<-------------------Homepage------------------------------->
     path("uniform-home/", HomePageAPIView.as_view(), name="home-page"),
 
-    path("admin/order/update/",AdminOrderUpdateAPIView.as_view(),name="admin-update-status")
+    path('admin/order/update/<str:order_id>/', AdminOrderUpdateAPIView.as_view(), name='admin-order-update'),
+    # path('admin/refunds/',AdminRefundProcessAPIView.as_view(), name='admin-refund-list'),
+    # path('admin/refund/<int:refund_id>/', AdminRefundProcessAPIView.as_view(), name='admin-refund-process'),
 
 ]

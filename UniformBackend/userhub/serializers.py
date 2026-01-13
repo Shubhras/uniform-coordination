@@ -177,19 +177,22 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class UserCancelOrderSerializer(serializers.ModelSerializer):
-    cancel_reason = serializers.CharField(required=True,allow_blank=False)
+    cancel_reason = serializers.CharField(required=True, max_length=255)
 
     class Meta:
         model = Order
-        fields = ['order_id', 'cancel_reason']
+        fields = ['cancel_reason']
+
+    def validate(self, attrs):
+        order = self.instance
+        if order.status not in ['pending', 'processing']:
+            raise serializers.ValidationError(f"Cannot cancel order because it is {order.status}")
+        return attrs
 
     def update(self, instance, validated_data):
-        if instance.status in ["completed", "cancelled", "paid"]:
-            raise serializers.ValidationError(f"Order cannot be cancelled because it is {instance.status}")
-
-        instance.status = "cancelled"
-        instance.cancel_reason = validated_data.get("cancel_reason")
-        instance.cancelled_by = "user"
+        instance.status = 'cancelled'
+        instance.cancel_reason = validated_data['cancel_reason']
+        instance.cancelled_by = 'user'
         instance.save()
         return instance
 
@@ -210,6 +213,51 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = '__all__'
 
+
+class UserRefundRequestSerializer(serializers.Serializer):
+    order_id = serializers.CharField()
+    reason = serializers.CharField(required=False, allow_blank=True)
+
+    def validate(self, attrs):
+        request = self.context['request']
+        user = request.user
+        order_id = attrs['order_id']
+
+        try:
+            order = Order.objects.get(order_id=order_id, user=user)
+        except Order.DoesNotExist:
+            raise serializers.ValidationError("Order not found or does not belong to you.")
+
+        if order.status not in ['paid', 'completed']:
+            raise serializers.ValidationError(
+                "Refund can only be requested for paid or completed orders."
+            )
+
+        payment = order.payments.filter(status='paid').last()
+        if not payment:
+            raise serializers.ValidationError("No successful payment found for this order.")
+
+        # save for create()
+        attrs['order'] = order
+        attrs['payment'] = payment
+        return attrs
+
+    def create(self, validated_data):
+        order = validated_data['order']
+        payment = validated_data['payment']
+
+        refund = Refund.objects.create(
+            order=order,
+            payment=payment,
+            user=self.context['request'].user,
+            refund_amount=payment.amount,
+            reason=validated_data.get('reason'),
+            status='pending',
+            currency=payment.currency
+        )
+        return refund
+
+    
 class FavouriteSerializer(serializers.ModelSerializer):
     product_type = serializers.CharField(
         source="product.productType",
