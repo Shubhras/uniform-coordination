@@ -62,8 +62,8 @@ const CategorySection = ({ data }) => {
 
     const router = useRouter();
 
-    const handleStartDesigning = () => {
-        router.push("/dashboards/uniform-design");
+    const handleStartDesigning = (id) => {
+        router.push(`/dashboards/uniform-design/${id}`);
     };
     return (
         <section className="w-full bg-white px-5 md:px-8 lg:px-12">
@@ -180,7 +180,7 @@ const CategorySection = ({ data }) => {
                                     ))}
                                 </ul> */}
 
-                                <button className="bg-[#1C2C56] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#1C2C56]" onClick={handleStartDesigning}>
+                                <button className="bg-[#1C2C56] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#1C2C56]" onClick={() => handleStartDesigning(item.id)}>
                                     {/* {item.btn} */}
                                     Customize
                                 </button>
