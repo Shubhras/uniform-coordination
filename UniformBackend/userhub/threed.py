@@ -225,7 +225,7 @@ class QuotationRequestCreateAPIView(APIView):
 
     def post(self,request):
         try:
-            serializer = QuotationRequestSerializer(data=request.data)
+            serializer = QuotationRequestSerializer(data=request.data,context={"request": request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
             quotation = serializer.save() 
@@ -253,10 +253,10 @@ class QuotationRequestCreateAPIView(APIView):
 class QuotationRequestDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self,request,uuid):
+    def get(self,request,quotation_id):
         quta = get_object_or_404(
             QuotationRequest,
-            uuids=uuid,
+            quotation_id=quotation_id,
             isDeleted=False
         )
         serializer = QuotationRequestSerializer(quta)
@@ -270,9 +270,9 @@ class QuotationRequestDetailAPIView(APIView):
 class QuotationRequestExportPDFAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, uuid):
+    def get(self, request, quotation_id):
         quotation = QuotationRequest.objects.filter(
-            uuids=uuid,
+            quotation_id=quotation_id,
             isDeleted=False
         ).first()
 
@@ -291,6 +291,49 @@ class QuotationRequestExportPDFAPIView(APIView):
             "message": "PDF generated successfully",
             "pdf_url": request.build_absolute_uri(pdf_url)
         })
+    
+
+class QuotationRequestsListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            quotations = QuotationRequest.objects.filter(
+                customupdatemodel__user=request.user,
+                isDeleted=False
+            )
+
+            if not quotations.exists():
+                return Response(
+                    {
+                        "status": True,
+                        "message": "You have not submitted any quotation requests yet.",
+                        "data": []
+                    },
+                    status=status.HTTP_200_OK
+                )
+
+            serializer = QuotationRequestSerializer(quotations, many=True)
+
+            return Response(
+                {
+                    "status": True,
+                    "message": "Your quotation requests fetched successfully.",
+                    "total": quotations.count(),
+                    "data": serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "message": "Something went wrong on server.",
+                    "error": str(e)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class CustomUpdateModelsCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -474,3 +517,22 @@ class CustomUpdateModelsDeleteAPIView(APIView):
             "message": f"{queryset.count()} record(s) deleted successfully."
         }, status=status.HTTP_204_NO_CONTENT)
 
+class CustomModelsUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        queryset = CustomUpdateModels.objects.filter(
+            user__id=request.user.id,
+            isDeleted=False
+        )
+
+        serializer = CustomUpdateModelsSerializer(
+            queryset, many=True, context={"request": request}
+        )
+
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "user_id": request.user.id,
+            "data": serializer.data
+        })
