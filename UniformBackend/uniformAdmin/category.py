@@ -104,9 +104,7 @@ class CategoryCreateAPIView(APIView):
 
 
 class CategoryListAPIView(APIView):
-    #permission_classes = [AllowAny]
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication] 
+    permission_classes = [AllowAny]
 
     def get(self, request):
         try:
