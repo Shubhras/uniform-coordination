@@ -8,7 +8,7 @@ from uniformAdmin.models import Product
 import uuid
 from django.utils.text import slugify
 
-
+# from uniformAdmin.models import QuotationTemplate
 class Users(models.Model):
 # class Users(AbstractBaseUser, PermissionsMixin):
     GENDER_CHOICES = [
@@ -291,21 +291,35 @@ class QuotationRequest(models.Model):
         ("approved", "Approved"),
         ("cancelled", "Cancelled"),
     )
+    WORKFLOW_STATUS = (
+        ("REQUESTED", "Requested"),
+        ("AGREED", "Terms Agreed"),
+        ("SENT", "Sent to Client"),
+        ("SIGNED", "Client Signed"),
+        ("COMPLETED", "Completed"),
+    )
+    
     uuids = models.UUIDField( primary_key=True,default=uuid.uuid4,editable=False)
-    quotation_id =models.CharField(max_length=20,null=True,blank=True)
+    quotation_id = models.CharField(max_length=20, unique=True)
+
     company_name = models.CharField(max_length=255,null=True,blank=True)
     contact_person = models.CharField(max_length=255,null=True,blank=True)
     email = models.EmailField()
     phone_number = models.CharField(max_length=20,null=True,blank=True)
-    customupdatemodel = models.ForeignKey(
-        CustomUpdateModels,on_delete=models.SET_NULL,related_name="quotation_requests",null=True,blank=True)  # Uniform Request Details
+    customupdatemodel = models.ForeignKey(CustomUpdateModels,on_delete=models.SET_NULL,related_name="quotation_requests",null=True,blank=True)  # Uniform Request Details
     item_type = models.CharField(max_length=100,null=True,blank=True)
     material = models.CharField(max_length=100,null=True,blank=True)
-    size_quantity = models.TextField(
-        help_text="Mention sizes with quantities (e.g. M-10, L-20)", null = True, blank = True)
+    size_quantity = models.TextField(help_text="Mention sizes with quantities (e.g. M-10, L-20)", null = True, blank = True)
     delivery_date = models.DateField()
     additional_note = models.TextField(blank=True, null=True)
-    agreed_to_terms = models.BooleanField(default=False,null=True,blank=True)
+    agreed_to_terms = models.BooleanField(default=False)
+    workflow_status = models.CharField(max_length=20,choices=WORKFLOW_STATUS,default="REQUESTED")
+    agreed_terms_version = models.CharField(max_length=20, null=True, blank=True)
+    agreed_at = models.DateTimeField(null=True, blank=True)
+    agreed_ip = models.GenericIPAddressField(null=True, blank=True)
+    agreed_user_agent = models.TextField(null=True, blank=True)
+    template = models.ForeignKey("uniformAdmin.QuotationTemplate",on_delete=models.SET_NULL,null=True,blank=True,related_name="quotations")
+    
     quotation_status = models.CharField(max_length=20,choices=STATUS_CHOICES, default="pending")
 
     isActive = models.BooleanField(default=True)
@@ -326,3 +340,17 @@ class QuotationRequest(models.Model):
             self.quotation_id = f"{prefix}-{uid}"
         super().save(*args, **kwargs)
 
+
+
+
+# userhub/models.py
+
+# class TermsAndConditions(models.Model):
+#     title = models.CharField(max_length=255)
+#     text = models.TextField()
+#     version = models.CharField(max_length=20)   # v1.0, v2.0 etc
+#     is_active = models.BooleanField(default=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return f"{self.title} ({self.version})"

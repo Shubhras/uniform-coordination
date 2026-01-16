@@ -72,16 +72,18 @@ class CatalogImageListAPIView(APIView):
                 "count": paginator.page.paginator.count,
                 "next": paginator.get_next_link(),
                 "previous": paginator.get_previous_link(),
-                "statusCode": 200,
-                "status": True,
-                "message": "Catalog Image list fetched successfully.",
-                "data": serializer.data,
                 "pagination": {
+                    
                     "page": paginator.page.number,
                     "page_size": paginator.get_page_size(request),
                     "total_pages": paginator.page.paginator.num_pages,
                     "total_items": paginator.page.paginator.count
-                }
+                },
+                "statusCode": 200,
+                "status": True,
+                "message": "Catalog Image list fetched successfully.",
+                "data": serializer.data,
+
             }
 
             return Response(response, status=status.HTTP_200_OK)

@@ -629,13 +629,78 @@ class AdminGetProductAPIView(APIView):
 
 # products/views/list_products.py
 
+# class AdminListProductsAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+#     authentication_classes = [JWTAuthentication]
+
+#     def get(self, request):
+#         try:
+#             products = Product.objects.filter(isDeleted=False).order_by("-created_at")
+#             serializer = ProductSerializer(products, many=True)
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Products fetched successfully.",
+#                 "data": serializer.data
+#             }, status=status.HTTP_200_OK)
+
+#         except Exception as exc:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Server error while fetching products.",
+#                 "error": str(exc)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+# class AdminListProductsAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+#     authentication_classes = [JWTAuthentication]
+
+#     def get(self, request, subcategory_id):  
+#         try:
+#             products = Product.objects.filter(
+#                 isDeleted=False,
+#                 subcategory_id=subcategory_id   
+#             ).order_by("-created_at")
+
+#             serializer = ProductSerializer(products, many=True)
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Products fetched successfully.",
+#                 "data": serializer.data
+#             }, status=status.HTTP_200_OK)
+
+#         except Exception as exc:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "message": "Server error while fetching products.",
+#                 "error": str(exc)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class AdminListProductsAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         try:
-            products = Product.objects.filter(isDeleted=False).order_by("-created_at")
+            subcategory_id = request.query_params.get("subcategoryId")
+
+            products = Product.objects.filter(isDeleted=False)
+
+            #  FILTER BY SUBCATEGORY ID
+            if subcategory_id and subcategory_id.isdigit():
+                products = products.filter(subcategory_id=int(subcategory_id))
+
+            products = products.order_by("-created_at")
+
             serializer = ProductSerializer(products, many=True)
 
             return Response({
@@ -652,6 +717,8 @@ class AdminListProductsAPIView(APIView):
                 "message": "Server error while fetching products.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 # products/views/delete_product.py
@@ -952,6 +1019,7 @@ class QuotationTemplateCreateAPIView(APIView):
             "quotation_id": quotation.quotation_id,
             "rendered_content": rendered_text
         })
+
 '''
 class QuotationTemplateListAPIView(APIView):
 
@@ -1028,6 +1096,7 @@ class QuotationTemplateListAPIView(APIView):
             'message': 'Quotations fetched and rendered successfully.',
             'data': rendered_data
         })
+
 '''
 class QuotationTemplateDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]

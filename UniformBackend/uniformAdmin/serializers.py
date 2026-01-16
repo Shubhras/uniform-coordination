@@ -247,7 +247,6 @@ class BlogSerializer(serializers.ModelSerializer):
 
     #  WRITE image to DB
     image = serializers.ImageField(required=False, allow_null=True)
-
     slug = serializers.SerializerMethodField()
     isActive = serializers.BooleanField(default=True)
 
@@ -282,6 +281,9 @@ class BlogSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         request = self.context.get("request")
 
+        print("DEBUG request:", request)
+        print("DEBUG image:", instance.image)
+
         if instance.image and request:
             data["image"] = request.build_absolute_uri(instance.image.url)
         else:
@@ -289,11 +291,20 @@ class BlogSerializer(serializers.ModelSerializer):
 
         return data
 
-    def validate_title(self, value):
-        if not value.strip():
-            raise serializers.ValidationError("Title is required.")
-        return value
+    # def validate_title(self, value):
+    #     if not value.strip():
+    #         raise serializers.ValidationError("Title is required.")
+    #     return value
 
+    def validate_title(self, value):
+        qs = Blog.objects.filter(title__iexact=value,isDeleted=False)
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+
+        if qs.exists():
+            raise serializers.ValidationError("Blog with this title already exists.")
+
+        return value
 
 
 class FAQDescriptionSerializer(serializers.ModelSerializer):
@@ -354,6 +365,8 @@ class CategorySerializer(serializers.ModelSerializer):
             "categoryName",
             "slug",
             "type", 
+            "categoryImage",  
+            "description",
             "isActive",
             "order",
             "created_at",
@@ -379,6 +392,9 @@ class CategorySerializer(serializers.ModelSerializer):
             )
 
         return value.strip()
+
+
+
 
 
 

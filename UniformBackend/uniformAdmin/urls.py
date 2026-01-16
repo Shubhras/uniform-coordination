@@ -14,6 +14,9 @@ from .privacyandpolicy import *
 from .unitprice import*
 from .auth import * 
 from .home_page import *
+
+
+
 urlpatterns = [
     path('login/', LoginAPIView.as_view(), name='admin-login'),
     path('change-password/',ChangePasswordAPIView.as_view(), name='admin-change-password'),
@@ -126,7 +129,7 @@ urlpatterns = [
     path('quotationrequest/get/',QuotationRequestListAPIView.as_view(), name = 'QuotationRequest-getlist'),
 
     #<-------------------QuotationTamplate----------------------->
-    path('quotationrequest/create/',QuotationTemplateCreateAPIView.as_view(), name='QuotationRequest-create'),
+    path('quotationrequest/create-template/',QuotationTemplateCreateAPIView.as_view(), name='QuotationRequest-create'),    
     path('quotationrequest/get-list/',QuotationTemplateListAPIView.as_view(), name='QuotationRequest-create'),
     path('quotationrequest/<str:quotation_id>/get/',QuotationTemplateDetailAPIView.as_view(), name='QuotationRequest-create'),
     path('quotationrequest/<str:quotation_id>/update/',QuotationTemplateUpdateAPIView.as_view(), name='QuotationRequest-create'),
@@ -151,7 +154,7 @@ urlpatterns = [
     path('tabletheme/delete/',TableThemeDeleteAPIView.as_view(), name = 'Table_Theme-delete'),
    
    
-
+   
     path("unit-price/list/",UnitPriceListAPIView.as_view(),name="unite-price-list"),
     path("unit-price/export/",UnitPriceExportAPIView.as_view(),name="unit-price-export"),
 

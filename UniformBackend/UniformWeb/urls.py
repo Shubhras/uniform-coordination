@@ -2,11 +2,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from contracts.webhooks import*
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/uniformAdmin/', include('uniformAdmin.urls')),
-    path('api/v1/userhub/', include('userhub.urls'))
+    path('api/v1/userhub/', include('userhub.urls')),
+    path('api/v1/contracts/', include('contracts.urls')),
+    path("docusign/webhook/", docusign_webhook,name='docusign_webhook'),
+    
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

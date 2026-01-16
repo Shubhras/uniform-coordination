@@ -42,10 +42,11 @@ urlpatterns = [
     path('customupdatemodels/<int:customization_id>/export/',CustomUpdateModelExportPDFAPIView.as_view(), name = 'custom-get'),
     
     #<-----------------------------QuotationRequest-------------------->
-    path('quotationrequest/create/',QuotationRequestCreateAPIView.as_view(), name = 'QuotationRequest-create'),
+    path('quotation-request/create/',QuotationRequestCreateAPIView.as_view(), name = 'QuotationRequest-create'),
     path('quotationrequest/<uuid:uuid>/get/',QuotationRequestDetailAPIView.as_view(), name = 'QuotationRequest-get'),
     path('quotationrequest/<uuid:uuid>/export/',QuotationRequestExportPDFAPIView.as_view(), name = 'QuotationRequest-export'),
-
+    # path("quotation/<str:quotation_id>/agree/",QuotationAgreeAPIView.as_view(),name="quotation-agree"),
+    # path("quotation/terms/<str:quotation_id>/", QuotationTermsAPIView.as_view(), name="Terms&Conditions"),
     #<-------------------Card API------------------------------->
     path("cart/add/", AddToCartAPIView.as_view()),
     path("cart/list/", CartListAPIView.as_view()),
