@@ -1,7 +1,55 @@
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
+import { apiExportQuotationPdf } from '@/services/QuotationRequestService'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+const QuoteRequestPopup = ({ isOpen, onClose,quoteData }) => {
+    const router = useRouter()
+    const { data: session } = useSession()
+    if (!isOpen || !quoteData) return null
 
-const QuoteRequestPopup = ({ isOpen, onClose }) => {
+    const {
+        quotation_id,
+        email,
+        phone_number,
+        created_at,
+        item_type,
+        material,
+        size_quantity,
+    } = quoteData
+    const handleBackToHome = () => {
+        onClose()
+        router.push('/kireiz-form')
+    }
+    const formattedDate = new Date(created_at).toLocaleDateString(
+        'en-GB',
+        { day: '2-digit', month: 'short', year: 'numeric' }
+    )
+    const handleExportPdf = async () => {
+        if (!session?.accessToken) {
+            alert("Please login first")
+            return
+        }
+
+        try {
+            const response = await apiExportQuotationPdf(
+                quotation_id,
+                session.accessToken
+            )
+            if (response?.pdf_url) {
+                window.open(response.pdf_url, "_blank")
+                return
+            }
+            if (response instanceof Blob) {
+                const url = window.URL.createObjectURL(response)
+                window.open(url, "_blank")
+            }
+
+        } catch (error) {
+            console.error("Export PDF Error:", error)
+            alert("Failed to export PDF")
+        }
+    }
     return (
         <Dialog
             isOpen={isOpen}
@@ -44,21 +92,21 @@ const QuoteRequestPopup = ({ isOpen, onClose }) => {
                     <div className="bg-white border rounded-lg p-4 sm:p-6 mb-8 shadow-sm">
                         <h5 className="font-medium mb-1">Request Details:</h5>
                         <ul className="text-xs sm:text-sm text-gray-700 space-y-1">
-                            <li>• Request ID: RQ-2025-0194</li>
-                            <li>• Submitted on: 26 Nov 2025</li>
+                            <li>• Request ID: {quotation_id}</li>
+                            <li>• Submitted on: {formattedDate}</li>
                             <li>• Service/Product: (Auto-fill from form)</li>
                             <li>• Quantity/Requirements: (Auto-fill)</li>
-                            <li>• Preferred Contact: Email / Phone</li>
+                            <li>• Preferred Contact: {email || 'N/A'}</li>
                         </ul>
                     </div>
 
                     <div className="mb-8">
                         <h5 className="font-medium mb-1">We’ll reach out to:</h5>
                         <p className="mt-2 text-xs sm:text-sm text-gray-700">
-                            Abc@example.com
+                        {email || 'N/A'}
                         </p>
                         <p className="text-xs sm:text-sm text-gray-700">
-                            +91 XXXXX XXXXX
+                        {phone_number || 'N/A'}
                         </p>
                     </div>
 
@@ -91,7 +139,7 @@ const QuoteRequestPopup = ({ isOpen, onClose }) => {
                             py-2
                             rounded-md
                         "
-                        onClick={onClose}
+                        onClick={handleBackToHome}
                     >
                         Back to Home
                     </Button>
@@ -108,6 +156,7 @@ const QuoteRequestPopup = ({ isOpen, onClose }) => {
                             justify-center
                             gap-2
                         "
+                        onClick={handleExportPdf}
                     >
                         📄 Export PDF
                     </button>

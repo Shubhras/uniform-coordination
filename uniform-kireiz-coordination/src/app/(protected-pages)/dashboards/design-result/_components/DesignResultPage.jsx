@@ -31,7 +31,7 @@ import {
     FiArchive,
 } from "react-icons/fi"
 import { useRouter } from 'next/navigation'
-import { apiSaveDesign } from '@/services/SaveDesignService'
+import { apiSaveDesign,apiExportDesignPdf } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
 
 const iconMap = {
@@ -113,13 +113,12 @@ const DesignResultPage = () => {
     const handleRedirect = () => {
         router.push('/dashboards/delivery-request')
     }
-
     const handleSaveDesign = async () => {
         if (!session?.accessToken) return
-
+    
         const payload = {
             user: session?.user?.id,
-            model_info: 13,
+            model_info: 5,
             config_json: {
                 color: "Navy Blue",
                 size: "M",
@@ -132,12 +131,12 @@ const DesignResultPage = () => {
                 pocket_configuration: "1 Chest, 2 Lower Patch",
                 pant: "Straight Pant",
             },
-            json_file_path: "uploads/configs/user7_model13.json",
+            //json_file_path: "uploads/configs/user7_model13.json",
             isActive: true,
         };
-
+    
         try {
-            const response = await apiSaveDesign(payload);
+            const response = await apiSaveDesign(payload, session.accessToken);
             console.log("Design Saved Successfully:", response);
             alert("Design saved successfully");
         } catch (error) {
@@ -145,7 +144,66 @@ const DesignResultPage = () => {
             alert("Failed to save design");
         }
     };
+    
+    // const handleSaveDesign = async () => {
+    //     if (!session?.accessToken) return
 
+    //     const payload = {
+    //         user: session?.user?.id,
+    //         model_info: 13,
+    //         config_json: {
+    //             color: "Navy Blue",
+    //             size: "M",
+    //             material: "Polyester",
+    //         },
+    //         design_specifications: {
+    //             cut_style: "Modern Fit",
+    //             collar_type: "V-Neck Reinforced",
+    //             sleeve_length: "Short",
+    //             pocket_configuration: "1 Chest, 2 Lower Patch",
+    //             pant: "Straight Pant",
+    //         },
+    //         json_file_path: "uploads/configs/user7_model13.json",
+    //         isActive: true,
+    //     };
+
+    //     try { 
+    //         const response = await apiSaveDesign(payload);
+    //         console.log("Design Saved Successfully:", response);
+    //         alert("Design saved successfully");
+    //     } catch (error) {
+    //         console.error("Save Design Error:", error);
+    //         alert("Failed to save design");
+    //     }
+    // };
+    const handleExportPdf = async () => {
+        if (!session?.accessToken) {
+            alert("Please login first");
+            return;
+        }
+    
+        try {
+            const userId = session?.user?.id;
+            const response = await apiExportDesignPdf(
+                userId,
+                session.accessToken
+            );
+            const pdfUrl = response?.pdf_url;
+            if (!pdfUrl) {
+                throw new Error("PDF URL not found in response");
+            }
+    
+            window.open(pdfUrl, "_blank");
+    
+        } catch (error) {
+            console.error("Export PDF Error:", error);
+            alert("Failed to export PDF");
+        }
+    };
+    
+    
+    
+    
 
     return (
         <>
@@ -257,7 +315,7 @@ const DesignResultPage = () => {
                                     <span>Save Design</span>
                                 </button>
                                 {/* Export PDF */}
-                                <button
+                                <button  onClick={handleExportPdf}
                                     className="
       w-full sm:w-auto
       flex-1

@@ -10,6 +10,8 @@ import { z } from 'zod'
 import DatePicker from '@/components/ui/DatePicker'
 import TermsAndConditionsPopup from './TermsAndConditionsPopup'
 import QuoteRequestPopup from './QuoteRequestPopup'
+import { apiCreateQuotationRequest } from '@/services/QuotationRequestService';
+import { useSession } from 'next-auth/react'
 const validationSchema = z.object({
     companyName: z.string().min(1, 'Company Name Required'),
     contactPerson: z.string().min(1, 'Contact Person Required'),
@@ -26,6 +28,8 @@ const validationSchema = z.object({
 })
 
 const DeliveryRequestForm = () => {
+    const [quoteData, setQuoteData] = useState(null)
+    const { data: session } = useSession()
     const [dialogTermsOpen, setDialogTermsOpen] = useState(false);
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false);
     const {
@@ -42,7 +46,7 @@ const DeliveryRequestForm = () => {
             itemType: "",
             material: "",
             sizeQty: "",
-            deliveryDate: null,
+            //deliveryDate: null,
             notes: "",
             agree: false,
 
@@ -50,14 +54,34 @@ const DeliveryRequestForm = () => {
         resolver: zodResolver(validationSchema),
     });
 
-    const onSubmit = (values) => {
-     
+    // const onSubmit = (values) => {
+
+    //     const payload = {
+    //         ...values,
+    //         deliveryDate: values.deliveryDate.toISOString().split('T')[0],
+    //     }
+    //       console.log('summit from', payload);
+    //     openDialogQuoteRequest();
+    // };
+    const onSubmit = async (values) => {
         const payload = {
             ...values,
-            deliveryDate: values.deliveryDate.toISOString().split('T')[0],
+            delivery_date: values.deliveryDate ? values.deliveryDate.toISOString().split('T')[0] : "",
+        };
+        try {
+            // Ensure the session has a valid token
+            if (!session?.accessToken) {
+                alert("Please login first!");
+                return;
+            }
+            const response = await apiCreateQuotationRequest(payload, session.accessToken);
+            console.log("Quotation Request Response:", response.data);
+            setQuoteData(response.data);
+            setDialogQuoteRequestOpen(true);
+        } catch (error) {
+            console.error("Error creating quotation request:", error);
+            alert("Failed to create quotation request.");
         }
-          console.log('summit from', payload);
-        openDialogQuoteRequest();
     };
 
     const openDialogTerms = () => {
@@ -275,10 +299,17 @@ const DeliveryRequestForm = () => {
                 isOpen={dialogTermsOpen}
                 onClose={() => setDialogTermsOpen(false)}
             />
-            <QuoteRequestPopup
+            {/* <QuoteRequestPopup
                 isOpen={dialoQuoteRequestOpen}
                 onClose={() => setDialogQuoteRequestOpen(false)}
-            />
+                quoteData={quoteData}
+            /> */}
+            {dialoQuoteRequestOpen && (<QuoteRequestPopup
+                isOpen={dialoQuoteRequestOpen}
+                onClose={() => setDialogQuoteRequestOpen(false)}
+                quoteData={quoteData}
+            />)}
+
 
         </>
 
