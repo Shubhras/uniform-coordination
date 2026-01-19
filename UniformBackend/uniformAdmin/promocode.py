@@ -11,17 +11,59 @@ from .models import Promocode
 from rest_framework.views import APIView
 
 from .serializers import PromocodeSerializer
-from userhub.utils import BaseAPIView
 from .fabric import IsAdministrator, CustomPagination
 from rest_framework.exceptions import ValidationError
+from .utils import *
 
 
 
 
 
 
+# class PromocodeCreateAPIView(APIView):
+#     permission_classes = [IsAdministrator]
+#     authentication_classes = [JWTAuthentication] 
 
-class PromocodeCreateAPIView(APIView):
+#     def post(self, request):
+#         try:
+#             serializer = PromocodeSerializer(
+#                 data=request.data,
+#                 context={"request": request}
+#             )
+
+#             if serializer.is_valid():
+#                 promocode = serializer.save()
+#                 data = serializer.data
+
+#                 #  FIX IMAGE ABSOLUTE URL
+#                 if data.get("promocodeImage"):
+#                     data["promocodeImage"] = request.build_absolute_uri(
+#                         data["promocodeImage"]
+#                     )
+
+#                 return self.success_response(
+#                     "Promocode created successfully",
+#                     data
+#                 )
+
+#             return self.error_response(serializer.errors)
+
+#         except ValidationError as e:
+#             #  Handles serializer / DRF validation errors cleanly
+#             return self.error_response(e.detail)
+
+#         except Exception as e:
+#             #  Handles any unexpected runtime error
+#             return self.error_response(str(e))
+
+#         except Exception as e:
+#             return self.error_response(
+#                 f"Internal server error: {str(e)}"
+#             )
+
+
+
+class PromocodeCreateAPIView(BaseAPIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
 
@@ -36,7 +78,7 @@ class PromocodeCreateAPIView(APIView):
                 promocode = serializer.save()
                 data = serializer.data
 
-                #  FIX IMAGE ABSOLUTE URL
+                # FIX IMAGE ABSOLUTE URL
                 if data.get("promocodeImage"):
                     data["promocodeImage"] = request.build_absolute_uri(
                         data["promocodeImage"]
@@ -50,17 +92,26 @@ class PromocodeCreateAPIView(APIView):
             return self.error_response(serializer.errors)
 
         except ValidationError as e:
-            #  Handles serializer / DRF validation errors cleanly
+            # Handles serializer / DRF validation errors
             return self.error_response(e.detail)
 
         except Exception as e:
-            #  Handles any unexpected runtime error
-            return self.error_response(str(e))
-
-        except Exception as e:
+            # Handles any unexpected runtime error
             return self.error_response(
-                f"Internal server error: {str(e)}"
+                f"Internal server error: {str(e)}",
+                status_code=500
             )
+
+    # ADD THIS METHOD (FIX)
+    def error_response(self, error, status_code=400):
+        return Response({
+            "status": False,
+            "statusCode": status_code,
+            "message": "Validation failed.",
+            "error": error
+        }, status=status_code)
+
+
 
 
 class PromocodeListAPIView(BaseAPIView):
@@ -186,6 +237,7 @@ class PromocodeUpdateAPIView(BaseAPIView):
 
         except Exception as e:
             return self.error_response(f"Internal server error: {str(e)}")
+
 
 
 class PromocodeDeleteAPIView(BaseAPIView):

@@ -20,7 +20,7 @@ class SubCategoryCreateAPIView(APIView):
 
     def post(self, request):
         try:
-            serializer = SubCategorySerializer(data=request.data)
+            serializer = SubCategorySerializer(data=request.data,context={"request": request})
             if serializer.is_valid():
                 
                 category = serializer.validated_data.get("category")
@@ -80,36 +80,46 @@ class SubCategoryListAPIView(APIView):
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()
+            category_id = request.query_params.get("categoryId")
 
             subcategories = SubCategory.objects.filter(isDeleted=False)
+
+            #  SAFE CATEGORY FILTER (FIX)
+            if category_id and category_id.isdigit():
+                subcategories = subcategories.filter(
+                    category__id=int(category_id)
+                )
 
             if search_query:
                 subcategories = subcategories.filter(
                     name__icontains=search_query
                 )
 
-            # subcategories = subcategories.order_by("-id")
             subcategories = subcategories.order_by("order", "created_at")
-
 
             paginator = CustomPagination()
             page = paginator.paginate_queryset(subcategories, request)
-            serializer = SubCategorySerializer(page, many=True)
+            serializer = SubCategorySerializer(
+                page,
+                many=True,
+                context={"request": request}
+            )
 
             response = {
                 "count": paginator.page.paginator.count,
                 "next": paginator.get_next_link(),
                 "previous": paginator.get_previous_link(),
-                "statusCode": 200,
-                "status": True,
-                "message": "SubCategory list fetched successfully",
-                "data": serializer.data,
                 "pagination": {
                     "page": paginator.page.number,
                     "page_size": paginator.get_page_size(request),
                     "total_pages": paginator.page.paginator.num_pages,
                     "total_items": paginator.page.paginator.count
-                }
+                },
+                "statusCode": 200,
+                "status": True,
+                "message": "SubCategory list fetched successfully",
+                "data": serializer.data,
+
             }
 
             return Response(response, status=status.HTTP_200_OK)
@@ -169,7 +179,8 @@ class SubCategoryUpdateAPIView(APIView):
             serializer = SubCategorySerializer(
                 subcategory,
                 data=request.data,
-                partial=True
+                partial=True,
+                 context={"request": request}
             )
 
             if serializer.is_valid():

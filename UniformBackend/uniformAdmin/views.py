@@ -695,6 +695,8 @@ class AdminListProductsAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+
 # products/views/delete_product.py
 
 class AdminDeleteProductAPIView(APIView):
@@ -993,6 +995,7 @@ class QuotationTemplateCreateAPIView(APIView):
             "quotation_id": quotation.quotation_id,
             "rendered_content": rendered_text
         })
+
 '''
 class QuotationTemplateListAPIView(APIView):
 
@@ -1069,6 +1072,7 @@ class QuotationTemplateListAPIView(APIView):
             'message': 'Quotations fetched and rendered successfully.',
             'data': rendered_data
         })
+
 '''
 class QuotationTemplateDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]

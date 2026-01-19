@@ -14,6 +14,9 @@ from .privacyandpolicy import *
 from .unitprice import*
 from .auth import * 
 from .home_page import *
+
+
+
 urlpatterns = [
     path('login/', AdminLoginAPIView.as_view(), name='admin-login'),
     path('change-password/',ChangePasswordAPIView.as_view(), name='admin-change-password'),
@@ -151,7 +154,7 @@ urlpatterns = [
     path('tabletheme/delete/',TableThemeDeleteAPIView.as_view(), name = 'Table_Theme-delete'),
    
    
-
+   
     path("unit-price/list/",UnitPriceListAPIView.as_view(),name="unite-price-list"),
     path("unit-price/export/",UnitPriceExportAPIView.as_view(),name="unit-price-export"),
 

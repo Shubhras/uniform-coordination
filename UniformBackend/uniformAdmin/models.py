@@ -1,9 +1,11 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 from django.db import models
 from django.utils.text import slugify
-
+from django.db.models import Q
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+
+
 
 # Role Table
 class Role(models.Model):
@@ -192,7 +194,7 @@ class Category(models.Model):
     ('uniform', 'Uniform'),
     ('table', 'Table'),
     ]
-    categoryName = models.CharField(max_length=250,unique=True)
+    categoryName = models.CharField(max_length=250)
     categoryImage = models.ImageField(upload_to="category/", blank=True, null=True)
     description = models.CharField(max_length=250,blank=True, null=True) 
     type = models.CharField(max_length=20,choices=CATEGORY_TYPE,default='uniform')    
@@ -203,23 +205,40 @@ class Category(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["categoryName"],
+                condition=Q(isDeleted=False),
+                name="unique_category_name_when_not_deleted"
+            )
+        ]
+    
+    # def save(self, *args, **kwargs):
+    #     if not self.slug and self.categoryName:
+    #         self.slug = slugify(self.categoryName).replace("-", "_")
+    #     super().save(*args, **kwargs)
+    
+    # def __str__(self):
+    #     return self.categoryName
+    
     def save(self, *args, **kwargs):
-        if not self.slug and self.categoryName:
-            self.slug = slugify(self.categoryName).replace("-", "_")
+        if self.categoryName:
+            new_slug = slugify(self.categoryName).replace("-", "_")
+
+            # regenerate slug only if name changed
+            if self.slug != new_slug:
+                self.slug = new_slug
+
         super().save(*args, **kwargs)
     
-    def __str__(self):
-        return self.categoryName
-    
-    
-
     
 class Blog(models.Model):
     BLOG_TYPE_CHOICES = (
         ('uniform', 'Uniform'),
         ('table', 'Table'),
     )
-    title = models.CharField(max_length=250,unique=True)
+    title = models.CharField(max_length=250)
     slug = models.CharField(max_length=255, blank=True, null=True)
     category = models.ForeignKey(Category,on_delete=models.CASCADE,related_name="blogs")
     image = models.ImageField(upload_to="blog_images/",null=True,blank=True)
@@ -230,14 +249,35 @@ class Blog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["title"],
+                condition=Q(isDeleted=False),
+                name="unique_blog_title_when_not_deleted"
+            )
+        ]
+
+    # def save(self, *args, **kwargs):
+    #     if not self.slug:
+    #         # slug with underscore
+    #         self.slug = slugify(self.title).replace("-", "_")
+    #     super().save(*args, **kwargs)
+
+    # def __str__(self):
+    #     return self.title
+ 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            # slug with underscore
-            self.slug = slugify(self.title).replace("-", "_")
+        if self.title:
+            new_slug = slugify(self.title).replace("-", "_")
+
+            # regenerate slug only if name changed
+            if self.slug != new_slug:
+                self.slug = new_slug
+
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.title
+ 
  
  
 class FAQ(models.Model):
@@ -271,28 +311,48 @@ class FAQDescription(models.Model):
         return f"{self.faq.title}"
    
    
+   
 class CatalogImage(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     image = models.ImageField(upload_to="catalog_images/")
-    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    slug = models.SlugField(max_length=255,blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="catalog_images")
     description = models.CharField(max_length=250)
-
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+        
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["name"],
+                condition=Q(isDeleted=False),
+                name="unique_catalog_image_name_when_not_deleted"
+            )
+        ]
+    
 
+    # def save(self, *args, **kwargs):
+    #     if not self.slug:
+    #         # slug with underscore
+    #         self.slug = slugify(self.name).replace("-", "_")
+    #     super().save(*args, **kwargs)
+
+    # def __str__(self):
+    #     return self.name   
+    
     def save(self, *args, **kwargs):
-        if not self.slug:
-            # slug with underscore
-            self.slug = slugify(self.name).replace("-", "_")
+        if self.name:
+            new_slug = slugify(self.name).replace("-", "_")
+
+            # regenerate slug only if name changed
+            if self.slug != new_slug:
+                self.slug = new_slug
+
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.name   
-    
+
 
 class SubCategory(models.Model):
     SUBCATEGORY_TYPE = [
@@ -311,13 +371,24 @@ class SubCategory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # def save(self, *args, **kwargs):
+    #     if not self.slug and self.name:
+    #         self.slug = slugify(self.name).replace("-", "_")
+    #     super().save(*args, **kwargs)
+
+    # def __str__(self):
+    #     return self.name
+    
     def save(self, *args, **kwargs):
-        if not self.slug and self.name:
-            self.slug = slugify(self.name).replace("-", "_")
+        if self.name:
+            new_slug = slugify(self.name).replace("-", "_")
+
+            # regenerate slug only if name changed
+            if self.slug != new_slug:
+                self.slug = new_slug
+
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.name
     
     
 class TableTheme(models.Model):
@@ -398,19 +469,31 @@ class Promocode(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
  
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.promocodeName).replace("-", "_")
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if not self.slug:
+    #         self.slug = slugify(self.promocodeName).replace("-", "_")
+    #     super().save(*args, **kwargs)
  
-    def __str__(self):
-        return self.promocodeName
+    # def __str__(self):
+    #     return self.promocodeName
+    
+    def save(self, *args, **kwargs):
+        if self.promocodeName:
+            new_slug = slugify(self.promocodeName).replace("-", "_")
 
+            # regenerate slug only if name changed
+            if self.slug != new_slug:
+                self.slug = new_slug
+
+        super().save(*args, **kwargs)
+
+    
     
 class PrivacyPolicy(models.Model): 
     POLICY_TYPE_CHOICES = [
         ("terms_and_conditions", "Terms and Conditions"),
         ("privacy_and_policy", "Privacy and Policy"),
+        ("agreement", "Agreement"),
     ]
  
     TABLE_TYPE_CHOICES = [
@@ -436,14 +519,23 @@ class PrivacyPolicy(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
  
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title).replace("-", "_")
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if not self.slug:
+    #         self.slug = slugify(self.title).replace("-", "_")
+    #     super().save(*args, **kwargs)
  
-    def __str__(self):
-        return self.title
-    
+    # def __str__(self):
+    #     return self.title
+    def save(self, *args, **kwargs):
+        if self.title:
+            new_slug = slugify(self.title).replace("-", "_")
+
+            # regenerate slug only if name changed
+            if self.slug != new_slug:
+                self.slug = new_slug
+
+        super().save(*args, **kwargs)
+
 
 class SpecialCondition(models.Model):
     CONDITION_TYPE_CHOICES = (
@@ -487,6 +579,7 @@ class SpecialCondition(models.Model):
     def __str__(self):
         return f"{self.title} - {self.discount_percentage}%"   
 
+ 
    
 class QuotationTemplate(models.Model):
  
@@ -518,6 +611,7 @@ class QuotationTemplate(models.Model):
         return f"{self.slug} ({self.language})"
 
 
+
 class AdminNotification(models.Model):
     PRIORITY_CHOICES = (
         ("high", "High"),
@@ -536,6 +630,8 @@ class AdminNotification(models.Model):
  
     def __str__(self):
         return self.title
+    
+    
       
 # class PDFTemplate(models.Model):
 #     PAPER_SIZES = (
