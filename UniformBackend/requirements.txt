@@ -14,7 +14,7 @@ reportlab
 stripe
 docusign-esign
 pdfkit
-"pyjwt[crypto]" cryptography
+cryptography
 python-dotenv
--g ngrok
+ngrok
 xmltodict

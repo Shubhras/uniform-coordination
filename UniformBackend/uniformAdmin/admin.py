@@ -503,33 +503,33 @@ class SpecialConditionAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 
-@admin.register(QuotationTemplate)
-class QuotationTemplateAdmin(admin.ModelAdmin):
-    list_display = (
-        'id',
-        'title',
-        'slug',
-        'userType',
-        'language',
-        'version',
-        'is_active',
-        'is_deleted',
-        'created_at'
-    )
+# @admin.register(QuotationTemplate)
+# class QuotationTemplateAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'id',
+#         'title',
+#         'slug',
+#         'userType',
+#         'language',
+#         'version',
+#         'is_active',
+#         'is_deleted',
+#         'created_at'
+#     )
 
-    list_filter = (
-        'title',
-        'userType',
-        'language',
-        'is_active',
-        'is_deleted'
-    )
+#     list_filter = (
+#         'title',
+#         'userType',
+#         'language',
+#         'is_active',
+#         'is_deleted'
+#     )
 
-    search_fields = ('slug', 'content')
+#     search_fields = ('slug', 'content')
 
-    readonly_fields = ('created_at', 'updated_at')
+#     readonly_fields = ('created_at', 'updated_at')
 
-    ordering = ('-created_at',)
+#     ordering = ('-created_at',)
 
 
 @admin.register(AdminNotification)
