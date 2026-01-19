@@ -595,8 +595,7 @@ class AdminUpdateProductAPIView(APIView):
 # products/views/get_product.py
 
 class AdminGetProductAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+  
 
     def get(self, request, pk):
         try:
