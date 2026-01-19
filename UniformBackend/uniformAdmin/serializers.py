@@ -7,6 +7,32 @@ from .utils import get_default_b2b_role
 # User = get_user_model()
 import json
 
+# class AdminLoginSerializer(serializers.Serializer):
+#     email = serializers.EmailField()
+#     password = serializers.CharField(write_only=True)
+#     remember_me = serializers.BooleanField(default=False)
+    
+#     def validate(self, data):
+#         email = data.get('email')
+#         password = data.get('password')
+
+#         if not email or not password:
+#             raise serializers.ValidationError("Email and password are required")
+
+#         try:
+#             user = AdminUser.objects.get(email=email)
+#         except AdminUser.DoesNotExist:
+#             raise serializers.ValidationError("Invalid credentials or not an admin")
+
+#         if not user.check_password(password):
+#             raise serializers.ValidationError("Invalid credentials or not an admin")
+
+#         if not user.is_staff:
+#             raise serializers.ValidationError("User is not an admin")
+
+#         data['user'] = user
+#         return data
+
 class AdminLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
@@ -22,13 +48,14 @@ class AdminLoginSerializer(serializers.Serializer):
         try:
             user = AdminUser.objects.get(email=email)
         except AdminUser.DoesNotExist:
-            raise serializers.ValidationError("Invalid credentials or not an admin")
+            raise serializers.ValidationError("Invalid credentials Not match User Name")
 
         if not user.check_password(password):
-            raise serializers.ValidationError("Invalid credentials or not an admin")
+            raise serializers.ValidationError("Invalid credentials Not match Password")
 
-        if not user.is_staff:
-            raise serializers.ValidationError("User is not an admin")
+        # Remove the strict is_staff check
+        # if not user.is_staff:
+        #     raise serializers.ValidationError("User is not an admin")
 
         data['user'] = user
         return data
@@ -871,7 +898,7 @@ class UnitPriceSerializer(serializers.Serializer):
 
 class AdminUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
-
+    role_name = serializers.CharField(source="Role.role_name", read_only=True)
     class Meta:
         model = AdminUser
         fields = [
@@ -880,6 +907,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
             "company_name",
             "email",
             "mobile",
+            "role_name",
             "tier",
             "password",
             "is_active",

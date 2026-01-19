@@ -66,7 +66,7 @@ class CategoryCreateAPIView(APIView):
 
 class CategoryListAPIView(APIView):
     permission_classes = [AllowAny]
-    
+
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()

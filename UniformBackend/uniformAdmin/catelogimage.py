@@ -7,12 +7,11 @@ from rest_framework import status
 from uniformAdmin.fabric import CustomPagination,IsAdministrator
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
+from .auth import IsAdminUserJWT
 
 #----------------Catalog Image -----------------
 
 class CatalogImageCreateAPIView(APIView):
-    
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
 
