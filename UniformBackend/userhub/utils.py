@@ -27,7 +27,7 @@ def generate_custom_tokens(user):
         "user_id": user.id,
         "email": user.email,
         "type": "access",
-        "exp": datetime.utcnow() + timedelta(minutes=60),
+        "exp": datetime.utcnow() + timedelta(days=7),
         "iat": datetime.utcnow(),
     }
 

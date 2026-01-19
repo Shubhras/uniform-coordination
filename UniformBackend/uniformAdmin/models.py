@@ -232,6 +232,7 @@ class Category(models.Model):
 
         super().save(*args, **kwargs)
     
+    
 class Blog(models.Model):
     BLOG_TYPE_CHOICES = (
         ('uniform', 'Uniform'),
