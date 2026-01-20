@@ -195,6 +195,7 @@ const CategorySection = ({ data }) => {
                                     className={`object-contain ${isReverse ? 'lg:object-left' : 'lg:object-right'
                                         } object-center`}
                                     priority
+                                    unoptimized
                                 />
                             </div>
                         </div>

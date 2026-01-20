@@ -1,5 +1,5 @@
 'use client'
-import React, { useRef, useState,useEffect } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import Button from '@/components/ui/Button'
 import { FiEdit2, FiLock, FiMail, FiBox } from 'react-icons/fi'
@@ -12,6 +12,7 @@ import {
 } from 'react-icons/fi'
 import { GoArrowRight } from 'react-icons/go'
 import { apiGetProfile } from '@/services/AuthProfileService'
+import { CiUser } from 'react-icons/ci'
 
 const MyProfile = () => {
     const fileRef = useRef(null)
@@ -67,7 +68,8 @@ const MyProfile = () => {
                         <div className="border border-white rounded-full p-1">
                             <Avatar
                                 size={110}
-                                src={image || 'https://i.pravatar.cc/300'}
+                                icon={<CiUser />}
+                                src={image}
                                 className="shadow-md object-cover"
                             />
                         </div>
@@ -130,7 +132,7 @@ const MyProfile = () => {
                             <div>
                                 <p className="text-xs text-gray-500">Email Address</p>
                                 <p className="text-sm font-medium flex items-center gap-1 text-[#0F172A]">
-                                {profile?.email || '-'}
+                                    {profile?.email || '-'}
                                     <HiCheckCircle className="text-green-500" />
                                 </p>
                             </div>
@@ -138,14 +140,14 @@ const MyProfile = () => {
                             <div>
                                 <p className="text-xs text-gray-500">Phone Number</p>
                                 <p className="text-sm font-medium text-[#0F172A]">
-                                {profile?.phone || '-'}
+                                    {profile?.phone || '-'}
                                 </p>
                             </div>
 
                             <div>
                                 <p className="text-xs text-gray-500">Position</p>
                                 <p className="text-sm font-medium text-[#0F172A]">
-                                {profile?.roleName || '-'}
+                                    {profile?.roleName || '-'}
                                 </p>
                             </div>
                         </div>
