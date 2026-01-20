@@ -8,12 +8,23 @@ from uniformAdmin.fabric import CustomPagination,IsAdministrator
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser #--------------do not use
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
 
 #---------------Blog APIs-------------------
 
 
+@extend_schema(
+    tags=["Blog (Admin)"],
+    summary="Create Blog API",
+    request=BlogSerializer,
+    responses={
+        201: OpenApiResponse(description="Blog created successfully"),
+        400: OpenApiResponse(description="Validation failed"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class BlogCreateAPIView(APIView):
     """Admin: Create Blog"""
     
@@ -70,65 +81,34 @@ class BlogCreateAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# class BlogListAPIView(APIView):
-#     """List all blogs"""
-#     permission_classes = [AllowAny]
-
-#     def get(self, request):
-#         try:
-#             search = request.query_params.get("search", "").strip()
-#             category_id = request.query_params.get("category")
-
-#             blogs = Blog.objects.filter(isDeleted=False)
-
-    
-#             if search:
-#                 blogs = blogs.filter(title__icontains=search)
-
-        
-#             if category_id:
-#                 blogs = blogs.filter(category_id=category_id)
-
-#             blogs = blogs.order_by("-created_at")
-
-            
-#             paginator = CustomPagination()
-#             page = paginator.paginate_queryset(blogs, request)
-
-#             serializer = BlogSerializer(
-#                 page,
-#                 many=True,
-#                 context={"request": request}
-#             )
-
-#             response = {
-#                 "count": paginator.page.paginator.count,
-#                 "next": paginator.get_next_link(),
-#                 "previous": paginator.get_previous_link(),
-#                 "statusCode": 200,
-#                 "status": True,
-#                 "message": "Blog list fetched successfully.",
-#                 "data": serializer.data,
-#                 "pagination": {
-#                     "page": paginator.page.number,
-#                     "page_size": paginator.get_page_size(request),
-#                     "total_pages": paginator.page.paginator.num_pages,
-#                     "total_items": paginator.page.paginator.count
-#                 }
-#             }
-
-#             return Response(response, status=status.HTTP_200_OK)
-
-#         except Exception as exc:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "message": "Server error while fetching blogs.",
-#                 "error": str(exc)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
+@extend_schema(
+    tags=["Blog (Admin)"],
+    summary="Blogs List API",
+    parameters=[
+        OpenApiParameter(
+            name="search",
+            description="Search blogs by title or special keywords (uniform, table)",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="category",
+            description="Filter blogs by category ID",
+            required=False,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="type",
+            description="Filter blogs by type",
+            required=False,
+            type=str,
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(description="Blog list fetched successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class BlogListAPIView(APIView):
     """List all blogs"""
     permission_classes = [AllowAny]
@@ -197,6 +177,14 @@ class BlogListAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(
+    tags=["Blog (Admin)"],
+    summary="Blog Details By ID API",
+    responses={
+        200: OpenApiResponse(description="Blog details fetched successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class BlogDetailAPIView(APIView):
     """Public: Get single Blog details by ID"""
     permission_classes = [AllowAny]
@@ -233,6 +221,17 @@ class BlogDetailAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+@extend_schema(
+    tags=["Blog (Admin)"],
+    summary="Update Blog by ID",
+    request=BlogSerializer,
+    responses={
+        200: OpenApiResponse(description="Blog updated successfully"),
+        400: OpenApiResponse(description="Validation failed"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class BlogUpdateAPIView(APIView):
     """Admin: Update Blog by ID"""
 
@@ -291,6 +290,27 @@ class BlogUpdateAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(
+    tags=["Blog (Admin)"],
+    summary="Delete blog(s) (Admin)",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {"type": "integer"},
+                }
+            },
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Blog(s) deleted successfully"),
+        400: OpenApiResponse(description="Invalid request"),
+        404: OpenApiResponse(description="Blog not found"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class BlogDeleteAPIView(APIView):
     """
     Admin: Delete Blog

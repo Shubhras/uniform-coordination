@@ -14,11 +14,59 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from openpyxl import Workbook
 from .models import Fabric, Parts
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
 
 class UnitPriceListAPIView(APIView):
     permission_classes = [AllowAny]
+    
+    
+    @extend_schema(
+        tags=["Unit Price"],
+        summary="Unit Price List",
+        description=(
+            "Fetch combined unit price list for Fabrics and Parts.\n\n"
+            "- Fabric prices are shown\n"
+            "- Part prices are returned as NULL\n"
+        ),
+        responses={
+            200: OpenApiResponse(
+                description="Unit price list fetched successfully",
+                response=OpenApiTypes.OBJECT,
+                examples=[
+                    OpenApiExample(
+                        "Success Response",
+                        value={
+                            "status": True,
+                            "statusCode": 200,
+                            "message": "Unit price list fetched successfully",
+                            "data": [
+                                {
+                                    "type": "Fabric",
+                                    "itemName": "Cotton",
+                                    "unit": "Meter",
+                                    "basePrice": 120,
+                                    "bulk": 120,
+                                    "action": "view",
+                                },
+                                {
+                                    "type": "Part",
+                                    "itemName": "Button",
+                                    "unit": "Piece",
+                                    "basePrice": None,
+                                    "bulk": None,
+                                    "action": "view",
+                                },
+                            ],
+                        },
+                    )
+                ],
+            ),
+            500: OpenApiResponse(description="Internal server error"),
+        },
+        auth=[],  # Public API
+    )
     
     def get(self, request):
         try:
@@ -38,20 +86,7 @@ class UnitPriceListAPIView(APIView):
                 })
 
             # ================= PARTS =================
-            parts = Parts.objects.filter(isDeleted=False, isActive=True)
 
-            # for part in parts:
-            #     price = part.fabric.pricePerUnit if part.fabric else 0
-            #     data.append({
-            #         "type": "Part",
-            #         "itemName": part.partName,
-            #         "unit": "Piece",
-            #         "basePrice": price,
-            #         "bulk": price,
-            #         "action": "view"
-            #     })
-            
-            
             parts = Parts.objects.filter(isDeleted=False, isActive=True)
             for part in parts:
                 data.append({
@@ -83,6 +118,37 @@ class UnitPriceListAPIView(APIView):
 class UnitPriceExportAPIView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        tags=["Unit Price"],
+        summary="Export Unit Price",
+        description=(
+            "Export unit price list.\n\n"
+            "**Query param `type`:**\n"
+            "- csv → CSV file\n"
+            "- excel → Excel (.xlsx)\n"
+            "- pdf → PDF file\n\n"
+            "**Note:** Response is a downloadable file."
+        ),
+        parameters=[
+            OpenApiParameter(
+                name="type",
+                description="Export file format",
+                required=True,
+                type=OpenApiTypes.STR,
+                enum=["csv", "excel", "pdf"],
+            )
+        ],
+        responses={
+            200: OpenApiResponse(
+                description="File downloaded successfully",
+                response=OpenApiTypes.BINARY,  #  REQUIRED FIX
+            ),
+            400: OpenApiResponse(description="Invalid export type"),
+            500: OpenApiResponse(description="Internal server error"),
+        },
+        auth=[],  # public API
+    )
+    
     def get(self, request):
         try:
             export_type = request.query_params.get("type")
@@ -141,22 +207,6 @@ class UnitPriceExportAPIView(APIView):
     # =====================================================
     # CSV EXPORT
     # =====================================================
-    # def export_csv(self, data):
-    #     response = HttpResponse(content_type="text/csv")
-    #     response["Content-Disposition"] = 'attachment; filename="unit_price.csv"'
-
-    #     writer = csv.writer(response)
-    #     writer.writerow(["Type", "Item Name", "Unit", "Price"])
-
-    #     for row in data:
-    #         writer.writerow([
-    #             row["type"],
-    #             row["itemName"],
-    #             row["unit"],
-    #             row["price"],
-    #         ])
-
-    #     return response
 
     def export_csv(self, data):
         response = HttpResponse(content_type="text/csv")
@@ -170,7 +220,6 @@ class UnitPriceExportAPIView(APIView):
                 row["type"],
                 row["itemName"],
                 row["unit"],
-                # row["price"],     # Base Price
                 row["price"] if row["price"] is not None else "NULL",
                 "NULL",             # Bulk (10+)
             ])
@@ -182,28 +231,6 @@ class UnitPriceExportAPIView(APIView):
     # =====================================================
     # EXCEL EXPORT
     # =====================================================
-    # def export_excel(self, data):
-    #     wb = Workbook()
-    #     ws = wb.active
-    #     ws.title = "Unit Price"
-
-    #     ws.append(["Type", "Item Name", "Unit", "Price"])
-
-    #     for row in data:
-    #         ws.append([
-    #             row["type"],
-    #             row["itemName"],
-    #             row["unit"],
-    #             row["price"],
-    #         ])
-
-    #     response = HttpResponse(
-    #         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    #     )
-    #     response["Content-Disposition"] = 'attachment; filename="unit_price.xlsx"'
-    #     wb.save(response)
-
-    #     return response
 
     def export_excel(self, data):
         wb = Workbook()
@@ -235,47 +262,6 @@ class UnitPriceExportAPIView(APIView):
     # =====================================================
     # PDF EXPORT
     # =====================================================
-    # def export_pdf(self, data):
-    #     buffer = io.BytesIO()
-    #     p = canvas.Canvas(buffer, pagesize=A4)
-    #     width, height = A4
-
-    #     y = height - 40
-    #     p.setFont("Helvetica-Bold", 14)
-    #     p.drawString(40, y, "Unit Price List")
-
-    #     y -= 30
-    #     p.setFont("Helvetica-Bold", 10)
-    #     headers = ["Type", "Item Name", "Unit", "Price"]
-    #     x = [40, 120, 300, 380]
-
-    #     for i, h in enumerate(headers):
-    #         p.drawString(x[i], y, h)
-
-    #     y -= 20
-    #     p.setFont("Helvetica", 10)
-
-    #     for row in data:
-    #         if y < 50:
-    #             p.showPage()
-    #             y = height - 40
-
-    #         p.drawString(40, y, row["type"])
-    #         p.drawString(120, y, row["itemName"])
-    #         p.drawString(300, y, row["unit"])
-    #         p.drawString(380, y, str(row["price"]) if row["price"] else "NULL")
-
-    #         y -= 18
-
-    #     p.save()
-    #     buffer.seek(0)
-
-    #     response = HttpResponse(buffer, content_type="application/pdf")
-    #     response["Content-Disposition"] = 'attachment; filename="unit_price.pdf"'
-
-    #     return response
-
-
 
     def export_pdf(self, data):
         buffer = io.BytesIO()

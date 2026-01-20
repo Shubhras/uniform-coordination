@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import *
 from django.utils.html import format_html
+
+
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
     list_display = ('role_name', 'slug', 'description')
@@ -57,80 +59,6 @@ class BlogAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
     
     
-    
-
-
-@admin.register(QuotationTemplate)
-class QuotationTemplateAdmin(admin.ModelAdmin):
-    list_display = (
-        "title",
-        "slug",
-        "language",
-        "userType",
-        "is_active",
-        "is_deleted",
-        "created_at",
-    )
-
-    list_filter = (
-        "title",
-        "language",
-        "userType",
-        "is_active",
-        "is_deleted",
-    )
-
-    search_fields = (
-        "title",
-        "slug",
-        "content",
-    )
-
-    readonly_fields = ("created_at", "updated_at")
-
-    prepopulated_fields = {
-        "slug": ("title",)
-    }
-
-    fieldsets = (
-        ("Basic Info", {
-            "fields": ("title", "slug", "language", "version")
-        }),
-        ("Template Content", {
-            "fields": ("content",)
-        }),
-        ("Settings", {
-            "fields": ("userType", "is_active", "is_deleted")
-        }),
-        ("Timestamps", {
-            "fields": ("created_at", "updated_at")
-        }),
-    )
-    
-    
-    
-# @admin.register(Category)
-# class CategoryAdmin(admin.ModelAdmin):
-#     list_display = ("id","categoryName","slug","type","isActive","isDeleted", "created_at","updated_at")
-#     list_filter = ("isActive", "isDeleted", "created_at")
-#     search_fields = ("categoryName", "slug")
-#     ordering = ("-created_at",)
-
-#     readonly_fields = ("slug", "created_at", "updated_at")
-
-#     fieldsets = (
-#         ("Category Info", {
-#             "fields": ("categoryName", "slug")
-#         }),
-#         ("Status", {
-#             "fields": ("isActive", "isDeleted","categoryImage","description")
-#         }),
-#         ("Timestamps", {
-#             "fields": ("created_at", "updated_at")
-#         }),
-#     )
-   
-
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = (
@@ -169,9 +97,6 @@ class CategoryAdmin(admin.ModelAdmin):
             "fields": ("created_at", "updated_at")
         }),
     )
-
-
-
 
 
 @admin.register(Parts)

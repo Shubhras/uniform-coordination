@@ -1,3 +1,4 @@
+# contracts/utils.py
 import os
 import requests
 from django.core.mail import EmailMessage
@@ -72,91 +73,6 @@ Sourabh's Venture  Capital
 
     return True
 
-
-
-# def send_docusign_envelope(quotation):
-#     """
-#     Creates & sends a DocuSign envelope to the client
-#     """
-
-#     access_token = get_docusign_access_token()
-
-#     account_id = os.getenv("DOCUSIGN_ACCOUNT_ID")
-#     base_url = os.getenv("DOCUSIGN_BASE_URL")
-
-#     headers = {
-#         "Authorization": f"Bearer {access_token}",
-#         "Content-Type": "application/json"
-#     }
-
-#     # Render quotation content
-#     template = quotation.template
-#     document_text = template.content.format(
-#         CLIENT_NAME=quotation.contact_person,
-#         COMPANY_NAME=quotation.company_name,
-#         ITEM_TYPE=quotation.item_type,
-#         MATERIAL=quotation.material,
-#         DELIVERY_DATE=quotation.delivery_date,
-#         QUOTATION_ID=quotation.quotation_id
-#     )
-
-#     envelope_payload = {
-#         "emailSubject": f"Quotation Agreement - {quotation.quotation_id}",
-#         "documents": [
-#             {
-#                 # "documentBase64": document_text.encode("utf-8").hex(),
-#                 "documentBase64": base64.b64encode(document_text.encode("utf-8")).decode("utf-8"),
-#                 "name": "Quotation Agreement",
-#                 "fileExtension": "txt",
-#                 "documentId": "1"
-#             }
-#         ],
-#         "recipients": {
-#             "signers": [
-#                 {
-#                     "email": quotation.email,
-#                     "name": quotation.contact_person,
-#                     "recipientId": "1",
-#                     "routingOrder": "1",
-#                     "tabs": {
-#                         "signHereTabs": [
-#                             {
-#                                 "anchorString": "**SIGN_HERE**",
-#                                 "anchorUnits": "pixels",
-#                                 "anchorYOffset": "10",
-#                                 "anchorXOffset": "20"
-#                             }
-#                         ]
-#                     }
-#                 }
-#             ]
-#         },
-#         "status": "sent"  
-#     }
-
-#     url = f"{base_url}/restapi/v2.1/accounts/{account_id}/envelopes"
-
-#     response = requests.post(url, headers=headers, json=envelope_payload)
-
-#     if response.status_code not in (200, 201):
-#         raise Exception(f"DocuSign send failed: {response.text}")
-
-#     data = response.json()
-#     envelope_id = data.get("envelopeId")
-
-#     # Save envelope in DB
-#     DocuSignEnvelope.objects.create(
-#         quotation_request=quotation,
-#         envelope_id=envelope_id,
-#         status="sent",
-#         agreement_status="sent_to_client"
-#     )
-
-#     # Update quotation workflow
-#     quotation.workflow_status = "SENT"
-#     quotation.save()
-
-#     return envelope_id
 
 
 def send_docusign_envelope(quotation):

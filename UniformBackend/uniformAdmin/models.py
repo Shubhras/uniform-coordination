@@ -214,13 +214,7 @@ class Category(models.Model):
             )
         ]
     
-    # def save(self, *args, **kwargs):
-    #     if not self.slug and self.categoryName:
-    #         self.slug = slugify(self.categoryName).replace("-", "_")
-    #     super().save(*args, **kwargs)
-    
-    # def __str__(self):
-    #     return self.categoryName
+
     
     def save(self, *args, **kwargs):
         if self.categoryName:
@@ -258,14 +252,7 @@ class Blog(models.Model):
             )
         ]
 
-    # def save(self, *args, **kwargs):
-    #     if not self.slug:
-    #         # slug with underscore
-    #         self.slug = slugify(self.title).replace("-", "_")
-    #     super().save(*args, **kwargs)
 
-    # def __str__(self):
-    #     return self.title
  
     def save(self, *args, **kwargs):
         if self.title:
@@ -333,14 +320,7 @@ class CatalogImage(models.Model):
         ]
     
 
-    # def save(self, *args, **kwargs):
-    #     if not self.slug:
-    #         # slug with underscore
-    #         self.slug = slugify(self.name).replace("-", "_")
-    #     super().save(*args, **kwargs)
 
-    # def __str__(self):
-    #     return self.name   
     
     def save(self, *args, **kwargs):
         if self.name:
@@ -371,14 +351,7 @@ class SubCategory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # def save(self, *args, **kwargs):
-    #     if not self.slug and self.name:
-    #         self.slug = slugify(self.name).replace("-", "_")
-    #     super().save(*args, **kwargs)
 
-    # def __str__(self):
-    #     return self.name
-    
     def save(self, *args, **kwargs):
         if self.name:
             new_slug = slugify(self.name).replace("-", "_")
@@ -431,13 +404,17 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def save(self, *args, **kwargs):
-        if not self.slug and self.productName:
-            self.slug = slugify(self.productName)
-        super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.productName
+
+    def save(self, *args, **kwargs):
+        if self.productName:
+            new_slug = slugify(self.productName).replace("-", "_")
+
+            # regenerate slug only if name changed
+            if self.slug != new_slug:
+                self.slug = new_slug
+
+        super().save(*args, **kwargs)
 
 
 
@@ -461,14 +438,7 @@ class Promocode(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
  
-    # def save(self, *args, **kwargs):
-    #     if not self.slug:
-    #         self.slug = slugify(self.promocodeName).replace("-", "_")
-    #     super().save(*args, **kwargs)
- 
-    # def __str__(self):
-    #     return self.promocodeName
-    
+
     def save(self, *args, **kwargs):
         if self.promocodeName:
             new_slug = slugify(self.promocodeName).replace("-", "_")
@@ -511,13 +481,7 @@ class PrivacyPolicy(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
  
-    # def save(self, *args, **kwargs):
-    #     if not self.slug:
-    #         self.slug = slugify(self.title).replace("-", "_")
-    #     super().save(*args, **kwargs)
- 
-    # def __str__(self):
-    #     return self.title
+
     def save(self, *args, **kwargs):
         if self.title:
             new_slug = slugify(self.title).replace("-", "_")

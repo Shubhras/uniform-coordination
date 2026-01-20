@@ -14,7 +14,11 @@ reportlab
 stripe
 docusign-esign
 pdfkit
-"pyjwt[crypto]" cryptography
+# "pyjwt[crypto]" cryptography
 python-dotenv
--g ngrok
+# -g ngrok
+PyJWT[crypto]
+cryptography
 xmltodict
+drf-spectacular
+drf-spectacular-sidecar

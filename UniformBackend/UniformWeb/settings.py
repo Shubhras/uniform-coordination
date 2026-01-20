@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -190,6 +192,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     'PAGE_SIZE': 10,
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -252,3 +255,19 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"   # collected files for production
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Uniform Coordination API",
+    "DESCRIPTION": "API documentation for UniformCoordination platform",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+
+    # JWT support
+    "SECURITY": [{"bearerAuth": []}],
+    "COMPONENT_SPLIT_REQUEST": True,
+
+    "SWAGGER_UI_SETTINGS": {
+        "persistAuthorization": True,
+    },
+}

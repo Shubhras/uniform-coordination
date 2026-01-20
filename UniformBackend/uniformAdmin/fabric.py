@@ -8,6 +8,7 @@ from rest_framework import status
 
 from .serializers import FabricSerializer
 from .models import Fabric
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 import logging  
 logger = logging.getLogger(__name__)
@@ -37,6 +38,17 @@ class CustomPagination(PageNumberPagination):
 
         
 #permission_classes = [IsAuthenticated, IsAdministrator]
+
+@extend_schema(
+    tags=["Fabric"],
+    summary="Create a new fabric",
+    request=FabricSerializer,
+    responses={
+        200: OpenApiResponse(description="Fabric created successfully"),
+        400: OpenApiResponse(description="Validation error"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class FabricCreateView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]  # <-- ensures request.user is AdminUser
@@ -93,6 +105,14 @@ class FabricCreateView(APIView):
             return Response(response)
 
 
+@extend_schema(
+    tags=["Fabric"],
+    summary="Get list of fabrics",
+    responses={
+        200: OpenApiResponse(description="Fabric list fetched successfully"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class FabricListView(APIView):
     permission_classes = [AllowAny]
 
@@ -141,7 +161,16 @@ class FabricListView(APIView):
                 "message": f"Internal server error: {str(e)}"
             }, status=500)
 
-        
+
+@extend_schema(
+    tags=["Fabric"],
+    summary="Get fabric details by ID",
+    responses={
+        200: OpenApiResponse(description="Fabric fetched successfully"),
+        404: OpenApiResponse(description="Fabric not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)        
 class FabricDetailView(APIView):
     permission_classes = [AllowAny]
 
@@ -177,6 +206,19 @@ class FabricDetailView(APIView):
             logger.error(f"FabricDetailView GET - {response}")
             return Response(response)
     
+
+
+@extend_schema(
+    tags=["Fabric"],
+    summary="Update fabric by ID",
+    request=FabricSerializer,
+    responses={
+        200: OpenApiResponse(description="Fabric updated successfully"),
+        400: OpenApiResponse(description="Validation error"),
+        404: OpenApiResponse(description="Fabric not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)    
 class FabricUpdateView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]
@@ -226,6 +268,15 @@ class FabricUpdateView(APIView):
             return Response(response)
 
 
+@extend_schema(
+    tags=["Fabric"],
+    summary="Delete fabric by ID",
+    responses={
+        200: OpenApiResponse(description="Fabric deleted successfully"),
+        404: OpenApiResponse(description="Fabric not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class FabricDeleteView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]
