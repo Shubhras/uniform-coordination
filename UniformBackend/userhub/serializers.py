@@ -294,12 +294,27 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             "delivery_date",
             "additional_note",
             "agreed_to_terms",
+            "workflow_status",
+            "quotation_status",
             "isActive",
             "isDeleted",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ("uuids", "created_at", "updated_at")
+        read_only_fields = ("uuids","quotation_id","agreed_to_terms","workflow_status","quotation_status","created_at","updated_at",)
+
+    # def validate_agreed_to_terms(self, value):
+    #     if value is not True:
+    #         raise serializers.ValidationError(
+    #             "You must agree to privacy policy & terms."
+    #         )
+    #     return value
+    # def create(self, validated_data):
+    #     if not validated_data.get("quotation_id"):
+    #         validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
+    #     return super().create(validated_data)
+
+
 
     def validate_agreed_to_terms(self, value):
         if value is not True:

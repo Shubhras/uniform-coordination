@@ -3,13 +3,12 @@ from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
-from userhub.utils import BaseAPIView
 from .models import PrivacyPolicy
 from .serializers import PrivacyPolicySerializer
 from .fabric import CustomPagination ,IsAdministrator # same paginator you already use
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated ,BasePermission,AllowAny
-
+from .utils import*
 
 class PrivacyPolicyCreateAPIView(BaseAPIView):   
     permission_classes = [IsAdministrator]
@@ -38,7 +37,6 @@ class PrivacyPolicyCreateAPIView(BaseAPIView):
 
 class PrivacyPolicyListAPIView(BaseAPIView):
     permission_classes = [AllowAny]
-
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()
@@ -75,16 +73,17 @@ class PrivacyPolicyListAPIView(BaseAPIView):
                 "count": paginator.page.paginator.count,
                 "next": paginator.get_next_link(),
                 "previous": paginator.get_previous_link(),
-                "statusCode": 200,
-                "status": True,
-                "message": "Privacy policy list fetched successfully",
-                "data": serializer.data,
                 "pagination": {
                     "page": paginator.page.number,
                     "page_size": paginator.get_page_size(request),
                     "total_pages": paginator.page.paginator.num_pages,
                     "total_items": paginator.page.paginator.count
-                }
+                },
+                "statusCode": 200,
+                "status": True,
+                "message": "Privacy policy list fetched successfully",
+                "data": serializer.data,
+              
             }
 
             return Response(response)

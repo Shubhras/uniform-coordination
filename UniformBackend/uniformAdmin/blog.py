@@ -38,7 +38,7 @@ class BlogCreateAPIView(APIView):
                     "data": BlogSerializer(blog, context={"request": request}).data
                 }, status=status.HTTP_201_CREATED)
 
-            # 🔹 CUSTOM CATEGORY ERROR
+            # CUSTOM CATEGORY ERROR
             if "category" in serializer.errors:
                 return Response({
                     "status": False,
@@ -46,7 +46,7 @@ class BlogCreateAPIView(APIView):
                     "message": "Validation failed; Invalid Selected Category",
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # 🔹 CUSTOM DUPLICATE TITLE ERROR
+            # CUSTOM DUPLICATE TITLE ERROR
             if "title" in serializer.errors:
                 return Response({
                     "status": False,
@@ -176,16 +176,14 @@ class BlogListAPIView(APIView):
                 "count": paginator.page.paginator.count,
                 "next": paginator.get_next_link(),
                 "previous": paginator.get_previous_link(),
+                "page": paginator.page.number,
+                "page_size": paginator.get_page_size(request),
+                "total_pages": paginator.page.paginator.num_pages,
+                "total_items": paginator.page.paginator.count,
                 "statusCode": 200,
                 "status": True,
                 "message": "Blog list fetched successfully.",
-                "data": serializer.data,
-                "pagination": {
-                    "page": paginator.page.number,
-                    "page_size": paginator.get_page_size(request),
-                    "total_pages": paginator.page.paginator.num_pages,
-                    "total_items": paginator.page.paginator.count
-                }
+                "data": serializer.data,                
             }
 
             return Response(response, status=status.HTTP_200_OK)
@@ -269,7 +267,7 @@ class BlogUpdateAPIView(APIView):
                     "data": serializer.data
                 }, status=status.HTTP_200_OK)
 
-            # 🔹 CUSTOM TITLE DUPLICATE ERROR (ONLY CHANGE)
+            # CUSTOM TITLE DUPLICATE ERROR (ONLY CHANGE)
             if "title" in serializer.errors:
                 return Response({
                     "status": False,
@@ -305,7 +303,7 @@ class BlogDeleteAPIView(APIView):
     
     def delete(self, request, blog_id=None):
         try:
-            # 🔹 SINGLE DELETE
+            # SINGLE DELETE
             if blog_id:
                 try:
                     blog = Blog.objects.get(id=blog_id, isDeleted=False)
@@ -325,7 +323,7 @@ class BlogDeleteAPIView(APIView):
                     "message": "Blog deleted successfully."
                 }, status=status.HTTP_200_OK)
 
-            # 🔹 MULTIPLE DELETE
+            # MULTIPLE DELETE
             blog_ids = request.data.get("ids")
             if not blog_ids or not isinstance(blog_ids, list):
                 return Response({
