@@ -375,3 +375,8 @@ class CustomUpdateModelsSerializer(serializers.ModelSerializer):
             Product.objects.filter(model_info=obj.model_info),
             many=True
         ).data
+    
+    def validate_model_info(self, value):
+        if not ModelInfo.objects.filter(pk=value.pk).exists():
+            raise serializers.ValidationError("Invalid model_info ID provided.")
+        return value

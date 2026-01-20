@@ -18,14 +18,21 @@ class ModelInfoCreateAPIView(APIView):
     def post(self,request):
         try:
             serializer = ModelInfoSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            model_info = serializer.save()
-            return Response({
-                'statusCode' : 201,
-                'status':True,
-                "message": "3D model information created successfully",
-                "data": ModelInfoSerializer(model_info).data
-            },status=status.HTTP_201_CREATED)
+            if serializer.is_valid():
+                model_info = serializer.save()
+                return Response({
+                    'statusCode' : 201,
+                    'status':True,
+                    "message": "3D model information created successfully",
+                    "data": ModelInfoSerializer(model_info).data
+                },status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    "statusCode":400,
+                    "status":False,
+                    "message":"Invalid Product id",
+                    "error":serializer.errors
+                },status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({
                 'statusCode':500,
@@ -305,7 +312,8 @@ class QuotationRequestsListAPIView(APIView):
 
             if not quotations.exists():
                 return Response(
-                    {
+                    {   
+                        "statusCode":200,
                         "status": True,
                         "message": "You have not submitted any quotation requests yet.",
                         "data": []
@@ -316,7 +324,8 @@ class QuotationRequestsListAPIView(APIView):
             serializer = QuotationRequestSerializer(quotations, many=True)
 
             return Response(
-                {
+                {   
+                    "statusCode":200,
                     "status": True,
                     "message": "Your quotation requests fetched successfully.",
                     "total": quotations.count(),
@@ -327,7 +336,7 @@ class QuotationRequestsListAPIView(APIView):
 
         except Exception as e:
             return Response(
-                {
+                {   "statusCode":500,
                     "status": False,
                     "message": "Something went wrong on server.",
                     "error": str(e)
@@ -339,29 +348,42 @@ class CustomUpdateModelsCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        data = request.data.copy()
+
+        # Large JSON nikaalo
+        large_json = data.pop("json_data", None)
+        json_path = None
+        if large_json:
+            json_path = save_large_json_to_file(large_json)
+
+        serializer = CustomUpdateModelsSerializer(data=data)
         try:
-            data = request.data.copy()
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(user=request.user, json_file_path=json_path)
+                return Response({
+                    "statusCode": 201,
+                    "status": True,
+                    "message": "Custom Update created successfully",
+                    "data": serializer.data
+                }, status=status.HTTP_201_CREATED)
 
-            # large json nikaalo
-            large_json = data.pop("json_data", None)
+        except IntegrityError as e:
+            # Check if it's a unique constraint error
+            if "Duplicate entry" in str(e):
+                return Response({
+                    "statusCode": 400,
+                    "status": False,
+                    "message": "You have already created a Custom Update for this user and model_info.",
+                    "error": str(e)
+                }, status=status.HTTP_400_BAD_REQUEST)
 
-            json_path = None
-            if large_json:
-                json_path = save_large_json_to_file(large_json)
-
-            serializer = CustomUpdateModelsSerializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save(
-                user=request.user,
-                json_file_path=json_path
-            )
-
+        except serializers.ValidationError as e:
             return Response({
-                "statusCode": 201,
-                "status": True,
-                "message": "Custom Update created successfully",
-                "data": serializer.data
-            }, status=status.HTTP_201_CREATED)
+                "statusCode": 400,
+                "status": False,
+                "message": "Invalid data provided.",
+                "error": e.detail
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({
