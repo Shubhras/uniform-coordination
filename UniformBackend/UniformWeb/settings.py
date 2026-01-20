@@ -13,12 +13,17 @@ import os
 from decouple import config
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+import os
 
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+dotenv_path = BASE_DIR / ".env"
+load_dotenv(dotenv_path)
 
-
+# Test immediately
+print("DOCUSIGN_BASE_URL:", os.getenv("DOCUSIGN_BASE_URL"))
+print("DOCUSIGN_ACCOUNT_ID:", os.getenv("DOCUSIGN_ACCOUNT_ID"))
+print("DOCUSIGN_USER_ID:", os.getenv("DOCUSIGN_USER_ID"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -39,7 +44,8 @@ ALLOWED_HOSTS = [
     "192.168.1.56",
     "54.81.43.26",
     "0.0.0.0:8000",
-    "0.0.0.0"
+    "0.0.0.0",
+    "moira-diamond-unfiltrated.ngrok-free.dev",
 ]
 # Application definition
 
@@ -56,6 +62,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'uniformAdmin',
     'userhub',
+    'contracts',
     # 'drf_yasg',
 ]
 AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
@@ -162,6 +169,8 @@ STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+SITE_DOMAIN = "http://54.81.43.26"
+
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
@@ -206,13 +215,14 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 # CORS_ALLOW_ALL_ORIGINS = True
 
-
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "moriji345@gmail.com"
 EMAIL_HOST_PASSWORD = "hqymjygpiifyfdfg"
+# EMAIL_HOST_USER="sourabh.mori1digiprima@gmail.com"
+# EMAIL_HOST_PASSWORD="xuwkrhblrzorjyyj"
 
 
 SIMPLE_JWT = {

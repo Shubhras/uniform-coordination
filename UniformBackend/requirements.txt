@@ -12,3 +12,9 @@ pillow
 requests
 reportlab
 stripe
+docusign-esign
+pdfkit
+cryptography
+python-dotenv
+ngrok
+xmltodict

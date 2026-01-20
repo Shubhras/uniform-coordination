@@ -595,8 +595,7 @@ class AdminUpdateProductAPIView(APIView):
 # products/views/get_product.py
 
 class AdminGetProductAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+  
 
     def get(self, request, pk):
         try:
@@ -626,14 +625,57 @@ class AdminGetProductAPIView(APIView):
 
 
 # products/views/list_products.py
-
 class AdminListProductsAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         try:
-            products = Product.objects.filter(isDeleted=False).order_by("-created_at")
+            # -------------------------
+            # Query params
+            # -------------------------
+            category_id = request.query_params.get("category_id")
+            subcategory_id = request.query_params.get("subcategory_id")
+            product_type = request.query_params.get("productType")  # REQUIRED
+            type_filter = request.query_params.get("type")
+            ordering = request.query_params.get("ordering", "newest")
+
+            # -------------------------
+            # productType is required
+            # -------------------------
+            if not product_type:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "productType is required either 'uniform' or 'table'."
+                }, status=status.HTTP_200_OK)
+
+            # -------------------------
+            # Base queryset
+            # -------------------------
+            products = Product.objects.filter(
+                isDeleted=False,
+                productType=product_type
+            )
+
+            # -------------------------
+            # Optional filters
+            # -------------------------
+            if category_id:
+                products = products.filter(category_id=category_id)
+
+            if subcategory_id:
+                products = products.filter(subcategory_id=subcategory_id)
+
+            if type_filter:
+                products = products.filter(type=type_filter)
+
+            # -------------------------
+            # Ordering
+            # -------------------------
+            if ordering == "oldest":
+                products = products.order_by("created_at")
+            else:  # newest (default)
+                products = products.order_by("-created_at")
+
             serializer = ProductSerializer(products, many=True)
 
             return Response({
@@ -650,6 +692,8 @@ class AdminListProductsAPIView(APIView):
                 "message": "Server error while fetching products.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 # products/views/delete_product.py
@@ -950,6 +994,7 @@ class QuotationTemplateCreateAPIView(APIView):
             "quotation_id": quotation.quotation_id,
             "rendered_content": rendered_text
         })
+
 '''
 class QuotationTemplateListAPIView(APIView):
 
@@ -1026,6 +1071,7 @@ class QuotationTemplateListAPIView(APIView):
             'message': 'Quotations fetched and rendered successfully.',
             'data': rendered_data
         })
+
 '''
 class QuotationTemplateDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]

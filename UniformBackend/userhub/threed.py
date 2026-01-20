@@ -13,6 +13,10 @@ import os
 from .util.file_storage import save_large_json_to_file
 from uniformAdmin.signal import create_admin_notification
 from django.utils.timezone import now
+from uniformAdmin.models import QuotationTemplate
+from rest_framework.permissions import IsAuthenticated ,BasePermission,AllowAny
+from contracts.utils import *
+from userhub.utils import generate_quotation_pdf
 #<-------------------ModelsInfo------------------->
 class ModelInfoCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -228,35 +232,147 @@ class CustomUpdateModelExportPDFAPIView(APIView):
         })
 
 #<----------------------QuotationRequest------------------>
+           
+           
+# class QuotationRequestCreateAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request):
+#         try:
+#             template_slug = request.data.get("template_slug")
+
+#             if not template_slug:
+#                 return Response(
+#                     {"message": "template_slug is required"},
+#                     status=400
+#                 )
+
+#             # Fetch template
+#             template = QuotationTemplate.objects.filter(
+#                 slug=template_slug,
+#                 is_active=True,
+#                 is_deleted=False
+#             ).first()
+
+#             if not template:
+#                 return Response(
+#                     {"message": "Template not found"},
+#                     status=404
+#                 )
+
+#             serializer = QuotationRequestSerializer(data=request.data)
+#             serializer.is_valid(raise_exception=True)
+
+#             # Save quotation with template
+#             quotation = serializer.save(template=template)
+
+#             create_admin_notification(
+#                 instance=quotation,
+#                 title=f"New Quotation Request: {quotation.quotation_id}",
+#                 message=f"A new quotation request has been created by {quotation.company_name}.",
+#                 priority="high"
+#             )
+
+#             return Response({
+#                 "statusCode": 201,
+#                 "status": True,
+#                 "message": "Quotation Request created successfully",
+#                 "quotation_id": quotation.quotation_id,
+#                 "template": template.slug
+#             }, status=201)
+
+#         except Exception as e:
+#             return Response({
+#                 "statusCode": 500,
+#                 "status": False,
+#                 "message": "Something went wrong on server",
+#                 "error": str(e)
+#             }, status=500)
+          
+          
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+# import pdfkit
+import os
+
+
+from userhub.serializers import QuotationRequestSerializer
+# from contracts.docusign_client import send_quotation_for_signature
+
+from uniformAdmin.utils import create_admin_notification
+
+
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+
+
+from userhub.models import QuotationRequest
+from uniformAdmin.models import QuotationTemplate
+from contracts.models import DocuSignEnvelope
+
+from uniformAdmin.utils import render_quotation_template
+
+
+
 class QuotationRequestCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self,request):
+    def post(self, request):
         try:
-            serializer = QuotationRequestSerializer(data=request.data,context={"request": request})
+            template_slug = request.data.get("template_slug")
+            if not template_slug:
+                return Response({"message": "template_slug is required"}, status=400)
+
+            template = QuotationTemplate.objects.filter(
+                slug=template_slug,
+                is_active=True,
+                is_deleted=False
+            ).first()
+
+            if not template:
+                return Response({"message": "Template not found"}, status=404)
+
+            serializer = QuotationRequestSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
-            quotation = serializer.save() 
-            # Call the helper function instead of writing objects.create directly
-            create_admin_notification(
-                instance=quotation,
-                title=f"New Quotation Request: {quotation.quotation_id }",
-                message=f"A new quotation request has been created by {quotation.company_name}.",
-                priority="high"
+
+            quotation = serializer.save(
+                template=template,
+                workflow_status="REQUESTED",
+                quotation_status="pending"
             )
+
+            # 🚀 CREATE DOCUSIGN & SEND EMAIL IMMEDIATELY
+            envelope_id = send_docusign_envelope(quotation)
+
+            DocuSignEnvelope.objects.create(
+                quotation_request=quotation,
+                envelope_id=envelope_id,
+                status="sent",
+                agreement_status="sent_to_client"
+            )
+
+            quotation.workflow_status = "SENT"
+            quotation.save()
+
             return Response({
-                    'statusCode':201,
-                    'status':True,
-                    'message':'Quotation Request create sucsessfully. ',
-                    'data':serializer.data
-                },status=status.HTTP_201_CREATED)
+                "status": True,
+                "message": "Quotation created and DocuSign sent",
+                "quotation_id": quotation.quotation_id,
+                "workflow_status": quotation.workflow_status
+            }, status=201)
+
         except Exception as e:
             return Response({
-                'statusCode':500,
-                'status':False,
-                'message':'Something went wrong on server',
-                'error':str(e)
-            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                "status": False,
+                "message": "Failed to create quotation",
+                "error": str(e)
+            }, status=500)
+
+
+           
            
 class QuotationRequestDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -274,6 +390,9 @@ class QuotationRequestDetailAPIView(APIView):
             'message':'Quotation Request info fetched successfully',
             'data':serializer.data
         },status=status.HTTP_200_OK)
+
+
+
 
 class QuotationRequestExportPDFAPIView(APIView):
     permission_classes = [IsAuthenticated]
