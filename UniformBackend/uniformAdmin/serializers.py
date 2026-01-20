@@ -550,7 +550,7 @@ class ProductSerializer(serializers.ModelSerializer):
         many=True,
         required=False
     )
-
+    
     theme = serializers.PrimaryKeyRelatedField(
         queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
         required=False,
