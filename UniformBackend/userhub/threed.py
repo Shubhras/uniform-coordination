@@ -12,6 +12,7 @@ from django.conf import settings
 import os
 from .util.file_storage import save_large_json_to_file
 from uniformAdmin.signal import create_admin_notification
+from django.utils.timezone import now
 from uniformAdmin.models import QuotationTemplate
 from rest_framework.permissions import IsAuthenticated ,BasePermission,AllowAny
 from contracts.utils import *
@@ -22,14 +23,21 @@ class ModelInfoCreateAPIView(APIView):
     def post(self,request):
         try:
             serializer = ModelInfoSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            model_info = serializer.save()
-            return Response({
-                'statusCode' : 201,
-                'status':True,
-                "message": "3D model information created successfully",
-                "data": ModelInfoSerializer(model_info).data
-            },status=status.HTTP_201_CREATED)
+            if serializer.is_valid():
+                model_info = serializer.save()
+                return Response({
+                    'statusCode' : 201,
+                    'status':True,
+                    "message": "3D model information created successfully",
+                    "data": ModelInfoSerializer(model_info).data
+                },status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    "statusCode":400,
+                    "status":False,
+                    "message":"Invalid Product id",
+                    "error":serializer.errors
+                },status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({
                 'statusCode':500,
@@ -287,16 +295,14 @@ class CustomUpdateModelExportPDFAPIView(APIView):
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-import pdfkit
+# import pdfkit
 import os
 
-from uniformAdmin.models import QuotationTemplate
+
 from userhub.serializers import QuotationRequestSerializer
 # from contracts.docusign_client import send_quotation_for_signature
-from contracts.models import DocuSignEnvelope
-from uniformAdmin.utils import render_quotation_template
-from uniformAdmin.utils import create_admin_notification
 
+from uniformAdmin.utils import create_admin_notification
 
 
 from django.utils import timezone
@@ -426,7 +432,8 @@ class QuotationRequestsListAPIView(APIView):
 
             if not quotations.exists():
                 return Response(
-                    {
+                    {   
+                        "statusCode":200,
                         "status": True,
                         "message": "You have not submitted any quotation requests yet.",
                         "data": []
@@ -437,7 +444,8 @@ class QuotationRequestsListAPIView(APIView):
             serializer = QuotationRequestSerializer(quotations, many=True)
 
             return Response(
-                {
+                {   
+                    "statusCode":200,
                     "status": True,
                     "message": "Your quotation requests fetched successfully.",
                     "total": quotations.count(),
@@ -448,7 +456,7 @@ class QuotationRequestsListAPIView(APIView):
 
         except Exception as e:
             return Response(
-                {
+                {   "statusCode":500,
                     "status": False,
                     "message": "Something went wrong on server.",
                     "error": str(e)
@@ -460,29 +468,42 @@ class CustomUpdateModelsCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        data = request.data.copy()
+
+        # Large JSON nikaalo
+        large_json = data.pop("json_data", None)
+        json_path = None
+        if large_json:
+            json_path = save_large_json_to_file(large_json)
+
+        serializer = CustomUpdateModelsSerializer(data=data)
         try:
-            data = request.data.copy()
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(user=request.user, json_file_path=json_path)
+                return Response({
+                    "statusCode": 201,
+                    "status": True,
+                    "message": "Custom Update created successfully",
+                    "data": serializer.data
+                }, status=status.HTTP_201_CREATED)
 
-            # large json nikaalo
-            large_json = data.pop("json_data", None)
+        except IntegrityError as e:
+            # Check if it's a unique constraint error
+            if "Duplicate entry" in str(e):
+                return Response({
+                    "statusCode": 400,
+                    "status": False,
+                    "message": "You have already created a Custom Update for this user and model_info.",
+                    "error": str(e)
+                }, status=status.HTTP_400_BAD_REQUEST)
 
-            json_path = None
-            if large_json:
-                json_path = save_large_json_to_file(large_json)
-
-            serializer = CustomUpdateModelsSerializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save(
-                user=request.user,
-                json_file_path=json_path
-            )
-
+        except serializers.ValidationError as e:
             return Response({
-                "statusCode": 201,
-                "status": True,
-                "message": "Custom Update created successfully",
-                "data": serializer.data
-            }, status=status.HTTP_201_CREATED)
+                "statusCode": 400,
+                "status": False,
+                "message": "Invalid data provided.",
+                "error": e.detail
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({
@@ -511,6 +532,7 @@ class CustomUpdateModelsListAPIView(APIView):
             "status": True,
             "data": serializer.data
         })
+
 
 
 class CustomUpdateModelsDetailAPIView(APIView):
@@ -638,14 +660,62 @@ class CustomUpdateModelsDeleteAPIView(APIView):
             "message": f"{queryset.count()} record(s) deleted successfully."
         }, status=status.HTTP_204_NO_CONTENT)
 
+# class CustomModelsUserAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         queryset = CustomUpdateModels.objects.filter(
+#             user__id=request.user.id,
+#             isDeleted=False
+#         )
+
+#         serializer = CustomUpdateModelsSerializer(
+#             queryset, many=True, context={"request": request}
+#         )
+
+#         return Response({
+#             "statusCode": 200,
+#             "status": True,
+#             "user_id": request.user.id,
+#             "data": serializer.data
+#         })
+
 class CustomModelsUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
+    
     def get(self, request):
+        user = request.user
+
+        category_slug = request.GET.get("category")   
+        sort = request.GET.get("sort", "new")        
+        range_days = request.GET.get("range")         
+
         queryset = CustomUpdateModels.objects.filter(
-            user__id=request.user.id,
+            user=user,
             isDeleted=False
         )
+
+        #  Category / Industry Filter
+        if category_slug:
+            print("FILTERING BY CATEGORY:", category_slug)
+            queryset = queryset.filter(
+                model_info__product__category__slug=category_slug
+            )
+
+        # Date Range Filter
+        if range_days:
+            try:
+                days = int(range_days)
+                start_date = now() - timedelta(days=days)
+                queryset = queryset.filter(created_at__gte=start_date)
+            except:
+                pass
+
+        # Sorting
+        if sort == "old":
+            queryset = queryset.order_by("created_at")
+        else:
+            queryset = queryset.order_by("-created_at")
 
         serializer = CustomUpdateModelsSerializer(
             queryset, many=True, context={"request": request}
@@ -654,6 +724,7 @@ class CustomModelsUserAPIView(APIView):
         return Response({
             "statusCode": 200,
             "status": True,
-            "user_id": request.user.id,
+            "user_id": user.id,
+            "message":"fetch data successfully ",
             "data": serializer.data
-        })
+        },status=status.HTTP_200_OK)
