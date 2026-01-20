@@ -728,3 +728,57 @@ class CustomModelsUserAPIView(APIView):
             "message":"fetch data successfully ",
             "data": serializer.data
         },status=status.HTTP_200_OK)
+
+class OrderHistoryAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        filter_type = request.GET.get("type", "all")  # all, drafted, submitted
+
+        data = []
+
+        # Drafted Orders
+        if filter_type in ["all", "drafted"]:
+            drafts = CustomUpdateModels.objects.filter(
+                user=user,
+                isActive=True,
+                isDeleted=False
+            ).order_by("-created_at")
+
+            for d in drafts:
+                data.append({
+                    "id": d.id,
+                    "order_no": f"FORM-{d.id}",
+                    "title": "Custom Design",
+                    "status": "Drafted",
+                    "date": d.created_at,
+                    "type": "drafted"
+                })
+
+        # Submitted Orders
+        if filter_type in ["all", "submitted"]:
+            quotes = QuotationRequest.objects.filter(
+                customupdatemodel__user=user,
+                isActive=True,
+                isDeleted=False
+            ).order_by("-created_at")
+
+            for q in quotes:
+                data.append({
+                    "id": str(q.uuids),
+                    "order_no": q.quotation_id,
+                    "title": q.item_type or "Quotation Request",
+                    "status": q.quotation_status.capitalize(),
+                    "date": q.created_at,
+                    "type": "submitted"
+                })
+
+        # Sort latest first
+        data = sorted(data, key=lambda x: x["date"], reverse=True)
+
+        return Response({
+            "status": True,
+            "filter": filter_type,
+            "data": data
+        })

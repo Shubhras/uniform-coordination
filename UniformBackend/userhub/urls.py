@@ -65,11 +65,13 @@ urlpatterns = [
     path("payments/", UserPaymentListAPIView.as_view()),
     path("payments/detail/", UserPaymentDetailAPIView.as_view()),
     path("stripe/webhook",StripeWebhookAPIView.as_view()),
-     
     path("admin/payments/", AdminPaymentListAPIView.as_view()),
     path("admin/payments/detail/", AdminPaymentDetailAPIView.as_view()),
     
     path("quotationstatus/user/",UserQuotationStatusUpdateAPIView.as_view(), name = "QuotationStatus-post"),
+    
+    #<-------------OrderHistory---------------------->
+    path("orderhistory/get-list/",OrderHistoryAPIView.as_view(),name='get-list'),
    
    
 ]
