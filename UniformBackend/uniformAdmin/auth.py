@@ -369,7 +369,7 @@ class ChangePasswordAPIView(APIView):
         400: OpenApiResponse(description="Validation error"),
         401: OpenApiResponse(description="Unauthorized")
     },
-    # security=[{"AdminJWTAuth": []}]
+
 )
     def post(self, request):
         serializer = AdminChangePasswordSerializer(

@@ -274,9 +274,79 @@ class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
 #             validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
 #         return super().create(validated_data)
 
-class QuotationRequestSerializer(serializers.ModelSerializer):
-    customsave = serializers.PrimaryKeyRelatedField(source="customupdatemodel",queryset=CustomUpdateModels.objects.filter(isActive=True, isDeleted=False),required=True)
+# class QuotationRequestSerializer(serializers.ModelSerializer):
+#     customsave = serializers.PrimaryKeyRelatedField(source="customupdatemodel",queryset=CustomUpdateModels.objects.filter(isActive=True, isDeleted=False),required=True)
 
+
+#     class Meta:
+#         model = QuotationRequest
+#         fields = [
+#             "uuids",
+#             "quotation_id",
+#             "company_name",
+#             "contact_person",
+#             "email",
+#             "phone_number",
+#             "customsave",   
+#             "item_type",
+#             "material",
+#             "size_quantity",
+#             "delivery_date",
+#             "additional_note",
+#             "agreed_to_terms",
+#             "workflow_status",
+#             "quotation_status",
+#             "isActive",
+#             "isDeleted",
+#             "created_at",
+#             "updated_at",
+#         ]
+#         read_only_fields = ("uuids","quotation_id","agreed_to_terms","workflow_status","quotation_status","created_at","updated_at",)
+
+
+
+#     def validate_agreed_to_terms(self, value):
+#         if value is not True:
+#             raise serializers.ValidationError(
+#                 "You must agree to privacy policy & terms."
+#             )
+#         return value
+    
+#     def validate_customsave(self, value):
+#         request = self.context.get("request")
+#         if value.user != request.user:
+#             raise serializers.ValidationError(
+#                 "You can only use your own Custom Save model."
+#             )
+#         return value
+
+#     def create(self, validated_data):
+#         # Auto generate quotation_id
+#         if not validated_data.get("quotation_id"):
+#             validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
+
+#         # Auto assign latest CustomUpdateModels if FK not provided
+#         if "customupdatemodel" not in validated_data or validated_data["customupdatemodel"] is None:
+#             latest_model = CustomUpdateModels.objects.filter(
+#                 isActive=True, isDeleted=False
+#             ).order_by("-created_at").first()
+#             if latest_model:
+#                 validated_data["customupdatemodel"] = latest_model
+
+#         return super().create(validated_data)
+
+
+
+
+class QuotationRequestSerializer(serializers.ModelSerializer):
+
+
+    customsave = serializers.PrimaryKeyRelatedField(
+        source="customupdatemodel",
+        queryset=CustomUpdateModels.objects.filter(isActive=True, isDeleted=False),
+        required=False,          
+        allow_null=True         
+    )
 
     class Meta:
         model = QuotationRequest
@@ -287,7 +357,7 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             "contact_person",
             "email",
             "phone_number",
-            "customsave",   
+            "customsave",
             "item_type",
             "material",
             "size_quantity",
@@ -301,20 +371,19 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ("uuids","quotation_id","agreed_to_terms","workflow_status","quotation_status","created_at","updated_at",)
+        read_only_fields = (
+            "uuids",
+            "quotation_id",
+            "agreed_to_terms",
+            "workflow_status",
+            "quotation_status",
+            "created_at",
+            "updated_at",
+        )
 
-    # def validate_agreed_to_terms(self, value):
-    #     if value is not True:
-    #         raise serializers.ValidationError(
-    #             "You must agree to privacy policy & terms."
-    #         )
-    #     return value
-    # def create(self, validated_data):
-    #     if not validated_data.get("quotation_id"):
-    #         validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
-    #     return super().create(validated_data)
-
-
+    # -----------------------------
+    # VALIDATIONS
+    # -----------------------------
 
     def validate_agreed_to_terms(self, value):
         if value is not True:
@@ -322,29 +391,38 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
                 "You must agree to privacy policy & terms."
             )
         return value
-    
+
     def validate_customsave(self, value):
         request = self.context.get("request")
-        if value.user != request.user:
+        if request and value.user != request.user:
             raise serializers.ValidationError(
                 "You can only use your own Custom Save model."
             )
         return value
 
+    # -----------------------------
+    # CREATE LOGIC
+    # -----------------------------
+
     def create(self, validated_data):
+
         # Auto generate quotation_id
         if not validated_data.get("quotation_id"):
             validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
 
-        # Auto assign latest CustomUpdateModels if FK not provided
-        if "customupdatemodel" not in validated_data or validated_data["customupdatemodel"] is None:
+        # Auto assign latest CustomUpdateModels if NOT provided
+        if not validated_data.get("customupdatemodel"):
             latest_model = CustomUpdateModels.objects.filter(
-                isActive=True, isDeleted=False
+                isActive=True,
+                isDeleted=False
             ).order_by("-created_at").first()
+
             if latest_model:
                 validated_data["customupdatemodel"] = latest_model
 
         return super().create(validated_data)
+
+
 
 class CustomUpdateModelsSerializer(serializers.ModelSerializer):
     product_details = serializers.SerializerMethodField()

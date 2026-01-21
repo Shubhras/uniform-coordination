@@ -678,8 +678,6 @@ class ResetPasswordAPIView(APIView):
 
 
 
-
-
 class UpdatePasswordAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1024,9 +1022,12 @@ class VerifyUserAPIView(APIView):
 #                 "data": None
 #             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# ADD TO CART 
 
-@extend_schema(
+# ADD TO CART 
+class AddToCartAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
     summary="AddToCart API",
     
     tags=["Payment Gateway"],
@@ -1045,12 +1046,7 @@ class VerifyUserAPIView(APIView):
         201: OpenApiTypes.OBJECT,
         404: OpenApiTypes.OBJECT,
     },
-)
-
-
-
-class AddToCartAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    )
 
     def post(self, request):
         try:
@@ -1105,15 +1101,16 @@ class AddToCartAPIView(APIView):
 
 
 
-@extend_schema(
-    summary="CartList API",
-    tags=["Payment Gateway"],
-    responses={200: OpenApiTypes.OBJECT}
-)
+
 # CART LISTING
 class CartListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="CartList API",
+    tags=["Payment Gateway"],
+    responses={200: OpenApiTypes.OBJECT}
+    )
     def get(self, request):
         try:
             cart = Cart.objects.get(user=request.user, is_active=True)
@@ -1141,7 +1138,12 @@ class CartListAPIView(APIView):
 
 
 
-@extend_schema(
+
+# UPDATE
+class UpdateCartItemAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
     summary="UpdateCartItem API",
     
     tags=["Payment Gateway"],
@@ -1159,11 +1161,7 @@ class CartListAPIView(APIView):
         200: OpenApiTypes.OBJECT,
         404: OpenApiTypes.OBJECT,
     },
-)
-# UPDATE
-class UpdateCartItemAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
+    )
     def patch(self, request):
         try:
             item_id = request.data.get("item_id")
@@ -1199,7 +1197,12 @@ class UpdateCartItemAPIView(APIView):
 
 
 
-@extend_schema(
+
+# Delete
+class RemoveCartItemAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
     summary="RemoveCartItem API",
     tags=["Payment Gateway"],
     request={
@@ -1215,11 +1218,7 @@ class UpdateCartItemAPIView(APIView):
         200: OpenApiTypes.OBJECT,
         404: OpenApiTypes.OBJECT,
     },
-)
-# Delete
-class RemoveCartItemAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
+    )
     def delete(self, request):
         try:
             item_id = request.data.get("item_id")
@@ -1249,7 +1248,11 @@ class RemoveCartItemAPIView(APIView):
             }, status=status.HTTP_404_NOT_FOUND)
 
 
-@extend_schema(
+
+class ItemSummaryAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
     summary="ItemSummary API",
     
     tags=["Payment Gateway"],
@@ -1257,10 +1260,7 @@ class RemoveCartItemAPIView(APIView):
         200: OpenApiTypes.OBJECT,
         400: OpenApiTypes.OBJECT,
     },
-)
-class ItemSummaryAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
+    )
     def get(self, request):
         try:
             cart = Cart.objects.get(user=request.user, is_active=True)
@@ -1311,7 +1311,11 @@ class ItemSummaryAPIView(APIView):
 
 
 
-@extend_schema(
+
+class CreateOrderAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
     summary="CreateOrder API",
     
     tags=["Payment Gateway"],
@@ -1344,10 +1348,7 @@ class ItemSummaryAPIView(APIView):
         201: OpenApiTypes.OBJECT,
         400: OpenApiTypes.OBJECT,
     },
-)
-class CreateOrderAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
+    )
     def post(self, request):
         data = request.data
         user = request.user
@@ -1525,7 +1526,10 @@ class CreateOrderAPIView(APIView):
 
 
 
-@extend_schema(
+
+class OrderSummaryAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    @extend_schema(
     summary="OrderSummary API",
     
     tags=["Payment Gateway"],
@@ -1542,10 +1546,7 @@ class CreateOrderAPIView(APIView):
         200: OpenApiTypes.OBJECT,
         404: OpenApiTypes.OBJECT,
     },
-)
-class OrderSummaryAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
+    )
     def post(self, request):
         order_id = request.data.get("order_id")
         if not order_id:
@@ -1622,15 +1623,16 @@ class OrderSummaryAPIView(APIView):
         })
 
 
-@extend_schema(
+
+class OrderListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
     summary="OrderList API",
     
     tags=["Payment Gateway"],
     responses={200: OpenApiTypes.OBJECT}
-)
-class OrderListAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
+    )
     def get(self, request):
         orders = Order.objects.filter(user=request.user).order_by('-created_at')
 
@@ -1657,7 +1659,10 @@ class OrderListAPIView(APIView):
 
 
 
-@extend_schema(
+class OrderDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
     summary="OrderDetail API",
     tags=["Payment Gateway"],
     request={
@@ -1673,9 +1678,7 @@ class OrderListAPIView(APIView):
         200: OpenApiTypes.OBJECT,
         404: OpenApiTypes.OBJECT,
     },
-)
-class OrderDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    )
 
     def post(self, request):
         order_id = request.data.get("order_id")

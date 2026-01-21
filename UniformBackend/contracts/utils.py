@@ -95,22 +95,28 @@ def send_docusign_envelope(quotation):
     }
 
     # Render quotation content
-    template = quotation.template
+    document_text = f"""
+    QUOTATION AGREEMENT
 
-    context = defaultdict(str, {
-        "CLIENT_NAME": quotation.contact_person,
-        "COMPANY_NAME": quotation.company_name,
-        "EMAIL": quotation.email,
-        "PHONE_NUMBER": quotation.phone_number,
-        "ITEM_TYPE": quotation.item_type,
-        "MATERIAL": quotation.material,
-        "SIZE_QUANTITY": quotation.size_quantity,
-        "DELIVERY_DATE": quotation.delivery_date,
-        "ADDITIONAL_NOTE": quotation.additional_note,
-        "QUOTATION_ID": quotation.quotation_id,
-    })
+    Client Name: {quotation.contact_person}
+    Company Name: {quotation.company_name}
+    Email: {quotation.email}
+    Phone: {quotation.phone_number}
 
-    document_text = template.content.format_map(context)
+    Item Type: {quotation.item_type}
+    Material: {quotation.material}
+    Size & Quantity: {quotation.size_quantity}
+    Delivery Date: {quotation.delivery_date}
+
+    Additional Note:
+    {quotation.additional_note}
+
+    Quotation ID: {quotation.quotation_id}
+
+    Please sign below to approve this quotation.
+
+    **SIGN_HERE**
+    """
 
     envelope_payload = {
         "emailSubject": f"Quotation Agreement - {quotation.quotation_id}",

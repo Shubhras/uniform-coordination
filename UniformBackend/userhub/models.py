@@ -318,8 +318,8 @@ class QuotationRequest(models.Model):
     agreed_at = models.DateTimeField(null=True, blank=True)
     agreed_ip = models.GenericIPAddressField(null=True, blank=True)
     agreed_user_agent = models.TextField(null=True, blank=True)
-    template = models.ForeignKey("uniformAdmin.QuotationTemplate",on_delete=models.SET_NULL,null=True,blank=True,related_name="quotations")
     
+
     quotation_status = models.CharField(max_length=20,choices=STATUS_CHOICES, default="pending")
     cancelled_by = models.CharField(max_length=10,null=True, blank=True)
     cancel_reason = models.TextField(null=True, blank=True)
