@@ -24,6 +24,7 @@ from .fabric import  IsAdministrator
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
 from .auth import IsAdminUserJWT,MultiRoleJWTAuth
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 # class AdminLoginAPIView(APIView):
 #     authentication_classes = []   # IMPORTANT
@@ -311,9 +312,22 @@ from .auth import IsAdminUserJWT,MultiRoleJWTAuth
 #             )
 
 #<--------------------TableTheme------------------
+
 class TableThemeCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+    
+    @extend_schema(
+    tags=["Table Theme"],
+    summary="Create Table Theme",
+    description="Create a new table theme.",
+    request=TableThemeSerializer,
+    responses={
+        201: OpenApiResponse(description="Table theme created successfully"),
+        400: OpenApiResponse(description="Validation failed"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
     
     def post(self,request):
         try:
@@ -342,10 +356,20 @@ class TableThemeCreateAPIView(APIView):
                 "error":str(e)
             },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class TableThemeListAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    @extend_schema(
+    tags=["Table Theme"],
+    summary="List Table Themes",
+    description="Fetch all table themes (not deleted).",
+    responses={
+        200: OpenApiResponse(description="Table themes fetched successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
     def get(self,request):
         try:
             themes = TableTheme.objects.filter(isDeleted=False)
@@ -367,6 +391,24 @@ class TableThemeListAPIView(APIView):
   
 
 class TableThemeDetailAPIView(APIView):
+    
+    @extend_schema(
+    tags=["Table Theme"],
+    summary="Get Table Theme Detail",
+    description="Fetch a single table theme by ID.",
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Table Theme ID",
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Table theme fetched successfully"),
+        404: OpenApiResponse(description="Table theme not found"),
+    },
+)
     def get(self, request, id):
         try:
             theme = TableTheme.objects.get(id=id, isDeleted=False,)
@@ -386,7 +428,27 @@ class TableThemeDetailAPIView(APIView):
                 "data": None
             }, status=status.HTTP_404_NOT_FOUND)
         
+        
 class TableThemeUpdateAPIView(APIView):
+    @extend_schema(
+    tags=["Table Theme"],
+    summary="Update Table Theme",
+    description="Update an existing table theme (partial update allowed).",
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Table Theme ID",
+        )
+    ],
+    request=TableThemeSerializer,
+    responses={
+        200: OpenApiResponse(description="Table theme updated successfully"),
+        400: OpenApiResponse(description="Validation error"),
+        404: OpenApiResponse(description="Table theme not found"),
+    },
+)
     def put(self, request, id):
         try:
             theme = TableTheme.objects.get(id=id, isDeleted=False)
@@ -426,6 +488,44 @@ class TableThemeDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    @extend_schema(
+    tags=["Table Theme"],
+    summary="Delete Table Theme",
+    description=(
+        "Delete table themes.\n\n"
+        "• Delete single by URL `pk`\n"
+        "• Delete all → `{ \"ids\": \"all\" }`\n"
+        "• Bulk delete → `{ \"ids\": [1,2,3] }`"
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            required=False,
+            description="Table Theme ID (optional)",
+        )
+    ],
+    request=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            "Delete All",
+            value={"ids": "all"},
+            request_only=True,
+        ),
+        OpenApiExample(
+            "Bulk Delete",
+            value={"ids": [1, 2, 3]},
+            request_only=True,
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(description="Table theme(s) deleted successfully"),
+        204: OpenApiResponse(description="Table theme deleted successfully"),
+        400: OpenApiResponse(description="Invalid request"),
+        404: OpenApiResponse(description="Table theme not found"),
+    },
+)
     def delete(self, request, pk=None):
         ids = request.data.get('ids', None)  
 
@@ -488,6 +588,17 @@ class AdminCreateProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    @extend_schema(
+    tags=["Admin Product"],
+    summary="Create Product",
+    description="Create a new product (Admin only).",
+    request=ProductSerializer,
+    responses={
+        201: OpenApiResponse(description="Product created successfully"),
+        400: OpenApiResponse(description="Validation failed"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
     def post(self, request):
         try:
             serializer = ProductSerializer(data=request.data)
@@ -556,6 +667,26 @@ class AdminUpdateProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    @extend_schema(
+    tags=["Admin Product"],
+    summary="Update Product",
+    description="Update an existing product (partial update supported).",
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Product ID",
+        )
+    ],
+    request=ProductSerializer,
+    responses={
+        200: OpenApiResponse(description="Product updated successfully"),
+        400: OpenApiResponse(description="Validation failed"),
+        404: OpenApiResponse(description="Product not found"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
     def put(self, request, pk):
         try:
             product = Product.objects.filter(pk=pk, isDeleted=False).first()
@@ -591,13 +722,30 @@ class AdminUpdateProductAPIView(APIView):
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 # products/views/get_product.py
 
 class AdminGetProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    @extend_schema(
+    tags=["Admin Product"],
+    summary="Get Product Detail",
+    description="Fetch a single product by ID.",
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Product ID",
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Product fetched successfully"),
+        404: OpenApiResponse(description="Product not found"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
     def get(self, request, pk):
         try:
             product = Product.objects.filter(pk=pk, isDeleted=False).first()
@@ -631,6 +779,24 @@ class AdminListProductsAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    @extend_schema(
+    tags=["Admin Product"],
+    summary="List Products",
+    description="Fetch all products. Optional filter by subcategory ID.",
+    parameters=[
+        OpenApiParameter(
+            name="subcategoryId",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Filter products by subcategory ID",
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Products fetched successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
     def get(self, request):
         try:
             subcategory_id = request.query_params.get("subcategoryId")
@@ -661,14 +827,29 @@ class AdminListProductsAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
-
 # products/views/delete_product.py
-
 class AdminDeleteProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    @extend_schema(
+    tags=["Admin Product"],
+    summary="Delete Product",
+    description="Soft delete a product by ID.",
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Product ID",
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Product deleted successfully"),
+        404: OpenApiResponse(description="Product not found"),
+        500: OpenApiResponse(description="Server error"),
+    },
+    )
     def delete(self, request, pk):
         try:
             product = Product.objects.filter(pk=pk, isDeleted=False).first()
@@ -699,6 +880,18 @@ class AdminDeleteProductAPIView(APIView):
 #<------------------------------SpecialCondition----------------------->
 class SpecialConditionCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+    tags=["Special Condition"],
+    summary="Create Special Condition",
+    description="Create a new special condition (Authenticated users only).",
+    request=SpecialConditionSerializer,
+    responses={
+        201: OpenApiResponse(description="Special Condition created successfully"),
+        400: OpenApiResponse(description="Validation error"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
     def post(self,request):
         try:
             serializer = SpecialConditionSerializer(data=request.data)
@@ -721,6 +914,25 @@ class SpecialConditionCreateAPIView(APIView):
 class  SpecialConditionListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Special Condition"],
+    summary="List Special Conditions",
+    description="Fetch all special conditions. Optional filter by comma-separated IDs.",
+    parameters=[
+        OpenApiParameter(
+            name="ids",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Comma separated IDs (e.g. 1,2,3)",
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Special Conditions fetched successfully"),
+        400: OpenApiResponse(description="Invalid ID format"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
     def get(self,request):
         special = SpecialCondition.objects.filter(is_deleted=False).order_by('-created_at')
         ids = request.GET.get('ids')
@@ -747,6 +959,23 @@ class  SpecialConditionListAPIView(APIView):
 class SpecialConditionDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Special Condition"],
+    summary="Get Special Condition Detail",
+    description="Fetch a special condition by ID.",
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Special Condition ID",
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Special Condition fetched successfully"),
+        404: OpenApiResponse(description="Special Condition not found"),
+    },
+    )
     def get(self,request,id):
         special = get_object_or_404(SpecialCondition, id=id,is_deleted=False)
         serializer = SpecialConditionSerializer(special,context={'request': request})
@@ -758,8 +987,28 @@ class SpecialConditionDetailAPIView(APIView):
         },status=status.HTTP_200_OK)
 
 class SpecialConditionUpdateAPIView(APIView):
+    
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Special Condition"],
+    summary="Update Special Condition",
+    description="Update an existing special condition (partial update supported).",
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Special Condition ID",
+        )
+    ],
+    request=SpecialConditionSerializer,
+    responses={
+        200: OpenApiResponse(description="Special Condition updated successfully"),
+        400: OpenApiResponse(description="Invalid data"),
+        404: OpenApiResponse(description="Special Condition not found"),
+    },
+    )
     def put(self,request,id):
         special = get_object_or_404(SpecialCondition,id=id,is_deleted=False)
         serializer = SpecialConditionSerializer(special,data=request.data,partial=True)
@@ -780,6 +1029,43 @@ class SpecialConditionUpdateAPIView(APIView):
             },status=status.HTTP_400_BAD_REQUEST)
 class SpecialConditionDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+    tags=["Special Condition"],
+    summary="Delete Special Condition",
+    description=(
+        "Delete special condition(s).\n\n"
+        "- Pass `id=all` in URL to delete all\n"
+        "- OR send `{ \"id\": [1,2,3] }` in body for bulk delete\n"
+        "- OR pass single `id` in URL"
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.PATH,
+            required=False,
+            description="SpecialCondition ID or 'all'",
+        )
+    ],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "array",
+                    "items": {"type": "integer"},
+                    "example": [1, 2, 3],
+                }
+            }
+        }
+    },
+    responses={
+        204: OpenApiResponse(description="Special Condition deleted successfully"),
+        400: OpenApiResponse(description="Invalid delete request"),
+        404: OpenApiResponse(description="Special Condition not found"),
+    },
+    )
 
     def delete(self, request, id=None):
 
@@ -848,6 +1134,62 @@ class SpecialConditionDeleteAPIView(APIView):
 class QuotationRequestListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Quotation Request"],
+    summary="List quotation requests",
+    description=(
+        "Fetch paginated quotation requests with optional filters:\n\n"
+        "- **search**: Search by company name, email, item type, or UUID\n"
+        "- **status**: Filter by quotation status\n"
+        "- **email**: Filter by email (partial match)\n\n"
+        "Results are paginated."
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="search",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description="Search by company name, email, item type, or UUID",
+            required=False
+        ),
+        OpenApiParameter(
+            name="status",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description="Filter by quotation_status",
+            required=False
+        ),
+        OpenApiParameter(
+            name="email",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description="Filter by email (partial match)",
+            required=False
+        ),
+        OpenApiParameter(
+            name="page",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            description="Page number (pagination)",
+            required=False
+        ),
+        OpenApiParameter(
+            name="page_size",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            description="Number of records per page",
+            required=False
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(
+            description="Quotation request list fetched successfully"
+        ),
+        401: OpenApiResponse(
+            description="Authentication credentials were not provided"
+        ),
+    }
+)
     def get(self, request):
         queryset = QuotationRequest.objects.filter(isDeleted=False)
 
@@ -925,6 +1267,32 @@ from .utils import render_quotation_template
 class QuotationTemplateCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Quotation Template"],
+    summary="Create Quotation Template API",
+    description="Render a quotation using a selected quotation template.",
+    request={
+        "application/json": {
+            "type": "object",
+            "required": ["quotation_id", "template_slug"],
+            "properties": {
+                "quotation_id": {
+                    "type": "string",
+                    "example": "QTN-1001"
+                },
+                "template_slug": {
+                    "type": "string",
+                    "example": "default-quotation-template"
+                }
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Quotation rendered successfully"),
+        400: OpenApiResponse(description="Missing required fields"),
+        404: OpenApiResponse(description="Quotation or Template not found"),
+    },
+    )
     def post(self, request):
         quotation_id = request.data.get("quotation_id")
         template_slug = request.data.get("template_slug")
@@ -996,6 +1364,25 @@ class QuotationTemplateListAPIView(APIView):
 class QuotationTemplateListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Quotation Template"],
+    summary="Quotations Template List API",
+    description="Fetch all quotations and render them using active quotation template.",
+    parameters=[
+        OpenApiParameter(
+            name="ids",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Comma separated quotation IDs (e.g. 1,2,3)",
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Quotations fetched and rendered"),
+        400: OpenApiResponse(description="Invalid ID format"),
+        404: OpenApiResponse(description="Quotation template not found"),
+    },
+)
     def get(self, request):
         # Fetch all quotations
         quotations = QuotationRequest.objects.filter(isDeleted=False).order_by('-created_at')
@@ -1059,6 +1446,24 @@ class QuotationTemplateDetailAPIView(APIView):
 class QuotationTemplateDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Quotation Template"],
+    summary="Quotation Template Detail API",
+    description="Fetch and render a single quotation by quotation_id.",
+    parameters=[
+        OpenApiParameter(
+            name="quotation_id",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.PATH,
+            description="Quotation ID (e.g. QTN-1001)",
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Quotation rendered successfully"),
+        400: OpenApiResponse(description="quotation_id missing"),
+        404: OpenApiResponse(description="Quotation or Template not found"),
+    },
+)
     def get(self, request, quotation_id=None):
         if not quotation_id:
             return Response({
@@ -1098,9 +1503,29 @@ class QuotationTemplateDetailAPIView(APIView):
             }
         })
 
+
 class QuotationTemplateUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated]
     
+    @extend_schema(
+    tags=["Quotation Template"],
+    summary="Quotation Template Update API",
+    description="Update quotation data using quotation_id.",
+    parameters=[
+        OpenApiParameter(
+            name="quotation_id",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.PATH,
+            description="Quotation ID",
+        )
+    ],
+    request=QuotationRequestSerializer,
+    responses={
+        200: OpenApiResponse(description="Quotation updated successfully"),
+        400: OpenApiResponse(description="Invalid data"),
+        404: OpenApiResponse(description="Quotation not found"),
+    },
+)
     def put(self, request, quotation_id):
         quotation = get_object_or_404(QuotationRequest, quotation_id=quotation_id, isDeleted=False)
         serializer = QuotationRequestSerializer(quotation, data=request.data, partial=True)
@@ -1125,6 +1550,41 @@ class QuotationTemplateUpdateAPIView(APIView):
 class QuotationTemplateDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
     
+    @extend_schema(
+    tags=["Quotation Template"],
+    summary="Quotation Template Delete API",
+    description=(
+        "Delete quotation templates.\n\n"
+        "- Pass quotation_id in URL for single delete\n"
+        "- OR send `{ \"quotation_id\": [\"QTN-1001\", \"QTN-1002\"] }` in body"
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="quotation_id",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.PATH,
+            required=False,
+            description="Quotation ID",
+        )
+    ],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "quotation_id": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "example": ["QTN-1001", "QTN-1002"],
+                }
+            }
+        }
+    },
+    responses={
+        204: OpenApiResponse(description="Quotation template deleted successfully"),
+        400: OpenApiResponse(description="Invalid quotation_id"),
+        404: OpenApiResponse(description="Quotation template not found"),
+    },
+    )
     def delete(self, request, quotation_id=None):
         # Delete multiple by quotation_ids (body)
         ids = request.data.get('quotation_id')
@@ -1177,6 +1637,15 @@ class QuotationTemplateDeleteAPIView(APIView):
 class AdminNotificationListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Admin Notification"],
+    summary="List admin notifications",
+    description="Fetch all admin notifications ordered by latest.",
+    responses={
+        200: OpenApiResponse(description="Notifications fetched successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
     def get(self, request):
         try:
             notifications = AdminNotification.objects.all().order_by("-created_at")
@@ -1199,6 +1668,38 @@ class AdminNotificationListAPIView(APIView):
 class AdminNotificationDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Admin Notification"],
+    summary="Delete admin notifications",
+    description=(
+        "Delete admin notifications.\n\n"
+        "- Delete single notification by passing `id`\n"
+        "- Delete all notifications by passing `delete_all=true`"
+    ),
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 12,
+                    "description": "Notification ID"
+                },
+                "delete_all": {
+                    "type": "boolean",
+                    "example": False,
+                    "description": "Set true to delete all notifications"
+                }
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Notification deleted successfully"),
+        204: OpenApiResponse(description="All notifications deleted"),
+        400: OpenApiResponse(description="Invalid notification id"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
     def delete(self, request):
         try:
             notification_id = request.data.get("id")
@@ -1250,12 +1751,42 @@ class AdminNotificationDeleteAPIView(APIView):
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-
 class AdminDashAPIView(APIView):
     # permission_classes = [IsAdministrator]
     permission_classes  =[IsAuthenticated]   #need to remove after take clone 
     
+    @extend_schema(
+    tags=["Admin Dashboard"],
+    summary="Admin dashboard analytics",
+    description="Fetch dashboard statistics including quotations, users, templates, fabrics, and recent updates.",
+    responses={
+        200: OpenApiResponse(
+            description="Dashboard data fetched successfully",
+            response={
+                "type": "object",
+                "properties": {
+                    "status": {"type": "boolean"},
+                    "statusCode": {"type": "integer", "example": 200},
+                    "message": {"type": "string"},
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "Pending_quotes": {"type": "object"},
+                            "Templates": {"type": "object"},
+                            "B2B_Users": {"type": "object"},
+                            "Quote_status_distribution": {"type": "object"},
+                            "Quotation_volume": {"type": "object"},
+                            "Pending_Sales_Representation_Action": {"type": "object"},
+                            "most_used_fabrics": {"type": "array"},
+                            "Recently_update_product_color_part": {"type": "array"},
+                        }
+                    }
+                }
+            }
+        ),
+        500: OpenApiResponse(description="Failed to fetch dashboard data"),
+    },
+)
 
     def get(self, request):
         try:
@@ -1478,6 +2009,71 @@ class QuotationStatusUpdateAPIView(APIView):
     authentication_classes = [MultiRoleJWTAuth]  # JWT Multi-Role
     permission_classes = []
 
+    @extend_schema(
+    tags=["UniformAdmin · QuotationStatusUpdate"],
+    summary="Update quotation status (Admin/Sales/B2B)",
+    description=(
+        "Update quotation status by **Admin, Sales, or B2B** roles.\n\n"
+        "**Supported actions:**\n"
+        "- `approve`\n"
+        "- `send` (only after approve)\n"
+        "- `cancel` (reason required)"
+    ),
+    request={
+        "application/json": {
+            "type": "object",
+            "required": ["quotation_id", "action"],
+            "properties": {
+                "quotation_id": {
+                    "type": "string",
+                    "example": "QT-2024-001"
+                },
+                "action": {
+                    "type": "string",
+                    "enum": ["approve", "send", "cancel"],
+                    "example": "approve"
+                },
+                "reason": {
+                    "type": "string",
+                    "example": "Client declined"
+                }
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Quotation status updated successfully"),
+        400: OpenApiResponse(description="Invalid action or validation error"),
+        403: OpenApiResponse(description="Unauthorized role"),
+        401: OpenApiResponse(description="Authentication required"),
+    },
+    examples=[
+        OpenApiExample(
+            "Approve Quotation",
+            value={
+                "quotation_id": "QT-2024-001",
+                "action": "approve"
+            },
+            request_only=True
+        ),
+        OpenApiExample(
+            "Send Quotation",
+            value={
+                "quotation_id": "QT-2024-001",
+                "action": "send"
+            },
+            request_only=True
+        ),
+        OpenApiExample(
+            "Cancel Quotation",
+            value={
+                "quotation_id": "QT-2024-001",
+                "action": "cancel",
+                "reason": "Pricing rejected"
+            },
+            request_only=True
+        )
+    ]
+)
     def post(self, request):
         quotation_id = request.data.get("quotation_id")
         action = request.data.get("action")

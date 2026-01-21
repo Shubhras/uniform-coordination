@@ -109,16 +109,17 @@ logger = logging.getLogger(__name__)
 #                 "error": str(exc)
 #             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@extend_schema(
-    summary="Signup API",
-    request=UserSignupSerializer,
-    responses={201: UserResponseSerializer},
-    auth=[],
-    tags=["UserHub Auth"]
-)
 
 class SignupAPIView(APIView):
     permission_classes = [AllowAny]
+
+    @extend_schema(
+    summary="Create a new user ",
+    request=UserSignupSerializer,
+    responses={201: UserResponseSerializer},
+    auth=[],
+    tags=["UserHub Authentication"]
+)
 
     def post(self, request, *args, **kwargs):
         serializer = UserSignupSerializer(data=request.data)
@@ -207,16 +208,18 @@ class SignupAPIView(APIView):
             )
 
 
-@extend_schema(
+
+class LoginAPIView(APIView):
+    permission_classes = [AllowAny]
+    
+    @extend_schema(
     summary="Login API",
     
     request=LoginSerializer,
     responses={200: dict},
     auth=[],
-    tags=["UserHub Auth"]
-)
-class LoginAPIView(APIView):
-    permission_classes = [AllowAny]
+    tags=["UserHub Authentication"]
+    )
     def post(self, request):
         
         try:
@@ -323,14 +326,16 @@ class LoginAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@extend_schema(
-    summary="GetProfile API",
-    responses={200: dict},
-    tags=["UserHub Auth"]
-)
+
 class GetProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
+    
+    @extend_schema(
+    summary="GetProfile API",
+    responses={200: dict},
+    tags=["UserHub Authentication"]
+    
+    )
     def get(self, request):
         try:
             user = request.user
@@ -374,16 +379,16 @@ class GetProfileAPIView(APIView):
 
 
 
-@extend_schema(
-    summary="UpdateProfile API",
-    request=UserResponseSerializer,
-    responses={200: UserResponseSerializer},
-    
-    tags=["UserHub Auth"]
-)
 class UpdateProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="UpdateProfile API",
+    request=UserResponseSerializer,
+    responses={200: UserResponseSerializer},
+    tags=["UserHub Authentication"]
+    
+    )
     def put(self, request):
         try:
             user = request.user
@@ -447,14 +452,16 @@ class UpdateProfileAPIView(APIView):
 
 
 
-@extend_schema(
-    summary="DeleteProfile API",
-    responses={200: dict},
-    tags=["UserHub Auth"]
-)
+
 class DeleteProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="DeleteProfile API",
+    responses={200: dict},
+    tags=["UserHub Authentication"]
+    
+    )
     def delete(self, request):
         try:
             user = request.user
@@ -507,7 +514,8 @@ class ForgotPasswordAPIView(APIView):
         400: {"type": "object"},
         500: {"type": "object"}
     },
-    tags=["UserHub Auth"]
+    tags=["UserHub Authentication"]
+    
     
     )
 
@@ -607,7 +615,7 @@ class ResetPasswordAPIView(APIView):
         )
     ],
     auth=[],  # no auth (AllowAny)
-    tags=["UserHub Auth"]
+    tags=["UserHub Authentication"]
     
 )
     
@@ -671,7 +679,11 @@ class ResetPasswordAPIView(APIView):
 
 
 
-@extend_schema(
+
+class UpdatePasswordAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
     summary="Update Password API",
     description="Update password for authenticated user.",
     request={
@@ -703,12 +715,10 @@ class ResetPasswordAPIView(APIView):
         )
     ],
     auth=[{"bearerAuth": []}],  #  JWT required
-    tags=["UserHub Auth"]
-    
-)
-class UpdatePasswordAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    tags=["UserHub Authentication"]
         
+    )        
+                
     def validate_password(self, password):
         """
         Validates password:
@@ -799,16 +809,17 @@ class UpdatePasswordAPIView(APIView):
                 "error": str(exc)
             }, status=500)
 
-@extend_schema(
+
+class VerifyUserAPIView(APIView):
+    permission_classes = [AllowAny]
+    @extend_schema(
     summary="Verify User API",
     request=VerifyUserSerializer,
     responses={200: dict},
     auth=[],
-    tags=["UserHub Auth"]
-)
-class VerifyUserAPIView(APIView):
-    permission_classes = [AllowAny]
-    
+    tags=["UserHub Authentication"]
+        
+    )
     def post(self, request):
         serializer = VerifyUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -1702,6 +1713,56 @@ class OrderDetailAPIView(APIView):
 
 class UserQuotationStatusUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+    tags=["UserHub · QuotationStatusUpdate"],
+    summary="Cancel quotation (User)",
+    description=(
+        "Allows **normal/user** to cancel a quotation.\n\n"
+        "**Rules:**\n"
+        "- Only `cancel` action is allowed\n"
+        "- Cancellation reason is mandatory\n"
+        "- Admin / other roles are forbidden"
+    ),
+    request={
+        "application/json": {
+            "type": "object",
+            "required": ["quotation_id", "action", "reason"],
+            "properties": {
+                "quotation_id": {
+                    "type": "string",
+                    "example": "QT-2024-001"
+                },
+                "action": {
+                    "type": "string",
+                    "enum": ["cancel"],
+                    "example": "cancel"
+                },
+                "reason": {
+                    "type": "string",
+                    "example": "Budget constraints"
+                }
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Quotation cancelled successfully"),
+        400: OpenApiResponse(description="Validation or quotation error"),
+        403: OpenApiResponse(description="Unauthorized user role"),
+        401: OpenApiResponse(description="Authentication required"),
+    },
+    examples=[
+        OpenApiExample(
+            "Cancel Quotation Example",
+            value={
+                "quotation_id": "QT-2024-001",
+                "action": "cancel",
+                "reason": "Budget constraints"
+            },
+            request_only=True
+        )
+    ]
+)
 
     def post(self, request):
         quotation_id = request.data.get("quotation_id")
