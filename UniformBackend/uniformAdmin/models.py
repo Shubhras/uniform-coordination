@@ -385,10 +385,17 @@ class Product(models.Model):
     ('uniform', 'Uniform'),
     ('table', 'Table'),
     ]
+    type_CHOICES = [
+        ("top", "Top"),
+        ("bottom", "Bottom"),
+        ("set", "Set"),
+        
+    ]
     productName = models.CharField(max_length=255)
     slug = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     productType = models.CharField(max_length=20,choices=productType,default='uniform' ,blank=True, null=True)
+    type = models.CharField(max_length=30, choices=type_CHOICES, default="set")
     theme = models.ForeignKey(TableTheme,on_delete=models.SET_NULL,null=True,blank=True,related_name="products")
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,related_name="product_category")
     subcategory = models.ForeignKey(SubCategory,on_delete=models.SET_NULL, null=True,related_name="product_subcategory")
@@ -403,7 +410,6 @@ class Product(models.Model):
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
 
 
     def save(self, *args, **kwargs):

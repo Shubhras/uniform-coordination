@@ -15,6 +15,8 @@ from uniformAdmin.signal import create_admin_notification
 from uniformAdmin.models import *
 from uniformAdmin.utils import *
 import pdfkit
+from django.utils.timezone import now
+from uniformAdmin.models import QuotationTemplate
 from rest_framework.permissions import IsAuthenticated ,BasePermission,AllowAny
 from contracts.utils import *
 from userhub.utils import generate_quotation_pdf
@@ -41,14 +43,21 @@ class ModelInfoCreateAPIView(APIView):
     def post(self,request):
         try:
             serializer = ModelInfoSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            model_info = serializer.save()
-            return Response({
-                'statusCode' : 201,
-                'status':True,
-                "message": "3D model information created successfully",
-                "data": ModelInfoSerializer(model_info).data
-            },status=status.HTTP_201_CREATED)
+            if serializer.is_valid():
+                model_info = serializer.save()
+                return Response({
+                    'statusCode' : 201,
+                    'status':True,
+                    "message": "3D model information created successfully",
+                    "data": ModelInfoSerializer(model_info).data
+                },status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    "statusCode":400,
+                    "status":False,
+                    "message":"Invalid Product id",
+                    "error":serializer.errors
+                },status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({
                 'statusCode':500,
@@ -407,10 +416,11 @@ class QuotationRequestDetailAPIView(APIView):
         ),
     }
     )
-    def get(self,request,uuid):
+
+    def get(self,request,quotation_id):
         quta = get_object_or_404(
             QuotationRequest,
-            uuids=uuid,
+            quotation_id=quotation_id,
             isDeleted=False
         )
         serializer = QuotationRequestSerializer(quta)
@@ -439,9 +449,9 @@ class QuotationRequestExportPDFAPIView(APIView):
     }
     )
 
-    def get(self, request, uuid):
+    def get(self, request, quotation_id):
         quotation = QuotationRequest.objects.filter(
-            uuids=uuid,
+            quotation_id=quotation_id,
             isDeleted=False
         ).first()
 
@@ -460,6 +470,51 @@ class QuotationRequestExportPDFAPIView(APIView):
             "message": "PDF generated successfully",
             "pdf_url": request.build_absolute_uri(pdf_url)
         })
+    
+
+class QuotationRequestsListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            quotations = QuotationRequest.objects.filter(
+                customupdatemodel__user=request.user,
+                isDeleted=False
+            )
+
+            if not quotations.exists():
+                return Response(
+                    {   
+                        "statusCode":200,
+                        "status": True,
+                        "message": "You have not submitted any quotation requests yet.",
+                        "data": []
+                    },
+                    status=status.HTTP_200_OK
+                )
+
+            serializer = QuotationRequestSerializer(quotations, many=True)
+
+            return Response(
+                {   
+                    "statusCode":200,
+                    "status": True,
+                    "message": "Your quotation requests fetched successfully.",
+                    "total": quotations.count(),
+                    "data": serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response(
+                {   "statusCode":500,
+                    "status": False,
+                    "message": "Something went wrong on server.",
+                    "error": str(e)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 #------------------ CustomUpdate Model--------------------
@@ -485,29 +540,47 @@ class CustomUpdateModelsCreateAPIView(APIView):
     },
     )
     def post(self, request):
+        data = request.data.copy()
+
+        # Large JSON nikaalo
+        large_json = data.pop("json_data", None)
+        json_path = None
+        if large_json:
+            json_path = save_large_json_to_file(large_json)
+
+        # serializer = CustomUpdateModelsSerializer(data=data)
+        serializer = CustomUpdateModelsSerializer(
+            data=data,
+            context={"request": request}
+        )
+
         try:
-            data = request.data.copy()
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(user=request.user, json_file_path=json_path)
+                return Response({
+                    "statusCode": 201,
+                    "status": True,
+                    "message": "Custom Update created successfully",
+                    "data": serializer.data
+                }, status=status.HTTP_201_CREATED)
 
-            # large json nikaalo
-            large_json = data.pop("json_data", None)
+        except IntegrityError as e:
+            # Check if it's a unique constraint error
+            if "Duplicate entry" in str(e):
+                return Response({
+                    "statusCode": 400,
+                    "status": False,
+                    "message": "You have already created a Custom Update for this user and model_info.",
+                    "error": str(e)
+                }, status=status.HTTP_400_BAD_REQUEST)
 
-            json_path = None
-            if large_json:
-                json_path = save_large_json_to_file(large_json)
-
-            serializer = CustomUpdateModelsSerializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save(
-                user=request.user,
-                json_file_path=json_path
-            )
-
+        except serializers.ValidationError as e:
             return Response({
-                "statusCode": 201,
-                "status": True,
-                "message": "Custom Update created successfully",
-                "data": serializer.data
-            }, status=status.HTTP_201_CREATED)
+                "statusCode": 400,
+                "status": False,
+                "message": "Invalid data provided.",
+                "error": e.detail
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({
@@ -557,6 +630,7 @@ class CustomUpdateModelsListAPIView(APIView):
             "status": True,
             "data": serializer.data
         })
+
 
 
 class CustomUpdateModelsDetailAPIView(APIView):
@@ -833,10 +907,125 @@ class CustomUpdateModelExportPDFAPIView(APIView):
             }, status=404)
 
         pdf_url = generate_customization_pdf(customization, request.user)
+# class CustomModelsUserAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         queryset = CustomUpdateModels.objects.filter(
+#             user__id=request.user.id,
+#             isDeleted=False
+#         )
+
+#         serializer = CustomUpdateModelsSerializer(
+#             queryset, many=True, context={"request": request}
+#         )
+
+#         return Response({
+#             "statusCode": 200,
+#             "status": True,
+#             "user_id": request.user.id,
+#             "data": serializer.data
+#         })
+
+class CustomModelsUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+
+        category_slug = request.GET.get("category")   
+        sort = request.GET.get("sort", "new")        
+        range_days = request.GET.get("range")         
+
+        queryset = CustomUpdateModels.objects.filter(
+            user=user,
+            isDeleted=False
+        )
+
+        #  Category / Industry Filter
+        if category_slug:
+            print("FILTERING BY CATEGORY:", category_slug)
+            queryset = queryset.filter(
+                model_info__product__category__slug=category_slug
+            )
+
+        # Date Range Filter
+        if range_days:
+            try:
+                days = int(range_days)
+                start_date = now() - timedelta(days=days)
+                queryset = queryset.filter(created_at__gte=start_date)
+            except:
+                pass
+
+        # Sorting
+        if sort == "old":
+            queryset = queryset.order_by("created_at")
+        else:
+            queryset = queryset.order_by("-created_at")
+
+        serializer = CustomUpdateModelsSerializer(
+            queryset, many=True, context={"request": request}
+        )
 
         return Response({
             "statusCode": 200,
             "status": True,
-            "message": "PDF generated successfully",
-            "pdf_url": request.build_absolute_uri(pdf_url)
+            "user_id": user.id,
+            "message":"fetch data successfully ",
+            "data": serializer.data
+        },status=status.HTTP_200_OK)
+
+class OrderHistoryAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        filter_type = request.GET.get("type", "all")  # all, drafted, submitted
+
+        data = []
+
+        # Drafted Orders
+        if filter_type in ["all", "drafted"]:
+            drafts = CustomUpdateModels.objects.filter(
+                user=user,
+                isActive=True,
+                isDeleted=False
+            ).order_by("-created_at")
+
+            for d in drafts:
+                data.append({
+                    "id": d.id,
+                    "order_no": f"FORM-{d.id}",
+                    "title": "Custom Design",
+                    "status": "Drafted",
+                    "date": d.created_at,
+                    "type": "drafted"
+                })
+
+        # Submitted Orders
+        if filter_type in ["all", "submitted"]:
+            quotes = QuotationRequest.objects.filter(
+                customupdatemodel__user=user,
+                isActive=True,
+                isDeleted=False
+            ).order_by("-created_at")
+
+            for q in quotes:
+                data.append({
+                    "id": str(q.uuids),
+                    "order_no": q.quotation_id,
+                    "title": q.item_type or "Quotation Request",
+                    "status": q.quotation_status.capitalize(),
+                    "date": q.created_at,
+                    "type": "submitted"
+                })
+
+        # Sort latest first
+        data = sorted(data, key=lambda x: x["date"], reverse=True)
+
+        return Response({
+            "status": True,
+            "filter": filter_type,
+            "data": data
         })

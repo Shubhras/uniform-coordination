@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from datetime import date
 # from userhub.models import Notifications
-
+from uniformAdmin.serializers import *
 
 class UserSignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, min_length=6)
@@ -275,7 +275,8 @@ class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
 #         return super().create(validated_data)
 
 class QuotationRequestSerializer(serializers.ModelSerializer):
-    customupdatemodel = CustomUpdateModelQuotationSerializer(read_only=True)
+    customsave = serializers.PrimaryKeyRelatedField(source="customupdatemodel",queryset=CustomUpdateModels.objects.filter(isActive=True, isDeleted=False),required=True)
+
 
     class Meta:
         model = QuotationRequest
@@ -286,7 +287,7 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             "contact_person",
             "email",
             "phone_number",
-            "customupdatemodel",   
+            "customsave",   
             "item_type",
             "material",
             "size_quantity",
@@ -321,6 +322,14 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
                 "You must agree to privacy policy & terms."
             )
         return value
+    
+    def validate_customsave(self, value):
+        request = self.context.get("request")
+        if value.user != request.user:
+            raise serializers.ValidationError(
+                "You can only use your own Custom Save model."
+            )
+        return value
 
     def create(self, validated_data):
         # Auto generate quotation_id
@@ -338,32 +347,50 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 class CustomUpdateModelsSerializer(serializers.ModelSerializer):
-    json_file_url = serializers.SerializerMethodField()
+    product_details = serializers.SerializerMethodField()
+    category_details = serializers.SerializerMethodField()
+    subcategory_details = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomUpdateModels
-        fields = [
-            "id",
-            "user",
-            "model_info",
-            "design_specifications",
-            "json_file_path",
-            "json_file_url",
-            "isActive",
-            "isDeleted",
-            "created_at"
-        ]
-        read_only_fields = ["user", "json_file_path"]
-
-    def get_json_file_url(self, obj):
+        fields = "__all__"
+    def get_category_details(self, obj):
         request = self.context.get("request")
-
-        if not obj.json_file_path:
+        # fetch first product related to this model_info
+        product = Product.objects.filter(model_info=obj.model_info).first()
+        if not product or not getattr(product, "category", None):
             return None
 
-        if request:
-            return request.build_absolute_uri(
-                settings.MEDIA_URL + obj.json_file_path
-            )
+        category = product.category
+        return {
+            "id": category.id,
+            "name": getattr(category, "categoryName", ""),
+            "slug": getattr(category, "slug", "")
+        }
+    def get_subcategory_details(self, obj):
+        request = self.context.get("request")
+        product = Product.objects.filter(model_info=obj.model_info).first()
+        if not product or not getattr(product, "subcategory", None):
+            return None
 
-        # Agar request context na ho, relative URL return karega
-        return settings.MEDIA_URL + obj.json_file_path
+        subcategory = product.subcategory
+        return {
+            "id": subcategory.id,
+            "name": getattr(subcategory, "name", ""),
+            "slug": getattr(subcategory, "slug", "")
+        }
+   
+    def get_product_details(self, obj):
+        request = self.context.get("request")
+        category_slug = request.GET.get("category")
+
+        qs = Product.objects.filter(model_info=obj.model_info)
+        if category_slug:
+            qs = qs.filter(category__slug__iexact=category_slug)
+
+        # pass request in context to serializer
+        serializer = ProductSerializer(qs, many=True, context={"request": request})
+        return serializer.data
+
+
+   

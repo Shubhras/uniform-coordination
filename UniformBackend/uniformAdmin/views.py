@@ -725,8 +725,7 @@ class AdminUpdateProductAPIView(APIView):
 # products/views/get_product.py
 
 class AdminGetProductAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+  
 
     @extend_schema(
     tags=["Admin Product"],
@@ -774,10 +773,7 @@ class AdminGetProductAPIView(APIView):
 
 
 # products/views/list_products.py
-
 class AdminListProductsAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
 
     @extend_schema(
     tags=["Admin Product"],
@@ -799,15 +795,52 @@ class AdminListProductsAPIView(APIView):
 )
     def get(self, request):
         try:
-            subcategory_id = request.query_params.get("subcategoryId")
+            # -------------------------
+            # Query params
+            # -------------------------
+            category_id = request.query_params.get("category_id")
+            subcategory_id = request.query_params.get("subcategory_id")
+            product_type = request.query_params.get("productType")  # REQUIRED
+            type_filter = request.query_params.get("type")
+            ordering = request.query_params.get("ordering", "newest")
 
-            products = Product.objects.filter(isDeleted=False)
+            # -------------------------
+            # productType is required
+            # -------------------------
+            if not product_type:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "productType is required either 'uniform' or 'table'."
+                }, status=status.HTTP_200_OK)
 
-            #  FILTER BY SUBCATEGORY ID
-            if subcategory_id and subcategory_id.isdigit():
-                products = products.filter(subcategory_id=int(subcategory_id))
+            # -------------------------
+            # Base queryset
+            # -------------------------
+            products = Product.objects.filter(
+                isDeleted=False,
+                productType=product_type
+            )
 
-            products = products.order_by("-created_at")
+            # -------------------------
+            # Optional filters
+            # -------------------------
+            if category_id:
+                products = products.filter(category_id=category_id)
+
+            if subcategory_id:
+                products = products.filter(subcategory_id=subcategory_id)
+
+            if type_filter:
+                products = products.filter(type=type_filter)
+
+            # -------------------------
+            # Ordering
+            # -------------------------
+            if ordering == "oldest":
+                products = products.order_by("created_at")
+            else:  # newest (default)
+                products = products.order_by("-created_at")
 
             serializer = ProductSerializer(products, many=True)
 

@@ -300,7 +300,7 @@ class QuotationRequest(models.Model):
     )
     
     uuids = models.UUIDField( primary_key=True,default=uuid.uuid4,editable=False)
-    quotation_id = models.CharField(max_length=20, unique=True)
+    quotation_id = models.CharField(max_length=20, unique=True,null=True)
 
     company_name = models.CharField(max_length=255,null=True,blank=True)
     contact_person = models.CharField(max_length=255,null=True,blank=True)

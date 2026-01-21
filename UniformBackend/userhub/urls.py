@@ -40,13 +40,12 @@ urlpatterns = [
     path('customupdatemodels/<int:id>/update/',CustomUpdateModelsUpdateAPIView.as_view(), name = 'custom-update'),
     path('customupdatemodels/delete/',CustomUpdateModelsDeleteAPIView.as_view(), name = 'custom-delete'),
     path('customupdatemodels/<int:customization_id>/export/',CustomUpdateModelExportPDFAPIView.as_view(), name = 'custom-get'),
-    
+    path('customupdateuser/get-list/', CustomModelsUserAPIView.as_view(), name = 'get-list'),
     #<-----------------------------QuotationRequest-------------------->
-    path('quotation-request/create/',QuotationRequestCreateAPIView.as_view(), name = 'QuotationRequest-create'),
-    path('quotationrequest/<uuid:uuid>/get/',QuotationRequestDetailAPIView.as_view(), name = 'QuotationRequest-get'),
-    path('quotationrequest/<uuid:uuid>/export/',QuotationRequestExportPDFAPIView.as_view(), name = 'QuotationRequest-export'),
-    # path("quotation/<str:quotation_id>/agree/",QuotationAgreeAPIView.as_view(),name="quotation-agree"),
-    # path("quotation/terms/<str:quotation_id>/", QuotationTermsAPIView.as_view(), name="Terms&Conditions"),
+    path('quotationrequest/create/',QuotationRequestCreateAPIView.as_view(), name = 'QuotationRequest-create'),
+    path('quotationrequest/<str:quotation_id>/get/',QuotationRequestDetailAPIView.as_view(), name = 'QuotationRequest-get'),
+    path('quotationrequest/<str:quotation_id>/export/',QuotationRequestExportPDFAPIView.as_view(), name = 'QuotationRequest-export'),
+    path('quotationrequest/get-list/',QuotationRequestsListAPIView.as_view(), name = 'get-list'),
     #<-------------------Card API------------------------------->
     path("cart/add/", AddToCartAPIView.as_view()),
     path("cart/list/", CartListAPIView.as_view()),
@@ -66,11 +65,13 @@ urlpatterns = [
     path("payments/", UserPaymentListAPIView.as_view()),
     path("payments/detail/", UserPaymentDetailAPIView.as_view()),
     path("stripe/webhook",StripeWebhookAPIView.as_view()),
-     
     path("admin/payments/", AdminPaymentListAPIView.as_view()),
     path("admin/payments/detail/", AdminPaymentDetailAPIView.as_view()),
     
     path("quotationstatus/user/",UserQuotationStatusUpdateAPIView.as_view(), name = "QuotationStatus-post"),
+    
+    #<-------------OrderHistory---------------------->
+    path("orderhistory/get-list/",OrderHistoryAPIView.as_view(),name='get-list'),
    
    
 ]
