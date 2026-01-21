@@ -22,6 +22,7 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 import jwt  # PyJWT library
 from django.conf import settings
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
 
@@ -248,6 +249,48 @@ class AdminLoginAPIView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @extend_schema(
+    tags=["Admin Authentication"],
+    summary="Admin Login",
+    description="Login admin user and receive JWT access & refresh tokens.",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "email": {"type": "string", "example": "admin@example.com"},
+                "password": {"type": "string", "example": "Admin@123"},
+                "remember_me": {"type": "boolean", "example": True}
+            },
+            "required": ["email", "password"]
+        }
+    },
+    responses={
+        200: OpenApiResponse(
+            description="Login successful",
+            examples=[
+                OpenApiExample(
+                    "Success",
+                    value={
+                        "status": True,
+                        "statusCode": 200,
+                        "message": "Login successful",
+                        "data": {
+                            "user": {
+                                "id": 1,
+                                "email": "admin@example.com",
+                                "name": "Admin User",
+                                "role": "admin"
+                            },
+                            "access_token": "jwt-access-token",
+                            "refresh_token": "jwt-refresh-token"
+                        }
+                    }
+                )
+            ]
+        ),
+        400: OpenApiResponse(description="Invalid credentials")
+    }
+)
     def post(self, request):
         serializer = AdminLoginSerializer(data=request.data)
         if not serializer.is_valid():
@@ -307,6 +350,27 @@ class ChangePasswordAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
     #permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Admin Authentication"],
+    summary="Change Admin Password",
+    description="Change password for logged-in admin. All tokens will be invalidated.",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "old_password": {"type": "string", "example": "Old@123"},
+                "new_password": {"type": "string", "example": "New@123"}
+            },
+            "required": ["old_password", "new_password"]
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Password changed successfully"),
+        400: OpenApiResponse(description="Validation error"),
+        401: OpenApiResponse(description="Unauthorized")
+    },
+    # security=[{"AdminJWTAuth": []}]
+)
     def post(self, request):
         serializer = AdminChangePasswordSerializer(
             data=request.data,
@@ -342,6 +406,26 @@ class UpdateProfileAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
     #permission_classes = [IsAdminUserJWT]
 
+    @extend_schema(
+    tags=["Admin Authentication"],
+    summary="Update Admin Profile",
+    description="Update admin profile details.",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "example": "Updated Admin"},
+                "email": {"type": "string", "example": "admin@company.com"}
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Profile updated successfully"),
+        400: OpenApiResponse(description="Invalid input"),
+        401: OpenApiResponse(description="Unauthorized")
+    },
+    # security=[{"AdminJWTAuth": []}]
+)
     def put(self, request):
         serializer = AdminUpdateSerializer(
             request.user,
@@ -362,6 +446,16 @@ class ProfileAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
     #permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Admin Authentication"],
+    summary="Get Admin Profile",
+    description="Fetch logged-in admin profile details.",
+    responses={
+        200: OpenApiResponse(description="Profile fetched successfully"),
+        401: OpenApiResponse(description="Unauthorized")
+    },
+    # security=[{"AdminJWTAuth": []}]
+    )
     def get(self, request):
        try:
             admin_user = request.user
@@ -388,6 +482,29 @@ class LogoutAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
     permission_classes = [IsAdminUserJWT]
 
+    @extend_schema(
+    tags=["Admin Authentication"],
+    summary="Admin Logout",
+    description="Logout admin and blacklist refresh token.",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "refresh_token": {
+                    "type": "string",
+                    "example": "jwt-refresh-token"
+                }
+            },
+            "required": ["refresh_token"]
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Logout successful"),
+        400: OpenApiResponse(description="Refresh token required"),
+        401: OpenApiResponse(description="Unauthorized")
+    },
+    # security=[{"AdminJWTAuth": []}]
+    )
     def post(self, request):
         refresh_token = request.data.get("refresh_token")
         if not refresh_token:
@@ -414,6 +531,25 @@ class ForgotPasswordAPIView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @extend_schema(
+    tags=["Admin Authentication"],
+    summary="Forgot Password",
+    description="Send password reset link to admin email.",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "email": {"type": "string", "example": "admin@example.com"}
+            },
+            "required": ["email"]
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Reset link sent"),
+        400: OpenApiResponse(description="Email required"),
+        404: OpenApiResponse(description="User not found")
+    }
+)
     def post(self, request):
         email = request.data.get("email")
 
@@ -481,6 +617,21 @@ class ForgotPasswordAPIView(APIView):
 class AdminUserCreateAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
 
+    @extend_schema(
+    tags=["Admin Users"],
+    summary="Create Admin/B2B User",
+    description="Create a new admin or B2B user. Created admin ID is auto-attached from logged-in admin.",
+    request=AdminUserSerializer,
+    responses={
+        201: OpenApiResponse(
+            description="User created successfully",
+            response=AdminUserSerializer
+        ),
+        400: OpenApiResponse(description="Invalid data"),
+        401: OpenApiResponse(description="Unauthorized"),
+        500: OpenApiResponse(description="Server error"),
+    }
+    )
     def post(self, request):
         try:
             # Automatically attach the admin ID from the logged-in user
@@ -515,6 +666,36 @@ class AdminUserCreateAPIView(APIView):
 class AdminUserListAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
 
+    @extend_schema(
+    tags=["Admin Users"],
+    summary="List Admin Users",
+    description="Get list of admin users with search and pagination support.",
+    parameters=[
+        OpenApiParameter(
+            name="search",
+            description="Search by name, email, company name, mobile or tier",
+            required=False,
+            type=str
+        ),
+        OpenApiParameter(
+            name="page",
+            description="Page number",
+            required=False,
+            type=int
+        ),
+        OpenApiParameter(
+            name="page_size",
+            description="Number of items per page",
+            required=False,
+            type=int
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(description="User list fetched successfully"),
+        401: OpenApiResponse(description="Unauthorized"),
+        400: OpenApiResponse(description="Validation error"),
+    }
+    )
     def get(self, request):
         try:
             queryset = AdminUser.objects.all().order_by("-id")
@@ -548,6 +729,29 @@ class AdminUserListAPIView(APIView):
 class AdminUserDetailAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
 
+    @extend_schema(
+    tags=["Admin Users"],
+    summary="Get Admin User Detail",
+    description="Fetch admin user details by user ID.",
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            description="Admin User ID",
+            required=True,
+            type=int,
+            location=OpenApiParameter.PATH
+        )
+    ],
+    responses={
+        200: OpenApiResponse(
+            description="User data fetched successfully",
+            response=AdminUserSerializer
+        ),
+        404: OpenApiResponse(description="User not found"),
+        401: OpenApiResponse(description="Unauthorized"),
+        500: OpenApiResponse(description="Server error"),
+    }
+    )
     def get(self, request, id):
         try:
             user = get_object_or_404(AdminUser, id=id)
@@ -571,6 +775,30 @@ class AdminUserDetailAPIView(APIView):
 class AdminUserUpdateAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
 
+    @extend_schema(
+    tags=["Admin Users"],
+    summary="Update Admin User",
+    description="Update admin user details partially or fully.",
+    request=AdminUserSerializer,
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            description="Admin User ID",
+            required=True,
+            type=int,
+            location=OpenApiParameter.PATH
+        )
+    ],
+    responses={
+        200: OpenApiResponse(
+            description="User updated successfully",
+            response=AdminUserSerializer
+        ),
+        400: OpenApiResponse(description="Validation error"),
+        404: OpenApiResponse(description="User not found"),
+        401: OpenApiResponse(description="Unauthorized"),
+    }
+    )
     def put(self, request, id):
         user = get_object_or_404(AdminUser, id=id)
 
@@ -600,6 +828,50 @@ class AdminUserUpdateAPIView(APIView):
 class AdminUserDeleteAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
 
+
+    @extend_schema(
+    tags=["Admin Users"],
+    summary="Delete Admin User(s)",
+    description="""
+Delete admin users using one of the following:
+- Single user by `id`
+- Multiple users using `ids` list in request body
+- Delete all users using `all=true`
+""",
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            description="Single Admin User ID",
+            required=False,
+            type=int
+        ),
+        OpenApiParameter(
+            name="all",
+            description="Delete all users (true/false)",
+            required=False,
+            type=bool
+        ),
+    ],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {"type": "integer"},
+                    "example": [1, 2, 3]
+                }
+            }
+        }
+    },
+    responses={
+        204: OpenApiResponse(description="User(s) deleted successfully"),
+        400: OpenApiResponse(description="Invalid request"),
+        404: OpenApiResponse(description="User not found"),
+        401: OpenApiResponse(description="Unauthorized"),
+        500: OpenApiResponse(description="Server error"),
+    }
+    )
     def delete(self, request):
         try:
             user_id = request.query_params.get("id")

@@ -7,9 +7,20 @@ from django.db.models import Q
 from .serializers import *
 from .models import *
 from .fabric import IsAdministrator, CustomPagination
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
 
+@extend_schema(
+    tags=["Colors"],
+    summary="Create a new color",
+    request=ColorsSerializer,
+    responses={
+        200: OpenApiResponse(description="Color created successfully"),
+        400: OpenApiResponse(description="Validation error"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class ColorsCreateView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]
@@ -41,6 +52,14 @@ class ColorsCreateView(APIView):
             })
 
 
+@extend_schema(
+    tags=["Colors"],
+    summary="Get list of colors",
+    responses={
+        200: OpenApiResponse(description="Colors fetched successfully"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class ColorsListView(APIView):
     permission_classes = [AllowAny]
 
@@ -87,6 +106,16 @@ class ColorsListView(APIView):
             })
 
 
+
+@extend_schema(
+    tags=["Colors"],
+    summary="Get color details by ID",
+    responses={
+        200: OpenApiResponse(description="Color fetched successfully"),
+        404: OpenApiResponse(description="Color not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class ColorsDetailView(APIView):
     permission_classes = [AllowAny]
 
@@ -118,6 +147,17 @@ class ColorsDetailView(APIView):
             })
 
 
+@extend_schema(
+    tags=["Colors"],
+    summary="Update color by ID",
+    request=ColorsSerializer,
+    responses={
+        200: OpenApiResponse(description="Color updated successfully"),
+        400: OpenApiResponse(description="Validation error"),
+        404: OpenApiResponse(description="Color not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class ColorsUpdateView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]
@@ -159,6 +199,16 @@ class ColorsUpdateView(APIView):
             })
 
 
+
+@extend_schema(
+    tags=["Colors"],
+    summary="Delete color by ID",
+    responses={
+        200: OpenApiResponse(description="Color deleted successfully"),
+        404: OpenApiResponse(description="Color not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class ColorsDeleteView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]

@@ -8,6 +8,7 @@ from uniformAdmin.fabric import CustomPagination,IsAdministrator
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db.models import Max
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
 #---------------- Sub Catgory -----------------
@@ -17,6 +18,19 @@ class SubCategoryCreateAPIView(APIView):
 
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
+    
+    @extend_schema(
+        tags=["SubCategory"],
+        summary="Create SubCategory",
+        description="Create a new subcategory under a category (Admin only)",
+        request=SubCategorySerializer,
+        responses={
+            200: OpenApiResponse(description="SubCategory created successfully"),
+            400: OpenApiResponse(description="Validation failed"),
+            401: OpenApiResponse(description="Unauthorized"),
+            500: OpenApiResponse(description="Internal server error"),
+        },
+    )
 
     def post(self, request):
         try:
@@ -77,6 +91,46 @@ class SubCategoryCreateAPIView(APIView):
 class SubCategoryListAPIView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        tags=["SubCategory"],
+        summary="List SubCategories",
+        description="Get paginated list of subcategories with optional filters",
+        parameters=[
+            OpenApiParameter(
+                name="search",
+                description="Search by subcategory name",
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="categoryId",
+                description="Filter by category ID",
+                required=False,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="page",
+                description="Page number",
+                required=False,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="page_size",
+                description="Items per page",
+                required=False,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(description="SubCategory list fetched successfully"),
+            500: OpenApiResponse(description="Internal server error"),
+        },
+        auth=[],  # public
+    )
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()
@@ -95,7 +149,9 @@ class SubCategoryListAPIView(APIView):
                     name__icontains=search_query
                 )
 
-            subcategories = subcategories.order_by("order", "created_at")
+            # subcategories = subcategories.order_by("-order", "-created_at") #order wise data list
+            subcategories = subcategories.order_by("-created_at", "-id") # most recent data list
+
 
             paginator = CustomPagination()
             page = paginator.paginate_queryset(subcategories, request)
@@ -109,12 +165,10 @@ class SubCategoryListAPIView(APIView):
                 "count": paginator.page.paginator.count,
                 "next": paginator.get_next_link(),
                 "previous": paginator.get_previous_link(),
-                "pagination": {
-                    "page": paginator.page.number,
-                    "page_size": paginator.get_page_size(request),
-                    "total_pages": paginator.page.paginator.num_pages,
-                    "total_items": paginator.page.paginator.count
-                },
+                "page": paginator.page.number,
+                "page_size": paginator.get_page_size(request),
+                "total_pages": paginator.page.paginator.num_pages,
+                "total_items": paginator.page.paginator.count,
                 "statusCode": 200,
                 "status": True,
                 "message": "SubCategory list fetched successfully",
@@ -136,6 +190,17 @@ class SubCategoryListAPIView(APIView):
 class SubCategoryDetailAPIView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        tags=["SubCategory"],
+        summary="Get SubCategory Detail",
+        description="Retrieve subcategory details by ID",
+        responses={
+            200: OpenApiResponse(description="SubCategory detail fetched successfully"),
+            404: OpenApiResponse(description="SubCategory not found"),
+            500: OpenApiResponse(description="Internal server error"),
+        },
+        auth=[],  # public
+    )
     def get(self, request, pk):
         try:
             subcategory = get_object_or_404(
@@ -167,7 +232,20 @@ class SubCategoryUpdateAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
 
-
+    @extend_schema(
+        tags=["SubCategory"],
+        summary="Update SubCategory",
+        description="Update subcategory details (Admin only)",
+        request=SubCategorySerializer,
+        responses={
+            200: OpenApiResponse(description="SubCategory updated successfully"),
+            400: OpenApiResponse(description="Validation failed"),
+            404: OpenApiResponse(description="SubCategory not found"),
+            401: OpenApiResponse(description="Unauthorized"),
+            500: OpenApiResponse(description="Internal server error"),
+        },
+    )
+    
     def put(self, request, pk):
         try:
             subcategory = get_object_or_404(
@@ -230,6 +308,18 @@ class SubCategoryDeleteAPIView(APIView):
 
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
+    
+    @extend_schema(
+        tags=["SubCategory"],
+        summary="Delete SubCategory",
+        description="Soft delete a subcategory (Admin only)",
+        responses={
+            200: OpenApiResponse(description="SubCategory deleted successfully"),
+            404: OpenApiResponse(description="SubCategory not found"),
+            401: OpenApiResponse(description="Unauthorized"),
+            500: OpenApiResponse(description="Internal server error"),
+        },
+    )
 
     def delete(self, request, pk):
         try:

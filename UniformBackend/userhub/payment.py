@@ -14,6 +14,10 @@ import stripe
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
+
+
+
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
@@ -179,6 +183,50 @@ JPN_METHOD_REVERSE_MAPPING = {v: k for k, v in JPN_METHOD_MAPPING.items()}
 class CreatePaymentIntentAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Payments · User"],
+    summary="Create Stripe payment intent",
+    description=(
+        "Creates a Stripe PaymentIntent for an order.\n\n"
+        "**Rules:**\n"
+        "- Order must belong to logged-in user\n"
+        "- Duplicate successful payments are blocked\n"
+        "- Currency & payment method validation applied\n"
+    ),
+    request={
+        "application/json": {
+            "type": "object",
+            "required": ["order_id"],
+            "properties": {
+                "order_id": {
+                    "type": "string",
+                    "example": "ORD-2024-001"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "inr",
+                    "description": "Supported: inr, jpy, usd, eur, gbp"
+                }
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Payment intent created"),
+        400: OpenApiResponse(description="Validation or Stripe error"),
+        404: OpenApiResponse(description="Order not found"),
+        401: OpenApiResponse(description="Authentication required"),
+    },
+    examples=[
+        OpenApiExample(
+            "Create Payment Intent",
+            value={
+                "order_id": "ORD-2024-001",
+                "currency": "inr"
+            },
+            request_only=True
+        )
+    ]
+    )
     def post(self, request):
         order_id = request.data.get("order_id")
         currency = request.data.get("currency", "").lower()
@@ -292,11 +340,18 @@ class CreatePaymentIntentAPIView(APIView):
 
 
 
-
-
 class UserPaymentListAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
+    @extend_schema(
+    tags=["Payments · User"],
+    summary="List user payments",
+    description="Returns paginated list of payments for logged-in user",
+    responses={
+        200: OpenApiResponse(description="Payments fetched successfully"),
+        404: OpenApiResponse(description="No payment records found"),
+        401: OpenApiResponse(description="Authentication required"),
+    }
+    )
     def get(self, request):
         try:
             payments = Payment.objects.filter(order__user=request.user).order_by("-created_at",'-id')
@@ -320,10 +375,38 @@ class UserPaymentListAPIView(APIView):
 
 
 
-
 class UserPaymentDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Payments · User"],
+    summary="Get payment detail (User)",
+    request={
+        "application/json": {
+            "type": "object",
+            "required": ["payment_id"],
+            "properties": {
+                "payment_id": {
+                    "type": "string",
+                    "example": "pi_3NabcXYZ"
+                }
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Payment fetched successfully"),
+        400: OpenApiResponse(description="payment_id required"),
+        404: OpenApiResponse(description="Payment not found"),
+        401: OpenApiResponse(description="Authentication required"),
+    },
+    examples=[
+        OpenApiExample(
+            "Fetch Payment Detail",
+            value={"payment_id": "pi_3NabcXYZ"},
+            request_only=True
+        )
+    ]
+    )
     def post(self, request):
         payment_id = request.data.get("payment_id")
 
@@ -368,7 +451,16 @@ class UserPaymentDetailAPIView(APIView):
 class AdminPaymentListAPIView(APIView):
     # permission_classes = [IsAdminUser]
     permission_classes =[IsAuthenticated]
-
+    @extend_schema(
+    tags=["Payments · Admin"],
+    summary="List all payments (Admin)",
+    description="Returns paginated list of all payments",
+    responses={
+        200: OpenApiResponse(description="Payments fetched successfully"),
+        404: OpenApiResponse(description="No payment records found"),
+        401: OpenApiResponse(description="Authentication required"),
+    }
+    )
     def get(self, request):
         try:
             payments = Payment.objects.all().order_by('-created_at','-id')
@@ -399,6 +491,35 @@ class AdminPaymentDetailAPIView(APIView):
      # permission_classes = [IsAdminUser]
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Payments · Admin"],
+    summary="Get payment detail (Admin)",
+    request={
+        "application/json": {
+            "type": "object",
+            "required": ["payment_id"],
+            "properties": {
+                "payment_id": {
+                    "type": "string",
+                    "example": "pi_3NabcXYZ"
+                }
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Payment detail fetched"),
+        400: OpenApiResponse(description="payment_id required"),
+        404: OpenApiResponse(description="Payment not found"),
+        401: OpenApiResponse(description="Authentication required"),
+    },
+    examples=[
+        OpenApiExample(
+            "Admin Payment Detail",
+            value={"payment_id": "pi_3NabcXYZ"},
+            request_only=True
+        )
+    ]
+    )
     def post(self, request):
         payment_id = request.data.get("payment_id")
 
@@ -430,8 +551,6 @@ class AdminPaymentDetailAPIView(APIView):
                 "message": "Something went wrong",
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 
 
 @method_decorator(csrf_exempt, name="dispatch")
