@@ -476,7 +476,12 @@ class CustomUpdateModelsCreateAPIView(APIView):
         if large_json:
             json_path = save_large_json_to_file(large_json)
 
-        serializer = CustomUpdateModelsSerializer(data=data)
+        # serializer = CustomUpdateModelsSerializer(data=data)
+        serializer = CustomUpdateModelsSerializer(
+            data=data,
+            context={"request": request}
+        )
+
         try:
             if serializer.is_valid(raise_exception=True):
                 serializer.save(user=request.user, json_file_path=json_path)
