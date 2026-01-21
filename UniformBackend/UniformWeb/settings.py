@@ -258,7 +258,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"   # collected files for production
 
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Uniform Coordination API",
+    "TITLE": "Uniform Coordination Apis",
     "DESCRIPTION": "API documentation for UniformCoordination platform",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
