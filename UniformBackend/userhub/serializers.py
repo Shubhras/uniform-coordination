@@ -135,10 +135,29 @@ class VerifyUserSerializer(serializers.Serializer):
         return attrs
 
 
+class ProductMiniSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source="category.name", read_only=True)
+    subcategory_name = serializers.CharField(source="subcategory.name", read_only=True)
+
+    class Meta:
+        model = Product
+        fields = ["id","productName","slug","description","price",
+            "discount","ProductImage","productType","type",
+            "category_name","subcategory_name","available_quantity","isPopular",
+        ]
+
 class CartItemSerializer(serializers.ModelSerializer):
+    product = ProductMiniSerializer(read_only=True)
     class Meta:
         model = CartItem
-        fields = '__all__'
+        fields = [
+            "id",
+            "product",
+            "quantity",
+            "price",
+            "total_price",
+            "created_at",
+        ]
 
 class OrderSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
