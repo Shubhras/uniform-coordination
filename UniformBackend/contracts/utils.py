@@ -75,6 +75,9 @@ Sourabh's Venture  Capital
 
 
 
+
+
+
 def send_docusign_envelope(quotation):
     """
     Sends a DocuSign envelope to the client for review & signature.
@@ -115,18 +118,38 @@ def send_docusign_envelope(quotation):
 
     Please sign below to approve this quotation.
 
-    **SIGN_HERE**
+    Client Signature:
+    **SIGN_HERE_CLIENT**
+
+
+
+
+    Admin Approval:
+    **SIGN_HERE_ADMIN**
+
     """
 
     envelope_payload = {
         "emailSubject": f"Quotation Agreement - {quotation.quotation_id}",
+
+        #  DISABLE DOCUSIGN AUTO EMAILS
+        "notification": {
+            "useAccountDefaults": "false",
+            "reminders": {
+                "reminderEnabled": "false"
+            },
+            "expirations": {
+                "expireEnabled": "false"
+            }
+        },
+
         "documents": [
             {
                 "documentBase64": base64.b64encode(
                     document_text.encode("utf-8")
                 ).decode("utf-8"),
                 "name": "Quotation Agreement",
-                "fileExtension": "txt",   # OK for now (PDF later)
+                "fileExtension": "txt",
                 "documentId": "1"
             }
         ],
@@ -140,7 +163,23 @@ def send_docusign_envelope(quotation):
                     "tabs": {
                         "signHereTabs": [
                             {
-                                "anchorString": "**SIGN_HERE**",
+                                "anchorString": "**SIGN_HERE_CLIENT**",
+                                "anchorUnits": "pixels",
+                                "anchorYOffset": "10",
+                                "anchorXOffset": "20"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "email": "sourabh.mori1digiprima@gmail.com",
+                    "name": "Admin Approval",
+                    "recipientId": "2",
+                    "routingOrder": "2",
+                    "tabs": {
+                        "signHereTabs": [
+                            {
+                                "anchorString": "**SIGN_HERE_ADMIN**",
                                 "anchorUnits": "pixels",
                                 "anchorYOffset": "10",
                                 "anchorXOffset": "20"
@@ -149,8 +188,9 @@ def send_docusign_envelope(quotation):
                     }
                 }
             ]
-        },
-        "status": "sent"  # Immediately sends email
+        }
+        ,
+        "status": "sent"
     }
 
     url = f"{base_url}/restapi/v2.1/accounts/{account_id}/envelopes"
