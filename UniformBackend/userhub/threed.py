@@ -311,6 +311,175 @@ class ModelInfoDeleteAPIView(APIView):
 
 #<----------------------QuotationRequest------------------>
            
+# class QuotationRequestCreateAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     @extend_schema(
+#     tags=["Quotation Request"],
+#     summary="Create quotation request and send DocuSign",
+#     description=(
+#         "Creates a quotation request"
+#         "sends DocuSign immediately, and updates workflow status."
+#     ),
+#     request={
+#         "application/json": {
+#             "type": "object",
+#             "properties": {
+#                 "template_slug": {
+#                     "type": "string",
+#                     "example": "quotation-default"
+#                 }
+#             },
+#             "required": ["template_slug"]
+#         }
+#     },
+#     responses={
+#         201: OpenApiResponse(
+#             description="Quotation created and DocuSign sent"
+#         ),
+#         400: OpenApiResponse(
+#             description="template_slug missing"
+#         ),
+#         404: OpenApiResponse(
+#             description="Template not found"
+#         ),
+#         500: OpenApiResponse(
+#             description="Server error"
+#         ),
+#     }
+# )
+#     def post(self, request):
+#         try:
+#             template_slug = request.data.get("template_slug")
+#             if not template_slug:
+#                 return Response({"message": "template_slug is required"}, status=400)
+
+#             template = QuotationTemplate.objects.filter(
+#                 slug=template_slug,
+#                 is_active=True,
+#                 is_deleted=False
+#             ).first()
+
+#             if not template:
+#                 return Response({"message": "Template not found"}, status=404)
+
+#             serializer = QuotationRequestSerializer(data=request.data)
+#             serializer.is_valid(raise_exception=True)
+
+#             quotation = serializer.save(
+#                 template=template,
+#                 workflow_status="REQUESTED",
+#                 quotation_status="pending"
+#             )
+
+#             # CREATE DOCUSIGN & SEND EMAIL IMMEDIATELY
+#             envelope_id = send_docusign_envelope(quotation)
+
+#             DocuSignEnvelope.objects.create(
+#                 quotation_request=quotation,
+#                 envelope_id=envelope_id,
+#                 status="sent",
+#                 agreement_status="sent_to_client"
+#             )
+
+#             quotation.workflow_status = "SENT"
+#             quotation.save()
+
+#             return Response({
+#                 "status": True,
+#                 "message": "Quotation created and DocuSign sent",
+#                 "quotation_id": quotation.quotation_id,
+#                 "workflow_status": quotation.workflow_status
+#             }, status=201)
+
+#         except Exception as e:
+#             return Response({
+#                 "status": False,
+#                 "message": "Failed to create quotation",
+#                 "error": str(e)
+#             }, status=500)
+
+
+# class QuotationRequestCreateAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     @extend_schema(
+#         tags=["Quotation Request"],
+#         summary="Create quotation request and send DocuSign",
+#         description=(
+#             "Creates a quotation request, "
+#             "sends DocuSign immediately, and updates workflow status."
+#         ),
+#         request={
+#             "application/json": {
+#                 "type": "object",
+#                 "properties": {
+#                     "company_name": {"type": "string"},
+#                     "contact_person": {"type": "string"},
+#                     "email": {"type": "string"},
+#                     "phone_number": {"type": "string"},
+#                     "item_type": {"type": "string"},
+#                     "material": {"type": "string"},
+#                     "size_quantity": {"type": "string"},
+#                     "delivery_date": {"type": "string", "format": "date"},
+#                     "additional_note": {"type": "string"},
+#                 },
+#                 "required": ["email", "delivery_date"]
+#             }
+#         },
+#         responses={
+#             201: OpenApiResponse(description="Quotation created and DocuSign sent"),
+#             400: OpenApiResponse(description="Validation error"),
+#             500: OpenApiResponse(description="Server error"),
+#         }
+#     )
+#     def post(self, request):
+#         try:
+#             serializer = QuotationRequestSerializer(data=request.data)
+#             serializer.is_valid(raise_exception=True)
+
+#             quotation = serializer.save(
+#                 workflow_status="REQUESTED",
+#                 quotation_status="pending"
+#             )
+
+#             # CREATE DOCUSIGN & SEND EMAIL IMMEDIATELY
+#             envelope_id = send_docusign_envelope(quotation)
+
+#             DocuSignEnvelope.objects.create(
+#                 quotation_request=quotation,
+#                 envelope_id=envelope_id,
+#                 status="sent",
+#                 agreement_status="sent_to_client"
+#             )
+
+#             quotation.workflow_status = "SENT"
+#             quotation.save()
+
+#             return Response(
+#                 {
+#                     "statusCode": 200,                    
+#                     "status": True,
+#                     "message": "Quotation created and DocuSign sent",
+#                     "quotation_id": quotation.quotation_id,
+#                     "workflow_status": quotation.workflow_status,
+#                 },
+#                 status=200
+#             )
+
+#         except Exception as e:
+#             return Response(
+#                 {
+#                     "statusCode": 400,                                        
+#                     "status": False,
+#                     "message": "Failed to create quotation",
+#                     "error": str(e),
+#                 },
+#                 status=500
+#             )
+
+
+
 class QuotationRequestCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -369,6 +538,7 @@ class QuotationRequestCreateAPIView(APIView):
 
             return Response(
                 {
+                    "statusCode": 201,
                     "status": True,
                     "message": "Quotation created and DocuSign sent",
                     "quotation_id": quotation.quotation_id,
@@ -377,9 +547,23 @@ class QuotationRequestCreateAPIView(APIView):
                 status=201
             )
 
+        #  Proper validation error (serializer / bad payload)
+        except serializers.ValidationError as e:
+            return Response(
+                {
+                    "statusCode": 400,
+                    "status": False,
+                    "message": "Validation error",
+                    "error": e.detail,
+                },
+                status=400
+            )
+
+        #  Any unexpected server error
         except Exception as e:
             return Response(
                 {
+                    "statusCode": 500,
                     "status": False,
                     "message": "Failed to create quotation",
                     "error": str(e),
