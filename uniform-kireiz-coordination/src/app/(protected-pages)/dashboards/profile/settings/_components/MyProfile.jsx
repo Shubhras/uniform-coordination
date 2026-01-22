@@ -2,44 +2,71 @@
 import React, { useRef, useState, useEffect } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import Button from '@/components/ui/Button'
-import { FiEdit2, FiLock, FiMail, FiBox } from 'react-icons/fi'
+import { FiBox, FiChevronRight, FiDownload, FiEdit2, FiLock, FiMail } from 'react-icons/fi'
 import { HiCheckCircle } from 'react-icons/hi'
 import { useSession } from 'next-auth/react'
-import {
-    FiChevronRight,
-    FiFileText,
-    FiDownload,
-} from 'react-icons/fi'
-import { GoArrowRight } from 'react-icons/go'
-import { apiGetProfile } from '@/services/AuthProfileService'
+import { FiFileText } from 'react-icons/fi'
+import { apiGetProfile, apiGetQuotation } from '@/services/AuthProfileService'
 import { CiUser } from 'react-icons/ci'
+import { GoArrowRight } from 'react-icons/go'
 
 const MyProfile = () => {
     const fileRef = useRef(null)
     const { data: session } = useSession()
+
     const [profile, setProfile] = useState(null)
+    const [quotationData, setQuotationData] = useState([])
     const [image, setImage] = useState(null)
-    const [loading, setLoading] = useState(true)
+
+    const [profileLoading, setProfileLoading] = useState(true)
+    const [quotationLoading, setQuotationLoading] = useState(true)
+
+    /* -------------------- FETCH PROFILE -------------------- */
+    const fetchProfile = async () => {
+        try {
+            if (!session?.accessToken) return
+
+            setProfileLoading(true)
+            const res = await apiGetProfile(session.accessToken)
+
+            if (res?.status && res?.data) {
+                setProfile(res.data)
+                setImage(res.data.profileImage || null)
+            }
+        } catch (error) {
+            console.error('Profile API error:', error)
+        } finally {
+            setProfileLoading(false)
+        }
+    }
+
+    /* -------------------- FETCH QUOTATION -------------------- */
+    const fetchQuotation = async () => {
+        try {
+            if (!session?.accessToken) return
+
+            setQuotationLoading(true)
+            const res = await apiGetQuotation(session.accessToken)
+
+            if (res?.status) {
+                setQuotationData(res.data || [])
+            }
+        } catch (error) {
+            console.error('Quotation API error:', error)
+        } finally {
+            setQuotationLoading(false)
+        }
+    }
+
     useEffect(() => {
         if (!session?.accessToken) return
-        const fetchProfile = async () => {
-            try {
-                const res = await apiGetProfile(session.accessToken)
-                //console.log('resssssssssss', res);
-                setProfile(res?.data)
-                setImage(res.data.profileImage)
-            } catch (error) {
-                console.error('Profile API error:', error)
-            } finally {
-                setLoading(false)
-            }
-        }
-
         fetchProfile()
+        fetchQuotation()
     }, [session?.accessToken])
-    //console.log('11',session.accessToken)
+
+    /* -------------------- IMAGE HANDLERS -------------------- */
     const handleSelectImage = (e) => {
-        const file = e.target.files[0]
+        const file = e.target.files?.[0]
         if (!file) return
 
         const previewUrl = URL.createObjectURL(file)
@@ -52,19 +79,24 @@ const MyProfile = () => {
             fileRef.current.value = ''
         }
     }
+
+    if (profileLoading) {
+        return (
+            <div className="max-w-7xl mx-auto text-center py-20 text-sm text-gray-500">
+                Loading profile...
+            </div>
+        )
+    }
+
     return (
         <div className="max-w-7xl mx-auto space-y-6">
 
             {/* ================= Profile Card ================= */}
             <div className="relative bg-[#F6FAFF] rounded-2xl shadow-md md:p-6 p-2 flex flex-col lg:flex-row gap-6">
 
-
                 {/* Avatar Column */}
                 <div className="flex flex-col items-center lg:items-start">
-
                     <div className="w-[180px] border border-[#ADC2DE] rounded-2xl flex flex-col items-center gap-3 p-3">
-
-                        {/* Avatar */}
                         <div className="border border-white rounded-full p-1">
                             <Avatar
                                 size={110}
@@ -74,7 +106,6 @@ const MyProfile = () => {
                             />
                         </div>
 
-                        {/* Hidden File Input */}
                         <input
                             type="file"
                             accept="image/*"
@@ -82,34 +113,13 @@ const MyProfile = () => {
                             className="hidden"
                             onChange={handleSelectImage}
                         />
-
-                        {/* Actions */}
-                        {/* <div className="flex gap-4 text-xs">
-                            <button
-                                onClick={() => fileRef.current.click()}
-                                className="text-blue-600 font-medium hover:underline"
-                            >
-                                Upload
-                            </button>
-
-                            {image && (
-                                <button
-                                    onClick={handleRemoveImage}
-                                    className="text-red-500 font-medium hover:underline"
-                                >
-                                    Remove
-                                </button>
-                            )}
-                        </div> */}
                     </div>
 
-                    {/* ✅ Verified badge – MOBILE */}
                     <span className="mt-3 flex items-center gap-1 text-[11px] text-green-600 bg-green-50 px-3 py-1 rounded-full lg:hidden">
                         <HiCheckCircle size={14} />
                         Verified Account
                     </span>
                 </div>
-
 
                 {/* Details Section */}
                 <div className="flex-1 flex flex-col gap-5">
@@ -121,12 +131,16 @@ const MyProfile = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-10">
                             <div>
                                 <p className="text-xs text-gray-500">First Name</p>
-                                <p className="text-sm font-medium text-[#0F172A]">{profile?.firstName || '-'}</p>
+                                <p className="text-sm font-medium text-[#0F172A]">
+                                    {profile?.firstName || '-'}
+                                </p>
                             </div>
 
                             <div>
                                 <p className="text-xs text-gray-500">Last Name</p>
-                                <p className="text-sm font-medium text-[#0F172A]">{profile?.lastName || '-'}</p>
+                                <p className="text-sm font-medium text-[#0F172A]">
+                                    {profile?.lastName || '-'}
+                                </p>
                             </div>
 
                             <div>
@@ -167,7 +181,6 @@ const MyProfile = () => {
                     </div>
                 </div>
 
-                {/* Verified Badge */}
                 <div className="hidden lg:block">
                     <span className="flex items-center gap-1 text-[11px] text-green-600 bg-green-50 px-2.5 py-1 rounded-full">
                         <HiCheckCircle size={14} />
@@ -176,41 +189,38 @@ const MyProfile = () => {
                 </div>
             </div>
 
-            {/* ================= Middle Section ================= */}
+            {/* ================= Quotation Section ================= */}
             <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden">
 
-                {/* Header */}
                 <div className="flex justify-between items-center px-6 py-4 border-b border-[#E2E8F0]">
                     <div>
                         <h4 className="text-sm font-semibold text-[#003562]">
                             Quotation Status
                         </h4>
                         <p className="text-xs text-gray-500 mt-1">
-                            RQ-2025-0194 · November 26, 2025
+                            {quotationData?.[0]?.quotationNo || '-'}
                         </p>
                     </div>
 
-                    <Button
-                        size="sm"
-                        className="bg-[#1C2C56] hover:bg-[#0c2452] text-white"
-                    >
+                    <Button size="sm" className="bg-[#1C2C56] hover:bg-[#0c2452] text-white">
                         View Design
                     </Button>
                 </div>
 
-                {/* List */}
                 <div className="p-6 space-y-3 bg-[#F6FAFF]">
-                    {[
-                        'Acme Corp',
-                        'Umbrella Corp',
-                        'Cyberdyne',
-                    ].map((company, i) => (
+                    {!quotationLoading && quotationData.length === 0 && (
+                        <p className="text-xs text-gray-500 text-center">
+                            No quotations found
+                        </p>
+                    )}
+
+                    {quotationData.map((q, i) => (
                         <div
                             key={i}
                             className="flex justify-between items-center bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl px-5 py-4"
                         >
                             <p className="text-sm font-medium text-[#0F172A]">
-                                {company}
+                                {q.companyName || '-'}
                             </p>
 
                             <button className="flex items-center gap-2 text-xs text-[#2563A8] font-medium">
@@ -222,13 +232,9 @@ const MyProfile = () => {
                 </div>
             </div>
 
-            {/* ================= Bottom Section ================= */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                {/* ================= Recent Orders ================= */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" >
                 <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden">
 
-                    {/* Header */}
                     <div className="flex justify-between items-center px-6 py-4 border-b border-[#E2E8F0]">
                         <h4 className="text-sm font-semibold flex items-center gap-2 text-[#0F172A]">
                             <FiBox /> Recent Orders
@@ -238,7 +244,6 @@ const MyProfile = () => {
                         </button>
                     </div>
 
-                    {/* Order Card */}
                     <div className="px-6 py-5 border-b border-[#E2E8F0]">
                         <div className="flex justify-between items-center mb-3 border-b border-[#E2E8F0] pb-2">
                             <div>
@@ -284,7 +289,6 @@ const MyProfile = () => {
                         </div>
                     </div>
 
-                    {/* Linked Orders */}
                     <div className="px-6 py-4">
                         <p className="text-sm font-semibold text-[#0F172A] mb-3">
                             Linked Quotes & Orders
@@ -324,10 +328,8 @@ const MyProfile = () => {
                     </div>
                 </div>
 
-                {/* ================= Recent Simulations ================= */}
                 <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden">
 
-                    {/* Header */}
                     <div className="flex justify-between items-center px-6 py-4 border-b border-[#E2E8F0]">
                         <h4 className="text-sm font-semibold text-[#0F172A] flex items-center gap-2">
                             <FiFileText size={16} />
@@ -338,7 +340,6 @@ const MyProfile = () => {
                         </button>
                     </div>
 
-                    {/* List */}
                     <div className="px-6 py-4 space-y-4">
                         {[
                             { title: 'Medical & Nursing Care', date: 'Nov 15, 2025', status: 'OPEN' },
@@ -388,10 +389,8 @@ const MyProfile = () => {
                         </Button>
                     </div>
                 </div>
-
-            </div>
+            </div >
         </div>
-
     )
 }
 

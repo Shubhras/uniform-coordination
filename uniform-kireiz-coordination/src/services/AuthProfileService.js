@@ -82,7 +82,7 @@ export async function apiSimulationHistory(token, params = {}) {
 
 export async function apiOrderAndQuotation(token, params = {}) {
   return ApiService.fetchDataWithAxios({
-    url: "/v1/userhub/customupdateuser/get-list/",
+    url: "/v1/userhub/orderhistory/get-list/",
     method: "get",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -94,8 +94,29 @@ export async function apiOrderAndQuotation(token, params = {}) {
 export async function apiGetOrderDetail(token, data) {
   return ApiService.fetchDataWithAxios({
     url: `/v1/userhub/order/id/`,
-    method: "get",
+    method: "post",
     data,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export async function apiSimulationExportPdf(token, id) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/userhub/customupdatemodels/${id}/export/`,
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+
+export async function apiGetQuotation(token) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/userhub/quotationrequest/get-list/",
+    method: "get",
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -31,7 +31,7 @@ import {
     FiArchive,
 } from "react-icons/fi"
 import { useRouter } from 'next/navigation'
-import { apiSaveDesign,apiExportDesignPdf } from '@/services/SaveDesignService'
+import { apiSaveDesign, apiExportDesignPdf } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
 
 const iconMap = {
@@ -115,26 +115,43 @@ const DesignResultPage = () => {
     }
     const handleSaveDesign = async () => {
         if (!session?.accessToken) return
-    
+
+        // const payload = {
+        //     user: session?.user?.id,
+        //     model_info: 7,
+        //     config_json: {
+        //         color: "Navy Blue",
+        //         size: "M",
+        //         material: "Polyester",
+        //     },
+        //     design_specifications: {
+        //         cut_style: "Modern Fit",
+        //         collar_type: "V-Neck Reinforced",
+        //         sleeve_length: "Short",
+        //         pocket_configuration: "1 Chest, 2 Lower Patch",
+        //         pant: "Straight Pant",
+        //     },
+        //     json_file_path: "uploads/configs/user7_model13.json",
+        //     isActive: true,
+        // };
+
         const payload = {
-            user: session?.user?.id,
-            model_info: 5,
-            config_json: {
-                color: "Navy Blue",
-                size: "M",
-                material: "Polyester",
+            "user": session?.user?.id,
+            "model_info": 7,
+            "config_json": {
+                "color": "blue",
+                "size": "M",
+                "material": "cotton"
             },
-            design_specifications: {
-                cut_style: "Modern Fit",
-                collar_type: "V-Neck Reinforced",
-                sleeve_length: "Short",
-                pocket_configuration: "1 Chest, 2 Lower Patch",
-                pant: "Straight Pant",
+            "design_specifications": {
+                "logo_position": "front",
+                "print_type": "embroidery",
+                "text": "My Brand"
             },
-            //json_file_path: "uploads/configs/user7_model13.json",
-            isActive: true,
-        };
-    
+            "json_file_path": "uploads/configs/user6_model3.json",
+            "isActive": true
+        }
+
         try {
             const response = await apiSaveDesign(payload, session.accessToken);
             console.log("Design Saved Successfully:", response);
@@ -144,7 +161,7 @@ const DesignResultPage = () => {
             alert("Failed to save design");
         }
     };
-    
+
     // const handleSaveDesign = async () => {
     //     if (!session?.accessToken) return
 
@@ -181,7 +198,7 @@ const DesignResultPage = () => {
             alert("Please login first");
             return;
         }
-    
+
         try {
             const userId = session?.user?.id;
             const response = await apiExportDesignPdf(
@@ -192,18 +209,14 @@ const DesignResultPage = () => {
             if (!pdfUrl) {
                 throw new Error("PDF URL not found in response");
             }
-    
+
             window.open(pdfUrl, "_blank");
-    
+
         } catch (error) {
             console.error("Export PDF Error:", error);
             alert("Failed to export PDF");
         }
     };
-    
-    
-    
-    
 
     return (
         <>
@@ -295,27 +308,13 @@ const DesignResultPage = () => {
                                 {/* Save Design */}
                                 <button
                                     onClick={handleSaveDesign}
-                                    className="
-        w-full sm:w-auto
-        flex-1
-        flex flex-col items-center justify-center
-        gap-2
-        text-xs
-        border border-[#E5E7EB]
-        rounded-lg
-        bg-[#F7FBFF]
-        text-[#1C2C56]
-        hover:bg-[#EEF5FF]
-        transition
-        py-2
-        h-[55px]
-    "
+                                    className="w-full sm:w-auto flex-1 flex flex-col items-center justify-center gap-2 text-xs border border-[#E5E7EB] rounded-lg bg-[#F7FBFF] text-[#1C2C56] hover:bg-[#EEF5FF] transition py-2 h-[55px]"
                                 >
                                     <FiSave size={18} />
                                     <span>Save Design</span>
                                 </button>
                                 {/* Export PDF */}
-                                <button  onClick={handleExportPdf}
+                                <button onClick={handleExportPdf}
                                     className="
       w-full sm:w-auto
       flex-1

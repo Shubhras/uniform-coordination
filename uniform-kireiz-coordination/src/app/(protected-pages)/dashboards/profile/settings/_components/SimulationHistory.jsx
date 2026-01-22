@@ -7,9 +7,11 @@ import { FiExternalLink } from 'react-icons/fi'
 import { LuPalette } from 'react-icons/lu'
 import { LiaFileDownloadSolid } from 'react-icons/lia'
 import { useRouter } from 'next/navigation'
-import { apiSimulationHistory } from '@/services/AuthProfileService'
+import { apiSimulationExportPdf, apiSimulationHistory } from '@/services/AuthProfileService'
 import { apiGetHomeData } from '@/services/HomeService'
 import { useSession } from 'next-auth/react'
+import { formatDate } from '@/utils/dateFormater'
+import { Alert } from '@/components/ui/Alert'
 
 const SimulationHistory = () => {
     const { data: session } = useSession();
@@ -17,6 +19,9 @@ const SimulationHistory = () => {
     const [simulationData, setSimulationData] = useState([])
     const [categories, setCategories] = useState([])
     const [loading, setLoading] = useState(false)
+    const [pdfLoadingId, setPdfLoadingId] = useState(null)
+    const [pdfError, setPdfError] = useState('')
+
 
     const [filters, setFilters] = useState({
         category: '',
@@ -41,6 +46,29 @@ const SimulationHistory = () => {
             console.error('Failed to load home data', err)
         }
     }
+
+    const handlePdfDownload = async (id) => {   
+        try {
+            if (!session?.accessToken || !id) return
+
+            setPdfLoadingId(id)
+            setPdfError('')
+
+            const res = await apiSimulationExportPdf(session.accessToken, id)
+
+            if (res?.status && res?.pdf_url) {
+                window.open(res.pdf_url, '_blank')
+            } else {
+                setPdfError(res?.message || 'PDF URL not found')
+            }
+        } catch (err) {
+            console.error('Failed to download PDF', err)
+            setPdfError('Failed to download PDF. Please try again.')
+        } finally {
+            setPdfLoadingId(null)
+        }
+    }
+
 
     /* -------------------- FETCH SIMULATION HISTORY -------------------- */
     const fetchSimulationHistory = async () => {
@@ -76,6 +104,11 @@ const SimulationHistory = () => {
 
     return (
         <div className="w-full bg-[#E8EEF842] md:p-8 p-4 rounded-2xl max-w-7xl mx-auto shadow-md">
+            {pdfError && (
+                <Alert showIcon className="mb-4" type="danger">
+                    <span className="break-all">{pdfError}</span>
+                </Alert>
+            )}
 
             {/* HEADER */}
             <div className="mb-6">
@@ -154,7 +187,6 @@ const SimulationHistory = () => {
             )}
 
             {/* CARDS */}
-            {/* CARDS */}
             {!loading && simulationData.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
                     {simulationData.map((item, i) => {
@@ -201,9 +233,12 @@ const SimulationHistory = () => {
                                         size="sm"
                                         variant="default"
                                         icon={<LiaFileDownloadSolid />}
+                                        disabled={pdfLoadingId === item.id}
+                                        onClick={() => handlePdfDownload(item.id)}
                                     >
-                                        PDF
+                                        {pdfLoadingId === item.id ? 'PDF...' : 'PDF'}
                                     </Button>
+
                                 </div>
                             </div>
                         )

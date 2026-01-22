@@ -11,8 +11,14 @@ import { CiDeliveryTruck } from 'react-icons/ci'
 import ViewOrderPopup from './ViewOrderPopup'
 import { useSession } from 'next-auth/react'
 import { apiOrderAndQuotation } from '@/services/AuthProfileService'
+import { formatDate } from '@/utils/dateFormater'
 
 const tabs = ['ALL', 'Drafted', 'Submitted Request']
+const tabFilterMap = {
+    ALL: '',
+    Drafted: 'drafted',
+    'Submitted Request': 'submitted',
+}
 
 // const orders = [
 //     {
@@ -38,10 +44,14 @@ const tabs = ['ALL', 'Drafted', 'Submitted Request']
 
 const LinkedOrderAndQuotes = () => {
     const [activeTab, setActiveTab] = useState('ALL')
+    const [selectedOrderId, setSelectedOrderId] = useState(null)
+
     const [dialogViewOrderOpen, setDialogViewOrderOpen] = useState(false)
-    const openDialogViewOrder = () => {
+    const openDialogViewOrder = (orderId) => {
+        setSelectedOrderId(orderId)
         setDialogViewOrderOpen(true)
     }
+
     const { data: session } = useSession()
 
     const [orderAndQuotationData, setOrderAndQuotationData] = useState([])
@@ -52,7 +62,15 @@ const LinkedOrderAndQuotes = () => {
             if (!session?.accessToken) return
             setLoading(true)
 
-            const res = await apiOrderAndQuotation(session?.accessToken)
+            const params = {}
+
+            const filterValue = tabFilterMap[activeTab]
+            if (filterValue) {
+                params.type = filterValue
+            }
+
+            const res = await apiOrderAndQuotation(session?.accessToken, params)
+
             if (res?.status) {
                 setOrderAndQuotationData(res.data || [])
             }
@@ -63,9 +81,10 @@ const LinkedOrderAndQuotes = () => {
         }
     }
 
+
     useEffect(() => {
         fetchSimulationHistory()
-    }, [session?.accessToken])
+    }, [session?.accessToken, activeTab])
 
 
     return (
@@ -138,7 +157,7 @@ const LinkedOrderAndQuotes = () => {
                             <div key={i}>
                                 {/* Order meta */}
                                 <p className="text-[#003562] text-xs font-medium mb-1">
-                                    {order.id}
+                                    OrderId: {order.id}
                                 </p>
                                 <h4 className="text-[#003562] text-sm sm:text-base font-semibold mb-2">
                                     {order.title}
@@ -154,7 +173,7 @@ const LinkedOrderAndQuotes = () => {
                                     </div>
 
                                     <p className="text-xs sm:text-sm text-gray-500 mb-1">
-                                        {order.info}
+                                        {formatDate(order.date)}
                                     </p>
 
                                     <p className="text-xs sm:text-sm text-gray-700">
@@ -165,11 +184,12 @@ const LinkedOrderAndQuotes = () => {
                                 {/* Action */}
                                 <Button
                                     size="sm"
-                                    onClick={openDialogViewOrder}
+                                    onClick={() => openDialogViewOrder(order.id)}
                                     className="w-full sm:w-auto bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
                                 >
                                     View order
                                 </Button>
+
                             </div>
                         ))}
                     </div>
@@ -189,7 +209,9 @@ const LinkedOrderAndQuotes = () => {
             <ViewOrderPopup
                 isOpen={dialogViewOrderOpen}
                 onClose={() => setDialogViewOrderOpen(false)}
+                orderId={selectedOrderId}
             />
+
         </>
     )
 }
