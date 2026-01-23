@@ -252,7 +252,7 @@ uniformState.partColors[uniformState.active3dPart] = hex
   }
 
   const handleUniformDesignResult = () => {
-    router.push("/dashboards/design-result");
+    router.push("/dashboards/design-result?id=16");
   };
   const [position, setPosition] = useState("top"); // top | bottom
   const COMMON_BUTTONS = ["color", "size"];

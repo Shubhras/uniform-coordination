@@ -11,6 +11,7 @@ import {
     useStripe,
     useElements,
 } from '@stripe/react-stripe-js'
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
 import ThankyouPopup from '../../thankyou-popup/ThankyouPopup'
 import PaymentFailedPopup from '../../payment-failed-popup/PaymentFailedPopup'
 
@@ -78,6 +79,28 @@ const PaymentHero = () => {
         }
     }
 
+    const handlePayPalSuccess = async (details) => {
+        try {
+            const payload = {
+                order_id: orderId,
+                payment_method: 'paypal',
+                payment_method_id: details.id, // PayPal Order ID
+                currency: 'usd',
+            }
+
+            const res = await apiOrderPayment(session?.accessToken, payload)
+
+            if (res?.status) {
+                setDialogThankyouPopupOpen(true)
+            } else {
+                throw new Error('PayPal payment failed')
+            }
+        } catch (err) {
+            setError(err.message)
+            setDialogCancelPopupOpen(true)
+        }
+    }
+
     return (
         <>
             <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 mt-14">
@@ -132,6 +155,36 @@ const PaymentHero = () => {
 
                                 <p className="text-sm text-gray-500">🔒 Secure payment by Stripe</p>
                             </div>
+                        )}
+
+                         {/* PAYPAL */}
+                        {paymentMethod === 'paypal' && (
+                            <PayPalScriptProvider
+                                options={{
+                                    clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+                                    currency: 'USD',
+                                    intent: 'capture',
+                                }}
+                            >
+                                <PayPalButtons
+                                    style={{ layout: 'vertical' }}
+                                    createOrder={(data, actions) =>
+                                        actions.order.create({
+                                            purchase_units: [
+                                                {
+                                                    amount: {
+                                                        value: '10.00', // backend should validate
+                                                    },
+                                                },
+                                            ],
+                                        })
+                                    }
+                                    onApprove={(data, actions) =>
+                                        actions.order.capture().then(handlePayPalSuccess)
+                                    }
+                                    onError={() => setDialogCancelPopupOpen(true)}
+                                />
+                            </PayPalScriptProvider>
                         )}
 
                         {/* ERROR */}

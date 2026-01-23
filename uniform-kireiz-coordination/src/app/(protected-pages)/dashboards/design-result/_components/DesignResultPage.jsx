@@ -30,7 +30,7 @@ import {
     FiLayers,
     FiArchive,
 } from "react-icons/fi"
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { apiSaveDesign, apiExportDesignPdf } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
 
@@ -49,7 +49,8 @@ const DesignResultPage = () => {
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false);
     const { data: session } = useSession()
     console.log("session", session)
-
+    const searchParams = useSearchParams()
+    const id = searchParams.get('id')
 
     const {
         handleSubmit,
@@ -137,9 +138,9 @@ const DesignResultPage = () => {
 
         const payload = {
             "user": session?.user?.id,
-            "model_info": 7,
+            "model_info": 8,
             "config_json": {
-                "color": "blue",
+                "color": "grey",
                 "size": "M",
                 "material": "cotton"
             },
@@ -193,6 +194,8 @@ const DesignResultPage = () => {
     //         alert("Failed to save design");
     //     }
     // };
+
+
     const handleExportPdf = async () => {
         if (!session?.accessToken) {
             alert("Please login first");

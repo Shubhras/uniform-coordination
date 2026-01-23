@@ -35,3 +35,14 @@ export async function apiOverviewData(token, data) {
   });
 }
 
+
+export async function apiGetOverviewSummary(token, data) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/userhub/order/summary/",
+    method: "post",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    data: data,
+  });
+}
