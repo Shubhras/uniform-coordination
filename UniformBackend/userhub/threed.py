@@ -47,7 +47,7 @@ class ModelInfoCreateAPIView(APIView):
             },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
 class ModelInfoListAPIView(APIView):
-    parser_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     def get(self,request):
         model_Info = ModelInfo.objects.filter(isDeleted=False).order_by('-created_at') 
         ids = request.GET.get("ids")
@@ -324,7 +324,11 @@ class QuotationRequestCreateAPIView(APIView):
         try:
             template_slug = request.data.get("template_slug")
             if not template_slug:
-                return Response({"message": "template_slug is required"}, status=400)
+                return Response({
+                    "statusCode":400,
+                    "status":False,
+                    "message": "template_slug is required"
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
             template = QuotationTemplate.objects.filter(
                 slug=template_slug,
@@ -333,7 +337,10 @@ class QuotationRequestCreateAPIView(APIView):
             ).first()
 
             if not template:
-                return Response({"message": "Template not found"}, status=404)
+                return Response({
+                    "statusCode":400,
+                    "status":False,
+                    "message": "Template not found"},status=status.HTTP_400_BAD_REQUEST)
 
             serializer = QuotationRequestSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -358,18 +365,20 @@ class QuotationRequestCreateAPIView(APIView):
             quotation.save()
 
             return Response({
+                "statusCode":201,
                 "status": True,
                 "message": "Quotation created and DocuSign sent",
                 "quotation_id": quotation.quotation_id,
                 "workflow_status": quotation.workflow_status
-            }, status=201)
+            }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
             return Response({
+                "statusCode":500,
                 "status": False,
                 "message": "Failed to create quotation",
                 "error": str(e)
-            }, status=500)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
            
@@ -697,7 +706,6 @@ class CustomModelsUserAPIView(APIView):
 
         #  Category / Industry Filter
         if category_slug:
-            print("FILTERING BY CATEGORY:", category_slug)
             queryset = queryset.filter(
                 model_info__product__category__slug=category_slug
             )
