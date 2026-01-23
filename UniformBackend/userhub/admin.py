@@ -79,6 +79,19 @@ class OrderAdmin(admin.ModelAdmin):
     get_user_email.short_description = "User"
 
     
+@admin.register(Refund)
+class RefundAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 
+        'order', 
+        'payment', 
+        'user', 
+        'refund_amount', 
+        'status', 
+        'refund_method', 
+        'created_at', 
+        'processed_at'
+    )
 
 # @admin.register(Notifications)
 # class NotificationsAdmin(admin.ModelAdmin):

@@ -20,6 +20,8 @@ from django.db.models import Q
 from .fabric import CustomPagination
 import traceback
 import stripe
+from decimal import Decimal
+from django.db.models import Sum
 from django.utils.timezone import now
 # from .fabric import  IsAdministrator 
 from .auth import IsAdminUserJWT
@@ -30,6 +32,7 @@ from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
+from .auth import IsAdminUserJWT,MultiRoleJWTAuth
 
 # class AdminLoginAPIView(APIView):
 #     authentication_classes = []   # IMPORTANT
@@ -1476,54 +1479,231 @@ class AdminOrderUpdateAPIView(APIView):
 
 
 
-# class AdminRefundProcessAPIView(APIView):
-#     permission_classes = [IsAdminUser]
+class AdminRefundProcessAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
-#     def patch(self, request, refund_id):
-#         refund = get_object_or_404(Refund, id=refund_id)
-#         payment = refund.payment
+    def patch(self, request, refund_id):
+        refund = get_object_or_404(Refund, id=refund_id)
 
-#         refund_type = request.data.get('refund_type')
-#         refund_amount = 0
+        if refund.status == 'processed':
+            return Response({"status": False, "message": "Refund already processed"}, status=400)
 
-#         # Calculate refund amount
-#         if refund_type == 'full':
-#             refund_amount = payment.amount
-#         elif refund_type == 'partial':
-#             refund_amount = float(request.data.get('refund_amount', 0))
-#         elif refund_type == 'percentage':
-#             percentage = float(request.data.get('refund_percentage', 0))
-#             refund_amount = (payment.amount * percentage) / 100
-#         else:
-#             return Response({"status": False, "message": "Invalid refund_type"}, status=400)
+        serializer = AdminRefundSerializer(instance=refund, data=request.data, partial=True)
+        if serializer.is_valid():
+            refund_type = request.data.get('refund_type')
+            payment = refund.payment
+            refund_amount = Decimal('0')
 
-#         if refund_amount > payment.amount:
-#             return Response({"status": False, "message": "Refund cannot exceed paid amount"}, status=400)
+            # ----- Calculate refund amount -----
+            if refund_type == 'full':
+                refund_amount = payment.amount
+            elif refund_type == 'partial':
+                refund_amount = Decimal(str(request.data.get('refund_amount', '0')))
+                if refund_amount < 1:
+                    return Response({"status": False, "message": "Refund amount must be at least 1"}, status=400)
+            elif refund_type == 'percentage':
+                percentage = Decimal(str(request.data.get('refund_percentage', '0')))
+                if percentage < 1:
+                    return Response({"status": False, "message": "Refund percentage must be at least 1"}, status=400)
+                refund_amount = (payment.amount * percentage) / Decimal('100')
+            else:
+                return Response({"status": False, "message": "Invalid refund_type"}, status=400)
 
-#         # Stripe Refund
-#         try:
-#             stripe_refund = stripe.Refund.create(
-#                 payment_intent=payment.payment_id,
-#                 amount=int(refund_amount * 100)
-#             )
-#         except stripe.error.StripeError as e:
-#             return Response({"status": False, "message": str(e)}, status=400)
+            # Check total refunded for this order
+            total_refunded = refund.order.refunds.filter(status='processed').aggregate(
+                Sum('refund_amount')
+            )['refund_amount__sum'] or 0
+            if total_refunded + refund_amount > payment.amount:
+                return Response({"status": False, "message": "Total refunds exceed paid amount"}, status=400)
 
-#         # Update Refund object
-#         refund.refund_amount = refund_amount
-#         refund.status = 'processed'
-#         refund.payment_gateway_id = stripe_refund['id']
-#         refund.admin_note = request.data.get('admin_note', '')
-#         refund.processed_at = timezone.now()
-#         refund.save()
+            # Create Stripe refund
+            try:
+                stripe_refund = stripe.Refund.create(
+                    payment_intent=payment.payment_id,
+                    amount=int(refund_amount * 100)
+                )
+            except stripe.error.StripeError as e:
+                return Response({"status": False, "message": f"Stripe Error: {str(e)}"}, status=400)
 
-#         # Optional: cancel order if full refund
-#         if refund_amount == payment.amount:
-#             refund.order.status = 'cancelled'
-#             refund.order.save()
+            # Save via serializer
+            serializer.save(
+                refund_amount=refund_amount,
+                status='processed',
+                payment_gateway_id=stripe_refund['id'],
+                admin_note=request.data.get('admin_note', ''),
+                processed_at=timezone.now()
+            )
 
-#         return Response({
-#             "status": True,
-#             "message": "Refund processed successfully",
-#             "refund_amount": refund_amount
-#         })
+            # Update order status
+            if refund_amount == payment.amount:
+                refund.order.status = 'cancelled'
+            else:
+                refund.order.status = 'partially_refunded'
+            refund.order.save()
+
+            return Response({
+                "status": True,
+                "message": "Refund processed successfully",
+                "refund_amount": float(refund_amount)
+            })
+
+        return Response({"status": False, "message": serializer.errors}, status=400)
+
+class AdminOrderRefundAPI(APIView):
+    def post(self, request):
+        data = request.data
+        order_id = data.get('order_id')
+        refund_type = data.get('refund_type')
+        admin_note = data.get('admin_note', '')
+
+        if not order_id or not refund_type:
+            return Response({"status": False, "message": "order_id and refund_type are required"}, status=400)
+
+        # Fetch order and payment first
+        try:
+            order = Order.objects.get(order_id=order_id)
+            payment = Payment.objects.get(order=order)
+        except Order.DoesNotExist:
+            return Response({"status": False, "message": "Order not found"}, status=404)
+        except Payment.DoesNotExist:
+            return Response({"status": False, "message": "Payment not found"}, status=404)
+
+        # Calculate refunded total
+        refunded_total = Refund.objects.filter(payment=payment, status='completed').aggregate(
+            total=models.Sum('refund_amount')
+        )['total'] or Decimal('0')
+
+        # Determine refund amount
+        if refund_type == 'full':
+            if refunded_total >= payment.amount:
+                return Response({"status": False, "message": "Payment already fully refunded"}, status=400)
+            refund_amount = payment.amount - refunded_total
+
+        elif refund_type == 'partial':
+            refund_amount = Decimal(str(data.get('refund_amount', '0')))
+            if refund_amount < 1:
+                return Response({"status": False, "message": "Refund amount must be at least 1"}, status=400)
+            if refunded_total + refund_amount > payment.amount:
+                return Response({"status": False, "message": "Refund amount exceeds payment amount"}, status=400)
+
+        elif refund_type == 'percentage':
+            percentage = Decimal(str(data.get('refund_percentage', '0')))
+            if percentage < 1:
+                return Response({"status": False, "message": "Refund percentage must be at least 1"}, status=400)
+            refund_amount = (payment.amount * percentage) / Decimal('100')
+            if refunded_total + refund_amount > payment.amount:
+                refund_amount = payment.amount - refunded_total  # cap at remaining amount
+
+        else:
+            return Response({"status": False, "message": "Invalid refund_type"}, status=400)
+
+        # Create refund in Stripe
+        try:
+            stripe_refund = stripe.Refund.create(
+                payment_intent=payment.payment_id,
+                amount=int(refund_amount * 100)  # amount in cents
+            )
+
+            Refund.objects.create(
+                order=order,
+                payment=payment,
+                user=order.user,
+                refund_amount=refund_amount,
+                admin_note=f"{admin_note} | Refund type: {refund_type}",
+                status='processed',  
+                payment_gateway_id=stripe_refund.id,  
+                currency=payment.currency  
+            )
+
+            return Response({
+                "status": True,
+                "message": "Refund successful",
+                "stripe_refund_id": stripe_refund.id,
+                "refunded_amount": str(refund_amount)
+            })
+
+        except stripe.error.StripeError as e:
+            return Response({
+                "status": False,
+                "message": f"Stripe Error: {str(e)}"
+            }, status=400)
+
+class QuotationStatusUpdateAPIView(APIView):
+    authentication_classes = [MultiRoleJWTAuth]  # JWT Multi-Role
+    permission_classes = []
+
+    def post(self, request):
+        quotation_id = request.data.get("quotation_id")
+        action = request.data.get("action")
+
+        # Debug logs
+        print("Request user:", request.user)
+        print("Authenticated:", request.user.is_authenticated)
+        print("User role:", getattr(request.user, "role_name", None))
+
+        # Validate role
+        user_role = getattr(request.user, "role_name", None)
+        if not user_role or user_role.lower() not in ["admin", "sales", "b2b"]:
+            return Response({
+                "statusCode":403,
+                "status":False,
+                "error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        # Fetch quotation
+        try:
+            quotation = QuotationRequest.objects.get(quotation_id=quotation_id)
+        except QuotationRequest.DoesNotExist:
+            return Response({
+                "statusCode":400,
+                "status":False,
+                "error": "Quotation not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # APPROVE
+        if action == "approve":
+            quotation.quotation_status = "approved"
+            quotation.save()
+            return Response({
+                "statusCode":200,
+                "status":True,
+                "message": "Approved successfully"
+                },status=status.HTTP_200_OK)
+
+        # SEND
+        if action == "send":
+            if quotation.quotation_status != "approved":
+                return Response({"error": "Approve first"}, status=400)
+            quotation.quotation_status = "sent"
+            quotation.save()
+            return Response({
+                "statusCode":200,
+                "status":True,
+                "message": "Sent successfully"
+                },status=status.HTTP_200_OK)
+
+        # CANCEL
+        if action == "cancel":
+            reason = request.data.get("reason")
+            if not reason:
+                return Response({
+                    "statusCode":400,
+                    "status":False,
+                    "error": "Reason required"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+            quotation.quotation_status = "cancelled"
+            quotation.cancel_reason = reason
+            quotation.cancelled_by = user_role
+            quotation.save()
+
+            return Response({
+                "statusCode":200,
+                "statu":True,
+                "message": "Quotation cancelled",
+                "cancelled_by": user_role
+            },status=status.HTTP_200_OK)
+
+        return Response({
+            "statusCode":400,
+            "status":False,
+            "error": "Invalid action"
+            }, status=status.HTTP_400_BAD_REQUEST)

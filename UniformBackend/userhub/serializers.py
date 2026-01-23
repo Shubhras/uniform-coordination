@@ -5,6 +5,7 @@ from .models import *  # adjust import if needed
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from datetime import date
+from uniformAdmin.models import Product
 # from userhub.models import Notifications
 
 
@@ -138,17 +139,29 @@ class CartItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(
         source="product.productName", read_only=True
     )
+    product_image = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
         fields = [
             'id',
             'product_name',
+            'product_image',
             'quantity',
             'price',
             'total_price'
         ]
+    def get_product_image(self, obj):
+        request = self.context.get("request")
 
+        if obj.product and obj.product.ProductImage:
+            if request:
+                return request.build_absolute_uri(obj.product.ProductImage.url)
+            return obj.product.ProductImage.url
+
+        return None
+    
+    
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
 
@@ -161,19 +174,6 @@ class CustomerDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomerDetails
         fields = "__all__"
-
-class OrderItemSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source="product.productName")
-    thumbnail = serializers.SerializerMethodField()
-
-    class Meta:
-        model = CartItem
-        fields = ['name', 'quantity', 'price', 'total_price', 'thumbnail']
-
-    def get_thumbnail(self, obj):
-        if obj.product.ProductImage:
-            return obj.product.ProductImage.url
-        return None
 
 
 class UserCancelOrderSerializer(serializers.ModelSerializer):
@@ -233,7 +233,7 @@ class UserRefundRequestSerializer(serializers.Serializer):
                 "Refund can only be requested for paid or completed orders."
             )
 
-        payment = order.payments.filter(status='paid').last()
+        payment = order.payment_set.filter(payment_status='SUCCESS').last()
         if not payment:
             raise serializers.ValidationError("No successful payment found for this order.")
 
@@ -314,6 +314,18 @@ class ModelInfoSerializer(serializers.ModelSerializer):
         return None
  
 
+# class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
+#     model_info = ModelInfoSerializer(read_only=True)
+
+#     class Meta:
+#         model = CustomUpdateModels
+#         fields = [
+#             'id',
+#             'model_info',
+#             'design_specifications',  
+#             'isActive',
+#             'created_at',
+#         ]
 class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
     model_info = ModelInfoSerializer(read_only=True)
 
@@ -327,8 +339,45 @@ class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
             'created_at',
         ]
 
+# class QuotationRequestSerializer(serializers.ModelSerializer):
+#     customupdatemodel = CustomUpdateModelQuotationSerializer(read_only=True) 
+#     class Meta:
+#         model = QuotationRequest
+#         fields = [
+#             "uuids",
+#             "quotation_id",
+#             "company_name",
+#             "contact_person",
+#             "email",
+#             "phone_number",
+#             "customupdatemodel",
+#             "item_type",
+#             "material",
+#             "size_quantity",
+#             "delivery_date",
+#             "additional_note",
+#             "agreed_to_terms",
+#             "isActive",
+#             "isDeleted",
+#             "created_at",
+#             "updated_at",
+#         ]
+#         read_only_fields = ("uuids", "created_at", "updated_at")
+
+#     def validate_agreed_to_terms(self, value):
+#         if value is not True:
+#             raise serializers.ValidationError(
+#                 "You must agree to privacy policy & terms."
+#             )
+#         return value
+#     def create(self, validated_data):
+#         if not validated_data.get("quotation_id"):
+#             validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
+#         return super().create(validated_data)
+
 class QuotationRequestSerializer(serializers.ModelSerializer):
-    customupdatemodel = CustomUpdateModelQuotationSerializer(read_only=True)  
+    customupdatemodel = CustomUpdateModelQuotationSerializer(read_only=True)
+
     class Meta:
         model = QuotationRequest
         fields = [
@@ -338,7 +387,7 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             "contact_person",
             "email",
             "phone_number",
-            "customupdatemodel",
+            "customupdatemodel",   
             "item_type",
             "material",
             "size_quantity",
@@ -358,9 +407,20 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
                 "You must agree to privacy policy & terms."
             )
         return value
+
     def create(self, validated_data):
+        # Auto generate quotation_id
         if not validated_data.get("quotation_id"):
             validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
+
+        # Auto assign latest CustomUpdateModels if FK not provided
+        if "customupdatemodel" not in validated_data or validated_data["customupdatemodel"] is None:
+            latest_model = CustomUpdateModels.objects.filter(
+                isActive=True, isDeleted=False
+            ).order_by("-created_at").first()
+            if latest_model:
+                validated_data["customupdatemodel"] = latest_model
+
         return super().create(validated_data)
 
 class CustomUpdateModelsSerializer(serializers.ModelSerializer):

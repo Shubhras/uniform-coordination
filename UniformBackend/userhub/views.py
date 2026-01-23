@@ -115,12 +115,16 @@ class SignupAPIView(APIView):
         try:
             if serializer.is_valid():
                 user = serializer.save()
+                
+                 # EMAIL VERIFICATION 
+                uid = user.id  #urlsafe_base64_encode(force_bytes(user.id))                
+                verify_link = request.build_absolute_uri(f"http://localhost:7001/email-verification-page/?user_id={uid}")
 
                 # EMAIL VERIFICATION
-                uid = urlsafe_base64_encode(force_bytes(user.id))
-                verify_link = request.build_absolute_uri(
-                    f"/api/v1/userhub/verify-email/{uid}/"
-                )
+                # uid = urlsafe_base64_encode(force_bytes(user.id))
+                # verify_link = request.build_absolute_uri(
+                #     f"/api/v1/userhub/verify-email/{uid}/"
+                # )
 
                 send_mail(
                     subject="Verify your email",
@@ -469,7 +473,7 @@ class ForgotPasswordAPIView(APIView):
             user_id = user.id
 
             # Build reset link
-            frontend_url = "http://localhost:7000/auth/reset-password"
+            frontend_url = "http://localhost:7001/reset-password"
             reset_link = f"{frontend_url}?user_id={user_id}"
 
             # -------------------------------
@@ -887,7 +891,10 @@ class AddToCartAPIView(APIView):
                 item.quantity = quantity
                 item.save()
 
-            serializer = CartItemSerializer(item)
+            serializer = CartItemSerializer(
+                item,
+                context={"request": request}  
+            )
 
             return Response({
                 "status": True,
@@ -898,7 +905,7 @@ class AddToCartAPIView(APIView):
                     "id": serializer.data["id"],
                     "product": serializer.data["product_name"],
                     "quantity": serializer.data["quantity"],
-                    "price": float(serializer.data["price"])
+                    "price": Decimal(serializer.data["price"])
                 }
             })
 
@@ -908,7 +915,7 @@ class AddToCartAPIView(APIView):
                 "statusCode": 404,
                 "message": "Product not found",
                 "data": None
-            }, status=404)
+            }, status=status.HTTP_404_NOT_FOUND)
 
 # CART LISTING
 class CartListAPIView(APIView):
@@ -916,38 +923,32 @@ class CartListAPIView(APIView):
 
     def get(self, request):
         try:
-           
             cart = Cart.objects.get(user=request.user, is_active=True)
             cart_items = CartItem.objects.filter(cart=cart).order_by('id')
             paginator = CustomPagination()
             paginated_items = paginator.paginate_queryset(cart_items, request)
-            serializer = CartItemSerializer(paginated_items, many=True)
+
+            serializer = CartItemSerializer(
+                paginated_items,
+                many=True,
+                context={"request": request}  
+            )
+
             return paginator.get_paginated_response(serializer.data)
-        
 
         except Cart.DoesNotExist:
             return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Cart is empty",
-                "data": [],
-                "pagination": {
-                    "currentPage": 1,
-                    "limit": 0,
-                    "totalItems": 0,
-                    "totalPages": 0,
-                    "nextPage": False,
-                    "previousPage": False
-                }
+                "count": 0,
+                "next": None,
+                "previous": None,
+                "data": []
             }, status=status.HTTP_200_OK)
-            
+
         except Exception as e:
             return Response({
                 "status": False,
                 "statusCode": 500,
-                "message": str(e),
-                "data": [],
-                "pagination": None
+                "message": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -1043,7 +1044,6 @@ class ItemSummaryAPIView(APIView):
             fees = None
             
             total_discount = sum(((item.price - item.final_price) * item.quantity) for item in cart_items)
-
             total_amount = subtotal + Decimal("0.00") + Decimal("0.00") + Decimal("0.00") - total_discount
 
             items_list = []
@@ -1189,7 +1189,6 @@ class CreateOrderAPIView(APIView):
                 payment_method=payment_data.get("payment_method"),
                 total_amount=total_amount,
                 status="pending",   
-                order_type="uniform",
                 promocode=promocode
             )
 
@@ -1197,19 +1196,15 @@ class CreateOrderAPIView(APIView):
             order.return_date = return_date
             order.save()
 
-            create_admin_order_notification(
-                    instance=order,
-                    title=f"New Order created: {order.order_id }",
-                    message=f"A new Order request has been created by {order.user}.",
-                    priority="high",
-                    object_id=order.order_id 
-                )
-
             response_data = {
                 "cart": {
                     "cart_id": cart.id,
-                    "items": [{"id": item.id, "total_price": float(item.total_price)} for item in cart_items]
-                },
+                    "items": [{
+                                "id": item.id,
+                                "product_name": item.product.productName,
+                                "total_price": Decimal(item.total_price)}
+                            for item in cart_items]},
+
                 "customer": {
                     "first_name": customer.first_name,
                     "last_name": customer.last_name,
@@ -1236,8 +1231,8 @@ class CreateOrderAPIView(APIView):
                 },
                 "order": {
                     "order_id": str(order.order_id),
-                    "total_amount": float(total_amount),
-                    "discount": float(discount_amount),
+                    "total_amount": Decimal(total_amount),
+                    "discount": Decimal(discount_amount),
                     "order_status": order.status
                 }
             }
@@ -1284,17 +1279,16 @@ class OrderSummaryAPIView(APIView):
                 order_items_list.append({
                     "name": item.product.productName,
                     "quantity": item.quantity,
-                    "price_per_item": float(item.price),
-                    "total_price": float(item.total_price),
-                    "thumbnail": item.product.ProductImage.url if item.product.ProductImage else None
+                    "price_per_item": Decimal(item.price),
+                    "total_price": Decimal(item.total_price),
+                    "product_image": item.product.ProductImage.url if item.product.ProductImage else None
                 })
 
             duration_days = (order.return_date - order.start_date).days + 1
 
-
-            subtotal = float(sum(item.total_price for item in cart_items))
-            total_amount = float(order.total_amount)
-            discount = float(subtotal - total_amount) if subtotal > total_amount else 0.0
+            subtotal = Decimal(sum(item.total_price for item in cart_items))
+            total_amount = Decimal(order.total_amount)
+            discount = Decimal(subtotal - total_amount) if subtotal > total_amount else 0.0
 
             response_data = {
                 "contact_information": {
@@ -1302,13 +1296,21 @@ class OrderSummaryAPIView(APIView):
                     "email": customer.email,
                     "phone": customer.phone
                 },
+                # "delivery_address": {
+                #     "address": f"{customer.address_line_1}, "
+                #             f"{customer.address_line_2}, "
+                #             f"{customer.city}, "
+                #             f"{customer.postal_code}, "
+                #             f"{customer.country}"
+                # },
                 "delivery_address": {
-                    "address": f"{customer.address_line_1}, "
-                            f"{customer.address_line_2}, "
-                            f"{customer.city}, "
-                            f"{customer.postal_code}, "
-                            f"{customer.country}"
-                },
+                        "address_line_1": customer.address_line_1,
+                        "address_line_2": customer.address_line_2,
+                        "city": customer.city,
+                        "postal_code": customer.postal_code,
+                        "country": customer.country
+                    },
+
                 "rental_period": {
                     "start": order.start_date.strftime("%Y-%m-%d"),
                     "return": order.return_date.strftime("%Y-%m-%d"),
@@ -1322,6 +1324,7 @@ class OrderSummaryAPIView(APIView):
                     "code": order.promocode.promocodeName if order.promocode else None
                 },
                 "order_summary": {
+                    "order_id":order.order_id,
                     "subtotal": subtotal,
                     "discount": discount,
                     "total": total_amount
@@ -1407,8 +1410,7 @@ class OrderDetailAPIView(APIView):
                 try:
                     order = Order.objects.get(
                         order_id=order_id,
-                        user=request.user
-                    )
+                        user=request.user)
 
                     serializer = OrderSerializer(order)
                     return Response({
@@ -1455,11 +1457,11 @@ class UserCancelOrderAPIView(APIView):
                     "order_id": order.order_id,
                     "status": order.status,
                     "user_cancel_reason": order.cancel_reason }
-            })
+            },status=status.HTTP_200_OK)
         return Response({
             "status": False, 
             "statusCode": 400,
-            "message": serializer.errors}, status=400)
+            "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserRefundRequestAPIView(APIView):
@@ -1484,9 +1486,67 @@ class UserRefundRequestAPIView(APIView):
                     "refund_status": refund.status
                 }
             }, status=status.HTTP_200_OK)
-
+        
         return Response({
             "status": False,
             "statusCode": 400,
             "message": serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserQuotationStatusUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        quotation_id = request.data.get("quotation_id")
+        action = request.data.get("action")
+        user = request.user
+        user_role = user.role.role_name if user.role else None
+
+        # Only normal/user role allowed
+        if not user_role or user_role.lower() not in ["user", "normal"]:
+            return Response({
+                "statusCode": 403,
+                "status": False,
+                "error": "Unauthorized. Only normal users can cancel."
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        # Fetch quotation
+        try:
+            quotation = QuotationRequest.objects.get(quotation_id=quotation_id)
+        except QuotationRequest.DoesNotExist:
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "error": "Quotation not found"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Only cancel allowed
+        if action != "cancel":
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "error": "Only cancel action is allowed."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Reason required
+        reason = request.data.get("reason")
+        if not reason:
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "error": "Cancellation reason is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Cancel quotation
+        quotation.quotation_status = "cancelled"
+        quotation.cancel_reason = reason
+        quotation.cancelled_by = user_role
+        quotation.save()
+
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "message": "Quotation cancelled successfully",
+            "cancelled_by": user_role
+        }, status=status.HTTP_200_OK)

@@ -129,7 +129,7 @@ class CreatePaymentIntentAPIView(APIView):
                 else:
                     return Response({
                         "status":True,
-                        "statuCode":200,
+                        "statusCode":200,
                         "message": "A payment is already pending for this order. Use the existing client_secret to complete it",
                         "order_id": str(order.order_id),
                         "payment_client_secret": existing_payment.client_secret,
@@ -180,7 +180,8 @@ class CreatePaymentIntentAPIView(APIView):
                 "payment_id": payment.payment_id,
                 "payment_method": payment.payment_method,
                 "payment_client_secret": payment.client_secret,
-                "payment_status": payment.payment_status
+                "payment_status": payment.payment_status,
+                # "stripe_intent_status": payment_intent.status,
             }, status=status.HTTP_200_OK)
         
         except Exception as e:

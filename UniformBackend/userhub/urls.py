@@ -72,7 +72,10 @@ urlpatterns = [
 
     path('user/order/cancel/<str:order_id>/',UserCancelOrderAPIView.as_view(), name='user-order-cancel'),
     path('user/refunds/', UserRefundRequestAPIView.as_view(), name='user-refund-list'),
-
+    
+    path("quotationstatus/user/",UserQuotationStatusUpdateAPIView.as_view(), name = "QuotationStatus-post"),
+   
+   
 ]
    
     

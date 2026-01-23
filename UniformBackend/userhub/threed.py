@@ -192,6 +192,7 @@ class ModelInfoDeleteAPIView(APIView):
             "pdf_url": request.build_absolute_uri(pdf_url)
         })
 '''
+
 class CustomUpdateModelExportPDFAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -217,7 +218,6 @@ class CustomUpdateModelExportPDFAPIView(APIView):
             "message": "PDF generated successfully",
             "pdf_url": request.build_absolute_uri(pdf_url)
         })
-
 
 #<----------------------QuotationRequest------------------>
 class QuotationRequestCreateAPIView(APIView):
@@ -473,3 +473,4 @@ class CustomUpdateModelsDeleteAPIView(APIView):
             "statusCode": 204,
             "message": f"{queryset.count()} record(s) deleted successfully."
         }, status=status.HTTP_204_NO_CONTENT)
+
