@@ -397,7 +397,7 @@ class FAQSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     slug = serializers.SerializerMethodField()
-
+    isActive = serializers.BooleanField(default=True)
     class Meta:
         model = Category
         fields = [
@@ -534,6 +534,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
                 })
 
         return attrs
+
 
 class TableThemeSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False)

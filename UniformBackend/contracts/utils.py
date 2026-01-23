@@ -1,3 +1,4 @@
+# contracts/utils.py
 import os
 import requests
 from django.core.mail import EmailMessage
@@ -74,89 +75,7 @@ Sourabh's Venture  Capital
 
 
 
-# def send_docusign_envelope(quotation):
-#     """
-#     Creates & sends a DocuSign envelope to the client
-#     """
 
-#     access_token = get_docusign_access_token()
-
-#     account_id = os.getenv("DOCUSIGN_ACCOUNT_ID")
-#     base_url = os.getenv("DOCUSIGN_BASE_URL")
-
-#     headers = {
-#         "Authorization": f"Bearer {access_token}",
-#         "Content-Type": "application/json"
-#     }
-
-#     # Render quotation content
-#     template = quotation.template
-#     document_text = template.content.format(
-#         CLIENT_NAME=quotation.contact_person,
-#         COMPANY_NAME=quotation.company_name,
-#         ITEM_TYPE=quotation.item_type,
-#         MATERIAL=quotation.material,
-#         DELIVERY_DATE=quotation.delivery_date,
-#         QUOTATION_ID=quotation.quotation_id
-#     )
-
-#     envelope_payload = {
-#         "emailSubject": f"Quotation Agreement - {quotation.quotation_id}",
-#         "documents": [
-#             {
-#                 # "documentBase64": document_text.encode("utf-8").hex(),
-#                 "documentBase64": base64.b64encode(document_text.encode("utf-8")).decode("utf-8"),
-#                 "name": "Quotation Agreement",
-#                 "fileExtension": "txt",
-#                 "documentId": "1"
-#             }
-#         ],
-#         "recipients": {
-#             "signers": [
-#                 {
-#                     "email": quotation.email,
-#                     "name": quotation.contact_person,
-#                     "recipientId": "1",
-#                     "routingOrder": "1",
-#                     "tabs": {
-#                         "signHereTabs": [
-#                             {
-#                                 "anchorString": "**SIGN_HERE**",
-#                                 "anchorUnits": "pixels",
-#                                 "anchorYOffset": "10",
-#                                 "anchorXOffset": "20"
-#                             }
-#                         ]
-#                     }
-#                 }
-#             ]
-#         },
-#         "status": "sent"  
-#     }
-
-#     url = f"{base_url}/restapi/v2.1/accounts/{account_id}/envelopes"
-
-#     response = requests.post(url, headers=headers, json=envelope_payload)
-
-#     if response.status_code not in (200, 201):
-#         raise Exception(f"DocuSign send failed: {response.text}")
-
-#     data = response.json()
-#     envelope_id = data.get("envelopeId")
-
-#     # Save envelope in DB
-#     DocuSignEnvelope.objects.create(
-#         quotation_request=quotation,
-#         envelope_id=envelope_id,
-#         status="sent",
-#         agreement_status="sent_to_client"
-#     )
-
-#     # Update quotation workflow
-#     quotation.workflow_status = "SENT"
-#     quotation.save()
-
-#     return envelope_id
 
 
 def send_docusign_envelope(quotation):
@@ -179,32 +98,58 @@ def send_docusign_envelope(quotation):
     }
 
     # Render quotation content
-    template = quotation.template
+    document_text = f"""
+    QUOTATION AGREEMENT
 
-    context = defaultdict(str, {
-        "CLIENT_NAME": quotation.contact_person,
-        "COMPANY_NAME": quotation.company_name,
-        "EMAIL": quotation.email,
-        "PHONE_NUMBER": quotation.phone_number,
-        "ITEM_TYPE": quotation.item_type,
-        "MATERIAL": quotation.material,
-        "SIZE_QUANTITY": quotation.size_quantity,
-        "DELIVERY_DATE": quotation.delivery_date,
-        "ADDITIONAL_NOTE": quotation.additional_note,
-        "QUOTATION_ID": quotation.quotation_id,
-    })
+    Client Name: {quotation.contact_person}
+    Company Name: {quotation.company_name}
+    Email: {quotation.email}
+    Phone: {quotation.phone_number}
 
-    document_text = template.content.format_map(context)
+    Item Type: {quotation.item_type}
+    Material: {quotation.material}
+    Size & Quantity: {quotation.size_quantity}
+    Delivery Date: {quotation.delivery_date}
+
+    Additional Note:
+    {quotation.additional_note}
+
+    Quotation ID: {quotation.quotation_id}
+
+    Please sign below to approve this quotation.
+
+    Client Signature:
+    **SIGN_HERE_CLIENT**
+
+
+
+
+    Admin Approval:
+    **SIGN_HERE_ADMIN**
+
+    """
 
     envelope_payload = {
         "emailSubject": f"Quotation Agreement - {quotation.quotation_id}",
+
+        #  DISABLE DOCUSIGN AUTO EMAILS
+        "notification": {
+            "useAccountDefaults": "false",
+            "reminders": {
+                "reminderEnabled": "false"
+            },
+            "expirations": {
+                "expireEnabled": "false"
+            }
+        },
+
         "documents": [
             {
                 "documentBase64": base64.b64encode(
                     document_text.encode("utf-8")
                 ).decode("utf-8"),
                 "name": "Quotation Agreement",
-                "fileExtension": "txt",   # OK for now (PDF later)
+                "fileExtension": "txt",
                 "documentId": "1"
             }
         ],
@@ -218,7 +163,23 @@ def send_docusign_envelope(quotation):
                     "tabs": {
                         "signHereTabs": [
                             {
-                                "anchorString": "**SIGN_HERE**",
+                                "anchorString": "**SIGN_HERE_CLIENT**",
+                                "anchorUnits": "pixels",
+                                "anchorYOffset": "10",
+                                "anchorXOffset": "20"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "email": "sourabh.mori1digiprima@gmail.com",
+                    "name": "Admin Approval",
+                    "recipientId": "2",
+                    "routingOrder": "2",
+                    "tabs": {
+                        "signHereTabs": [
+                            {
+                                "anchorString": "**SIGN_HERE_ADMIN**",
                                 "anchorUnits": "pixels",
                                 "anchorYOffset": "10",
                                 "anchorXOffset": "20"
@@ -227,8 +188,9 @@ def send_docusign_envelope(quotation):
                     }
                 }
             ]
-        },
-        "status": "sent"  # Immediately sends email
+        }
+        ,
+        "status": "sent"
     }
 
     url = f"{base_url}/restapi/v2.1/accounts/{account_id}/envelopes"

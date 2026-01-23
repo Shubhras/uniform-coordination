@@ -8,6 +8,7 @@ from uniformAdmin.fabric import CustomPagination,IsAdministrator
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db.models import Max
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
 
@@ -16,7 +17,15 @@ from django.db.models import Max
 #---------------------------Categories--------------------------
 
 
-
+@extend_schema(
+    tags=["Category"],
+    summary="Create Category API",
+    request=CategorySerializer,
+    responses={
+        200: OpenApiResponse(description="Category created successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CategoryCreateAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
@@ -64,6 +73,22 @@ class CategoryCreateAPIView(APIView):
 
 
 
+@extend_schema(
+    tags=["Category"],
+    summary="Categories List API",
+    parameters=[
+        OpenApiParameter(
+            name="search",
+            description="Search category by name",
+            required=False,
+            type=str,
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Category list fetched successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CategoryListAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -114,6 +139,14 @@ class CategoryListAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(
+    tags=["Category"],
+    summary="Category Detail API",
+    responses={
+        200: OpenApiResponse(description="Category details fetched successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CategoryDetailAPIView(APIView):
     permission_classes = [AllowAny]
     
@@ -149,6 +182,16 @@ class CategoryDetailAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+@extend_schema(
+    tags=["Category"],
+    summary="Update Category API",
+    request=CategorySerializer,
+    responses={
+        200: OpenApiResponse(description="Category updated successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CategoryUpdateAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
@@ -205,6 +248,14 @@ class CategoryUpdateAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(
+    tags=["Category"],
+    summary="Delete Category API",
+    responses={
+        200: OpenApiResponse(description="Category deleted successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CategoryDeleteAPIView(APIView):
     
     permission_classes = [IsAdministrator]
@@ -242,6 +293,26 @@ class CategoryDeleteAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+@extend_schema(
+    tags=["Category"],
+    summary="Reorder Categories API",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "category_id": {"type": "integer"},
+                "new_position": {"type": "integer"},
+            },
+            "required": ["category_id", "new_position"],
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Category reordered successfully"),
+        404: OpenApiResponse(description="Category not found"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CategoryReorderAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]

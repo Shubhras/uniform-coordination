@@ -1,15 +1,10 @@
-
-
+# contracts/webhook.py
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from contracts.models import DocuSignEnvelope
 import json
-
-
-
-
 @csrf_exempt
 @api_view(["POST"])
 def docusign_webhook(request):

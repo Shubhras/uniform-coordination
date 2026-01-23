@@ -12,14 +12,34 @@ from django.conf import settings
 import os
 from .util.file_storage import save_large_json_to_file
 from uniformAdmin.signal import create_admin_notification
+from uniformAdmin.models import *
+from uniformAdmin.utils import *
+import pdfkit
 from django.utils.timezone import now
 from uniformAdmin.models import QuotationTemplate
 from rest_framework.permissions import IsAuthenticated ,BasePermission,AllowAny
 from contracts.utils import *
 from userhub.utils import generate_quotation_pdf
+from contracts.models import DocuSignEnvelope
+from django.utils import timezone
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
+
+
+
 #<-------------------ModelsInfo------------------->
 class ModelInfoCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+    tags=["Model Info"],
+    summary="Create 3D model info",
+    description="Create a new 3D model information entry.",
+    request=ModelInfoSerializer,
+    responses={
+        201: OpenApiResponse(description="Model info created successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
     def post(self,request):
         try:
             serializer = ModelInfoSerializer(data=request.data)
@@ -46,8 +66,28 @@ class ModelInfoCreateAPIView(APIView):
                 "details": str(e)
             },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
+            
 class ModelInfoListAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+    tags=["Model Info"],
+    summary="List model info",
+    description="Fetch all model info records. Optional filtering by comma-separated IDs.",
+    parameters=[
+        OpenApiParameter(
+            name="ids",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description="Comma-separated model info IDs (e.g. 1,2,3)",
+            required=False,
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Model info fetched successfully"),
+        400: OpenApiResponse(description="Invalid ID format"),
+    },
+    )
     def get(self,request):
         model_Info = ModelInfo.objects.filter(isDeleted=False).order_by('-created_at') 
         ids = request.GET.get("ids")
@@ -70,8 +110,22 @@ class ModelInfoListAPIView(APIView):
 
         },status=status.HTTP_200_OK)
 
+
 class ModelInfoDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+    tags=["Model Info"],
+    summary="Get model info detail",
+    description="Fetch model info details by ID.",
+    responses={
+        200: OpenApiResponse(
+            description="Model info fetched successfully",
+            response=ModelInfoSerializer
+        ),
+        404: OpenApiResponse(description="Model info not found"),
+    },
+)
     def get(self,request,id):
         model_info = get_object_or_404(
             ModelInfo,
@@ -85,9 +139,22 @@ class ModelInfoDetailAPIView(APIView):
             'message':'Model info fetched successfully',
             'data':serializer.data
         },status=status.HTTP_200_OK)
+
     
 class ModelInfoUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+    tags=["Model Info"],
+    summary="Update model info",
+    description="Update an existing model info record.",
+    request=ModelInfoSerializer,
+    responses={
+        200: OpenApiResponse(description="Model info updated successfully"),
+        400: OpenApiResponse(description="Invalid data"),
+        404: OpenApiResponse(description="Model info not found"),
+    },
+    )
     
     def put(self,request,id):
         model_info = get_object_or_404(
@@ -118,9 +185,45 @@ class ModelInfoUpdateAPIView(APIView):
             "errors": serializer.errors
         },status=status.HTTP_400_BAD_REQUEST)
 
+
 class ModelInfoDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
     
+    
+    @extend_schema(
+    tags=["Model Info"],
+    summary="Delete model info",
+    description=(
+        "Delete model info records.\n\n"
+        "- Single delete: pass `id` in URL\n"
+        "- Bulk delete: pass list of IDs in request body\n"
+        "- Delete all: pass `id = 'all'` in request body"
+    ),
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "oneOf": [
+                        {"type": "string", "example": "all"},
+                        {
+                            "type": "array",
+                            "items": {"type": "integer"},
+                            "example": [1, 2, 3]
+                        }
+                    ],
+                    "description": "List of IDs or 'all'"
+                }
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Model info deleted successfully"),
+        204: OpenApiResponse(description="Model info permanently deleted"),
+        400: OpenApiResponse(description="Invalid delete request"),
+        404: OpenApiResponse(description="Model info not found"),
+    },
+    )
     def delete(self,request,id=None):
         ids = request.data.get('id',None)
         
@@ -205,49 +308,52 @@ class ModelInfoDeleteAPIView(APIView):
         })
 '''
 
-class CustomUpdateModelExportPDFAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, customization_id):
-        customization = CustomUpdateModels.objects.filter(
-            id=customization_id,
-            user=request.user,
-            isDeleted=False
-        ).first()
-
-        if not customization:
-            return Response({
-                "statusCode": 404,
-                "status": False,
-                "message": "Customization not found"
-            }, status=404)
-
-        pdf_url = generate_customization_pdf(customization, request.user)
-
-        return Response({
-            "statusCode": 200,
-            "status": True,
-            "message": "PDF generated successfully",
-            "pdf_url": request.build_absolute_uri(pdf_url)
-        })
 
 #<----------------------QuotationRequest------------------>
-           
            
 # class QuotationRequestCreateAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
 
+#     @extend_schema(
+#     tags=["Quotation Request"],
+#     summary="Create quotation request and send DocuSign",
+#     description=(
+#         "Creates a quotation request"
+#         "sends DocuSign immediately, and updates workflow status."
+#     ),
+#     request={
+#         "application/json": {
+#             "type": "object",
+#             "properties": {
+#                 "template_slug": {
+#                     "type": "string",
+#                     "example": "quotation-default"
+#                 }
+#             },
+#             "required": ["template_slug"]
+#         }
+#     },
+#     responses={
+#         201: OpenApiResponse(
+#             description="Quotation created and DocuSign sent"
+#         ),
+#         400: OpenApiResponse(
+#             description="template_slug missing"
+#         ),
+#         404: OpenApiResponse(
+#             description="Template not found"
+#         ),
+#         500: OpenApiResponse(
+#             description="Server error"
+#         ),
+#     }
+# )
 #     def post(self, request):
 #         try:
 #             template_slug = request.data.get("template_slug")
-
 #             if not template_slug:
-#                 return Response(
-#                     {"message": "template_slug is required"},
-#                     status=400
-#                 )
+#                 return Response({"message": "template_slug is required"}, status=400)
 
-#             # Fetch template
 #             template = QuotationTemplate.objects.filter(
 #                 slug=template_slug,
 #                 is_active=True,
@@ -255,103 +361,169 @@ class CustomUpdateModelExportPDFAPIView(APIView):
 #             ).first()
 
 #             if not template:
-#                 return Response(
-#                     {"message": "Template not found"},
-#                     status=404
-#                 )
+#                 return Response({"message": "Template not found"}, status=404)
 
 #             serializer = QuotationRequestSerializer(data=request.data)
 #             serializer.is_valid(raise_exception=True)
 
-#             # Save quotation with template
-#             quotation = serializer.save(template=template)
-
-#             create_admin_notification(
-#                 instance=quotation,
-#                 title=f"New Quotation Request: {quotation.quotation_id}",
-#                 message=f"A new quotation request has been created by {quotation.company_name}.",
-#                 priority="high"
+#             quotation = serializer.save(
+#                 template=template,
+#                 workflow_status="REQUESTED",
+#                 quotation_status="pending"
 #             )
 
+#             # CREATE DOCUSIGN & SEND EMAIL IMMEDIATELY
+#             envelope_id = send_docusign_envelope(quotation)
+
+#             DocuSignEnvelope.objects.create(
+#                 quotation_request=quotation,
+#                 envelope_id=envelope_id,
+#                 status="sent",
+#                 agreement_status="sent_to_client"
+#             )
+
+#             quotation.workflow_status = "SENT"
+#             quotation.save()
+
 #             return Response({
-#                 "statusCode": 201,
 #                 "status": True,
-#                 "message": "Quotation Request created successfully",
+#                 "message": "Quotation created and DocuSign sent",
 #                 "quotation_id": quotation.quotation_id,
-#                 "template": template.slug
+#                 "workflow_status": quotation.workflow_status
 #             }, status=201)
 
 #         except Exception as e:
 #             return Response({
-#                 "statusCode": 500,
 #                 "status": False,
-#                 "message": "Something went wrong on server",
+#                 "message": "Failed to create quotation",
 #                 "error": str(e)
 #             }, status=500)
-          
-          
 
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-# import pdfkit
-import os
+# class QuotationRequestCreateAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
 
+#     @extend_schema(
+#         tags=["Quotation Request"],
+#         summary="Create quotation request and send DocuSign",
+#         description=(
+#             "Creates a quotation request, "
+#             "sends DocuSign immediately, and updates workflow status."
+#         ),
+#         request={
+#             "application/json": {
+#                 "type": "object",
+#                 "properties": {
+#                     "company_name": {"type": "string"},
+#                     "contact_person": {"type": "string"},
+#                     "email": {"type": "string"},
+#                     "phone_number": {"type": "string"},
+#                     "item_type": {"type": "string"},
+#                     "material": {"type": "string"},
+#                     "size_quantity": {"type": "string"},
+#                     "delivery_date": {"type": "string", "format": "date"},
+#                     "additional_note": {"type": "string"},
+#                 },
+#                 "required": ["email", "delivery_date"]
+#             }
+#         },
+#         responses={
+#             201: OpenApiResponse(description="Quotation created and DocuSign sent"),
+#             400: OpenApiResponse(description="Validation error"),
+#             500: OpenApiResponse(description="Server error"),
+#         }
+#     )
+#     def post(self, request):
+#         try:
+#             serializer = QuotationRequestSerializer(data=request.data)
+#             serializer.is_valid(raise_exception=True)
 
-from userhub.serializers import QuotationRequestSerializer
-# from contracts.docusign_client import send_quotation_for_signature
+#             quotation = serializer.save(
+#                 workflow_status="REQUESTED",
+#                 quotation_status="pending"
+#             )
 
-from uniformAdmin.utils import create_admin_notification
+#             # CREATE DOCUSIGN & SEND EMAIL IMMEDIATELY
+#             envelope_id = send_docusign_envelope(quotation)
 
+#             DocuSignEnvelope.objects.create(
+#                 quotation_request=quotation,
+#                 envelope_id=envelope_id,
+#                 status="sent",
+#                 agreement_status="sent_to_client"
+#             )
 
-from django.utils import timezone
-from django.shortcuts import get_object_or_404
+#             quotation.workflow_status = "SENT"
+#             quotation.save()
 
+#             return Response(
+#                 {
+#                     "statusCode": 200,                    
+#                     "status": True,
+#                     "message": "Quotation created and DocuSign sent",
+#                     "quotation_id": quotation.quotation_id,
+#                     "workflow_status": quotation.workflow_status,
+#                 },
+#                 status=200
+#             )
 
-from userhub.models import QuotationRequest
-from uniformAdmin.models import QuotationTemplate
-from contracts.models import DocuSignEnvelope
-
-from uniformAdmin.utils import render_quotation_template
+#         except Exception as e:
+#             return Response(
+#                 {
+#                     "statusCode": 400,                                        
+#                     "status": False,
+#                     "message": "Failed to create quotation",
+#                     "error": str(e),
+#                 },
+#                 status=500
+#             )
 
 
 
 class QuotationRequestCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        tags=["Quotation Request"],
+        summary="Create quotation request and send DocuSign",
+        description=(
+            "Creates a quotation request, "
+            "sends DocuSign immediately, and updates workflow status."
+        ),
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "company_name": {"type": "string"},
+                    "contact_person": {"type": "string"},
+                    "email": {"type": "string"},
+                    "phone_number": {"type": "string"},
+                    "item_type": {"type": "string"},
+                    "material": {"type": "string"},
+                    "size_quantity": {"type": "string"},
+                    "delivery_date": {"type": "string", "format": "date"},
+                    "additional_note": {"type": "string"},
+                },
+                "required": ["email", "delivery_date"]
+            }
+        },
+        responses={
+            201: OpenApiResponse(description="Quotation created and DocuSign sent"),
+            400: OpenApiResponse(description="Validation error"),
+            500: OpenApiResponse(description="Server error"),
+        }
+    )
     def post(self, request):
         try:
-            template_slug = request.data.get("template_slug")
-            if not template_slug:
-                return Response({
-                    "statusCode":400,
-                    "status":False,
-                    "message": "template_slug is required"
-                    }, status=status.HTTP_400_BAD_REQUEST)
-
-            template = QuotationTemplate.objects.filter(
-                slug=template_slug,
-                is_active=True,
-                is_deleted=False
-            ).first()
-
-            if not template:
-                return Response({
-                    "statusCode":400,
-                    "status":False,
-                    "message": "Template not found"},status=status.HTTP_400_BAD_REQUEST)
-
             serializer = QuotationRequestSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
 
             quotation = serializer.save(
-                template=template,
                 workflow_status="REQUESTED",
                 quotation_status="pending"
             )
 
-            # 🚀 CREATE DOCUSIGN & SEND EMAIL IMMEDIATELY
+            # CREATE DOCUSIGN & SEND EMAIL IMMEDIATELY
             envelope_id = send_docusign_envelope(quotation)
 
             DocuSignEnvelope.objects.create(
@@ -364,27 +536,59 @@ class QuotationRequestCreateAPIView(APIView):
             quotation.workflow_status = "SENT"
             quotation.save()
 
-            return Response({
-                "statusCode":201,
-                "status": True,
-                "message": "Quotation created and DocuSign sent",
-                "quotation_id": quotation.quotation_id,
-                "workflow_status": quotation.workflow_status
-            }, status=status.HTTP_201_CREATED)
+            return Response(
+                {
+                    "statusCode": 201,
+                    "status": True,
+                    "message": "Quotation created and DocuSign sent",
+                    "quotation_id": quotation.quotation_id,
+                    "workflow_status": quotation.workflow_status,
+                },
+                status=201
+            )
 
+        #  Proper validation error (serializer / bad payload)
+        except serializers.ValidationError as e:
+            return Response(
+                {
+                    "statusCode": 400,
+                    "status": False,
+                    "message": "Validation error",
+                    "error": e.detail,
+                },
+                status=400
+            )
+
+        #  Any unexpected server error
         except Exception as e:
-            return Response({
-                "statusCode":500,
-                "status": False,
-                "message": "Failed to create quotation",
-                "error": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {
+                    "statusCode": 500,
+                    "status": False,
+                    "message": "Failed to create quotation",
+                    "error": str(e),
+                },
+                status=500
+            )
 
 
-           
            
 class QuotationRequestDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+    tags=["Quotation Request"],
+    summary="Get quotation request details",
+    description="Fetch quotation request details using UUID.",
+    responses={
+        200: OpenApiResponse(
+            description="Quotation request fetched successfully"
+        ),
+        404: OpenApiResponse(
+            description="Quotation request not found"
+        ),
+    }
+    )
 
     def get(self,request,quotation_id):
         quta = get_object_or_404(
@@ -402,9 +606,21 @@ class QuotationRequestDetailAPIView(APIView):
 
 
 
-
 class QuotationRequestExportPDFAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    @extend_schema(
+    tags=["Quotation Request"],
+    summary="Export quotation request as PDF",
+    description="Generate and return a downloadable PDF URL for the quotation.",
+    responses={
+        200: OpenApiResponse(
+            description="PDF generated successfully"
+        ),
+        404: OpenApiResponse(
+            description="Quotation not found"
+        ),
+    }
+    )
 
     def get(self, request, quotation_id):
         quotation = QuotationRequest.objects.filter(
@@ -473,9 +689,29 @@ class QuotationRequestsListAPIView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+
+#------------------ CustomUpdate Model--------------------
+
 class CustomUpdateModelsCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["CustomUpdate Model"],
+    summary="Create custom update model",
+    description=(
+        "Create a new custom update model.\n\n"
+        "• `json_data` can be a large JSON payload\n"
+        "• Large JSON is stored as a file internally"
+    ),
+    request=CustomUpdateModelsSerializer,
+    responses={
+        201: OpenApiResponse(
+            description="Custom update created successfully",
+            response=CustomUpdateModelsSerializer
+        ),
+        500: OpenApiResponse(description="Server error"),
+    },
+    )
     def post(self, request):
         data = request.data.copy()
 
@@ -485,7 +721,12 @@ class CustomUpdateModelsCreateAPIView(APIView):
         if large_json:
             json_path = save_large_json_to_file(large_json)
 
-        serializer = CustomUpdateModelsSerializer(data=data)
+        # serializer = CustomUpdateModelsSerializer(data=data)
+        serializer = CustomUpdateModelsSerializer(
+            data=data,
+            context={"request": request}
+        )
+
         try:
             if serializer.is_valid(raise_exception=True):
                 serializer.save(user=request.user, json_file_path=json_path)
@@ -523,10 +764,31 @@ class CustomUpdateModelsCreateAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 class CustomUpdateModelsListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+
+    tags=["CustomUpdate Model"],
+    
+    summary="List custom update models",
+    description="Fetch all custom update models. Optional filter by IDs.",
+    parameters=[
+        OpenApiParameter(
+            name="ids",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description="Comma-separated IDs (e.g. 1,2,3)",
+            required=False
+        )
+    ],
+    responses={
+        200: OpenApiResponse(
+            description="Custom updates fetched successfully",
+            response=CustomUpdateModelsSerializer(many=True)
+        )
+    },
+    )
     def get(self, request):
         qs = CustomUpdateModels.objects.filter(isDeleted=False)
 
@@ -547,6 +809,28 @@ class CustomUpdateModelsListAPIView(APIView):
 class CustomUpdateModelsDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["CustomUpdate Model"],
+    
+    summary="Get custom update model detail",
+    description="Fetch a single custom update model by ID",
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Custom update model ID",
+            required=True
+        )
+    ],
+    responses={
+        200: OpenApiResponse(
+            description="Custom update fetched successfully",
+            response=CustomUpdateModelsSerializer
+        ),
+        404: OpenApiResponse(description="Custom update not found"),
+    },
+    )
     def get(self, request, id):
         obj = get_object_or_404(CustomUpdateModels, id=id, isDeleted=False)
         serializer = CustomUpdateModelsSerializer(obj,context={"request": request})
@@ -558,11 +842,35 @@ class CustomUpdateModelsDetailAPIView(APIView):
         })
 
 
-
-
 class CustomUpdateModelsUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["CustomUpdate Model"],
+    summary="Update custom update model",
+    description=(
+        "Update custom update model fields.\n\n"
+        "⚠ `json_data` updates are NOT allowed in this API."
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Custom update model ID",
+            required=True
+        )
+    ],
+    request=CustomUpdateModelsSerializer,
+    responses={
+        200: OpenApiResponse(
+            description="Updated successfully",
+            response=CustomUpdateModelsSerializer
+        ),
+        400: OpenApiResponse(description="Validation error"),
+        404: OpenApiResponse(description="Custom update not found"),
+    },
+    )
     def put(self, request, id):
         obj = get_object_or_404(CustomUpdateModels, id=id, isDeleted=False)
 
@@ -572,7 +880,8 @@ class CustomUpdateModelsUpdateAPIView(APIView):
         serializer = CustomUpdateModelsSerializer(
             obj,
             data=data,
-            partial=True
+            partial=True,
+            context={"request": request}
         )
 
         if serializer.is_valid():
@@ -610,7 +919,47 @@ class CustomUpdateModelsUpdateAPIView(APIView):
 
 class CustomUpdateModelsDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
+    @extend_schema(
+    tags=["CustomUpdate Model"],
+    
+    summary="Delete custom update models",
+    description=(
+        "Delete custom update models in two ways:\n\n"
+        "• Delete ALL records → `{ \"all\": true }`\n"
+        "• Delete specific records → `{ \"ids\": [1, 2, 3] }`\n\n"
+        "Associated JSON files are also removed from storage."
+    ),
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {"type": "integer"},
+                    "description": "List of CustomUpdateModel IDs to delete"
+                },
+                "all": {
+                    "type": "boolean",
+                    "description": "Set true to delete all records"
+                }
+            },
+            "example": {
+                "ids": [1, 2, 3]
+            }
+        }
+    },
+    responses={
+        204: OpenApiResponse(
+            description="Records deleted successfully"
+        ),
+        400: OpenApiResponse(
+            description="Invalid delete request"
+        ),
+        404: OpenApiResponse(
+            description="No records found to delete"
+        ),
+    },
+    )
     def delete(self, request):
         ids = request.data.get("ids", [])
         delete_all = request.data.get("all", False)
@@ -669,6 +1018,77 @@ class CustomUpdateModelsDeleteAPIView(APIView):
             "message": f"{queryset.count()} record(s) deleted successfully."
         }, status=status.HTTP_204_NO_CONTENT)
 
+class CustomUpdateModelExportPDFAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+    tags=["CustomUpdate Model"],
+    summary="Export customization as PDF",
+    description=(
+        "Generate and export a PDF for a specific customization.\n\n"
+        "The customization must belong to the authenticated user."
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="customization_id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Customization ID",
+            required=True
+        )
+    ],
+    responses={
+        200: OpenApiResponse(
+            description="PDF generated successfully",
+            response={
+                "type": "object",
+                "properties": {
+                    "statusCode": {"type": "integer", "example": 200},
+                    "status": {"type": "boolean", "example": True},
+                    "message": {"type": "string", "example": "PDF generated successfully"},
+                    "pdf_url": {
+                        "type": "string",
+                        "example": "https://example.com/media/customizations/sample.pdf"
+                    }
+                }
+            }
+        ),
+        404: OpenApiResponse(
+            description="Customization not found",
+            response={
+                "type": "object",
+                "properties": {
+                    "statusCode": {"type": "integer", "example": 404},
+                    "status": {"type": "boolean", "example": False},
+                    "message": {"type": "string", "example": "Customization not found"}
+                }
+            }
+        ),
+    },
+)
+    def get(self, request, customization_id):
+        customization = CustomUpdateModels.objects.filter(
+            id=customization_id,
+            user=request.user,
+            isDeleted=False
+        ).first()
+        print("REQUEST USER:", request.user)
+
+        if not customization:
+            return Response({
+                "statusCode": 404,
+                "status": False,
+                "message": "Customization not found"
+            }, status=404)
+
+        pdf_path = generate_customization_pdf(customization, request.user)
+        pdf_url = request.build_absolute_uri(pdf_path)
+        return Response({
+            "StatusCode":200,
+            "status":True,
+            "message":"export pdf successfully. ",
+            "pdf_url":pdf_url
+        },status=status.HTTP_200_OK)
 # class CustomModelsUserAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
 

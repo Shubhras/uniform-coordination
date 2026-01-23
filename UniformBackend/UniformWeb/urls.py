@@ -3,9 +3,15 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from contracts.webhooks import*
+from drf_spectacular.views import (SpectacularAPIView,SpectacularSwaggerView,SpectacularRedocView,)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+        # ===== Swagger / OpenAPI =====
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/swagger/",SpectacularSwaggerView.as_view(url_name="schema"),name="swagger-ui",),
+    path("api/docs/redoc/",SpectacularRedocView.as_view(url_name="schema"),name="redoc",),
+    
     path('api/v1/uniformAdmin/', include('uniformAdmin.urls')),
     path('api/v1/userhub/', include('userhub.urls')),
     path('api/v1/contracts/', include('contracts.urls')),

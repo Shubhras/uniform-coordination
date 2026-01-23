@@ -25,7 +25,8 @@ from uniformAdmin.signal import *
 from uniformAdmin.models import *
 from rest_framework.permissions import AllowAny
 # from django.utils import timezone
-
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse
+from drf_spectacular.types import OpenApiTypes
 from django.utils.http import urlsafe_base64_decode
 from uniformAdmin.signal import *
 
@@ -109,9 +110,16 @@ logger = logging.getLogger(__name__)
 #             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 class SignupAPIView(APIView):
     permission_classes = [AllowAny]
+
+    @extend_schema(
+    summary="Create a new user ",
+    request=UserSignupSerializer,
+    responses={201: UserResponseSerializer},
+    auth=[],
+    tags=["UserHub Authentication"]
+)
 
     def post(self, request, *args, **kwargs):
         serializer = UserSignupSerializer(data=request.data)
@@ -203,6 +211,15 @@ class SignupAPIView(APIView):
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
+    
+    @extend_schema(
+    summary="Login API",
+    
+    request=LoginSerializer,
+    responses={200: dict},
+    auth=[],
+    tags=["UserHub Authentication"]
+    )
     def post(self, request):
         
         try:
@@ -312,7 +329,13 @@ class LoginAPIView(APIView):
 
 class GetProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
+    
+    @extend_schema(
+    summary="GetProfile API",
+    responses={200: dict},
+    tags=["UserHub Authentication"]
+    
+    )
     def get(self, request):
         try:
             user = request.user
@@ -355,9 +378,17 @@ class GetProfileAPIView(APIView):
             }, status=500)
 
 
+
 class UpdateProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="UpdateProfile API",
+    request=UserResponseSerializer,
+    responses={200: UserResponseSerializer},
+    tags=["UserHub Authentication"]
+    
+    )
     def put(self, request):
         try:
             user = request.user
@@ -425,6 +456,12 @@ class UpdateProfileAPIView(APIView):
 class DeleteProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="DeleteProfile API",
+    responses={200: dict},
+    tags=["UserHub Authentication"]
+    
+    )
     def delete(self, request):
         try:
             user = request.user
@@ -448,6 +485,41 @@ class DeleteProfileAPIView(APIView):
 class ForgotPasswordAPIView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
+
+    @extend_schema(
+    summary="ForgotPassword API",
+        
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                }
+            },
+            "required": ["email"]
+        }
+    },
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "status": {"type": "boolean"},
+                "statusCode": {"type": "integer"},
+                "message": {"type": "string"}
+            }
+        },
+        400: {"type": "object"},
+        500: {"type": "object"}
+    },
+    tags=["UserHub Authentication"]
+    
+    
+    )
+
+
 
     def post(self, request):
         try:
@@ -512,6 +584,42 @@ class ForgotPasswordAPIView(APIView):
 class ResetPasswordAPIView(APIView):
     permission_classes = [AllowAny]
     
+    @extend_schema(
+    summary="Reset Password API",
+    description="Reset password using userId after forgot password flow.",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "userId": {"type": "integer"},
+                "newPassword": {"type": "string"},
+                "confirmPassword": {"type": "string"},
+            },
+            "required": ["userId", "newPassword", "confirmPassword"],
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        400: OpenApiTypes.OBJECT,
+        500: OpenApiTypes.OBJECT,
+    },
+    examples=[
+        OpenApiExample(
+            "Reset Password Example",
+            value={
+                "userId": 12,
+                "newPassword": "NewPass@123",
+                "confirmPassword": "NewPass@123",
+            },
+            request_only=True,
+        )
+    ],
+    auth=[],  # no auth (AllowAny)
+    tags=["UserHub Authentication"]
+    
+)
+    
+    
     def post(self, request):
         try:
             user_id = request.data.get("userId")
@@ -569,8 +677,46 @@ class ResetPasswordAPIView(APIView):
             }, status=500)
 
 
+
 class UpdatePasswordAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+    summary="Update Password API",
+    description="Update password for authenticated user.",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "currentPassword": {"type": "string"},
+                "newPassword": {"type": "string"},
+                "confirmPassword": {"type": "string"},
+            },
+            "required": ["currentPassword", "newPassword", "confirmPassword"],
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        400: OpenApiTypes.OBJECT,
+        401: OpenApiTypes.OBJECT,
+        500: OpenApiTypes.OBJECT,
+    },
+    examples=[
+        OpenApiExample(
+            "Update Password Example",
+            value={
+                "currentPassword": "OldPass@123",
+                "newPassword": "NewPass@123",
+                "confirmPassword": "NewPass@123",
+            },
+            request_only=True,
+        )
+    ],
+    auth=[{"bearerAuth": []}],  #  JWT required
+    tags=["UserHub Authentication"]
+        
+    )        
+                
     def validate_password(self, password):
         """
         Validates password:
@@ -664,7 +810,14 @@ class UpdatePasswordAPIView(APIView):
 
 class VerifyUserAPIView(APIView):
     permission_classes = [AllowAny]
-    
+    @extend_schema(
+    summary="Verify User API",
+    request=VerifyUserSerializer,
+    responses={200: dict},
+    auth=[],
+    tags=["UserHub Authentication"]
+        
+    )
     def post(self, request):
         serializer = VerifyUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -869,10 +1022,31 @@ class VerifyUserAPIView(APIView):
 #                 "data": None
 #             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# ADD TO CART 
 
+# ADD TO CART 
 class AddToCartAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+    summary="AddToCart API",
+    
+    tags=["Payment Gateway"],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "product_id": {"type": "integer"},
+                "quantity": {"type": "integer"},
+            },
+            "required": ["product_id"]
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        201: OpenApiTypes.OBJECT,
+        404: OpenApiTypes.OBJECT,
+    },
+    )
 
     def post(self, request):
         try:
@@ -927,10 +1101,16 @@ class AddToCartAPIView(APIView):
 
 
 
+
 # CART LISTING
 class CartListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="CartList API",
+    tags=["Payment Gateway"],
+    responses={200: OpenApiTypes.OBJECT}
+    )
     def get(self, request):
         try:
             cart = Cart.objects.get(user=request.user, is_active=True)
@@ -957,10 +1137,31 @@ class CartListAPIView(APIView):
             }, status=status.HTTP_200_OK)
 
 
+
+
 # UPDATE
 class UpdateCartItemAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="UpdateCartItem API",
+    
+    tags=["Payment Gateway"],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "item_id": {"type": "integer"},
+                "quantity": {"type": "integer"},
+            },
+            "required": ["item_id", "quantity"]
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        404: OpenApiTypes.OBJECT,
+    },
+    )
     def patch(self, request):
         try:
             item_id = request.data.get("item_id")
@@ -996,10 +1197,28 @@ class UpdateCartItemAPIView(APIView):
 
 
 
+
 # Delete
 class RemoveCartItemAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="RemoveCartItem API",
+    tags=["Payment Gateway"],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "item_id": {"type": "integer"}
+            },
+            "required": ["item_id"]
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        404: OpenApiTypes.OBJECT,
+    },
+    )
     def delete(self, request):
         try:
             item_id = request.data.get("item_id")
@@ -1033,6 +1252,15 @@ class RemoveCartItemAPIView(APIView):
 class ItemSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="ItemSummary API",
+    
+    tags=["Payment Gateway"],
+    responses={
+        200: OpenApiTypes.OBJECT,
+        400: OpenApiTypes.OBJECT,
+    },
+    )
     def get(self, request):
         try:
             cart = Cart.objects.get(user=request.user, is_active=True)
@@ -1083,9 +1311,44 @@ class ItemSummaryAPIView(APIView):
 
 
 
+
 class CreateOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="CreateOrder API",
+    
+    tags=["Payment Gateway"],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "cart_id": {"type": "integer"},
+                "customer": {"type": "object"},
+                "delivery_address": {"type": "object"},
+                "payment": {"type": "object"},
+                "rental": {
+                    "type": "object",
+                    "properties": {
+                        "start_date": {"type": "string", "example": "2026-01-20"},
+                        "return_date": {"type": "string", "example": "2026-01-25"},
+                    }
+                },
+                "promocode": {
+                    "type": "object",
+                    "properties": {
+                        "code": {"type": "string"}
+                    }
+                }
+            },
+            "required": ["cart_id", "rental"]
+        }
+    },
+    responses={
+        201: OpenApiTypes.OBJECT,
+        400: OpenApiTypes.OBJECT,
+    },
+    )
     def post(self, request):
         data = request.data
         user = request.user
@@ -1262,9 +1525,28 @@ class CreateOrderAPIView(APIView):
         })
 
 
+
+
 class OrderSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
+    @extend_schema(
+    summary="OrderSummary API",
+    
+    tags=["Payment Gateway"],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "order_id": {"type": "string"}
+            },
+            "required": ["order_id"]
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        404: OpenApiTypes.OBJECT,
+    },
+    )
     def post(self, request):
         order_id = request.data.get("order_id")
         if not order_id:
@@ -1345,6 +1627,12 @@ class OrderSummaryAPIView(APIView):
 class OrderListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="OrderList API",
+    
+    tags=["Payment Gateway"],
+    responses={200: OpenApiTypes.OBJECT}
+    )
     def get(self, request):
         orders = Order.objects.filter(user=request.user).order_by('-created_at')
 
@@ -1373,6 +1661,24 @@ class OrderListAPIView(APIView):
 
 class OrderDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+    summary="OrderDetail API",
+    tags=["Payment Gateway"],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "order_id": {"type": "string"}
+            },
+            "required": ["order_id"]
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        404: OpenApiTypes.OBJECT,
+    },
+    )
 
     def post(self, request):
         order_id = request.data.get("order_id")
@@ -1407,8 +1713,59 @@ class OrderDetailAPIView(APIView):
                 "data": {}
             }, status=status.HTTP_404_NOT_FOUND)
 
+
 class UserQuotationStatusUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+    tags=["UserHub · QuotationStatusUpdate"],
+    summary="Cancel quotation (User)",
+    description=(
+        "Allows **normal/user** to cancel a quotation.\n\n"
+        "**Rules:**\n"
+        "- Only `cancel` action is allowed\n"
+        "- Cancellation reason is mandatory\n"
+        "- Admin / other roles are forbidden"
+    ),
+    request={
+        "application/json": {
+            "type": "object",
+            "required": ["quotation_id", "action", "reason"],
+            "properties": {
+                "quotation_id": {
+                    "type": "string",
+                    "example": "QT-2024-001"
+                },
+                "action": {
+                    "type": "string",
+                    "enum": ["cancel"],
+                    "example": "cancel"
+                },
+                "reason": {
+                    "type": "string",
+                    "example": "Budget constraints"
+                }
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Quotation cancelled successfully"),
+        400: OpenApiResponse(description="Validation or quotation error"),
+        403: OpenApiResponse(description="Unauthorized user role"),
+        401: OpenApiResponse(description="Authentication required"),
+    },
+    examples=[
+        OpenApiExample(
+            "Cancel Quotation Example",
+            value={
+                "quotation_id": "QT-2024-001",
+                "action": "cancel",
+                "reason": "Budget constraints"
+            },
+            request_only=True
+        )
+    ]
+)
 
     def post(self, request):
         quotation_id = request.data.get("quotation_id")
