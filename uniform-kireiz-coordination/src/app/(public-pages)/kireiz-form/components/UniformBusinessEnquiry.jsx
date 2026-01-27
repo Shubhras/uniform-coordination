@@ -388,10 +388,10 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
                   <div className="flex justify-center mb-6">
                     <div className="w-[180px] h-[200px] md:w-[200px] md:h-[220px] rounded-full overflow-hidden">
                       <Image
-                        src={item.img}
+                        src={item.categoryImage}
+                        alt={item.id}
                         width={200}
                         height={220}
-                        alt={item.title}
                         className="object-cover w-full h-full"
                         unoptimized
                       />

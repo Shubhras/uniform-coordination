@@ -10,28 +10,30 @@ import { z } from 'zod'
 import DatePicker from '@/components/ui/DatePicker'
 import TermsAndConditionsPopup from './TermsAndConditionsPopup'
 import QuoteRequestPopup from './QuoteRequestPopup'
-import { apiCreateQuotationRequest } from '@/services/QuotationRequestService';
+import { apiCreateQuotationRequest } from '@/services/QuotationRequestService'
 import { useSession } from 'next-auth/react'
+
 const validationSchema = z.object({
-    companyName: z.string().min(1, 'Company Name Required'),
-    contactPerson: z.string().min(1, 'Contact Person Required'),
+    company_name: z.string().min(1, 'Company Name Required'),
+    contact_person: z.string().min(1, 'Contact Person Required'),
     email: z.string().email('Invalid Email'),
-    phone: z.string().min(8, 'Phone Required'),
-    itemType: z.string().min(1, 'Item Type Required'),
+    phone_number: z.string().min(8, 'Phone Required'),
+    item_type: z.string().min(1, 'Item Type Required'),
     material: z.string().min(1, 'Material Required'),
-    sizeQty: z.string().min(1, 'Size & Quantity Required'),
-    deliveryDate: z.date({
+    size_quantity: z.string().min(1, 'Size & Quantity Required'),
+    delivery_date: z.date({
         required_error: 'Delivery Date Required',
     }),
-    notes: z.string().optional(),
-    agree: z.boolean().refine(val => val === true, { message: 'Required' }),
+    additional_note: z.string().optional(),
+    agreed_to_terms: z.boolean().refine(val => val === true, { message: 'Required' }),
 })
 
 const DeliveryRequestForm = () => {
     const [quoteData, setQuoteData] = useState(null)
     const { data: session } = useSession()
-    const [dialogTermsOpen, setDialogTermsOpen] = useState(false);
-    const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false);
+    const [dialogTermsOpen, setDialogTermsOpen] = useState(false)
+    const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false)
+
     const {
         handleSubmit,
         reset,
@@ -39,127 +41,89 @@ const DeliveryRequestForm = () => {
         control,
     } = useForm({
         defaultValues: {
-            companyName: "",
-            contactPerson: "",
+            company_name: "",
+            contact_person: "",
             email: "",
-            phone: "",
-            itemType: "",
+            phone_number: "",
+            item_type: "",
             material: "",
-            sizeQty: "",
-            //deliveryDate: null,
-            notes: "",
-            agree: false,
-
+            size_quantity: "",
+            // delivery_date: null,
+            additional_note: "",
+            agreed_to_terms: false,
         },
         resolver: zodResolver(validationSchema),
-    });
+    })
 
-    // const onSubmit = (values) => {
-
-    //     const payload = {
-    //         ...values,
-    //         deliveryDate: values.deliveryDate.toISOString().split('T')[0],
-    //     }
-    //       console.log('summit from', payload);
-    //     openDialogQuoteRequest();
-    // };
     const onSubmit = async (values) => {
         const payload = {
             ...values,
-            delivery_date: values.deliveryDate ? values.deliveryDate.toISOString().split('T')[0] : "",
-        };
-        try {
-            // Ensure the session has a valid token
-            if (!session?.accessToken) {
-                alert("Please login first!");
-                return;
-            }
-            const response = await apiCreateQuotationRequest(payload, session.accessToken);
-            console.log("Quotation Request Response:", response.data);
-            setQuoteData(response.data);
-            setDialogQuoteRequestOpen(true);
-        } catch (error) {
-            console.error("Error creating quotation request:", error);
-            alert("Failed to create quotation request.");
+            delivery_date: values.delivery_date
+                ? values.delivery_date.toISOString().split('T')[0]
+                : "",
+            customupdatemodel: 13,
         }
-    };
+
+        try {
+            if (!session?.accessToken) {
+                alert("Please login first!")
+                return
+            }
+            const response = await apiCreateQuotationRequest(payload, session.accessToken)
+            setQuoteData(response.data)
+            setDialogQuoteRequestOpen(true)
+        } catch (error) {
+            console.error("Error creating quotation request:", error)
+            alert("Failed to create quotation request.")
+        }
+    }
 
     const openDialogTerms = () => {
         setDialogTermsOpen(true)
     }
-    const openDialogQuoteRequest = () => {
-        setDialogQuoteRequestOpen(true)
-    }
+
     return (
         <>
-            {/* <div className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10"> */}
             <div className="w-full bg-white ">
-                {/* <div className="w-full lg:w-1/2 px-4 ">
-                    <h5 className="font-medium mb-3">Design Result</h5>
-                    <div className="relative w-[250px] h-[250px] mx-auto">
-                        <div className="absolute inset-0 rounded-full bg-[#BEE3F8]"></div>
-                        <img
-                            src="/img/uniform/uniform.png"
-                            alt="Model"
-                            className="absolute top-0 left-1/2 -translate-x-1/2 h-[400px] object-contain"
-                        />
-                    </div>
-                    <div className="mt-40 border border-gray-300 rounded-lg w-[350px] mx-auto">
-                        <div className="grid grid-cols-2 text-sm relative">
-                            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-200"></div>
-                            <div className="flex flex-col gap-4 p-6">
-                                <span className="font-medium">Collar</span>
-                                <span className="font-medium">Color</span>
-                                <span className="font-medium">Material</span>
-                                <span className="font-medium">Sleeve</span>
-                                <span className="font-medium">Pants Color</span>
-                            </div>
-                            <div className="flex flex-col gap-4 p-6">
-                                <span>Stand</span>
-                                <span>White</span>
-                                <span>100% Polyester</span>
-                                <span>Full</span>
-                                <span>Navy</span>
-                            </div>
-                        </div>
-                    </div>
-                </div> */}
-                {/* <div className="w-full lg:w-1/2 "> */}
                 <div className="w-full mx-auto max-w-[720px]">
                     <h4 className="font-semibold mb-8">
                         Quotation & Delivery Request Form
                     </h4>
+
                     <Form onSubmit={handleSubmit(onSubmit)}>
                         <h5 className="font-medium mb-3">Company & Contact</h5>
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
                             <FormItem
                                 label="Company Name"
-                                invalid={Boolean(errors.companyName)}
-                                errorMessage={errors.companyName?.message}
+                                invalid={Boolean(errors.company_name)}
+                                errorMessage={errors.company_name?.message}
                                 className="mb-2"
                             >
                                 <Controller
-                                    name="companyName"
+                                    name="company_name"
                                     control={control}
                                     render={({ field }) => (
                                         <Input placeholder="Company Name" {...field} />
                                     )}
                                 />
                             </FormItem>
+
                             <FormItem
                                 label="Contact Person"
-                                invalid={Boolean(errors.contactPerson)}
-                                errorMessage={errors.contactPerson?.message}
+                                invalid={Boolean(errors.contact_person)}
+                                errorMessage={errors.contact_person?.message}
                                 className="mb-2"
                             >
                                 <Controller
-                                    name="contactPerson"
+                                    name="contact_person"
                                     control={control}
                                     render={({ field }) => (
                                         <Input placeholder="Contact Person" {...field} />
                                     )}
                                 />
                             </FormItem>
+
                             <FormItem
                                 label="Email Address"
                                 invalid={Boolean(errors.email)}
@@ -174,14 +138,15 @@ const DeliveryRequestForm = () => {
                                     )}
                                 />
                             </FormItem>
+
                             <FormItem
                                 label="Phone Number"
-                                invalid={Boolean(errors.phone)}
-                                errorMessage={errors.phone?.message}
+                                invalid={Boolean(errors.phone_number)}
+                                errorMessage={errors.phone_number?.message}
                                 className="mb-2"
                             >
                                 <Controller
-                                    name="phone"
+                                    name="phone_number"
                                     control={control}
                                     render={({ field }) => (
                                         <Input placeholder="Phone Number" {...field} />
@@ -189,20 +154,25 @@ const DeliveryRequestForm = () => {
                                 />
                             </FormItem>
                         </div>
+
                         <h5 className="font-medium mb-3">Uniform Request Details</h5>
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
                             <FormItem
                                 label="Item Type"
-                                invalid={Boolean(errors.itemType)}
-                                errorMessage={errors.itemType?.message}
+                                invalid={Boolean(errors.item_type)}
+                                errorMessage={errors.item_type?.message}
                                 className="mb-2"
                             >
                                 <Controller
-                                    name="itemType"
+                                    name="item_type"
                                     control={control}
-                                    render={({ field }) => <Input placeholder="Item Type" {...field} />}
+                                    render={({ field }) => (
+                                        <Input placeholder="Item Type" {...field} />
+                                    )}
                                 />
                             </FormItem>
+
                             <FormItem
                                 label="Material"
                                 invalid={Boolean(errors.material)}
@@ -212,29 +182,35 @@ const DeliveryRequestForm = () => {
                                 <Controller
                                     name="material"
                                     control={control}
-                                    render={({ field }) => <Input placeholder="Material" {...field} />}
+                                    render={({ field }) => (
+                                        <Input placeholder="Material" {...field} />
+                                    )}
                                 />
                             </FormItem>
+
                             <FormItem
                                 label="Size & Quantity"
-                                invalid={Boolean(errors.sizeQty)}
-                                errorMessage={errors.sizeQty?.message}
+                                invalid={Boolean(errors.size_quantity)}
+                                errorMessage={errors.size_quantity?.message}
                                 className="mb-2"
                             >
                                 <Controller
-                                    name="sizeQty"
+                                    name="size_quantity"
                                     control={control}
-                                    render={({ field }) => <Input placeholder="Size & Quantity" {...field} />}
+                                    render={({ field }) => (
+                                        <Input placeholder="Size & Quantity" {...field} />
+                                    )}
                                 />
                             </FormItem>
+
                             <FormItem
                                 label="Delivery Date"
-                                invalid={Boolean(errors.deliveryDate)}
-                                errorMessage={errors.deliveryDate?.message}
+                                invalid={Boolean(errors.delivery_date)}
+                                errorMessage={errors.delivery_date?.message}
                                 className="mb-2"
                             >
                                 <Controller
-                                    name="deliveryDate"
+                                    name="delivery_date"
                                     control={control}
                                     render={({ field }) => (
                                         <DatePicker
@@ -246,27 +222,33 @@ const DeliveryRequestForm = () => {
                                 />
                             </FormItem>
                         </div>
+
                         <FormItem
                             label="Additional Note"
-                            invalid={Boolean(errors.notes)}
-                            errorMessage={errors.notes?.message}
+                            invalid={Boolean(errors.additional_note)}
+                            errorMessage={errors.additional_note?.message}
                             className="mb-2"
                         >
                             <Controller
-                                name="notes"
+                                name="additional_note"
                                 control={control}
                                 render={({ field }) => (
-                                    <textarea className="input h-24" placeholder="Additional Note" {...field} />
+                                    <textarea
+                                        className="input h-24"
+                                        placeholder="Additional Note"
+                                        {...field}
+                                    />
                                 )}
                             />
                         </FormItem>
+
                         <FormItem
-                            invalid={Boolean(errors.agree)}
-                            errorMessage={errors.agree?.message}
+                            invalid={Boolean(errors.agreed_to_terms)}
+                            errorMessage={errors.agreed_to_terms?.message}
                             className="mb-2"
                         >
                             <Controller
-                                name="agree"
+                                name="agreed_to_terms"
                                 control={control}
                                 render={({ field }) => (
                                     <Checkbox {...field}>
@@ -281,6 +263,7 @@ const DeliveryRequestForm = () => {
                                 )}
                             />
                         </FormItem>
+
                         <Button
                             type="submit"
                             variant="solid"
@@ -289,30 +272,22 @@ const DeliveryRequestForm = () => {
                             Request a Quote
                         </Button>
                     </Form>
-                    {/* <div className="flex justify-center gap-4 mt-6">
-                        <button className="border px-6 py-2 rounded-md">Save Design</button>
-                        <button className="border px-6 py-2 rounded-md" onClick={openDialogQuoteRequest}>Export PDF</button>
-                    </div> */}
                 </div>
             </div>
+
             <TermsAndConditionsPopup
                 isOpen={dialogTermsOpen}
                 onClose={() => setDialogTermsOpen(false)}
             />
-            {/* <QuoteRequestPopup
-                isOpen={dialoQuoteRequestOpen}
-                onClose={() => setDialogQuoteRequestOpen(false)}
-                quoteData={quoteData}
-            /> */}
-            {dialoQuoteRequestOpen && (<QuoteRequestPopup
-                isOpen={dialoQuoteRequestOpen}
-                onClose={() => setDialogQuoteRequestOpen(false)}
-                quoteData={quoteData}
-            />)}
 
-
+            {dialoQuoteRequestOpen && (
+                <QuoteRequestPopup
+                    isOpen={dialoQuoteRequestOpen}
+                    onClose={() => setDialogQuoteRequestOpen(false)}
+                    quoteData={quoteData}
+                />
+            )}
         </>
-
     )
 }
 
