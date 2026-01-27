@@ -102,6 +102,7 @@ const PartsTab = () => {
         setEditPart(null);     // ✅ RESET
     };
 
+
     return (
         <div className="bg-white rounded-xl shadow md:p-6 p-3">
 
@@ -174,39 +175,42 @@ const PartsTab = () => {
                     {parts.map((part, index) => (
                         <div
                             key={index}
-                            className="border rounded-xl p-3 hover:shadow-md transition"
+                            className="border border-[#1C2C5633] rounded-xl hover:shadow-md transition"
                         >
-                            <img
-                                src={part.image}
-                                alt={part.name}
-                                className="w-full h-44 object-cover rounded-lg mb-3"
-                            />
+                            <div className="h-44 bg-[#1C4FA808] p-3">
+                                <img
+                                    src={part.image}
+                                    alt={part.name}
+                                    className="w-full h-full object-cover mb-3"
+                                />
+                            </div>
 
-                            <h3 className="text-sm font-semibold text-[#1C2C56]">
-                                {part.name}
-                            </h3>
-                            <p className="text-xs text-[#486284]">
-                                {part.category}
-                            </p>
+                            <div className="p-3">
+                                <h3 className="text-sm font-semibold text-[#1C2C56]">
+                                    {part.name}
+                                </h3>
+                                <p className="text-xs text-[#486284]">
+                                    {part.category}
+                                </p>
 
-                            <div className="flex gap-2 mt-3">
-                                <button
-                                    onClick={() => handleEdit(part)} // ✅ FIXED
-                                    className="flex-1 bg-[#1C2C56] text-white text-xs py-1.5 rounded-md"
-                                >
-                                    Edit
-                                </button>
-                                <button className="flex-1 border text-[#1C2C56] text-xs py-1.5 rounded-md flex items-center justify-center gap-1">
-                                    <FiCopy size={12} />
-                                    Duplicate
-                                </button>
+                                <div className="flex gap-2 mt-3">
+                                    <button
+                                        onClick={() => handleEdit(part)} // ✅ FIXED
+                                        className="flex-1 bg-[#1C2C56] text-white text-xs py-1.5 rounded-md"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button className="flex-1 border text-[#1C2C56] text-xs py-1.5 rounded-md flex items-center justify-center gap-1">
+                                        <FiCopy size={12} />
+                                        Duplicate
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
 
-            {/* LIST VIEW */}
             {/* LIST VIEW */}
             {view === "list" && (
                 <div className="overflow-x-auto">
@@ -281,14 +285,15 @@ const PartsTab = () => {
                 </div>
             )}
 
-
             {/* MODAL */}
             <AddEditPartModal
+                key={editPart ? editPart.name : "add"}
                 isOpen={openAdd}
                 onClose={handleCloseModal}
-                mode={editPart ? "edit" : "add"}  // ✅ FIXED
+                mode={editPart ? "edit" : "add"}
                 initialData={editPart}
             />
+
         </div>
     );
 };
