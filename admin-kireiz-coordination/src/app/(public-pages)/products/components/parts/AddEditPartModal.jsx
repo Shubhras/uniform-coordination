@@ -51,13 +51,26 @@ const AddEditPartModal = ({ isOpen, onClose, mode = "add", initialData }) => {
   };
 
   useEffect(() => {
+    if (!isOpen) return;
+
     if (mode === "edit" && initialData) {
-      setCategory(initialData.category || null);
-      setSubCategory(initialData.subCategory || null);
+      setCategory(
+        categoryOptions.find(c => c.label === initialData.category) || null
+      );
+      setSubCategory(null);
+      setImageFile(null);
       setPreview(initialData.image || null);
       setValidated(true);
+    } else {
+      // ✅ RESET EVERYTHING FOR ADD MODE
+      setCategory(null);
+      setSubCategory(null);
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
     }
-  }, [mode, initialData]);
+  }, [mode, initialData, isOpen]);
+
 
   /* ---------------- FILE HANDLERS ---------------- */
 

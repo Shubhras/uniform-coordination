@@ -5,18 +5,36 @@ import Image from 'next/image'
 import { FiChevronDown } from 'react-icons/fi'
 import { useParams, useRouter } from 'next/navigation'
 import { apiGetProductById } from '@/services/ProductService'
+
 const Uniforms = () => {
     const router = useRouter()
-    const handleUniformDesigning = () => {
-        router.push("/dashboards/uniform-single");
+    const { id } = useParams()
+
+    const handleUniformDesigning = (id) => {
+        router.push(`/dashboards/uniform-single/${id}`);
     };
-    const filters = ['All', 'Scrub', 'Lab Coats', 'Patient Care', 'Administrative']
+
+    // const filters = ['All', 'Scrub', 'Lab Coats', 'Patient Care', 'Administrative']
     const tabs = ['All Scrubs', 'Tops', 'Bottoms', 'Sets', 'Best Sellers', 'New Arrivals']
-    const sortOptions = ['Popular', 'Newest', 'Price: Low to High', 'Price: High to Low']
+    const sortOptions = ['Oldest', 'Newest']
+
+    const TAB_TYPE_MAP = {
+        'All Scrubs': undefined,
+        'Tops': 'tops',
+        'Bottoms': 'bottoms',
+        'Sets': 'sets',
+        'Best Sellers': 'best_sellers',
+        'New Arrivals': 'new_arrivals',
+    }
+
+    const SORT_MAP = {
+        Oldest: 'oldest',
+        Newest: 'newest',
+    }
 
     const [activeFilter, setActiveFilter] = useState('All')
     const [activeTab, setActiveTab] = useState('All Scrubs')
-    const [sortBy, setSortBy] = useState('Popular')
+    const [sortBy, setSortBy] = useState('Newest')
     const [openSort, setOpenSort] = useState(false)
 
     /* IMAGE DATA */
@@ -28,34 +46,56 @@ const Uniforms = () => {
         Tops: Array.from({ length: 6 }, (_, i) => `/img/uniform/top${i + 1}.png`),
         Bottoms: Array.from({ length: 3 }, (_, i) => `/img/uniform/bottom${i + 1}.png`),
         Sets: Array.from({ length: 6 }, (_, i) => `/img/uniform/top${i + 1}.png`),
-        'Best Sellers': Array.from({ length: 3 }, (_, i) => `/img/uniform/bottom${i + 1}.png`),
-        'New Arrivals': Array.from({ length: 6 }, (_, i) => `/img/uniform/top${i + 1}.png`),
+        // 'Best Sellers': Array.from({ length: 3 }, (_, i) => `/img/uniform/bottom${i + 1}.png`),
+        // 'New Arrivals': Array.from({ length: 6 }, (_, i) => `/img/uniform/top${i + 1}.png`),
     }
 
-    const products = imagesByTab[activeTab]
+    const { } = imagesByTab
 
-    const { id } = useParams();
-    const [productData, setProductData] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [productData, setProductData] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
+
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const res = await apiGetProductById(id);
+                setLoading(true)
+                setError(null)
+
+                const params = {}
+
+                params.subcategory_id = id
+                params.productType = 'uniform'
+
+                if (TAB_TYPE_MAP[activeTab]) {
+                    params.type = TAB_TYPE_MAP[activeTab]
+                }
+
+                if (SORT_MAP[sortBy]) {
+                    params.ordering = SORT_MAP[sortBy]
+                }
+
+                const res = await apiGetProductById(params)
+
                 if (res?.status) {
-                    setProductData(res.data);
+                    setProductData(res.data || [])
+                } else {
+                    setProductData([])
+                    setError('Failed to fetch products')
                 }
             } catch (err) {
-                console.error("Failed to load category detail", err);
+                setProductData([])
+                setError('Something went wrong while loading products')
+                console.error("Failed to load products detail", err)
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
-        };
+        }
 
-        if (id) fetchProduct();
-    }, [id]);
+        if (id) fetchProduct()
+    }, [id, activeTab, sortBy])
 
-    console.log(productData)
 
     return (
         <section className="w-full bg-white flex flex-col lg:flex-row px-5 md:px-8 lg:px-12 py-5 gap-10 mt-15">
@@ -63,25 +103,10 @@ const Uniforms = () => {
                 <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p>
 
                 {/* FILTER + SORT */}
-                <div className="flex flex-col lg:flex-row justify-between gap-4 mb-5">
+                <div className="flex justify-end gap-4 mb-5">
 
                     {/* FILTERS */}
-                    <div className="flex flex-wrap items-center gap-2 border border-[#1C2C56] bg-[#F5F8FF] rounded-lg px-3 py-2">
-                        <span className="text-sm font-medium text-[#1C2C56] mr-1">Filters :</span>
-                        {filters.map(item => (
-                            <button
-                                key={item}
-                                onClick={() => setActiveFilter(item)}
-                                className={`text-sm px-4 py-1 rounded-md transition
-                  ${activeFilter === item
-                                        ? 'bg-[#1C2C56] text-white'
-                                        : 'text-[#1C2C56] hover:bg-[#1C2C5615]'
-                                    }`}
-                            >
-                                {item}
-                            </button>
-                        ))}
-                    </div>
+                    {/* commented code stays commented */}
 
                     {/* SORT */}
                     <div className="relative">
@@ -142,32 +167,52 @@ const Uniforms = () => {
                 </div>
 
                 {/* PRODUCTS GRID */}
-                {/* pt-5 border-t border-[#90A3BF] */}
                 <div className="grid grid-cols-1
-              sm:grid-cols-2
-              lg:grid-cols-3
-              xl:grid-cols-4
-               gap-6 bg-[#F5F8FF] p-5">
-                    {products.map((img, i) => (
+  sm:grid-cols-2
+  lg:grid-cols-3
+  xl:grid-cols-4
+  gap-6 bg-[#F5F8FF] p-5">
+
+                    {loading && (
+                        <div className=" col-span-full  flex items-center justify-center text-center text-sm text-[#6B7280] min-h-32">
+                            Loading products...
+                        </div>
+                    )}
+
+                    {!loading && error && (
+                        <div className=" col-span-full  flex items-center justify-center text-center text-sm text-red-600 min-h-32">
+                            {error}
+                        </div>
+                    )}
+
+                    {!loading && !error && productData.length === 0 && (
+                        <div className="col-span-full  flex items-center justify-center text-sm text-[#6B7280] min-h-32">
+                            No products found
+                        </div>
+                    )}
+
+                    {!loading && !error && productData.map((product) => (
                         <div
-                            key={i}
+                            key={product.id}
                             className="bg-white border border-[#1C2C56] rounded-2xl p-4 flex flex-col justify-between text-start"
                         >
                             <div className="flex justify-center mb-4 ">
-                                <div className="">
-                                    <Image
-                                        src={img}
-                                        alt="Uniform"
-                                        width={250}
-                                        height={250}
-                                        className="object-contain"
-                                    />
-                                </div>
+                                <Image
+                                    src={product.ProductImage || '/img/placeholder.png'}
+                                    alt="Uniform"
+                                    width={250}
+                                    height={250}
+                                    className="object-contain"
+                                    unoptimized
+                                />
                             </div>
                             <div className='flex flex-col gap-3'>
-                                <h4 className="text-[#1C2C56] font-medium">Item Name</h4>
-                                <p className="text-xs text-[#6B7280]">Style#: UTSC03BLU</p>
-                                <button className=" bg-[#1C2C56] text-white text-sm py-2 rounded-md" onClick={handleUniformDesigning}>
+                                <h4 className="text-[#1C2C56] font-medium">{product.productName}</h4>
+                                <p className="text-xs text-[#6B7280]">{product.description}</p>
+                                <button
+                                    className=" bg-[#1C2C56] text-white text-sm py-2 rounded-md"
+                                    onClick={() => handleUniformDesigning(product.id)}
+                                >
                                     Customize
                                 </button>
                             </div>

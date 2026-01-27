@@ -16,16 +16,25 @@
 //     })
 // }
 
-
 import ApiService from "./ApiService";
 
-export async function apiGetProductById(id) {
+// export async function apiGetProductById(id) {
+//   return ApiService.fetchDataWithAxios({
+//     url: `/v1/uniformAdmin/product/list/?subcategoryId=${id}&productType=uniform`,
+//     method: "get",
+//   });
+// }
+export async function apiGetProductById(params) {
   return ApiService.fetchDataWithAxios({
-    url: `/v1/uniformAdmin/product/list/?subcategoryId=${id}`,
+    url: `/v1/uniformAdmin/product/list/`,
     method: "get",
+    params,
   });
 }
 
-
-
-
+export async function apiGetProductDetailsById(id) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/product/get/${id}/`,
+    method: "get",
+  });
+}
