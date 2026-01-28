@@ -106,7 +106,6 @@ const PartsTab = () => {
     return (
         <div className="bg-white rounded-xl shadow md:p-6 p-3">
 
-            {/* HEADER */}
             <div className="flex justify-between sm:flex-row flex-col items-start mb-4 gap-2">
                 <div>
                     <h2 className="text-2xl font-semibold text-[#1C2C56]">
@@ -126,7 +125,6 @@ const PartsTab = () => {
                 </button>
             </div>
 
-            {/* FILTERS */}
             <div className="flex flex-wrap gap-4 items-center mb-6">
                 <div className="relative w-full md:w-72">
                     <FiSearch className="absolute left-3 top-2.5 text-[#64748B]" size={16} />
@@ -169,7 +167,6 @@ const PartsTab = () => {
                 </div>
             </div>
 
-            {/* GRID VIEW */}
             {view === "grid" && (
                 <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {parts.map((part, index) => (
@@ -211,7 +208,6 @@ const PartsTab = () => {
                 </div>
             )}
 
-            {/* LIST VIEW */}
             {view === "list" && (
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
@@ -231,7 +227,6 @@ const PartsTab = () => {
                                 <tr
                                     key={index}
                                 >
-                                    {/* Preview */}
                                     <td className="px-4 py-3">
                                         <img
                                             src={part.image}
@@ -240,27 +235,22 @@ const PartsTab = () => {
                                         />
                                     </td>
 
-                                    {/* Name */}
                                     <td className="px-4 py-3 text-[#1C2C56] font-medium">
                                         {part.name}
                                     </td>
 
-                                    {/* Category */}
                                     <td className="px-4 py-3 text-[#486284]">
                                         {part.category}
                                     </td>
 
-                                    {/* Usage */}
                                     <td className="px-4 py-3 text-[#1C2C56]">
                                         45 Templates
                                     </td>
 
-                                    {/* Z Index */}
                                     <td className="px-4 py-3 text-[#486284]">
                                         1
                                     </td>
 
-                                    {/* Actions */}
                                     <td className="px-4 py-3">
                                         <div className="flex justify-end gap-3 text-[#1C2C56]">
                                             <button className="p-1.5 rounded hover:bg-[#EEF2FF]" >
@@ -285,7 +275,6 @@ const PartsTab = () => {
                 </div>
             )}
 
-            {/* MODAL */}
             <AddEditPartModal
                 key={editPart ? editPart.name : "add"}
                 isOpen={openAdd}

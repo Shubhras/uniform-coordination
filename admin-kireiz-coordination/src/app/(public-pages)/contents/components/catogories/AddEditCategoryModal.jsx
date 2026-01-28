@@ -3,77 +3,45 @@
 import { useEffect, useState, useRef } from "react";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
-import Select from "react-select";
 import { FiUpload } from "react-icons/fi";
 
-const AddEditPartModal = ({ isOpen, onClose, mode = "add", initialData }) => {
+const AddEditCategoryModal = ({
+  isOpen,
+  onClose,
+  mode = "add",
+  initialData,
+}) => {
   const fileInputRef = useRef(null);
 
-  const categoryOptions = [
-    { value: "body", label: "Body" },
-    { value: "sleeves", label: "Sleeves" },
-    { value: "details", label: "Details" },
-    { value: "pockets", label: "Pockets" },
-  ];
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
 
-  const subCategoryOptions = [
-    { value: "collar", label: "Collar" },
-    { value: "right-sleeve", label: "Right Sleeve" },
-    { value: "left-sleeve", label: "Left Sleeve" },
-  ];
-
-  const [category, setCategory] = useState(null);
-  const [subCategory, setSubCategory] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [validated, setValidated] = useState(false);
 
-  const selectStyles = {
-    control: (base) => ({
-      ...base,
-      minHeight: "42px",
-      borderRadius: "8px",
-      borderColor: "#E2E8F0",
-      boxShadow: "none",
-      "&:hover": { borderColor: "#1C2C56" },
-    }),
-    option: (base, state) => ({
-      ...base,
-      backgroundColor: state.isSelected
-        ? "#1C2C56"
-        : state.isFocused
-          ? "#EEF2FF"
-          : "white",
-      color: state.isSelected ? "white" : "#1E293B",
-      fontSize: "14px",
-    }),
-    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-  };
-
+  /* ================= PREFILL / RESET ================= */
   useEffect(() => {
     if (!isOpen) return;
 
     if (mode === "edit" && initialData) {
-      setCategory(
-        categoryOptions.find(c => c.label === initialData.category) || null
-      );
-      setSubCategory(null);
-      setImageFile(null);
+      setName(initialData.name || "");
+      setDescription(initialData.description || "");
       setPreview(initialData.image || null);
+
+      setImageFile(null);
       setValidated(true);
     } else {
-      // ✅ RESET EVERYTHING FOR ADD MODE
-      setCategory(null);
-      setSubCategory(null);
+      // ✅ RESET FOR ADD MODE
+      setName("");
+      setDescription("");
       setImageFile(null);
       setPreview(null);
       setValidated(false);
     }
   }, [mode, initialData, isOpen]);
 
-
-  /* ---------------- FILE HANDLERS ---------------- */
-
+  /* ================= FILE HANDLERS ================= */
   const handleFile = (file) => {
     if (!file || file.type !== "image/png") return;
 
@@ -91,18 +59,21 @@ const AddEditPartModal = ({ isOpen, onClose, mode = "add", initialData }) => {
     handleFile(e.target.files[0]);
   };
 
+  /* ================= SAVE ================= */
   const handleSave = () => {
     const payload = {
-      category: category?.value,
-      subCategory: subCategory?.value,
+      name,
+      description,
       image: imageFile,
     };
 
     if (mode === "edit") {
-      console.log("EDIT PART:", payload);
+      console.log("EDIT CATEGORY:", payload);
     } else {
-      console.log("ADD PART:", payload);
+      console.log("ADD CATEGORY:", payload);
     }
+
+    onClose();
   };
 
   return (
@@ -113,59 +84,46 @@ const AddEditPartModal = ({ isOpen, onClose, mode = "add", initialData }) => {
       className="w-full md:min-w-[620px] mx-auto"
     >
       <div className="flex flex-col">
-
+        {/* ================= HEADER ================= */}
         <div className="border-b p-2 flex justify-between items-center">
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            {mode === "edit" ? "Edit Part" : "Upload New Part"}
+            {mode === "edit" ? "Edit Categories" : "Create Categories"}
           </h2>
         </div>
 
-        <div className=" md:px-5 py-5 space-y-5 overflow-y-auto">
-
+        {/* ================= BODY ================= */}
+        <div className="md:px-5 py-5 space-y-5 overflow-y-auto">
+          {/* Name */}
           <div>
             <label className="text-[#1C2C56] text-base font-medium">
-              Category
+              Name<span className="text-red-500">*</span>
             </label>
-            <Select
-              options={categoryOptions}
-              value={category}
-              onChange={setCategory}
-              styles={selectStyles}
-              placeholder="Select Category"
-              menuPortalTarget={document.body}
-              menuPosition="fixed"
-              className="mt-1"
+
+            <input
+              type="text"
+              placeholder="Eg:- Cotton Canvas"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
             />
           </div>
 
+          {/* Upload Image */}
           <div>
             <label className="text-[#1C2C56] text-base font-medium">
-              Sub Category
-            </label>
-            <Select
-              options={subCategoryOptions}
-              value={subCategory}
-              onChange={setSubCategory}
-              styles={selectStyles}
-              placeholder="Select Category"
-              menuPortalTarget={document.body}
-              menuPosition="fixed"
-              className="mt-1"
-            />
-          </div>
-
-          <div>
-            <label className="text-[#1C2C56] text-base font-medium">
-              Upload image
+              Image<span className="text-red-500">*</span>
             </label>
 
+            {/* Upload Button */}
             <button
-              className="w-full bg-[#1C2C56] text-white py-2 rounded-md text-sm mt-2"
+              className="w-full bg-[#1C2C56] text-white py-2 rounded-md text-sm mt-2 flex items-center justify-center gap-2"
               onClick={() => fileInputRef.current.click()}
             >
+              <FiUpload size={16} />
               Upload image
             </button>
 
+            {/* Drag Drop Box */}
             <div
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
@@ -181,14 +139,13 @@ const AddEditPartModal = ({ isOpen, onClose, mode = "add", initialData }) => {
                 click to browse here
               </span>
 
-              <p className="text-xs mt-2 text-[#64748B]">
-                PNG files only
-              </p>
+              <p className="text-xs mt-2 text-[#64748B]">PNG files only</p>
               <p className="text-xs mt-2 text-[#64748B]">
                 Maximum dimension 1000×1000px
               </p>
             </div>
 
+            {/* Hidden Input */}
             <input
               type="file"
               accept="image/png"
@@ -198,12 +155,14 @@ const AddEditPartModal = ({ isOpen, onClose, mode = "add", initialData }) => {
             />
           </div>
 
+          {/* Validated */}
           {validated && (
             <p className="text-sm text-green-600 flex items-center gap-1">
               ✔ Image validated successfully
             </p>
           )}
 
+          {/* Preview */}
           {preview && (
             <div className="flex justify-center">
               <img
@@ -213,8 +172,23 @@ const AddEditPartModal = ({ isOpen, onClose, mode = "add", initialData }) => {
               />
             </div>
           )}
+
+          {/* Description */}
+          <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              Description
+            </label>
+
+            <textarea
+              placeholder="type....."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="mt-1 w-full border rounded-md px-3 py-2 text-sm h-[90px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
+            />
+          </div>
         </div>
 
+        {/* ================= FOOTER ================= */}
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
           <Button variant="plain" onClick={onClose} size="sm">
             Cancel
@@ -233,10 +207,9 @@ const AddEditPartModal = ({ isOpen, onClose, mode = "add", initialData }) => {
             {mode === "edit" ? "Update" : "Save"}
           </Button>
         </div>
-
       </div>
     </Dialog>
   );
 };
 
-export default AddEditPartModal;
+export default AddEditCategoryModal;

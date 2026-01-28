@@ -11,8 +11,6 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
     const [hex, setHex] = useState("#000000");
     const [fabrics, setFabrics] = useState([]);
 
-    /* ---------------- HELPERS ---------------- */
-
     const hexToRgb = (hex) => {
         const cleanHex = hex.replace("#", "");
         const bigint = parseInt(cleanHex, 16);
@@ -21,8 +19,6 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
         const b = bigint & 255;
         return `rgb(${r}, ${g}, ${b})`;
     };
-
-    /* ---------------- PREFILL / RESET ---------------- */
 
     useEffect(() => {
         if (!isOpen) return;
@@ -37,8 +33,6 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
             setFabrics([]);
         }
     }, [mode, initialData, isOpen]);
-
-    /* ---------------- ACTIONS ---------------- */
 
     const toggleFabric = (fabric) => {
         setFabrics((prev) =>
@@ -75,17 +69,14 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
         >
             <div className="flex flex-col">
 
-                {/* HEADER */}
                 <div className="border-b p-4">
                     <h2 className="text-2xl font-semibold text-[#1C2C56]">
                         {mode === "edit" ? "Edit Color" : "Add New Color"}
                     </h2>
                 </div>
 
-                {/* BODY */}
                 <div className="px-5 py-5 space-y-5">
 
-                    {/* COLOR NAME */}
                     <div>
                         <label className="text-[#1C2C56] text-sm font-medium">
                             Color Name
@@ -99,7 +90,6 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
                         />
                     </div>
 
-                    {/* COLOR PICKER */}
                     <div className="flex gap-4 items-end">
                         <div className="flex flex-col">
                             <label className="text-[#1C2C56] text-sm font-medium">
@@ -126,7 +116,6 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
                         </div>
                     </div>
 
-                    {/* RGB (READ ONLY) */}
                     <div>
                         <label className="text-[#1C2C56] text-sm font-medium">
                             RGB Value
@@ -139,7 +128,6 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
                         />
                     </div>
 
-                    {/* FABRICS */}
                     <div>
                         <p className="text-[#1C2C56] text-sm font-medium mb-2">
                             Compatible Fabrics
@@ -166,7 +154,6 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
 
                 </div>
 
-                {/* FOOTER */}
                 <div className="border-t px-6 py-4 flex justify-end gap-3">
                     <Button variant="plain" size="sm" onClick={onClose}>
                         Cancel

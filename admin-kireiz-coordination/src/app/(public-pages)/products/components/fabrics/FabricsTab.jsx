@@ -25,7 +25,6 @@ const FabricsTab = () => {
 
     return (
         <div className="bg-white rounded-xl shadow md:p-6 p-3 ">
-            {/* Header */}
             <div className="flex justify-between sm:flex-row flex-col items-start mb-4 gap-2">
                 <div>
                     <h2 className="text-2xl font-semibold text-[#1C2C56]">
@@ -46,8 +45,6 @@ const FabricsTab = () => {
                 </button>
             </div>
 
-            {/* Fabric Table here */}
-            {/* Search */}
             <div className="relative w-full md:w-72 mb-4">
                 <FiSearch className="absolute left-3 top-2.5 text-[#64748B]" size={16} />
                 <input
@@ -57,7 +54,6 @@ const FabricsTab = () => {
                 />
             </div>
 
-            {/* Table */}
             <div className="overflow-x-auto">
                 <table className="w-full text-base">
                     <thead className="bg-[#1C4FA80F] text-[#486284] ">

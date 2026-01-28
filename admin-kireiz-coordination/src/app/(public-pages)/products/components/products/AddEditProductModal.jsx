@@ -132,17 +132,14 @@ const AddEditProductModal = ({ isOpen, onClose, initialData }) => {
             className="w-full md:min-w-[600px]">
             <div className="flex flex-col">
 
-                {/* HEADER */}
                 <div className="border-b px-6 py-4">
                     <h2 className="text-2xl font-semibold text-[#1C2C56]">
                         {isEdit ? "Edit Product" : "Add Product"}
                     </h2>
                 </div>
 
-                {/* BODY */}
                 <div className="px-6 py-5 space-y-5">
 
-                    {/* IMAGE */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
                             Product Image
@@ -175,7 +172,6 @@ const AddEditProductModal = ({ isOpen, onClose, initialData }) => {
                         </div>
                     )}
 
-                    {/* PRODUCT NAME */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
                             Product Name
@@ -188,7 +184,6 @@ const AddEditProductModal = ({ isOpen, onClose, initialData }) => {
                         />
                     </div>
 
-                    {/* DESCRIPTION */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
                             Description
@@ -203,7 +198,6 @@ const AddEditProductModal = ({ isOpen, onClose, initialData }) => {
                         />
                     </div>
 
-                    {/* SELECTS */}
                     <Select
                         placeholder="Select Part"
                         value={form.part}
@@ -245,7 +239,6 @@ const AddEditProductModal = ({ isOpen, onClose, initialData }) => {
                     />
                 </div>
 
-                {/* FOOTER */}
                 <div className="border-t px-6 py-4 flex justify-end gap-3">
                     <Button variant="plain" size="sm" onClick={onClose}>
                         Cancel
