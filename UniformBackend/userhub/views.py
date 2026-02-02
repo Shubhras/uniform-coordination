@@ -1296,13 +1296,6 @@ class OrderSummaryAPIView(APIView):
                     "email": customer.email,
                     "phone": customer.phone
                 },
-                # "delivery_address": {
-                #     "address": f"{customer.address_line_1}, "
-                #             f"{customer.address_line_2}, "
-                #             f"{customer.city}, "
-                #             f"{customer.postal_code}, "
-                #             f"{customer.country}"
-                # },
                 "delivery_address": {
                         "address_line_1": customer.address_line_1,
                         "address_line_2": customer.address_line_2,
@@ -1310,7 +1303,6 @@ class OrderSummaryAPIView(APIView):
                         "postal_code": customer.postal_code,
                         "country": customer.country
                     },
-
                 "rental_period": {
                     "start": order.start_date.strftime("%Y-%m-%d"),
                     "return": order.return_date.strftime("%Y-%m-%d"),
@@ -1348,49 +1340,80 @@ class OrderSummaryAPIView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
+# class OrderListAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         try:
+#             orders = Order.objects.filter(user=request.user).order_by('-created_at')
+
+#             if not orders.exists():
+#                 return Response({
+#                     "status": True,
+#                     "statusCode": 200,
+#                     "message": "No orders found",
+#                     "data": [],
+#                     "pagination": {
+#                         "currentPage": 1,
+#                         "limit": 0,
+#                         "totalItems": 0,
+#                         "totalPages": 0,
+#                         "nextPage": False,
+#                         "previousPage": False
+#                     }
+#                 }, status=status.HTTP_200_OK)
+
+#             paginator = CustomPagination()
+#             paginated_orders = paginator.paginate_queryset(orders, request)
+#             serializer = OrderSerializer(paginated_orders, many=True)
+
+#             paginated_response = paginator.get_paginated_response(serializer.data)
+#             paginated_response.data["status"] = True
+#             paginated_response.data["statusCode"] = 200
+#             paginated_response.data["message"] = "Order list fetched successfully"
+
+#             return paginated_response
+
+#         except Exception as e:
+#             return Response(
+#                 {
+#                     "status": False,
+#                     "statusCode": 500,
+#                     "message": "Something went wrong while fetching order list",
+#                     "error": str(e)
+#                 },
+#                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class OrderListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
-            orders = Order.objects.filter(user=request.user).order_by('-created_at')
-
-            if not orders.exists():
-                return Response({
-                    "status": True,
-                    "statusCode": 200,
-                    "message": "No orders found",
-                    "data": [],
-                    "pagination": {
-                        "currentPage": 1,
-                        "limit": 0,
-                        "totalItems": 0,
-                        "totalPages": 0,
-                        "nextPage": False,
-                        "previousPage": False
-                    }
-                }, status=status.HTTP_200_OK)
+            orders = Order.objects.filter(
+                user=request.user
+            ).order_by('-created_at')
 
             paginator = CustomPagination()
             paginated_orders = paginator.paginate_queryset(orders, request)
+
             serializer = OrderSerializer(paginated_orders, many=True)
+            response = paginator.get_paginated_response(serializer.data)
 
-            paginated_response = paginator.get_paginated_response(serializer.data)
-            paginated_response.data["status"] = True
-            paginated_response.data["statusCode"] = 200
-            paginated_response.data["message"] = "Order list fetched successfully"
+            # yahin metadata add kar do
+            response.data.update({
+                "status": True,
+                "statusCode": 200,
+                "message": "Order list fetched successfully"
+            })
 
-            return paginated_response
+            return response
 
         except Exception as e:
-            return Response(
-                {
-                    "status": False,
-                    "statusCode": 500,
-                    "message": "Something went wrong while fetching order list",
-                    "error": str(e)
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Something went wrong while fetching order list",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class OrderDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]

@@ -60,10 +60,11 @@ urlpatterns = [
     path("order/list/",OrderListAPIView.as_view()),
     
     #<-------------------Payment API------------------------------->
-    path("payments/create-intent/",CreatePaymentIntentAPIView.as_view()),
+    path("payments/create-intent/",ConfirmPaymentAPIView.as_view()),
     path("payments/", UserPaymentListAPIView.as_view()),
     path("payments/detail/", UserPaymentDetailAPIView.as_view()),
-    path("stripe/webhook",StripeWebhookAPIView.as_view()),
+    path("stripe/webhook/", stripe_webhook),  
+
     # path("payments/create-NP/",CreateNPPaymentAPIView.as_view(),name="CREATE NP Kakebarai"),
     # path("NP/webhook/",NPPaymentWebhookAPIView.as_view(),name="NP_webhook"),
      

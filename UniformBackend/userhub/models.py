@@ -204,10 +204,11 @@ class Order(models.Model):
 
 class Payment(models.Model):
     PAYMENT_STATUS = [
-        ('SUCCESS','Success'), 
-        ('FAILED','Failed'), 
-        ('PENDING','Pending')]
-    
+       ('success','SUCCESS'),
+       ('failed','FAILED') ,
+       ('pending','PENDING') ,  
+         ]
+   
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     payment_id = models.CharField(max_length=50, unique=True)
     customer_id = models.CharField(max_length=100, blank=True, null=True)  
@@ -355,8 +356,6 @@ class QuotationRequest(models.Model):
     additional_note = models.TextField(blank=True, null=True)
     agreed_to_terms = models.BooleanField(default=False,null=True,blank=True)
     quotation_status = models.CharField(max_length=20,choices=STATUS_CHOICES, default="pending")
-    cancelled_by = models.CharField(max_length=10,null=True, blank=True)
-    cancel_reason = models.TextField(null=True, blank=True)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
