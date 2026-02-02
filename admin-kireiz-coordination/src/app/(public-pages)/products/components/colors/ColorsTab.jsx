@@ -42,8 +42,6 @@ const ColorsTab = () => {
     },
   ];
 
-  /* ---------------- HANDLERS ---------------- */
-
   const handleAddColor = () => {
     setModalMode("add");
     setSelectedColor(null);
@@ -59,7 +57,6 @@ const ColorsTab = () => {
   return (
     <>
       <div className="bg-white rounded-xl shadow md:p-6 p-3">
-        {/* HEADER */}
         <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
@@ -79,7 +76,6 @@ const ColorsTab = () => {
           </button>
         </div>
 
-        {/* SEARCH */}
         <div className="relative w-full md:w-72 mb-6">
           <FiSearch
             className="absolute left-3 top-2.5 text-[#64748B]"
@@ -92,20 +88,17 @@ const ColorsTab = () => {
           />
         </div>
 
-        {/* GRID */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {colors.map((color, index) => (
             <div
               key={index}
               className="border border-[#1C2C5633] rounded-xl overflow-hidden bg-white hover:shadow-md transition"
             >
-              {/* COLOR SWATCH */}
               <div
                 className="h-52"
                 style={{ backgroundColor: color.swatch }}
               />
 
-              {/* CONTENT */}
               <div className="p-4">
                 <h3 className="text-sm font-semibold text-[#1C2C56]">
                   {color.name}
@@ -115,7 +108,6 @@ const ColorsTab = () => {
                   {color.hex} &nbsp; {color.rgb}
                 </p>
 
-                {/* FABRICS */}
                 <div className="mt-3">
                   <p className="text-xs text-[#486284] mb-1">
                     Compatible Fabrics:
@@ -132,7 +124,6 @@ const ColorsTab = () => {
                   </div>
                 </div>
 
-                {/* ACTIONS */}
                 <div className="flex gap-2 mt-4">
                   <button
                     onClick={() => handleEditColor(color)}
@@ -152,7 +143,6 @@ const ColorsTab = () => {
         </div>
       </div>
 
-      {/* ADD / EDIT COLOR MODAL */}
       <AddEditColorModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

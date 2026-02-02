@@ -156,24 +156,65 @@ const PANELS = {
   },
 };
 
-
-
 const Uniform3DmoduleDegisn = () => {
   const [counts, setCounts] = useState({});
+  const [designJSON, setDesignJSON] = useState({
+    colors: {
+      top: "",
+      bottom: ""
+    },
+
+    fabric: "",
+
+    options: {
+      collar: "",
+      sleeves: "",
+      cap: "",
+      zipper: "",
+      cuff: "",
+      pants: "",
+      pocket: "",
+      aprons: ""
+    },
+
+    sizes: {}   // ✅ quantity based sizes
+  });
+
 
   const increment = (size) => {
     setCounts((prev) => ({
       ...prev,
-      [size]: (prev[size] || 0) + 1,
+      [size]: (prev[size] || 0) + 1
+    }));
+
+    setDesignJSON((prev) => ({
+      ...prev,
+      sizes: {
+        ...prev.sizes,
+        [size]: (prev.sizes[size] || 0) + 1
+      }
     }));
   };
 
   const decrement = (size) => {
-    setCounts((prev) => ({
-      ...prev,
-      [size]: Math.max((prev[size] || 0) - 1, 0),
-    }));
+    setDesignJSON((prev) => {
+      const updatedSizes = { ...prev.sizes };
+
+      if (!updatedSizes[size]) return prev;
+
+      updatedSizes[size] -= 1;
+
+      if (updatedSizes[size] <= 0) {
+        delete updatedSizes[size]; // ✅ remove key
+      }
+
+      return {
+        ...prev,
+        sizes: updatedSizes
+      };
+    });
   };
+
   const router = useRouter()
   // const mvRef = useRef(null)
   // const [modelSrc, setModelSrc] = useState(SAMPLE_MODEL)
@@ -207,7 +248,7 @@ const Uniform3DmoduleDegisn = () => {
 
   function applyBaseColorToModel(hex) {
     uniformState.color = hex
-uniformState.partColors[uniformState.active3dPart] = hex
+    uniformState.partColors[uniformState.active3dPart] = hex
   }
 
   /** LEFT ICON SELECT */
@@ -221,7 +262,7 @@ uniformState.partColors[uniformState.active3dPart] = hex
     })
   }
   function onActive3dPartClick(key) {
-    uniformState.color = ""
+    // uniformState.color = ""
     setActive3dPart(key);
     uniformState.active3dPart = key;
   }
@@ -252,9 +293,11 @@ uniformState.partColors[uniformState.active3dPart] = hex
   }
 
   const handleUniformDesignResult = () => {
-    router.push("/dashboards/design-result?id=16");
+    console.log("FINAL DESIGN JSON:", designJSON);
+    // router.push("/dashboards/design-result?id=16");
   };
   const [position, setPosition] = useState("top"); // top | bottom
+
   const COMMON_BUTTONS = ["color", "size"];
   const TOP_ONLY_BUTTONS = [
     "fabric",
@@ -266,8 +309,17 @@ uniformState.partColors[uniformState.active3dPart] = hex
     "cuff",
   ];
   const BOTTOM_ONLY_BUTTONS = [
-    "legy", "Pants", "Pocket", "Aprons"
+    "legy", "pants", "pocket", "aprons"
   ];
+
+  useEffect(() => {
+    uniformState.active3dPart = "top";
+  }, []);
+
+  useEffect(() => {
+    uniformState.active3dPart = position; // "top" or "bottom"
+  }, [position]);
+
 
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -476,11 +528,21 @@ uniformState.partColors[uniformState.active3dPart] = hex
                     <button
                       key={i}
                       onClick={() => {
-                        applyBaseColorToModel(hex)
-                        setColor(hex)
-                        uniformState.color = hex
-                        uniformState.partColors[uniformState.active3dPart] = hex
+                        applyBaseColorToModel(hex);
+                        setColor(hex);
+
+                        // ✅ Only Top & Bottom colors allowed
+                        const jsonPart = uniformState.active3dPart;
+
+                        setDesignJSON((prev) => ({
+                          ...prev,
+                          colors: {
+                            ...prev.colors,
+                            [jsonPart]: hex
+                          }
+                        }));
                       }}
+
                       className="w-10 h-10 rounded-full shadow border"
                       style={{ background: hex }}
                     />
@@ -515,6 +577,13 @@ uniformState.partColors[uniformState.active3dPart] = hex
                     {PANELS[active].data.map((tex, i) => (
                       <button
                         key={i}
+                        onClick={() => {
+                          setDesignJSON((prev) => ({
+                            ...prev,
+                            fabric: tex
+                          }));
+                        }}
+
                         className="
                           w-[43px] h-[43px]
                           border border-gray-300
@@ -540,7 +609,15 @@ uniformState.partColors[uniformState.active3dPart] = hex
               {PANELS[active].type === "options" && (
                 <div className="grid grid-cols-3 gap-3">
                   {PANELS[active].data.map((opt, i) => (
-                    <button key={i} className="p-2 rounded-lg shadow relative">
+                    <button key={i} onClick={() => {
+                      setDesignJSON((prev) => ({
+                        ...prev,
+                        options: {
+                          ...prev.options,
+                          [active]: opt   // collar / pants / pocket / aprons
+                        }
+                      }));
+                    }} className="p-2 rounded-lg shadow relative">
                       <img src={opt} className="w-full h-full object-cover" />
 
                       <p className="text-xs absolute bottom-1 left-1/2 -translate-x-1/2
@@ -594,17 +671,23 @@ uniformState.partColors[uniformState.active3dPart] = hex
               {PANELS[active].type === "optionsLegy" && (
                 <div className="grid grid-cols-3 gap-3">
                   {PANELS[active].data.map((opt, i) => (
-                    <button key={i} className="p-2 border rounded-lg shadow" onClick={() => onActive3dPartClick("leggings")} >
+                    <button
+                      key={i}
+                      className="p-2 border rounded-lg shadow"
+                      onClick={() => onActive3dPartClick("bottom")}
+                    >
                       <img src={opt} className="w-full" />
                     </button>
                   ))}
                 </div>
               )}
 
+
               {PANELS[active].type === "optionsTops" && (
                 <div className="grid grid-cols-3 gap-3">
                   {PANELS[active].data.map((opt, i) => (
-                    <button key={i} className="p-2 border rounded-lg shadow" onClick={() => onActive3dPartClick("tops")} >
+                    <button key={i} className="p-2 border rounded-lg shadow" onClick={() => onActive3dPartClick("top")}
+                    >
                       <img src={opt} className="w-full" />
                     </button>
                   ))}

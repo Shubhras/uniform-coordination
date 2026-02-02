@@ -119,7 +119,6 @@ const TemplatesTab = () => {
   return (
     <>
       <div className="bg-white rounded-xl shadow md:p-6 p-3">
-        {/* HEADER */}
         <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
@@ -144,7 +143,6 @@ const TemplatesTab = () => {
           </div>
         </div>
 
-        {/* FILTERS */}
         <div className="flex flex-wrap gap-4 items-center mb-6">
           <div className="relative w-full md:w-72">
             <FiSearch className="absolute left-3 top-2.5 text-[#64748B]" size={16} />
@@ -165,14 +163,12 @@ const TemplatesTab = () => {
           />
         </div>
 
-        {/* GRID */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {templates.map((t, index) => (
             <div
               key={index}
               className="border border-[#E2E8F0] rounded-xl bg-white hover:shadow-md transition"
             >
-              {/* IMAGE */}
               <div className="flex justify-center items-center p-3">
                 <div className="w-32 h-32 flex items-center justify-center">
                   <img
@@ -183,7 +179,6 @@ const TemplatesTab = () => {
                 </div>
               </div>
 
-              {/* CONTENT */}
               <div className="px-4 pb-4">
                 <h3 className="text-sm font-semibold text-[#1C2C56]">
                   {t.name}
@@ -197,7 +192,6 @@ const TemplatesTab = () => {
                   {t.status}
                 </span>
 
-                {/* ACTIONS */}
                 <div className="flex gap-2 mt-4">
                   <button
                     onClick={() => handleEdit(t)}
@@ -218,7 +212,6 @@ const TemplatesTab = () => {
         </div>
       </div>
 
-      {/* MODAL */}
       <AddEditTemplateModal
         isOpen={openModal}
         onClose={() => setOpenModal(false)}

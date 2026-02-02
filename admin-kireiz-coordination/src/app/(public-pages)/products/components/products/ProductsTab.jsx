@@ -95,7 +95,6 @@ const ProductsTab = () => {
   return (
     <div className="bg-white rounded-xl shadow md:p-6 p-3">
 
-      {/* HEADER — MATCHES TEMPLATE GALLERY */}
       <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
         <div>
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
@@ -114,14 +113,12 @@ const ProductsTab = () => {
         </button>
       </div>
 
-      {/* GRID — SAME CARD FEEL */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {products.map((item) => (
           <div
             key={item.id}
             className="border border-[#E2E8F0] rounded-xl bg-white hover:shadow-md transition"
           >
-            {/* IMAGE */}
             <div className="flex justify-center items-center p-3">
               <div className="w-32 h-32 flex items-center justify-center">
                 <img
@@ -132,7 +129,6 @@ const ProductsTab = () => {
               </div>
             </div>
 
-            {/* CONTENT */}
             <div className="px-4 pb-4 text-center">
               <h3 className="text-sm font-semibold text-[#1C2C56]">
                 {item.name}
@@ -153,7 +149,6 @@ const ProductsTab = () => {
         ))}
       </div>
 
-      {/* MODAL */}
       <AddEditProductModal
         isOpen={isModalOpen}
         initialData={selectedProduct}

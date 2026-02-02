@@ -100,17 +100,14 @@ const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) =>
             className="w-full md:min-w-[600px]">
             <div className="flex flex-col">
 
-                {/* HEADER */}
                 <div className="border-b px-6 py-4">
                     <h2 className="text-2xl font-semibold text-[#1C2C56]">
                         {mode === "edit" ? "Edit Template" : "Create Template"}
                     </h2>
                 </div>
 
-                {/* BODY */}
                 <div className="px-6 py-5 space-y-5">
 
-                    {/* TEMPLATE NAME */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
                             Template Name
@@ -123,7 +120,6 @@ const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) =>
                         />
                     </div>
 
-                    {/* CATEGORY */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
                             Category
@@ -140,7 +136,6 @@ const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) =>
                         />
                     </div>
 
-                    {/* PARTS COUNT */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
                             Parts Count
@@ -155,7 +150,6 @@ const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) =>
                         />
                     </div>
 
-                    {/* STATUS */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
                             Status
@@ -171,7 +165,6 @@ const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) =>
                         />
                     </div>
 
-                    {/* IMAGE UPLOAD */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
                             Template Image
@@ -194,7 +187,6 @@ const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) =>
                         />
                     </div>
 
-                    {/* PREVIEW */}
                     {preview && (
                         <div className="flex justify-center">
                             <img
@@ -206,7 +198,6 @@ const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) =>
                     )}
                 </div>
 
-                {/* FOOTER */}
                 <div className="border-t px-6 py-4 flex justify-end gap-3">
                     <Button variant="plain" size="sm" onClick={onClose}>
                         Cancel
