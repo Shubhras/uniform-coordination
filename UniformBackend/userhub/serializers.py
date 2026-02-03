@@ -447,6 +447,7 @@ class CustomUpdateModelsSerializer(serializers.ModelSerializer):
     product_details = serializers.SerializerMethodField()
     category_details = serializers.SerializerMethodField()
     subcategory_details = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUpdateModels
@@ -488,6 +489,10 @@ class CustomUpdateModelsSerializer(serializers.ModelSerializer):
         # pass request in context to serializer
         serializer = ProductSerializer(qs, many=True, context={"request": request})
         return serializer.data
+    def get_user(self, obj):
+        if obj.user:
+            return obj.user.id
+        return None
 
 
    
