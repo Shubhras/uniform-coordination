@@ -80,8 +80,6 @@ class PromocodeCreateAPIView(BaseAPIView):
         }, status=status_code)
 
 
-
-
 class PromocodeListAPIView(BaseAPIView):
     permission_classes = [AllowAny]
     
@@ -163,10 +161,6 @@ class PromocodeListAPIView(BaseAPIView):
             return self.error_response(f"Internal server error: {str(e)}")
 
 
-
-
-
-
 class PromocodeDetailAPIView(BaseAPIView):
     permission_classes = [AllowAny]
 
@@ -206,8 +200,6 @@ class PromocodeDetailAPIView(BaseAPIView):
 
         except Exception as e:
             return self.error_response(f"Internal server error: {str(e)}")
-
-
 
 
 class PromocodeUpdateAPIView(BaseAPIView):
@@ -259,7 +251,6 @@ class PromocodeUpdateAPIView(BaseAPIView):
 
         except Exception as e:
             return self.error_response(f"Internal server error: {str(e)}")
-
 
 
 class PromocodeDeleteAPIView(BaseAPIView):

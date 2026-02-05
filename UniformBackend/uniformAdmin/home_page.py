@@ -102,7 +102,10 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
 #             }
 #         })
 
-@extend_schema(
+
+class HomePageAPIView(APIView):
+
+    @extend_schema(
     tags=["HomePage API"],
     responses={
         200: OpenApiResponse(description="Home page data fetched successfully"),
@@ -110,8 +113,6 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
         # 500: OpenApiResponse(description="Internal server error"),
     },
 )
-class HomePageAPIView(APIView):
-
     def get(self, request):
 
         # ✅ GET TYPE (uniform / table)

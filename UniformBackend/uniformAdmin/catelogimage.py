@@ -13,7 +13,12 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
 
 #----------------Catalog Image -----------------
 
-@extend_schema(
+
+class CatalogImageCreateAPIView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication] 
+
+    @extend_schema(
     tags=["CatelogImage"],
     summary="Create a catalog Image",
     request=CatalogImageSerializer,
@@ -23,10 +28,6 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
         500: OpenApiResponse(description="Server error"),
     },
 )
-class CatalogImageCreateAPIView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication] 
-
     def post(self, request):
         try:
             serializer = CatalogImageSerializer(data=request.data, context={"request": request})
@@ -56,8 +57,10 @@ class CatalogImageCreateAPIView(APIView):
             }, status=status.HTTP_200_OK)
 
 
+class CatalogImageListAPIView(APIView):
+    permission_classes = [AllowAny]
 
-@extend_schema(
+    @extend_schema(
     tags=["CatelogImage"],
     summary="Catalog Images List API",
     parameters=[
@@ -73,9 +76,6 @@ class CatalogImageCreateAPIView(APIView):
         500: OpenApiResponse(description="Server error"),
     },
 )
-class CatalogImageListAPIView(APIView):
-    permission_classes = [AllowAny]
-
     def get(self, request):
         try:
             name = request.query_params.get("name", "").strip()
@@ -125,7 +125,10 @@ class CatalogImageListAPIView(APIView):
             }, status=status.HTTP_200_OK)
 
 
-@extend_schema(
+class CatalogImageDetailAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    @extend_schema(
     tags=["CatelogImage"],
     summary="Get Catalog Image Details by ID",
     responses={
@@ -134,9 +137,6 @@ class CatalogImageListAPIView(APIView):
         500: OpenApiResponse(description="Server error"),
     },
 )
-class CatalogImageDetailAPIView(APIView):
-    permission_classes = [AllowAny]
-
     def get(self, request, pk):
         try:
             catalog_image = get_object_or_404(CatalogImage, pk=pk, isDeleted=False)
@@ -158,9 +158,11 @@ class CatalogImageDetailAPIView(APIView):
             }, status=status.HTTP_200_OK)
 
 
+class CatalogImageUpdateAPIView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication] 
 
-
-@extend_schema(
+    @extend_schema(
     tags=["CatelogImage"],
     summary="Update catalog Image by ID",
     request=CatalogImageSerializer,
@@ -171,10 +173,6 @@ class CatalogImageDetailAPIView(APIView):
         500: OpenApiResponse(description="Server error"),
     },
 )
-class CatalogImageUpdateAPIView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication] 
-
     def put(self, request, pk):
         try:
             catalog_image = get_object_or_404(CatalogImage, pk=pk, isDeleted=False)
@@ -219,9 +217,11 @@ class CatalogImageUpdateAPIView(APIView):
             }, status=status.HTTP_200_OK)
 
 
+class CatalogImageDeleteAPIView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication] 
 
-
-@extend_schema(
+    @extend_schema(
     tags=["CatelogImage"],
     summary="Delete catalog Image by ID",
     responses={
@@ -230,10 +230,6 @@ class CatalogImageUpdateAPIView(APIView):
         500: OpenApiResponse(description="Server error"),
     },
 )
-class CatalogImageDeleteAPIView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication] 
-
     def delete(self, request, pk):
         try:
             catalog_image = get_object_or_404(CatalogImage, pk=pk, isDeleted=False)

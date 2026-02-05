@@ -13,7 +13,12 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
 
 
 
-@extend_schema(
+
+class PrivacyPolicyCreateAPIView(BaseAPIView):   
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+
+    @extend_schema(
     tags=["Privacy Policy"],
     summary="Create Privacy Policy",
     description="Admin only API to create a new privacy policy.",
@@ -25,10 +30,6 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class PrivacyPolicyCreateAPIView(BaseAPIView):   
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
-
     def post(self, request):
         try:
             serializer = PrivacyPolicySerializer(data=request.data)
@@ -48,8 +49,10 @@ class PrivacyPolicyCreateAPIView(BaseAPIView):
             return self.error_response(f"Internal server error: {str(e)}")
 
 
-
-@extend_schema(
+class PrivacyPolicyListAPIView(BaseAPIView):
+    permission_classes = [AllowAny]
+    
+    @extend_schema(
     tags=["Privacy Policy"],
     summary="List Privacy Policies",
     description="Public API to fetch privacy policies with search and filters.",
@@ -90,8 +93,6 @@ class PrivacyPolicyCreateAPIView(BaseAPIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class PrivacyPolicyListAPIView(BaseAPIView):
-    permission_classes = [AllowAny]
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()
@@ -147,8 +148,10 @@ class PrivacyPolicyListAPIView(BaseAPIView):
             return self.error_response(f"Internal server error: {str(e)}")
 
 
+class PrivacyPolicyDetailAPIView(BaseAPIView):
+    permission_classes = [AllowAny]
 
-@extend_schema(
+    @extend_schema(
     tags=["Privacy Policy"],
     summary="Privacy Policy Detail",
     description="Fetch a single privacy policy by ID.",
@@ -167,9 +170,6 @@ class PrivacyPolicyListAPIView(BaseAPIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class PrivacyPolicyDetailAPIView(BaseAPIView):
-    permission_classes = [AllowAny]
-
     def get(self, request, pk):
         try:
             policy = get_object_or_404(
@@ -184,7 +184,11 @@ class PrivacyPolicyDetailAPIView(BaseAPIView):
             return self.error_response(f"Internal server error: {str(e)}")
 
 
-@extend_schema(
+class PrivacyPolicyUpdateAPIView(BaseAPIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+
+    @extend_schema(
     tags=["Privacy Policy"],
     summary="Update Privacy Policy",
     description="Admin only API to update privacy policy.",
@@ -206,10 +210,6 @@ class PrivacyPolicyDetailAPIView(BaseAPIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class PrivacyPolicyUpdateAPIView(BaseAPIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
-
     def put(self, request, pk):
         try:
             policy = get_object_or_404(
@@ -227,8 +227,6 @@ class PrivacyPolicyUpdateAPIView(BaseAPIView):
             return self.error_response(serializer.errors)
         except Exception as e:
             return self.error_response(f"Internal server error: {str(e)}")
-
-
 
 
 class PrivacyPolicyDeleteAPIView(BaseAPIView):

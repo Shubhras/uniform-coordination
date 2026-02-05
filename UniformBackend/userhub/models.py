@@ -100,6 +100,8 @@ class Cart(models.Model):
     is_update = models.DateField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
 
+    def __str__(self):
+        return f"Cart {self.id} | User: {self.user}"
 
 
 class CartItem(models.Model):
@@ -133,7 +135,7 @@ class CustomerDetails(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=15)
     address_line_1 = models.CharField(max_length=255)
-    address_line_2 = models.CharField(max_length=255, blank=True)
+    address_line_2 = models.CharField(max_length=255, blank=True,null=True)
     city = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=10)
     country = models.CharField(max_length=100)
@@ -173,10 +175,59 @@ class Order(models.Model):
     start_date =models.DateField(auto_now_add=True)
     return_date =models.DateField(auto_now_add=True)
     promocode =models.ForeignKey("uniformAdmin.Promocode",on_delete=models.CASCADE,null=True, blank=True)
+    
+    is_return = models.BooleanField(default=False)  # FINAL FLAG
+
+    lost_charge = models.DecimalField(max_digits=10,decimal_places=2,default=0)
+    damage_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+    rental_days = models.IntegerField(null=True, blank=True)
+    shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    discounted_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
     is_active = models.BooleanField(default=True,null=True,blank=True)
     is_delete = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     is_update = models.DateField(auto_now_add=True,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+
+    def __str__(self):
+        return f"Order {self.order_id} | {self.user} | {self.status}"
+
+
+class OrderItem(models.Model):
+
+    #  CONDITION CHECK
+    CONDITION_CHOICES = [
+        ('good', 'GOOD'),
+        ('damage', 'DAMAGE'),
+        ('lost', 'LOST'),
+    ]
+    #condition only after return
+    condition = models.CharField(max_length=20, choices=CONDITION_CHOICES,null=True,blank=True, default='good')
+
+    #  IMAGE CHECK
+    return_image = models.ImageField(upload_to="returns/", null=True, blank=True)
+
+    # charges calculated here
+    damage_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    lost_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    #  RETURN TRACKING
+    returned_quantity = models.PositiveIntegerField(default=0)
+    is_returned = models.BooleanField(default=False)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+    product = models.ForeignKey("uniformAdmin.Product", on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)  # frozen price
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)  # frozen total
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"OrderItem {self.id} | Order {self.order.order_id} | {self.product}"
 
 
 
@@ -283,6 +334,7 @@ class CustomUpdateModels(models.Model):
     def __str__(self):
         return f"{self.user} → {self.model_info}"
 
+
 class QuotationRequest(models.Model):
     # Company & Contact
     STATUS_CHOICES = (
@@ -318,8 +370,6 @@ class QuotationRequest(models.Model):
     agreed_at = models.DateTimeField(null=True, blank=True)
     agreed_ip = models.GenericIPAddressField(null=True, blank=True)
     agreed_user_agent = models.TextField(null=True, blank=True)
-    
-
     quotation_status = models.CharField(max_length=20,choices=STATUS_CHOICES, default="pending")
     cancelled_by = models.CharField(max_length=10,null=True, blank=True)
     cancel_reason = models.TextField(null=True, blank=True)

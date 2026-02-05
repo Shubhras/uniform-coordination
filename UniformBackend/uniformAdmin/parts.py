@@ -11,7 +11,12 @@ from rest_framework import status
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
-@extend_schema(
+
+class PartsCreateView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication] 
+
+    @extend_schema(
     tags=["Parts"],
     summary="Create a new Part API",
     description="Admin only API to create a new uniform part.",
@@ -22,10 +27,6 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class PartsCreateView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication] 
-
     def post(self, request):
         try:
             serializer = PartsSerializer(data=request.data)
@@ -72,8 +73,10 @@ class PartsCreateView(APIView):
             })
 
 
+class PartsListView(APIView):
+    permission_classes = [AllowAny]
 
-@extend_schema(
+    @extend_schema(
     tags=["Parts"],
     summary="List all Parts API",
     description="Public API to fetch paginated list of parts with optional search.",
@@ -102,9 +105,6 @@ class PartsCreateView(APIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class PartsListView(APIView):
-    permission_classes = [AllowAny]
-
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()
@@ -150,7 +150,10 @@ class PartsListView(APIView):
             }, status=500)
 
 
-@extend_schema(
+class PartsDetailView(APIView):
+    permission_classes = [AllowAny]
+
+    @extend_schema(
     tags=["Parts"],
     summary="Get Part details API",
     description="Fetch a single part details by ID.",
@@ -169,9 +172,6 @@ class PartsListView(APIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class PartsDetailView(APIView):
-    permission_classes = [AllowAny]
-
     def get(self, request, pk):
         try:
             part = Parts.objects.filter(id=pk, isDeleted=False).first()
@@ -199,8 +199,11 @@ class PartsDetailView(APIView):
                 "message": f"Internal Server Error: {str(e)}"
             })
 
+class PartsUpdateView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication] 
 
-@extend_schema(
+    @extend_schema(
     tags=["Parts"],
     summary="Update Part API",
     description="Admin only API to update part details.",
@@ -221,10 +224,6 @@ class PartsDetailView(APIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class PartsUpdateView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication] 
-
     def put(self, request, pk):
         try:
             part = Parts.objects.filter(id=pk).first()
@@ -260,8 +259,11 @@ class PartsUpdateView(APIView):
                 "message": f"Internal Server Error: {str(e)}"
             })
 
+class PartsDeleteView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
 
-@extend_schema(
+    @extend_schema(
     tags=["Parts"],
     summary="Delete Part API",
     description="Admin only API to soft delete a part.",
@@ -280,10 +282,6 @@ class PartsUpdateView(APIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class PartsDeleteView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
-
     def delete(self, request, pk):
         try:
             part = Parts.objects.filter(id=pk).first()

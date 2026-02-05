@@ -10,11 +10,11 @@ urlpatterns = [
         # ===== Swagger / OpenAPI =====
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/swagger/",SpectacularSwaggerView.as_view(url_name="schema"),name="swagger-ui",),
-    path("api/docs/redoc/",SpectacularRedocView.as_view(url_name="schema"),name="redoc",),
-    
+    path("api/docs/redoc/",SpectacularRedocView.as_view(url_name="schema"),name="redoc",),    
     path('api/v1/uniformAdmin/', include('uniformAdmin.urls')),
     path('api/v1/userhub/', include('userhub.urls')),
     path('api/v1/contracts/', include('contracts.urls')),
+    path('api/v1/rental/', include('rental.urls')),
     path("docusign/webhook/", docusign_webhook,name='docusign_webhook'),
     
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -15,7 +15,16 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
 #---------------Blog APIs-------------------
 
 
-@extend_schema(
+
+class BlogCreateAPIView(APIView):
+    """Admin: Create Blog"""
+    
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+
+    parser_classes = (MultiPartParser, FormParser)
+
+    @extend_schema(
     tags=["Blog (Admin)"],
     summary="Create Blog API",
     request=BlogSerializer,
@@ -25,14 +34,6 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
         500: OpenApiResponse(description="Server error"),
     },
 )
-class BlogCreateAPIView(APIView):
-    """Admin: Create Blog"""
-    
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
-
-    parser_classes = (MultiPartParser, FormParser)
-
     def post(self, request):
         try:
             serializer = BlogSerializer(
@@ -81,7 +82,12 @@ class BlogCreateAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@extend_schema(
+
+class BlogListAPIView(APIView):
+    """List all blogs"""
+    permission_classes = [AllowAny]
+
+    @extend_schema(
     tags=["Blog (Admin)"],
     summary="Blogs List API",
     parameters=[
@@ -109,10 +115,6 @@ class BlogCreateAPIView(APIView):
         500: OpenApiResponse(description="Server error"),
     },
 )
-class BlogListAPIView(APIView):
-    """List all blogs"""
-    permission_classes = [AllowAny]
-
     def get(self, request):
         try:
             search = (request.query_params.get("search") or "").strip()
@@ -177,7 +179,12 @@ class BlogListAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@extend_schema(
+
+class BlogDetailAPIView(APIView):
+    """Public: Get single Blog details by ID"""
+    permission_classes = [AllowAny]
+
+    @extend_schema(
     tags=["Blog (Admin)"],
     summary="Blog Details By ID API",
     responses={
@@ -185,10 +192,6 @@ class BlogListAPIView(APIView):
         500: OpenApiResponse(description="Server error"),
     },
 )
-class BlogDetailAPIView(APIView):
-    """Public: Get single Blog details by ID"""
-    permission_classes = [AllowAny]
-
     def get(self, request, blog_id):
         try:
             blog = Blog.objects.filter(
@@ -222,7 +225,15 @@ class BlogDetailAPIView(APIView):
 
 
 
-@extend_schema(
+
+class BlogUpdateAPIView(APIView):
+    """Admin: Update Blog by ID"""
+
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+    parser_classes = (MultiPartParser, FormParser)
+
+    @extend_schema(
     tags=["Blog (Admin)"],
     summary="Update Blog by ID",
     request=BlogSerializer,
@@ -232,13 +243,6 @@ class BlogDetailAPIView(APIView):
         500: OpenApiResponse(description="Server error"),
     },
 )
-class BlogUpdateAPIView(APIView):
-    """Admin: Update Blog by ID"""
-
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
-    parser_classes = (MultiPartParser, FormParser)
-
     def put(self, request, blog_id):
         try:
             try:
@@ -290,7 +294,18 @@ class BlogUpdateAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@extend_schema(
+
+class BlogDeleteAPIView(APIView):
+    """
+    Admin: Delete Blog
+    - Single delete → /blogs/delete/<id>/
+    - Multiple delete → { "ids": [1,2,3] }
+    """
+
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+    
+    @extend_schema(
     tags=["Blog (Admin)"],
     summary="Delete blog(s) (Admin)",
     request={
@@ -311,16 +326,6 @@ class BlogUpdateAPIView(APIView):
         500: OpenApiResponse(description="Server error"),
     },
 )
-class BlogDeleteAPIView(APIView):
-    """
-    Admin: Delete Blog
-    - Single delete → /blogs/delete/<id>/
-    - Multiple delete → { "ids": [1,2,3] }
-    """
-
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
-    
     def delete(self, request, blog_id=None):
         try:
             # SINGLE DELETE

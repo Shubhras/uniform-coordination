@@ -665,6 +665,8 @@ class PartsMiniSerializer(serializers.ModelSerializer):
         model = Parts
         fields = ["id", "partName", "category"]
 
+
+# currently using serializer
 class ProductSerializer(serializers.ModelSerializer):
 
     category = CategoryMiniSerializer(read_only=True)
@@ -771,9 +773,202 @@ class ProductSerializer(serializers.ModelSerializer):
 
         return data
 
+# import json
+# from rest_framework import serializers
+
+# from .serializers_mini import (
+#     # CategoryMiniSerializer,
+#     SubCategoryMiniSerializer,
+#     PartsMiniSerializer,
+# )
+
+
+# class ProductSerializer(serializers.ModelSerializer):
+
+#     # -------------------- EXTRA FIELDS (IMPORTANT) --------------------
+#     rental_price_per_day = serializers.DecimalField(max_digits=10, decimal_places=2)
+#     security_deposit = serializers.DecimalField(
+#         max_digits=10, decimal_places=2, required=False, allow_null=True
+#     )
+#     isPopular = serializers.BooleanField(required=False)
+
+#     # -------------------- IMAGE HANDLING --------------------
+
+#     product_image = serializers.ImageField(write_only=True, required=False)
+#     ProductImage = serializers.SerializerMethodField(read_only=True)
+
+        
+#     # -------------------- READ RELATIONS --------------------
+#     category = CategoryMiniSerializer(read_only=True)
+#     subcategory = SubCategoryMiniSerializer(read_only=True)
+#     parts = PartsMiniSerializer(read_only=True, many=True)
+
+#     # -------------------- WRITE RELATIONS --------------------
+#     category_id = serializers.PrimaryKeyRelatedField(
+#         queryset=Category.objects.filter(isActive=True, isDeleted=False),
+#         source="category",
+#         write_only=True,
+#         required=False,
+#     )
+
+#     subcategory_id = serializers.PrimaryKeyRelatedField(
+#         queryset=SubCategory.objects.filter(isActive=True, isDeleted=False),
+#         source="subcategory",
+#         write_only=True,
+#         required=False,
+#     )
+
+#     parts_ids = serializers.PrimaryKeyRelatedField(
+#         queryset=Parts.objects.filter(isActive=True, isDeleted=False),
+#         source="parts",
+#         many=True,
+#         write_only=True,
+#         required=False,
+#     )
+
+#     theme = serializers.PrimaryKeyRelatedField(
+#         queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
+#         required=False,
+#         allow_null=True,
+#     )
+
+#     # -------------------- META --------------------
+#     class Meta:
+#         model = Product
+#         fields = [
+#             "id",
+#             "productName",
+#             "slug",
+#             "description",
+#             "productType",
+#             "theme",
+#             "category",
+#             "subcategory",
+#             "parts",
+#             "product_image",
+#             "category_id",
+#             "subcategory_id",
+#             "parts_ids",
+#             "price",
+#             "discount",
+#             "rental_price_per_day",
+#             "security_deposit",
+#             "total_quantity",
+#             "available_quantity",
+#             "isActive",
+#             "isPopular",
+#             "ProductImage",
+#             "created_at",
+#         ]
+#         read_only_fields = ["slug", "created_at"]
+
+#     # -------------------- IMAGE URL --------------------
+
+#     # def get_ProductImage(self, obj):
+#     #     image = obj.productimage_set.first()
+#     #     if image and image.image:
+#     #         return self.context["request"].build_absolute_uri(image.image.url)
+#     #     return None
+
+#     def get_ProductImage(self, obj):
+#         request = self.context.get("request")
+#         if obj.ProductImage and request:
+#             return request.build_absolute_uri(obj.ProductImage.url)
+#         return None
+
+
+#     # -------------------- HANDLE parts_ids JSON --------------------
+#     def to_internal_value(self, data):
+#         data = data.copy()
+
+#         parts = data.get("parts_ids")
+#         if parts and isinstance(parts, str):
+#             try:
+#                 data.setlist("parts_ids", json.loads(parts))
+#             except (json.JSONDecodeError, TypeError):
+#                 raise serializers.ValidationError({
+#                     "parts_ids": "Invalid format. Use [1,2,3]."
+#                 })
+
+#         return super().to_internal_value(data)
+
+#     # -------------------- VALIDATIONS --------------------
+#     def validate(self, data):
+#         product_type = data.get("productType")
+
+#         theme_provided = "theme" in self.initial_data
+#         theme_value = data.get("theme")
+
+#         category = data.get("category")
+#         subcategory = data.get("subcategory")
+
+#         # Subcategory belongs to category
+#         if subcategory and category and subcategory.category != category:
+#             raise serializers.ValidationError({
+#                 "subcategory": "Selected subcategory does not belong to selected category"
+#             })
+
+#         # Quantity validation
+#         total_qty = data.get("total_quantity", 0)
+#         avail_qty = data.get("available_quantity", 0)
+
+#         if avail_qty > total_qty:
+#             raise serializers.ValidationError({
+#                 "available_quantity": "Available quantity cannot exceed total quantity"
+#             })
+
+#         # Table must have theme
+#         if product_type == "table" and not theme_value:
+#             raise serializers.ValidationError({
+#                 "theme": "Theme is required when product type is table."
+#             })
+
+#         # Uniform must NOT have theme
+#         if product_type == "uniform" and theme_provided:
+#             raise serializers.ValidationError({
+#                 "theme": "Theme is not allowed for uniform products."
+#             })
+
+#         return data
     
     
-    
+
+#     def create(self, validated_data):
+#         image = validated_data.pop("product_image", None)
+#         parts = validated_data.pop("parts", [])
+
+#         product = Product.objects.create(**validated_data)
+
+#         # Save image into ImageField
+#         if image:
+#             product.ProductImage = image
+#             product.save()
+
+#         # Set many-to-many parts
+#         if parts:
+#             product.parts.set(parts)
+
+#         return product
+
+
+#     def update(self, instance, validated_data):
+#         image = validated_data.pop("product_image", None)
+#         parts = validated_data.pop("parts", None)
+
+#         for attr, value in validated_data.items():
+#             setattr(instance, attr, value)
+
+#         if image:
+#             instance.ProductImage = image
+
+#         instance.save()
+
+#         if parts is not None:
+#             instance.parts.set(parts)
+
+#         return instance
+
+
 
 class SpecialConditionSerializer(serializers.ModelSerializer):
     discount_percentage = serializers.DecimalField(

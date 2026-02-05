@@ -401,6 +401,12 @@ class Product(models.Model):
     subcategory = models.ForeignKey(SubCategory,on_delete=models.SET_NULL, null=True,related_name="product_subcategory")
     parts = models.ManyToManyField(Parts,related_name="products_parts",blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # ------------------ ADD THIS PART HERE ------------------
+    rental_price_per_day = models.DecimalField(max_digits=10,decimal_places=2,help_text="Per day rental price for rental products")
+    security_deposit = models.DecimalField(max_digits=10,decimal_places=2,default=0,help_text="Refundable security deposit for rentals")
+    # --------------------------------------------------------
+    
     total_quantity = models.PositiveIntegerField(default=0)
     available_quantity = models.PositiveIntegerField(default=0)
     ProductImage = models.ImageField(upload_to='product_images/', blank=True, null=True)

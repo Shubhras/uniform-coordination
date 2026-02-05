@@ -11,7 +11,12 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
 
 
 
-@extend_schema(
+
+class ColorsCreateView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+
+    @extend_schema(
     tags=["Colors"],
     summary="Create a new color",
     request=ColorsSerializer,
@@ -21,10 +26,6 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class ColorsCreateView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
-
     def post(self, request):
         try:
             serializer = ColorsSerializer(data=request.data)
@@ -52,7 +53,10 @@ class ColorsCreateView(APIView):
             })
 
 
-@extend_schema(
+
+class ColorsListView(APIView):
+    permission_classes = [AllowAny]
+    @extend_schema(
     tags=["Colors"],
     summary="Get list of colors",
     responses={
@@ -60,9 +64,6 @@ class ColorsCreateView(APIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class ColorsListView(APIView):
-    permission_classes = [AllowAny]
-
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
@@ -107,7 +108,10 @@ class ColorsListView(APIView):
 
 
 
-@extend_schema(
+class ColorsDetailView(APIView):
+    permission_classes = [AllowAny]
+
+    @extend_schema(
     tags=["Colors"],
     summary="Get color details by ID",
     responses={
@@ -116,9 +120,6 @@ class ColorsListView(APIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class ColorsDetailView(APIView):
-    permission_classes = [AllowAny]
-
     def get(self, request, id):
         try:
             color = Colors.objects.filter(id=id, isDeleted=False).first()
@@ -147,7 +148,11 @@ class ColorsDetailView(APIView):
             })
 
 
-@extend_schema(
+class ColorsUpdateView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+
+    @extend_schema(
     tags=["Colors"],
     summary="Update color by ID",
     request=ColorsSerializer,
@@ -158,10 +163,6 @@ class ColorsDetailView(APIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class ColorsUpdateView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
-
     def put(self, request, id):
         try:
             color = Colors.objects.filter(id=id, isDeleted=False).first()
@@ -199,8 +200,11 @@ class ColorsUpdateView(APIView):
             })
 
 
+class ColorsDeleteView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
 
-@extend_schema(
+    @extend_schema(
     tags=["Colors"],
     summary="Delete color by ID",
     responses={
@@ -209,10 +213,6 @@ class ColorsUpdateView(APIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class ColorsDeleteView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
-
     def delete(self, request, id):
         try:
             color = Colors.objects.filter(id=id, isDeleted=False).first()

@@ -29,9 +29,11 @@ class DocuSignEnvelope(models.Model):
 
     quotation_request = models.ForeignKey(
         QuotationRequest,
-        on_delete=models.CASCADE,
-        related_name="docusign_envelope"
+        on_delete=models.SET_NULL,null=True,
+        blank=True,
+        related_name="docusign_envelopes"
     )
+    order_id = models.CharField(max_length=120, null=True, blank=True)#--->for rental
 
     envelope_id = models.CharField(max_length=100, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)    

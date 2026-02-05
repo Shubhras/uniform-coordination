@@ -332,3 +332,72 @@ class QuotationRequestAdmin(admin.ModelAdmin):
     #  Pagination
     list_per_page = 25
 
+
+
+from django.contrib import admin
+from .models import OrderItem
+
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "order",
+        "product",
+        "quantity",
+        "returned_quantity",
+        "is_returned",
+        "condition",
+        "damage_charge",
+        "lost_charge",
+        "created_at",
+    )
+
+    list_filter = (
+        "is_returned",
+        "condition",
+        "created_at",
+    )
+
+    search_fields = (
+        "order__order_id",
+        "product__productName",
+    )
+
+    readonly_fields = (
+        "returned_quantity",
+        "damage_charge",
+        "lost_charge",
+        "created_at",
+        "updated_at",
+        "return_image_preview",
+    )
+
+    fieldsets = (
+        ("Order Info", {
+            "fields": ("order", "product", "quantity", "price", "total_price")
+        }),
+        ("Return Info", {
+            "fields": (
+                "returned_quantity",
+                "is_returned",
+                "condition",
+                "return_image",
+                "return_image_preview",
+            )
+        }),
+        ("Charges", {
+            "fields": ("damage_charge", "lost_charge")
+        }),
+        ("Timestamps", {
+            "fields": ("created_at", "updated_at")
+        }),
+    )
+
+    def return_image_preview(self, obj):
+        if obj.return_image:
+            return f'<img src="{obj.return_image.url}" width="150" />'
+        return "No Image"
+
+    return_image_preview.allow_tags = True
+    return_image_preview.short_description = "Return Image Preview"

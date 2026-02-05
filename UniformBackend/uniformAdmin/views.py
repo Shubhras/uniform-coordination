@@ -25,6 +25,8 @@ from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
 from .auth import IsAdminUserJWT,MultiRoleJWTAuth
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
+from .utils import render_quotation_template
+
 
 # class AdminLoginAPIView(APIView):
 #     authentication_classes = []   # IMPORTANT
@@ -726,7 +728,6 @@ class AdminUpdateProductAPIView(APIView):
 
 class AdminGetProductAPIView(APIView):
   
-
     @extend_schema(
     tags=["Admin Product"],
     summary="Get Product Detail",
@@ -1295,7 +1296,6 @@ class QuotationTemplateCreateAPIView(APIView):
             },status=status.HTTP_500_INTERNAL_SERVER_ERROR)'''
 
 
-from .utils import render_quotation_template
 
 class QuotationTemplateCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]

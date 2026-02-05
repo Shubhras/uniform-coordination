@@ -39,7 +39,12 @@ class CustomPagination(PageNumberPagination):
         
 #permission_classes = [IsAuthenticated, IsAdministrator]
 
-@extend_schema(
+
+class FabricCreateView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]  # <-- ensures request.user is AdminUser
+
+    @extend_schema(
     tags=["Fabric"],
     summary="Create a new fabric",
     request=FabricSerializer,
@@ -49,10 +54,6 @@ class CustomPagination(PageNumberPagination):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class FabricCreateView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]  # <-- ensures request.user is AdminUser
-
     def post(self, request):
         try:
             serializer = FabricSerializer(data=request.data)
@@ -105,7 +106,11 @@ class FabricCreateView(APIView):
             return Response(response)
 
 
-@extend_schema(
+
+class FabricListView(APIView):
+    permission_classes = [AllowAny]
+
+    @extend_schema(
     tags=["Fabric"],
     summary="Get list of fabrics",
     responses={
@@ -113,9 +118,6 @@ class FabricCreateView(APIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class FabricListView(APIView):
-    permission_classes = [AllowAny]
-
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()
@@ -162,7 +164,11 @@ class FabricListView(APIView):
             }, status=500)
 
 
-@extend_schema(
+        
+class FabricDetailView(APIView):
+    permission_classes = [AllowAny]
+
+    @extend_schema(
     tags=["Fabric"],
     summary="Get fabric details by ID",
     responses={
@@ -170,10 +176,7 @@ class FabricListView(APIView):
         404: OpenApiResponse(description="Fabric not found"),
         500: OpenApiResponse(description="Internal server error"),
     },
-)        
-class FabricDetailView(APIView):
-    permission_classes = [AllowAny]
-
+)
     def get(self, request, pk):
         try:
             try:
@@ -208,7 +211,12 @@ class FabricDetailView(APIView):
     
 
 
-@extend_schema(
+    
+class FabricUpdateView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+
+    @extend_schema(
     tags=["Fabric"],
     summary="Update fabric by ID",
     request=FabricSerializer,
@@ -218,11 +226,7 @@ class FabricDetailView(APIView):
         404: OpenApiResponse(description="Fabric not found"),
         500: OpenApiResponse(description="Internal server error"),
     },
-)    
-class FabricUpdateView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
-
+)
 
     def put(self, request, pk):
         try:
@@ -268,7 +272,12 @@ class FabricUpdateView(APIView):
             return Response(response)
 
 
-@extend_schema(
+
+class FabricDeleteView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+
+    @extend_schema(
     tags=["Fabric"],
     summary="Delete fabric by ID",
     responses={
@@ -277,10 +286,6 @@ class FabricUpdateView(APIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
-class FabricDeleteView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
-
     def delete(self, request, pk):
         try:
             try:

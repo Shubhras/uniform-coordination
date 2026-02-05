@@ -17,7 +17,12 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
 #---------------------------Categories--------------------------
 
 
-@extend_schema(
+
+class CategoryCreateAPIView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication] 
+
+    @extend_schema(
     tags=["Category"],
     summary="Create Category API",
     request=CategorySerializer,
@@ -26,10 +31,6 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
         500: OpenApiResponse(description="Server error"),
     },
 )
-class CategoryCreateAPIView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication] 
-
     def post(self, request):
         try:
             serializer = CategorySerializer(data=request.data,context={"request": request})
@@ -73,7 +74,11 @@ class CategoryCreateAPIView(APIView):
 
 
 
-@extend_schema(
+
+class CategoryListAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    @extend_schema(
     tags=["Category"],
     summary="Categories List API",
     parameters=[
@@ -89,9 +94,6 @@ class CategoryCreateAPIView(APIView):
         500: OpenApiResponse(description="Server error"),
     },
 )
-class CategoryListAPIView(APIView):
-    permission_classes = [AllowAny]
-
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
@@ -139,7 +141,11 @@ class CategoryListAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@extend_schema(
+
+class CategoryDetailAPIView(APIView):
+    permission_classes = [AllowAny]
+    
+    @extend_schema(
     tags=["Category"],
     summary="Category Detail API",
     responses={
@@ -147,9 +153,6 @@ class CategoryListAPIView(APIView):
         500: OpenApiResponse(description="Server error"),
     },
 )
-class CategoryDetailAPIView(APIView):
-    permission_classes = [AllowAny]
-    
     def get(self, request, category_id):
         try:
             category = Category.objects.filter(
@@ -183,7 +186,12 @@ class CategoryDetailAPIView(APIView):
 
 
 
-@extend_schema(
+
+class CategoryUpdateAPIView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication] 
+
+    @extend_schema(
     tags=["Category"],
     summary="Update Category API",
     request=CategorySerializer,
@@ -192,10 +200,6 @@ class CategoryDetailAPIView(APIView):
         500: OpenApiResponse(description="Server error"),
     },
 )
-class CategoryUpdateAPIView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication] 
-
     def put(self, request, category_id):
         try:
             try:
@@ -248,19 +252,20 @@ class CategoryUpdateAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@extend_schema(
+
+class CategoryDeleteAPIView(APIView):
+    
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication] 
+
+    @extend_schema(
     tags=["Category"],
     summary="Delete Category API",
     responses={
         200: OpenApiResponse(description="Category deleted successfully"),
         500: OpenApiResponse(description="Server error"),
     },
-)
-class CategoryDeleteAPIView(APIView):
-    
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication] 
-
+    )
     def delete(self, request, category_id):
         try:
             try:
@@ -294,7 +299,12 @@ class CategoryDeleteAPIView(APIView):
 
 
 
-@extend_schema(
+
+class CategoryReorderAPIView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+
+    @extend_schema(
     tags=["Category"],
     summary="Reorder Categories API",
     request={
@@ -312,11 +322,7 @@ class CategoryDeleteAPIView(APIView):
         404: OpenApiResponse(description="Category not found"),
         500: OpenApiResponse(description="Server error"),
     },
-)
-class CategoryReorderAPIView(APIView):
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
-
+    )
     def put(self, request):
         category_id = request.data.get("category_id")
         new_position = request.data.get("new_position")

@@ -29,6 +29,10 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
 from django.utils.http import urlsafe_base64_decode
 from uniformAdmin.signal import *
+from rental.pricing_engine import calculate_rental_pricing
+from rental.services import create_rental_entries
+# from rental.services import 
+# from rental.reservation_engine import reserve_rental_units_for_order
 
 import re
 logger = logging.getLogger(__name__)
@@ -1024,36 +1028,113 @@ class VerifyUserAPIView(APIView):
 
 
 # ADD TO CART 
+# class AddToCartAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     @extend_schema(
+#     summary="AddToCart API",
+    
+#     tags=["Payment Gateway"],
+#     request={
+#         "application/json": {
+#             "type": "object",
+#             "properties": {
+#                 "product_id": {"type": "integer"},
+#                 "quantity": {"type": "integer"},
+#             },
+#             "required": ["product_id"]
+#         }
+#     },
+#     responses={
+#         200: OpenApiTypes.OBJECT,
+#         201: OpenApiTypes.OBJECT,
+#         404: OpenApiTypes.OBJECT,
+#     },
+#     )
+
+#     def post(self, request):
+#         try:
+#             product_id = request.data.get("product_id")
+#             quantity = int(request.data.get("quantity", 1))
+#             product = Product.objects.get(id=product_id)
+        
+#             cart, _ = Cart.objects.get_or_create(
+#                 user=request.user,
+#                 is_active=True
+#             )
+
+#             item, created = CartItem.objects.get_or_create(
+#                 cart=cart,
+#                 product=product
+#             )
+
+#             if not created:
+#                 # If item already exists, increase quantity
+#                 item.quantity += quantity
+#                 item.save()
+#                 return Response({
+#                     "status": True,
+#                     "statusCode": 200,
+#                     "message": "Item already in cart. Quantity updated.",
+#                     "cart_item": {
+#                         "id": item.id,
+#                         "product": item.product.productName,
+#                         "quantity": item.quantity,
+#                         "price": float(item.price)* quantity
+#                     }
+#                 }, status=status.HTTP_200_OK)
+#             else:
+#                  return Response({
+#                     "status": True,
+#                     "statusCode": 201,
+#                     "message": "Item added to cart successfully.",
+#                     "cart_item": {
+#                         "id": item.id,
+#                         "product": item.product.productName,
+#                         "quantity": item.quantity,
+#                         "price": float(item.price)
+#                     }
+#                 }, status=status.HTTP_201_CREATED)
+
+#         except Product.DoesNotExist:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 404,
+#                 "error": "Product not found"
+#             }, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
 class AddToCartAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-    summary="AddToCart API",
-    
-    tags=["Payment Gateway"],
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "product_id": {"type": "integer"},
-                "quantity": {"type": "integer"},
-            },
-            "required": ["product_id"]
-        }
-    },
-    responses={
-        200: OpenApiTypes.OBJECT,
-        201: OpenApiTypes.OBJECT,
-        404: OpenApiTypes.OBJECT,
-    },
+        summary="Add To Cart API",
+        description="Adds product to user's active cart or updates quantity if already present.",
+        tags=["Payment Gateway"],
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "product_id": {"type": "integer"},
+                    "quantity": {"type": "integer", "default": 1},
+                },
+                "required": ["product_id"]
+            }
+        },
+        responses={
+            200: OpenApiTypes.OBJECT,
+            201: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT,
+        },
     )
-
     def post(self, request):
         try:
             product_id = request.data.get("product_id")
             quantity = int(request.data.get("quantity", 1))
             product = Product.objects.get(id=product_id)
-        
+
             cart, _ = Cart.objects.get_or_create(
                 user=request.user,
                 is_active=True
@@ -1068,28 +1149,28 @@ class AddToCartAPIView(APIView):
                 # If item already exists, increase quantity
                 item.quantity += quantity
                 item.save()
+
+                serializer = CartItemSerializer(item)
+
                 return Response({
                     "status": True,
                     "statusCode": 200,
                     "message": "Item already in cart. Quantity updated.",
-                    "cart_item": {
-                        "id": item.id,
-                        "product": item.product.productName,
-                        "quantity": item.quantity,
-                        "price": float(item.price)* quantity
-                    }
+                    "cart_item": serializer.data
                 }, status=status.HTTP_200_OK)
+
             else:
-                 return Response({
+                # New item added to cart
+                item.quantity = quantity
+                item.save()
+
+                serializer = CartItemSerializer(item)
+
+                return Response({
                     "status": True,
                     "statusCode": 201,
                     "message": "Item added to cart successfully.",
-                    "cart_item": {
-                        "id": item.id,
-                        "product": item.product.productName,
-                        "quantity": item.quantity,
-                        "price": float(item.price)
-                    }
+                    "cart_item": serializer.data
                 }, status=status.HTTP_201_CREATED)
 
         except Product.DoesNotExist:
@@ -1098,7 +1179,6 @@ class AddToCartAPIView(APIView):
                 "statusCode": 404,
                 "error": "Product not found"
             }, status=status.HTTP_404_NOT_FOUND)
-
 
 
 
@@ -1135,8 +1215,6 @@ class CartListAPIView(APIView):
                     "previousPage": False
                 }
             }, status=status.HTTP_200_OK)
-
-
 
 
 # UPDATE
@@ -1194,8 +1272,6 @@ class UpdateCartItemAPIView(APIView):
                 "statusCode": 404,
                 "error": "Cart item not found"
             }, status=status.HTTP_404_NOT_FOUND)
-
-
 
 
 # Delete
@@ -1310,44 +1386,496 @@ class ItemSummaryAPIView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
+# class CreateOrderAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     @extend_schema(
+#     summary="CreateOrder API",
+    
+#     tags=["Payment Gateway"],
+#     request={
+#         "application/json": {
+#             "type": "object",
+#             "properties": {
+#                 "cart_id": {"type": "integer"},
+#                 "customer": {"type": "object"},
+#                 "delivery_address": {"type": "object"},
+#                 "payment": {"type": "object"},
+#                 "rental": {
+#                     "type": "object",
+#                     "properties": {
+#                         "start_date": {"type": "string", "example": "2026-01-20"},
+#                         "return_date": {"type": "string", "example": "2026-01-25"},
+#                     }
+#                 },
+#                 "promocode": {
+#                     "type": "object",
+#                     "properties": {
+#                         "code": {"type": "string"}
+#                     }
+#                 }
+#             },
+#             "required": ["cart_id", "rental"]
+#         }
+#     },
+#     responses={
+#         201: OpenApiTypes.OBJECT,
+#         400: OpenApiTypes.OBJECT,
+#     },
+#     )
+#     def post(self, request):
+#         data = request.data
+#         user = request.user
+
+#         customer_data = data.get("customer", {})
+#         address_data = data.get("delivery_address", {})
+#         payment_data = data.get("payment", {})
+#         cart_id = data.get("cart_id")
+
+#         if not cart_id:
+#             return Response({"error": "cart_id is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         try:
+#             cart = Cart.objects.get(id=cart_id, user=user, is_active=True)
+#         except Cart.DoesNotExist:
+#             return Response({"error": "Cart not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         customer, _ = CustomerDetails.objects.update_or_create(
+#             user=user,
+#             defaults={
+#                 "first_name": customer_data.get("first_name"),
+#                 "last_name": customer_data.get("last_name"),
+#                 "email": customer_data.get("email"),
+#                 "phone": customer_data.get("phone"),
+#                 "address_line_1": address_data.get("address_line_1"),
+#                 "address_line_2": address_data.get("address_line_2"),
+#                 "city": address_data.get("city"),
+#                 "postal_code": address_data.get("postal_code"),
+#                 "country": address_data.get("country"),
+#                 "payment_method": payment_data.get("payment_method"),
+#             }
+#         )
+
+#         cart_items = cart.items.all()
+#         if not cart_items.exists():
+#             return Response({"error": "No items found in this cart."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         # Cart total
+#         total_amount = sum((item.total_price for item in cart_items), Decimal("0.00"))
+#         discount_amount = Decimal("0.00")
+
+#         # Rental dates
+#         rental_data = data.get("rental", {})
+#         start_date = parse_date(rental_data.get("start_date"))
+#         return_date = parse_date(rental_data.get("return_date"))
+
+#         if not start_date or not return_date or return_date < start_date:
+#             return Response({"error": "Invalid rental dates."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         # ================= PROMOCODE =================
+#         promocode_data = data.get("promocode")
+#         promocode = None
+#         original_amount = total_amount
+#         now = timezone.now()
+
+#         if promocode_data and promocode_data.get("code"):
+#             code = promocode_data.get("code")
+#             try:
+#                 promocode = Promocode.objects.get(
+#                     promocodeName=code,
+#                     isActive=True,
+#                     isDeleted=False
+#                 )
+#             except Promocode.DoesNotExist:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "error": "Promocode not found or invalid."
+#                 }, status=400)
+
+#             # Date validation
+#             if promocode.started_at and promocode.started_at > now:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "error": "Promocode not active yet."
+#                 }, status=400)
+
+#             if promocode.ended_at and promocode.ended_at < now:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "error": "Promocode expired."
+#                 }, status=400)
+
+#             # User already used
+#             if Order.objects.filter(user=user, promocode=promocode).exists():
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "error": "You have already used this promocode."
+#                 }, status=400)
+
+#             # Calculate discount
+#             if promocode.promocodeType == "fix_price" and promocode.amount:
+#                 discount_amount = Decimal(promocode.amount)
+#             elif promocode.promocodeType == "discount" and promocode.amount:
+#                 discount_amount = original_amount * (Decimal(promocode.amount) / 100)
+
+#             total_amount = original_amount - discount_amount
+
+#         # Ensure total_amount is not negative
+#         if total_amount < 0:
+#             total_amount = Decimal("0.00")
+
+#         # Create order
+#         order = Order.objects.create(
+#             user=user,
+#             cart=cart,
+#             customer=customer,
+#             Payment_method=payment_data.get("payment_method"),
+#             total_amount=total_amount,
+#             status="created",   
+#             order_type="uniform",
+#             promocode=promocode
+#         )
+
+#         order.start_date = start_date
+#         order.return_date = return_date
+#         order.save()
+#         # order = order.save() 
+# # Call the helper function instead of writing objects.create directly
+#         create_admin_order_notification(
+#                 instance=order,
+#                 title=f"New Order created: {order.order_id }",
+#                 message=f"A new Order request has been created by {order.user}.",
+#                 priority="high",
+#                 object_id=order.order_id 
+#             )
+
+#         # Prepare response
+#         response_data = {
+#             "cart": {
+#                 "cart_id": cart.id,
+#                 "items": [{"id": item.id, "total_price": float(item.total_price)} for item in cart_items]
+#             },
+#             "customer": {
+#                 "first_name": customer.first_name,
+#                 "last_name": customer.last_name,
+#                 "email": customer.email,
+#                 "phone": customer.phone
+#             },
+#             "delivery_address": {
+#                 "address_line_1": customer.address_line_1,
+#                 "address_line_2": customer.address_line_2,
+#                 "city": customer.city,
+#                 "postal_code": customer.postal_code,
+#                 "country": customer.country
+#             },
+#             "rental": {
+#                 "start_date": start_date.strftime("%Y-%m-%d"),
+#                 "return_date": return_date.strftime("%Y-%m-%d"),
+#                 "duration_days": (return_date - start_date).days + 1
+#             },
+#             "payment": {
+#                 "payment_method": customer.payment_method
+#             },
+#             "promocode": {
+#                 "code": promocode.promocodeName if promocode else None
+#             },
+#             "order": {
+#                 "order_id": str(order.order_id),
+#                 "total_amount": float(total_amount),
+#                 "discount": float(discount_amount),
+#                 "order_status": order.status
+#             }
+#         }
+
+#         return Response({
+#             "status": True,
+#             "statusCode": 201,
+#             "message": "Order created successfully",
+#             "data": response_data
+#         })
+
+
+# class CreateOrderAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     @extend_schema(
+#         summary="CreateOrder API",
+#         tags=["Payment Gateway"],
+#         request={
+#             "application/json": {
+#                 "type": "object",
+#                 "properties": {
+#                     "cart_id": {"type": "integer"},
+#                     "customer": {"type": "object"},
+#                     "delivery_address": {"type": "object"},
+#                     "payment": {"type": "object"},
+#                     "rental": {
+#                         "type": "object",
+#                         "properties": {
+#                             "start_date": {"type": "string", "example": "2026-01-20"},
+#                             "return_date": {"type": "string", "example": "2026-01-25"},
+#                         }
+#                     },
+#                     "promocode": {
+#                         "type": "object",
+#                         "properties": {
+#                             "code": {"type": "string"}
+#                         }
+#                     }
+#                 },
+#                 "required": ["cart_id", "rental"]
+#             }
+#         },
+#         responses={
+#             201: OpenApiTypes.OBJECT,
+#             400: OpenApiTypes.OBJECT,
+#         },
+#     )
+#     def post(self, request):
+#         data = request.data
+#         user = request.user
+
+#         customer_data = data.get("customer", {})
+#         address_data = data.get("delivery_address", {})
+#         payment_data = data.get("payment", {})
+#         cart_id = data.get("cart_id")
+
+#         if not cart_id:
+#             return Response({"error": "cart_id is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         try:
+#             cart = Cart.objects.get(id=cart_id, user=user, is_active=True)
+#         except Cart.DoesNotExist:
+#             return Response({"error": "Cart not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         # ================= CREATE/UPDATE CUSTOMER =================
+#         customer, _ = CustomerDetails.objects.update_or_create(
+#             user=user,
+#             defaults={
+#                 "first_name": customer_data.get("first_name"),
+#                 "last_name": customer_data.get("last_name"),
+#                 "email": customer_data.get("email"),
+#                 "phone": customer_data.get("phone"),
+#                 "address_line_1": address_data.get("address_line_1"),
+#                 "address_line_2": address_data.get("address_line_2"),
+#                 "city": address_data.get("city"),
+#                 "postal_code": address_data.get("postal_code"),
+#                 "country": address_data.get("country"),
+#                 "payment_method": payment_data.get("payment_method"),
+#             }
+#         )
+
+#         cart_items = cart.items.all()
+#         if not cart_items.exists():
+#             return Response({"error": "No items found in this cart."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         # ------------------ OLD CART TOTAL LOGIC (COMMENTED) ------------------
+#         # total_amount = sum((item.total_price for item in cart_items), Decimal("0.00"))
+#         # discount_amount = Decimal("0.00")
+
+#         # ================= RENTAL DATES =================
+#         rental_data = data.get("rental", {})
+#         start_date = parse_date(rental_data.get("start_date"))
+#         return_date = parse_date(rental_data.get("return_date"))
+
+#         if not start_date or not return_date or return_date < start_date:
+#             return Response({"error": "Invalid rental dates."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         # ================= PROMOCODE =================
+#         promocode_data = data.get("promocode")
+#         promocode = None
+#         original_amount = None
+#         now = timezone.now()
+
+#         if promocode_data and promocode_data.get("code"):
+#             code = promocode_data.get("code")
+#             try:
+#                 promocode = Promocode.objects.get(
+#                     promocodeName=code,
+#                     isActive=True,
+#                     isDeleted=False
+#                 )
+#             except Promocode.DoesNotExist:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "error": "Promocode not found or invalid."
+#                 }, status=400)
+
+#             # Date validation
+#             if promocode.started_at and promocode.started_at > now:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "error": "Promocode not active yet."
+#                 }, status=400)
+
+#             if promocode.ended_at and promocode.ended_at < now:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "error": "Promocode expired."
+#                 }, status=400)
+
+#             # User already used
+#             if Order.objects.filter(user=user, promocode=promocode).exists():
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "error": "You have already used this promocode."
+#                 }, status=400)
+
+#             # ------------------ OLD PROMOCODE CALCULATION (COMMENTED) ------------------
+#             # if promocode.promocodeType == "fix_price" and promocode.amount:
+#             #     discount_amount = Decimal(promocode.amount)
+#             # elif promocode.promocodeType == "discount" and promocode.amount:
+#             #     discount_amount = original_amount * (Decimal(promocode.amount) / 100)
+#             # total_amount = original_amount - discount_amount
+
+#         # Ensure total_amount is not negative (old logic commented)
+#         # if total_amount < 0:
+#         #     total_amount = Decimal("0.00")
+
+#         # =====================  NEW RENTAL PRICING ENGINE  =====================
+#         # Comment: Replacing old total_amount & discount logic with rental pricing
+#         from rental.pricing_engine import calculate_rental_pricing  #  NEW IMPORT
+
+#         pricing = calculate_rental_pricing(
+#             cart_items=cart_items,
+#             start_date=start_date,
+#             end_date=return_date,
+#             promocode=promocode  # Existing promocode instance
+#         )
+
+#         total_amount = pricing["final_total"]
+#         discount_amount = pricing["subtotal"] - pricing["discounted_amount"]
+#         # ============================================================================
+
+#         # ================= CREATE ORDER =================
+#         order = Order.objects.create(
+#             user=user,
+#             cart=cart,
+#             customer=customer,
+#             Payment_method=payment_data.get("payment_method"),
+#             total_amount=total_amount,
+#             status="created",
+#             order_type="uniform",
+#             promocode=promocode,
+
+#             # NEW RENTAL FIELDS
+#             rental_days=pricing["rental_days"],
+#             shipping_fee=pricing["shipping_fee"],
+#             tax_amount=pricing["tax"],
+#             subtotal=pricing["subtotal"],
+#             discounted_amount=pricing["discounted_amount"],
+#         )
+
+#         order.start_date = start_date
+#         order.return_date = return_date
+#         order.save()
+
+#         # create_rental_entries(order)
+    
+#         # reserve_rental_units_for_order(order)
+#         create_rental_entries(order)
+#         # Call the helper function instead of writing objects.create directly
+#         create_admin_order_notification(
+#             instance=order,
+#             title=f"New Order created: {order.order_id}",
+#             message=f"A new Order request has been created by {order.user}.",
+#             priority="high",
+#             object_id=order.order_id
+#         )
+
+#         # ================= PREPARE RESPONSE =================
+#         response_data = {
+#             "cart": {
+#                 "cart_id": cart.id,
+#                 "items": [{"id": item.id, "total_price": float(item.total_price)} for item in cart_items]
+#             },
+#             "customer": {
+#                 "first_name": customer.first_name,
+#                 "last_name": customer.last_name,
+#                 "email": customer.email,
+#                 "phone": customer.phone
+#             },
+#             "delivery_address": {
+#                 "address_line_1": customer.address_line_1,
+#                 "address_line_2": customer.address_line_2,
+#                 "city": customer.city,
+#                 "postal_code": customer.postal_code,
+#                 "country": customer.country
+#             },
+#             "rental": {
+#                 "start_date": start_date.strftime("%Y-%m-%d"),
+#                 "return_date": return_date.strftime("%Y-%m-%d"),
+#                 "duration_days": pricing["rental_days"]
+#             },
+#             "payment": {
+#                 "payment_method": customer.payment_method
+#             },
+#             "promocode": {
+#                 "code": promocode.promocodeName if promocode else None
+#             },
+#             "order": {
+#                 "order_id": str(order.order_id),
+#                 "total_amount": float(total_amount),
+#                 "discount": float(discount_amount),
+#                 "order_status": order.status,
+#                 "subtotal": float(pricing["subtotal"]),
+#                 "shipping_fee": float(pricing["shipping_fee"]),
+#                 "tax": float(pricing["tax"]),
+#                 "discounted_amount": float(pricing["discounted_amount"])
+#             }
+#         }
+
+#         return Response({
+#             "status": True,
+#             "statusCode": 201,
+#             "message": "Order created successfully (Rental Pricing Applied)",
+#             "data": response_data
+#         })
 
 
 class CreateOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-    summary="CreateOrder API",
-    
-    tags=["Payment Gateway"],
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "cart_id": {"type": "integer"},
-                "customer": {"type": "object"},
-                "delivery_address": {"type": "object"},
-                "payment": {"type": "object"},
-                "rental": {
-                    "type": "object",
-                    "properties": {
-                        "start_date": {"type": "string", "example": "2026-01-20"},
-                        "return_date": {"type": "string", "example": "2026-01-25"},
+        summary="CreateOrder API",
+        tags=["Payment Gateway"],
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "cart_id": {"type": "integer"},
+                    "customer": {"type": "object"},
+                    "delivery_address": {"type": "object"},
+                    "payment": {"type": "object"},
+                    "rental": {
+                        "type": "object",
+                        "properties": {
+                            "start_date": {"type": "string", "example": "2026-01-20"},
+                            "return_date": {"type": "string", "example": "2026-01-25"},
+                        }
+                    },
+                    "promocode": {
+                        "type": "object",
+                        "properties": {
+                            "code": {"type": "string"}
+                        }
                     }
                 },
-                "promocode": {
-                    "type": "object",
-                    "properties": {
-                        "code": {"type": "string"}
-                    }
-                }
-            },
-            "required": ["cart_id", "rental"]
-        }
-    },
-    responses={
-        201: OpenApiTypes.OBJECT,
-        400: OpenApiTypes.OBJECT,
-    },
+                "required": ["cart_id", "rental"]
+            }
+        },
+        responses={
+            201: OpenApiTypes.OBJECT,
+            400: OpenApiTypes.OBJECT,
+        },
     )
     def post(self, request):
         data = request.data
@@ -1362,10 +1890,11 @@ class CreateOrderAPIView(APIView):
             return Response({"error": "cart_id is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            cart = Cart.objects.get(id=cart_id, user=user, is_active=True)
+            cart = Cart.objects.get(id=cart_id,is_active=True)
         except Cart.DoesNotExist:
             return Response({"error": "Cart not found."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # ================= CREATE/UPDATE CUSTOMER =================
         customer, _ = CustomerDetails.objects.update_or_create(
             user=user,
             defaults={
@@ -1386,11 +1915,7 @@ class CreateOrderAPIView(APIView):
         if not cart_items.exists():
             return Response({"error": "No items found in this cart."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Cart total
-        total_amount = sum((item.total_price for item in cart_items), Decimal("0.00"))
-        discount_amount = Decimal("0.00")
-
-        # Rental dates
+        # ================= RENTAL DATES =================
         rental_data = data.get("rental", {})
         start_date = parse_date(rental_data.get("start_date"))
         return_date = parse_date(rental_data.get("return_date"))
@@ -1401,7 +1926,6 @@ class CreateOrderAPIView(APIView):
         # ================= PROMOCODE =================
         promocode_data = data.get("promocode")
         promocode = None
-        original_amount = total_amount
         now = timezone.now()
 
         if promocode_data and promocode_data.get("code"):
@@ -1442,44 +1966,66 @@ class CreateOrderAPIView(APIView):
                     "error": "You have already used this promocode."
                 }, status=400)
 
-            # Calculate discount
-            if promocode.promocodeType == "fix_price" and promocode.amount:
-                discount_amount = Decimal(promocode.amount)
-            elif promocode.promocodeType == "discount" and promocode.amount:
-                discount_amount = original_amount * (Decimal(promocode.amount) / 100)
+        # =====================  NEW RENTAL PRICING ENGINE  =====================
+        from rental.pricing_engine import calculate_rental_pricing  #  NEW IMPORT
 
-            total_amount = original_amount - discount_amount
+        pricing = calculate_rental_pricing(
+            cart_items=cart_items,
+            start_date=start_date,
+            end_date=return_date,
+            promocode=promocode  # Existing promocode instance
+        )
 
-        # Ensure total_amount is not negative
-        if total_amount < 0:
-            total_amount = Decimal("0.00")
+        total_amount = pricing["final_total"]
+        discount_amount = pricing["subtotal"] - pricing["discounted_amount"]
+        # ============================================================================
 
-        # Create order
+        # ================= CREATE ORDER =================
         order = Order.objects.create(
             user=user,
             cart=cart,
             customer=customer,
             Payment_method=payment_data.get("payment_method"),
             total_amount=total_amount,
-            status="created",   
+            status="created",
             order_type="uniform",
-            promocode=promocode
+            promocode=promocode,
+
+            # NEW RENTAL FIELDS
+            rental_days=pricing["rental_days"],
+            shipping_fee=pricing["shipping_fee"],
+            tax_amount=pricing["tax"],
+            subtotal=pricing["subtotal"],
+            discounted_amount=pricing["discounted_amount"],
         )
 
         order.start_date = start_date
         order.return_date = return_date
         order.save()
-        # order = order.save() 
-# Call the helper function instead of writing objects.create directly
-        create_admin_order_notification(
-                instance=order,
-                title=f"New Order created: {order.order_id }",
-                message=f"A new Order request has been created by {order.user}.",
-                priority="high",
-                object_id=order.order_id 
+
+        # ================= CREATE ORDER ITEMS FROM CART =================
+        for cart_item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                quantity=cart_item.quantity,
+                price=cart_item.price,
+                total_price=cart_item.total_price
             )
 
-        # Prepare response
+        # ================= CREATE RENTAL ENTRIES =================
+        create_rental_entries(order)
+
+        # ================= ADMIN NOTIFICATION =================
+        create_admin_order_notification(
+            instance=order,
+            title=f"New Order created: {order.order_id}",
+            message=f"A new Order request has been created by {order.user}.",
+            priority="high",
+            object_id=order.order_id
+        )
+
+        # ================= PREPARE RESPONSE =================
         response_data = {
             "cart": {
                 "cart_id": cart.id,
@@ -1501,7 +2047,7 @@ class CreateOrderAPIView(APIView):
             "rental": {
                 "start_date": start_date.strftime("%Y-%m-%d"),
                 "return_date": return_date.strftime("%Y-%m-%d"),
-                "duration_days": (return_date - start_date).days + 1
+                "duration_days": pricing["rental_days"]
             },
             "payment": {
                 "payment_method": customer.payment_method
@@ -1513,17 +2059,20 @@ class CreateOrderAPIView(APIView):
                 "order_id": str(order.order_id),
                 "total_amount": float(total_amount),
                 "discount": float(discount_amount),
-                "order_status": order.status
+                "order_status": order.status,
+                "subtotal": float(pricing["subtotal"]),
+                "shipping_fee": float(pricing["shipping_fee"]),
+                "tax": float(pricing["tax"]),
+                "discounted_amount": float(pricing["discounted_amount"])
             }
         }
 
         return Response({
             "status": True,
             "statusCode": 201,
-            "message": "Order created successfully",
+            "message": "Order created successfully (Rental Pricing Applied)",
             "data": response_data
         })
-
 
 
 
@@ -1623,7 +2172,6 @@ class OrderSummaryAPIView(APIView):
         })
 
 
-
 class OrderListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1656,7 +2204,6 @@ class OrderListAPIView(APIView):
         paginated_orders = paginator.paginate_queryset(orders, request)
         serializer = OrderSerializer(paginated_orders, many=True)
         return paginator.get_paginated_response(serializer.data)
-
 
 
 class OrderDetailAPIView(APIView):

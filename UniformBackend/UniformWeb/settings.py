@@ -9,16 +9,26 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-import os
 from decouple import config
 from pathlib import Path
-from datetime import timedelta
-from dotenv import load_dotenv
-import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+import os
+from datetime import timedelta
+
+
+from dotenv import load_dotenv
 dotenv_path = BASE_DIR / ".env"
 load_dotenv(dotenv_path)
+
+
+
+print("BASE_DIR:", BASE_DIR)
+print("ENV PATH:", os.path.join(BASE_DIR, ".env"))
+print("ENV EXISTS:", os.path.exists(os.path.join(BASE_DIR, ".env")))
+
+
 
 # Test immediately
 print("DOCUSIGN_BASE_URL:", os.getenv("DOCUSIGN_BASE_URL"))
@@ -65,6 +75,7 @@ INSTALLED_APPS = [
     'uniformAdmin',
     'userhub',
     'contracts',
+    'rental',
     # 'drf_yasg',
 ]
 AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
@@ -273,3 +284,4 @@ SPECTACULAR_SETTINGS = {
         "persistAuthorization": True,
     },
 }
+
