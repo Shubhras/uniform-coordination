@@ -22,7 +22,6 @@ const CategoriesTab = () => {
   const [openModal, setOpenModal] = useState(false);
   const [editCategory, setEditCategory] = useState(null);
 
-  // ✅ Categories must be state for drag reorder
   const [categories, setCategories] = useState([
     {
       name: "Medical & Nursing Care",
@@ -43,16 +42,13 @@ const CategoriesTab = () => {
     },
   ]);
 
-  // ✅ Drag End Handler (CATEGORY reorder)
   const handleDragEnd = (result) => {
     if (!result.destination) return;
 
     const updated = Array.from(categories);
 
-    // Remove dragged category
     const [moved] = updated.splice(result.source.index, 1);
 
-    // Insert in new position
     updated.splice(result.destination.index, 0, moved);
 
     setCategories(updated);
@@ -61,7 +57,6 @@ const CategoriesTab = () => {
   return (
     <>
       <div className="bg-[#F4F7FC] rounded-xl shadow md:p-6 p-3">
-        {/* ================= HEADER ================= */}
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
@@ -89,7 +84,6 @@ const CategoriesTab = () => {
           </div>
         </div>
 
-        {/* ================= SEARCH ================= */}
         <div className="relative w-full md:w-80 mb-6">
           <FiSearch
             className="absolute left-3 top-2.5 text-[#64748B]"
@@ -104,7 +98,6 @@ const CategoriesTab = () => {
           />
         </div>
 
-        {/* ================= CATEGORY DRAG LIST ================= */}
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="categoryList">
             {(provided) => (
@@ -128,7 +121,6 @@ const CategoriesTab = () => {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                         >
-                          {/* ===== CATEGORY ROW ===== */}
                           <div
                             onClick={() =>
                               setOpenCategory(
@@ -137,9 +129,7 @@ const CategoriesTab = () => {
                             }
                             className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-[#E2E8F0] px-5 py-5 hover:shadow-md transition cursor-pointer"
                           >
-                            {/* Left */}
                             <div className="flex items-center gap-4">
-                              {/* ✅ Drag Handle Only */}
                               <span
                                 {...provided.dragHandleProps}
                                 className="cursor-grab active:cursor-grabbing"
@@ -152,7 +142,6 @@ const CategoriesTab = () => {
                               </p>
                             </div>
 
-                            {/* Right Icons */}
                             <div className="flex items-center gap-4">
                               <FiChevronDown
                                 size={18}
@@ -173,7 +162,6 @@ const CategoriesTab = () => {
                             </div>
                           </div>
 
-                          {/* ===== SUBCATEGORY PANEL (SMOOTH OPEN) ===== */}
                           <div
                             className={`ml-6 mt-3 overflow-hidden transition-all duration-500 ease-in-out
                           ${openCategory === index
