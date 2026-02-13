@@ -1820,3 +1820,34 @@ class UserQuotationStatusUpdateAPIView(APIView):
             "message": "Quotation cancelled successfully",
             "cancelled_by": user_role
         }, status=status.HTTP_200_OK)
+    
+#<------------OrderItem--------------->
+class UserOrderItemCreateAPIView(APIView):
+    permission_classes=[IsAuthenticated]
+    
+    def post(self,request):
+        try:
+            serializer = OrderItemCreateSerializer(data=request.data,context={"request": request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "statusCode":201,
+                    "status":True,
+                    "message":"Order Item Create Successfully. ",
+                    "data":serializer.data
+                },status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    "statusCode":400,
+                    "status":False,
+                    "message":"Unable to create order item",
+                    "error":serializer.errors
+                },status=status.HTTP_400_BAD_REQUEST)
+        except OrderItem.DoesNotExist as e:
+            return Response({
+                "statusCode":500,
+                "status":False,
+                "message":"Something went wrong on server",
+                "error":str(e)
+            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

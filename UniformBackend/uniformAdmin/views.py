@@ -2182,3 +2182,107 @@ class QuotationStatusUpdateAPIView(APIView):
             "status":False,
             "error": "Invalid action"
             }, status=status.HTTP_400_BAD_REQUEST)
+
+#<-------------orderUpdate----------->
+class AdminOderUpdateAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def put(self,request,order_id,format=None):
+        try:
+            order = Order.objects.get(order_id=order_id)
+        except Order.DoesNotExist as e:
+            return Response({
+                "statusCode":404,
+                "status":False,
+                "message":"Order not found",
+                "error":str(e)
+            },status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = OrderUpdateSerializer(order,data=request.data,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "statusCode":200,
+                "status":True,
+                "message":"Order Update Successfully",
+                "data":serializer.data
+            },status=status.HTTP_200_OK)
+
+#<---------------OrderUpdateList--------------->
+class AdminOrderListAPIView(APIView):
+    authentication_classes=[JWTAuthentication]
+    
+    def get(self,request):
+        try:
+            orders = Order.objects.all().order_by('-created_at')
+        
+        except Order.DoesNotExist as de:
+            return Response({
+                "statusCode":404,
+                "status":False,
+                "message":"Order does not found",
+                "error":str(de)
+            })
+
+        response_data={
+            "total_order":orders.count(),
+            "status_count":{
+                "pending":orders.filter(status='panding').count(),
+                "conformed": orders.filter(status='conformed').count(),
+                "processing": orders.filter(status='processing').count(),
+                "out_for_delivery": orders.filter(status='out_for_delivery').count(),
+                "delivered": orders.filter(status='delivered').count(),
+                },
+               "orders": OrderUpdateSerializer(orders,many=True).data
+            }
+        return Response({
+            "statusCode":200,
+            "status":True,
+            "message":"fetch order successfully",
+            "error": response_data
+            },status=status.HTTP_200_OK)
+        
+class AdminOrderDetailAPIView(APIView):
+    authentication_classes=[JWTAuthentication]
+
+    def get(self,request,order_id):
+        try:
+            order = Order.objects.get(order_id=order_id)
+        except Order.DoesNotExist as de:
+            return Response({
+                "statusCode":404,
+                "status":False,
+                "message":"order does not found",
+                "error":str(de)
+            },status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = OrderUpdateSerializer(order)
+        return Response({
+            "statusCOde":200,
+            "status":True,
+            "message":"Order fetch successfully",
+            "data":serializer.data
+        },status=status.HTTP_200_OK)
+
+#send mail 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from userhub.models import QuotationRequest
+from .utils import send_quotation_email
+
+class AdminmailSendAPIView(APIView):
+
+    @api_view(['POST'])
+    def send_quotation_to_client(request, quotation_id):
+
+        quotation = QuotationRequest.objects.get(quotation_id=quotation_id)
+
+        # Send Email
+        send_quotation_email(quotation)
+
+        # Update Status
+        quotation.workflow_status = "SENT"
+        quotation.quotation_status = "sent"
+        quotation.save()
+
+        return Response({"message": "Quotation sent successfully"})

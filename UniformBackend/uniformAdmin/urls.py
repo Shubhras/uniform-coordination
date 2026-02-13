@@ -166,6 +166,14 @@ urlpatterns = [
     path("uniform-home/", HomePageAPIView.as_view(), name="home-page"),
     #<----------------------QuotationStatus--------------------->
     path("quotationstatus/admin/",QuotationStatusUpdateAPIView.as_view(), name = "QuotationStatus-post"),
+
+    #<--------------OrderUpdate--------------------->
+    path('orderupdate/<int:order_id>/update/',AdminOderUpdateAPIView.as_view(),name='AdminOderUpdate'),
+    path('orderlist/get/',AdminOrderListAPIView.as_view(),name='Oder_list'),
+    path('orderdetail/<int:order_id>/get/',AdminOrderDetailAPIView.as_view(),name='order_Detail'),
+
+    #<-------------------Admin_Mail_Send----------->
+    path('adminmailsend/<str:quotation_id>/post',AdminmailSendAPIView.as_view(),name='AdminmailSendAPIView-post')
    
 
 ]

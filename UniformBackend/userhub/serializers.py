@@ -7,6 +7,8 @@ from django.contrib.auth.hashers import check_password
 from datetime import date
 # from userhub.models import Notifications
 from uniformAdmin.serializers import *
+from datetime import timedelta
+
 
 class UserSignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, min_length=6)
@@ -159,12 +161,28 @@ class CartItemSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
+# class OrderSerializer(serializers.ModelSerializer):
+#     items = CartItemSerializer(many=True, read_only=True)
+
+#     class Meta:
+#         model = Order
+#         fields = '__all__'
+
 class OrderSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
+    estimated_delivery = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = '__all__' 
+        read_only_fields = ['estimated_delivery']
+
+    def get_estimated_delivery(self, obj):
+        if obj.status in ['pending', 'conformed', 'processing', 'out_for_delivery']:
+            return obj.start_date + timedelta(days=7)
+        elif obj.status == 'delivered':
+            return obj.return_date
+        return None
 
 class PaymentSerializer(serializers.ModelSerializer):
     cartitem =CartItemSerializer(read_only=True)
@@ -494,5 +512,34 @@ class CustomUpdateModelsSerializer(serializers.ModelSerializer):
             return obj.user.id
         return None
 
+#OrderItemSerializer
+class OrderItemCreateSerializer(serializers.ModelSerializer):
+    order_id = serializers.UUIDField(write_only=True)
 
-   
+    class Meta:
+        model = OrderItem
+        fields = (
+            "order_id",
+            "product_name",
+            "quantity",
+            "rfid_tag_id",
+            "is_napkin",
+        )
+
+    def validate(self, attrs):
+        order_id = attrs.get("order_id")
+        request = self.context.get("request")
+
+        try:
+            order = Order.objects.get(order_id=order_id, user=request.user)
+        except Order.DoesNotExist:
+            raise serializers.ValidationError(
+                "Invalid order_id or you do not own this order"
+            )
+
+        attrs["order"] = order
+        return attrs
+
+    def create(self, validated_data):
+        validated_data.pop("order_id")
+        return OrderItem.objects.create(**validated_data)

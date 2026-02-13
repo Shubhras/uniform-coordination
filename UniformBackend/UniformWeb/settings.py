@@ -21,9 +21,9 @@ dotenv_path = BASE_DIR / ".env"
 load_dotenv(dotenv_path)
 
 # Test immediately
-print("DOCUSIGN_BASE_URL:", os.getenv("DOCUSIGN_BASE_URL"))
-print("DOCUSIGN_ACCOUNT_ID:", os.getenv("DOCUSIGN_ACCOUNT_ID"))
-print("DOCUSIGN_USER_ID:", os.getenv("DOCUSIGN_USER_ID"))
+# print("DOCUSIGN_BASE_URL:", os.getenv("DOCUSIGN_BASE_URL"))
+# print("DOCUSIGN_ACCOUNT_ID:", os.getenv("DOCUSIGN_ACCOUNT_ID"))
+# print("DOCUSIGN_USER_ID:", os.getenv("DOCUSIGN_USER_ID"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -126,6 +126,9 @@ DATABASES = {
         },
     }
 }
+
+
+
 
 # AUTH_USER_MODEL = "uniformAdmin.AdminUser"  # replace yourapp with the actual app name
 # AUTH_USER_MODEL = "userhub.Users"

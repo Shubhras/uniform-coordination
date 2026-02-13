@@ -7,6 +7,7 @@ from .models import *
 from .utils import get_default_b2b_role
 # User = get_user_model()
 import json
+from userhub.models import Order
 
 
 def build_media_url(file_field):
@@ -1074,3 +1075,12 @@ class AdminUserSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+    
+class OrderUpdateSerializer(serializers.ModelSerializer):
+    # user = serializers.StringRelatedField()
+    # customer = serializers.StringRelatedField()
+
+    class Meta:
+        model = Order
+        # admin jo fields update kar sakta hai
+        fields = ['status', 'payment_method', 'order_type', 'total_amount', 'return_date', 'is_active']

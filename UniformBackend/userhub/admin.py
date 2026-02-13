@@ -55,20 +55,20 @@ class CustomerDetailsAdmin(admin.ModelAdmin):
                      'updated_at')
    
 
-@admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
-    list_display = (
-        'order_id', 
-        'user', 
-        'customer', 
-        'Payment_method', 
-        'status', 
-        'order_type', 
-        'total_amount',
-        'promocode',  
-        'start_date', 
-        'return_date'
-    )
+# @admin.register(Order)
+# class OrderAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'order_id', 
+#         'user', 
+#         'customer', 
+#         'payment_method', 
+#         'status', 
+#         'order_type', 
+#         'total_amount',
+#         'promocode',  
+#         'start_date', 
+#         'return_date'
+#     )
     
 
 # @admin.register(Notifications)

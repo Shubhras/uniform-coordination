@@ -72,8 +72,6 @@ urlpatterns = [
     
     #<-------------OrderHistory---------------------->
     path("orderhistory/get-list/",OrderHistoryAPIView.as_view(),name='get-list'),
-   
-   
 ]
    
     
