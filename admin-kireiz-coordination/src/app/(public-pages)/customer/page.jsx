@@ -6,6 +6,7 @@ import B2BAccounts from "./components/b2b-accounts/B2BAccounts";
 import QuotationHistory from "./components/quotation-history/QuotationHistory";
 import SalesRepresentation from "./components/sales-representation/SalesRepresentation";
 import Assignments from "./components/assignments/Assignments";
+import Permission from "./components/permission/Permission";
 
 const CustomerPage = () => {
     const [activeTab, setActiveTab] = useState("B2B Accounts");
@@ -20,6 +21,8 @@ const CustomerPage = () => {
                 return <SalesRepresentation />;
             case "Assignments":
                 return <Assignments />;
+            case "Permission":
+                return <Permission />;
             default:
                 return null;
         }

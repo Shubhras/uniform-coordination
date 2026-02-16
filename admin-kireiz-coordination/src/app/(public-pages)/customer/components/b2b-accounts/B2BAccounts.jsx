@@ -80,9 +80,9 @@ const B2BAccounts = () => {
                 </div>
 
                 {/* Table */}
-                <div className="overflow-x-auto bg-white rounded-xl shadow-sm">
+                <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-[#E2E8F0]">
                     <table className="min-w-[800px] w-full text-sm text-left">
-                        <thead className="bg-[#F4F7FC] text-[#486284] border-b">
+                        <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
                             <tr>
                                 <th className="px-5 py-3 font-medium">Company</th>
                                 <th className="px-5 py-3 font-medium">Contact Person</th>
@@ -96,7 +96,7 @@ const B2BAccounts = () => {
                             {accounts.map((acc, index) => (
                                 <tr
                                     key={index}
-                                    className="border-b last:border-none hover:bg-gray-50 transition"
+                                    className="border-b last:border-none border-[#E2E8F0] hover:bg-gray-50 transition"
                                 >
                                     <td className="px-5 py-4 font-medium text-[#1C2C56]">
                                         {acc.company}

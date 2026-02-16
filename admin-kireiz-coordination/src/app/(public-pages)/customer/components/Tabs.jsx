@@ -6,6 +6,7 @@ const tabs = [
     { label: "Quotation History", icon: FiClock },
     { label: "Sales Representation", icon: FiBriefcase },
     { label: "Assignments", icon: FiCheckSquare },
+    { label: "Permission", icon: FiCheckSquare },
 ];
 
 const Tabs = ({ activeTab, setActiveTab }) => {
