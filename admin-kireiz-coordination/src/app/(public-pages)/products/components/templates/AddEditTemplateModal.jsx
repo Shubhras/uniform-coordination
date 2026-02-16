@@ -97,7 +97,9 @@ const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) =>
             isOpen={isOpen}
             onClose={onClose}
             onRequestClose={onClose}
-            className="w-full md:min-w-[600px]">
+            className="w-full md:min-w-[600px]"
+            contentClassName="!p-0 !h-auto"
+        >
             <div className="flex flex-col">
 
                 <div className="border-b px-6 py-4">

@@ -101,6 +101,7 @@ const AddEditFabricModal = ({ isOpen, onClose, mode = "add", initialData }) => {
             onClose={onClose}
             onRequestClose={onClose}
             className="w-full md:min-w-[720px] mx-auto"
+            contentClassName="!p-0 !h-auto"
         >
             <div className="flex flex-col">
 
@@ -113,7 +114,7 @@ const AddEditFabricModal = ({ isOpen, onClose, mode = "add", initialData }) => {
                 </div>
 
                 {/* BODY */}
-                <div className=" md:px-5 py-5 space-y-5 overflow-y-auto">
+                <div className=" md:px-5 py-5 space-y-5">
 
                     {/* Fabric Name */}
                     <div>

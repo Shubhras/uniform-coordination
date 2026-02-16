@@ -50,12 +50,24 @@ export const publicRoutes = {
         key: 'dashboards/uniform-3d-design',
         authority: [],
     },
-     '/private-policy': {
+    '/private-policy': {
         key: 'private-policy',
         authority: [],
     },
     '/terms-and-condition': {
         key: 'terms-and-condition',
+        authority: [],
+    },
+    '/pricing': {
+        key: 'pricing',
+        authority: [],
+    },
+    '/customer': {
+        key: 'customer',
+        authority: [],
+    },
+    '/simulation-configuration': {
+        key: 'simulation-configuration',
         authority: [],
     },
 
