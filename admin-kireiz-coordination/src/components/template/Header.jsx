@@ -51,10 +51,10 @@ import AuthButtons from '@/app/(public-pages)/admin-form/components/AuthButtons'
 import NavOtherList from '@/app/(public-pages)/admin-form/components/NavOtherList';
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 const navMenu = [
-    { title: "Home", value: "home", to: "home", url: "/kireiz-form" },
+    { title: "Home", value: "home", to: "home", url: "/admin-form" },
     { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign", url: "/dashboards/uniform-3d-design" },
-    { title: "Blog", value: "blog", to: "blog", url: "/kireiz-form" },
-    { title: `FAQ's`, value: "faq", href: "/guide/documentation/introduction", url: "/kireiz-form" },
+    { title: "Blog", value: "blog", to: "blog", url: "/admin-form" },
+    { title: `FAQ's`, value: "faq", href: "/guide/documentation/introduction", url: "/admin-form" },
 ];
 const Header = ({ toggleMode, mode }) => {
     const { session } = useCurrentSession();

@@ -1,8 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Chart from "react-apexcharts";
 
-const QuotationRequestsChart = () => {
+const QuotationRequestsChart = ({ data }) => {
+  const volumeData = data?.Quotation_volume;
+
+  const [period, setPeriod] = useState("yearly");
+
+  const periodData = volumeData?.[period] || [];
+  const categories = periodData.map((item) => item.label);
+  const values = periodData.map((item) => item.value);
+
   const options = {
     chart: {
       type: "area",
@@ -27,7 +36,7 @@ const QuotationRequestsChart = () => {
       borderColor: "#E2E8F0",
     },
     xaxis: {
-      categories: ["Jan", "Feb", "March", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
+      categories,
       labels: {
         style: { colors: "#64748B", fontSize: "12px" },
       },
@@ -45,23 +54,46 @@ const QuotationRequestsChart = () => {
     },
     tooltip: {
       y: {
-        formatter: (val) => `${val}%`,
+        formatter: (val) => `${val}`,
       },
     },
   };
 
   const series = [
     {
-      name: "Quotation Requests",
-      data: [55, 35, 70, 50, 85, 70, 60, 95, 75],
+      name: "Quotation Volume",
+      data: values,
     },
+  ];
+
+  const periodTabs = [
+    { key: "weekly", label: "Weekly" },
+    { key: "monthly", label: "Monthly" },
+    { key: "yearly", label: "Yearly" },
   ];
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-5">
-      <h3 className="text-[#1C2C56] font-semibold mb-4">
-        Quotation Requests
-      </h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-[#1C2C56] font-semibold">
+          Quotation Volume
+        </h3>
+
+        <div className="flex gap-1 bg-[#F1F5F9] rounded-lg p-1">
+          {periodTabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setPeriod(tab.key)}
+              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${period === tab.key
+                  ? "bg-[#1C2C56] text-white"
+                  : "text-[#64748B] hover:text-[#1E293B]"
+                }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <Chart options={options} series={series} type="area" height={300} />
     </div>

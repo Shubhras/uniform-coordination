@@ -3,10 +3,10 @@
   "version": "1.2.1",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 7002 -H 0.0.0.0",
+    "dev": "next dev -p 7000 -H 0.0.0.0",
     "build": "next build",
     "gcp-build": "NODE_OPTIONS='--max-old-space-size=8192' npm run build",
-    "start": "next start -p 7002",
+    "start": "next start -p 7000",
     "lint": "next lint",
     "prettier": "npx prettier src --check",
     "prettier:fix": "npm run prettier -- --write"

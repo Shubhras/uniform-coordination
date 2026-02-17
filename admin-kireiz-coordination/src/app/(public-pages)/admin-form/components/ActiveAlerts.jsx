@@ -2,24 +2,32 @@
 
 import { FiAlertTriangle, FiClock } from "react-icons/fi";
 
-const alerts = [
+const defaultAlerts = [
     {
         level: "HIGH",
         message: "5 quotes pending review - 2 overdue",
         action: "Review Now",
-        icon: FiAlertTriangle,
+        icon: "alert",
         color: "text-red-500",
     },
     {
         level: "MEDIUM",
         message: "3 Quotation request - Contact customers required",
         action: "View Details",
-        icon: FiClock,
+        icon: "clock",
         color: "text-orange-500",
     },
 ];
 
-const ActiveAlerts = () => {
+const iconMap = {
+    alert: FiAlertTriangle,
+    clock: FiClock,
+};
+
+const ActiveAlerts = ({ data }) => {
+    const alerts = data?.active_alerts || defaultAlerts;
+    const alertCount = data?.alert_count ?? alerts.length;
+
     return (
         <div className="mt-10 px-5 md:px-8 lg:px-12 ">
             {/* Header */}
@@ -31,7 +39,7 @@ const ActiveAlerts = () => {
                             Active Alerts
                         </h3>
                         <span className="bg-[#E0E7FF] text-[#1C2C56] text-xs font-medium px-2 py-0.5 rounded-full">
-                            3
+                            {alertCount}
                         </span>
                     </div>
 
@@ -43,7 +51,8 @@ const ActiveAlerts = () => {
                 {/* Alerts List */}
                 <div className="space-y-4">
                     {alerts.map((alert, index) => {
-                        const Icon = alert.icon;
+                        const Icon = iconMap[alert.icon] || (alert.level === 'HIGH' ? FiAlertTriangle : FiClock);
+                        const color = alert.color || (alert.level === 'HIGH' ? 'text-red-500' : 'text-orange-500');
 
                         return (
                             <div
@@ -52,7 +61,7 @@ const ActiveAlerts = () => {
                             >
                                 {/* LEFT CONTENT */}
                                 <div className="flex items-start gap-3">
-                                    <Icon className={`${alert.color} mt-1`} size={18} />
+                                    <Icon className={`${color} mt-1`} size={18} />
 
                                     <div>
                                         <p className="text-sm font-semibold text-[#1C2C56]">

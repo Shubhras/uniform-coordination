@@ -16,7 +16,7 @@ const LandingFooter = ({ mode }) => {
 
     const handlePreview = () => {
         // router.push('/dashboards/ecommerce')
-        router.push('/kireiz-form')
+        router.push('/admin-form')
     }
 
     return (

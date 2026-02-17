@@ -31,7 +31,6 @@ const Exports = () => {
             {/* Header */}
             <h1 className="text-2xl font-semibold text-[#1C2C56]">
                 Export Configuration
-                
             </h1>
             <p className="text-sm text-[#64748B] mt-1">
                 Configure output settings for generated documents.

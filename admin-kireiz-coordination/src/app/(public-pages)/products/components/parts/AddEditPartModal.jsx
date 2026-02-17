@@ -114,7 +114,7 @@ const AddEditPartModal = ({ isOpen, onClose, mode = "add", initialData }) => {
     >
       <div className="flex flex-col">
 
-        <div className="border-b p-2 flex justify-between items-center">
+        <div className="border-b px-6 py-4 flex justify-between items-center">
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
             {mode === "edit" ? "Edit Part" : "Upload New Part"}
           </h2>

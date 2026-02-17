@@ -16,7 +16,7 @@ export default {
         }),
         Credentials({
             async authorize(credentials) {
-                /** validate credentials from backend here */
+                /** validate credentials from backend API */
                 const user = await validateCredential(credentials)
                 if (!user) {
                     return null
@@ -27,19 +27,32 @@ export default {
                     name: user.userName,
                     email: user.email,
                     image: user.avatar,
+                    accessToken: user.accessToken,
+                    refreshToken: user.refreshToken,
+                    authority: user.authority,
                 }
             },
         }),
     ],
     callbacks: {
+        async jwt({ token, user }) {
+            /** On initial sign in, store extra data in the JWT */
+            if (user) {
+                token.accessToken = user.accessToken
+                token.refreshToken = user.refreshToken
+                token.authority = user.authority
+            }
+            return token
+        },
         async session(payload) {
-            /** apply extra user attributes here, for example, we add 'authority' & 'id' in this section */  
+            /** apply extra user attributes here */
             return {
                 ...payload.session,
                 user: {
                     ...payload.session.user,
                     id: payload.token.sub,
-                    authority: ['admin', 'user'],
+                    authority: payload.token.authority || ['admin', 'user'],
+                    accessToken: payload.token.accessToken,
                 },
             }
         },

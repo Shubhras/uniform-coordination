@@ -1,17 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
 
-const HeroContent = () => {
-  const router = useRouter();
+const HeroContent = ({ data }) => {
+  const { session } = useCurrentSession();
+
+  const userName = session?.user?.name || session?.user?.email || 'Admin';
 
   return (
-    <section className="relative w-full mt-14 rounded-2xl px-5 md:px-8 lg:px-12 py-10 overflow-hidden">
+    <section className="relative w-full rounded-2xl px-5 md:px-8 lg:px-12 py-10 overflow-hidden">
 
       {/* OUTER BACKGROUND GRADIENT */}
       <div
-        className="absolute inset-0 "
+        className="absolute inset-0"
         style={{
           background:
             "linear-gradient(90deg, #E9D5FF 0%, #DBEAFE 50%, #E0E7FF 100%)",
@@ -46,11 +48,11 @@ const HeroContent = () => {
           {/* LEFT TEXT */}
           <div className="flex-1">
             <h1 className="text-xl md:text-2xl font-semibold text-[#1E293B]">
-              Welcome to Dashboard! John!
+              Welcome to Dashboard! {userName}!
             </h1>
 
             <p className="mt-2 text-sm text-[#64748B] max-w-md">
-              You have done 68% more sales today. Check your new badge in your profile
+              You have {data?.Pending_quotes?.total ?? 0} pending quotes. Check your dashboard for the latest updates.
             </p>
           </div>
 

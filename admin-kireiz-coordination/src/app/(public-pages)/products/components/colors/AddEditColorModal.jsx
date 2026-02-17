@@ -69,7 +69,7 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
         >
             <div className="flex flex-col">
 
-                <div className="border-b p-4">
+                <div className="border-b px-6 py-4">
                     <h2 className="text-2xl font-semibold text-[#1C2C56]">
                         {mode === "edit" ? "Edit Color" : "Add New Color"}
                     </h2>

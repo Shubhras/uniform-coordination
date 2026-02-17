@@ -13,43 +13,11 @@ export const protectedRoutes = {
     // ...guideRoute,
 }
 
+/**
+ * Public routes — accessible WITHOUT login.
+ * Everything NOT listed here (and not an auth route) requires authentication.
+ */
 export const publicRoutes = {
-    '/faq': {
-        key: 'faq',
-        authority: [],
-    },
-    '/blog': {
-        key: 'blog',
-        authority: [],
-    },
-    '/single-blog': {
-        key: 'single-blog',
-        authority: [],
-    },
-    '/kireiz-form': {
-        key: 'kireiz-form',
-        authority: [],
-    },
-    '/medical-form': {
-        key: 'medical-form',
-        authority: [],
-    },
-    '/table-form': {
-        key: 'table-form',
-        authority: [],
-    },
-    '/dashboards/uniform-design': {
-        key: 'dashboards/uniform-design',
-        authority: [],
-    },
-    '/dashboards/uniform-single': {
-        key: 'dashboards/uniform-single',
-        authority: [],
-    },
-    '/dashboards/uniform-3d-design': {
-        key: 'dashboards/uniform-3d-design',
-        authority: [],
-    },
     '/private-policy': {
         key: 'private-policy',
         authority: [],
@@ -58,19 +26,6 @@ export const publicRoutes = {
         key: 'terms-and-condition',
         authority: [],
     },
-    '/pricing': {
-        key: 'pricing',
-        authority: [],
-    },
-    '/customer': {
-        key: 'customer',
-        authority: [],
-    },
-    '/simulation-configuration': {
-        key: 'simulation-configuration',
-        authority: [],
-    },
-
 }
 
 export const authRoutes = authRoute
