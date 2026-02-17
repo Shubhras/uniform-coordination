@@ -23,6 +23,7 @@ from userhub.utils import generate_quotation_pdf
 #from contracts.models import DocuSignEnvelope
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
+from .docusign_service import send_contract
 
 
 
@@ -316,9 +317,15 @@ class QuotationRequestCreateAPIView(APIView):
         try:
             serializer = QuotationRequestSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
             quotation = serializer.save()
-            # Call the helper function instead of writing objects.create directly
+            pdf_path = generate_quotation_pdf(quotation, request)
+            # STEP 2 — Send DocuSign
+            envelope_id = send_contract(quotation, pdf_path)
+            print("SAVED ENVELOPE ID =", envelope_id)
+            # STEP 3 — Save envelope id
+            quotation.external_document_id = envelope_id
+            quotation.workflow_status = "SENT"
+            quotation.save()
             create_admin_notification(
                 instance=quotation,
                 title=f"New Quotation Request: {quotation.quotation_id }",
@@ -338,7 +345,8 @@ class QuotationRequestCreateAPIView(APIView):
                 'message':'Something went wrong on server',
                 'error':str(e)
             },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+ 
+
 
 #<----------------------QuotationRequest------------------>
            
@@ -1241,3 +1249,4 @@ class OrderHistoryAPIView(APIView):
             "filter": filter_type,
             "data": data
         })
+  

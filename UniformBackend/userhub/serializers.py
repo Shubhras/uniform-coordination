@@ -275,6 +275,58 @@ class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
             'created_at',
         ]
 
+
+class CustomUpdateModelsSerializer(serializers.ModelSerializer):
+    product_details = serializers.SerializerMethodField()
+    category_details = serializers.SerializerMethodField()
+    subcategory_details = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUpdateModels
+        fields = "__all__"
+    def get_category_details(self, obj):
+        request = self.context.get("request")
+        # fetch first product related to this model_info
+        product = Product.objects.filter(model_info=obj.model_info).first()
+        if not product or not getattr(product, "category", None):
+            return None
+
+        category = product.category
+        return {
+            "id": category.id,
+            "name": getattr(category, "categoryName", ""),
+            "slug": getattr(category, "slug", "")
+        }
+    def get_subcategory_details(self, obj):
+        request = self.context.get("request")
+        product = Product.objects.filter(model_info=obj.model_info).first()
+        if not product or not getattr(product, "subcategory", None):
+            return None
+
+        subcategory = product.subcategory
+        return {
+            "id": subcategory.id,
+            "name": getattr(subcategory, "name", ""),
+            "slug": getattr(subcategory, "slug", "")
+        }
+   
+    def get_product_details(self, obj):
+        request = self.context.get("request")
+        category_slug = request.GET.get("category")
+
+        qs = Product.objects.filter(model_info=obj.model_info)
+        if category_slug:
+            qs = qs.filter(category__slug__iexact=category_slug)
+
+        # pass request in context to serializer
+        serializer = ProductSerializer(qs, many=True, context={"request": request})
+        return serializer.data
+    def get_user(self, obj):
+        if obj.user:
+            return obj.user.id
+        return None
+
 # class QuotationRequestSerializer(serializers.ModelSerializer):
 #     customupdatemodel = CustomUpdateModelQuotationSerializer(read_only=True) 
 #     class Meta:
@@ -384,7 +436,6 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
         required=False,          
         allow_null=True         
     )
-
     class Meta:
         model = QuotationRequest
         fields = [
@@ -460,57 +511,6 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-
-class CustomUpdateModelsSerializer(serializers.ModelSerializer):
-    product_details = serializers.SerializerMethodField()
-    category_details = serializers.SerializerMethodField()
-    subcategory_details = serializers.SerializerMethodField()
-    user = serializers.SerializerMethodField()
-
-    class Meta:
-        model = CustomUpdateModels
-        fields = "__all__"
-    def get_category_details(self, obj):
-        request = self.context.get("request")
-        # fetch first product related to this model_info
-        product = Product.objects.filter(model_info=obj.model_info).first()
-        if not product or not getattr(product, "category", None):
-            return None
-
-        category = product.category
-        return {
-            "id": category.id,
-            "name": getattr(category, "categoryName", ""),
-            "slug": getattr(category, "slug", "")
-        }
-    def get_subcategory_details(self, obj):
-        request = self.context.get("request")
-        product = Product.objects.filter(model_info=obj.model_info).first()
-        if not product or not getattr(product, "subcategory", None):
-            return None
-
-        subcategory = product.subcategory
-        return {
-            "id": subcategory.id,
-            "name": getattr(subcategory, "name", ""),
-            "slug": getattr(subcategory, "slug", "")
-        }
-   
-    def get_product_details(self, obj):
-        request = self.context.get("request")
-        category_slug = request.GET.get("category")
-
-        qs = Product.objects.filter(model_info=obj.model_info)
-        if category_slug:
-            qs = qs.filter(category__slug__iexact=category_slug)
-
-        # pass request in context to serializer
-        serializer = ProductSerializer(qs, many=True, context={"request": request})
-        return serializer.data
-    def get_user(self, obj):
-        if obj.user:
-            return obj.user.id
-        return None
 
 #OrderItemSerializer
 class OrderItemCreateSerializer(serializers.ModelSerializer):

@@ -227,8 +227,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "moriji345@gmail.com"
 EMAIL_HOST_PASSWORD = "hqymjygpiifyfdfg"
-# EMAIL_HOST_USER="sourabh.mori1digiprima@gmail.com"
-# EMAIL_HOST_PASSWORD="xuwkrhblrzorjyyj"
+EMAIL_HOST_USER="sourabh.mori1digiprima@gmail.com"
+EMAIL_HOST_PASSWORD="xuwkrhblrzorjyyj"
 
 
 SIMPLE_JWT = {
@@ -276,3 +276,13 @@ SPECTACULAR_SETTINGS = {
         "persistAuthorization": True,
     },
 }
+
+
+#Docusign 
+DOCUSIGN_INTEGRATION_KEY = "2abc67a8-b4d2-439d-8742-e26437450cc1"
+DOCUSIGN_USER_ID = "02601a1d-eb9b-41de-a590-ea0c4e99d6ea"
+DOCUSIGN_ACCOUNT_ID = "e1187f26-fc71-49cc-b41f-8f1ac6215e5e"
+DOCUSIGN_PRIVATE_KEY_PATH = "private.key"
+
+#ngrok for webhook
+ALLOWED_HOSTS = ["*"]

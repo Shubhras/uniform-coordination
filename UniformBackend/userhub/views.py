@@ -29,11 +29,13 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
 from django.utils.http import urlsafe_base64_decode
 from uniformAdmin.signal import *
-
+from .docusign_service import get_docusign_token, send_contract
 import re
 logger = logging.getLogger(__name__)
-
-
+from django.core.files.base import ContentFile
+from django.utils.timezone import now
+from django.core.mail import EmailMessage
+from docusign_esign import EnvelopesApi, ApiClient
 
 # class SignupAPIView(APIView):
 #     permission_classes=[AllowAny]
@@ -1850,4 +1852,219 @@ class UserOrderItemCreateAPIView(APIView):
                 "message":"Something went wrong on server",
                 "error":str(e)
             },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 
+#<-----------save quotation-------------->
+def send_quotation_contract(quotation):
+
+    pdf_path = quotation.pdf_file.path
+    envelope_id = send_contract(quotation, pdf_path)
+    # SAVE IN DB
+    quotation.external_document_id = envelope_id
+    quotation.save()
+
+    return envelope_id
+
+# #<----------------WebHook---------------->
+# class DocuSignWebhookAPIView(APIView):
+#     permission_classes = []
+
+#     def post(self, request):
+#         data = request.data
+#         print("WEBHOOK DATA:", data)
+
+#         envelope_id = data.get("envelopeId")
+#         status = data.get("status")
+
+#         if not envelope_id:
+#             return Response({
+#                 "statusCode":400,
+#                 "status":False,
+#                 "message": "No envelope id"
+#                 },status=400)
+
+#         try:
+#             quotation = QuotationRequest.objects.get(
+#                 external_document_id=envelope_id
+#             )
+
+#             status = status.lower()
+
+#             # ---------------- STATUS HANDLING ----------------
+#             if status == "sent":
+#                 quotation.workflow_status = "SENT"
+
+#             elif status == "completed":
+#                 quotation.workflow_status = "SIGNED"
+                
+#                 #  ADMIN NOTIFICATION
+#                 create_admin_notification(
+#                     instance=quotation,
+#                     title=f"Quotation {quotation.quotation_id} Signed",
+#                     message=f"{quotation.contact_person} has signed contract",
+#                     priority="high"
+#                 )
+
+           
+#                 send_mail(
+                    
+#                     subject=f"Contract Signed - {quotation.quotation_id}",
+#                     message=f"""
+#                 Hello Admin,
+
+#                 Great news! A client has successfully signed the contract.
+
+#                 ----------------------------------------
+#                 QUOTATION DETAILS
+#                 ----------------------------------------
+
+#                 Quotation ID : {quotation.quotation_id}
+#                 Company Name : {quotation.company_name}
+#                 Client Name  : {quotation.contact_person}
+#                 Client Email : {quotation.email}
+#                 Phone Number : {quotation.phone_number}
+
+#                 ----------------------------------------
+#                 STATUS
+#                 ----------------------------------------
+
+#                 Contract Status : SIGNED
+#                 Signed At       : {now().strftime("%d %B %Y, %I:%M %p")}
+
+#                 ----------------------------------------
+
+#                 You can now proceed with further processing.
+
+#                 Thanks,
+#                 Uniform System
+#                 """,
+#                     from_email=settings.EMAIL_HOST_USER,
+#                     recipient_list=["rt61240@gmail.com"],
+#                     fail_silently=False,
+#                 )
+                
+
+#             elif status == "declined":
+#                 quotation.workflow_status = "DECLINED"
+
+#             quotation.save()
+
+#             return Response({
+#                 "statusCode":201,
+#                 "status":True,
+#                 "message": "Webhook processed",
+#                 },status=201)
+
+#         except QuotationRequest.DoesNotExist:
+#             return Response({
+#                 "statusCode":400,
+#                 "status":False,
+#                 "message": "Quotation not found"
+#                 }, status=400)
+
+
+class DocuSignWebhookAPIView(APIView):
+    permission_classes = []
+
+    def post(self, request):
+        data = request.data
+        print("WEBHOOK DATA:", data)
+
+        envelope_id = data.get("envelopeId")
+        status = data.get("status")
+
+        if not envelope_id:
+            return Response({"statusCode":400,"status":False,"message": "No envelope id"}, status=400)
+
+        try:
+            quotation = QuotationRequest.objects.get(external_document_id=envelope_id)
+            status = status.lower()
+
+            if status == "sent":
+                quotation.workflow_status = "SENT"
+
+            elif status == "completed":
+                quotation.workflow_status = "SIGNED"
+                quotation.is_signed = True
+                quotation.signed_at = now()
+
+                # ---------------- FETCH SIGNED PDF ----------------
+                access_token = get_docusign_token()
+                api_client = ApiClient()
+                api_client.host = "https://demo.docusign.net/restapi"
+                api_client.set_default_header("Authorization", f"Bearer {access_token}")
+
+                envelopes_api = EnvelopesApi(api_client)
+
+                pdf_bytes = envelopes_api.get_document(
+                    account_id=settings.DOCUSIGN_ACCOUNT_ID,
+                    envelope_id=envelope_id,
+                    document_id="combined"   # <-- use combined document
+                )
+
+                # Save PDF
+                quotation.signed_pdf.save(
+                    f"{quotation.quotation_id}_signed.pdf",
+                    ContentFile(pdf_bytes)
+                )
+
+                # ---------------- NOTIFICATION ----------------
+                create_admin_notification(
+                    instance=quotation,
+                    title=f"Quotation {quotation.quotation_id} Signed",
+                    message=f"{quotation.contact_person} has signed contract",
+                    priority="high"
+                )
+
+                # ---------------- EMAIL ----------------
+                mail = EmailMessage(
+                    subject=f"Contract Signed - {quotation.quotation_id}",
+                    body=f"""
+                    Hello Admin,
+
+                    Great news! A client has successfully signed the contract.
+
+                    ----------------------------------------
+                    QUOTATION DETAILS
+                    ----------------------------------------
+                    Quotation ID : {quotation.quotation_id}
+                    Company Name : {quotation.company_name}
+                    Client Name  : {quotation.contact_person}
+                    Client Email : {quotation.email}
+                    Phone Number : {quotation.phone_number}
+
+                    ----------------------------------------
+                    STATUS
+                    ----------------------------------------
+                    Contract Status : SIGNED
+                    Signed At       : {quotation.signed_at.strftime("%d %B %Y, %I:%M %p")}
+                    ----------------------------------------
+
+                    You can now proceed with further processing.
+
+                    Thanks,
+                    Uniform System
+                    """,
+                    from_email=settings.EMAIL_HOST_USER,
+                    to=["rt61240@gmail.com"]
+                )
+
+                if quotation.signed_pdf:
+                    quotation.signed_pdf.seek(0)
+                    mail.attach(
+                        quotation.signed_pdf.name,
+                        quotation.signed_pdf.read(),
+                        'application/pdf'
+                    )
+
+                mail.send(fail_silently=False)
+
+            elif status == "declined":
+                quotation.workflow_status = "DECLINED"
+
+            quotation.save()
+
+            return Response({"statusCode":201,"status":True,"message": "Webhook processed"}, status=201)
+
+        except QuotationRequest.DoesNotExist:
+            return Response({"statusCode":400,"status":False,"message": "Quotation not found"}, status=400)

@@ -435,6 +435,7 @@ class QuotationRequest(models.Model):
     external_document_id = models.CharField(max_length=255, null=True, blank=True)
     signed_pdf = models.FileField(upload_to='signed_pdfs/', null=True, blank=True)
     signed_at = models.DateTimeField(null=True, blank=True)
+    is_signed = models.BooleanField(default=False) 
     cancelled_by = models.CharField(max_length=10, null=True, blank=True)
     cancel_reason = models.TextField(null=True, blank=True)
     isActive = models.BooleanField(default=True)

@@ -110,32 +110,3 @@ class BaseAPIView(APIView):
             status=status.HTTP_200_OK,
         )
  
-#mail send function 
-from django.core.mail import send_mail
-from django.conf import settings
-
-
-def send_quotation_email(quotation):
-
-    subject = f"Quotation {quotation.quotation_id} Ready for Signature"
-
-    message = f"""
-    Hello {quotation.contact_person},
-
-    Your quotation is ready.
-
-    Please review and sign using the link below:
-
-    (Here will come CloudSign link later)
-
-    Thanks,
-    Admin Team
-    """
-
-    send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [quotation.email],
-            fail_silently=False,
-        )

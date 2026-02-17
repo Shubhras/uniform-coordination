@@ -25,7 +25,8 @@ from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
 from .auth import IsAdminUserJWT,MultiRoleJWTAuth
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
-
+from userhub.views import get_docusign_token
+from docusign_esign import ApiClient, EnvelopesApi
 # class AdminLoginAPIView(APIView):
 #     authentication_classes = []   # IMPORTANT
 #     permission_classes = []       # IMPORTANT
@@ -2264,25 +2265,65 @@ class AdminOrderDetailAPIView(APIView):
             "data":serializer.data
         },status=status.HTTP_200_OK)
 
-#send mail 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from userhub.models import QuotationRequest
-from .utils import send_quotation_email
 
-class AdminmailSendAPIView(APIView):
+class QuotationDetailByEnvelopeAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]  # Only admin can access
 
-    @api_view(['POST'])
-    def send_quotation_to_client(request, quotation_id):
+    def get(self, request, external_document_id):
+        envelope_id = external_document_id
 
-        quotation = QuotationRequest.objects.get(quotation_id=quotation_id)
+        try:
+            quotation = QuotationRequest.objects.get(external_document_id=envelope_id)
+        except QuotationRequest.DoesNotExist:
+            return Response(
+                {
+                    "statusCode":404,
+                    "status": False, 
+                    "message": "Quotation not found"},
+                status=404
+            )
 
-        # Send Email
-        send_quotation_email(quotation)
+        db_data = {
+            "quotation_id": quotation.quotation_id,
+            "company_name": quotation.company_name,
+            "contact_person": quotation.contact_person,
+            "email": quotation.email,
+            "phone_number": quotation.phone_number,
+            "workflow_status": quotation.workflow_status,
+            "is_signed": quotation.is_signed,
+            "signed_at": quotation.signed_at,
+            "signed_pdf_url": request.build_absolute_uri(quotation.signed_pdf.url)
+                              if quotation.signed_pdf else None
+        }
 
-        # Update Status
-        quotation.workflow_status = "SENT"
-        quotation.quotation_status = "sent"
-        quotation.save()
+        # ------------------ Fetch DocuSign envelope ------------------
+        try:
+            access_token = get_docusign_token()
+            api_client = ApiClient()
+            api_client.host = "https://demo.docusign.net/restapi"
+            api_client.set_default_header("Authorization", f"Bearer {access_token}")
 
-        return Response({"message": "Quotation sent successfully"})
+            envelopes_api = EnvelopesApi(api_client)
+            envelope = envelopes_api.get_envelope(
+                account_id=settings.DOCUSIGN_ACCOUNT_ID,
+                envelope_id=envelope_id
+            )
+
+            docusign_data = {
+                "status": envelope.status,
+                "email_subject": envelope.email_subject,
+                "completed_date_time": envelope.completed_date_time,
+                "recipients": [r.to_dict() for r in envelope.recipients.signers] 
+                               if envelope.recipients else []
+            }
+
+        except Exception as e:
+            docusign_data = {"error": str(e)}
+
+        # ------------------ Return combined response ------------------
+        return Response({
+            "statusCode":201,
+            "status": True,
+            "db_data": db_data,
+            "docusign_data": docusign_data
+        },status=201)

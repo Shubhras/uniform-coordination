@@ -171,9 +171,6 @@ urlpatterns = [
     path('orderupdate/<int:order_id>/update/',AdminOderUpdateAPIView.as_view(),name='AdminOderUpdate'),
     path('orderlist/get/',AdminOrderListAPIView.as_view(),name='Oder_list'),
     path('orderdetail/<int:order_id>/get/',AdminOrderDetailAPIView.as_view(),name='order_Detail'),
-
-    #<-------------------Admin_Mail_Send----------->
-    path('adminmailsend/<str:quotation_id>/post',AdminmailSendAPIView.as_view(),name='AdminmailSendAPIView-post')
-   
-
+    
+    path('quotation-detail/<str:external_document_id>/get/', QuotationDetailByEnvelopeAPIView.as_view(), name='quotation-detail-by-envelope'),
 ]

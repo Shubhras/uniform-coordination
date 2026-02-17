@@ -2,6 +2,7 @@ from django.urls import path
 from .views import *
 from .threed import *
 from .payment import *
+from userhub import views
 
 
 urlpatterns = [
@@ -72,6 +73,9 @@ urlpatterns = [
     
     #<-------------OrderHistory---------------------->
     path("orderhistory/get-list/",OrderHistoryAPIView.as_view(),name='get-list'),
+    path('docusign/webhook/', DocuSignWebhookAPIView.as_view(), name='docusign-webhook'),
+   
+
 ]
    
     
