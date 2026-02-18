@@ -13,6 +13,7 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.enums import TA_RIGHT, TA_CENTER,TA_LEFT
 from reportlab.platypus import Flowable
 
+
 def generate_custom_tokens(user):
     """Generate custom access & refresh tokens for normal Users."""
 
@@ -521,3 +522,150 @@ def generate_quotation_pdf(quotation, request):
     doc.build(elements)
 
     return f"{settings.MEDIA_URL}exports/{file_name}"
+
+
+def generate_payment_pdf(payment, user, request=None):
+
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    file_name = f"payment_{payment.id}_{timestamp}.pdf"
+    file_path = os.path.join(settings.MEDIA_ROOT, "exports", file_name)
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+
+    doc = SimpleDocTemplate(
+        file_path,
+        pagesize=A4,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=40,
+    )
+
+    styles = getSampleStyleSheet()
+    elements = []
+    CURRENCY_SYMBOLS = {
+        "USD": "$",
+        "INR": "₹",
+        "EUR": "€",
+        "GBP": "£",
+    }
+
+    currency_code = (payment.currency or "").upper()
+    currency_symbol = CURRENCY_SYMBOLS.get(currency_code, currency_code)
+
+    # Styles
+    title_style = ParagraphStyle(
+        "TitleStyle",
+        parent=styles["Title"],
+        fontSize=22,
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#1F3A5F"),
+        spaceAfter=25
+    )
+    section_style = ParagraphStyle(
+        "SectionStyle",
+        parent=styles["Heading2"],
+        fontSize=14,
+        textColor=colors.HexColor("#154360"),
+        spaceBefore=20,
+        spaceAfter=10
+    )
+    muted_style = ParagraphStyle(
+        "MutedStyle",
+        parent=styles["Normal"],
+        fontSize=9,
+        textColor=colors.grey
+    )
+    elements.append(Paragraph("Payment Summary", title_style))
+
+    full_name = f"{user.firstName or ''} {user.lastName or ''}".strip()
+    user_data = [
+        ["Payment ID", payment.id],
+        ["User", full_name or user.email],
+        ["Email", user.email],
+    ]
+    user_table = Table(user_data, colWidths=[150, 330])
+    user_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F4F6F7")),
+        ("GRID", (0, 0), (-1, -1), 0.3, colors.lightgrey),
+        ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(user_table)
+
+    elements.append(Paragraph("Payment Details", section_style))
+    payment_data = [
+        ["Order ID", getattr(payment, "order", None) and payment.order.id or "-"],
+        ["Payment Status", (payment.payment_status or "").capitalize()],
+        ["Payment Method", payment.payment_method or "-"],
+        ["Amount", f"{currency_symbol} {float(payment.amount):,.2f}" if payment.amount else "-"],
+        ["Currency", currency_symbol],
+        ["Paid At", payment.paid_at.strftime("%d %b %Y, %I:%M %p") if payment.paid_at else "-"],
+        ["Customer ID", payment.customer_id or "-"],
+        ["Payment Method ID", payment.payment_method_id or "-"],
+    ]
+    payment_table = Table(payment_data, colWidths=[250, 250])
+    payment_table.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
+        ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(payment_table)
+    elements.append(Spacer(1, 30))
+    elements.append(
+        Paragraph(
+            f"Generated on {datetime.now().strftime('%d %b %Y, %I:%M %p')}",
+            muted_style
+        )
+    )
+    doc.build(elements)
+    pdf_relative_url = f"{settings.MEDIA_URL}exports/{file_name}"
+    if request:
+        return request.build_absolute_uri(pdf_relative_url)
+    return pdf_relative_url
+
+
+# logger = logging.getLogger(__name__)
+# def send_notification(user, notification_type, subject, message):
+#     print("Notification function called")
+   
+#     try:
+#         with transaction.atomic():
+
+#             notification = Notification.objects.create(
+#                 user=user,
+#                 notification_type=notification_type,
+#                 subject=subject,
+#                 message=message,
+#             )
+
+#             send_mail(
+#                 subject=subject,
+#                 message=message,
+#                 from_email=settings.DEFAULT_FROM_EMAIL,
+#                 recipient_list=[user.email],
+#                 fail_silently=False,
+#             )
+#             notification.is_sent = True
+#             notification.sent_at = timezone.now()
+#             notification.save(update_fields=["is_sent", "sent_at"])
+#             print("Sending to:", user.email)
+
+
+#             return notification
+        
+
+#     except Exception as e:
+
+#         logger.error(
+#             f"Notification sending failed for user {user.id}: {str(e)}",
+#             exc_info=True
+#         )
+#         raise Exception("Notification service temporarily unavailable.")

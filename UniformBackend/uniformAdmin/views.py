@@ -1247,7 +1247,6 @@ class AdminNotificationDeleteAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 class AdminDashAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1389,6 +1388,37 @@ class AdminDashAPIView(APIView):
                 .values("fabricName", "total_count")
                 .order_by("-total_count")[:4]
             )
+            #  Command out when sales_representative  model is make
+            # sales_qs = (
+            #     QuotationRequest.objects
+            #     .filter(
+            #         quotation_status="pending",
+            #         isDeleted=False
+            #     )
+            #     .values("sales_representative__first_name")
+            #     .annotate(count=Count("quotation_id"))
+            # )
+
+            # pending_sales_rep_action = {
+            #     item["sales_representative__first_name"]: item["count"]
+            #     for item in sales_qs
+            # }
+            most_used_categories_qs = (
+                Product.objects
+                .filter(isDeleted=False, isActive=True)
+                .values("category__categoryName","category__slug")
+                .annotate(count=Count("id"))
+                .order_by("-count")
+            )
+
+            most_used_industries = [
+                {
+                    "category_name": item["category__categoryName"] or "Uncategorized",
+                    "category_slug": item["category__slug"] or "",
+                    "count": item["count"]
+                }
+                for item in most_used_categories_qs
+            ]
             most_used_fabrics =[{
                  "fabric_name": f["fabricName"],
                  "count": f["total_count"]
@@ -1428,6 +1458,8 @@ class AdminDashAPIView(APIView):
                     "Quote_status_distribution": quote_status_distribution,
                     "Quotation_volume": quotation_volume,
                     "Pending_Sales_Representation_Action": {"amy": 2, "jok": 1, "bob": 2},
+                    "most_used_industries": most_used_industries,
+                    # "Pending_Sales_Representation_Action": pending_sales_rep_action,
                     "most_used_fabrics": most_used_fabrics,
                     "Recently_update_product_color_part": recent_updates,
                 }
@@ -1442,45 +1474,43 @@ class AdminDashAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class AdminOrderUpdateAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+# class AdminOrderUpdateAPIView(APIView):
+#     authentication_classes = [JWTAuthentication]
 
-    def patch(self, request, order_id):
-        try:
-            order = Order.objects.get(order_id=order_id)
-        except Order.DoesNotExist:
-            return Response({"status": False, "statusCode": 404, "message": "Order not found"}, status=404)
+#     def patch(self, request, order_id):
+#         try:
+#             order = Order.objects.get(order_id=order_id)
+#         except Order.DoesNotExist:
+#             return Response({"status": False, "statusCode": 404, "message": "Order not found"}, status=404)
 
-        serializer = AdminOrderUpdateSerializer(order, data=request.data, partial=True)
-        if serializer.is_valid():
-            data = serializer.validated_data
+#         serializer = AdminOrderUpdateSerializer(order, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             data = serializer.validated_data
 
-            if data.get('status') == 'cancelled':
-                order.status = 'cancelled'
-                order.admin_cancel_reason = data['admin_cancel_reason']
-                order.cancelled_by = 'admin'
-            else:
-                order.status = data['status']
+#             if data.get('status') == 'cancelled':
+#                 order.status = 'cancelled'
+#                 order.admin_cancel_reason = data['admin_cancel_reason']
+#                 order.cancelled_by = 'admin'
+#             else:
+#                 order.status = data['status']
 
-            order.save()
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Order updated successfully",
-                "data": {
-                    "order_id": order.order_id,
-                    "status": order.status,
-                    "user_cancel_reason": order.cancel_reason,
-                    "admin_cancel_reason": order.admin_cancel_reason,
-                    "cancelled_by": order.cancelled_by
-                }
-            })
-        return Response({"status": False, "statusCode": 400, "message": serializer.errors}, status=400)
-
-
+#             order.save()
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Order updated successfully",
+#                 "data": {
+#                     "order_id": order.order_id,
+#                     "status": order.status,
+#                     "user_cancel_reason": order.cancel_reason,
+#                     "admin_cancel_reason": order.admin_cancel_reason,
+#                     "cancelled_by": order.cancelled_by
+#                 }
+#             })
+#         return Response({"status": False, "statusCode": 400, "message": serializer.errors}, status=400)
 
 class AdminRefundProcessAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def patch(self, request, refund_id):
         refund = get_object_or_404(Refund, id=refund_id)
@@ -1627,6 +1657,7 @@ class AdminRefundProcessAPIView(APIView):
 #             }, status=400)
 
 class AdminOrderRefundAPI(APIView):
+    authentication_classes = [JWTAuthentication]
 
     def post(self, request):
         data = request.data
@@ -1833,3 +1864,181 @@ class QuotationStatusUpdateAPIView(APIView):
             "status":False,
             "error": "Invalid action"
             }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserDetailAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    def get(self, request):
+        try:
+            users = Users.objects.all()
+            if not users.exists():
+                return Response(
+                    {
+                        "status":False,
+                        "statusCode":404,
+                        "message": "No users found."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            serializer = UserListSerializer(users, many=True, context={'request': request})
+            return Response({
+                    "status":True,
+                    "statusCode":200,
+                    "data":serializer.data},status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response(
+                {
+                    "status":False,
+                    "statusCode":500,
+                    "error": "Something went wrong.", 
+                 "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+#<-------------orderUpdate----------->
+class AdminOderUpdateAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def put(self, request, order_id, format=None):
+        try:
+            order = Order.objects.get(order_id=order_id)
+        except Order.DoesNotExist as e:
+            return Response({
+                "statusCode": 404,
+                "status": False,
+                "message": "Order not found",
+            }, status=status.HTTP_404_NOT_FOUND)
+ 
+        serializer = OrderUpdateSerializer(
+            order,
+            data=request.data,
+            partial=True,
+            context={"request": request}
+        )
+ 
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "statusCode": 200,
+                "status": True,
+                "message": "Order Update Successfully",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+ 
+        return Response({
+            "statusCode": 400,
+            "status": False,
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+#<---------------OrderUpdateList--------------->
+class AdminOrderListAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        try:
+            orders = Order.objects.select_related("user").all().order_by("-created_at")
+
+            search = request.query_params.get("search")
+            status_param = request.query_params.get("status")
+            order_id = request.query_params.get("order_id")
+            user_id = request.query_params.get("user")
+
+            if search:
+                orders = orders.filter(
+                    Q(order_id__icontains=search) |
+                    Q(status__icontains=search)
+                )
+
+            if status_param:
+                orders = orders.filter(status=status_param)
+
+            if order_id:
+                orders = orders.filter(order_id__icontains=order_id)
+
+            if user_id:
+                orders = orders.filter(user__id=user_id)
+
+            paginator = CustomPagination()
+            paginated_orders = paginator.paginate_queryset(orders, request)
+
+            serializer = OrderUpdateSerializer(paginated_orders, many=True)
+            response = paginator.get_paginated_response(serializer.data)
+
+            response = {
+                    "count": paginator.page.paginator.count,
+                    "next": paginator.get_next_link(),
+                    "previous": paginator.get_previous_link(),
+                    "statusCode": 200,
+                    "status": True,
+                    "message": "Order list fetched successfully.",
+                    "data": serializer.data,
+                    "pagination": {
+                        "page": paginator.page.number,
+                        "page_size": paginator.get_page_size(request),
+                        "total_pages": paginator.page.paginator.num_pages,
+                        "total_items": paginator.page.paginator.count
+                    }
+                }
+
+            return Response(response, status=status.HTTP_200_OK)
+        except Exception as exc:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Server error while fetching order.",
+                "error": str(exc)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+        # data = {
+        #     "count": paginator.page.paginator.count,
+        #     "next": paginator.get_next_link(),
+        #     "previous": paginator.get_previous_link(),
+
+        #     "total_order": orders.count(),
+        #     "status_count": {
+        #         "pending": orders.filter(status="pending").count(),
+        #         "conformed": orders.filter(status="conformed").count(),
+        #         "processing": orders.filter(status="processing").count(),
+        #         "out_for_delivery": orders.filter(status="out_for_delivery").count(),
+        #         "delivered": orders.filter(status="delivered").count(),
+        #         "cancelled": orders.filter(status="cancelled").count(),
+        #     },
+
+        #     "orders": serializer.data
+        # }
+
+        # return Response(
+        #     {
+        #         "statusCode": 200,
+        #         "status": True,
+        #         "message": "Fetch orders successfully",
+        #         "data": data
+        #     },
+        #     status=200
+        # )
+       
+
+class AdminOrderDetailAPIView(APIView):
+    authentication_classes=[JWTAuthentication]
+ 
+    def get(self,request,order_id):
+        try:
+            order = Order.objects.get(order_id=order_id)
+        except Order.DoesNotExist as de:
+            return Response({
+                "statusCode":404,
+                "status":False,
+                "message":"order does not found",
+                "error":str(de)
+            },status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = OrderUpdateSerializer(order)
+        return Response({
+            "statusCOde":200,
+            "status":True,
+            "message":"Order fetch successfully",
+            "data":serializer.data
+        },status=status.HTTP_200_OK)
+ 

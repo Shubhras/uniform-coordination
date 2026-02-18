@@ -17,10 +17,6 @@ from rest_framework.exceptions import ValidationError
 
 
 
-
-
-
-
 class PromocodeCreateAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
@@ -61,6 +57,7 @@ class PromocodeCreateAPIView(APIView):
             return self.error_response(
                 f"Internal server error: {str(e)}"
             )
+
 
 
 class PromocodeListAPIView(BaseAPIView):

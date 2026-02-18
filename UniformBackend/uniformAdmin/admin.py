@@ -239,8 +239,25 @@ class SubCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Colors)
 class ColorsAdmin(admin.ModelAdmin):
-    list_display = ("colorName", "colorCode", "isActive", "isDeleted", "created_at")
+    list_display = ("colorName", "colorCode", "compatibleFabric", "isActive", "isDeleted", "created_at")
     list_filter = ("isActive", "isDeleted")
     search_fields = ("colorName", "colorCode")
-    filter_horizontal = ("compatibleFabric",)  
 
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = (
+        'productName', 
+        'productType', 
+        'category', 
+        'subcategory', 
+        'price', 
+        'total_quantity', 
+        'available_quantity', 
+        'isActive', 
+        'isPopular', 
+        'isDeleted', 
+        'created_at',
+        'updated_at'
+    )
+
+ 

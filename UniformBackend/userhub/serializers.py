@@ -5,7 +5,10 @@ from .models import *  # adjust import if needed
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from datetime import date
-from uniformAdmin.models import Product
+from uniformAdmin.serializers import ProductSerializer
+from django.utils.timezone import now
+from decimal import Decimal
+# from uniformAdmin.models import *
 # from userhub.models import Notifications
 
 
@@ -136,11 +139,9 @@ class VerifyUserSerializer(serializers.Serializer):
         return attrs
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product_name = serializers.CharField(
-        source="product.productName", read_only=True
-    )
-    product_image = serializers.SerializerMethodField()
-
+    product_name = serializers.CharField(source="product.productName", read_only=True)
+    product_image=serializers.ImageField(source="product.ProductImage",read_only=True)
+  
     class Meta:
         model = CartItem
         fields = [
@@ -151,59 +152,116 @@ class CartItemSerializer(serializers.ModelSerializer):
             'price',
             'total_price'
         ]
-    def get_product_image(self, obj):
-        request = self.context.get("request")
-
-        if obj.product and obj.product.ProductImage:
-            if request:
-                return request.build_absolute_uri(obj.product.ProductImage.url)
-            return obj.product.ProductImage.url
-
-        return None
-    
-    
+        read_only_fields = ['price', 'final_price', 'total_price']
+   
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = Cart
-        fields = ['id', 'user', 'is_active', 'created_at', 'items']
-
+        fields = ['id', 'user', 'is_active', 'created_at', 'items',]
 
 class CustomerDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomerDetails
-        fields = "__all__"
+        fields = [
+            'id',
+            'user',
+            'first_name',
+            'last_name',
+            'email',
+            'phone',
+            'address_line_1',
+            'address_line_2',
+            'city',
+            'postal_code',
+            'country',
+            'payment_method',
+            'isActive',
+            'isDeleted',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+    def validate_email(self, value):
+        if not value.endswith('@example.com'):
+            raise serializers.ValidationError("Email must belong to example.com domain")
+        return value
+
+    def validate_phone(self, value):
+        if len(value) < 10:
+            raise serializers.ValidationError("Phone number must be at least 10 digits")
+        return value
 
 
-class UserCancelOrderSerializer(serializers.ModelSerializer):
-    cancel_reason = serializers.CharField(required=True, max_length=255)
+class RentalItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    subtotal = serializers.SerializerMethodField()
+    late_fee = serializers.SerializerMethodField()
+    lost_fee = serializers.SerializerMethodField()
+    damage_fee = serializers.SerializerMethodField()
 
     class Meta:
-        model = Order
-        fields = ['cancel_reason']
+        model = RentalItem
+        fields = [
+            'id', 'product', 'quantity', 'price_per_day', 'subtotal',
+            'returned_quantity', 'lost_quantity', 'is_returned', 'is_damaged', 'is_lost',
+            'late_fee', 'lost_fee', 'damage_fee', 'notes'
+        ]
+        read_only_fields = ['subtotal']
 
-    def validate(self, attrs):
-        order = self.instance
-        if order.status not in ['pending', 'processing']:
-            raise serializers.ValidationError(f"Cannot cancel order because it is {order.status}")
-        return attrs
+class RentalSerializer(serializers.ModelSerializer):
+    items = RentalItemSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Rental
+        fields = '__all__'
+        read_only_fields = ['total_amount', 'late_fee']
 
-    def update(self, instance, validated_data):
-        instance.status = 'cancelled'
-        instance.cancel_reason = validated_data['cancel_reason']
-        instance.cancelled_by = 'user'
-        instance.save()
-        return instance
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    subtotal = serializers.SerializerMethodField()
+    rental = RentalSerializer(read_only=True)
 
-        
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product', 'quantity', 'rental_days', 'price_per_day', 'subtotal', 'rental']
+        read_only_fields = ['subtotal']
+
+    def get_subtotal(self, obj):
+        return obj.quantity * obj.price_per_day * obj.rental_days
+
 class OrderSerializer(serializers.ModelSerializer):
-    cart = CartSerializer(read_only=True)
+    items = OrderItemSerializer(many=True, read_only=True)
     customer = CustomerDetailsSerializer(read_only=True)
+    class Meta:
+        model = Order
+        fields = '__all__'
+        rread_only_fields = [
+            "order_id",
+            "subtotal",
+            "discount_amount",
+            "shipping_fee",
+            "tax_amount",
+            "total_amount",
+            "status",
+            "created_at",
+        ]
+class CreateOrderSerializer(serializers.ModelSerializer):
+
+    customer = serializers.DictField(write_only=True)
+    promocode = serializers.CharField(write_only=True, required=False)
+    cart_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = Order
-        fields = "__all__"
+        fields = [
+            "cart_id",
+            "order_type",
+            "customer",
+            "promocode",
+        ]        
+        
 
 class PaymentSerializer(serializers.ModelSerializer):
     cartitem =CartItemSerializer(read_only=True)
@@ -212,7 +270,6 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = '__all__'
-
 
 class UserRefundRequestSerializer(serializers.Serializer):
     order_id = serializers.CharField()
@@ -230,8 +287,7 @@ class UserRefundRequestSerializer(serializers.Serializer):
 
         if order.status not in ['paid', 'completed']:
             raise serializers.ValidationError(
-                "Refund can only be requested for paid or completed orders."
-            )
+                "Refund can only be requested for paid or completed orders.")
 
         payment = order.payment_set.filter(payment_status='SUCCESS').last()
         if not payment:
@@ -257,7 +313,7 @@ class UserRefundRequestSerializer(serializers.Serializer):
         )
         return refund
 
-    
+
 class FavouriteSerializer(serializers.ModelSerializer):
     product_type = serializers.CharField(
         source="product.productType",
