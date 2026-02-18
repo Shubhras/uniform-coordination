@@ -1403,7 +1403,7 @@ class OrderDetailAPIView(APIView):
                     "statusCode": 400,
                     "message": "order_id is required",
                     "data": {}
-                }, status=400)
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             # Get the CustomerDetails instance
             customer = CustomerDetails.objects.get(user=request.user)
@@ -1417,7 +1417,7 @@ class OrderDetailAPIView(APIView):
                     "statusCode": 404,
                     "message": "Order not found",
                     "data": {}
-                }, status=404)
+                }, status=status.HTTP_404_NOT_FOUND)
 
             serializer = OrderSerializer(order)
             return Response({
@@ -1425,7 +1425,7 @@ class OrderDetailAPIView(APIView):
                 "statusCode": 200,
                 "message": "Order fetched successfully",
                 "data": serializer.data
-            }, status=200)
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
             import traceback
@@ -1435,7 +1435,7 @@ class OrderDetailAPIView(APIView):
                 "statusCode": 500,
                 "error": "Internal server error.",
                 "details": str(e)
-            }, status=500)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class UserCancelOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
