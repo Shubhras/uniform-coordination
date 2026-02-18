@@ -1,63 +1,138 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Select from "react-select";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { apiCreateColor, apiUpdateColor } from "@/services/ColorsService";
 
-const FABRICS = ["Cotton", "Polyester", "Silk"];
+const fabricOptions = [
+    { value: "cotton", label: "Cotton" },
+    { value: "polyester", label: "Polyester" },
+    { value: "silk", label: "Silk" },
+    { value: "linen", label: "Linen" },
+];
 
-const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
+const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData, onSaveSuccess }) => {
+    const { session } = useCurrentSession();
+    const accessToken = session?.user?.accessToken;
+
     const [name, setName] = useState("");
     const [hex, setHex] = useState("#000000");
-    const [fabrics, setFabrics] = useState([]);
+    const [selectedFabrics, setSelectedFabrics] = useState([]);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState("");
 
-    const hexToRgb = (hex) => {
-        const cleanHex = hex.replace("#", "");
-        const bigint = parseInt(cleanHex, 16);
-        const r = (bigint >> 16) & 255;
-        const g = (bigint >> 8) & 255;
-        const b = bigint & 255;
-        return `rgb(${r}, ${g}, ${b})`;
+    const selectStyles = {
+        control: (base, state) => ({
+            ...base,
+            minHeight: "40px",
+            borderRadius: "6px",
+            borderColor: state.isFocused ? "#1C2C56" : "#E2E8F0",
+            boxShadow: "none",
+            "&:hover": {
+                borderColor: "#1C2C56",
+            },
+        }),
+        option: (base, state) => ({
+            ...base,
+            backgroundColor: state.isSelected
+                ? "#1C2C56"
+                : state.isFocused
+                    ? "#EEF2FF"
+                    : "white",
+            color: state.isSelected ? "white" : "#1E293B",
+            fontSize: "14px",
+        }),
+        multiValue: (base) => ({
+            ...base,
+            backgroundColor: "#EEF2FF",
+            borderRadius: "6px",
+        }),
+        multiValueLabel: (base) => ({
+            ...base,
+            color: "#1C2C56",
+            fontSize: "13px",
+            fontWeight: 500,
+        }),
+        multiValueRemove: (base) => ({
+            ...base,
+            color: "#1C2C56",
+            "&:hover": {
+                backgroundColor: "#1C2C56",
+                color: "white",
+            },
+        }),
+        menuPortal: (base) => ({
+            ...base,
+            zIndex: 9999,
+        }),
     };
 
+    // Reset / prefill form on open
     useEffect(() => {
         if (!isOpen) return;
 
         if (mode === "edit" && initialData) {
-            setName(initialData.name || "");
-            setHex(initialData.hex || "#000000");
-            setFabrics(initialData.fabrics || []);
+            setName(initialData.colorName || "");
+            setHex(initialData.colorCode || "#000000");
+
+            // Pre-select compatible fabrics
+            if (initialData.compatibleFabric && Array.isArray(initialData.compatibleFabric)) {
+                const preSelected = initialData.compatibleFabric.map((f) => {
+                    // f is { id, fabricName } from the API
+                    const match = fabricOptions.find((opt) => opt.value === f.id || opt.label === f.fabricName);
+                    if (match) return match;
+                    return { value: f.id, label: f.fabricName || String(f.id) };
+                });
+                setSelectedFabrics(preSelected);
+            } else {
+                setSelectedFabrics([]);
+            }
         } else {
             setName("");
             setHex("#000000");
-            setFabrics([]);
+            setSelectedFabrics([]);
         }
+        setError("");
     }, [mode, initialData, isOpen]);
 
-    const toggleFabric = (fabric) => {
-        setFabrics((prev) =>
-            prev.includes(fabric)
-                ? prev.filter((f) => f !== fabric)
-                : [...prev, fabric]
-        );
-    };
-
-    const handleSave = () => {
-        const payload = {
-            name,
-            hex,
-            rgb: hexToRgb(hex),
-            swatch: hex,
-            fabrics,
-        };
-
-        if (mode === "edit") {
-            console.log("UPDATE COLOR:", payload);
-        } else {
-            console.log("ADD COLOR:", payload);
+    const handleSave = async () => {
+        if (!name.trim()) {
+            setError("Color name is required");
+            return;
+        }
+        if (!hex.trim()) {
+            setError("Color code is required");
+            return;
         }
 
-        onClose();
+        setError("");
+        setSaving(true);
+
+        const payload = {
+            colorName: name.trim(),
+            colorCode: hex,
+            compatibleFabric: selectedFabrics.map((f) => f.value),
+        };
+
+        try {
+            if (mode === "edit" && initialData?.id) {
+                await apiUpdateColor(accessToken, initialData.id, payload);
+            } else {
+                await apiCreateColor(accessToken, payload);
+            }
+
+            if (onSaveSuccess) {
+                onSaveSuccess();
+            }
+        } catch (err) {
+            console.error("Color save error:", err);
+            setError(err?.response?.data?.message || "Failed to save color. Please try again.");
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -75,11 +150,18 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
                     </h2>
                 </div>
 
+                {/* Error */}
+                {error && (
+                    <div className="mx-5 mt-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-md">
+                        {error}
+                    </div>
+                )}
+
                 <div className="px-5 py-5 space-y-5">
 
                     <div>
                         <label className="text-[#1C2C56] text-sm font-medium">
-                            Color Name
+                            Color Name<span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
@@ -93,7 +175,7 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
                     <div className="flex gap-4 items-end">
                         <div className="flex flex-col">
                             <label className="text-[#1C2C56] text-sm font-medium">
-                                Color
+                                Color<span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="color"
@@ -116,46 +198,30 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
                         </div>
                     </div>
 
+                    {/* Compatible Fabrics — Static multi-select */}
                     <div>
                         <label className="text-[#1C2C56] text-sm font-medium">
-                            RGB Value
-                        </label>
-                        <input
-                            type="text"
-                            value={hexToRgb(hex)}
-                            disabled
-                            className="mt-1 w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-md px-3 py-2 text-sm text-[#64748B]"
-                        />
-                    </div>
-
-                    <div>
-                        <p className="text-[#1C2C56] text-sm font-medium mb-2">
                             Compatible Fabrics
-                        </p>
-
-                        <div className="flex gap-2 flex-wrap">
-                            {FABRICS.map((fabric) => (
-                                <button
-                                    key={fabric}
-                                    type="button"
-                                    onClick={() => toggleFabric(fabric)}
-                                    className={`text-xs px-3 py-1 rounded-full border transition
-                    ${fabrics.includes(fabric)
-                                            ? "bg-[#1C2C56] text-white border-[#1C2C56]"
-                                            : "bg-[#EEF2FF] text-[#1C2C56] border-transparent"
-                                        }
-                  `}
-                                >
-                                    {fabric}
-                                </button>
-                            ))}
-                        </div>
+                        </label>
+                        <Select
+                            isMulti
+                            options={fabricOptions}
+                            value={selectedFabrics}
+                            onChange={setSelectedFabrics}
+                            styles={selectStyles}
+                            placeholder="Select compatible fabrics..."
+                            noOptionsMessage={() => "No fabrics found"}
+                            menuPortalTarget={typeof document !== "undefined" ? document.body : null}
+                            menuPosition="fixed"
+                            className="mt-1"
+                            closeMenuOnSelect={false}
+                        />
                     </div>
 
                 </div>
 
                 <div className="border-t px-6 py-4 flex justify-end gap-3">
-                    <Button variant="plain" size="sm" onClick={onClose}>
+                    <Button variant="plain" size="sm" onClick={onClose} disabled={saving}>
                         Cancel
                     </Button>
 
@@ -164,6 +230,7 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData }) => {
                         size="sm"
                         className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white px-6"
                         onClick={handleSave}
+                        loading={saving}
                     >
                         {mode === "edit" ? "Update Color" : "Save Color"}
                     </Button>

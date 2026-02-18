@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import signOut from '@/server/actions/auth/handleSignOut'
+import NotificationPopup from './NotificationPopup'
 import {
     FiBell,
     FiGlobe,
@@ -19,13 +20,18 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
     const { session } = useCurrentSession()
     const router = useRouter()
     const [dropdownOpen, setDropdownOpen] = useState(false)
+    const [notifOpen, setNotifOpen] = useState(false)
     const dropdownRef = useRef(null)
+    const notifRef = useRef(null)
 
-    // Close dropdown on click outside
+    // Close dropdown & notification popup on click outside
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
                 setDropdownOpen(false)
+            }
+            if (notifRef.current && !notifRef.current.contains(e.target)) {
+                setNotifOpen(false)
             }
         }
         document.addEventListener('mousedown', handleClickOutside)
@@ -74,15 +80,32 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
                 </button> */}
 
                 {/* Notification Bell */}
-                <button className="relative text-[#64748B] hover:text-[#1C2C56] transition-colors p-2 rounded-full hover:bg-[#F1F5F9]">
-                    <FiBell size={20} />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
-                </button>
+                <div className="relative" ref={notifRef}>
+                    <button
+                        onClick={() => {
+                            setNotifOpen(!notifOpen)
+                            setDropdownOpen(false)
+                        }}
+                        className={`relative text-[#64748B] hover:text-[#1C2C56] transition-colors p-2 rounded-full hover:bg-[#F1F5F9] ${notifOpen ? 'bg-[#F1F5F9] text-[#1C2C56]' : ''
+                            }`}
+                    >
+                        <FiBell size={20} />
+                        <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
+                    </button>
+
+                    {/* Notification Popup */}
+                    {notifOpen && (
+                        <NotificationPopup onClose={() => setNotifOpen(false)} />
+                    )}
+                </div>
 
                 {/* User Profile Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                     <button
-                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                        onClick={() => {
+                            setDropdownOpen(!dropdownOpen)
+                            setNotifOpen(false)
+                        }}
                         className="flex items-center gap-2 md:gap-3 hover:bg-[#F8FAFC] rounded-lg px-2 py-1.5 transition-colors"
                     >
                         {/* Avatar */}
