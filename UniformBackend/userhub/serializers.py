@@ -160,6 +160,7 @@ class ProductMiniSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source="category.name", read_only=True)
     subcategory_name = serializers.CharField(source="subcategory.name", read_only=True)
 
+
     class Meta:
         model = Product
         fields = [
