@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Category, Blog, FAQ, FAQDescription, CatalogImage
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
 # class HomePageAPIView(APIView):
@@ -101,7 +102,14 @@ from .models import Category, Blog, FAQ, FAQDescription, CatalogImage
 #             }
 #         })
 
-
+@extend_schema(
+    tags=["HomePage API"],
+    responses={
+        200: OpenApiResponse(description="Home page data fetched successfully"),
+        # 404: OpenApiResponse(description="Homepage not found"),
+        # 500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class HomePageAPIView(APIView):
 
     def get(self, request):

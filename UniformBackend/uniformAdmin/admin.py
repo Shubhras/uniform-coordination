@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import *
 from django.utils.html import format_html
+
+
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
     list_display = ('role_name', 'slug', 'description')
@@ -59,7 +61,19 @@ class BlogAdmin(admin.ModelAdmin):
     
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("id","categoryName","slug","type","isActive","isDeleted", "created_at","updated_at")
+    list_display = (
+        "id",
+        "categoryName",
+        "slug",
+        "type",
+        "categoryImage",   # ADDED
+        "description",     # ADDED
+        "isActive",
+        "isDeleted",
+        "created_at",
+        "updated_at",
+    )
+
     list_filter = ("isActive", "isDeleted", "created_at")
     search_fields = ("categoryName", "slug")
     ordering = ("-created_at",)
@@ -68,16 +82,21 @@ class CategoryAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ("Category Info", {
-            "fields": ("categoryName", "slug")
+            "fields": (
+                "categoryName",
+                "slug",
+                "type",             # ADDED (was missing)
+                "categoryImage",    # MOVED here (logical place)
+                "description",      # MOVED here
+            )
         }),
         ("Status", {
-            "fields": ("isActive", "isDeleted","categoryImage","description")
+            "fields": ("isActive", "isDeleted")
         }),
         ("Timestamps", {
             "fields": ("created_at", "updated_at")
         }),
     )
-   
 
 
 @admin.register(Parts)
@@ -243,21 +262,216 @@ class ColorsAdmin(admin.ModelAdmin):
     list_filter = ("isActive", "isDeleted")
     search_fields = ("colorName", "colorCode")
 
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
-        'productName', 
-        'productType', 
-        'category', 
-        'subcategory', 
-        'price', 
-        'total_quantity', 
-        'available_quantity', 
-        'isActive', 
-        'isPopular', 
-        'isDeleted', 
+        'id',
+        'productName',
+        'productType',
+        'price',
+        'available_quantity',
+        'isActive',
+        'isPopular',
+        'isDeleted',
+        'created_at'
+    )
+ 
+    list_filter = (
+        'productType',
+        'isActive',
+        'isPopular',
+        'isDeleted',
+        'category',
+        'subcategory'
+    )
+ 
+    search_fields = (
+        'productName',
+        'slug',
+    )
+ 
+    prepopulated_fields = {
+        'slug': ('productName',)
+    }
+ 
+    filter_horizontal = (
+        'parts',
+    )
+ 
+    readonly_fields = (
         'created_at',
-        'updated_at'
+        'updated_at',
+    )
+ 
+    ordering = ('-created_at',)
+
+
+@admin.register(Template)
+class TemplateAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'templateName',
+        'part',
+        'partUsageCount',
+        'isActive',
+        'isDeleted',
+        'created_at'
     )
 
- 
+    list_filter = ('isActive', 'isDeleted', 'created_at')
+
+    search_fields = ('templateName',)
+
+    readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(TableTheme)
+class TableThemeAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'title',
+        'order',
+        'is_active',
+        'isDeleted',
+        'created_at'
+    )
+
+    list_filter = ('is_active', 'isDeleted', 'created_at')
+
+    search_fields = ('title', 'description')
+
+    ordering = ('order',)
+
+
+@admin.register(Promocode)
+class PromocodeAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'promocodeName',
+        'promocodeType',
+        'amount',
+        'started_at',
+        'ended_at',
+        'isActive',
+        'isDeleted',
+        'created_at'
+    )
+
+    list_filter = ('promocodeType', 'isActive', 'isDeleted', 'started_at')
+
+    search_fields = ('promocodeName', 'slug')
+
+    prepopulated_fields = {"slug": ("promocodeName",)}
+
+    readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(PrivacyPolicy)
+class PrivacyPolicyAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'title',
+        'privacyPolicyType',
+        'type',
+        'language',
+        'version',
+        'isActive',
+        'isDeleted',
+        'created_at'
+    )
+
+    list_filter = (
+        'privacyPolicyType',
+        'type',
+        'language',
+        'isActive',
+        'isDeleted'
+    )
+
+    search_fields = ('title', 'slug', 'content')
+
+    prepopulated_fields = {"slug": ("title",)}
+
+    readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(SpecialCondition)
+class SpecialConditionAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'title',
+        'condition_type',
+        'discount_percentage',
+        'priority_support',
+        'net_30_terms',
+        'free_samples',
+        'is_active',
+        'is_deleted',
+        'created_at'
+    )
+
+    list_filter = (
+        'condition_type',
+        'is_active',
+        'is_deleted',
+        'priority_support',
+        'net_30_terms',
+        'free_samples'
+    )
+
+    search_fields = ('title', 'condition_type', 'description')
+
+    readonly_fields = ('created_at', 'updated_at')
+
+    ordering = ('-created_at',)
+
+
+# @admin.register(QuotationTemplate)
+# class QuotationTemplateAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'id',
+#         'title',
+#         'slug',
+#         'userType',
+#         'language',
+#         'version',
+#         'is_active',
+#         'is_deleted',
+#         'created_at'
+#     )
+
+#     list_filter = (
+#         'title',
+#         'userType',
+#         'language',
+#         'is_active',
+#         'is_deleted'
+#     )
+
+#     search_fields = ('slug', 'content')
+
+#     readonly_fields = ('created_at', 'updated_at')
+
+#     ordering = ('-created_at',)
+
+
+@admin.register(AdminNotification)
+class AdminNotificationAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'title',
+        'priority',
+        'is_seen',
+        'content_type',
+        'object_id',
+        'created_at'
+    )
+
+    list_filter = ('priority', 'is_seen', 'created_at')
+
+    search_fields = ('title', 'message')
+
+    readonly_fields = ('created_at',)
+
+    ordering = ('-created_at',)

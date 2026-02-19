@@ -7,6 +7,7 @@ from django.db.models import Q
 from .serializers import *
 from .models import *
 from .fabric import IsAdministrator, CustomPagination
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
 
@@ -14,6 +15,18 @@ class TemplateCreateView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]
 
+    @extend_schema(
+        tags=["Template"],
+        summary="Create Template",
+        description="Create a new template (Admin only)",
+        request=TemplateSerializer,
+        responses={
+            200: OpenApiResponse(description="Template created successfully"),
+            400: OpenApiResponse(description="Validation failed"),
+            401: OpenApiResponse(description="Unauthorized"),
+            500: OpenApiResponse(description="Internal server error"),
+        },
+    )
     def post(self, request):
         try:
             serializer = TemplateSerializer(data=request.data)
@@ -45,6 +58,39 @@ class TemplateCreateView(APIView):
 class TemplateListView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        tags=["Template"],
+        summary="List Templates",
+        description="Get paginated list of templates with search support",
+        parameters=[
+            OpenApiParameter(
+                name="search",
+                description="Search by template name or part name",
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="page",
+                description="Page number",
+                required=False,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="page_size",
+                description="Items per page",
+                required=False,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(description="Templates fetched successfully"),
+            500: OpenApiResponse(description="Internal server error"),
+        },
+        auth=[],  # public
+    )
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
@@ -54,14 +100,14 @@ class TemplateListView(APIView):
             if search:
                 templates = templates.filter(
                     Q(templateName__icontains=search) |
-                    Q(part__partName__icontains=search)
+                    Q(part__category__icontains=search)
                 )
 
             templates = templates.order_by("-id")
 
             paginator = CustomPagination()
             page = paginator.paginate_queryset(templates, request)
-            serializer = TemplateSerializer(page, many=True)
+            serializer = TemplateSerializer(page, many=True,context={'request': request})
 
             return Response({
                 "count": paginator.page.paginator.count,
@@ -90,6 +136,18 @@ class TemplateListView(APIView):
 class TemplateDetailView(APIView):
     permission_classes = [AllowAny]
 
+
+    @extend_schema(
+        tags=["Template"],
+        summary="Get Template Detail",
+        description="Retrieve template details by ID",
+        responses={
+            200: OpenApiResponse(description="Template fetched successfully"),
+            404: OpenApiResponse(description="Template not found"),
+            500: OpenApiResponse(description="Internal server error"),
+        },
+        auth=[],  # public
+    )
     def get(self, request, id):
         try:
             template = Template.objects.filter(id=id, isDeleted=False).first()
@@ -122,9 +180,22 @@ class TemplateUpdateView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]
 
-    def put(self, request, pk):
+    @extend_schema(
+        tags=["Template"],
+        summary="Update Template",
+        description="Update an existing template (Admin only)",
+        request=TemplateSerializer,
+        responses={
+            200: OpenApiResponse(description="Template updated successfully"),
+            400: OpenApiResponse(description="Validation failed"),
+            404: OpenApiResponse(description="Template not found"),
+            401: OpenApiResponse(description="Unauthorized"),
+            500: OpenApiResponse(description="Internal server error"),
+        },
+    )
+    def put(self, request, id):
         try:
-            template = Template.objects.filter(pk=pk, isDeleted=False).first()
+            template = Template.objects.filter(pk=id, isDeleted=False).first()
             if not template:
                 return Response({
                     "statusCode": 404,
@@ -162,9 +233,20 @@ class TemplateDeleteView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]
 
-    def delete(self, request, pk):
+    @extend_schema(
+        tags=["Template"],
+        summary="Delete Template",
+        description="Soft delete a template (Admin only)",
+        responses={
+            200: OpenApiResponse(description="Template deleted successfully"),
+            404: OpenApiResponse(description="Template not found"),
+            401: OpenApiResponse(description="Unauthorized"),
+            500: OpenApiResponse(description="Internal server error"),
+        },
+    )
+    def delete(self, request, id):
         try:
-            template = Template.objects.filter(pk=pk, isDeleted=False).first()
+            template = Template.objects.filter(pk=id, isDeleted=False).first()
             if not template:
                 return Response({
                     "statusCode": 404,

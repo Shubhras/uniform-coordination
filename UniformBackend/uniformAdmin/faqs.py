@@ -9,14 +9,22 @@ from rest_framework.exceptions import ValidationError
 from uniformAdmin.fabric import CustomPagination,IsAdministrator
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated ,BasePermission,AllowAny
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
 #-----------------------FAQs----------------------------------
 
 
-
-
-
+@extend_schema(
+    tags=["FAQ'S (Admin)"],
+    summary="Create FAQ API",
+    request=FAQSerializer,
+    responses={
+        201: OpenApiResponse(description="FAQ created successfully"),
+        400: OpenApiResponse(description="Validation failed"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class FAQCreateAPIView(APIView):    
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
@@ -99,6 +107,35 @@ class FAQCreateAPIView(APIView):
 
 
 
+
+@extend_schema(
+    tags=["FAQ'S (Admin)"],
+    summary="FAQ List API",
+    parameters=[
+        OpenApiParameter(
+            name="search",
+            description="Search FAQs by title or special keywords (uniform, table)",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="category",
+            description="Filter FAQs by category ID",
+            required=False,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="type",
+            description="Filter FAQs by type",
+            required=False,
+            type=str,
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(description="FAQ list fetched successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class FAQListAPIView(APIView):
     permission_classes = [AllowAny]
     
@@ -108,7 +145,7 @@ class FAQListAPIView(APIView):
 
             faqs = FAQ.objects.filter(isDeleted=False, isActive=True)
 
-            # ✅ TYPE-BASED SEARCH (ONLY ADDITION)
+            #  TYPE-BASED SEARCH (ONLY ADDITION)
             if search.lower() in ["uniform", "table"]:
                 faqs = faqs.filter(type=search.lower())
             elif search:
@@ -146,7 +183,15 @@ class FAQListAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
+@extend_schema(
+    tags=["FAQ'S (Admin)"],
+    summary="FAQ Details By ID API",
+    request=FAQSerializer,
+    responses={
+        200: OpenApiResponse(description="FAQ details fetched successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class FAQDetailAPIView(APIView):
     permission_classes = [AllowAny]
     
@@ -179,7 +224,16 @@ class FAQDetailAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
+@extend_schema(
+    tags=["FAQ'S (Admin)"],
+    summary="Update Faqs by ID",
+    request=FAQSerializer,
+    responses={
+        200: OpenApiResponse(description="Faqs updated successfully"),
+        400: OpenApiResponse(description="Validation failed"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class FAQUpdateAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]  # <-- ensures request.user is AdminUser
@@ -216,7 +270,6 @@ class FAQUpdateAPIView(APIView):
                 }, status=status.HTTP_200_OK)
             #  ONLY CHANGE ENDS HERE
                 
-                
             return Response({
                 "status": False,
                 "statusCode": 200,
@@ -233,7 +286,16 @@ class FAQUpdateAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
+@extend_schema(
+    tags=["FAQ'S (Admin)"],
+    summary="Delete FAQ by ID",
+    description="Soft delete a FAQ and all its related descriptions.",
+    responses={
+        200: OpenApiResponse(description="FAQ deleted successfully"),
+        404: OpenApiResponse(description="FAQ not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class FAQDeleteAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]  # <-- ensures request.user is AdminUser

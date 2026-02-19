@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
+from django.conf import settings
 import re
 from django.utils import timezone
 from .models import *
@@ -9,6 +10,19 @@ from .utils import get_default_b2b_role
 from userhub.models import *
 # User = get_user_model()
 import json
+# from userhub.models import Order
+
+
+def build_media_url(file_field):
+    """
+    Returns absolute media URL for a FileField/ImageField
+    Works without request object
+    """
+    if not file_field:
+        return None
+
+    return f"{settings.SITE_DOMAIN}{settings.MEDIA_URL}{file_field.name}"
+
 
 # class AdminLoginSerializer(serializers.Serializer):
 #     email = serializers.EmailField()
@@ -307,9 +321,17 @@ class ColorsSerializer(serializers.ModelSerializer):
 
 
 class TemplateSerializer(serializers.ModelSerializer):
+    partName = serializers.CharField(source='part.partName',read_only=True)
+    partCategory = serializers.CharField(source='part.category',read_only=True)
     class Meta:
         model = Template
         fields = "__all__"
+    
+    def create(self, validated_data):
+        if "isActive" not in self.initial_data:
+            validated_data["isActive"] = True
+        return super().create(validated_data)
+
 
 
 
@@ -321,7 +343,6 @@ class BlogSerializer(serializers.ModelSerializer):
 
     #  WRITE image to DB
     image = serializers.ImageField(required=False, allow_null=True)
-
     slug = serializers.SerializerMethodField()
     isActive = serializers.BooleanField(default=True)
 
@@ -356,6 +377,9 @@ class BlogSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         request = self.context.get("request")
 
+        print("DEBUG request:", request)
+        print("DEBUG image:", instance.image)
+
         if instance.image and request:
             data["image"] = request.build_absolute_uri(instance.image.url)
         else:
@@ -363,11 +387,20 @@ class BlogSerializer(serializers.ModelSerializer):
 
         return data
 
-    def validate_title(self, value):
-        if not value.strip():
-            raise serializers.ValidationError("Title is required.")
-        return value
+    # def validate_title(self, value):
+    #     if not value.strip():
+    #         raise serializers.ValidationError("Title is required.")
+    #     return value
 
+    def validate_title(self, value):
+        qs = Blog.objects.filter(title__iexact=value,isDeleted=False)
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+
+        if qs.exists():
+            raise serializers.ValidationError("Blog with this title already exists.")
+
+        return value
 
 
 class FAQDescriptionSerializer(serializers.ModelSerializer):
@@ -420,7 +453,7 @@ class FAQSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     slug = serializers.SerializerMethodField()
-
+    isActive = serializers.BooleanField(default=True)
     class Meta:
         model = Category
         fields = [
@@ -428,6 +461,8 @@ class CategorySerializer(serializers.ModelSerializer):
             "categoryName",
             "slug",
             "type", 
+            "categoryImage",  
+            "description",
             "isActive",
             "order",
             "created_at",
@@ -453,6 +488,9 @@ class CategorySerializer(serializers.ModelSerializer):
             )
 
         return value.strip()
+
+
+
 
 
 
@@ -553,6 +591,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
 
         return attrs
 
+
 class TableThemeSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False)
 
@@ -589,17 +628,130 @@ class TableThemeSerializer(serializers.ModelSerializer):
         else:
             data['image'] = None
         return data
+    
 
     
+# class ProductSerializer(serializers.ModelSerializer):
+#     parts = serializers.PrimaryKeyRelatedField(
+#         queryset=Parts.objects.filter(isActive=True, isDeleted=False),
+#         many=True,
+#         required=False
+#     )
+
+#     theme = serializers.PrimaryKeyRelatedField(
+#         queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
+#         required=False,
+#         allow_null=True
+#     )
+
+#     class Meta:
+#         model = Product
+#         fields = [
+#             "id", "productName", "slug", "description", "productType","theme", 
+#             "category", "subcategory", "parts", "price", "discount",
+#             "total_quantity", "available_quantity",
+#             "ProductImage", "isActive", "created_at"
+#         ]
+#         read_only_fields = ["slug", "created_at"]
+
+#     # IMPORTANT: handle parts = "[1,2,3]" from form-data
+#     def to_internal_value(self, data):
+#         data = data.copy()
+
+#         parts = data.get("parts")
+#         if parts and isinstance(parts, str):
+#             try:
+#                 data.setlist("parts", json.loads(parts))
+#             except (json.JSONDecodeError, TypeError):
+#                 raise serializers.ValidationError({
+#                     "parts": "Invalid format. Use [1,2,3]."
+#                 })
+
+#         return super().to_internal_value(data)
+    
+#     def validate(self, data):
+#         product_type = data.get("productType")
+
+#         # Explicitly check if theme was sent in payload
+#         theme_provided = "theme" in self.initial_data
+#         theme_value = data.get("theme")
+
+#         # Category → Subcategory validation
+#         category = data.get("category")
+#         subcategory = data.get("subcategory")
+#         if subcategory and subcategory.category != category:
+#             raise serializers.ValidationError({
+#                 "subcategory": "Selected subcategory does not belong to selected category"
+#             })
+
+#         # Quantity validation
+#         total_qty = data.get("total_quantity", 0)
+#         avail_qty = data.get("available_quantity", 0)
+#         if avail_qty > total_qty:
+#             raise serializers.ValidationError({
+#                 "available_quantity": "Available quantity cannot exceed total quantity"
+#             })
+
+#         # FINAL THEME RULES (CORRECT)
+#         if product_type == "table" and not theme_value:
+#             raise serializers.ValidationError({
+#                 "theme": "Theme is required when product type is table."
+#             })
+
+#         if product_type == "uniform" and theme_provided:
+#             raise serializers.ValidationError({
+#                 "theme": "Theme is not allowed for uniform products."
+#             })
+
+#         return data
+
+class CategoryMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["id", "categoryName", "type", "slug"]
+
+
+class SubCategoryMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategory
+        fields = ["id", "name", "slug"]
+
+
+class PartsMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Parts
+        fields = ["id", "partName", "category"]
+
 class ProductSerializer(serializers.ModelSerializer):
     isActive = serializers.BooleanField(required=False, default=True)
-    
-    parts = serializers.PrimaryKeyRelatedField(
-        queryset=Parts.objects.filter(isActive=True, isDeleted=False),
-        many=True,
+
+    category = CategoryMiniSerializer(read_only=True)
+    subcategory = SubCategoryMiniSerializer(read_only=True)
+    parts = PartsMiniSerializer(read_only=True, many=True)
+    ProductImage = serializers.SerializerMethodField()
+
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
         required=False
     )
 
+    subcategory_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubCategory.objects.filter(isActive=True, isDeleted=False),
+        source="subcategory",
+        write_only=True,
+        required=False
+    )
+
+    parts_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Parts.objects.filter(isActive=True, isDeleted=False),
+        source="parts",
+        many=True,
+        write_only=True,
+        required=False
+    )
+    
     theme = serializers.PrimaryKeyRelatedField(
         queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
         required=False,
@@ -609,24 +761,29 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            "id", "productName", "slug", "description", "productType","theme", 
-            "category", "subcategory", "parts", "price", "discount",
+            "id", "productName", "slug", "description", "productType",
+            "theme",
+
+            # READ
+            "category", "subcategory", "parts",
+
+            # WRITE
+            "category_id", "subcategory_id", "parts_ids",
+
+            "price", "discount",
             "total_quantity", "available_quantity",
             "ProductImage", "isActive", "created_at"
         ]
-        read_only_fields = ["slug", "created_at"]
-
-    # IMPORTANT: handle parts = "[1,2,3]" from form-data
     def to_internal_value(self, data):
         data = data.copy()
 
-        parts = data.get("parts")
+        parts = data.get("parts_ids")
         if parts and isinstance(parts, str):
             try:
-                data.setlist("parts", json.loads(parts))
+                data.setlist("parts_ids", json.loads(parts))
             except (json.JSONDecodeError, TypeError):
                 raise serializers.ValidationError({
-                    "parts": "Invalid format. Use [1,2,3]."
+                    "parts_ids": "Invalid format. Use [1,2,3]."
                 })
 
         return super().to_internal_value(data)
@@ -651,27 +808,79 @@ class ProductSerializer(serializers.ModelSerializer):
     def validate(self, data):
         product_type = data.get("productType")
 
-        # Explicitly check if theme was sent in payload
         theme_provided = "theme" in self.initial_data
         theme_value = data.get("theme")
 
-        # Category → Subcategory validation
         category = data.get("category")
         subcategory = data.get("subcategory")
-        if subcategory and subcategory.category != category:
+
+        if subcategory and category and subcategory.category != category:
             raise serializers.ValidationError({
                 "subcategory": "Selected subcategory does not belong to selected category"
             })
 
-        # Quantity validation
         total_qty = data.get("total_quantity", 0)
         avail_qty = data.get("available_quantity", 0)
+
         if avail_qty > total_qty:
             raise serializers.ValidationError({
                 "available_quantity": "Available quantity cannot exceed total quantity"
             })
 
-        # FINAL THEME RULES (CORRECT)
+        if product_type == "table" and not theme_value:
+            raise serializers.ValidationError({
+                "theme": "Theme is required when product type is table."
+            })
+
+        if product_type == "uniform" and theme_provided:
+            raise serializers.ValidationError({
+                "theme": "Theme is not allowed for uniform products."
+            })
+
+        return data
+        read_only_fields = ["slug", "created_at"]
+
+  
+    def get_ProductImage(self, obj):
+        return build_media_url(obj.ProductImage)
+
+    def to_internal_value(self, data):
+        data = data.copy()
+
+        parts = data.get("parts_ids")
+        if parts and isinstance(parts, str):
+            try:
+                data.setlist("parts_ids", json.loads(parts))
+            except (json.JSONDecodeError, TypeError):
+                raise serializers.ValidationError({
+                    "parts_ids": "Invalid format. Use [1,2,3]."
+                })
+
+        return super().to_internal_value(data)
+
+    
+    def validate(self, data):
+        product_type = data.get("productType")
+
+        theme_provided = "theme" in self.initial_data
+        theme_value = data.get("theme")
+
+        category = data.get("category")
+        subcategory = data.get("subcategory")
+
+        if subcategory and category and subcategory.category != category:
+            raise serializers.ValidationError({
+                "subcategory": "Selected subcategory does not belong to selected category"
+            })
+
+        total_qty = data.get("total_quantity", 0)
+        avail_qty = data.get("available_quantity", 0)
+
+        if avail_qty > total_qty:
+            raise serializers.ValidationError({
+                "available_quantity": "Available quantity cannot exceed total quantity"
+            })
+
         if product_type == "table" and not theme_value:
             raise serializers.ValidationError({
                 "theme": "Theme is required when product type is table."
@@ -684,7 +893,6 @@ class ProductSerializer(serializers.ModelSerializer):
 
         return data
 
-    
     
     
     
@@ -1164,3 +1372,12 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
   
 
  
+    
+class OrderUpdateSerializer(serializers.ModelSerializer):
+    # user = serializers.StringRelatedField()
+    # customer = serializers.StringRelatedField()
+
+    class Meta:
+        model = Order
+        # admin jo fields update kar sakta hai
+        fields = ['status', 'payment_method', 'order_type', 'total_amount', 'return_date', 'is_active']

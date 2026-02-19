@@ -8,9 +8,21 @@ from uniformAdmin.fabric import CustomPagination,IsAdministrator
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .auth import IsAdminUserJWT
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
+
 
 #----------------Catalog Image -----------------
 
+@extend_schema(
+    tags=["CatelogImage"],
+    summary="Create a catalog Image",
+    request=CatalogImageSerializer,
+    responses={
+        200: OpenApiResponse(description="Catalog Image created successfully"),
+        400: OpenApiResponse(description="Validation failed"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CatalogImageCreateAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
@@ -44,6 +56,23 @@ class CatalogImageCreateAPIView(APIView):
             }, status=status.HTTP_200_OK)
 
 
+
+@extend_schema(
+    tags=["CatelogImage"],
+    summary="Catalog Images List API",
+    parameters=[
+        OpenApiParameter(
+            name="name",
+            description="Search catalog images by name",
+            required=False,
+            type=str,
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(description="Catalog Image list fetched successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CatalogImageListAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -71,16 +100,18 @@ class CatalogImageListAPIView(APIView):
                 "count": paginator.page.paginator.count,
                 "next": paginator.get_next_link(),
                 "previous": paginator.get_previous_link(),
-                "statusCode": 200,
-                "status": True,
-                "message": "Catalog Image list fetched successfully.",
-                "data": serializer.data,
                 "pagination": {
+                    
                     "page": paginator.page.number,
                     "page_size": paginator.get_page_size(request),
                     "total_pages": paginator.page.paginator.num_pages,
                     "total_items": paginator.page.paginator.count
-                }
+                },
+                "statusCode": 200,
+                "status": True,
+                "message": "Catalog Image list fetched successfully.",
+                "data": serializer.data,
+
             }
 
             return Response(response, status=status.HTTP_200_OK)
@@ -94,6 +125,15 @@ class CatalogImageListAPIView(APIView):
             }, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=["CatelogImage"],
+    summary="Get Catalog Image Details by ID",
+    responses={
+        200: OpenApiResponse(description="Catalog Image details fetched successfully"),
+        404: OpenApiResponse(description="Catalog Image not found"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CatalogImageDetailAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -118,6 +158,19 @@ class CatalogImageDetailAPIView(APIView):
             }, status=status.HTTP_200_OK)
 
 
+
+
+@extend_schema(
+    tags=["CatelogImage"],
+    summary="Update catalog Image by ID",
+    request=CatalogImageSerializer,
+    responses={
+        200: OpenApiResponse(description="Catalog Image updated successfully"),
+        400: OpenApiResponse(description="Validation failed"),
+        404: OpenApiResponse(description="Catalog Image not found"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CatalogImageUpdateAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
@@ -166,6 +219,17 @@ class CatalogImageUpdateAPIView(APIView):
             }, status=status.HTTP_200_OK)
 
 
+
+
+@extend_schema(
+    tags=["CatelogImage"],
+    summary="Delete catalog Image by ID",
+    responses={
+        200: OpenApiResponse(description="Catalog Image deleted successfully"),
+        404: OpenApiResponse(description="Catalog Image not found"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CatalogImageDeleteAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 

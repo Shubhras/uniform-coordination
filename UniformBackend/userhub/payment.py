@@ -10,6 +10,12 @@ from uniformAdmin.fabric import IsAdministrator
 import stripe
 from uniformAdmin.auth import *
 from .utils import generate_payment_pdf
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
+
+
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -331,7 +337,16 @@ class CreatePaymentAPIView(APIView):
 
 class UserPaymentListAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
+    @extend_schema(
+    tags=["Payments · User"],
+    summary="List user payments",
+    description="Returns paginated list of payments for logged-in user",
+    responses={
+        200: OpenApiResponse(description="Payments fetched successfully"),
+        404: OpenApiResponse(description="No payment records found"),
+        401: OpenApiResponse(description="Authentication required"),
+    }
+    )
     def get(self, request):
         try:
             payments = Payment.objects.filter(
@@ -371,6 +386,35 @@ class UserPaymentListAPIView(APIView):
 class UserPaymentDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["Payments · User"],
+    summary="Get payment detail (User)",
+    request={
+        "application/json": {
+            "type": "object",
+            "required": ["payment_id"],
+            "properties": {
+                "payment_id": {
+                    "type": "string",
+                    "example": "pi_3NabcXYZ"
+                }
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Payment fetched successfully"),
+        400: OpenApiResponse(description="payment_id required"),
+        404: OpenApiResponse(description="Payment not found"),
+        401: OpenApiResponse(description="Authentication required"),
+    },
+    examples=[
+        OpenApiExample(
+            "Fetch Payment Detail",
+            value={"payment_id": "pi_3NabcXYZ"},
+            request_only=True
+        )
+    ]
+    )
     def post(self, request):
         try:
             payment_id = request.data.get("payment_id")

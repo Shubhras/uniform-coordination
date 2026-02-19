@@ -10,6 +10,8 @@ from django.utils.timezone import now
 from decimal import Decimal
 # from uniformAdmin.models import *
 # from userhub.models import Notifications
+from uniformAdmin.serializers import *
+from datetime import timedelta
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
@@ -155,7 +157,23 @@ class CartItemSerializer(serializers.ModelSerializer):
         read_only_fields = ['price', 'final_price', 'total_price']
    
 class CartSerializer(serializers.ModelSerializer):
+
+class ProductMiniSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source="category.name", read_only=True)
+    subcategory_name = serializers.CharField(source="subcategory.name", read_only=True)
+
+    class Meta:
+        model = Product
+        fields = ["id","productName","slug","description","price",
+            "discount","ProductImage","productType","type",
+            "category_name","subcategory_name","available_quantity","isPopular",
+        ]
+
+
+
+class OrderSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
+    estimated_delivery = serializers.SerializerMethodField()
 
     class Meta:
         model = Cart
@@ -236,7 +254,7 @@ class OrderSerializer(serializers.ModelSerializer):
     customer = CustomerDetailsSerializer(read_only=True)
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = '__all__' 
         rread_only_fields = [
             "order_id",
             "subtotal",
@@ -246,8 +264,16 @@ class OrderSerializer(serializers.ModelSerializer):
             "total_amount",
             "status",
             "created_at",
-        ]     
+            "estimated_delivery",
+        ] 
         
+
+    def get_estimated_delivery(self, obj):
+        if obj.status in ['pending', 'conformed', 'processing', 'out_for_delivery']:
+            return obj.start_date + timedelta(days=7)
+        elif obj.status == 'delivered':
+            return obj.return_date
+        return None
 
 class PaymentSerializer(serializers.ModelSerializer):
     cartitem =CartItemSerializer(read_only=True)
@@ -381,6 +407,58 @@ class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
             'created_at',
         ]
 
+
+class CustomUpdateModelsSerializer(serializers.ModelSerializer):
+    product_details = serializers.SerializerMethodField()
+    category_details = serializers.SerializerMethodField()
+    subcategory_details = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUpdateModels
+        fields = "__all__"
+    def get_category_details(self, obj):
+        request = self.context.get("request")
+        # fetch first product related to this model_info
+        product = Product.objects.filter(model_info=obj.model_info).first()
+        if not product or not getattr(product, "category", None):
+            return None
+
+        category = product.category
+        return {
+            "id": category.id,
+            "name": getattr(category, "categoryName", ""),
+            "slug": getattr(category, "slug", "")
+        }
+    def get_subcategory_details(self, obj):
+        request = self.context.get("request")
+        product = Product.objects.filter(model_info=obj.model_info).first()
+        if not product or not getattr(product, "subcategory", None):
+            return None
+
+        subcategory = product.subcategory
+        return {
+            "id": subcategory.id,
+            "name": getattr(subcategory, "name", ""),
+            "slug": getattr(subcategory, "slug", "")
+        }
+   
+    def get_product_details(self, obj):
+        request = self.context.get("request")
+        category_slug = request.GET.get("category")
+
+        qs = Product.objects.filter(model_info=obj.model_info)
+        if category_slug:
+            qs = qs.filter(category__slug__iexact=category_slug)
+
+        # pass request in context to serializer
+        serializer = ProductSerializer(qs, many=True, context={"request": request})
+        return serializer.data
+    def get_user(self, obj):
+        if obj.user:
+            return obj.user.id
+        return None
+
 # class QuotationRequestSerializer(serializers.ModelSerializer):
 #     customupdatemodel = CustomUpdateModelQuotationSerializer(read_only=True) 
 #     class Meta:
@@ -417,9 +495,79 @@ class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
 #             validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
 #         return super().create(validated_data)
 
-class QuotationRequestSerializer(serializers.ModelSerializer):
-    customupdatemodel = CustomUpdateModelQuotationSerializer(read_only=True)
+# class QuotationRequestSerializer(serializers.ModelSerializer):
+#     customsave = serializers.PrimaryKeyRelatedField(source="customupdatemodel",queryset=CustomUpdateModels.objects.filter(isActive=True, isDeleted=False),required=True)
 
+
+#     class Meta:
+#         model = QuotationRequest
+#         fields = [
+#             "uuids",
+#             "quotation_id",
+#             "company_name",
+#             "contact_person",
+#             "email",
+#             "phone_number",
+#             "customsave",   
+#             "item_type",
+#             "material",
+#             "size_quantity",
+#             "delivery_date",
+#             "additional_note",
+#             "agreed_to_terms",
+#             "workflow_status",
+#             "quotation_status",
+#             "isActive",
+#             "isDeleted",
+#             "created_at",
+#             "updated_at",
+#         ]
+#         read_only_fields = ("uuids","quotation_id","agreed_to_terms","workflow_status","quotation_status","created_at","updated_at",)
+
+
+
+#     def validate_agreed_to_terms(self, value):
+#         if value is not True:
+#             raise serializers.ValidationError(
+#                 "You must agree to privacy policy & terms."
+#             )
+#         return value
+    
+#     def validate_customsave(self, value):
+#         request = self.context.get("request")
+#         if value.user != request.user:
+#             raise serializers.ValidationError(
+#                 "You can only use your own Custom Save model."
+#             )
+#         return value
+
+#     def create(self, validated_data):
+#         # Auto generate quotation_id
+#         if not validated_data.get("quotation_id"):
+#             validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
+
+#         # Auto assign latest CustomUpdateModels if FK not provided
+#         if "customupdatemodel" not in validated_data or validated_data["customupdatemodel"] is None:
+#             latest_model = CustomUpdateModels.objects.filter(
+#                 isActive=True, isDeleted=False
+#             ).order_by("-created_at").first()
+#             if latest_model:
+#                 validated_data["customupdatemodel"] = latest_model
+
+#         return super().create(validated_data)
+
+
+
+
+class QuotationRequestSerializer(serializers.ModelSerializer):
+
+
+    customsave = serializers.PrimaryKeyRelatedField(
+        source="customupdatemodel",
+        queryset=CustomUpdateModels.objects.filter(isActive=True, isDeleted=False),
+        required=False,          
+        allow_null=True         
+    )
     class Meta:
         model = QuotationRequest
         fields = [
@@ -429,19 +577,33 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             "contact_person",
             "email",
             "phone_number",
-            "customupdatemodel",   
+            "customsave",
             "item_type",
             "material",
             "size_quantity",
             "delivery_date",
             "additional_note",
             "agreed_to_terms",
+            "workflow_status",
+            "quotation_status",
             "isActive",
             "isDeleted",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ("uuids", "created_at", "updated_at")
+        read_only_fields = (
+            "uuids",
+            "quotation_id",
+            "agreed_to_terms",
+            "workflow_status",
+            "quotation_status",
+            "created_at",
+            "updated_at",
+        )
+
+    # -----------------------------
+    # VALIDATIONS
+    # -----------------------------
 
     def validate_agreed_to_terms(self, value):
         if value is not True:
@@ -450,48 +612,66 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def validate_customsave(self, value):
+        request = self.context.get("request")
+        if request and value.user != request.user:
+            raise serializers.ValidationError(
+                "You can only use your own Custom Save model."
+            )
+        return value
+
+    # -----------------------------
+    # CREATE LOGIC
+    # -----------------------------
+
     def create(self, validated_data):
+
         # Auto generate quotation_id
         if not validated_data.get("quotation_id"):
             validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
 
-        # Auto assign latest CustomUpdateModels if FK not provided
-        if "customupdatemodel" not in validated_data or validated_data["customupdatemodel"] is None:
+        # Auto assign latest CustomUpdateModels if NOT provided
+        if not validated_data.get("customupdatemodel"):
             latest_model = CustomUpdateModels.objects.filter(
-                isActive=True, isDeleted=False
+                isActive=True,
+                isDeleted=False
             ).order_by("-created_at").first()
+
             if latest_model:
                 validated_data["customupdatemodel"] = latest_model
 
         return super().create(validated_data)
 
-class CustomUpdateModelsSerializer(serializers.ModelSerializer):
-    json_file_url = serializers.SerializerMethodField()
-    class Meta:
-        model = CustomUpdateModels
-        fields = [
-            "id",
-            "user",
-            "model_info",
-            "design_specifications",
-            "json_file_path",
-            "json_file_url",
-            "isActive",
-            "isDeleted",
-            "created_at"
-        ]
-        read_only_fields = ["user", "json_file_path"]
 
-    def get_json_file_url(self, obj):
+
+#OrderItemSerializer
+class OrderItemCreateSerializer(serializers.ModelSerializer):
+    order_id = serializers.UUIDField(write_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = (
+            "order_id",
+            "product_name",
+            "quantity",
+            "rfid_tag_id",
+            "is_napkin",
+        )
+
+    def validate(self, attrs):
+        order_id = attrs.get("order_id")
         request = self.context.get("request")
 
-        if not obj.json_file_path:
-            return None
-
-        if request:
-            return request.build_absolute_uri(
-                settings.MEDIA_URL + obj.json_file_path
+        try:
+            order = Order.objects.get(order_id=order_id, user=request.user)
+        except Order.DoesNotExist:
+            raise serializers.ValidationError(
+                "Invalid order_id or you do not own this order"
             )
 
-        # Agar request context na ho, relative URL return karega
-        return settings.MEDIA_URL + obj.json_file_path
+        attrs["order"] = order
+        return attrs
+
+    def create(self, validated_data):
+        validated_data.pop("order_id")
+        return OrderItem.objects.create(**validated_data)

@@ -3,6 +3,11 @@ from .models import AdminNotification
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import send_mail
 from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+import re
+
 
 def render_quotation_template(template_text: str, quotation: QuotationRequest):
     if not template_text or not quotation:
@@ -22,6 +27,12 @@ def render_quotation_template(template_text: str, quotation: QuotationRequest):
 
     for key, value in data.items():
         template_text = template_text.replace(key, str(value))
+
+    # Detect unresolved placeholders
+    # unresolved = re.findall(r"\{[A-Z_]+\}", template_text)
+    # if unresolved:
+    #     raise Exception(f"Unresolved placeholders in template: {unresolved}")
+
 
     return template_text
 
@@ -60,3 +71,42 @@ def send_reset_email(subject, message, recipient_email):
         [recipient_email],
         fail_silently=False,
     )
+
+
+
+class BaseAPIView(APIView):
+    """
+    Common response handler for all APIs
+    """
+ 
+    def success_response(self, message, data=None):
+        return Response(
+            {
+                "status": True,
+                "statusCode": 200,
+                "message": message,
+                "data": data,
+            },
+            status=status.HTTP_200_OK,
+        )
+ 
+ 
+    def error_response(self, message):
+        # Handle serializer validation errors
+        if isinstance(message, dict):
+            first_error = next(iter(message.values()))
+            if isinstance(first_error, list):
+                message = f"Validation Failed; {first_error[0]}"
+ 
+            else:
+                message = f"Validation Failed; {first_error}"
+ 
+        return Response(
+            {
+                "status": False,
+                "statusCode": 200,
+                "message": message,
+            },
+            status=status.HTTP_200_OK,
+        )
+ 

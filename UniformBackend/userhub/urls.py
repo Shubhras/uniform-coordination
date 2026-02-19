@@ -2,6 +2,7 @@ from django.urls import path
 from .views import *
 from .threed import *
 from .payment import *
+from userhub import views
 
 
 urlpatterns = [
@@ -40,12 +41,12 @@ urlpatterns = [
     path('customupdatemodels/<int:id>/update/',CustomUpdateModelsUpdateAPIView.as_view(), name = 'custom-update'),
     path('customupdatemodels/delete/',CustomUpdateModelsDeleteAPIView.as_view(), name = 'custom-delete'),
     path('customupdatemodels/<int:customization_id>/export/',CustomUpdateModelExportPDFAPIView.as_view(), name = 'custom-get'),
-    
+    path('customupdateuser/get-list/', CustomModelsUserAPIView.as_view(), name = 'get-list'),
     #<-----------------------------QuotationRequest-------------------->
     path('quotationrequest/create/',QuotationRequestCreateAPIView.as_view(), name = 'QuotationRequest-create'),
-    path('quotationrequest/<uuid:uuid>/get/',QuotationRequestDetailAPIView.as_view(), name = 'QuotationRequest-get'),
-    path('quotationrequest/<uuid:uuid>/export/',QuotationRequestExportPDFAPIView.as_view(), name = 'QuotationRequest-export'),
-
+    path('quotationrequest/<str:quotation_id>/get/',QuotationRequestDetailAPIView.as_view(), name = 'QuotationRequest-get'),
+    path('quotationrequest/<str:quotation_id>/export/',QuotationRequestExportPDFAPIView.as_view(), name = 'QuotationRequest-export'),
+    path('quotationrequest/get-list/',QuotationRequestsListAPIView.as_view(), name = 'get-list'),
     #<-------------------Card API------------------------------->
     path("cart/add/",AddToCartAPIView.as_view()),
     path("cart/list/",CartListAPIView.as_view()),
@@ -79,8 +80,12 @@ urlpatterns = [
     # path('user/refunds/', UserRefundRequestAPIView.as_view(), name='user-refund-list'),
     
     path("quotationstatus/user/",UserQuotationStatusUpdateAPIView.as_view(), name = "QuotationStatus-post"),
+    
+    #<-------------OrderHistory---------------------->
+    path("orderhistory/get-list/",OrderHistoryAPIView.as_view(),name='get-list'),
+    path('docusign/webhook/', DocuSignWebhookAPIView.as_view(), name='docusign-webhook'),
    
-   
+
 ]
    
     

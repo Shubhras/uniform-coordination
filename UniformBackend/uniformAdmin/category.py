@@ -8,6 +8,7 @@ from uniformAdmin.fabric import CustomPagination,IsAdministrator
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db.models import Max
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
 
@@ -15,54 +16,23 @@ from django.db.models import Max
 
 #---------------------------Categories--------------------------
 
-# class CategoryCreateAPIView(APIView):
-   
-#     permission_classes = [IsAdministrator]
-#     authentication_classes = [JWTAuthentication] 
 
-#     def post(self, request):
-#         try:
-#             serializer = CategorySerializer(data=request.data)
-#             if serializer.is_valid():
-#                 serializer.save()
-#                 return Response({
-#                     "status": True,
-#                     "statusCode": 200,
-#                     "message": "Category created successfully.",
-#                     "data": serializer.data
-#                 }, status=status.HTTP_200_OK)
-
-#             if "categoryName" in serializer.errors:
-#                 return Response({
-#                     "status": False,
-#                     "statusCode": 200,
-#                     "message": "Validation failed; Category with this categoryName already exists."
-#                 }, status=status.HTTP_200_OK)
-
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 200,
-#                 "message": "Validation failed.",
-#                 "error": serializer.errors
-#             }, status=status.HTTP_200_OK)
-
-#         except Exception as exc:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "message": "Server error while creating category.",
-#                 "error": str(exc)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
+@extend_schema(
+    tags=["Category"],
+    summary="Create Category API",
+    request=CategorySerializer,
+    responses={
+        200: OpenApiResponse(description="Category created successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CategoryCreateAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
 
     def post(self, request):
         try:
-            serializer = CategorySerializer(data=request.data)
+            serializer = CategorySerializer(data=request.data,context={"request": request})
             if serializer.is_valid():
 
                 #  FIX: set next order
@@ -103,46 +73,59 @@ class CategoryCreateAPIView(APIView):
 
 
 
+@extend_schema(
+    tags=["Category"],
+    summary="Categories List API",
+    parameters=[
+        OpenApiParameter(
+            name="search",
+            description="Search category by name",
+            required=False,
+            type=str,
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Category list fetched successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CategoryListAPIView(APIView):
-    #permission_classes = [AllowAny]
-    permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication] 
+    permission_classes = [AllowAny]
 
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
 
-            # categories = Category.objects.filter(isDeleted=False)
-            categories = Category.objects.filter(isDeleted=False).order_by("order")
+            # FIX 1: newest data first
+            categories = Category.objects.filter(
+                isDeleted=False
+            ).order_by("-created_at", "-id")
 
-
-            # Search only on categoryName (as per requirement)
             if search:
                 categories = categories.filter(categoryName__icontains=search)
 
-            # categories = categories.order_by("-created_at")
-            categories = categories.order_by("order", "created_at")
-
-
-            # Apply pagination (same as reference API)
             paginator = CustomPagination()
             page = paginator.paginate_queryset(categories, request)
-            serializer = CategorySerializer(page, many=True)
 
+            serializer = CategorySerializer(
+                page,
+                many=True,
+                context={"request": request}
+            )
+
+            # FIX 2: pagination block placed immediately after previous
             response = {
                 "count": paginator.page.paginator.count,
                 "next": paginator.get_next_link(),
                 "previous": paginator.get_previous_link(),
+                "page": paginator.page.number,
+                "page_size": paginator.get_page_size(request),
+                "total_pages": paginator.page.paginator.num_pages,
+                "total_items": paginator.page.paginator.count,
                 "statusCode": 200,
                 "status": True,
                 "message": "Category list fetched successfully.",
                 "data": serializer.data,
-                "pagination": {
-                    "page": paginator.page.number,
-                    "page_size": paginator.get_page_size(request),
-                    "total_pages": paginator.page.paginator.num_pages,
-                    "total_items": paginator.page.paginator.count
-                }
             }
 
             return Response(response, status=status.HTTP_200_OK)
@@ -156,6 +139,14 @@ class CategoryListAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(
+    tags=["Category"],
+    summary="Category Detail API",
+    responses={
+        200: OpenApiResponse(description="Category details fetched successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CategoryDetailAPIView(APIView):
     permission_classes = [AllowAny]
     
@@ -191,6 +182,16 @@ class CategoryDetailAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+@extend_schema(
+    tags=["Category"],
+    summary="Update Category API",
+    request=CategorySerializer,
+    responses={
+        200: OpenApiResponse(description="Category updated successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CategoryUpdateAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
@@ -247,6 +248,14 @@ class CategoryUpdateAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(
+    tags=["Category"],
+    summary="Delete Category API",
+    responses={
+        200: OpenApiResponse(description="Category deleted successfully"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CategoryDeleteAPIView(APIView):
     
     permission_classes = [IsAdministrator]
@@ -284,43 +293,26 @@ class CategoryDeleteAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# class CategoryReorderAPIView(APIView):
-#     permission_classes = [IsAdministrator]
-#     authentication_classes = [JWTAuthentication]
 
-#     def post(self, request):
-#         try:
-#             ordered_ids = request.data.get("ordered_category_ids")
-
-#             if not ordered_ids or not isinstance(ordered_ids, list):
-#                 return Response({
-#                     "status": False,
-#                     "statusCode": 400,
-#                     "message": "ordered_category_ids must be a list."
-#                 }, status=400)
-
-#             for index, category_id in enumerate(ordered_ids):
-#                 Category.objects.filter(
-#                     id=category_id,
-#                     isDeleted=False
-#                 ).update(order=index)
-
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": "Category order updated successfully."
-#             }, status=200)
-
-#         except Exception as exc:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "message": "Unable to reorder categories.",
-#                 "error": str(exc)
-#             }, status=500)
-
-
-
+@extend_schema(
+    tags=["Category"],
+    summary="Reorder Categories API",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "category_id": {"type": "integer"},
+                "new_position": {"type": "integer"},
+            },
+            "required": ["category_id", "new_position"],
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Category reordered successfully"),
+        404: OpenApiResponse(description="Category not found"),
+        500: OpenApiResponse(description="Server error"),
+    },
+)
 class CategoryReorderAPIView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]

@@ -24,15 +24,18 @@ from rest_framework.permissions import AllowAny
 # from django.utils import timezone
 from django.db.models import Prefetch
 
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse
+from drf_spectacular.types import OpenApiTypes
 from django.utils.http import urlsafe_base64_decode
 from uniformAdmin.signal import *
-
+from .docusign_service import get_docusign_token, send_contract
 import re
 from uniformAdmin.models import *
 logger = logging.getLogger(__name__)
-
-
-
+from django.core.files.base import ContentFile
+from django.utils.timezone import now
+from django.core.mail import EmailMessage
+from docusign_esign import EnvelopesApi, ApiClient
 # class SignupAPIView(APIView):
 #     permission_classes=[AllowAny]
 #     def post(self, request, *args, **kwargs):
@@ -108,9 +111,16 @@ logger = logging.getLogger(__name__)
 #             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 class SignupAPIView(APIView):
     permission_classes = [AllowAny]
+
+    @extend_schema(
+    summary="Create a new user ",
+    request=UserSignupSerializer,
+    responses={201: UserResponseSerializer},
+    auth=[],
+    tags=["UserHub Authentication"]
+)
 
     def post(self, request, *args, **kwargs):
         serializer = UserSignupSerializer(data=request.data)
@@ -200,6 +210,15 @@ class SignupAPIView(APIView):
   
 class UserLoginAPIView(APIView):
     permission_classes = [AllowAny]
+    
+    @extend_schema(
+    summary="Login API",
+    
+    request=LoginSerializer,
+    responses={200: dict},
+    auth=[],
+    tags=["UserHub Authentication"]
+    )
     def post(self, request):
         
         try:
@@ -310,7 +329,13 @@ class UserLoginAPIView(APIView):
 
 class GetProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
+    
+    @extend_schema(
+    summary="GetProfile API",
+    responses={200: dict},
+    tags=["UserHub Authentication"]
+    
+    )
     def get(self, request):
         try:
             user = request.user
@@ -353,9 +378,17 @@ class GetProfileAPIView(APIView):
             }, status=500)
 
 
+
 class UpdateProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="UpdateProfile API",
+    request=UserResponseSerializer,
+    responses={200: UserResponseSerializer},
+    tags=["UserHub Authentication"]
+    
+    )
     def put(self, request):
         try:
             user = request.user
@@ -423,6 +456,12 @@ class UpdateProfileAPIView(APIView):
 class DeleteProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="DeleteProfile API",
+    responses={200: dict},
+    tags=["UserHub Authentication"]
+    
+    )
     def delete(self, request):
         try:
             user = request.user
@@ -446,6 +485,41 @@ class DeleteProfileAPIView(APIView):
 class ForgotPasswordAPIView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
+
+    @extend_schema(
+    summary="ForgotPassword API",
+        
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                }
+            },
+            "required": ["email"]
+        }
+    },
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "status": {"type": "boolean"},
+                "statusCode": {"type": "integer"},
+                "message": {"type": "string"}
+            }
+        },
+        400: {"type": "object"},
+        500: {"type": "object"}
+    },
+    tags=["UserHub Authentication"]
+    
+    
+    )
+
+
 
     def post(self, request):
         try:
@@ -510,6 +584,42 @@ class ForgotPasswordAPIView(APIView):
 class ResetPasswordAPIView(APIView):
     permission_classes = [AllowAny]
     
+    @extend_schema(
+    summary="Reset Password API",
+    description="Reset password using userId after forgot password flow.",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "userId": {"type": "integer"},
+                "newPassword": {"type": "string"},
+                "confirmPassword": {"type": "string"},
+            },
+            "required": ["userId", "newPassword", "confirmPassword"],
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        400: OpenApiTypes.OBJECT,
+        500: OpenApiTypes.OBJECT,
+    },
+    examples=[
+        OpenApiExample(
+            "Reset Password Example",
+            value={
+                "userId": 12,
+                "newPassword": "NewPass@123",
+                "confirmPassword": "NewPass@123",
+            },
+            request_only=True,
+        )
+    ],
+    auth=[],  # no auth (AllowAny)
+    tags=["UserHub Authentication"]
+    
+)
+    
+    
     def post(self, request):
         try:
             user_id = request.data.get("userId")
@@ -567,8 +677,46 @@ class ResetPasswordAPIView(APIView):
             }, status=500)
 
 
+
 class UpdatePasswordAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+    summary="Update Password API",
+    description="Update password for authenticated user.",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "currentPassword": {"type": "string"},
+                "newPassword": {"type": "string"},
+                "confirmPassword": {"type": "string"},
+            },
+            "required": ["currentPassword", "newPassword", "confirmPassword"],
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        400: OpenApiTypes.OBJECT,
+        401: OpenApiTypes.OBJECT,
+        500: OpenApiTypes.OBJECT,
+    },
+    examples=[
+        OpenApiExample(
+            "Update Password Example",
+            value={
+                "currentPassword": "OldPass@123",
+                "newPassword": "NewPass@123",
+                "confirmPassword": "NewPass@123",
+            },
+            request_only=True,
+        )
+    ],
+    auth=[{"bearerAuth": []}],  #  JWT required
+    tags=["UserHub Authentication"]
+        
+    )        
+                
     def validate_password(self, password):
         """
         Validates password:
@@ -662,7 +810,14 @@ class UpdatePasswordAPIView(APIView):
 
 class VerifyUserAPIView(APIView):
     permission_classes = [AllowAny]
-    
+    @extend_schema(
+    summary="Verify User API",
+    request=VerifyUserSerializer,
+    responses={200: dict},
+    auth=[],
+    tags=["UserHub Authentication"]
+        
+    )
     def post(self, request):
         serializer = VerifyUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -866,6 +1021,27 @@ class VerifyUserAPIView(APIView):
 class AddToCartAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="AddToCart API",
+    
+    tags=["Payment Gateway"],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "product_id": {"type": "integer"},
+                "quantity": {"type": "integer"},
+            },
+            "required": ["product_id"]
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        201: OpenApiTypes.OBJECT,
+        404: OpenApiTypes.OBJECT,
+    },
+    )
+
     def post(self, request):
         try:
             product_id = request.data.get("product_id")
@@ -911,6 +1087,11 @@ class AddToCartAPIView(APIView):
 class CartListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="CartList API",
+    tags=["Payment Gateway"],
+    responses={200: OpenApiTypes.OBJECT}
+    )
     def get(self, request):
         try:
             cart = Cart.objects.get(user=request.user, is_active=True)
@@ -947,10 +1128,31 @@ class CartListAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+
 # UPDATE
 class UpdateCartItemAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="UpdateCartItem API",
+    
+    tags=["Payment Gateway"],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "item_id": {"type": "integer"},
+                "quantity": {"type": "integer"},
+            },
+            "required": ["item_id", "quantity"]
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        404: OpenApiTypes.OBJECT,
+    },
+    )
     def patch(self, request):
         try:
             item_id = request.data.get("item_id")
@@ -986,6 +1188,23 @@ class UpdateCartItemAPIView(APIView):
 class RemoveCartItemAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="RemoveCartItem API",
+    tags=["Payment Gateway"],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "item_id": {"type": "integer"}
+            },
+            "required": ["item_id"]
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        404: OpenApiTypes.OBJECT,
+    },
+    )
     def delete(self, request):
         try:
             item_id = request.data.get("item_id")
@@ -1037,6 +1256,15 @@ class ClearCartAPIView(APIView):
 class ItemSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="ItemSummary API",
+    
+    tags=["Payment Gateway"],
+    responses={
+        200: OpenApiTypes.OBJECT,
+        400: OpenApiTypes.OBJECT,
+    },
+    )
     def get(self, request):
         try:
             cart = Cart.objects.get(user=request.user, is_active=True)
@@ -1089,6 +1317,40 @@ class ItemSummaryAPIView(APIView):
 class CreateOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    summary="CreateOrder API",
+    
+    tags=["Payment Gateway"],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "cart_id": {"type": "integer"},
+                "customer": {"type": "object"},
+                "delivery_address": {"type": "object"},
+                "payment": {"type": "object"},
+                "rental": {
+                    "type": "object",
+                    "properties": {
+                        "start_date": {"type": "string", "example": "2026-01-20"},
+                        "return_date": {"type": "string", "example": "2026-01-25"},
+                    }
+                },
+                "promocode": {
+                    "type": "object",
+                    "properties": {
+                        "code": {"type": "string"}
+                    }
+                }
+            },
+            "required": ["cart_id", "rental"]
+        }
+    },
+    responses={
+        201: OpenApiTypes.OBJECT,
+        400: OpenApiTypes.OBJECT,
+    },
+    )
     def post(self, request):
         try:
             data = request.data
@@ -1297,10 +1559,38 @@ class CreateOrderAPIView(APIView):
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
 class OrderSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request,order_id):
+    @extend_schema(
+    summary="OrderSummary API",
+    
+    tags=["Payment Gateway"],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "order_id": {"type": "string"}
+            },
+            "required": ["order_id"]
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        404: OpenApiTypes.OBJECT,
+    },
+    )
+    def post(self, request):
+        order_id = request.data.get("order_id")
+        if not order_id:
+            return Response(
+                {"error": "Order ID is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
             if not order_id:
                 return Response({
@@ -1381,6 +1671,12 @@ class OrderSummaryAPIView(APIView):
 class UserOrderListAPIView(APIView):
     permission_classes = [IsAuthenticated]  
 
+    @extend_schema(
+    summary="OrderList API",
+    
+    tags=["Payment Gateway"],
+    responses={200: OpenApiTypes.OBJECT}
+    )
     def get(self, request):
         user = request.user
 
@@ -1412,6 +1708,35 @@ class OrderDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, order_id=None):
+    @extend_schema(
+    summary="OrderDetail API",
+    tags=["Payment Gateway"],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "order_id": {"type": "string"}
+            },
+            "required": ["order_id"]
+        }
+    },
+    responses={
+        200: OpenApiTypes.OBJECT,
+        404: OpenApiTypes.OBJECT,
+    },
+    )
+
+    def post(self, request):
+        order_id = request.data.get("order_id")
+
+        if not order_id:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "order_id is required",
+                "data": {}
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             if not order_id:
                 return Response({
@@ -1663,222 +1988,6 @@ class UserReturnOrderAPIView(APIView):
             "updated_total_amount": float(order.total_amount)
         }, status=status.HTTP_200_OK)
 
-#-------------------Create Rental Order-------------------
-# class CreateRentalOrderAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     @transaction.atomic
-#     def post(self, request):
-#         try:
-#             user = request.user
-#             data = request.data
-
-#             cart_id = data.get("cart_id")
-#             customer_data = data.get("customer", {})
-#             address_data = data.get("delivery_address", {})
-#             payment_data = data.get("payment", {})
-#             rental_data = data.get("rental", {})
-#             promocode_data = data.get("promocode")
-#             order_type = data.get("order_type")
-
-#             if not cart_id:
-#                 return Response({
-#                     "status": False,
-#                     "statusCode": 400,
-#                     "error": "cart_id is required"
-#                 },status=status.HTTP_400_BAD_REQUEST)
-
-#             try:
-#                 cart = Cart.objects.get(id=cart_id, user=user, is_active=True)
-#             except Cart.DoesNotExist:
-#                 return Response({
-#                     "status": False,
-#                     "statusCode": 400,
-#                     "error": "Cart not found"
-#                 },status=status.HTTP_400_BAD_REQUEST)
-
-#             cart_items = cart.items.all()
-#             if not cart_items.exists():
-#                 return Response({
-#                     "status": False,
-#                     "statusCode": 400,
-#                     "error": "Cart is empty"
-#                 },status=status.HTTP_400_BAD_REQUEST)
-
-#             # -------- Rental Dates --------
-#             start_date = parse_date(rental_data.get("start_date"))
-#             return_date = parse_date(rental_data.get("return_date"))
-
-#             if not start_date or not return_date or return_date < start_date:
-#                 return Response({
-#                     "status":False,
-#                     "statusCode":400,
-#                     "error": "Invalid rental dates"}, status=status.HTTP_400_BAD_REQUEST)
-
-#             rental_days = (return_date - start_date).days + 1
-
-#             if order_type not in ["uniform", "table"]:
-#                 return Response({
-#                     "status":False,
-#                     "statusCode":400,
-#                     "error": "Invalid order_type"},status=status.HTTP_400_BAD_REQUEST)
-
-#             # -------- Customer --------
-#             customer, _ = CustomerDetails.objects.update_or_create(
-#                 user=user,
-#                 defaults={
-#                     "first_name": customer_data.get("first_name"),
-#                     "last_name": customer_data.get("last_name"),
-#                     "email": customer_data.get("email"),
-#                     "phone": customer_data.get("phone"),
-#                     "address_line_1": address_data.get("address_line_1"),
-#                     "address_line_2": address_data.get("address_line_2"),
-#                     "city": address_data.get("city"),
-#                     "postal_code": address_data.get("postal_code"),
-#                     "country": address_data.get("country"),
-#                     "payment_method": payment_data.get("payment_method"),
-#                 }
-#             )
-
-#             # -------- Stock Check --------
-#             for item in cart_items:
-#                 if item.quantity > item.product.available_quantity:
-#                     return Response({
-#                         "status":False,
-#                         "statusCode":400,
-#                         "error": f"{item.product.productName} not available"
-#                     }, status=status.HTTP_400_BAD_REQUEST)
-
-#             # -------- Price Calculation --------
-#             TAX_RATE = Decimal("0.10")
-#             SHIPPING_FEE = Decimal("50.00")
-#             rental_subtotal = Decimal("0.00")
-
-#             for item in cart_items:
-#                 price = Decimal(str(item.product.price))
-#                 quantity = Decimal(str(item.quantity))
-#                 rental_subtotal += price * quantity * rental_days
-
-#             shipping_fee = SHIPPING_FEE
-#             discount_amount = Decimal("0.00")
-#             promo_code = request.data.get("promocode") 
-#             promocode = None
-#             if promo_code:
-#                 try:
-#                     promocode = Promocode.objects.get(
-#                         promocodeName=promo_code,
-#                         isActive=True,
-#                         isDeleted=False
-#                     )
-#                     today = timezone.now().date()
-#                     if promocode.started_at and promocode.ended_at:
-#                         if not (promocode.started_at.date() <= today <= promocode.ended_at.date()):
-#                             return Response({
-#                                 "status":False,
-#                                 "statusCode":400,
-#                                 "error": "Promocode expired"},status=status.HTTP_400_BAD_REQUEST)
-
-#                     if promocode.promocodeType == "discount":
-#                         discount_amount = (rental_subtotal * Decimal(str(promocode.amount))) / Decimal("100")
-#                     elif promocode.promocodeType == "fix_price":
-#                         discount_amount = Decimal(str(promocode.amount))
-
-#                 except Promocode.DoesNotExist:
-#                     return Response({
-#                         "status":False,
-#                         "statusCode":400,
-#                         "error": "Invalid promocode"}, status=status.HTTP_400_BAD_REQUEST)
-                
-#             # -------- Final Calculation --------
-#             taxable_amount = rental_subtotal + shipping_fee - discount_amount
-
-#             if taxable_amount < 0:
-#                 taxable_amount = Decimal("0.00")
-
-#             tax_amount = taxable_amount * TAX_RATE
-#             total_amount = taxable_amount + tax_amount
-
-#             # -------- Create Order --------
-#             order = Order.objects.create(
-#                 cart=cart,
-#                 customer=customer,
-#                 payment_method=payment_data.get("payment_method"),
-#                 total_amount=total_amount,
-#                 discount_amount=discount_amount,
-#                 status="pending",
-#                 order_type=order_type,
-#                 start_date=start_date,
-#                 return_date=return_date,
-#                 promocode=promocode
-#             )
-
-#             # send_notification(
-#             #             user=user,
-#             #             order=order,
-#             #             notification_type='order_confirmation',
-#             #             message=f"Your order #{order.id} for ${order.total_amount} has been placed."
-#             #         )
-#             for item in cart_items:
-#                 product = item.product
-#                 product.available_quantity -= item.quantity
-#                 product.save()
-
-#             # -------- Create OrderItems --------
-#             for item in cart_items:
-#                 OrderItem.objects.create(
-#                     order=order,
-#                     product=item.product,
-#                     quantity=item.quantity,
-#                     rental_days=rental_days,
-#                     price_per_day=item.product.price
-#                 )
-#             # -------- Create Rental --------
-#             rental = Rental.objects.create(
-#                 order=order,
-#                 customer=customer,
-#                 start_date=start_date,
-#                 end_date=return_date,
-#                 status="rented"
-#             )
-#             # -------- Create RentalItems --------
-#             for order_item in order.items.all():
-#                 RentalItem.objects.create(
-#                     rental=rental,
-#                     product=order_item.product,
-#                     quantity=order_item.quantity,
-#                     price_per_day=order_item.price_per_day
-#                 )
-#             # -------- Response --------
-#             response_data = {
-#                 "order_id": order.order_id,
-#                 "pricing_details": {
-#                     "rental_subtotal": float(rental_subtotal),
-#                     "shipping_fee": float(shipping_fee),
-#                     "discount_amount": float(discount_amount),
-#                     "tax_amount": float(tax_amount),
-#                     "total_amount": float(total_amount)
-#                 },
-#                 "promocode_applied": promo_code if promocode else None,
-#                 "rental_period": {
-#                     "start_date": start_date,
-#                     "return_date": return_date,
-#                     "days": rental_days
-#                 }
-#             }
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 201,
-#                 "message": "Rental order created successfully",
-#                 "data": response_data
-#             }, status=status.HTTP_201_CREATED)
-
-#         except Exception as e:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "error": str(e)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class CreateRentalOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -2060,6 +2169,56 @@ class RentalListAPIView(APIView):
 class UserQuotationStatusUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+    tags=["UserHub · QuotationStatusUpdate"],
+    summary="Cancel quotation (User)",
+    description=(
+        "Allows **normal/user** to cancel a quotation.\n\n"
+        "**Rules:**\n"
+        "- Only `cancel` action is allowed\n"
+        "- Cancellation reason is mandatory\n"
+        "- Admin / other roles are forbidden"
+    ),
+    request={
+        "application/json": {
+            "type": "object",
+            "required": ["quotation_id", "action", "reason"],
+            "properties": {
+                "quotation_id": {
+                    "type": "string",
+                    "example": "QT-2024-001"
+                },
+                "action": {
+                    "type": "string",
+                    "enum": ["cancel"],
+                    "example": "cancel"
+                },
+                "reason": {
+                    "type": "string",
+                    "example": "Budget constraints"
+                }
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Quotation cancelled successfully"),
+        400: OpenApiResponse(description="Validation or quotation error"),
+        403: OpenApiResponse(description="Unauthorized user role"),
+        401: OpenApiResponse(description="Authentication required"),
+    },
+    examples=[
+        OpenApiExample(
+            "Cancel Quotation Example",
+            value={
+                "quotation_id": "QT-2024-001",
+                "action": "cancel",
+                "reason": "Budget constraints"
+            },
+            request_only=True
+        )
+    ]
+)
+
     def post(self, request):
         quotation_id = request.data.get("quotation_id")
         action = request.data.get("action")
@@ -2115,3 +2274,249 @@ class UserQuotationStatusUpdateAPIView(APIView):
         }, status=status.HTTP_200_OK)
     
          
+#<------------OrderItem--------------->
+class UserOrderItemCreateAPIView(APIView):
+    permission_classes=[IsAuthenticated]
+    
+    def post(self,request):
+        try:
+            serializer = OrderItemCreateSerializer(data=request.data,context={"request": request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "statusCode":201,
+                    "status":True,
+                    "message":"Order Item Create Successfully. ",
+                    "data":serializer.data
+                },status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    "statusCode":400,
+                    "status":False,
+                    "message":"Unable to create order item",
+                    "error":serializer.errors
+                },status=status.HTTP_400_BAD_REQUEST)
+        except OrderItem.DoesNotExist as e:
+            return Response({
+                "statusCode":500,
+                "status":False,
+                "message":"Something went wrong on server",
+                "error":str(e)
+            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+#<-----------save quotation-------------->
+def send_quotation_contract(quotation):
+
+    pdf_path = quotation.pdf_file.path
+    envelope_id = send_contract(quotation, pdf_path)
+    # SAVE IN DB
+    quotation.external_document_id = envelope_id
+    quotation.save()
+
+    return envelope_id
+
+# #<----------------WebHook---------------->
+# class DocuSignWebhookAPIView(APIView):
+#     permission_classes = []
+
+#     def post(self, request):
+#         data = request.data
+#         print("WEBHOOK DATA:", data)
+
+#         envelope_id = data.get("envelopeId")
+#         status = data.get("status")
+
+#         if not envelope_id:
+#             return Response({
+#                 "statusCode":400,
+#                 "status":False,
+#                 "message": "No envelope id"
+#                 },status=400)
+
+#         try:
+#             quotation = QuotationRequest.objects.get(
+#                 external_document_id=envelope_id
+#             )
+
+#             status = status.lower()
+
+#             # ---------------- STATUS HANDLING ----------------
+#             if status == "sent":
+#                 quotation.workflow_status = "SENT"
+
+#             elif status == "completed":
+#                 quotation.workflow_status = "SIGNED"
+                
+#                 #  ADMIN NOTIFICATION
+#                 create_admin_notification(
+#                     instance=quotation,
+#                     title=f"Quotation {quotation.quotation_id} Signed",
+#                     message=f"{quotation.contact_person} has signed contract",
+#                     priority="high"
+#                 )
+
+           
+#                 send_mail(
+                    
+#                     subject=f"Contract Signed - {quotation.quotation_id}",
+#                     message=f"""
+#                 Hello Admin,
+
+#                 Great news! A client has successfully signed the contract.
+
+#                 ----------------------------------------
+#                 QUOTATION DETAILS
+#                 ----------------------------------------
+
+#                 Quotation ID : {quotation.quotation_id}
+#                 Company Name : {quotation.company_name}
+#                 Client Name  : {quotation.contact_person}
+#                 Client Email : {quotation.email}
+#                 Phone Number : {quotation.phone_number}
+
+#                 ----------------------------------------
+#                 STATUS
+#                 ----------------------------------------
+
+#                 Contract Status : SIGNED
+#                 Signed At       : {now().strftime("%d %B %Y, %I:%M %p")}
+
+#                 ----------------------------------------
+
+#                 You can now proceed with further processing.
+
+#                 Thanks,
+#                 Uniform System
+#                 """,
+#                     from_email=settings.EMAIL_HOST_USER,
+#                     recipient_list=["rt61240@gmail.com"],
+#                     fail_silently=False,
+#                 )
+                
+
+#             elif status == "declined":
+#                 quotation.workflow_status = "DECLINED"
+
+#             quotation.save()
+
+#             return Response({
+#                 "statusCode":201,
+#                 "status":True,
+#                 "message": "Webhook processed",
+#                 },status=201)
+
+#         except QuotationRequest.DoesNotExist:
+#             return Response({
+#                 "statusCode":400,
+#                 "status":False,
+#                 "message": "Quotation not found"
+#                 }, status=400)
+
+
+class DocuSignWebhookAPIView(APIView):
+    permission_classes = []
+
+    def post(self, request):
+        data = request.data
+        print("WEBHOOK DATA:", data)
+
+        envelope_id = data.get("envelopeId")
+        status = data.get("status")
+
+        if not envelope_id:
+            return Response({"statusCode":400,"status":False,"message": "No envelope id"}, status=400)
+
+        try:
+            quotation = QuotationRequest.objects.get(external_document_id=envelope_id)
+            status = status.lower()
+
+            if status == "sent":
+                quotation.workflow_status = "SENT"
+
+            elif status == "completed":
+                quotation.workflow_status = "SIGNED"
+                quotation.is_signed = True
+                quotation.signed_at = now()
+
+                # ---------------- FETCH SIGNED PDF ----------------
+                access_token = get_docusign_token()
+                api_client = ApiClient()
+                api_client.host = "https://demo.docusign.net/restapi"
+                api_client.set_default_header("Authorization", f"Bearer {access_token}")
+
+                envelopes_api = EnvelopesApi(api_client)
+
+                pdf_bytes = envelopes_api.get_document(
+                    account_id=settings.DOCUSIGN_ACCOUNT_ID,
+                    envelope_id=envelope_id,
+                    document_id="combined"   # <-- use combined document
+                )
+
+                # Save PDF
+                quotation.signed_pdf.save(
+                    f"{quotation.quotation_id}_signed.pdf",
+                    ContentFile(pdf_bytes)
+                )
+
+                # ---------------- NOTIFICATION ----------------
+                create_admin_notification(
+                    instance=quotation,
+                    title=f"Quotation {quotation.quotation_id} Signed",
+                    message=f"{quotation.contact_person} has signed contract",
+                    priority="high"
+                )
+
+                # ---------------- EMAIL ----------------
+                mail = EmailMessage(
+                    subject=f"Contract Signed - {quotation.quotation_id}",
+                    body=f"""
+                    Hello Admin,
+
+                    Great news! A client has successfully signed the contract.
+
+                    ----------------------------------------
+                    QUOTATION DETAILS
+                    ----------------------------------------
+                    Quotation ID : {quotation.quotation_id}
+                    Company Name : {quotation.company_name}
+                    Client Name  : {quotation.contact_person}
+                    Client Email : {quotation.email}
+                    Phone Number : {quotation.phone_number}
+
+                    ----------------------------------------
+                    STATUS
+                    ----------------------------------------
+                    Contract Status : SIGNED
+                    Signed At       : {quotation.signed_at.strftime("%d %B %Y, %I:%M %p")}
+                    ----------------------------------------
+
+                    You can now proceed with further processing.
+
+                    Thanks,
+                    Uniform System
+                    """,
+                    from_email=settings.EMAIL_HOST_USER,
+                    to=["rt61240@gmail.com"]
+                )
+
+                if quotation.signed_pdf:
+                    quotation.signed_pdf.seek(0)
+                    mail.attach(
+                        quotation.signed_pdf.name,
+                        quotation.signed_pdf.read(),
+                        'application/pdf'
+                    )
+
+                mail.send(fail_silently=False)
+
+            elif status == "declined":
+                quotation.workflow_status = "DECLINED"
+
+            quotation.save()
+
+            return Response({"statusCode":201,"status":True,"message": "Webhook processed"}, status=201)
+
+        except QuotationRequest.DoesNotExist:
+            return Response({"statusCode":400,"status":False,"message": "Quotation not found"}, status=400)
+

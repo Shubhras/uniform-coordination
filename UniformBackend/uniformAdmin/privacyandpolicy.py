@@ -3,14 +3,28 @@ from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
-from userhub.utils import BaseAPIView
 from .models import PrivacyPolicy
 from .serializers import PrivacyPolicySerializer
 from .fabric import CustomPagination ,IsAdministrator # same paginator you already use
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated ,BasePermission,AllowAny
+from .utils import*
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
+
+@extend_schema(
+    tags=["Privacy Policy"],
+    summary="Create Privacy Policy",
+    description="Admin only API to create a new privacy policy.",
+    request=PrivacyPolicySerializer,
+    responses={
+        200: OpenApiResponse(description="Privacy policy created successfully"),
+        400: OpenApiResponse(description="Validation error"),
+        401: OpenApiResponse(description="Unauthorized"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class PrivacyPolicyCreateAPIView(BaseAPIView):   
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]
@@ -34,11 +48,50 @@ class PrivacyPolicyCreateAPIView(BaseAPIView):
             return self.error_response(f"Internal server error: {str(e)}")
 
 
-#===================
 
+@extend_schema(
+    tags=["Privacy Policy"],
+    summary="List Privacy Policies",
+    description="Public API to fetch privacy policies with search and filters.",
+    parameters=[
+        OpenApiParameter(
+            name="search",
+            description="Search by title",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="privacyPolicyType",
+            description="Filter by privacy policy type",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="type",
+            description="Filter by policy type",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="page",
+            description="Page number",
+            required=False,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="page_size",
+            description="Page size",
+            required=False,
+            type=int,
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(description="Privacy policy list fetched successfully"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class PrivacyPolicyListAPIView(BaseAPIView):
     permission_classes = [AllowAny]
-
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()
@@ -75,16 +128,17 @@ class PrivacyPolicyListAPIView(BaseAPIView):
                 "count": paginator.page.paginator.count,
                 "next": paginator.get_next_link(),
                 "previous": paginator.get_previous_link(),
-                "statusCode": 200,
-                "status": True,
-                "message": "Privacy policy list fetched successfully",
-                "data": serializer.data,
                 "pagination": {
                     "page": paginator.page.number,
                     "page_size": paginator.get_page_size(request),
                     "total_pages": paginator.page.paginator.num_pages,
                     "total_items": paginator.page.paginator.count
-                }
+                },
+                "statusCode": 200,
+                "status": True,
+                "message": "Privacy policy list fetched successfully",
+                "data": serializer.data,
+              
             }
 
             return Response(response)
@@ -93,8 +147,26 @@ class PrivacyPolicyListAPIView(BaseAPIView):
             return self.error_response(f"Internal server error: {str(e)}")
 
 
-#===================
 
+@extend_schema(
+    tags=["Privacy Policy"],
+    summary="Privacy Policy Detail",
+    description="Fetch a single privacy policy by ID.",
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            description="Privacy policy ID",
+            required=True,
+            type=int,
+            location=OpenApiParameter.PATH,
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Privacy policy fetched successfully"),
+        404: OpenApiResponse(description="Privacy policy not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class PrivacyPolicyDetailAPIView(BaseAPIView):
     permission_classes = [AllowAny]
 
@@ -112,8 +184,28 @@ class PrivacyPolicyDetailAPIView(BaseAPIView):
             return self.error_response(f"Internal server error: {str(e)}")
 
 
-#==================
-
+@extend_schema(
+    tags=["Privacy Policy"],
+    summary="Update Privacy Policy",
+    description="Admin only API to update privacy policy.",
+    request=PrivacyPolicySerializer,
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            description="Privacy policy ID",
+            required=True,
+            type=int,
+            location=OpenApiParameter.PATH,
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Privacy policy updated successfully"),
+        400: OpenApiResponse(description="Validation error"),
+        401: OpenApiResponse(description="Unauthorized"),
+        404: OpenApiResponse(description="Privacy policy not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class PrivacyPolicyUpdateAPIView(BaseAPIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]
@@ -137,11 +229,32 @@ class PrivacyPolicyUpdateAPIView(BaseAPIView):
             return self.error_response(f"Internal server error: {str(e)}")
 
 
-#=================
+
 
 class PrivacyPolicyDeleteAPIView(BaseAPIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]
+
+    @extend_schema(
+    tags=["Privacy Policy"],
+    summary="Delete Privacy Policy",
+    description="Admin only API to soft delete a privacy policy.",
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            description="Privacy policy ID",
+            required=True,
+            type=int,
+            location=OpenApiParameter.PATH,
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Privacy policy deleted successfully"),
+        401: OpenApiResponse(description="Unauthorized"),
+        404: OpenApiResponse(description="Privacy policy not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 
     def delete(self, request, pk):
         try:

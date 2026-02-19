@@ -14,6 +14,9 @@ from .privacyandpolicy import *
 from .unitprice import*
 from .auth import * 
 from .home_page import *
+
+
+
 urlpatterns = [
     path('login/', AdminLoginAPIView.as_view(), name='admin-login'),
     path('change-password/',ChangePasswordAPIView.as_view(), name='admin-change-password'),
@@ -149,7 +152,6 @@ urlpatterns = [
     path('tabletheme/<int:id>/get/',TableThemeDetailAPIView.as_view(), name = 'Table_Theme-get-detail'),
     path('tabletheme/<int:id>/update/',TableThemeUpdateAPIView.as_view(), name = 'Table_Theme-update'),
     path('tabletheme/delete/',TableThemeDeleteAPIView.as_view(), name = 'Table_Theme-delete'),
-
     path("unit-price/list/",UnitPriceListAPIView.as_view(),name="unite-price-list"),
     path("unit-price/export/",UnitPriceExportAPIView.as_view(),name="unit-price-export"),
 
@@ -161,15 +163,16 @@ urlpatterns = [
     path("uniform-home/", HomePageAPIView.as_view(), name="home-page"),
     #<----------------------QuotationStatus--------------------->
     path("quotationstatus/admin/",QuotationStatusUpdateAPIView.as_view(), name = "QuotationStatus-post"),
-   
 
     # path('order/update/<str:order_id>/', AdminOrderUpdateAPIView.as_view(), name='admin-order-update'),
     path('refund/<int:refund_id>/', AdminRefundProcessAPIView.as_view(), name='admin-refund-process'),
     path('refund/',AdminOrderRefundAPI.as_view(),name='refund-process-order_id'),
-    path("users/",UserDetailAPIView.as_view(),name="users-Detail"),
-    path('orderupdate/<str:order_id>/update/',AdminOderUpdateAPIView.as_view(),name='AdminOderUpdate'),
-    path('orderlist/get/',AdminOrderListAPIView.as_view(),name='Oder_list'),
-    path('orderdetail/<str:order_id>/get/',AdminOrderDetailAPIView.as_view(),name='order_Detail'),
-   
+    path("users/",UserDetailAPIView.as_view(),name="users-Detail"),   
     
+    #<--------------OrderUpdate--------------------->
+    path('orderupdate/<int:order_id>/update/',AdminOderUpdateAPIView.as_view(),name='AdminOderUpdate'),
+    path('orderlist/get/',AdminOrderListAPIView.as_view(),name='Oder_list'),
+    path('orderdetail/<int:order_id>/get/',AdminOrderDetailAPIView.as_view(),name='order_Detail'),
+    
+    path('quotation-detail/<str:external_document_id>/get/', QuotationDetailByEnvelopeAPIView.as_view(), name='quotation-detail-by-envelope'),
 ]

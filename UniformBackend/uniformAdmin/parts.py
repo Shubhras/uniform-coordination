@@ -8,9 +8,20 @@ from .serializers import *
 from .models import *
 from .fabric import IsAdministrator, CustomPagination
 from rest_framework import status
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
-
+@extend_schema(
+    tags=["Parts"],
+    summary="Create a new Part API",
+    description="Admin only API to create a new uniform part.",
+    request=PartsSerializer,
+    responses={
+        200: OpenApiResponse(description="Part created successfully"),
+        400: OpenApiResponse(description="Validation error"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class PartsCreateView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
@@ -61,6 +72,36 @@ class PartsCreateView(APIView):
             })
 
 
+
+@extend_schema(
+    tags=["Parts"],
+    summary="List all Parts API",
+    description="Public API to fetch paginated list of parts with optional search.",
+    parameters=[
+        OpenApiParameter(
+            name="search",
+            description="Search by part name, category, or fabric name",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="page",
+            description="Page number",
+            required=False,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="page_size",
+            description="Number of records per page",
+            required=False,
+            type=int,
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(description="Parts list fetched successfully"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class PartsListView(APIView):
     permission_classes = [AllowAny]
 
@@ -81,7 +122,7 @@ class PartsListView(APIView):
 
             paginator = CustomPagination()
             page = paginator.paginate_queryset(parts, request)
-            serializer = PartsSerializer(page, many=True)
+            serializer = PartsSerializer(page, many=True,context={'request': request})
 
             response = {
                 "count": paginator.page.paginator.count,
@@ -108,6 +149,26 @@ class PartsListView(APIView):
                 "message": f"Internal server error: {str(e)}"
             }, status=500)
 
+
+@extend_schema(
+    tags=["Parts"],
+    summary="Get Part details API",
+    description="Fetch a single part details by ID.",
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            description="Part ID",
+            required=True,
+            type=int,
+            location=OpenApiParameter.PATH,
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Part fetched successfully"),
+        404: OpenApiResponse(description="Part not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class PartsDetailView(APIView):
     permission_classes = [AllowAny]
 
@@ -138,6 +199,28 @@ class PartsDetailView(APIView):
                 "message": f"Internal Server Error: {str(e)}"
             })
 
+
+@extend_schema(
+    tags=["Parts"],
+    summary="Update Part API",
+    description="Admin only API to update part details.",
+    request=PartsSerializer,
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            description="Part ID",
+            required=True,
+            type=int,
+            location=OpenApiParameter.PATH,
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Part updated successfully"),
+        400: OpenApiResponse(description="Validation error"),
+        404: OpenApiResponse(description="Part not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class PartsUpdateView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication] 
@@ -177,6 +260,26 @@ class PartsUpdateView(APIView):
                 "message": f"Internal Server Error: {str(e)}"
             })
 
+
+@extend_schema(
+    tags=["Parts"],
+    summary="Delete Part API",
+    description="Admin only API to soft delete a part.",
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            description="Part ID",
+            required=True,
+            type=int,
+            location=OpenApiParameter.PATH,
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="Part deleted successfully"),
+        404: OpenApiResponse(description="Part not found"),
+        500: OpenApiResponse(description="Internal server error"),
+    },
+)
 class PartsDeleteView(APIView):
     permission_classes = [IsAdministrator]
     authentication_classes = [JWTAuthentication]
