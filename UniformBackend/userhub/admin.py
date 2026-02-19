@@ -55,7 +55,7 @@ class RentalItemInline(admin.TabularInline):
 
 @admin.register(Rental)
 class RentalAdmin(admin.ModelAdmin):
-    list_display = ('id', 'status', 'rental_date', 'start_date', 'end_date', 'total_amount')
+    list_display = ('id', 'customer', 'status', 'rental_date', 'start_date', 'end_date', 'total_amount')
     search_fields = ('customer__user__username',)
     list_filter = ('status',)
     inlines = [RentalItemInline]
