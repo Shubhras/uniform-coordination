@@ -225,6 +225,13 @@ class PartsSerializer(serializers.ModelSerializer):
             })
 
         return data
+    
+    def create(self, validated_data):
+        if "isActive" not in self.initial_data:
+            validated_data["isActive"] = True
+        return super().create(validated_data)
+
+
 
 
 
@@ -331,7 +338,19 @@ class TemplateSerializer(serializers.ModelSerializer):
         if "isActive" not in self.initial_data:
             validated_data["isActive"] = True
         return super().create(validated_data)
+    
+    def validate_templateName(self, value):
+        qs = Template.objects.filter(templateName__iexact=value)
 
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+
+        if qs.exists():
+            raise serializers.ValidationError(
+                "Template with this name already exists."
+            )
+
+        return value
 
 
 

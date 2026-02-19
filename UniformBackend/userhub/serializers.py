@@ -156,7 +156,8 @@ class CartItemSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['price', 'final_price', 'total_price']
    
-class CartSerializer(serializers.ModelSerializer):
+#class CartSerializer(serializers.ModelSerializer):
+    
 
 class ProductMiniSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source="category.name", read_only=True)

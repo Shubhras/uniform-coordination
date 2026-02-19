@@ -212,15 +212,6 @@ class SignupAPIView(APIView):
   
 class UserLoginAPIView(APIView):
     permission_classes = [AllowAny]
-    
-    @extend_schema(
-    summary="Login API",
-    
-    request=LoginSerializer,
-    responses={200: dict},
-    auth=[],
-    tags=["UserHub Authentication"]
-    )
     def post(self, request):
         
         try:
@@ -1565,27 +1556,25 @@ class CreateOrderAPIView(APIView):
 
 class OrderSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
-    def get(self, request,order_id):
     @extend_schema(
-    summary="OrderSummary API",
-    
-    tags=["Payment Gateway"],
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "order_id": {"type": "string"}
-            },
-            "required": ["order_id"]
-        }
-    },
-    responses={
-        200: OpenApiTypes.OBJECT,
-        404: OpenApiTypes.OBJECT,
-    },
-    )
-    def post(self, request):
+        summary="OrderSummary API",
+        
+        tags=["Payment Gateway"],
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "order_id": {"type": "string"}
+                },
+                "required": ["order_id"]
+            }
+        },
+        responses={
+            200: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT,
+        },
+        )
+    def get(self, request,order_id):
         order_id = request.data.get("order_id")
         if not order_id:
             return Response(
@@ -1708,27 +1697,25 @@ class UserOrderListAPIView(APIView):
     
 class OrderDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    @extend_schema(
+        summary="OrderDetail API",
+        tags=["Payment Gateway"],
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "order_id": {"type": "string"}
+                },
+                "required": ["order_id"]
+            }
+        },
+        responses={
+            200: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT,
+        },
+        )
 
     def get(self, request, order_id=None):
-    @extend_schema(
-    summary="OrderDetail API",
-    tags=["Payment Gateway"],
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "order_id": {"type": "string"}
-            },
-            "required": ["order_id"]
-        }
-    },
-    responses={
-        200: OpenApiTypes.OBJECT,
-        404: OpenApiTypes.OBJECT,
-    },
-    )
-
-    def post(self, request):
         order_id = request.data.get("order_id")
 
         if not order_id:
