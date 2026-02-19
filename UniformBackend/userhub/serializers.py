@@ -246,21 +246,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "total_amount",
             "status",
             "created_at",
-        ]
-class CreateOrderSerializer(serializers.ModelSerializer):
-
-    customer = serializers.DictField(write_only=True)
-    promocode = serializers.CharField(write_only=True, required=False)
-    cart_id = serializers.IntegerField(write_only=True)
-
-    class Meta:
-        model = Order
-        fields = [
-            "cart_id",
-            "order_type",
-            "customer",
-            "promocode",
-        ]        
+        ]     
         
 
 class PaymentSerializer(serializers.ModelSerializer):

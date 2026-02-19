@@ -617,7 +617,7 @@ class AdminGetProductAPIView(APIView):
                     "message": "Product not found."
                 }, status=status.HTTP_200_OK)
 
-            serializer = ProductSerializer(product)
+            serializer = ProductSerializer(product,context={'request':request})
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -643,7 +643,7 @@ class AdminListProductsAPIView(APIView):
     def get(self, request):
         try:
             products = Product.objects.filter(isDeleted=False).order_by("-created_at")
-            serializer = ProductSerializer(products, many=True)
+            serializer = ProductSerializer(products, many=True,context={'request':request})
 
             return Response({
                 "status": True,

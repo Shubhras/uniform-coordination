@@ -700,8 +700,6 @@ class VerifyUserAPIView(APIView):
 
 #-----------------Notification-------------------------
 
-
-
 # class NotificationCreateAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
 
@@ -731,8 +729,6 @@ class VerifyUserAPIView(APIView):
 #                 "message": str(e),
 #                 "data": None
 #             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 
 # class NotificationListAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
@@ -935,6 +931,9 @@ class CartListAPIView(APIView):
             return paginator.get_paginated_response(serializer.data)
         except Cart.DoesNotExist:
             return Response({
+                "status":False,
+                "statusCode":200,
+                "massage":"data fetched successfully",
                 "count": 0,
                 "next": None,
                 "previous": None,
@@ -1103,17 +1102,22 @@ class CreateOrderAPIView(APIView):
             order_type = data.get("order_type")
 
             if not cart_id:
-                return Response({"error": "cart_id is required."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    "status":False,
+                    "statusCode":400,
+                    "error": "cart_id is required."}, status=status.HTTP_400_BAD_REQUEST)
 
             try:
                 cart = Cart.objects.get(id=cart_id, user=user, is_active=True)
             except Cart.DoesNotExist:
-                return Response({"error": "Cart not found."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    "status":False,
+                    "statusCode":400,
+                    "error": "Cart not found."}, status=status.HTTP_400_BAD_REQUEST)
 
             # -------------------- CustomerDetails: get or update --------------------
             try:
                 customer = CustomerDetails.objects.get(user=user)
-                # Update if new data provided
                 customer.first_name = customer_data.get("first_name", customer.first_name)
                 customer.last_name = customer_data.get("last_name", customer.last_name)
                 customer.email = customer_data.get("email", customer.email)
@@ -1142,7 +1146,10 @@ class CreateOrderAPIView(APIView):
 
             cart_items = cart.items.all()
             if not cart_items.exists():
-                return Response({"error": "No items found in this cart."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    "status":False,
+                    "statusCode":400,
+                    "error": "No items found in this cart."}, status=status.HTTP_400_BAD_REQUEST)
 
             total_amount = sum((Decimal(item.total_price or 0) for item in cart_items), Decimal("0.00"))
             original_amount = total_amount
@@ -1154,7 +1161,10 @@ class CreateOrderAPIView(APIView):
             start_date = parse_date(start_date_str) if start_date_str else None
             return_date = parse_date(return_date_str) if return_date_str else None
             if not start_date or not return_date or return_date < start_date:
-                return Response({"error": "Invalid rental dates."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    "status":False,
+                    "statusCode":400,
+                    "error": "Invalid rental dates."}, status=status.HTTP_400_BAD_REQUEST)
 
             # -------------------- Order Type Validation --------------------
             if order_type not in ["uniform", "table"]:
@@ -1172,16 +1182,22 @@ class CreateOrderAPIView(APIView):
                 try:
                     promocode = Promocode.objects.get(promocodeName=code, isActive=True, isDeleted=False)
                 except Promocode.DoesNotExist:
-                    return Response({"status": False, "statusCode": 400, "error": "Promocode not found or invalid."},
+                    return Response({"status": False,
+                                    "statusCode": 400,
+                                    "error": "Promocode not found or invalid."},
                                     status=status.HTTP_400_BAD_REQUEST)
 
                 if (promocode.started_at and promocode.started_at > now) or \
                    (promocode.ended_at and promocode.ended_at < now):
-                    return Response({"status": False, "statusCode": 400, "error": "Promocode not active or expired."},
+                    return Response({"status": False, 
+                                     "statusCode": 400, 
+                                     "error": "Promocode not active or expired."},
                                     status=status.HTTP_400_BAD_REQUEST)
 
                 if Order.objects.filter(customer=customer, promocode=promocode).exists():
-                    return Response({"status": False, "statusCode": 400, "error": "You have already used this promocode."},
+                    return Response({"status": False,
+                                      "statusCode": 400,
+                                      "error": "You have already used this promocode."},
                                     status=status.HTTP_400_BAD_REQUEST)
 
                 if promocode.promocodeType == "fix_price" and promocode.amount is not None:
@@ -1405,10 +1421,7 @@ class OrderDetailAPIView(APIView):
                     "data": {}
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Get the CustomerDetails instance
             customer = CustomerDetails.objects.get(user=request.user)
-
-            # Filter order using order_id and customer instance
             order = Order.objects.filter(order_id=order_id, customer=customer).first()
 
             if not order:

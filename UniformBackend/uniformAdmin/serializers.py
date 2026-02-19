@@ -592,6 +592,7 @@ class TableThemeSerializer(serializers.ModelSerializer):
 
     
 class ProductSerializer(serializers.ModelSerializer):
+    isActive = serializers.BooleanField(required=False, default=True)
     parts = serializers.PrimaryKeyRelatedField(
         queryset=Parts.objects.filter(isActive=True, isDeleted=False),
         many=True,
@@ -628,6 +629,23 @@ class ProductSerializer(serializers.ModelSerializer):
                 })
 
         return super().to_internal_value(data)
+    def validate_productName(self, value):
+        queryset = Product.objects.filter(
+            productName__iexact=value,
+            isDeleted=False
+        )
+
+        if self.instance:
+            queryset = queryset.exclude(id=self.instance.id)
+
+        if queryset.exists():
+            raise serializers.ValidationError(
+                "Product with this name already exists."
+            )
+
+        return value
+    
+    
     
     def validate(self, data):
         product_type = data.get("productType")
