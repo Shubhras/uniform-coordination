@@ -36,6 +36,8 @@ from django.core.files.base import ContentFile
 from django.utils.timezone import now
 from django.core.mail import EmailMessage
 from docusign_esign import EnvelopesApi, ApiClient
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 # class SignupAPIView(APIView):
 #     permission_classes=[AllowAny]
 #     def post(self, request, *args, **kwargs):
@@ -1962,6 +1964,7 @@ def send_quotation_contract(quotation):
 #                 }, status=400)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class DocuSignWebhookAPIView(APIView):
     permission_classes = []
 
