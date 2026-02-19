@@ -156,8 +156,6 @@ class CartItemSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['price', 'final_price', 'total_price']
    
-class CartSerializer(serializers.ModelSerializer):
-
 class ProductMiniSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source="category.name", read_only=True)
     subcategory_name = serializers.CharField(source="subcategory.name", read_only=True)
@@ -255,7 +253,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__' 
-        rread_only_fields = [
+        read_only_fields = [
             "order_id",
             "subtotal",
             "discount_amount",

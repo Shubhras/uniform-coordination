@@ -64,7 +64,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'uniformAdmin',
     'userhub',
-    'contracts',
     # 'drf_yasg',
 ]
 AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
