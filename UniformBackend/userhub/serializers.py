@@ -160,9 +160,11 @@ class ProductMiniSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source="category.name", read_only=True)
     subcategory_name = serializers.CharField(source="subcategory.name", read_only=True)
 
+
     class Meta:
         model = Product
-        fields = ["id","productName","slug","description","price",
+        fields = [
+            "id","productName","slug","description","price",
             "discount","ProductImage","productType","type",
             "category_name","subcategory_name","available_quantity","isPopular",
         ]
