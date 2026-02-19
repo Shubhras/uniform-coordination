@@ -217,7 +217,7 @@ class Order(models.Model):
     order_type =models.CharField(max_length=50,choices=ORDER_TYPE_CHOICES)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     start_date =models.DateField(auto_now_add=True)
-    return_date =models.DateField(auto_now_add=True)
+    return_date = models.DateField(null=True, blank=True)
     cancel_reason = models.CharField(max_length=50,null=True, blank=True)
     admin_cancel_reason = models.CharField(max_length=255, null=True, blank=True)
     cancelled_by = models.CharField(max_length=20, null=True, blank=True)

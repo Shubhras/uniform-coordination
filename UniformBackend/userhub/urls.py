@@ -59,7 +59,6 @@ urlpatterns = [
     path("create/order/",CreateOrderAPIView.as_view()),
     path('order/summary/<str:order_id>/',OrderSummaryAPIView.as_view(), name='order-summary'),  #show full checkout/order review
     path("order/<str:order_id>/",OrderDetailAPIView.as_view()),
-    # path("order/list/",OrderListAPIView.as_view()),
     path('user/order/list/', UserOrderListAPIView.as_view(), name='order-list'),     
     path('user/order/cancel/<str:order_id>/',UserCancelOrderAPIView.as_view(), name='user-order-cancel'),
 
@@ -75,8 +74,6 @@ urlpatterns = [
 
     path("admin/payments/",AdminPaymentListAPIView.as_view()),
     path("admin/payments/detail/",AdminPaymentDetailAPIView.as_view()),
-
-
     # path('user/refunds/', UserRefundRequestAPIView.as_view(), name='user-refund-list'),
     
     path("quotationstatus/user/",UserQuotationStatusUpdateAPIView.as_view(), name = "QuotationStatus-post"),

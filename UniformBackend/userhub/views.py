@@ -36,6 +36,8 @@ from django.core.files.base import ContentFile
 from django.utils.timezone import now
 from django.core.mail import EmailMessage
 from docusign_esign import EnvelopesApi, ApiClient
+from decimal import Decimal
+
 # class SignupAPIView(APIView):
 #     permission_classes=[AllowAny]
 #     def post(self, request, *args, **kwargs):
@@ -245,7 +247,7 @@ class UserLoginAPIView(APIView):
                 }, status=200)
             # ----------------------------------------
 
-            serializer = UserLoginSerializer(data=request.data)
+            serializer = LoginSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             user = serializer.validated_data["user"]
 
@@ -1127,9 +1129,6 @@ class CartListAPIView(APIView):
                 "message": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-
-
 # UPDATE
 class UpdateCartItemAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1563,27 +1562,27 @@ class CreateOrderAPIView(APIView):
 
 class OrderSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    @extend_schema(
+        summary="OrderSummary API",
+        
+        tags=["Payment Gateway"],
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "order_id": {"type": "string"}
+                },
+                "required": ["order_id"]
+            }
+        },
+        responses={
+            200: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT,
+        },
+        )
 
     def get(self, request,order_id):
-    @extend_schema(
-    summary="OrderSummary API",
-    
-    tags=["Payment Gateway"],
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "order_id": {"type": "string"}
-            },
-            "required": ["order_id"]
-        }
-    },
-    responses={
-        200: OpenApiTypes.OBJECT,
-        404: OpenApiTypes.OBJECT,
-    },
-    )
-    def post(self, request):
+
         order_id = request.data.get("order_id")
         if not order_id:
             return Response(
@@ -1707,7 +1706,6 @@ class UserOrderListAPIView(APIView):
 class OrderDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, order_id=None):
     @extend_schema(
     summary="OrderDetail API",
     tags=["Payment Gateway"],
@@ -1726,7 +1724,7 @@ class OrderDetailAPIView(APIView):
     },
     )
 
-    def post(self, request):
+    def get(self, request, order_id=None):
         order_id = request.data.get("order_id")
 
         if not order_id:
@@ -1774,6 +1772,7 @@ class OrderDetailAPIView(APIView):
                 "error": "Internal server error.",
                 "details": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class UserCancelOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -2280,7 +2279,7 @@ class UserOrderItemCreateAPIView(APIView):
     
     def post(self,request):
         try:
-            serializer = OrderItemCreateSerializer(data=request.data,context={"request": request})
+            serializer = OrderItemSerializer(data=request.data,context={"request": request})
             if serializer.is_valid():
                 serializer.save()
                 return Response({
