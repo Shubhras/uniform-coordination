@@ -31,13 +31,13 @@
 
 | Layer              | Technology                                                       |
 | ------------------ | ---------------------------------------------------------------- |
-| **Framework**      | Next.js 15.3.1 (App Router)                                     |
+| **Framework**      | Next.js 15.3.1 (App Router)                                      |
 | **UI Library**     | React 19                                                         |
-| **Styling**        | Tailwind CSS v4 + PostCSS + `tailwind-merge`                    |
-| **Authentication** | NextAuth.js v5 (beta) — Credentials, Google OAuth, GitHub OAuth |
+| **Styling**        | Tailwind CSS v4 + PostCSS + `tailwind-merge`                     |
+| **Authentication** | NextAuth.js v5 (beta) — Credentials, Google OAuth, GitHub OAuth  |
 | **State Mgmt**     | Zustand v5, Valtio v2                                            |
 | **Data Fetching**  | Axios (custom base), SWR v2                                      |
-| **Forms**          | React Hook Form + Zod validation + `@hookform/resolvers`        |
+| **Forms**          | React Hook Form + Zod validation + `@hookform/resolvers`         |
 | **Charts**         | ApexCharts (`react-apexcharts`)                                  |
 | **Tables**         | TanStack React Table v8                                          |
 | **Animations**     | Framer Motion v11                                                |
@@ -51,7 +51,8 @@
 | **Maps**           | `react-simple-maps`                                              |
 | **Typography**     | Inter (primary), system font stack                               |
 | **Deployment**     | PM2 (`ecosystem.config.js`), GCP-ready build script              |
-
+|---------------------------------------------------------------------------------------|
+    
 ---
 
 ## 3. Folder Structure

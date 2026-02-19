@@ -16,7 +16,7 @@ const NotificationPopup = ({ onClose }) => {
     }
 
     return (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-lg border border-[#E2E8F0] z-50 overflow-hidden">
+        <div className="fixed md:absolute left-4 right-4 md:left-auto md:right-0 top-18 md:top-full md:mt-2 md:w-80 bg-white rounded-xl shadow-lg border border-[#E2E8F0] z-50 overflow-hidden">
 
             {/* Header */}
             <div className="px-5 py-4 border-b border-[#F1F5F9] flex items-center gap-2">

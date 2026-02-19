@@ -232,7 +232,7 @@ const TemplatesTab = () => {
                 <div className="flex justify-center items-center p-3">
                   <div className="w-32 h-32 flex items-center justify-center">
                     <img
-                      src={t.templateImage || "/img/kireiz-form/features/uniform-card-img-one.png"}
+                      src={t.templateImage}
                       alt={t.templateName}
                       className="w-full h-full object-cover rounded-full"
                     />
@@ -249,8 +249,8 @@ const TemplatesTab = () => {
                   </p>
 
                   <span className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs ${t.isActive
-                      ? "bg-[#EEF2FF] text-[#1C2C56]"
-                      : "bg-red-50 text-red-600"
+                    ? "bg-[#EEF2FF] text-[#1C2C56]"
+                    : "bg-red-50 text-red-600"
                     }`}>
                     {t.isActive ? "Active" : "Inactive"}
                   </span>

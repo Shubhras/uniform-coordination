@@ -19,3 +19,28 @@ export async function apiDeleteTemplate(accessToken, id) {
         },
     })
 }
+
+export async function apiCreateTemplate(accessToken, formData) {
+    return ApiService.fetchDataWithAxios({
+        url: `/v1/uniformAdmin/templates/create/`,
+        method: 'post',
+        data: formData,
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'multipart/form-data',
+        },
+    })
+}
+
+export async function apiUpdateTemplate(accessToken, id, formData) {
+    return ApiService.fetchDataWithAxios({
+        url: `/v1/uniformAdmin/templates/update/${id}/`,
+        method: 'put',
+        data: formData,
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'multipart/form-data',
+        },
+    })
+}
+
