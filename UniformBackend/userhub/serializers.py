@@ -255,7 +255,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__' 
-        rread_only_fields = [
+        read_only_fields = [
             "order_id",
             "subtotal",
             "discount_amount",
