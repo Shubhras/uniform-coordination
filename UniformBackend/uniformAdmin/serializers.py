@@ -275,6 +275,7 @@ class ColorsSerializer(serializers.ModelSerializer):
 
 class TemplateSerializer(serializers.ModelSerializer):
     partName = serializers.CharField(source='part.partName',read_only=True)
+    partCategory = serializers.CharField(source='part.category',read_only=True)
     class Meta:
         model = Template
         fields = "__all__"

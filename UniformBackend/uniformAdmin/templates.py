@@ -100,7 +100,7 @@ class TemplateListView(APIView):
             if search:
                 templates = templates.filter(
                     Q(templateName__icontains=search) |
-                    Q(part__partName__icontains=search)
+                    Q(part__category__icontains=search)
                 )
 
             templates = templates.order_by("-id")
