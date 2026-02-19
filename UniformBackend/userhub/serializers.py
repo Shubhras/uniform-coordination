@@ -162,7 +162,8 @@ class ProductMiniSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ["id","productName","slug","description","price",
+        fields = [
+            "id","productName","slug","description","price",
             "discount","ProductImage","productType","type",
             "category_name","subcategory_name","available_quantity","isPopular",
         ]
