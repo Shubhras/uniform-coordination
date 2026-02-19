@@ -19,10 +19,19 @@ from userhub.serializers import QuotationRequestSerializer
 from django.db.models import Q
 from .fabric import CustomPagination
 import traceback
+import stripe
+from decimal import Decimal
+from django.db.models import Sum
 from django.utils.timezone import now
-from .fabric import  IsAdministrator 
+# from .fabric import  IsAdministrator 
+from .auth import IsAdminUserJWT
+from django.conf import settings
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
 from .auth import IsAdminUserJWT,MultiRoleJWTAuth
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 from userhub.views import get_docusign_token
@@ -698,7 +707,7 @@ class AdminUpdateProductAPIView(APIView):
                     "message": "Product not found."
                 }, status=status.HTTP_200_OK)
 
-            serializer = ProductSerializer(product, data=request.data, partial=True)
+            serializer = ProductSerializer(product, data=request.data, partial=True,context={'request':request})
             if serializer.is_valid():
                 serializer.save()
                 return Response({
@@ -714,6 +723,7 @@ class AdminUpdateProductAPIView(APIView):
                 "message": "Validation failed.",
                 "error": serializer.errors
             }, status=status.HTTP_200_OK)
+        
 
         except Exception as exc:
             return Response({
@@ -756,7 +766,7 @@ class AdminGetProductAPIView(APIView):
                     "message": "Product not found."
                 }, status=status.HTTP_200_OK)
 
-            serializer = ProductSerializer(product)
+            serializer = ProductSerializer(product,context={'request':request})
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -796,6 +806,8 @@ class AdminListProductsAPIView(APIView):
 )
     def get(self, request):
         try:
+            products = Product.objects.filter(isDeleted=False).order_by("-created_at")
+            serializer = ProductSerializer(products, many=True,context={'request':request})
             # -------------------------
             # Query params
             # -------------------------
@@ -1824,7 +1836,6 @@ class AdminDashAPIView(APIView):
 
     def get(self, request):
         try:
-            # ================= PENDING QUOTES (TODAY vs YESTERDAY) =================
             today = now().date()
             yesterday = today - timedelta(days=1)
 
@@ -1849,7 +1860,6 @@ class AdminDashAPIView(APIView):
 
             total_templates = Template.objects.count()
 
-            # ================= B2B USERS (MONTH vs PREVIOUS MONTH) =================
             today_dt = now()
             current_month_start = today_dt.replace(day=1)
 
@@ -1873,8 +1883,6 @@ class AdminDashAPIView(APIView):
                 )
             else:
                 b2b_change_percentage = 100 if current_month_b2b else 0
-
-            # ================= QUOTE STATUS DISTRIBUTION =================
             ALL_STATUSES = ["pending", "sent", "approved"]
 
             status_qs = (
@@ -1894,13 +1902,8 @@ class AdminDashAPIView(APIView):
                         "value": status_dict.get(status, 0),
                         "percentage": round(
                             (status_dict.get(status, 0) / total_quotes) * 100, 2
-                        )
-                    }
-                    for status in ALL_STATUSES
-                ]
-            }
-
-            # ================= QUOTATION VOLUME =================
+                        )} for status in ALL_STATUSES
+                ] }
             # Weekly
             DAY_MAP = {1: "Sun", 2: "Mon", 3: "Tue", 4: "Wed", 5: "Thu", 6: "Fri", 7: "Sat"}
             weekly_result = {i: 0 for i in range(1, 8)}
@@ -1916,12 +1919,10 @@ class AdminDashAPIView(APIView):
                 .values("day")
                 .annotate(value=Count("quotation_id"))
             )
-
             for item in week_qs:
                 weekly_result[item["day"]] = item["value"]
 
             weekly_data = [{"label": DAY_MAP[d], "value": weekly_result[d]} for d in range(1, 8)]
-
             # Monthly
             monthly_result = {i: 0 for i in range(1, 6)}
             month_qs = (
@@ -1935,7 +1936,6 @@ class AdminDashAPIView(APIView):
                 .values("week")
                 .annotate(value=Count("quotation_id"))
             )
-
             for item in month_qs:
                 week_no = (item["week"] % 5) or 5
                 monthly_result[week_no] += item["value"]
@@ -1945,9 +1945,7 @@ class AdminDashAPIView(APIView):
             # Yearly
             MONTH_MAP = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
                          7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
-
             yearly_result = {m: 0 for m in range(1, 13)}
-
             year_qs = (
                 QuotationRequest.objects
                 .filter(isDeleted=False, created_at__year=today_dt.year)
@@ -1955,7 +1953,6 @@ class AdminDashAPIView(APIView):
                 .values("month")
                 .annotate(value=Count("quotation_id"))
             )
-
             for item in year_qs:
                 yearly_result[item["month"]] = item["value"]
 
@@ -1963,14 +1960,11 @@ class AdminDashAPIView(APIView):
                 {"label": f"{MONTH_MAP[m]} {today_dt.year}", "value": yearly_result[m]}
                 for m in range(1, 13)
             ]
-
             quotation_volume = {
                 "weekly": weekly_data,
                 "monthly": monthly_data,
                 "yearly": yearly_data
             }
-
-            # ================= MOST USED FABRICS =================
             fabrics_qs = (
                 Fabric.objects
                 .filter(parts__isDeleted=False)
@@ -1978,25 +1972,50 @@ class AdminDashAPIView(APIView):
                 .values("fabricName", "total_count")
                 .order_by("-total_count")[:4]
             )
+            #  Command out when sales_representative  model is make
+            # sales_qs = (
+            #     QuotationRequest.objects
+            #     .filter(
+            #         quotation_status="pending",
+            #         isDeleted=False
+            #     )
+            #     .values("sales_representative__first_name")
+            #     .annotate(count=Count("quotation_id"))
+            # )
+
+            # pending_sales_rep_action = {
+            #     item["sales_representative__first_name"]: item["count"]
+            #     for item in sales_qs
+            # }
+            most_used_categories_qs = (
+                Product.objects
+                .filter(isDeleted=False, isActive=True)
+                .values("category__categoryName","category__slug")
+                .annotate(count=Count("id"))
+                .order_by("-count")
+            )
+
+            most_used_industries = [
+                {
+                    "category_name": item["category__categoryName"] or "Uncategorized",
+                    "category_slug": item["category__slug"] or "",
+                    "count": item["count"]
+                }
+                for item in most_used_categories_qs
+            ]
             most_used_fabrics =[{
                  "fabric_name": f["fabricName"],
                  "count": f["total_count"]
             }
             for f in fabrics_qs
             ]
-
-            # ================= RECENT UPDATES =================
             items = []
-
             for p in Product.objects.values("productName", "updated_at"):
                 items.append({"name":p["productName"],"date":p["updated_at"],"type":"product"})
-
             for c in Colors.objects.values("colorName", "updated_at"):
                 items.append({"name":c["colorName"],"date":c["updated_at"],"type": "color"})
-
             for pt in Parts.objects.values("partName", "updated_at"):
                 items.append({"name":pt["partName"],"date":pt["updated_at"],"type": "part"})
-
             items.sort(key=lambda x: x["date"], reverse=True)
             recent_updates = []
             for item in items[:3]:
@@ -2012,8 +2031,6 @@ class AdminDashAPIView(APIView):
                          "type":item["type"],
                          "created_date": item["date"].strftime("%b %d, %Y")
                      }) 
-
-            # ================= RESPONSE =================
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -2025,11 +2042,12 @@ class AdminDashAPIView(APIView):
                     "Quote_status_distribution": quote_status_distribution,
                     "Quotation_volume": quotation_volume,
                     "Pending_Sales_Representation_Action": {"amy": 2, "jok": 1, "bob": 2},
+                    "most_used_industries": most_used_industries,
+                    # "Pending_Sales_Representation_Action": pending_sales_rep_action,
                     "most_used_fabrics": most_used_fabrics,
                     "Recently_update_product_color_part": recent_updates,
                 }
             }, status=status.HTTP_200_OK)
-
         except Exception as e:
             return Response({
                 "status": False,
@@ -2038,7 +2056,319 @@ class AdminDashAPIView(APIView):
                 "error": str(e),
                 "trace": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
- 
+
+
+# class AdminOrderUpdateAPIView(APIView):
+#     authentication_classes = [JWTAuthentication]
+
+#     def patch(self, request, order_id):
+#         try:
+#             order = Order.objects.get(order_id=order_id)
+#         except Order.DoesNotExist:
+#             return Response({"status": False, "statusCode": 404, "message": "Order not found"}, status=404)
+
+#         serializer = AdminOrderUpdateSerializer(order, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             data = serializer.validated_data
+
+#             if data.get('status') == 'cancelled':
+#                 order.status = 'cancelled'
+#                 order.admin_cancel_reason = data['admin_cancel_reason']
+#                 order.cancelled_by = 'admin'
+#             else:
+#                 order.status = data['status']
+
+#             order.save()
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Order updated successfully",
+#                 "data": {
+#                     "order_id": order.order_id,
+#                     "status": order.status,
+#                     "user_cancel_reason": order.cancel_reason,
+#                     "admin_cancel_reason": order.admin_cancel_reason,
+#                     "cancelled_by": order.cancelled_by
+#                 }
+#             })
+#         return Response({"status": False, "statusCode": 400, "message": serializer.errors}, status=400)
+
+class AdminRefundProcessAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def patch(self, request, refund_id):
+        refund = get_object_or_404(Refund, id=refund_id)
+
+        if refund.status == 'processed':
+            return Response({"status": False, "message": "Refund already processed"}, status=400)
+
+        serializer = AdminRefundSerializer(instance=refund, data=request.data, partial=True)
+        if serializer.is_valid():
+            refund_type = request.data.get('refund_type')
+            payment = refund.payment
+            refund_amount = Decimal('0')
+
+            # ----- Calculate refund amount -----
+            if refund_type == 'full':
+                refund_amount = payment.amount
+            elif refund_type == 'partial':
+                refund_amount = Decimal(str(request.data.get('refund_amount', '0')))
+                if refund_amount < 1:
+                    return Response({"status": False, "message": "Refund amount must be at least 1"}, status=400)
+            elif refund_type == 'percentage':
+                percentage = Decimal(str(request.data.get('refund_percentage', '0')))
+                if percentage < 1:
+                    return Response({"status": False, "message": "Refund percentage must be at least 1"}, status=400)
+                refund_amount = (payment.amount * percentage) / Decimal('100')
+            else:
+                return Response({"status": False, "message": "Invalid refund_type"}, status=400)
+
+            # Check total refunded for this order
+            total_refunded = refund.order.refunds.filter(status='processed').aggregate(
+                Sum('refund_amount')
+            )['refund_amount__sum'] or 0
+            if total_refunded + refund_amount > payment.amount:
+                return Response({"status": False, "message": "Total refunds exceed paid amount"}, status=400)
+
+            # Create Stripe refund
+            try:
+                stripe_refund = stripe.Refund.create(
+                    payment_intent=payment.payment_id,
+                    amount=int(refund_amount * 100)
+                )
+            except stripe.error.StripeError as e:
+                return Response({"status": False, "message": f"Stripe Error: {str(e)}"}, status=400)
+
+            # Save via serializer
+            serializer.save(
+                refund_amount=refund_amount,
+                status='processed',
+                payment_gateway_id=stripe_refund['id'],
+                admin_note=request.data.get('admin_note', ''),
+                processed_at=timezone.now()
+            )
+
+            # Update order status
+            if refund_amount == payment.amount:
+                refund.order.status = 'cancelled'
+            else:
+                refund.order.status = 'partially_refunded'
+            refund.order.save()
+
+            return Response({
+                "status": True,
+                "message": "Refund processed successfully",
+                "refund_amount": float(refund_amount)
+            })
+
+        return Response({"status": False, "message": serializer.errors}, status=400)
+
+
+# class AdminOrderRefundAPI(APIView):
+#     def post(self, request):
+#         data = request.data
+#         order_id = data.get('order_id')
+#         refund_type = data.get('refund_type')
+#         admin_note = data.get('admin_note', '')
+
+#         if not order_id or not refund_type:
+#             return Response({"status": False, "message": "order_id and refund_type are required"}, status=400)
+
+    
+#         try:
+#             order = Order.objects.get(order_id=order_id)
+#             payment = Payment.objects.get(order=order)
+#         except Order.DoesNotExist:
+#             return Response({"status": False, "message": "Order not found"}, status=404)
+#         except Payment.DoesNotExist:
+#             return Response({"status": False, "message": "Payment not found"}, status=404)
+
+#         refunded_total = Refund.objects.filter(payment=payment, status='completed').aggregate(
+#             total=models.Sum('refund_amount')
+#         )['total'] or Decimal('0')
+
+        
+#         if refund_type == 'full':
+#             if refunded_total >= payment.amount:
+#                 return Response({"status": False, "message": "Payment already fully refunded"}, status=400)
+#             refund_amount = payment.amount - refunded_total
+
+#         elif refund_type == 'partial':
+#             refund_amount = Decimal(str(data.get('refund_amount', '0')))
+#             if refund_amount < 1:
+#                 return Response({"status": False, "message": "Refund amount must be at least 1"}, status=400)
+#             if refunded_total + refund_amount > payment.amount:
+#                 return Response({"status": False, "message": "Refund amount exceeds payment amount"}, status=400)
+
+#         elif refund_type == 'percentage':
+#             percentage = Decimal(str(data.get('refund_percentage', '0')))
+#             if percentage < 1:
+#                 return Response({"status": False, "message": "Refund percentage must be at least 1"}, status=400)
+#             refund_amount = (payment.amount * percentage) / Decimal('100')
+#             if refunded_total + refund_amount > payment.amount:
+#                 refund_amount = payment.amount - refunded_total  
+
+#         else:
+#             return Response({"status": False, "message": "Invalid refund_type"}, status=400)
+#         try:
+#             stripe_refund = stripe.Refund.create(
+#                 payment_intent=payment.payment_id,
+#                 amount=int(refund_amount * 100)  
+#             )
+
+#             Refund.objects.create(
+#                 order=order,
+#                 payment=payment,
+#                 user=order.user,
+#                 refund_amount=refund_amount,
+#                 admin_note=f"{admin_note} | Refund type: {refund_type}",
+#                 status='processed',  
+#                 payment_gateway_id=stripe_refund.id,  
+#                 currency=payment.currency  
+#             )
+
+#             return Response({
+#                 "status": True,
+#                 "message": "Refund successful",
+#                 "stripe_refund_id": stripe_refund.id,
+#                 "refunded_amount": str(refund_amount)
+#             })
+
+#         except stripe.error.StripeError as e:
+#             return Response({
+#                 "status": False,
+#                 "message": f"Stripe Error: {str(e)}"
+#             }, status=400)
+
+class AdminOrderRefundAPI(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def post(self, request):
+        data = request.data
+        order_id = data.get('order_id')
+        refund_type = data.get('refund_type')
+        admin_note = data.get('admin_note', '')
+
+        if not order_id or not refund_type:
+            return Response(
+                {"status": False, "message": "order_id and refund_type are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            order = Order.objects.get(order_id=order_id, is_active=True)
+        except Order.DoesNotExist:
+            return Response(
+                {"status": False,
+                 "statusCode":404, 
+                 "message": "Order not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+    
+        with transaction.atomic():
+            payment = (
+                Payment.objects
+                .select_for_update()
+                .filter(
+                    order=order,
+                    payment_status='success',
+                    is_active=True
+                ).order_by('-created_at').first()
+            )
+
+            if not payment:
+                return Response({
+                        "status": False,
+                        "statusCode":404,
+                        "message": "No successful payment found for this order"
+                    }, status=status.HTTP_404_NOT_FOUND
+                )
+
+            refunded_total = Refund.objects.filter(
+                payment=payment,
+                status='processed'
+            ).aggregate(
+                total=models.Sum('refund_amount')
+            )['total'] or Decimal('0')
+
+            if refund_type == 'full':
+                if refunded_total >= payment.amount:
+                    return Response(
+                        {"status": False,
+                         "statusCode":400,
+                          "message": "Payment already fully refunded"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                refund_amount = payment.amount - refunded_total
+
+            elif refund_type == 'partial':
+                refund_amount = Decimal(str(data.get('refund_amount', '0')))
+                if refund_amount <= 0:
+                    return Response(
+                        {"status": False,
+                         "statusCode":400,
+                          "message": "Refund amount must be greater than 0"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                if refunded_total + refund_amount > payment.amount:
+                    return Response(
+                        {"status": False,
+                         "statuseCode":400,
+                          "message": "Refund amount exceeds payment amount"},
+                          status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            elif refund_type == 'percentage':
+                percentage = Decimal(str(data.get('refund_percentage', '0')))
+                if percentage <= 0 or percentage > 100:
+                    return Response(
+                        {"status": False, 
+                         "statusCode":400,
+                         "message": "Invalid refund percentage"},
+                          status=status.HTTP_400_BAD_REQUEST
+                    )
+                refund_amount = (payment.amount * percentage) / Decimal('100')
+                if refunded_total + refund_amount > payment.amount:
+                    refund_amount = payment.amount - refunded_total
+
+            else:
+                return Response(
+                    {"status": False,
+                     "statusCode":400, 
+                     "message": "Invalid refund_type"},
+                      status=status.HTTP_400_BAD_REQUEST
+                )
+
+            try:
+                stripe_refund = stripe.Refund.create(
+                    payment_intent=payment.payment_id,
+                    amount=int((refund_amount * Decimal('100')).quantize(Decimal('1')))
+                )
+            except stripe.error.StripeError as e:
+                return Response(
+                    {"status": False, "message": f"Stripe Error: {str(e)}"},
+                      status=status.HTTP_400_BAD_REQUEST
+                )
+            Refund.objects.create(
+                order=order,
+                payment=payment,
+                user=order.user,
+                refund_amount=refund_amount,
+                admin_note=f"{admin_note} | Refund type: {refund_type}",
+                status='processed',
+                payment_gateway_id=stripe_refund.id,
+                currency=payment.currency
+            )
+
+            return Response({
+                "status": True,
+                "statuseCode":200,
+                "message": "Refund initiated successfully",
+                "stripe_refund_id": stripe_refund.id,
+                "refunded_amount": str(refund_amount),
+            },status=status.HTTP_200_OK)
+
+
 class QuotationStatusUpdateAPIView(APIView):
     authentication_classes = [MultiRoleJWTAuth]  # JWT Multi-Role
     permission_classes = []
@@ -2168,7 +2498,7 @@ class QuotationStatusUpdateAPIView(APIView):
 
             quotation.quotation_status = "cancelled"
             quotation.cancel_reason = reason
-            quotation.cancelled_by = user_role  # store role name
+            quotation.cancelled_by = user_role
             quotation.save()
 
             return Response({
@@ -2184,6 +2514,36 @@ class QuotationStatusUpdateAPIView(APIView):
             "error": "Invalid action"
             }, status=status.HTTP_400_BAD_REQUEST)
 
+
+class UserDetailAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    def get(self, request):
+        try:
+            users = Users.objects.all()
+            if not users.exists():
+                return Response(
+                    {
+                        "status":False,
+                        "statusCode":404,
+                        "message": "No users found."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            serializer = UserListSerializer(users, many=True, context={'request': request})
+            return Response({
+                    "status":True,
+                    "statusCode":200,
+                    "data":serializer.data},status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response(
+                {
+                    "status":False,
+                    "statusCode":500,
+                    "error": "Something went wrong.", 
+                 "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 #<-------------orderUpdate----------->
 class AdminOderUpdateAPIView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -2193,59 +2553,125 @@ class AdminOderUpdateAPIView(APIView):
             order = Order.objects.get(order_id=order_id)
         except Order.DoesNotExist as e:
             return Response({
-                "statusCode":404,
-                "status":False,
-                "message":"Order not found",
-                "error":str(e)
-            },status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = OrderUpdateSerializer(order,data=request.data,partial=True)
+                "statusCode": 404,
+                "status": False,
+                "message": "Order not found",
+            }, status=status.HTTP_404_NOT_FOUND)
+ 
+        serializer = OrderUpdateSerializer(
+            order,
+            data=request.data,
+            partial=True,
+            context={"request": request}
+        )
+ 
         if serializer.is_valid():
             serializer.save()
             return Response({
-                "statusCode":200,
-                "status":True,
-                "message":"Order Update Successfully",
-                "data":serializer.data
-            },status=status.HTTP_200_OK)
+                "statusCode": 200,
+                "status": True,
+                "message": "Order Update Successfully",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+ 
+        return Response({
+            "statusCode": 400,
+            "status": False,
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 #<---------------OrderUpdateList--------------->
 class AdminOrderListAPIView(APIView):
-    authentication_classes=[JWTAuthentication]
-    
-    def get(self,request):
-        try:
-            orders = Order.objects.all().order_by('-created_at')
-        
-        except Order.DoesNotExist as de:
-            return Response({
-                "statusCode":404,
-                "status":False,
-                "message":"Order does not found",
-                "error":str(de)
-            })
+    authentication_classes = [JWTAuthentication]
 
-        response_data={
-            "total_order":orders.count(),
-            "status_count":{
-                "pending":orders.filter(status='panding').count(),
-                "conformed": orders.filter(status='conformed').count(),
-                "processing": orders.filter(status='processing').count(),
-                "out_for_delivery": orders.filter(status='out_for_delivery').count(),
-                "delivered": orders.filter(status='delivered').count(),
-                },
-               "orders": OrderUpdateSerializer(orders,many=True).data
-            }
-        return Response({
-            "statusCode":200,
-            "status":True,
-            "message":"fetch order successfully",
-            "error": response_data
-            },status=status.HTTP_200_OK)
-        
+    def get(self, request):
+        try:
+            orders = Order.objects.select_related("user").all().order_by("-created_at")
+
+            search = request.query_params.get("search")
+            status_param = request.query_params.get("status")
+            order_id = request.query_params.get("order_id")
+            user_id = request.query_params.get("user")
+
+            if search:
+                orders = orders.filter(
+                    Q(order_id__icontains=search) |
+                    Q(status__icontains=search)
+                )
+
+            if status_param:
+                orders = orders.filter(status=status_param)
+
+            if order_id:
+                orders = orders.filter(order_id__icontains=order_id)
+
+            if user_id:
+                orders = orders.filter(user__id=user_id)
+
+            paginator = CustomPagination()
+            paginated_orders = paginator.paginate_queryset(orders, request)
+
+            serializer = OrderUpdateSerializer(paginated_orders, many=True)
+            response = paginator.get_paginated_response(serializer.data)
+
+            response = {
+                    "count": paginator.page.paginator.count,
+                    "next": paginator.get_next_link(),
+                    "previous": paginator.get_previous_link(),
+                    "statusCode": 200,
+                    "status": True,
+                    "message": "Order list fetched successfully.",
+                    "data": serializer.data,
+                    "pagination": {
+                        "page": paginator.page.number,
+                        "page_size": paginator.get_page_size(request),
+                        "total_pages": paginator.page.paginator.num_pages,
+                        "total_items": paginator.page.paginator.count
+                    }
+                }
+
+            return Response(response, status=status.HTTP_200_OK)
+        except Exception as exc:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Server error while fetching order.",
+                "error": str(exc)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+        # data = {
+        #     "count": paginator.page.paginator.count,
+        #     "next": paginator.get_next_link(),
+        #     "previous": paginator.get_previous_link(),
+
+        #     "total_order": orders.count(),
+        #     "status_count": {
+        #         "pending": orders.filter(status="pending").count(),
+        #         "conformed": orders.filter(status="conformed").count(),
+        #         "processing": orders.filter(status="processing").count(),
+        #         "out_for_delivery": orders.filter(status="out_for_delivery").count(),
+        #         "delivered": orders.filter(status="delivered").count(),
+        #         "cancelled": orders.filter(status="cancelled").count(),
+        #     },
+
+        #     "orders": serializer.data
+        # }
+
+        # return Response(
+        #     {
+        #         "statusCode": 200,
+        #         "status": True,
+        #         "message": "Fetch orders successfully",
+        #         "data": data
+        #     },
+        #     status=200
+        # )
+       
+
 class AdminOrderDetailAPIView(APIView):
     authentication_classes=[JWTAuthentication]
-
+ 
     def get(self,request,order_id):
         try:
             order = Order.objects.get(order_id=order_id)

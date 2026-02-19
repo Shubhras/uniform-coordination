@@ -82,6 +82,8 @@ class AdminUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     language = models.CharField(max_length=10, default="en")
+    is_currently_login = models.BooleanField(default=False)
+
 
     # Fix conflicts by setting related names
     groups = models.ManyToManyField(Group, related_name="adminuser_groups", blank=True)
@@ -161,9 +163,12 @@ class Parts(models.Model):
     
 
 class Colors(models.Model):
+    MATERIAL_CHOICES = ["cotton", "polyester", "silk", "linen"]
+    
     colorName = models.CharField(max_length=250)
     colorCode = models.TextField(null=True, blank=True)
-    compatibleFabric = models.ManyToManyField(Fabric, blank=True)
+    # compatibleFabric = models.ManyToManyField(Fabric, blank=True)
+    compatibleFabric = models.JSONField(default=list)  
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

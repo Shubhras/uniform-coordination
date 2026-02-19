@@ -1,7 +1,5 @@
 from django.contrib import admin
 from .models import*
-# from 
-
 
 @admin.register(Users)
 class UsersAdmin(admin.ModelAdmin):
@@ -10,66 +8,77 @@ class UsersAdmin(admin.ModelAdmin):
     search_fields = ('email', 'userName', 'firstName', 'lastName')
     readonly_fields = ('createdAt', 'updatedAt')
 
-@admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
-    list_display =('order',
-                   'payment_id',
-                   'payment_status',
-                   'payment_method',
-                   'amount','currency','paid_at')
+
+class CartItemInline(admin.TabularInline):
+    model = CartItem
+    extra = 1
+    readonly_fields = ('price', 'final_price', 'total_price')
+    fields = ('product', 'quantity', 'price', 'discount', 'final_price', 'total_price')
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user',
-                    'is_active',
-                    'is_delete', 
-                    'is_update', 
-                    'created_at')
-   
-@admin.register(CartItem)
-class CartItemAdmin(admin.ModelAdmin):
-   list_display = [
-        'id', 'cart', 
-        'product', 
-        'quantity', 
-        'price', 
-        'total_price',
-        'is_active', 
-        'created_at', 
-        'updated_at', 
-        'deleted_at'
-    ]
+    list_display = ('id', 'user', 'is_active', 'created_at')
+    search_fields = ('user__username',)
+    inlines = [CartItemInline]
+    list_filter = ('is_active',)
+
 
 @admin.register(CustomerDetails)
 class CustomerDetailsAdmin(admin.ModelAdmin):
-    list_display = ('id',
-                     'user', 
-                     'first_name', 
-                     'last_name', 
-                     'email', 
-                     'phone',
-                     'city',
-                     'country', 
-                     'payment_method', 
-                     'Rental', 'created_at', 
-                     'updated_at')
-   
+    list_display = ('id', 'user', 'first_name', 'last_name', 'email', 'phone', 'isActive')
+    search_fields = ('user__username', 'email', 'phone')
+    list_filter = ('isActive', 'isDeleted', 'country', 'city')
 
-# @admin.register(Order)
-# class OrderAdmin(admin.ModelAdmin):
-#     list_display = (
-#         'order_id', 
-#         'user', 
-#         'customer', 
-#         'payment_method', 
-#         'status', 
-#         'order_type', 
-#         'total_amount',
-#         'promocode',  
-#         'start_date', 
-#         'return_date'
-#     )
-    
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 1
+    readonly_fields = ('subtotal', 'price_per_day')
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('order_id', 'customer', 'status', 'order_type', 'total_amount', 'created_at')
+    search_fields = ('order_id', 'customer__user__username')
+    list_filter = ('status', 'order_type')
+    inlines = [OrderItemInline]
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ('order', 'product', 'quantity', 'price_per_day', 'subtotal')
+    readonly_fields = ('subtotal',)
+
+
+class RentalItemInline(admin.TabularInline):
+    model = RentalItem
+    extra = 1
+    readonly_fields = ('subtotal',)
+
+@admin.register(Rental)
+class RentalAdmin(admin.ModelAdmin):
+    list_display = ('id', 'customer', 'status', 'rental_date', 'start_date', 'end_date', 'total_amount')
+    search_fields = ('customer__user__username',)
+    list_filter = ('status',)
+    inlines = [RentalItemInline]
+
+@admin.register(RentalItem)
+class RentalItemAdmin(admin.ModelAdmin):
+    list_display = ('rental', 'product', 'quantity', 'returned_quantity', 'lost_quantity', 'subtotal', 'is_returned', 'is_damaged', 'is_lost')
+    readonly_fields = ('subtotal',)
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'order', 'payment_id', 'payment_status', 'payment_method', 'amount', 'currency', 'paid_at')
+    search_fields = ('payment_id', 'order__order_id', 'customer_id')
+    list_filter = ('payment_status', 'payment_method')
+
+
+@admin.register(Refund)
+class RefundAdmin(admin.ModelAdmin):
+    list_display = ('id', 'order', 'user', 'refund_amount', 'status', 'refund_method', 'created_at', 'processed_at')
+    search_fields = ('order__order_id', 'user__username', 'payment__payment_id')
+    list_filter = ('status', 'refund_method')
+
 
 # @admin.register(Notifications)
 # class NotificationsAdmin(admin.ModelAdmin):
@@ -233,9 +242,6 @@ class CustomUpdateModelsAdmin(admin.ModelAdmin):
             'fields': ('created_at',)
         }),
     )
-
-
-
 @admin.register(QuotationRequest)
 class QuotationRequestAdmin(admin.ModelAdmin):
     # List page columns

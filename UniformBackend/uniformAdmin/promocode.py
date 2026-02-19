@@ -82,6 +82,7 @@ class PromocodeCreateAPIView(BaseAPIView):
 
 
 
+
 class PromocodeListAPIView(BaseAPIView):
     permission_classes = [AllowAny]
     

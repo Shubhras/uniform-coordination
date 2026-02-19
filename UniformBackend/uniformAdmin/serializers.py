@@ -3,11 +3,14 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from django.conf import settings
 import re
+from django.utils import timezone
 from .models import *
+from datetime import timedelta
 from .utils import get_default_b2b_role
+from userhub.models import *
 # User = get_user_model()
 import json
-from userhub.models import Order
+# from userhub.models import Order
 
 
 def build_media_url(file_field):
@@ -231,12 +234,66 @@ class FabricMiniSerializer(serializers.ModelSerializer):
         fields = ["id", "fabricName"]
 
 
+# class ColorsSerializer(serializers.ModelSerializer):
+#     # compatibleFabric_ids = serializers.ListField(
+#     #     child=serializers.IntegerField(),
+#     #     write_only=True,
+#     #     required=False
+#     # )
+
+#     compatibleFabric = serializers.ListField(
+#         compatibleFabric=serializers.ChoiceField(compatibleFabric=Colors.MATERIAL_CHOICES),  
+#         required=True,
+#     )
+#     class Meta:
+#         model = Colors
+#         fields = [
+#             "id",
+#             "colorName",
+#             "colorCode",
+#             "compatibleFabric",
+#             "isActive",
+#             "isDeleted",
+#             "created_at",
+#             "updated_at"
+#         ]
+
+#     def validate_compatibleFabric(self, value):
+#         if len(value) == 0:
+#             raise serializers.ValidationError("Please select at least one fabric.")
+#         return value
+    
+#     def validate_colorName(self, value):
+#         if Colors.objects.filter(colorName__iexact=value, isDeleted=False).exists():
+#             raise serializers.ValidationError("This color name already exists.")
+#         return value  
+   
+  
+
+#     # def create(self, validated_data):
+#     #     fabric_ids = validated_data.pop("compatibleFabric_ids", [])
+#     #     color = Colors.objects.create(**validated_data)
+#     #     if fabric_ids:
+#     #         color.compatibleFabric.set(fabric_ids)
+#     #     return color
+
+#     # def update(self, instance, validated_data):
+#     #     fabric_ids = validated_data.pop("compatibleFabric_ids", None)
+
+#     #     for attr, val in validated_data.items():
+#     #         setattr(instance, attr, val)
+#     #     instance.save()
+
+#     #     if fabric_ids is not None:
+#     #         instance.compatibleFabric.set(fabric_ids)
+
+#     #     return instance
+
+
 class ColorsSerializer(serializers.ModelSerializer):
-    compatibleFabric = FabricMiniSerializer(many=True, read_only=True)
-    compatibleFabric_ids = serializers.ListField(
-        child=serializers.IntegerField(),
-        write_only=True,
-        required=False
+    compatibleFabric = serializers.ListField(
+        child=serializers.ChoiceField(choices=Colors.MATERIAL_CHOICES), 
+        required=True
     )
 
     class Meta:
@@ -246,31 +303,21 @@ class ColorsSerializer(serializers.ModelSerializer):
             "colorName",
             "colorCode",
             "compatibleFabric",
-            "compatibleFabric_ids",
             "isActive",
             "isDeleted",
             "created_at",
             "updated_at"
         ]
 
-    def create(self, validated_data):
-        fabric_ids = validated_data.pop("compatibleFabric_ids", [])
-        color = Colors.objects.create(**validated_data)
-        if fabric_ids:
-            color.compatibleFabric.set(fabric_ids)
-        return color
+    def validate_compatibleFabric(self, value):
+        if len(value) == 0:
+            raise serializers.ValidationError("Please select at least one fabric.")
+        return value
 
-    def update(self, instance, validated_data):
-        fabric_ids = validated_data.pop("compatibleFabric_ids", None)
-
-        for attr, val in validated_data.items():
-            setattr(instance, attr, val)
-        instance.save()
-
-        if fabric_ids is not None:
-            instance.compatibleFabric.set(fabric_ids)
-
-        return instance
+    def validate_colorName(self, value):
+        if Colors.objects.filter(colorName__iexact=value, isDeleted=False).exists():
+            raise serializers.ValidationError("This color name already exists.")
+        return value
 
 
 class TemplateSerializer(serializers.ModelSerializer):
@@ -676,6 +723,7 @@ class PartsMiniSerializer(serializers.ModelSerializer):
         fields = ["id", "partName", "category"]
 
 class ProductSerializer(serializers.ModelSerializer):
+    isActive = serializers.BooleanField(required=False, default=True)
 
     category = CategoryMiniSerializer(read_only=True)
     subcategory = SubCategoryMiniSerializer(read_only=True)
@@ -739,7 +787,23 @@ class ProductSerializer(serializers.ModelSerializer):
                 })
 
         return super().to_internal_value(data)
+    def validate_productName(self, value):
+        queryset = Product.objects.filter(
+            productName__iexact=value,
+            isDeleted=False
+        )
 
+        if self.instance:
+            queryset = queryset.exclude(id=self.instance.id)
+
+        if queryset.exists():
+            raise serializers.ValidationError(
+                "Product with this name already exists."
+            )
+
+        return value
+    
+    
     
     def validate(self, data):
         product_type = data.get("productType")
@@ -1090,6 +1154,7 @@ class UnitPriceSerializer(serializers.Serializer):
 
 #<====================B2B=========================>
 
+
 class AdminUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     role_name = serializers.CharField(source="Role.role_name", read_only=True)
@@ -1102,10 +1167,12 @@ class AdminUserSerializer(serializers.ModelSerializer):
             "email",
             "mobile",
             "role_name",
+            "last_login",
             "tier",
             "password",
             "is_active",
             "created_at",
+            "is_currently_login",
         ]
         read_only_fields = ["id", "created_at"]
 
@@ -1132,6 +1199,179 @@ class AdminUserSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+    def get_is_currently_login(self, obj):
+        if not obj.lastLogin:
+            return False
+        active_window = timezone.now() - timedelta(minutes=30)
+        return obj.lastLogin >= active_window
+
+   
+   
+# class AdminOrderUpdateSerializer(serializers.ModelSerializer):
+#     admin_cancel_reason = serializers.CharField(required=False, allow_blank=True)
+
+#     class Meta:
+#         model = Order
+#         fields = ['status', 'admin_cancel_reason']
+
+#     def validate(self, attrs):
+#         order = self.instance
+#         new_status = attrs.get('status', None)
+
+#         if order.status in ['completed', 'paid']:
+#             raise serializers.ValidationError("Cannot update order because it is already completed or paid.")
+
+#         if new_status == 'cancelled' and not attrs.get('admin_cancel_reason'):
+#             raise serializers.ValidationError("Admin cancel reason is required when cancelling an order.")
+        
+#         return attrs
+
+
+class AdminRefundSerializer(serializers.ModelSerializer):
+    order_id = serializers.CharField(source='order.order_id', read_only=True)
+    user_name = serializers.CharField(source='user.username', read_only=True)
+    payment_id = serializers.CharField(source='payment.payment_id', read_only=True)
+
+    class Meta:
+        model = Refund
+        fields = [
+            'id',
+            'order',
+            'order_id',
+            'payment',
+            'payment_id',
+            'user',
+            'user_name',
+            'refund_amount',
+            'reason',
+            'status',
+            'admin_note',
+            'refund_method',
+            'payment_gateway_id',
+            'currency',
+            'created_at',
+            'processed_at',
+        ]
+        read_only_fields = [
+            'id',
+            'order',
+            'user',
+            'payment',
+            'created_at',
+            'processed_at',
+            'payment_id',
+            'order_id',
+            'user_name'
+        ]
+
+    def validate_refund_amount(self, value):
+       
+        if self.instance and self.instance.payment:
+            max_amount = self.instance.payment.amount
+            if value <= 0:
+                raise serializers.ValidationError("Refund amount must be greater than zero.")
+            if value > max_amount:
+                raise serializers.ValidationError(f"Refund amount cannot exceed paid amount ({max_amount}).")
+        return value
+    
+class UserListSerializer(serializers.ModelSerializer):
+    role = serializers.SerializerMethodField()
+    lastLogin = serializers.SerializerMethodField()  
+
+
+    class Meta:
+        model = Users
+        fields = [
+            'id', 'email', 'userType', 'phone', 'userName', 'firstName', 'lastName',
+            'language', 'gender', 'profileImage', 'role', 'lastLogin', 'isActive',
+            'loginType', 'email_notifications', 'push_notifications', 'is_verify',
+            'createdAt', 'updatedAt','is_currently_login'
+        ]
+
+    def get_role(self, obj):
+        return obj.role.role_name if obj.role else None
+
+    def get_lastLogin(self, obj):
+        if obj.lastLogin:
+            return obj.lastLogin.strftime("%Y-%m-%d %H:%M:%S")
+        return "Never logged in"
+    def get_is_currently_login(self, obj):
+        if not obj.lastLogin:
+            return False
+        active_window = timezone.now() - timedelta(minutes=30)
+        return obj.lastLogin >= active_window
+
+
+
+class OrderUpdateSerializer(serializers.ModelSerializer):
+    customer = serializers.SerializerMethodField()
+    payment = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = "__all__"
+       
+    def validate(self, attrs):
+
+        order = self.instance
+        new_status = attrs.get("status", order.status)
+        if order.status == "cancelled" and new_status == "cancelled":
+
+            raise serializers.ValidationError("Order already cancelled")
+        if new_status == "cancelled" and order.status in [
+            "out_for_delivery",
+            "delivered"
+
+        ]:
+            raise serializers.ValidationError(
+                "Order cannot be cancelled after Out For Delivery or Delivered"
+            )
+        if order.status == new_status and new_status in [
+            "out_for_delivery",
+            "delivered"
+        ]:
+            raise serializers.ValidationError(
+                f"Order already marked as {new_status.replace('_', ' ').title()}"
+            )
+        return attrs
+    def update(self, instance, validated_data):
+        if validated_data.get("status") == "cancelled":
+            instance.cancelled_by = "admin"
+        return super().update(instance, validated_data)
+    
+    def get_customer(self, obj):
+        if not obj.user:  # check if user exists
+            return None
+        try:
+            customer = obj.user.customerdetails
+            return {
+            "full_name": f"{customer.first_name} {customer.last_name}",
+                        "email": customer.email,
+                        "address": {
+                            "address_line_1": customer.address_line_1,
+                            "address_line_2": customer.address_line_2,
+                            "city": customer.city,
+                            "postal_code": customer.postal_code,
+                            "country": customer.country
+                        }
+                    }
+        except CustomerDetails.DoesNotExist:
+                return None
+
+ 
+    def get_payment(self, obj):
+        payment = Payment.objects.filter(order=obj).first()
+        if payment:
+            return {
+                "payment_id": payment.payment_id,
+                "payment_method": payment.payment_method,
+                "payment_status": payment.payment_status
+            }
+        return None
+
+  
+
+ 
     
 class OrderUpdateSerializer(serializers.ModelSerializer):
     # user = serializers.StringRelatedField()
