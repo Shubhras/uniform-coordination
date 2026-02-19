@@ -593,6 +593,7 @@ class TableThemeSerializer(serializers.ModelSerializer):
     
 class ProductSerializer(serializers.ModelSerializer):
     isActive = serializers.BooleanField(required=False, default=True)
+    
     parts = serializers.PrimaryKeyRelatedField(
         queryset=Parts.objects.filter(isActive=True, isDeleted=False),
         many=True,

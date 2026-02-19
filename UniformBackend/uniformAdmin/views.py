@@ -575,7 +575,7 @@ class AdminUpdateProductAPIView(APIView):
                     "message": "Product not found."
                 }, status=status.HTTP_200_OK)
 
-            serializer = ProductSerializer(product, data=request.data, partial=True)
+            serializer = ProductSerializer(product, data=request.data, partial=True,context={'request':request})
             if serializer.is_valid():
                 serializer.save()
                 return Response({
@@ -591,6 +591,7 @@ class AdminUpdateProductAPIView(APIView):
                 "message": "Validation failed.",
                 "error": serializer.errors
             }, status=status.HTTP_200_OK)
+        
 
         except Exception as exc:
             return Response({
