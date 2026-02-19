@@ -268,9 +268,9 @@ class Rental(models.Model):
         ('damaged','Damaged')
     ]
 
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='rental',null=True, blank=True)
+    # order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='rental',null=True, blank=True)
     rental_id =models.CharField(max_length=50,unique=True,null=True,blank=True)
-    customer = models.ForeignKey(CustomerDetails, on_delete=models.CASCADE)
+    # customer = models.ForeignKey(CustomerDetails, on_delete=models.CASCADE)
     rental_date = models.DateField(auto_now_add=True)
     start_date = models.DateField()
     end_date = models.DateField()
