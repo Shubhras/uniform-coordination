@@ -327,7 +327,8 @@ class AdminLoginAPIView(APIView):
 
         # Update last login
         user.last_login = timezone.now()
-        user.save(update_fields=["last_login"])
+        user.is_currently_login = True
+        user.save(update_fields=["last_login","is_currently_login"])
 
         return Response({
             "status": True,
@@ -520,6 +521,10 @@ class LogoutAPIView(APIView):
         tokens = OutstandingToken.objects.filter(user=request.user)
         for t in tokens:
             BlacklistedToken.objects.get_or_create(token=t)
+
+        user = request.user
+        user.is_currently_login = False
+        user.save(update_fields=['is_currently_login'])    
 
         return Response({
             "status": True,

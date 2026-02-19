@@ -1,16 +1,15 @@
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated ,AllowAny
-from django.db.models import Sum, Count
-from decimal import Decimal
+from rest_framework.permissions import IsAuthenticated 
 from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import *
-from uniformAdmin.models import AdminUser
-from django.http import HttpResponse
 from .serializers import *
+from uniformAdmin.fabric import IsAdministrator
 import stripe
+from uniformAdmin.auth import *
+from .utils import generate_payment_pdf
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -24,9 +23,9 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 # pagination 
 class CustomPagination(PageNumberPagination):
     """Custom Pagination for Professional Users"""
-    page_size = 10  # Number of results per page
+    page_size = 10  
     page_size_query_param = "page_size"
-    max_page_size = 100  # Set a reasonable limit
+    max_page_size = 100  
 
     def get_paginated_response(self, data):
         return Response({
@@ -36,309 +35,305 @@ class CustomPagination(PageNumberPagination):
             "data": data  
         })
 
+# CURRENCY_BANK_TRANSFER_MAPPING = {
+#     "usd": ["us_bank_account"],  
+#     "eur": ["sepa_debit"],       
+#     "gbp": ["bacs_debit"],       
+# }
+# INR_SUPPORTED_METHODS = ["card", "upi"]
+# JPN_SUPPORTED_METHODS = ["card", "paypay"]
+# JPN_METHOD_MAPPING = {
+#     "card": "card",
+#     "paypay": "paypay",
+# }
+# JPN_METHOD_REVERSE_MAPPING = {v: k for k, v in JPN_METHOD_MAPPING.items()}
 # class CreatePaymentIntentAPIView(APIView):
-
-
 #     permission_classes = [IsAuthenticated]
 
 #     def post(self, request):
-#         order_id = request.data.get("order_id")
-#         currency = request.data.get("currency")
+#         try:    
+#             order_id = request.data.get("order_id")
+#             currency = request.data.get("currency", "").lower()
 
-#         #  order_id missing
-#         if not order_id:
-#             return Response(
-#                 {"error": "order_id is required"},
-#                 status=status.HTTP_400_BAD_REQUEST
-#             )
-#         try:
-#             order = Order.objects.get(order_id=order_id, user=request.user)
-#         except Order.DoesNotExist:
-#             return Response(
-#                 {"error": "Order not found"},
-#                 status=status.HTTP_404_NOT_FOUND
-#             )
-
-#         #  already paid (final guard)
-#         if Payment.objects.filter(order=order, payment_status="SUCCESS").exists():
-#             return Response(
-#                 {"error": "Payment already completed"},
-#                 status=status.HTTP_400_BAD_REQUEST
-#             )
-
-#         #  Stripe allowed payment methods check
-#         STRIPE_ALLOWED_METHODS = ["card", "upi", "bank_transfer"]
-
-#         if not order.Payment_method:
-#             return Response(
-#                 {"error": "Payment method not selected for this order"},
-#                 status=status.HTTP_400_BAD_REQUEST
-#             )
-
-#         payment_method_type = order.Payment_method.lower()
-
-#         if payment_method_type not in STRIPE_ALLOWED_METHODS:
-#             return Response(
-#                 {"error": f"Payment method '{order.Payment_method}' is not supported by Stripe"},
-#                 status=status.HTTP_400_BAD_REQUEST
-#             )
-
-#         # prevent duplicate pending payment
-#         existing_payment = Payment.objects.filter(
-#             order=order,
-#             payment_status="PENDING"
-#         ).first()
-
-#         if existing_payment:
-#             # broken pending payment without client_secret
-#             if not existing_payment.client_secret:
-#                 existing_payment.delete()
-#             else:
+#             if not order_id:
 #                 return Response({
-#                     "order_id": str(order.order_id),
-#                     "payment_client_secret": existing_payment.client_secret,
-#                     "payment_status": existing_payment.payment_status
-#                 }, status=200)
+#                     "status":False,
+#                     "statusCode":400,
+#                     "error": "order_id is required"}, status=400)
 
-#         #  create new Stripe PaymentIntent
-#         try:
-#             payment_intent = stripe.PaymentIntent.create(
-#                 amount=int(order.total_amount * 100),
-#                 currency=currency,
-#                 payment_method_types=[payment_method_type],
-#                 metadata={
-#                     "order_id": str(order.order_id),
-#                     "user_id": request.user.id
-#                 }
-#             )
+#             try:
+#                 order = Order.objects.get(order_id=order_id, user=request.user)
+#             except Order.DoesNotExist:
+#                 return Response({
+#                     "status":False,
+#                     "statusCode":404,
+#                     "error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
-#             # save payment
-#             payment = Payment.objects.create(
-#                 order=order,
-#                 payment_id=payment_intent.id,
-#                 client_secret=payment_intent.client_secret,
-#                 payment_status="PENDING",
-#                 payment_method=payment_method_type,
-#                 amount=order.total_amount,
-#                 currency=currency,
-#             )
+        
+#             if Payment.objects.filter(order=order, payment_status="SUCCESS").exists():
+#                 return Response({
+#                     "status":False,
+#                     "statusCode":400,
+#                     "error": "Payment already completed"
+#                     }, status=status.HTTP_400_BAD_REQUEST)
 
-#             #  update order status
-#             order.status = "PENDING"
-#             order.save()
+            
+#             supported_currencies = ["inr", "jpy"] + list(CURRENCY_BANK_TRANSFER_MAPPING.keys())
+#             if currency not in supported_currencies:
+#                 return Response({
+#                     "status":False,
+#                     "statusCode":400,
+#                     "error": f"Currency '{currency}' not supported"
+#                     }, status=status.HTTP_400_BAD_REQUEST)
 
-#         #  Stripe error handling
-#         except stripe.error.AuthenticationError:
-#             return Response({"error": "Stripe authentication failed"}, status=500)
+        
+#             payment_method = order.payment_method.lower()
+#             if currency == "inr":
+#                 if payment_method not in INR_SUPPORTED_METHODS:
+#                     return Response({
+#                         "status":False,
+#                         "statusCode":400,
+#                         "error": f"Payment method '{order.payment_method}' not supported for INR. Use Card or UPI."
+#                     }, status=status.HTTP_400_BAD_REQUEST)
+                
+#                 stripe_payment_methods = [payment_method]
+#             elif currency == "jpy":
+                
+#                 if payment_method in JPN_METHOD_REVERSE_MAPPING:
+#                     payment_method = JPN_METHOD_REVERSE_MAPPING[payment_method]
 
-#         except stripe.error.InvalidRequestError as e:
-#             return Response({"error": str(e)}, status=400)
+#                 if payment_method not in JPN_SUPPORTED_METHODS:
+#                     return Response({
+#                         "status":False,
+#                         "statusCode":400,
+#                         "error": f"Payment method '{order.payment_method}' not supported for JPY. Use Card, PayPay."
+#                     }, status=status.HTTP_400_BAD_REQUEST)
 
-#         except stripe.error.CardError as e:
-#             return Response({"error": e.user_message}, status=402)
+#                 stripe_payment_methods = [JPN_METHOD_MAPPING[payment_method]]
 
-#         except stripe.error.APIConnectionError:
-#             return Response({"error": "Stripe connection error"}, status=503)
+#             else:  
+#                 if payment_method == "bank transfer":
+#                     if currency in CURRENCY_BANK_TRANSFER_MAPPING:
+#                         stripe_payment_methods = CURRENCY_BANK_TRANSFER_MAPPING[currency]
+#                     else:
+#                         return Response({
+#                             "status":False,
+#                             "statusCode":400,
+#                             "error": f"Bank Transfer not supported for currency {currency.upper()}"
+#                         }, status=status.HTTP_400_BAD_REQUEST)
+#                 else:
+#                     stripe_payment_methods = [payment_method]
 
-#         except stripe.error.StripeError:
-#             return Response({"error": "Stripe internal error"}, status=500)
+        
+#             existing_payment = Payment.objects.filter(order=order, payment_status="PENDING").first()
+#             if existing_payment:
+#                 if not existing_payment.client_secret:
+#                     existing_payment.delete()
+#                 else:
+#                     return Response({
+#                         "status":True,
+#                         "statusCode":200,
+#                         "message": "A payment is already pending for this order. Use the existing client_secret to complete it",
+#                         "order_id": str(order.order_id),
+#                         "payment_client_secret": existing_payment.client_secret,
+#                         "payment_status": existing_payment.payment_status
+#                     }, status=status.HTTP_200_OK)
 
-#         #  success response 
-#         return Response({
-#             "order_id": str(order.order_id),
-#             "total_amount": float(order.total_amount),
-#             "currency": currency,
-#             "payment-id": payment.payment_id,
-#             "payment_method": payment.payment_method,
-#             "payment_client_secret": payment.client_secret,
-#             "payment_status": payment.payment_status
-#         }, status=200)
+#             try:
+#                 payment_intent = stripe.PaymentIntent.create(
+#                     amount=int(order.total_amount * 100), 
+#                     currency=currency,
+#                     payment_method_types=stripe_payment_methods,
+#                     metadata={
+#                         "order_id": str(order.order_id),
+#                         "user_id": request.user.id
+#                     }
+#                 )
+             
+#                 payment = Payment.objects.create(
+#                     order=order,
+#                     payment_id=payment_intent.id,
+#                     client_secret=payment_intent.client_secret,
+#                     payment_status="PENDING",
+#                     payment_method=payment_method,
+#                     amount=order.total_amount,
+#                     currency=currency,
+#                 )
+
+#                 order.status = "PENDING"
+#                 order.save()
+
+#             except stripe.error.StripeError as e:
+#                 return Response({
+#                     "status":False,
+#                     "statusCode":400,
+#                     "error": f"Stripe Error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+#             except Exception as e:
+#                 return Response({
+#                     "status":False,
+#                     "statusCode":500,
+#                     "error": f"Server Error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#             return Response({
+#                 "status":True,
+#                 "statusCode":200,
+#                 "order_id": str(order.order_id),
+#                 "total_amount": float(order.total_amount),
+#                 "currency": currency,
+#                 "payment_id": payment.payment_id,
+#                 "payment_method": payment.payment_method,
+#                 "payment_client_secret": payment.client_secret,
+#                 "payment_status": payment.payment_status,
+#                 # "stripe_intent_status": payment_intent.status,
+#             }, status=status.HTTP_200_OK)
+        
+#         except Exception as e:
+#             return Response({
+#                 "status": False,
+#                 "statusCode":500,
+#                 "message": "Something went wrong",
+#                 "error": str(e)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
-# Currency → Bank Transfer Mapping
-CURRENCY_BANK_TRANSFER_MAPPING = {
-    "usd": ["us_bank_account"],  # ACH
-    "eur": ["sepa_debit"],       # SEPA
-    "gbp": ["bacs_debit"],       # BACS
-}
-
-# INR supports only card and UPI
-INR_SUPPORTED_METHODS = ["card", "upi"]
-
-# Japan user-facing payment methods
-JPN_SUPPORTED_METHODS = ["card", "paypay", "np_karobarai"]
-
-# Japan mapping: user-facing → Stripe internal
-JPN_METHOD_MAPPING = {
-    "card": "card",
-    "paypay": "paypay",
-    "np_karobarai": "np_billing"
-}
-
-# Reverse mapping: Stripe internal → user-facing
-JPN_METHOD_REVERSE_MAPPING = {v: k for k, v in JPN_METHOD_MAPPING.items()}
-
-
-class CreatePaymentIntentAPIView(APIView):
+class CreatePaymentAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(
-    tags=["Payments · User"],
-    summary="Create Stripe payment intent",
-    description=(
-        "Creates a Stripe PaymentIntent for an order.\n\n"
-        "**Rules:**\n"
-        "- Order must belong to logged-in user\n"
-        "- Duplicate successful payments are blocked\n"
-        "- Currency & payment method validation applied\n"
-    ),
-    request={
-        "application/json": {
-            "type": "object",
-            "required": ["order_id"],
-            "properties": {
-                "order_id": {
-                    "type": "string",
-                    "example": "ORD-2024-001"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "inr",
-                    "description": "Supported: inr, jpy, usd, eur, gbp"
-                }
-            }
-        }
-    },
-    responses={
-        200: OpenApiResponse(description="Payment intent created"),
-        400: OpenApiResponse(description="Validation or Stripe error"),
-        404: OpenApiResponse(description="Order not found"),
-        401: OpenApiResponse(description="Authentication required"),
-    },
-    examples=[
-        OpenApiExample(
-            "Create Payment Intent",
-            value={
-                "order_id": "ORD-2024-001",
-                "currency": "inr"
-            },
-            request_only=True
-        )
-    ]
-    )
+    @transaction.atomic
     def post(self, request):
-        order_id = request.data.get("order_id")
-        currency = request.data.get("currency", "").lower()
+        order_code = request.data.get("order_id")
+        payment_method_id = request.data.get("payment_method_id")
+        currency = request.data.get("currency")
+        if not order_code or not payment_method_id or not currency:
+            return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "order_id, payment_method_id, currency required"
+                },
+                status=status.HTTP_400_BAD_REQUEST)
 
-        if not order_id:
-            return Response({"error": "order_id is required"}, status=400)
-
+        currency = currency.lower().strip()
         try:
-            order = Order.objects.get(order_id=order_id, user=request.user)
+            order = Order.objects.select_for_update().get(
+                    order_id=order_code,
+                    customer__user=request.user   
+                )
+
         except Order.DoesNotExist:
-            return Response({"error": "Order not found"}, status=404)
+            return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Order not found"
+                }, status=status.HTTP_404_NOT_FOUND  )
 
-        # Already paid check
-        if Payment.objects.filter(order=order, payment_status="SUCCESS").exists():
-            return Response({"error": "Payment already completed"}, status=400)
+        if order.status == "paid":
+            return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Order already paid"
+                },status=status.HTTP_400_BAD_REQUEST )
 
-        # Validate supported currencies
-        supported_currencies = ["inr", "jpy"] + list(CURRENCY_BANK_TRANSFER_MAPPING.keys())
-        if currency not in supported_currencies:
-            return Response({"error": f"Currency '{currency}' not supported"}, status=400)
-
-        # Normalize payment method
-        payment_method = order.Payment_method.lower()
-
-        # --- Currency specific handling ---
-        if currency == "inr":
-            if payment_method not in INR_SUPPORTED_METHODS:
-                return Response({
-                    "error": f"Payment method '{order.Payment_method}' not supported for INR. Use Card or UPI."
-                }, status=400)
-            stripe_payment_methods = [payment_method]
-
-        elif currency == "jpy":
-            # Normalize Stripe internal value to user-facing
-            if payment_method in JPN_METHOD_REVERSE_MAPPING:
-                payment_method = JPN_METHOD_REVERSE_MAPPING[payment_method]
-                print("//////////////",payment_method)
-
-            if payment_method not in JPN_SUPPORTED_METHODS:
-                return Response({
-                    "error": f"Payment method '{order.Payment_method}' not supported for JPY. Use Card, PayPay, or NP Karobarai."
-                }, status=400)
-
-            stripe_payment_methods = [JPN_METHOD_MAPPING[payment_method]]
-            print("//////////////?????????????????",stripe_payment_methods)
-
-        else:  # USD, EUR, GBP
-            if payment_method == "bank transfer":
-                if currency in CURRENCY_BANK_TRANSFER_MAPPING:
-                    stripe_payment_methods = CURRENCY_BANK_TRANSFER_MAPPING[currency]
-                else:
-                    return Response({
-                        "error": f"Bank Transfer not supported for currency {currency.upper()}"
-                    }, status=400)
-            else:
-                stripe_payment_methods = [payment_method]
-
-        # Prevent duplicate pending payment
-        existing_payment = Payment.objects.filter(order=order, payment_status="PENDING").first()
-        if existing_payment:
-            if not existing_payment.client_secret:
-                existing_payment.delete()
-            else:
-                return Response({
-                    "order_id": str(order.order_id),
-                    "payment_client_secret": existing_payment.client_secret,
-                    "payment_status": existing_payment.payment_status
-                }, status=200)
-
-        # Create Stripe PaymentIntent
+        if currency in ["jpy", "krw"]:
+            amount = int(order.total_amount)
+        else:
+            amount = int(order.total_amount * 100)
         try:
-            payment_intent = stripe.PaymentIntent.create(
-                amount=int(order.total_amount * 100),  # Stripe expects smallest currency unit
-                currency=currency,
-                payment_method_types=stripe_payment_methods,
-                metadata={
-                    "order_id": str(order.order_id),
-                    "user_id": request.user.id
-                }
-            )
+            if not request.user.stripeOrderCustomerId:
+                customer = stripe.Customer.create(
+                    email=request.user.email,
+                    name=request.user.userName
+                )
+                request.user.stripeOrderCustomerId = customer.id
+                request.user.save(update_fields=["stripeOrderCustomerId"])
+            else:
+                customer = request.user.stripeOrderCustomerId
 
-            # Save payment
+            intent = stripe.PaymentIntent.create(
+                amount=amount,
+                currency=currency,
+                customer=customer,
+                payment_method=payment_method_id,
+                confirm=True,
+
+                automatic_payment_methods={
+                    "enabled": True,
+                    "allow_redirects": "never"  },
+
+                setup_future_usage="off_session", 
+                metadata={
+                    "order_id": order.order_id,
+                    "order_db_id": order.id,
+                    "user_id": request.user.id, })
+
             payment = Payment.objects.create(
                 order=order,
-                payment_id=payment_intent.id,
-                client_secret=payment_intent.client_secret,
-                payment_status="PENDING",
-                payment_method=payment_method,
+                payment_id=intent.id,
+                customer_id=customer,
+                payment_method_id=payment_method_id,
+                # payment_method="card",
                 amount=order.total_amount,
-                currency=currency,
+                currency=currency.upper(),
+                payment_status="pending",
+                client_secret=intent.client_secret,
             )
 
-            # Update order status
-            order.status = "PENDING"
-            order.save()
+            if intent.status == "succeeded":
+                payment.payment_status = "success"
+                payment.paid_at = timezone.now()
+                payment.save(update_fields=["payment_status", "paid_at"])
+
+                order.status = "paid"
+                order.currency = currency.upper()
+                order.payment_method = "card"
+                order.save(update_fields=["status", "currency", "payment_method"])
+
+                return Response(
+                    {
+                        "status": True,
+                        "statusCode": 200,
+                        "payment_status": "success",
+                        "payment_intent_id": intent.id
+                    },
+                    status=status.HTTP_200_OK )
+
+            if intent.status == "requires_action":
+                return Response({
+                        "status": True,
+                        "statusCode": 200,
+                        "payment_status": "action_required",
+                        "client_secret": intent.client_secret
+                    }, status=status.HTTP_200_OK )
+
+            payment.payment_status = "failed"
+            payment.save(update_fields=["payment_status"])
+
+            return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "payment_status": "failed",
+                    "stripe_status": intent.status
+                }, status=status.HTTP_400_BAD_REQUEST )
+
+        except stripe.error.CardError as e:
+            return Response( {
+                    "status": False,
+                    "statusCode": 402,
+                    "message": e.user_message
+                },  status=status.HTTP_402_PAYMENT_REQUIRED  )
 
         except stripe.error.StripeError as e:
-            return Response({"error": f"Stripe Error: {str(e)}"}, status=400)
+            return Response({
+                    "status": False,
+                    "statusCode": 500,
+                    "message": str(e)
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR )
+
         except Exception as e:
-            return Response({"error": f"Server Error: {str(e)}"}, status=500)
-
-        return Response({
-            "order_id": str(order.order_id),
-            "total_amount": float(order.total_amount),
-            "currency": currency,
-            "payment_id": payment.payment_id,
-            "payment_method": payment.payment_method,
-            "payment_client_secret": payment.client_secret,
-            "payment_status": payment.payment_status
-        }, status=200)
-
-
+            return Response({
+                    "status": False,
+                    "statusCode": 500,
+                    "message": str(e)
+                },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class UserPaymentListAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -354,26 +349,39 @@ class UserPaymentListAPIView(APIView):
     )
     def get(self, request):
         try:
-            payments = Payment.objects.filter(order__user=request.user).order_by("-created_at",'-id')
-            if not payments.exists():
-                return Response({
-                    "status": False,
-                    "message": "No payment records found"
-                }, status=status.HTTP_404_NOT_FOUND)
+            payments = Payment.objects.filter(
+                order__user=request.user
+            ).order_by("-created_at", "-id")
 
             paginator = CustomPagination()
-            paginated_payments = paginator.paginate_queryset(payments, request)
-            serializer = PaymentSerializer(paginated_payments, many=True)
-            return paginator.get_paginated_response(serializer.data)
+            page = paginator.paginate_queryset(payments, request)
+            serializer = PaymentSerializer(page, many=True)
 
-        except Exception as e:
+            response = {
+                "count": paginator.page.paginator.count,
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link(),
+                "statusCode": 200,
+                "status": True,
+                "message": "Payment list fetched successfully.",
+                "data": serializer.data,
+                "pagination": {
+                    "page": paginator.page.number,
+                    "page_size": paginator.get_page_size(request),
+                    "total_pages": paginator.page.paginator.num_pages,
+                    "total_items": paginator.page.paginator.count
+                }
+            }
+
+            return Response(response, status=status.HTTP_200_OK)
+
+        except Exception as exc:
             return Response({
                 "status": False,
-                "message": "Something went wrong",
-                "error": str(e)
+                "statusCode": 500,
+                "message": "Server error while fetching payments.",
+                "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 
 class UserPaymentDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -408,35 +416,81 @@ class UserPaymentDetailAPIView(APIView):
     ]
     )
     def post(self, request):
-        payment_id = request.data.get("payment_id")
-
-        if not payment_id:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "message": "payment_id is required"
-            }, status=status.HTTP_400_BAD_REQUEST)
-
         try:
-            payment = Payment.objects.get(
-                payment_id=payment_id,
-                order__user=request.user
-            )
+            payment_id = request.data.get("payment_id")
 
-            serializer = PaymentSerializer(payment)
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Payment fetched successfully",
-                "data": serializer.data
-            }, status=status.HTTP_200_OK)
+            if not payment_id:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "payment_id is required"
+                }, status=status.HTTP_400_BAD_REQUEST)
 
-        except Payment.DoesNotExist:
+            try:
+                payment = Payment.objects.get(
+                    payment_id=payment_id,
+                    order__user=request.user )
+
+                serializer = PaymentSerializer(payment)
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "Payment fetched successfully",
+                    "data": serializer.data
+                }, status=status.HTTP_200_OK)
+
+            except Payment.DoesNotExist:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Payment not found or access denied"
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            except Exception as e:
+                return Response({
+                    "status": False,
+                    "statusCode": 500,
+                    "message": "Something went wrong while fetching payment",
+                    "error": str(e)
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        except Exception as e:
             return Response({
                 "status": False,
-                "statusCode": 404,
-                "message": "Payment not found or access denied"
-            }, status=status.HTTP_404_NOT_FOUND)
+                "statusCode": 500,
+                "message": "Internal server error",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class AdminPaymentListAPIView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        try:
+            payments = Payment.objects.all().order_by('-created_at', '-id')
+
+            paginator = CustomPagination()
+            page = paginator.paginate_queryset(payments, request)
+            serializer = PaymentSerializer(page, many=True)
+
+            response = {
+                "count": paginator.page.paginator.count,
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link(),
+                "statusCode": 200,
+                "status": True,
+                "message": "Payment list fetched successfully.",
+                "data": serializer.data,
+                "pagination": {
+                    "page": paginator.page.number,
+                    "page_size": paginator.get_page_size(request),
+                    "total_pages": paginator.page.paginator.num_pages,
+                    "total_items": paginator.page.paginator.count
+                }
+            }
+
+            return Response(response, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({
@@ -446,255 +500,109 @@ class UserPaymentDetailAPIView(APIView):
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-
-class AdminPaymentListAPIView(APIView):
-    # permission_classes = [IsAdminUser]
-    permission_classes =[IsAuthenticated]
-    @extend_schema(
-    tags=["Payments · Admin"],
-    summary="List all payments (Admin)",
-    description="Returns paginated list of all payments",
-    responses={
-        200: OpenApiResponse(description="Payments fetched successfully"),
-        404: OpenApiResponse(description="No payment records found"),
-        401: OpenApiResponse(description="Authentication required"),
-    }
-    )
-    def get(self, request):
-        try:
-            payments = Payment.objects.all().order_by('-created_at','-id')
-
-            if not payments.exists():
-                return Response({
-                    "status": False,
-                    "message": "No payment records found",
-                    "data": []
-                }, status=status.HTTP_404_NOT_FOUND)
-
-            paginator = CustomPagination()
-            paginated_payments = paginator.paginate_queryset(payments, request)
-            serializer = PaymentSerializer(paginated_payments, many=True)
-
-            return paginator.get_paginated_response(serializer.data)
-
-        except Exception as e:
-            return Response({
-                "status": False,
-                "message": "Something went wrong",
-                "error": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
- 
  
 class AdminPaymentDetailAPIView(APIView):
-     # permission_classes = [IsAdminUser]
-    permission_classes = [IsAuthenticated]
-
-    @extend_schema(
-    tags=["Payments · Admin"],
-    summary="Get payment detail (Admin)",
-    request={
-        "application/json": {
-            "type": "object",
-            "required": ["payment_id"],
-            "properties": {
-                "payment_id": {
-                    "type": "string",
-                    "example": "pi_3NabcXYZ"
-                }
-            }
-        }
-    },
-    responses={
-        200: OpenApiResponse(description="Payment detail fetched"),
-        400: OpenApiResponse(description="payment_id required"),
-        404: OpenApiResponse(description="Payment not found"),
-        401: OpenApiResponse(description="Authentication required"),
-    },
-    examples=[
-        OpenApiExample(
-            "Admin Payment Detail",
-            value={"payment_id": "pi_3NabcXYZ"},
-            request_only=True
-        )
-    ]
-    )
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+   
     def post(self, request):
-        payment_id = request.data.get("payment_id")
-
-        if not payment_id:
-            return Response({
-                "status": False,
-                "message": "payment_id is required"
-            }, status=status.HTTP_400_BAD_REQUEST)
-
         try:
-            payment = Payment.objects.get(payment_id=payment_id)
-            serializer = PaymentSerializer(payment)
+            payment_id = request.data.get("payment_id")
 
-            return Response({
-                "status": True,
-                "message": "Payment detail fetched successfully ",
-                "data": serializer.data
-            }, status=status.HTTP_200_OK)
-
-        except Payment.DoesNotExist:
-            return Response({
-                "status": False,
-                "message": "Payment not found"
-            }, status=status.HTTP_404_NOT_FOUND)
-
-        except Exception as e:
-            return Response({
-                "status": False,
-                "message": "Something went wrong",
-                "error": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class StripeWebhookAPIView(APIView):
-
-    def post(self, request):
-        payload = request.body
-        sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
-
-        try:
-            event = stripe.Webhook.construct_event(
-                payload,
-                sig_header,
-                settings.STRIPE_WEBHOOK_SECRET
-            )
-        except stripe.error.SignatureVerificationError:
-            return HttpResponse(status=400)
-        except Exception:
-            return HttpResponse(status=400)
-
-        # ✅ Payment success event
-        if event["type"] == "checkout.session.completed":
-            session = event["data"]["object"]
-
-            # Extra safety check
-            if session.get("payment_status") != "paid":
-                return HttpResponse(status=200)
-
-            order_id = session["metadata"].get("order_id")
-
-            if not order_id:
-                return HttpResponse(status=200)
+            if not payment_id:
+                return Response({
+                    "status": False,
+                    "statusCode":400,
+                    "message": "payment_id is required"
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             try:
-                order = Order.objects.get(order_id=order_id)
+                payment = Payment.objects.get(payment_id=payment_id)
+                serializer = PaymentSerializer(payment)
+                return Response({
+                    "status": True,
+                    "statusCode":200,
+                    "message": "Payment detail fetched successfully ",
+                    "data": serializer.data
+                }, status=status.HTTP_200_OK)
 
-                # Amount verification
-                if session.amount_total != int(order.total_amount * 100):
-                    return HttpResponse(status=400)
+            except Payment.DoesNotExist:
+                return Response({
+                    "status": False,
+                    "statusCode":404,
+                    "message": "Payment not found"
+                }, status=status.HTTP_404_NOT_FOUND)
 
-                order.status = "PAID"
-                order.transaction_id = session.payment_intent
-                order.save()
+            except Exception as e:
+                return Response({
+                    "status": False,
+                    "statusCode":500,
+                    "message": "Something went wrong",
+                    "error": str(e)
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
+        except Exception as e:
+                return Response({
+                    "status": False,
+                    "statusCode":500,
+                    "message": "Something went wrong",
+                    "error": str(e)
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                Payment.objects.filter(order=order).update(
-                    payment_status="SUCCESS",
-                    payment_id=session.payment_intent
-                )
+class PaymentPDFView(APIView):
+    permission_classes = [IsAuthenticated]
 
-            except Order.DoesNotExist:
-                pass
+    def get(self, request, payment_id):
+        try:
+            payment = Payment.objects.get(id=payment_id)
+        except Payment.DoesNotExist:
+            return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "error": f"Payment with id {payment_id} not found."
+                }, status=status.HTTP_404_NOT_FOUND)
+        
+        except Exception as e:
+            return Response({
+                    "status": False,
+                    "statusCode": 500,
+                    "error": f"Error fetching payment: {str(e)}"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        try:
+            if not payment.order:
+                return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "error": "Payment is not linked to any order."
+                    },status=status.HTTP_400_BAD_REQUEST)
+            
+            user = getattr(payment.order, 'user', None)
+            if not user:
+                return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "error": "Order does not have a user associated."
+                    },status=status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            return Response({
+                    "status": False,
+                    "statusCode": 500,
+                    "error": f"Error fetching user: {str(e)}"
+                },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            pdf_url = generate_payment_pdf(payment, user, request=request)
+        except Exception as e:
+            return Response({
+                    "status": False,
+                    "statusCode": 500,
+                    "error": f"Error generating PDF: {str(e)}"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return HttpResponse(status=200)
+        return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Payment PDF generated successfully",
+                "pdf_url": pdf_url
+            },status=status.HTTP_200_OK)
 
-# @method_decorator(csrf_exempt, name="dispatch")
-# class StripeWebhookAPIView(APIView):
-#     permission_classes = [AllowAny]
-#     authentication_classes = []
-
-#     def post(self, request):
-#         payload = request.body.decode("utf-8")
-#         sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
-
-#         if not sig_header:
-#             return Response(
-#                 {"status": "error", "message": "Missing Stripe signature"},
-#                 status=400
-#             )
-
-#         try:
-#             event = stripe.Webhook.construct_event(
-#                 payload=payload,
-#                 sig_header=sig_header,
-#                 secret=settings.STRIPE_WEBHOOK_SECRET
-#             )
-#         except ValueError:
-#             return Response(
-#                 {"status": "error", "message": "Invalid payload"},
-#                 status=400
-#             )
-#         except stripe.error.SignatureVerificationError:
-#             return Response(
-#                 {"status": "error", "message": "Invalid signature"},
-#                 status=400
-#             )
-
-#         # -------------------------------
-#         # PAYMENT SUCCESS
-#         if event["type"] == "payment_intent.succeeded":
-#             intent = event["data"]["object"]
-
-#             try:
-#                 payment = Payment.objects.get(payment_id=intent["id"])
-#             except Payment.DoesNotExist:
-#                 return Response(
-#                     {"status": "error", "message": "Payment not found"},
-#                     status=200
-#                 )
-
-#             if payment.payment_status != "SUCCESS":
-#                 payment.payment_status = "SUCCESS"
-#                 payment.save()
-
-#                 order = payment.order
-#                 order.status = "paid"
-#                 order.save()
-
-#             return Response(
-#                 {
-#                     "status": "success",
-#                     "payment_id": intent["id"],
-#                     "message": "Payment marked as SUCCESS"
-#                 },
-#                 status=200
-#             )
-
-#         # -------------------------------
-#         # PAYMENT FAILED
-#         elif event["type"] == "payment_intent.payment_failed":
-#             intent = event["data"]["object"]
-
-#             try:
-#                 payment = Payment.objects.get(payment_id=intent["id"])
-#             except Payment.DoesNotExist:
-#                 return Response(
-#                     {"status": "error", "message": "Payment not found"},
-#                     status=200
-#                 )
-
-#             if payment.payment_status != "FAILED":
-#                 payment.payment_status = "FAILED"
-#                 payment.save()
-
-#                 order = payment.order
-#                 order.status = "cancelled"
-#                 order.save()
-
-#             return Response(
-#                 {
-#                     "status": "failed",
-#                     "payment_id": intent["id"],
-#                     "message": "Payment marked as FAILED"
-#                 },
-#                 status=200
-#             )
-
-#         return Response({"status": "ignored"}, status=200)

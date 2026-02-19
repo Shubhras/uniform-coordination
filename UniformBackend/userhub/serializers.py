@@ -5,6 +5,10 @@ from .models import *  # adjust import if needed
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from datetime import date
+from uniformAdmin.serializers import ProductSerializer
+from django.utils.timezone import now
+from decimal import Decimal
+# from uniformAdmin.models import *
 # from userhub.models import Notifications
 from uniformAdmin.serializers import *
 from datetime import timedelta
@@ -89,12 +93,12 @@ class UserResponseSerializer(serializers.ModelSerializer):
             "updatedAt",
         ]
         read_only_fields = fields
-
-
-class LoginSerializer(serializers.Serializer):
+ 
+class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(required=True, write_only=True)
     userType = serializers.CharField(required=True)
+    
 
 
     def validate(self, data):
@@ -136,6 +140,23 @@ class VerifyUserSerializer(serializers.Serializer):
             raise serializers.ValidationError("is_verify must be true.")
         return attrs
 
+class CartItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.productName", read_only=True)
+    product_image=serializers.ImageField(source="product.ProductImage",read_only=True)
+  
+    class Meta:
+        model = CartItem
+        fields = [
+            'id',
+            'product_name',
+            'product_image',
+            'quantity',
+            'price',
+            'total_price'
+        ]
+        read_only_fields = ['price', 'final_price', 'total_price']
+   
+class CartSerializer(serializers.ModelSerializer):
 
 class ProductMiniSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source="category.name", read_only=True)
@@ -148,34 +169,104 @@ class ProductMiniSerializer(serializers.ModelSerializer):
             "category_name","subcategory_name","available_quantity","isPopular",
         ]
 
-class CartItemSerializer(serializers.ModelSerializer):
-    product = ProductMiniSerializer(read_only=True)
-    class Meta:
-        model = CartItem
-        fields = [
-            "id",
-            "product",
-            "quantity",
-            "price",
-            "total_price",
-            "created_at",
-        ]
 
-# class OrderSerializer(serializers.ModelSerializer):
-#     items = CartItemSerializer(many=True, read_only=True)
-
-#     class Meta:
-#         model = Order
-#         fields = '__all__'
 
 class OrderSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
     estimated_delivery = serializers.SerializerMethodField()
 
     class Meta:
+        model = Cart
+        fields = ['id', 'user', 'is_active', 'created_at', 'items',]
+
+class CustomerDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomerDetails
+        fields = [
+            'id',
+            'user',
+            'first_name',
+            'last_name',
+            'email',
+            'phone',
+            'address_line_1',
+            'address_line_2',
+            'city',
+            'postal_code',
+            'country',
+            'payment_method',
+            'isActive',
+            'isDeleted',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+    def validate_email(self, value):
+        if not value.endswith('@example.com'):
+            raise serializers.ValidationError("Email must belong to example.com domain")
+        return value
+
+    def validate_phone(self, value):
+        if len(value) < 10:
+            raise serializers.ValidationError("Phone number must be at least 10 digits")
+        return value
+
+
+class RentalItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    subtotal = serializers.SerializerMethodField()
+    late_fee = serializers.SerializerMethodField()
+    lost_fee = serializers.SerializerMethodField()
+    damage_fee = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RentalItem
+        fields = [
+            'id', 'product', 'quantity', 'price_per_day', 'subtotal',
+            'returned_quantity', 'lost_quantity', 'is_returned', 'is_damaged', 'is_lost',
+            'late_fee', 'lost_fee', 'damage_fee', 'notes'
+        ]
+        read_only_fields = ['subtotal']
+
+class RentalSerializer(serializers.ModelSerializer):
+    items = RentalItemSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Rental
+        fields = '__all__'
+        read_only_fields = ['total_amount', 'late_fee']
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    subtotal = serializers.SerializerMethodField()
+    rental = RentalSerializer(read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product', 'quantity', 'rental_days', 'price_per_day', 'subtotal', 'rental']
+        read_only_fields = ['subtotal']
+
+    def get_subtotal(self, obj):
+        return obj.quantity * obj.price_per_day * obj.rental_days
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+    customer = CustomerDetailsSerializer(read_only=True)
+    class Meta:
         model = Order
         fields = '__all__' 
-        read_only_fields = ['estimated_delivery']
+        rread_only_fields = [
+            "order_id",
+            "subtotal",
+            "discount_amount",
+            "shipping_fee",
+            "tax_amount",
+            "total_amount",
+            "status",
+            "created_at",
+            "estimated_delivery",
+        ] 
+        
 
     def get_estimated_delivery(self, obj):
         if obj.status in ['pending', 'conformed', 'processing', 'out_for_delivery']:
@@ -192,6 +283,47 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = '__all__'
 
+class UserRefundRequestSerializer(serializers.Serializer):
+    order_id = serializers.CharField()
+    reason = serializers.CharField(required=False, allow_blank=True)
+
+    def validate(self, attrs):
+        request = self.context['request']
+        user = request.user
+        order_id = attrs['order_id']
+
+        try:
+            order = Order.objects.get(order_id=order_id, user=user)
+        except Order.DoesNotExist:
+            raise serializers.ValidationError("Order not found or does not belong to you.")
+
+        if order.status not in ['paid', 'completed']:
+            raise serializers.ValidationError(
+                "Refund can only be requested for paid or completed orders.")
+
+        payment = order.payment_set.filter(payment_status='SUCCESS').last()
+        if not payment:
+            raise serializers.ValidationError("No successful payment found for this order.")
+
+        # save for create()
+        attrs['order'] = order
+        attrs['payment'] = payment
+        return attrs
+
+    def create(self, validated_data):
+        order = validated_data['order']
+        payment = validated_data['payment']
+
+        refund = Refund.objects.create(
+            order=order,
+            payment=payment,
+            user=self.context['request'].user,
+            refund_amount=payment.amount,
+            reason=validated_data.get('reason'),
+            status='pending',
+            currency=payment.currency
+        )
+        return refund
 
 
 class FavouriteSerializer(serializers.ModelSerializer):

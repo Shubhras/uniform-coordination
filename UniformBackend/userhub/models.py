@@ -47,6 +47,7 @@ class Users(models.Model):
     email_notifications = models.BooleanField(default=True, null=True, blank=True)
     push_notifications = models.BooleanField(default=True, null=True, blank=True)
     is_verify = models.BooleanField(default=False)
+    is_currently_login = models.BooleanField(default=False)
 
     
     createdAt = models.DateTimeField(auto_now_add=True)
@@ -101,28 +102,30 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
 
 
-
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey("uniformAdmin.Product", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)  
+    discount = models.PositiveIntegerField(null=True, blank=True)  
+    final_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0) 
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     
     created_at = models.DateTimeField(default=timezone.now) 
     updated_at = models.DateTimeField(default=timezone.now)
     deleted_at = models.DateTimeField(null=True, blank=True)
-    
     is_active = models.BooleanField(default=True)  
 
     def save(self, *args, **kwargs):
-        # Always update price and total_price
-        self.price = self.product.price
-        self.total_price = self.quantity * self.price
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.product.productName} (x{self.quantity})"
+            self.price = self.product.price
+            self.discount = self.product.discount or 0  
+            if self.discount > 0:
+                discount_amount = (self.price * self.discount) / 100
+                self.final_price = self.price - discount_amount
+            else:
+                self.final_price = self.price
+            self.total_price = self.final_price * self.quantity
+            super().save(*args, **kwargs)
 
 
 
@@ -130,6 +133,7 @@ class CustomerDetails(models.Model):
     user = models.OneToOneField(Users, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
+    userName = models.CharField(max_length=255, null=True,blank=True)
     email = models.EmailField()
     phone = models.CharField(max_length=15)
     address_line_1 = models.CharField(max_length=255)
@@ -140,11 +144,10 @@ class CustomerDetails(models.Model):
     payment_method = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    Rental =models.CharField(max_length=50)
+
     isActive = models.BooleanField(default=True,null= True,blank=True)
     isDeleted = models.BooleanField(default=False,null=True,blank=True)
     
-
     def __str__(self):
         return f"{self.id} - {self.user}"
     
@@ -219,30 +222,113 @@ class Order(models.Model):
     admin_cancel_reason = models.CharField(max_length=255, null=True, blank=True)
     cancelled_by = models.CharField(max_length=20, null=True, blank=True)
     promocode =models.ForeignKey("uniformAdmin.Promocode",on_delete=models.SET_NULL,null=True, blank=True)
-    is_active = models.BooleanField(default=True,null=True,blank=True)
-    is_delete = models.DateTimeField(auto_now_add=True,null=True,blank=True)
-    is_update = models.DateField(auto_now_add=True,null=True,blank=True)
-    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
- 
- 
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+    is_update = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
     def save(self, *args, **kwargs):
         if not self.order_id:
             prefix = "ORD"
             uid = uuid.uuid4().hex[:6].upper()
             self.order_id = f"{prefix}-{uid}"
         super().save(*args, **kwargs)
- 
+
     def __str__(self):
         return f"Order {self.order_id}"
-   
- 
+
+class OrderItem(models.Model):
+    order =models.ForeignKey(Order,on_delete=models.CASCADE,related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    rental_days = models.PositiveIntegerField(default=1)
+    price_per_day = models.DecimalField(max_digits=10, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def save(self, *args, **kwargs):
+         self.subtotal = self.quantity * self.price_per_day * self.rental_days
+         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.product.productName} x {self.quantity}"
+
+class Rental(models.Model):
+    STATUS_CHOICES = [
+        ('rented','Rented'),
+        ('returned', 'Returned'),
+        ('late', 'Late'),
+        ('lost','Lost'),
+        ('partial_return', 'Partial Return'),
+        ('damaged','Damaged')
+    ]
+
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='rental',null=True, blank=True)
+    rental_id =models.CharField(max_length=50,unique=True,null=True,blank=True)
+    customer = models.ForeignKey(CustomerDetails, on_delete=models.CASCADE)
+    rental_date = models.DateField(auto_now_add=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    actual_return_date = models.DateField(null=True, blank=True)
+    shipping_address = models.TextField()
+    delivery_time = models.TimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='rented')
+    shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    tax = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    late_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    damage_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    lost_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    grace_period_days = models.IntegerField(default=3)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self,*args,**kwargs):
+        if not self.rental_id:
+            prefix ='REN'
+            uid =uuid.uuid4().hex[:6].upper()
+            self.rental_id =f"{prefix}-{uid}"
+        super().save(*args,**kwargs)    
+
+    def __str__(self):
+        return f"Rental {self.id} - {self.customer.userName}"
+
+class RentalItem(models.Model):
+    rental = models.ForeignKey(Rental, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    price_per_day = models.DecimalField(max_digits=10, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    returned_quantity = models.PositiveIntegerField(default=0)
+    lost_quantity = models.PositiveIntegerField(default=0)
+    is_returned = models.BooleanField(default=False)
+    is_damaged = models.BooleanField(default=False)
+    is_lost = models.BooleanField(default=False)
+    rfid_tag = models.CharField(max_length=100, blank=True, null=True) 
+    notes = models.TextField(blank=True, null=True)
+
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def save(self, *args, **kwargs):
+        days = (self.rental.end_date - self.rental.start_date).days
+        days = max(days, 1)
+        self.subtotal = self.quantity * self.price_per_day * days
+        super().save(*args, **kwargs)
 
 class Payment(models.Model):
     PAYMENT_STATUS = [
-        ('SUCCESS','Success'), 
-        ('FAILED','Failed'), 
-        ('PENDING','Pending')]
-    
+        ('success', 'Success'),
+        ('failed', 'Failed'),
+        ('pending', 'Pending'),
+    ]
+   
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     payment_id = models.CharField(max_length=50, unique=True)
     customer_id = models.CharField(max_length=100, blank=True, null=True)  
@@ -250,7 +336,7 @@ class Payment(models.Model):
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS)
     payment_method = models.CharField(max_length=20)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.CharField(max_length=10, default='INR')
+    currency = models.CharField(max_length=10)
     paid_at = models.DateTimeField(blank=True, null=True)
     client_secret = models.CharField(max_length=255, blank=True, null=True) 
     is_active = models.BooleanField(default=True,null=True, blank=True)
@@ -258,7 +344,32 @@ class Payment(models.Model):
     is_update = models.DateField(auto_now_add=True,null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
 
+class Refund(models.Model):
+    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='refunds')
+    payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, null=True, blank=True, related_name='refunds')
+    user = models.ForeignKey('Users', on_delete=models.CASCADE, related_name='refunds')
+    refund_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    reason = models.CharField(max_length=255, blank=True, null=True)
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processed', 'Processed'),
+        ('rejected', 'Rejected'),
+        ('failed', 'Failed') ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    admin_note = models.TextField(blank=True, null=True)
+    payment_gateway_id = models.CharField(max_length=100, blank=True, null=True)
+    REFUND_METHOD_CHOICES = [
+        ('original', 'Original Payment'),
+        ('wallet', 'Wallet'),
+        ('manual', 'Manual'),
+    ]
+    refund_method = models.CharField(max_length=20, choices=REFUND_METHOD_CHOICES, default='original')
+    created_at = models.DateTimeField(auto_now_add=True)
+    processed_at = models.DateTimeField(blank=True, null=True)
+    currency = models.CharField(max_length=10, default='INR')
 
+    def __str__(self):
+        return f"Refund {self.id} - Order {self.order.order_id} - {self.status}"
 
     
 #-----------------Notification --------------------
@@ -453,30 +564,3 @@ class QuotationRequest(models.Model):
             uid = uuid.uuid4().hex[:6].upper()
             self.quotation_id = f"{prefix}-{uid}"
         super().save(*args, **kwargs)
-
-# userhub/models.py
-
-# class TermsAndConditions(models.Model):
-#     title = models.CharField(max_length=255)
-#     text = models.TextField()
-#     version = models.CharField(max_length=20)   # v1.0, v2.0 etc
-#     is_active = models.BooleanField(default=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return f"{self.title} ({self.version})
-
-#<------------Order_Item RT----------->
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name="order_items")
-    product_name = models.CharField(max_length=100)
-    quantity = models.PositiveIntegerField()
-    is_napkin = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def is_rfid_tracked(self):
-        return not self.is_napkin and self.rfid_tag_id is not None
-
-    def __str__(self):
-        return f"{self.product_name} ({self.quantity}) - Order {self.order.order_id}"
-

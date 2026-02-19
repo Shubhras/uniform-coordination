@@ -49,3 +49,4 @@ def create_admin_order_notification(instance,object_id, title, message, priority
         message=message,
         priority=priority
     )
+
