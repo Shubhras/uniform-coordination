@@ -213,14 +213,14 @@ class SignupAPIView(APIView):
 class UserLoginAPIView(APIView):
     permission_classes = [AllowAny]
     
-    @extend_schema(
-    summary="Login API",
+    # @extend_schema(
+    # summary="Login API",
     
-    request=LoginSerializer,
-    responses={200: dict},
-    auth=[],
-    tags=["UserHub Authentication"]
-    )
+    # request=LoginSerializer,
+    # responses={200: dict},
+    # auth=[],
+    # tags=["UserHub Authentication"]
+    # )
     def post(self, request):
         
         try:

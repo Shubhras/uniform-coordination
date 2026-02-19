@@ -4,9 +4,10 @@ from django.db import IntegrityError
 from .models import *  # adjust import if needed
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
+from datetime import timedelta
 from datetime import date
 # from userhub.models import Notifications
-
+from uniformAdmin.serializers import ProductSerializer
 
 class UserSignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, min_length=6)
@@ -138,6 +139,93 @@ class VerifyUserSerializer(serializers.Serializer):
 class CartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
+        fields = [
+            'id',
+            'product_name',
+            'product_image',
+            'quantity',
+            'price',
+            'total_price'
+        ]
+        read_only_fields = ['price', 'final_price', 'total_price']
+   
+class ProductMiniSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source="category.name", read_only=True)
+    subcategory_name = serializers.CharField(source="subcategory.name", read_only=True)
+
+
+    class Meta:
+        model = Product
+        fields = [
+            "id","productName","slug","description","price",
+            "discount","ProductImage","productType","type",
+            "category_name","subcategory_name","available_quantity","isPopular",
+        ]
+
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True, read_only=True)
+    estimated_delivery = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Cart
+        fields = ['id', 'user', 'is_active', 'created_at', 'items',]
+
+class CustomerDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomerDetails
+        fields = [
+            'id',
+            'user',
+            'first_name',
+            'last_name',
+            'email',
+            'phone',
+            'address_line_1',
+            'address_line_2',
+            'city',
+            'postal_code',
+            'country',
+            'payment_method',
+            'isActive',
+            'isDeleted',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+    def validate_email(self, value):
+        if not value.endswith('@example.com'):
+            raise serializers.ValidationError("Email must belong to example.com domain")
+        return value
+
+    def validate_phone(self, value):
+        if len(value) < 10:
+            raise serializers.ValidationError("Phone number must be at least 10 digits")
+        return value
+
+
+class RentalItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    subtotal = serializers.SerializerMethodField()
+    late_fee = serializers.SerializerMethodField()
+    lost_fee = serializers.SerializerMethodField()
+    damage_fee = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RentalItem
+        fields = [
+            'id', 'product', 'quantity', 'price_per_day', 'subtotal',
+            'returned_quantity', 'lost_quantity', 'is_returned', 'is_damaged', 'is_lost',
+            'late_fee', 'lost_fee', 'damage_fee', 'notes'
+        ]
+        read_only_fields = ['subtotal']
+
+class RentalSerializer(serializers.ModelSerializer):
+    items = RentalItemSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Rental
         fields = '__all__'
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -152,12 +240,32 @@ class OrderItemSerializer(serializers.ModelSerializer):
  
     def get_subtotal(self, obj):
         return obj.quantity * obj.price_per_day * obj.rental_days
+    
 class OrderSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = '__all__' 
+        read_only_fields = [
+            "order_id",
+            "subtotal",
+            "discount_amount",
+            "shipping_fee",
+            "tax_amount",
+            "total_amount",
+            "status",
+            "created_at",
+            "estimated_delivery",
+        ] 
+        
+
+    def get_estimated_delivery(self, obj):
+        if obj.status in ['pending', 'conformed', 'processing', 'out_for_delivery']:
+            return obj.start_date + timedelta(days=7)
+        elif obj.status == 'delivered':
+            return obj.return_date
+        return None
 
 class PaymentSerializer(serializers.ModelSerializer):
     cartitem =CartItemSerializer(read_only=True)

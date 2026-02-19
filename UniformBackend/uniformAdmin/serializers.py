@@ -724,26 +724,27 @@ class PartsMiniSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     isActive = serializers.BooleanField(required=False, default=True)
-
+ 
     category = CategoryMiniSerializer(read_only=True)
     subcategory = SubCategoryMiniSerializer(read_only=True)
     parts = PartsMiniSerializer(read_only=True, many=True)
-    ProductImage = serializers.SerializerMethodField()
-
+    ProductImage = serializers.SerializerMethodField()  # for response
+    ProductImage_file = serializers.ImageField(write_only=True, required=False) 
+ 
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.filter(isActive=True, isDeleted=False),
         source="category",
         write_only=True,
         required=False
     )
-
+ 
     subcategory_id = serializers.PrimaryKeyRelatedField(
         queryset=SubCategory.objects.filter(isActive=True, isDeleted=False),
         source="subcategory",
         write_only=True,
         required=False
     )
-
+ 
     parts_ids = serializers.PrimaryKeyRelatedField(
         queryset=Parts.objects.filter(isActive=True, isDeleted=False),
         source="parts",
@@ -757,7 +758,7 @@ class ProductSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
-
+ 
     class Meta:
         model = Product
         fields = [
@@ -765,18 +766,18 @@ class ProductSerializer(serializers.ModelSerializer):
             "theme",
 
             # READ
-            "category", "subcategory", "parts",
+            "category", "subcategory", "parts", "ProductImage",
 
             # WRITE
-            "category_id", "subcategory_id", "parts_ids",
+            "category_id", "subcategory_id", "parts_ids", "ProductImage_file",
 
-            "price", "discount",
-            "total_quantity", "available_quantity",
-            "ProductImage", "isActive", "created_at"
-        ]
+            "price", "discount", "total_quantity", "available_quantity",
+            "isActive", "created_at"
+]
+
     def to_internal_value(self, data):
         data = data.copy()
-
+ 
         parts = data.get("parts_ids")
         if parts and isinstance(parts, str):
             try:
@@ -785,68 +786,78 @@ class ProductSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     "parts_ids": "Invalid format. Use [1,2,3]."
                 })
-
+ 
         return super().to_internal_value(data)
     def validate_productName(self, value):
         queryset = Product.objects.filter(
             productName__iexact=value,
             isDeleted=False
         )
-
+ 
         if self.instance:
             queryset = queryset.exclude(id=self.instance.id)
-
+ 
         if queryset.exists():
             raise serializers.ValidationError(
                 "Product with this name already exists."
             )
-
+ 
         return value
     
     
     
     def validate(self, data):
         product_type = data.get("productType")
-
+ 
         theme_provided = "theme" in self.initial_data
         theme_value = data.get("theme")
-
+ 
         category = data.get("category")
         subcategory = data.get("subcategory")
-
+ 
         if subcategory and category and subcategory.category != category:
             raise serializers.ValidationError({
                 "subcategory": "Selected subcategory does not belong to selected category"
             })
-
+ 
         total_qty = data.get("total_quantity", 0)
         avail_qty = data.get("available_quantity", 0)
-
+ 
         if avail_qty > total_qty:
             raise serializers.ValidationError({
                 "available_quantity": "Available quantity cannot exceed total quantity"
             })
-
+ 
         if product_type == "table" and not theme_value:
             raise serializers.ValidationError({
                 "theme": "Theme is required when product type is table."
             })
-
+ 
         if product_type == "uniform" and theme_provided:
             raise serializers.ValidationError({
                 "theme": "Theme is not allowed for uniform products."
             })
-
+ 
         return data
         read_only_fields = ["slug", "created_at"]
 
-  
     def get_ProductImage(self, obj):
-        return build_media_url(obj.ProductImage)
+        if obj.ProductImage:
+            return build_media_url(obj.ProductImage)
+        return None
 
+    def create(self, validated_data):
+        image = validated_data.pop('ProductImage_file', None)
+        product = super().create(validated_data)
+        if image:
+            product.ProductImage = image
+            product.save()
+        return product    
+ 
+  
     def to_internal_value(self, data):
         data = data.copy()
-
+ 
         parts = data.get("parts_ids")
         if parts and isinstance(parts, str):
             try:
@@ -855,45 +866,44 @@ class ProductSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     "parts_ids": "Invalid format. Use [1,2,3]."
                 })
-
+ 
         return super().to_internal_value(data)
-
+ 
     
     def validate(self, data):
         product_type = data.get("productType")
-
+ 
         theme_provided = "theme" in self.initial_data
         theme_value = data.get("theme")
-
+ 
         category = data.get("category")
         subcategory = data.get("subcategory")
-
+ 
         if subcategory and category and subcategory.category != category:
             raise serializers.ValidationError({
                 "subcategory": "Selected subcategory does not belong to selected category"
             })
-
+ 
         total_qty = data.get("total_quantity", 0)
         avail_qty = data.get("available_quantity", 0)
-
+ 
         if avail_qty > total_qty:
             raise serializers.ValidationError({
                 "available_quantity": "Available quantity cannot exceed total quantity"
             })
-
+ 
         if product_type == "table" and not theme_value:
             raise serializers.ValidationError({
                 "theme": "Theme is required when product type is table."
             })
-
+ 
         if product_type == "uniform" and theme_provided:
             raise serializers.ValidationError({
                 "theme": "Theme is not allowed for uniform products."
             })
-
+ 
         return data
-
-    
+ 
     
     
 

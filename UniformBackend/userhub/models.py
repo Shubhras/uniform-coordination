@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms import CharField
 from uniformAdmin.models import Role , Product
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
@@ -208,7 +209,10 @@ class Order(models.Model):
        ('paid','PAID'),
     ]
     user =models.ForeignKey(Users,on_delete=models.SET_NULL,null=True,blank=True)
-    order_id = models.CharField(max_length=100, unique=True)
+    # order_id = models.CharField(max_length=100, unique=True)
+    order_id = models.CharField(max_length=100, unique=True, blank=True, null=True)
+
+
     cart = models.ForeignKey(Cart,on_delete=models.SET_NULL,null=True,blank=True)
     customer =models.ForeignKey(CustomerDetails,on_delete=models.SET_NULL,null=True,blank=True)
     payment_method = models.CharField(max_length=50,null=True,blank=True)
@@ -216,7 +220,7 @@ class Order(models.Model):
     status = models.CharField(max_length=50,choices=STATUS_CHOICE,default='pending')
     order_type =models.CharField(max_length=50,choices=ORDER_TYPE_CHOICES)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    start_date =models.DateField(auto_now_add=True)
+    start_date =models.DateField(auto_now_add=True,null=True, blank=True)
     return_date = models.DateField(null=True, blank=True)
     cancel_reason = models.CharField(max_length=50,null=True, blank=True)
     admin_cancel_reason = models.CharField(max_length=255, null=True, blank=True)
@@ -266,7 +270,7 @@ class Rental(models.Model):
 
     order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='rental',null=True, blank=True)
     rental_id =models.CharField(max_length=50,unique=True,null=True,blank=True)
-    customer = models.ForeignKey(CustomerDetails, on_delete=models.CASCADE)
+    customer = models.ForeignKey(CustomerDetails, on_delete=models.CASCADE,blank=True)
     rental_date = models.DateField(auto_now_add=True)
     start_date = models.DateField()
     end_date = models.DateField()
