@@ -122,7 +122,7 @@ class PartsListView(APIView):
 
             paginator = CustomPagination()
             page = paginator.paginate_queryset(parts, request)
-            serializer = PartsSerializer(page, many=True)
+            serializer = PartsSerializer(page, many=True,context={'request': request})
 
             response = {
                 "count": paginator.page.paginator.count,

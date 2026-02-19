@@ -274,9 +274,16 @@ class ColorsSerializer(serializers.ModelSerializer):
 
 
 class TemplateSerializer(serializers.ModelSerializer):
+    partName = serializers.CharField(source='part.partName',read_only=True)
     class Meta:
         model = Template
         fields = "__all__"
+    
+    def create(self, validated_data):
+        if "isActive" not in self.initial_data:
+            validated_data["isActive"] = True
+        return super().create(validated_data)
+
 
 
 
@@ -573,6 +580,7 @@ class TableThemeSerializer(serializers.ModelSerializer):
         else:
             data['image'] = None
         return data
+    
 
     
 # class ProductSerializer(serializers.ModelSerializer):
@@ -717,6 +725,54 @@ class ProductSerializer(serializers.ModelSerializer):
             "total_quantity", "available_quantity",
             "ProductImage", "isActive", "created_at"
         ]
+    def to_internal_value(self, data):
+        data = data.copy()
+
+        parts = data.get("parts_ids")
+        if parts and isinstance(parts, str):
+            try:
+                data.setlist("parts_ids", json.loads(parts))
+            except (json.JSONDecodeError, TypeError):
+                raise serializers.ValidationError({
+                    "parts_ids": "Invalid format. Use [1,2,3]."
+                })
+
+        return super().to_internal_value(data)
+
+    
+    def validate(self, data):
+        product_type = data.get("productType")
+
+        theme_provided = "theme" in self.initial_data
+        theme_value = data.get("theme")
+
+        category = data.get("category")
+        subcategory = data.get("subcategory")
+
+        if subcategory and category and subcategory.category != category:
+            raise serializers.ValidationError({
+                "subcategory": "Selected subcategory does not belong to selected category"
+            })
+
+        total_qty = data.get("total_quantity", 0)
+        avail_qty = data.get("available_quantity", 0)
+
+        if avail_qty > total_qty:
+            raise serializers.ValidationError({
+                "available_quantity": "Available quantity cannot exceed total quantity"
+            })
+
+        if product_type == "table" and not theme_value:
+            raise serializers.ValidationError({
+                "theme": "Theme is required when product type is table."
+            })
+
+        if product_type == "uniform" and theme_provided:
+            raise serializers.ValidationError({
+                "theme": "Theme is not allowed for uniform products."
+            })
+
+        return data
         read_only_fields = ["slug", "created_at"]
 
   

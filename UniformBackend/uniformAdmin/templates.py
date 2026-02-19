@@ -107,7 +107,7 @@ class TemplateListView(APIView):
 
             paginator = CustomPagination()
             page = paginator.paginate_queryset(templates, request)
-            serializer = TemplateSerializer(page, many=True)
+            serializer = TemplateSerializer(page, many=True,context={'request': request})
 
             return Response({
                 "count": paginator.page.paginator.count,
@@ -193,9 +193,9 @@ class TemplateUpdateView(APIView):
             500: OpenApiResponse(description="Internal server error"),
         },
     )
-    def put(self, request, pk):
+    def put(self, request, id):
         try:
-            template = Template.objects.filter(pk=pk, isDeleted=False).first()
+            template = Template.objects.filter(pk=id, isDeleted=False).first()
             if not template:
                 return Response({
                     "statusCode": 404,
@@ -244,9 +244,9 @@ class TemplateDeleteView(APIView):
             500: OpenApiResponse(description="Internal server error"),
         },
     )
-    def delete(self, request, pk):
+    def delete(self, request, id):
         try:
-            template = Template.objects.filter(pk=pk, isDeleted=False).first()
+            template = Template.objects.filter(pk=id, isDeleted=False).first()
             if not template:
                 return Response({
                     "statusCode": 404,

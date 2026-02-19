@@ -36,7 +36,6 @@ from django.core.files.base import ContentFile
 from django.utils.timezone import now
 from django.core.mail import EmailMessage
 from docusign_esign import EnvelopesApi, ApiClient
-
 # class SignupAPIView(APIView):
 #     permission_classes=[AllowAny]
 #     def post(self, request, *args, **kwargs):
@@ -2068,3 +2067,4 @@ class DocuSignWebhookAPIView(APIView):
 
         except QuotationRequest.DoesNotExist:
             return Response({"statusCode":400,"status":False,"message": "Quotation not found"}, status=400)
+
