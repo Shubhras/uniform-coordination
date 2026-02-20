@@ -3,43 +3,115 @@
 import { useEffect, useRef, useState } from "react";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
+import Select from "react-select";
 import { FiUpload } from "react-icons/fi";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { apiCreateBlog, apiUpdateBlog, apiGetBlogCategoryList } from "@/services/BlogService";
 
-const AddEditBlogModal = ({ isOpen, onClose, mode = "add", initialData }) => {
+const selectStyles = {
+  control: (base, state) => ({
+    ...base,
+    minHeight: "42px",
+    borderRadius: "8px",
+    borderColor: state.isFocused ? "#1C2C56" : "#E2E8F0",
+    boxShadow: "none",
+    "&:hover": { borderColor: "#1C2C56" },
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? "#1C2C56"
+      : state.isFocused
+        ? "#EEF2FF"
+        : "white",
+    color: state.isSelected ? "white" : "#1E293B",
+    fontSize: "14px",
+  }),
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+};
+
+const AddEditBlogModal = ({ isOpen, onClose, mode = "add", initialData, onSaveSuccess }) => {
   const fileInputRef = useRef(null);
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
 
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
-  const [date, setDate] = useState("");
+  const [category, setCategory] = useState(null);
   const [description, setDescription] = useState("");
-
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [validated, setValidated] = useState(false);
 
+  // Category options from API
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+
+  // Save state
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  /* ---------- FETCH CATEGORIES ---------- */
+  useEffect(() => {
+    if (!isOpen || !accessToken) return;
+
+    const fetchCategories = async () => {
+      setLoadingCategories(true);
+      try {
+        const response = await apiGetBlogCategoryList(accessToken);
+        if (response?.status && response?.data) {
+          const options = response.data.map((c) => ({
+            value: c.id,
+            label: c.categoryName,
+          }));
+          setCategoryOptions(options);
+        }
+      } catch (err) {
+        console.error("Failed to load categories:", err);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, [isOpen, accessToken]);
+
+  /* ---------- RESET / PREFILL ---------- */
   useEffect(() => {
     if (!isOpen) return;
 
     if (mode === "edit" && initialData) {
       setTitle(initialData.title || "");
-      setCategory(initialData.category || "");
-      setDate(initialData.date || "");
-      setDescription(initialData.desc || "");
-      setPreview(initialData.img || null);
+      setDescription(initialData.description || "");
+      setPreview(initialData.image || null);
       setImageFile(null);
-      setValidated(Boolean(initialData.img));
-      return;
-    }
+      setValidated(Boolean(initialData.image));
 
-    setTitle("");
-    setCategory("");
-    setDate("");
-    setDescription("");
-    setImageFile(null);
-    setPreview(null);
-    setValidated(false);
+      // Pre-select category by name
+      if (initialData.categoryName) {
+        setCategory({ value: initialData.category || initialData.id, label: initialData.categoryName });
+      } else {
+        setCategory(null);
+      }
+    } else {
+      setTitle("");
+      setCategory(null);
+      setDescription("");
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
+    }
+    setError("");
   }, [mode, initialData, isOpen]);
 
+  // Resolve category label once options load (edit mode)
+  useEffect(() => {
+    if (mode === "edit" && initialData?.categoryName && categoryOptions.length > 0) {
+      const match = categoryOptions.find((c) => c.label === initialData.categoryName);
+      if (match) setCategory(match);
+    }
+  }, [categoryOptions, mode, initialData]);
+
+  /* ---------- FILE HANDLERS ---------- */
   const handleFile = (file) => {
     if (!file || !file.type.startsWith("image/")) return;
     setImageFile(file);
@@ -56,33 +128,63 @@ const AddEditBlogModal = ({ isOpen, onClose, mode = "add", initialData }) => {
     handleFile(event.target.files[0]);
   };
 
-  const handleSave = ({ keepOpen }) => {
-    const payload = {
-      title,
-      category,
-      date,
-      description,
-      image: imageFile,
-    };
+  /* ---------- RESET FORM ---------- */
+  const resetForm = () => {
+    setTitle("");
+    setCategory(null);
+    setDescription("");
+    setImageFile(null);
+    setPreview(null);
+    setValidated(false);
+    setError("");
+  };
 
-    if (mode === "edit") {
-      console.log("EDIT BLOG:", payload);
-    } else {
-      console.log("ADD BLOG:", payload);
-    }
-
-    if (keepOpen && mode !== "edit") {
-      setTitle("");
-      setCategory("");
-      setDate("");
-      setDescription("");
-      setImageFile(null);
-      setPreview(null);
-      setValidated(false);
+  /* ---------- SAVE ---------- */
+  const handleSave = async ({ keepOpen = false } = {}) => {
+    if (!title.trim()) {
+      setError("Title is required");
       return;
     }
 
-    onClose();
+    setError("");
+    setSaving(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("title", title.trim());
+
+      if (category) {
+        formData.append("category", category.value);
+      }
+      if (description.trim()) {
+        formData.append("description", description.trim());
+      }
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      if (mode === "edit" && initialData?.id) {
+        await apiUpdateBlog(accessToken, initialData.id, formData);
+      } else {
+        await apiCreateBlog(accessToken, formData);
+      }
+
+      if (keepOpen && mode !== "edit") {
+        resetForm();
+        // Re-fetch list in background
+        if (onSaveSuccess) onSaveSuccess();
+        return;
+      }
+
+      if (onSaveSuccess) {
+        onSaveSuccess();
+      }
+    } catch (err) {
+      console.error("Blog save error:", err);
+      setError(err?.response?.data?.message || "Failed to save blog. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -99,7 +201,15 @@ const AddEditBlogModal = ({ isOpen, onClose, mode = "add", initialData }) => {
           </h2>
         </div>
 
-        <div className="md:px-5 py-5 space-y-5 overflow-y-auto">
+        {/* Error */}
+        {error && (
+          <div className="mx-5 mt-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-md">
+            {error}
+          </div>
+        )}
+
+        <div className="md:px-5 py-5 space-y-5 overflow-y-auto max-h-[70vh]">
+          {/* Title */}
           <div>
             <label className="text-[#1C2C56] text-base font-medium">
               Title<span className="text-red-500">*</span>
@@ -113,34 +223,28 @@ const AddEditBlogModal = ({ isOpen, onClose, mode = "add", initialData }) => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-[#1C2C56] text-base font-medium">
-                Category<span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Type category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-              />
-            </div>
-
-            <div>
-              <label className="text-[#1C2C56] text-base font-medium">
-                Date<span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="08-11-2025"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-              />
-            </div>
+          {/* Category (React Select from API) */}
+          <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              Category<span className="text-red-500">*</span>
+            </label>
+            <Select
+              options={categoryOptions}
+              value={category}
+              onChange={setCategory}
+              styles={selectStyles}
+              placeholder="Select category..."
+              isLoading={loadingCategories}
+              loadingMessage={() => "Loading categories..."}
+              noOptionsMessage={() => "No categories found"}
+              isClearable
+              menuPortalTarget={typeof document !== "undefined" ? document.body : null}
+              menuPosition="fixed"
+              className="mt-1"
+            />
           </div>
 
+          {/* Image */}
           <div>
             <label className="text-[#1C2C56] text-base font-medium">
               Image<span className="text-red-500">*</span>
@@ -202,6 +306,7 @@ const AddEditBlogModal = ({ isOpen, onClose, mode = "add", initialData }) => {
             </div>
           )}
 
+          {/* Description */}
           <div>
             <label className="text-[#1C2C56] text-base font-medium">
               Description<span className="text-red-500">*</span>
@@ -216,7 +321,7 @@ const AddEditBlogModal = ({ isOpen, onClose, mode = "add", initialData }) => {
         </div>
 
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
-          <Button variant="plain" onClick={onClose} size="sm">
+          <Button variant="plain" onClick={onClose} size="sm" disabled={saving}>
             Cancel
           </Button>
 
@@ -224,6 +329,7 @@ const AddEditBlogModal = ({ isOpen, onClose, mode = "add", initialData }) => {
             variant="plain"
             size="sm"
             onClick={() => handleSave({ keepOpen: true })}
+            disabled={saving}
           >
             Save & Add Another
           </Button>
@@ -233,6 +339,7 @@ const AddEditBlogModal = ({ isOpen, onClose, mode = "add", initialData }) => {
             size="sm"
             className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
             onClick={() => handleSave({ keepOpen: false })}
+            loading={saving}
           >
             {mode === "edit" ? "Update" : "Save"}
           </Button>
