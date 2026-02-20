@@ -209,7 +209,7 @@ class SubCategoryDetailAPIView(APIView):
                 isDeleted=False
             )
 
-            serializer = SubCategorySerializer(subcategory)
+            serializer = SubCategorySerializer(subcategory,context={'request':request})
 
             return Response({
                 "status": True,

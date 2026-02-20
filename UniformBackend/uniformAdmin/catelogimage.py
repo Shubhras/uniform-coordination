@@ -43,17 +43,17 @@ class CatalogImageCreateAPIView(APIView):
             first_error = next(iter(serializer.errors.values()))[0]
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 400,
                 "message": f"Validation failed;{first_error}"
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 500,
                 "message": "Server error",
                 "error": str(e)
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -119,10 +119,10 @@ class CatalogImageListAPIView(APIView):
         except Exception as e:
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 500,
                 "message": "Server error",
                 "error": str(e)
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @extend_schema(
@@ -152,10 +152,10 @@ class CatalogImageDetailAPIView(APIView):
         except Exception as e:
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 500,
                 "message": "Server error",
                 "error": str(e)
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -199,24 +199,24 @@ class CatalogImageUpdateAPIView(APIView):
             if "name" in serializer.errors:
                 return Response({
                     "status": False,
-                    "statusCode": 200,
+                    "statusCode": 400,
                     "message": "Validation failed;Catalog Image with this Name already exists"
-                }, status=status.HTTP_200_OK)
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 400,
                 "message": "Validation failed.",
                 "error": serializer.errors
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 500,
                 "message": "Server error",
                 "error": str(e)
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -249,8 +249,8 @@ class CatalogImageDeleteAPIView(APIView):
         except Exception as e:
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 500,
                 "message": "Server error",
                 "error": str(e)
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

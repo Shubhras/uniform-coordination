@@ -501,7 +501,7 @@ def generate_quotation_pdf(quotation, request):
 
     doc.build(elements)
 
-    return f"{settings.MEDIA_URL}exports/{file_name}"
+    return file_path
 
 
 def generate_payment_pdf(payment, user, request=None):

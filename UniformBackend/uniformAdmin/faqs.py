@@ -48,9 +48,9 @@ class FAQCreateAPIView(APIView):
 
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 400,
                 "message": f"Validation failed; {error_message}"
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as exc:
             return Response({

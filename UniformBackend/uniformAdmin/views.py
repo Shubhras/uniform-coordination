@@ -2691,7 +2691,7 @@ class AdminOrderDetailAPIView(APIView):
             "data":serializer.data
         },status=status.HTTP_200_OK)
 
-
+#<-------------------Docusing fetch data by sign pdf id-------------------> 
 class QuotationDetailByEnvelopeAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]  # Only admin can access
 

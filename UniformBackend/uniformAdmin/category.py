@@ -99,7 +99,7 @@ class CategoryListAPIView(APIView):
             # FIX 1: newest data first
             categories = Category.objects.filter(
                 isDeleted=False
-            ).order_by("-created_at", "-id")
+            ).order_by("order")
 
             if search:
                 categories = categories.filter(categoryName__icontains=search)
@@ -164,7 +164,7 @@ class CategoryDetailAPIView(APIView):
                     "message": "Category not found."
                 }, status=status.HTTP_200_OK)
 
-            serializer = CategorySerializer(category)
+            serializer = CategorySerializer(category,context={"request": request})
 
             return Response({
                 "status": True,
