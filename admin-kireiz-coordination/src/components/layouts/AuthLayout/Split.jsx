@@ -63,7 +63,7 @@ const Split = ({ children, content, ...rest }) => {
       >
         {/* Logo */}
         <div className="absolute top-[5%] left-[5%] z-20">
-          <Link href="/kireiz-form">
+          <Link href="/admin-form">
             <img
               src="/img/others/auth-logo.png"
               alt="KIREIZ FORM"
@@ -81,7 +81,7 @@ const Split = ({ children, content, ...rest }) => {
           "
         >
           <img
-            src="/img/admin/signin.png"
+            src="/img/others/admin-signin.png"
             alt="Auth Image"
             className="
               object-contain object-center

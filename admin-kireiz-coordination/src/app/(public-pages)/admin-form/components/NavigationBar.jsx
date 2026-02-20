@@ -10,7 +10,7 @@ import AuthButtons from "./AuthButtons";
 import { useRouter } from 'next/navigation'
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 const navMenu = [
-  { title: "Home", value: "home", to: "home", url: "/kireiz-form" },
+  { title: "Home", value: "home", to: "home", url: "/admin-form" },
   { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign", url: "/dashboards/uniform-3d-design" },
   { title: "Blog", value: "blog", to: "blog", url: "/blog" },
   { title: `FAQ's`, value: "faq", to: "faq", url: "/faq" },
@@ -22,7 +22,7 @@ const Navigation = ({ toggleMode, mode }) => {
   const [activeLoginUser, setActiveLoginUser] = useState("login");
   const router = useRouter()
   const handleRedirectHome = () => {
-    router.push('/kireiz-form')
+    router.push('/admin-form')
   }
   return (
     <header className="fixed inset-x-0 top-0 z-50 bg-[#1C2C56]">

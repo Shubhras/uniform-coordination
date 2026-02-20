@@ -11,7 +11,7 @@ const FooterPage = ({ mode }) => {
 
     const handlePreview = () => {
         // router.push('/dashboards/ecommerce')
-        router.push('/kireiz-form')
+        router.push('/admin-form')
     }
 
     return (
@@ -80,7 +80,7 @@ const FooterPage = ({ mode }) => {
                             ©{year} KIREIZ FORM. All rights reserved.
                         </p>
                         <div className="flex gap-6 font-semibold text-[#2D3E72]">
-                            <Link href='/private-policy'  className="hover:underline">Privacy & Policy</Link>
+                            <Link href='/private-policy' className="hover:underline">Privacy & Policy</Link>
                             <Link href='/terms-and-condition' className="hover:underline">Terms & Condition</Link>
                         </div>
                     </div>

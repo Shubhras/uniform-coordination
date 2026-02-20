@@ -1,76 +1,68 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
+import useCurrentSession from '@/utils/hooks/useCurrentSession'
+import { apiGetDashboard } from '@/services/DashboardService'
 import HeroContent from './HeroContent'
-import TechStack from './TechStack'
-import useTheme from '@/utils/hooks/useTheme'
-import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
-import UniformBusinessEnquiry from './UniformBusinessEnquiry'
-import UniformLatestBlogPosts from './UniformLatestBlogPosts'
-import UniformLatestFAQPosts from './UniformLatestFAQPosts'
-import UniformAbouUsPage from './UniformAbouUsPage'
-import ChatbotSection from './ChatbotSection'
-import HaederPage from '../../header/HaederPage'
-import FooterPage from '../../footer/FooterPage'
 import DashboardStats from './DashboardStats'
-import BasicArea from '@/app/(protected-pages)/ui-components/charts/_components/BasicArea'
-import BasicColumn from '@/app/(protected-pages)/ui-components/charts/_components/BasicColumn'
-import Chart from '@/components/shared/Chart'
-import MostUsedIndustriesChart from './MostUsedIndustriesChart'
-import QuotationRequestsChart from './QuotationRequestsChart'
-import DonutGraph from './QuotationsByStatusChart'
 import QuickActionsCard from './QuickActionsCard'
-import QuotationsByStatusChart from './QuotationsByStatusChart'
 import ActiveAlerts from './ActiveAlerts'
+import DashboardSkeleton from './DashboardSkeleton'
+
+// Dynamic imports for chart components (apexcharts uses `window` and doesn't support SSR)
+const MostUsedIndustriesChart = dynamic(() => import('./MostUsedIndustriesChart'), { ssr: false })
+const QuotationRequestsChart = dynamic(() => import('./QuotationRequestsChart'), { ssr: false })
+const QuotationsByStatusChart = dynamic(() => import('./QuotationsByStatusChart'), { ssr: false })
 
 const AdminHome = () => {
-  const mode = useTheme((state) => state.mode)
-  const setMode = useTheme((state) => state.setMode)
-  const schema = useTheme((state) => state.themeSchema)
-  const setSchema = useTheme((state) => state.setSchema)
-  const toggleMode = () => {
-    setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
-  }
-  // useEffect(() => {
-  //     const fetchHomeData = async () => {
-  //       try {
-  //         const res = await apiGetHomeData()
-  //         if (res?.status) {
-  //           setHomeData(res.data)
-  //         }
-  //       } catch (err) {
-  //         console.error('Home API error', err)
-  //       } finally {
-  //         setLoading(false)
-  //       }
-  //     }
+  const { session } = useCurrentSession()
+  const [dashboardData, setDashboardData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  //     fetchHomeData()
-  //   }, [])
+  const accessToken = session?.user?.accessToken
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      if (!accessToken) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        setLoading(true)
+        const response = await apiGetDashboard(accessToken)
+        if (response?.data) {
+          setDashboardData(response.data)
+        }
+      } catch (err) {
+        console.error('Dashboard fetch error:', err)
+        setError(err?.message || 'Failed to load dashboard data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboard()
+  }, [accessToken])
+
+  if (loading) {
+    return <DashboardSkeleton />
+  }
+
   return (
-    <main className="text-base bg-white dark:bg-gray-900 pb-20">
-      <HaederPage toggleMode={toggleMode} mode={mode} />
-      <HeroContent mode={mode} />
-      <DashboardStats />
+    <main className="text-base bg-[#F8FAFC] pb-20">
+      <HeroContent data={dashboardData} />
+      <DashboardStats data={dashboardData} />
       <div className=' mt-10 px-5 md:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 gap-5'>
-        <MostUsedIndustriesChart />
-        <QuotationRequestsChart />
+        <MostUsedIndustriesChart data={dashboardData} />
+        <QuotationRequestsChart data={dashboardData} />
       </div>
       <div className=' mt-10 px-5 md:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 gap-5'>
-        <QuickActionsCard />
-        <QuotationsByStatusChart />
+        <QuickActionsCard data={dashboardData} />
+        <QuotationsByStatusChart data={dashboardData} />
       </div>
-      <ActiveAlerts/>
-      {/* <UniformBusinessEnquiry /> */}
-      {/* <Demos mode={mode} /> */}
-      {/*  How it works */}
-      {/* <TechStack />
-      <UniformLatestBlogPosts />
-      <UniformLatestFAQPosts />
-      <UniformAbouUsPage /> */}
-      {/* <OtherFeatures /> */}
-      {/* <Components /> */}
-      {/* <ChatbotSection /> */}
-      {/* <FooterPage mode={mode} /> */}
+      <ActiveAlerts data={dashboardData} />
     </main>
   )
 }

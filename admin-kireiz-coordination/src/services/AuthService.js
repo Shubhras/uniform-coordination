@@ -1,5 +1,13 @@
 import ApiService from './ApiService'
 
+export async function apiSignIn(data) {
+    return ApiService.fetchDataWithAxios({
+        url: '/v1/uniformAdmin/login/',
+        method: 'post',
+        data,
+    })
+}
+
 export async function apiSignUp(data) {
     console.log(data)
     return ApiService.fetchDataWithAxios({

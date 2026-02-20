@@ -2,13 +2,21 @@
 
 import Chart from "react-apexcharts";
 
-const QuotationsByStatusChart = () => {
+const QuotationsByStatusChart = ({ data }) => {
+  const statusData = data?.Quote_status_distribution?.data || [];
+
+  const labels = statusData.map((item) => item.label);
+  const values = statusData.map((item) => item.value);
+
+  // Fallback if no data
+  const hasData = values.some((v) => v > 0);
+
   const options = {
     chart: {
       type: "donut",
     },
-    labels: ["Pending", "Sent", "Rejected", "Received"],
-    colors: ["#FACC15", "#1D4ED8", "#EF4444", "#86EFAC"],
+    labels: labels.length > 0 ? labels : ["No Data"],
+    colors: ["#FACC15", "#1D4ED8", "#86EFAC", "#EF4444"],
     legend: {
       position: "bottom",
       labels: {
@@ -36,15 +44,18 @@ const QuotationsByStatusChart = () => {
     },
   };
 
-  const series = [18, 22, 7, 10]; // total = 57
-
   return (
     <div className="bg-white rounded-xl shadow-lg p-5">
       <h3 className="text-[#1C2C56] font-semibold mb-6">
         Quotations by Status
       </h3>
 
-      <Chart options={options} series={series} type="donut" height={280} />
+      <Chart
+        options={options}
+        series={hasData ? values : [1]}
+        type="donut"
+        height={280}
+      />
     </div>
   );
 };

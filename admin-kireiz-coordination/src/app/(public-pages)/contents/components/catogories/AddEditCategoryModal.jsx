@@ -4,47 +4,53 @@ import { useEffect, useState, useRef } from "react";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import { FiUpload } from "react-icons/fi";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { apiCreateCategory, apiUpdateCategory } from "@/services/CategoryService";
 
 const AddEditCategoryModal = ({
   isOpen,
   onClose,
   mode = "add",
   initialData,
+  onSaveSuccess,
 }) => {
   const fileInputRef = useRef(null);
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
 
-  const [name, setName] = useState("");
+  const [categoryName, setCategoryName] = useState("");
   const [description, setDescription] = useState("");
-
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [validated, setValidated] = useState(false);
 
-  /* ================= PREFILL / RESET ================= */
+  // Save state
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  /* ---------- RESET / PREFILL ---------- */
   useEffect(() => {
     if (!isOpen) return;
 
     if (mode === "edit" && initialData) {
-      setName(initialData.name || "");
+      setCategoryName(initialData.categoryName || initialData.name || "");
       setDescription(initialData.description || "");
-      setPreview(initialData.image || null);
-
+      setPreview(initialData.categoryImage || initialData.image || null);
       setImageFile(null);
-      setValidated(true);
+      setValidated(Boolean(initialData.categoryImage || initialData.image));
     } else {
-      // ✅ RESET FOR ADD MODE
-      setName("");
+      setCategoryName("");
       setDescription("");
       setImageFile(null);
       setPreview(null);
       setValidated(false);
     }
+    setError("");
   }, [mode, initialData, isOpen]);
 
-  /* ================= FILE HANDLERS ================= */
+  /* ---------- FILE HANDLERS ---------- */
   const handleFile = (file) => {
-    if (!file || file.type !== "image/png") return;
-
+    if (!file || !file.type.startsWith("image/")) return;
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
     setValidated(true);
@@ -59,21 +65,58 @@ const AddEditCategoryModal = ({
     handleFile(e.target.files[0]);
   };
 
-  /* ================= SAVE ================= */
-  const handleSave = () => {
-    const payload = {
-      name,
-      description,
-      image: imageFile,
-    };
+  /* ---------- RESET ---------- */
+  const resetForm = () => {
+    setCategoryName("");
+    setDescription("");
+    setImageFile(null);
+    setPreview(null);
+    setValidated(false);
+    setError("");
+  };
 
-    if (mode === "edit") {
-      console.log("EDIT CATEGORY:", payload);
-    } else {
-      console.log("ADD CATEGORY:", payload);
+  /* ---------- SAVE ---------- */
+  const handleSave = async ({ keepOpen = false } = {}) => {
+    if (!categoryName.trim()) {
+      setError("Category name is required");
+      return;
     }
 
-    onClose();
+    setError("");
+    setSaving(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("categoryName", categoryName.trim());
+
+      if (description.trim()) {
+        formData.append("description", description.trim());
+      }
+      if (imageFile) {
+        formData.append("categoryImage", imageFile);
+      }
+
+      if (mode === "edit" && initialData?.id) {
+        await apiUpdateCategory(accessToken, initialData.id, formData);
+      } else {
+        await apiCreateCategory(accessToken, formData);
+      }
+
+      if (keepOpen && mode !== "edit") {
+        resetForm();
+        if (onSaveSuccess) onSaveSuccess();
+        return;
+      }
+
+      if (onSaveSuccess) {
+        onSaveSuccess();
+      }
+    } catch (err) {
+      console.error("Category save error:", err);
+      setError(err?.response?.data?.message || "Failed to save category. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -84,37 +127,40 @@ const AddEditCategoryModal = ({
       className="w-full md:min-w-[620px] mx-auto"
     >
       <div className="flex flex-col">
-        {/* ================= HEADER ================= */}
         <div className="border-b p-2 flex justify-between items-center">
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            {mode === "edit" ? "Edit Categories" : "Create Categories"}
+            {mode === "edit" ? "Edit Category" : "Create Category"}
           </h2>
         </div>
 
-        {/* ================= BODY ================= */}
-        <div className="md:px-5 py-5 space-y-5 overflow-y-auto">
-          {/* Name */}
+        {/* Error */}
+        {error && (
+          <div className="mx-5 mt-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-md">
+            {error}
+          </div>
+        )}
+
+        <div className="md:px-5 py-5 space-y-5 overflow-y-auto max-h-[70vh]">
+          {/* Category Name */}
           <div>
             <label className="text-[#1C2C56] text-base font-medium">
               Name<span className="text-red-500">*</span>
             </label>
-
             <input
               type="text"
-              placeholder="Eg:- Cotton Canvas"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="Eg:- Medical Surgeon"
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
               className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
             />
           </div>
 
-          {/* Upload Image */}
+          {/* Image */}
           <div>
             <label className="text-[#1C2C56] text-base font-medium">
               Image<span className="text-red-500">*</span>
             </label>
 
-            {/* Upload Button */}
             <button
               className="w-full bg-[#1C2C56] text-white py-2 rounded-md text-sm mt-2 flex items-center justify-center gap-2"
               onClick={() => fileInputRef.current.click()}
@@ -123,13 +169,12 @@ const AddEditCategoryModal = ({
               Upload image
             </button>
 
-            {/* Drag Drop Box */}
             <div
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
               className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
             >
-              Drag & Drop your PNG file here
+              Drag & Drop your image file here
               <br />
               or{" "}
               <span
@@ -139,30 +184,27 @@ const AddEditCategoryModal = ({
                 click to browse here
               </span>
 
-              <p className="text-xs mt-2 text-[#64748B]">PNG files only</p>
+              <p className="text-xs mt-2 text-[#64748B]">JPG, PNG, or WEBP files</p>
               <p className="text-xs mt-2 text-[#64748B]">
                 Maximum dimension 1000×1000px
               </p>
             </div>
 
-            {/* Hidden Input */}
             <input
               type="file"
-              accept="image/png"
+              accept="image/*"
               ref={fileInputRef}
               className="hidden"
               onChange={handleBrowse}
             />
           </div>
 
-          {/* Validated */}
           {validated && (
             <p className="text-sm text-green-600 flex items-center gap-1">
               ✔ Image validated successfully
             </p>
           )}
 
-          {/* Preview */}
           {preview && (
             <div className="flex justify-center">
               <img
@@ -178,7 +220,6 @@ const AddEditCategoryModal = ({
             <label className="text-[#1C2C56] text-base font-medium">
               Description
             </label>
-
             <textarea
               placeholder="type....."
               value={description}
@@ -188,13 +229,17 @@ const AddEditCategoryModal = ({
           </div>
         </div>
 
-        {/* ================= FOOTER ================= */}
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
-          <Button variant="plain" onClick={onClose} size="sm">
+          <Button variant="plain" onClick={onClose} size="sm" disabled={saving}>
             Cancel
           </Button>
 
-          <Button variant="plain" size="sm">
+          <Button
+            variant="plain"
+            size="sm"
+            onClick={() => handleSave({ keepOpen: true })}
+            disabled={saving}
+          >
             Save & Add Another
           </Button>
 
@@ -202,7 +247,8 @@ const AddEditCategoryModal = ({
             variant="solid"
             size="sm"
             className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
-            onClick={handleSave}
+            onClick={() => handleSave({ keepOpen: false })}
+            loading={saving}
           >
             {mode === "edit" ? "Update" : "Save"}
           </Button>

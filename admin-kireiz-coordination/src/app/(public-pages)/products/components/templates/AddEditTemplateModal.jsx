@@ -5,24 +5,16 @@ import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Select from "react-select";
 import { FiUpload } from "react-icons/fi";
-
-const categoryOptions = [
-    { value: "chef-wear", label: "Chef Wear" },
-    { value: "aprons", label: "Aprons" },
-    { value: "medical", label: "Medical Wear" },
-];
-
-const statusOptions = [
-    { value: "Active", label: "Active" },
-    { value: "Inactive", label: "Inactive" },
-];
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { apiCreateTemplate, apiUpdateTemplate } from "@/services/TemplateService";
+import { apiGetPartsList } from "@/services/PartsService";
 
 const selectStyles = {
-    control: (base) => ({
+    control: (base, state) => ({
         ...base,
         minHeight: "42px",
         borderRadius: "8px",
-        borderColor: "#CBD5E1",
+        borderColor: state.isFocused ? "#1C2C56" : "#CBD5E1",
         boxShadow: "none",
         "&:hover": { borderColor: "#1C2C56" },
     }),
@@ -39,57 +31,140 @@ const selectStyles = {
     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) => {
+const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData, onSaveSuccess }) => {
     const fileRef = useRef(null);
+    const { session } = useCurrentSession();
+    const accessToken = session?.user?.accessToken;
 
-    const [name, setName] = useState("");
-    const [category, setCategory] = useState(null);
-    const [status, setStatus] = useState(statusOptions[0]);
-    const [parts, setParts] = useState("");
-    const [image, setImage] = useState(null);
+    // Form fields
+    const [templateName, setTemplateName] = useState("");
+    const [part, setPart] = useState(null);
+    const [partUsageCount, setPartUsageCount] = useState("");
+    const [isActive, setIsActive] = useState(true);
+    const [imageFile, setImageFile] = useState(null);
     const [preview, setPreview] = useState(null);
 
+    // Part options from API
+    const [partOptions, setPartOptions] = useState([]);
+    const [loadingParts, setLoadingParts] = useState(false);
+
+    // Save state
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState("");
+
+    /* ---------- FETCH PARTS ---------- */
+    useEffect(() => {
+        if (!isOpen || !accessToken) return;
+
+        const fetchParts = async () => {
+            setLoadingParts(true);
+            try {
+                const response = await apiGetPartsList(accessToken, 1, 100);
+                if (response?.status && response?.data) {
+                    const options = response.data
+                        .filter((p) => !p.isDeleted)
+                        .map((p) => ({
+                            value: p.id,
+                            label: p.partName,
+                        }));
+                    setPartOptions(options);
+                }
+            } catch (err) {
+                console.error("Failed to load parts:", err);
+            } finally {
+                setLoadingParts(false);
+            }
+        };
+
+        fetchParts();
+    }, [isOpen, accessToken]);
+
+    /* ---------- RESET / PREFILL ---------- */
     useEffect(() => {
         if (!isOpen) return;
 
         if (mode === "edit" && initialData) {
-            setName(initialData.name);
-            setParts(initialData.parts);
-            setCategory(
-                categoryOptions.find(c => c.label === initialData.category) || null
-            );
-            setStatus(
-                statusOptions.find(s => s.value === initialData.status) || statusOptions[0]
-            );
-            setPreview(initialData.image);
-            setImage(null);
+            setTemplateName(initialData.templateName || "");
+            setPartUsageCount(initialData.partUsageCount?.toString() || "");
+            setIsActive(initialData.isActive ?? true);
+            setImageFile(null);
+            setPreview(initialData.templateImage || null);
+
+            // Pre-select part
+            if (initialData.part) {
+                setPart({ value: initialData.part, label: initialData.partName || `Part #${initialData.part}` });
+            } else {
+                setPart(null);
+            }
         } else {
-            setName("");
-            setCategory(null);
-            setStatus(statusOptions[0]);
-            setParts("");
-            setImage(null);
+            setTemplateName("");
+            setPart(null);
+            setPartUsageCount("");
+            setIsActive(true);
+            setImageFile(null);
             setPreview(null);
         }
+        setError("");
     }, [isOpen, mode, initialData]);
 
+    // Update part label once partOptions load (edit mode)
+    useEffect(() => {
+        if (mode === "edit" && initialData?.part && partOptions.length > 0) {
+            const match = partOptions.find((p) => p.value === initialData.part);
+            if (match) {
+                setPart(match);
+            }
+        }
+    }, [partOptions, mode, initialData]);
+
+    /* ---------- FILE HANDLER ---------- */
     const handleFile = (file) => {
         if (!file) return;
-        setImage(file);
+        setImageFile(file);
         setPreview(URL.createObjectURL(file));
     };
 
-    const handleSave = () => {
-        const payload = {
-            name,
-            category: category?.label,
-            parts: Number(parts),
-            status: status?.value,
-            image,
-        };
+    /* ---------- SAVE ---------- */
+    const handleSave = async () => {
+        if (!templateName.trim()) {
+            setError("Template name is required");
+            return;
+        }
 
-        console.log(mode === "edit" ? "UPDATE TEMPLATE" : "CREATE TEMPLATE", payload);
-        onClose();
+        setError("");
+        setSaving(true);
+
+        try {
+            const formData = new FormData();
+            formData.append("templateName", templateName.trim());
+
+            if (part) {
+                formData.append("part", part.value);
+            }
+            if (partUsageCount) {
+                formData.append("partUsageCount", partUsageCount);
+            }
+            formData.append("isActive", isActive);
+
+            if (imageFile) {
+                formData.append("templateImage", imageFile);
+            }
+
+            if (mode === "edit" && initialData?.id) {
+                await apiUpdateTemplate(accessToken, initialData.id, formData);
+            } else {
+                await apiCreateTemplate(accessToken, formData);
+            }
+
+            if (onSaveSuccess) {
+                onSaveSuccess();
+            }
+        } catch (err) {
+            console.error("Template save error:", err);
+            setError(err?.response?.data?.message || "Failed to save template. Please try again.");
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -97,7 +172,9 @@ const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) =>
             isOpen={isOpen}
             onClose={onClose}
             onRequestClose={onClose}
-            className="w-full md:min-w-[600px]">
+            className="w-full md:min-w-[600px]"
+            contentClassName="!p-0 !h-auto"
+        >
             <div className="flex flex-col">
 
                 <div className="border-b px-6 py-4">
@@ -106,65 +183,84 @@ const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) =>
                     </h2>
                 </div>
 
-                <div className="px-6 py-5 space-y-5">
+                {/* Error */}
+                {error && (
+                    <div className="mx-5 mt-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-md">
+                        {error}
+                    </div>
+                )}
 
+                <div className="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto">
+
+                    {/* Template Name */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
-                            Template Name
+                            Template Name<span className="text-red-500">*</span>
                         </label>
                         <input
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            value={templateName}
+                            onChange={(e) => setTemplateName(e.target.value)}
                             placeholder="Enter template name"
-                            className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm"
+                            className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                         />
                     </div>
 
+                    {/* Part (from API) */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
-                            Category
+                            Part
                         </label>
                         <Select
-                            options={categoryOptions}
-                            value={category}
-                            onChange={setCategory}
+                            options={partOptions}
+                            value={part}
+                            onChange={setPart}
                             styles={selectStyles}
-                            placeholder="Select category"
-                            menuPortalTarget={document.body}
+                            placeholder="Select Part"
+                            isLoading={loadingParts}
+                            loadingMessage={() => "Loading parts..."}
+                            noOptionsMessage={() => "No parts found"}
+                            isClearable
+                            menuPortalTarget={typeof document !== "undefined" ? document.body : null}
                             menuPosition="fixed"
                             className="mt-1"
                         />
                     </div>
 
+                    {/* Part Usage Count */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
-                            Parts Count
+                            Part Usage Count
                         </label>
                         <input
                             type="number"
-                            min="1"
-                            value={parts}
-                            onChange={(e) => setParts(e.target.value)}
-                            className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm"
-                            placeholder="e.g. 4"
+                            min="0"
+                            value={partUsageCount}
+                            onChange={(e) => setPartUsageCount(e.target.value)}
+                            className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
+                            placeholder="e.g. 5"
                         />
                     </div>
 
+                    {/* Status */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
                             Status
                         </label>
-                        <Select
-                            options={statusOptions}
-                            value={status}
-                            onChange={setStatus}
-                            styles={selectStyles}
-                            menuPortalTarget={document.body}
-                            menuPosition="fixed"
-                            className="mt-1"
-                        />
+                        <div className="flex items-center gap-3 mt-2">
+                            <button
+                                type="button"
+                                onClick={() => setIsActive(!isActive)}
+                                className={`w-12 h-6 rounded-full flex items-center px-1 transition ${isActive ? "bg-[#1C2C56]" : "bg-gray-300"}`}
+                            >
+                                <span
+                                    className={`bg-white w-4 h-4 rounded-full transition ${isActive ? "translate-x-6" : ""}`}
+                                />
+                            </button>
+                            <span className="text-sm text-[#1C2C56]">{isActive ? "Active" : "Inactive"}</span>
+                        </div>
                     </div>
 
+                    {/* Template Image */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
                             Template Image
@@ -199,7 +295,7 @@ const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) =>
                 </div>
 
                 <div className="border-t px-6 py-4 flex justify-end gap-3">
-                    <Button variant="plain" size="sm" onClick={onClose}>
+                    <Button variant="plain" size="sm" onClick={onClose} disabled={saving}>
                         Cancel
                     </Button>
                     <Button
@@ -207,6 +303,7 @@ const AddEditTemplateModal = ({ isOpen, onClose, mode = "add", initialData }) =>
                         size="sm"
                         className="bg-[#1C2C56] text-white px-6"
                         onClick={handleSave}
+                        loading={saving}
                     >
                         {mode === "edit" ? "Update" : "Create"}
                     </Button>

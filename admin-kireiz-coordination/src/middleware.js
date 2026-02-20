@@ -13,22 +13,20 @@ const { auth } = NextAuth(authConfig)
 const publicRoutes = Object.entries(_publicRoutes).map(([key]) => key)
 const authRoutes = Object.entries(_authRoutes).map(([key]) => key)
 
-const apiAuthPrefix = `${appConfig.apiPrefix}/auth`
-
 export default auth((req) => {
     const { nextUrl } = req
     const isSignedIn = !!req.auth
 
-    const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix)
+    /** Skip middleware for internal Next.js API auth routes */
+    const isApiAuthRoute = nextUrl.pathname.startsWith('/api/auth')
+    if (isApiAuthRoute) return
+
     const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
     const isAuthRoute = authRoutes.includes(nextUrl.pathname)
 
-    /** Skip auth middleware for api routes */
-    if (isApiAuthRoute) return
-
     if (isAuthRoute) {
         if (isSignedIn) {
-            /** Redirect to authenticated entry path if signed in & path is auth route */
+            /** Redirect to admin-form if already signed in & trying to access auth route */
             return Response.redirect(
                 new URL(appConfig.authenticatedEntryPath, nextUrl),
             )
@@ -36,7 +34,7 @@ export default auth((req) => {
         return
     }
 
-    /** Redirect to authenticated entry path if signed in & path is public route */
+    /** If not signed in and not a public route, redirect to sign-in */
     if (!isSignedIn && !isPublicRoute) {
         let callbackUrl = nextUrl.pathname
         if (nextUrl.search) {

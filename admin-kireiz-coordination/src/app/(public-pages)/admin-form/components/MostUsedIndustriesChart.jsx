@@ -2,7 +2,20 @@
 
 import Chart from "react-apexcharts";
 
-const MostUsedIndustriesChart = () => {
+const MostUsedIndustriesChart = ({ data }) => {
+  const chartData = data?.most_used_industries;
+
+  const categories = chartData?.categories || [
+    "Chef uniform",
+    "Medical Coat",
+    "Cotton Fabric",
+    "Corporate uniform",
+    "Medical Cap",
+    "Food service",
+  ];
+
+  const values = chartData?.values || [300, 320, 350, 380, 420, 450];
+
   const options = {
     chart: {
       type: "bar",
@@ -21,14 +34,7 @@ const MostUsedIndustriesChart = () => {
       borderColor: "#E2E8F0",
     },
     xaxis: {
-      categories: [
-        "Chef uniform",
-        "Medical Coat",
-        "Cotton Fabric",
-        "Corporate uniform",
-        "Medical Cap",
-        "Food service",
-      ],
+      categories,
       labels: {
         style: { colors: "#64748B", fontSize: "12px" },
       },
@@ -43,7 +49,7 @@ const MostUsedIndustriesChart = () => {
   const series = [
     {
       name: "Usage",
-      data: [300, 320, 350, 380, 420, 450],
+      data: values,
     },
   ];
 

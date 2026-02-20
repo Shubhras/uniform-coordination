@@ -9,7 +9,7 @@ import {
   FiFileText,
 } from "react-icons/fi";
 
-const actions = [
+const defaultActions = [
   { label: "Add Product", icon: FiBox },
   { label: "View Orders", icon: FiBarChart2 },
   { label: "Manage Users", icon: FiUsers },
@@ -18,7 +18,9 @@ const actions = [
   { label: "Generate Report", icon: FiFileText },
 ];
 
-const QuickActionsCard = () => {
+const QuickActionsCard = ({ data }) => {
+  const actions = defaultActions;
+
   return (
     <div className="bg-white rounded-xl shadow-lg p-5">
       <h3 className="text-[#1C2C56] font-semibold mb-6">

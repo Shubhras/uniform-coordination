@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 
 const navMenu = [
-  { title: "Home", value: "home", url: "/kireiz-form" },
+  { title: "Home", value: "home", url: "/admin-form" },
   { title: "Uniform Design", value: "uniformDesign", url: "/dashboards/uniform-3d-design" },
   { title: "Blog", value: "blog", url: "/blog" },
   { title: `FAQ's`, value: "faq", url: "/faq" },
@@ -46,7 +46,7 @@ const HeaderPage = () => {
               height={40}
               alt="logo"
               priority
-              onClick={() => router.push("/kireiz-form")}
+              onClick={() => router.push("/admin-form")}
               className="cursor-pointer"
             />
           </div>
