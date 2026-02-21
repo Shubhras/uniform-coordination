@@ -170,9 +170,9 @@ urlpatterns = [
     path("users/",UserDetailAPIView.as_view(),name="users-Detail"),   
     
     #<--------------OrderUpdate--------------------->
-    path('orderupdate/<int:order_id>/update/',AdminOderUpdateAPIView.as_view(),name='AdminOderUpdate'),
+    path('orderupdate/<str:order_id>/update/',AdminOderUpdateAPIView.as_view(),name='AdminOderUpdate'),
     path('orderlist/get/',AdminOrderListAPIView.as_view(),name='Oder_list'),
-    path('orderdetail/<int:order_id>/get/',AdminOrderDetailAPIView.as_view(),name='order_Detail'),
+    path('orderdetail/<str:order_id>/get/',AdminOrderDetailAPIView.as_view(),name='order_Detail'),
     
     path('quotation-detail/<str:external_document_id>/get/', QuotationDetailByEnvelopeAPIView.as_view(), name='quotation-detail-by-envelope'),
 ]

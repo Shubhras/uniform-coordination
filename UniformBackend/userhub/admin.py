@@ -55,7 +55,6 @@ class OrderAdmin(admin.ModelAdmin):
         'order_type',
         'status',
         'total_amount',
-        'payment_method',
         'created_at',
         'is_active',
     )
@@ -69,7 +68,7 @@ class OrderItemAdmin(admin.ModelAdmin):
         'order',
         'product',
         'quantity',
-        'rental_days',
+        # 'rental_days',
         'price_per_day',
         'subtotal',
         'created_at'

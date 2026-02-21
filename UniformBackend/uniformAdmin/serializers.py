@@ -1312,63 +1312,50 @@ class UserListSerializer(serializers.ModelSerializer):
         return obj.lastLogin >= active_window
 
 
-
 class OrderUpdateSerializer(serializers.ModelSerializer):
     customer = serializers.SerializerMethodField()
     payment = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = "__all__"
-       
-    def validate(self, attrs):
+        # fields admin can update + fields for nested info
+        fields = '__all__'
 
+    def validate(self, attrs):
         order = self.instance
         new_status = attrs.get("status", order.status)
         if order.status == "cancelled" and new_status == "cancelled":
-
             raise serializers.ValidationError("Order already cancelled")
-        if new_status == "cancelled" and order.status in [
-            "out_for_delivery",
-            "delivered"
-
-        ]:
-            raise serializers.ValidationError(
-                "Order cannot be cancelled after Out For Delivery or Delivered"
-            )
-        if order.status == new_status and new_status in [
-            "out_for_delivery",
-            "delivered"
-        ]:
-            raise serializers.ValidationError(
-                f"Order already marked as {new_status.replace('_', ' ').title()}"
-            )
+        if new_status == "cancelled" and order.status in ["out_for_delivery", "delivered"]:
+            raise serializers.ValidationError("Order cannot be cancelled after Out For Delivery or Delivered")
+        if order.status == new_status and new_status in ["out_for_delivery", "delivered"]:
+            raise serializers.ValidationError(f"Order already marked as {new_status.replace('_', ' ').title()}")
         return attrs
+
     def update(self, instance, validated_data):
         if validated_data.get("status") == "cancelled":
             instance.cancelled_by = "admin"
         return super().update(instance, validated_data)
-    
+
     def get_customer(self, obj):
-        if not obj.user:  # check if user exists
+        if not obj.user:
             return None
         try:
             customer = obj.user.customerdetails
             return {
-            "full_name": f"{customer.first_name} {customer.last_name}",
-                        "email": customer.email,
-                        "address": {
-                            "address_line_1": customer.address_line_1,
-                            "address_line_2": customer.address_line_2,
-                            "city": customer.city,
-                            "postal_code": customer.postal_code,
-                            "country": customer.country
-                        }
-                    }
+                "full_name": f"{customer.first_name} {customer.last_name}",
+                "email": customer.email,
+                "address": {
+                    "address_line_1": customer.address_line_1,
+                    "address_line_2": customer.address_line_2,
+                    "city": customer.city,
+                    "postal_code": customer.postal_code,
+                    "country": customer.country
+                }
+            }
         except CustomerDetails.DoesNotExist:
-                return None
+            return None
 
- 
     def get_payment(self, obj):
         payment = Payment.objects.filter(order=obj).first()
         if payment:
@@ -1379,15 +1366,70 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
             }
         return None
 
-  
+# class OrderUpdateSerializer(serializers.ModelSerializer):
+#     customer = serializers.SerializerMethodField()
+#     payment = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = Order
+#         fields = "__all__"
+       
+#     def validate(self, attrs):
+
+#         order = self.instance
+#         new_status = attrs.get("status", order.status)
+#         if order.status == "cancelled" and new_status == "cancelled":
+
+#             raise serializers.ValidationError("Order already cancelled")
+#         if new_status == "cancelled" and order.status in [
+#             "out_for_delivery",
+#             "delivered"
+
+#         ]:
+#             raise serializers.ValidationError(
+#                 "Order cannot be cancelled after Out For Delivery or Delivered"
+#             )
+#         if order.status == new_status and new_status in [
+#             "out_for_delivery",
+#             "delivered"
+#         ]:
+#             raise serializers.ValidationError(
+#                 f"Order already marked as {new_status.replace('_', ' ').title()}"
+#             )
+#         return attrs
+#     def update(self, instance, validated_data):
+#         if validated_data.get("status") == "cancelled":
+#             instance.cancelled_by = "admin"
+#         return super().update(instance, validated_data)
+    
+#     def get_customer(self, obj):
+#         if not obj.user: 
+#             return None
+#         try:
+#             customer = obj.user.customerdetails
+#             return {
+#             "full_name": f"{customer.first_name} {customer.last_name}",
+#                         "email": customer.email,
+#                         "address": {
+#                             "address_line_1": customer.address_line_1,
+#                             "address_line_2": customer.address_line_2,
+#                             "city": customer.city,
+#                             "postal_code": customer.postal_code,
+#                             "country": customer.country
+#                         }
+#                     }
+#         except CustomerDetails.DoesNotExist:
+#                 return None
 
  
-    
-class OrderUpdateSerializer(serializers.ModelSerializer):
-    # user = serializers.StringRelatedField()
-    # customer = serializers.StringRelatedField()
+#     def get_payment(self, obj):
+#         payment = Payment.objects.filter(order=obj).first()
+#         if payment:
+#             return {
+#                 "payment_id": payment.payment_id,
+#                 "payment_method": payment.payment_method,
+#                 "payment_status": payment.payment_status
+#             }
+#         return None
 
-    class Meta:
-        model = Order
-        # admin jo fields update kar sakta hai
-        fields = ['status', 'payment_method', 'order_type', 'total_amount', 'return_date', 'is_active']
+  

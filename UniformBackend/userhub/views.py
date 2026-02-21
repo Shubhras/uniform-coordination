@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .serializers import*
 from django.db.models import F
+from django.shortcuts import get_object_or_404
 import logging
 from django.db.models import Sum
 from django.db import transaction
@@ -1043,49 +1044,91 @@ class AddToCartAPIView(APIView):
         404: OpenApiTypes.OBJECT,
     },
     )
-
+   
+    @transaction.atomic
     def post(self, request):
         try:
             product_id = request.data.get("product_id")
-            quantity = int(request.data.get("quantity", 1))
-            product = Product.objects.get(id=product_id)
+            quantity = request.data.get("quantity", 1)
+
+
+            try:
+                quantity = int(quantity)
+            except (TypeError, ValueError):
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Quantity must be a valid number"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if quantity <= 0:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Quantity must be greater than 0"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            product = get_object_or_404(Product, id=product_id)
+
+            
+            if not product.isActive:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Product is not active"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # product.available_quantity -= quantity
+            # product.save()
+
             cart, _ = Cart.objects.get_or_create(
                 user=request.user,
-                is_active=True )
-            item, created = CartItem.objects.get_or_create(
+                is_active=True
+            )
+            item, created = CartItem.objects.select_for_update().get_or_create(
                 cart=cart,
-                product=product )
-            if not created:
-                item.quantity += quantity
-                item.save()
-            else:
-                item.quantity = quantity
-                item.save()
+                product=product,
+                defaults={"quantity": 0}
+            )
+
+            new_quantity = item.quantity + quantity
+
+            if new_quantity > product.available_quantity:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "error": "Not enough stock available"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            item.quantity = new_quantity
+            item.save()
+
             serializer = CartItemSerializer(
                 item,
-                context={"request": request} )
+                context={"request": request}
+            )
+            if created:
+                message = "Item added to cart successfully."
+                status_code = status.HTTP_201_CREATED
+            else:
+                message = "Item already in cart. Quantity updated successfully."
+                status_code = status.HTTP_200_OK
+
             return Response({
                 "status": True,
-                "statusCode": 200 if not created else 201,
-                "message": "Item already in cart. Quantity updated."
-                if not created else "Item added to cart successfully.",
-                "data": {
-                    "id": serializer.data["id"],
-                    "product": serializer.data["product_name"],
-                    "quantity": serializer.data["quantity"],
-                    "price": Decimal(serializer.data["price"])
-                }
-            })
+                "statusCode": 201 if created else 200,
+                "message": message,
+                "data": serializer.data
+            }, status=status_code)
 
-        except Product.DoesNotExist:
+        except Exception as e:
             return Response({
                 "status": False,
-                "statusCode": 404,
-                "message": "Product not found",
-                "data": None
-            }, status=status.HTTP_404_NOT_FOUND)
+                "statusCode": 500,
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# CART LISTING
+
 class CartListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1096,11 +1139,37 @@ class CartListAPIView(APIView):
     )
     def get(self, request):
         try:
-            cart = Cart.objects.get(user=request.user, is_active=True)
-            cart_items = CartItem.objects.filter(
+            cart = Cart.objects.filter(
+                user=request.user,
+                is_active=True
+            ).first()
+
+            if not cart:
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "Cart is empty",
+                    "count": 0,
+                    "next": None,
+                    "previous": None,
+                    "data": []
+                }, status=status.HTTP_200_OK)
+
+            cart_items = CartItem.objects.select_related("product").filter(
                 cart=cart,
                 is_active=True
-            ).order_by('id')
+            ).order_by("id")
+
+            if not cart_items.exists():
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "Cart is empty",
+                    "count": 0,
+                    "next": None,
+                    "previous": None,
+                    "data": []
+                }, status=status.HTTP_200_OK)
 
             paginator = CustomPagination()
             paginated_items = paginator.paginate_queryset(cart_items, request)
@@ -1108,25 +1177,17 @@ class CartListAPIView(APIView):
             serializer = CartItemSerializer(
                 paginated_items,
                 many=True,
-                context={"request": request}  
+                context={"request": request}
             )
 
             return paginator.get_paginated_response(serializer.data)
-        except Cart.DoesNotExist:
-            return Response({
-                "status":False,
-                "statusCode":200,
-                "massage":"data fetched successfully",
-                "count": 0,
-                "next": None,
-                "previous": None,
-                "data": []
-            }, status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response({
                 "status": False,
                 "statusCode": 500,
-                "message": str(e)
+                "message": "Something went wrong",
+                "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # UPDATE
@@ -1152,15 +1213,41 @@ class UpdateCartItemAPIView(APIView):
         404: OpenApiTypes.OBJECT,
     },
     )
-    def patch(self, request):
+    def patch(self, request, id):
         try:
-            item_id = request.data.get("item_id")
-            quantity = int(request.data.get("quantity"))
-            item = CartItem.objects.get(
-                id=item_id,
-                cart__user=request.user
+            quantity = request.data.get("quantity")
+
+            if quantity is None:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Quantity is required"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            quantity = int(quantity)
+
+            if quantity < 0:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Quantity cannot be negative"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            item = CartItem.objects.select_related("product").get(
+                id=id,
+                cart__user=request.user,
+                cart__is_active=True,
+                is_active=True
             )
-            if quantity <= 0:
+
+            if quantity > item.product.available_quantity:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": f"Only {item.product.available_quantity} items available in stock"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if quantity == 0:
                 item.delete()
                 return Response({
                     "status": True,
@@ -1170,12 +1257,19 @@ class UpdateCartItemAPIView(APIView):
 
             item.quantity = quantity
             item.save()
+
+            serializer = CartItemSerializer(
+                item,
+                context={'request': request}
+            )
+
             return Response({
                 "status": True,
                 "statusCode": 200,
-                "message": "Cart item quantity updated successfully"
+                "message": "Cart item quantity updated successfully",
+                "data": serializer.data
             }, status=status.HTTP_200_OK)
-        
+
         except CartItem.DoesNotExist:
             return Response({
                 "status": False,
@@ -1183,6 +1277,21 @@ class UpdateCartItemAPIView(APIView):
                 "error": "Cart item not found"
             }, status=status.HTTP_404_NOT_FOUND)
 
+        except ValueError:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Quantity must be a valid number"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "error": "Something went wrong",
+                "details": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+   
 # Delete
 class RemoveCartItemAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1204,53 +1313,94 @@ class RemoveCartItemAPIView(APIView):
         404: OpenApiTypes.OBJECT,
     },
     )
-    def delete(self, request):
+    def delete(self, request, id):
         try:
-            item_id = request.data.get("item_id")
-            if not item_id:
+            if not id:
                 return Response({
                     "status": False,
                     "statusCode": 400,
-                    "error": "Item ID is required "
+                    "message": "Item ID is required"
                 }, status=status.HTTP_400_BAD_REQUEST)
+
             item = CartItem.objects.get(
-                id=item_id,
-                cart__user=request.user
+                id=id,
+                cart__user=request.user,
+                cart__is_active=True,
+                is_active=True  
             )
-            item.delete()
+
+            product = item.product
+            product.available_quantity += item.quantity
+            product.save()
+
+            item.is_active = False
+            item.deleted_at = timezone.now()
+            item.save()
+
             return Response({
                 "status": True,
                 "statusCode": 200,
                 "message": "Item removed from cart successfully"
             }, status=status.HTTP_200_OK)
-        
+
         except CartItem.DoesNotExist:
             return Response({
                 "status": False,
                 "statusCode": 404,
-                "error": "Item not found"
+                "message": "Item not found"
             }, status=status.HTTP_404_NOT_FOUND)
-        
-class ClearCartAPIView(APIView):
-    permission_classes =[IsAuthenticated]
 
-    def delete(self, request):
-        user = request.user
-        cart = Cart.objects.filter(user=user, is_active=True).first()
-        if not cart:
+        except Exception as e:
             return Response({
-                "status":False,
-                "statusCode":404,
-                "message": "No active cart found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        cart.items.all().delete()
-        return Response({
-            "status":True,
-            "statusCode":200,
-            "message": "Cart cleared successfully."},
-            status=status.HTTP_200_OK
-        )
+                "status": False,
+                "statusCode": 500,
+                "error": "Something went wrong",
+                "details": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ClearCartAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @transaction.atomic
+    def delete(self, request):
+        try:
+            cart = Cart.objects.filter(
+                user=request.user,
+                is_active=True
+            ).first()
+
+            if not cart:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "No active cart found."
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            for item in cart.items.filter(is_active=True):
+                product = item.product
+                product.available_quantity += item.quantity
+                product.save()
+
+                item.is_active = False
+                item.deleted_at = timezone.now()
+                item.save()
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Cart cleared successfully",
+                "items_cleared": cart.items.filter(is_active=False).count()
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Something went wrong",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+   
 
 class ItemSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1266,280 +1416,275 @@ class ItemSummaryAPIView(APIView):
     )
     def get(self, request):
         try:
-            cart = Cart.objects.get(user=request.user, is_active=True)
-            cart_items = CartItem.objects.filter(cart=cart,is_active=True)
-
-            if not cart_items.exists():
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "Cart is empty"
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            items_count = sum(item.quantity for item in cart_items)
-            subtotal = sum(item.total_price for item in cart_items)
-            shipping = None
-            tax = None
-            fees = None
-            
-            total_discount = sum(((item.price - item.final_price) * item.quantity) for item in cart_items)
-            total_amount = subtotal + Decimal("0.00") + Decimal("0.00") + Decimal("0.00") - total_discount
-
-            items_list = []
-            for item in cart_items:
-                items_list.append({
-                    "name": item.product.productName,
-                    "quantity": item.quantity,
-                    "price": item.price,
-                    "total": item.total_price,
-                    "discount": (item.price - item.final_price) 
-                })
-
-            return Response({
-                "items_count": items_count,
-                "items": items_list,
-                "subtotal": subtotal,
-                "shipping": shipping,
-                "tax": tax,
-                "fees": fees,
-                "discount": total_discount,  
-                "total_amount": total_amount
-            })
-
-        except Cart.DoesNotExist:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "error": "Cart is empty"
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-class CreateOrderAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    @extend_schema(
-    summary="CreateOrder API",
-    
-    tags=["Payment Gateway"],
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "cart_id": {"type": "integer"},
-                "customer": {"type": "object"},
-                "delivery_address": {"type": "object"},
-                "payment": {"type": "object"},
-                "rental": {
-                    "type": "object",
-                    "properties": {
-                        "start_date": {"type": "string", "example": "2026-01-20"},
-                        "return_date": {"type": "string", "example": "2026-01-25"},
-                    }
-                },
-                "promocode": {
-                    "type": "object",
-                    "properties": {
-                        "code": {"type": "string"}
-                    }
-                }
-            },
-            "required": ["cart_id", "rental"]
-        }
-    },
-    responses={
-        201: OpenApiTypes.OBJECT,
-        400: OpenApiTypes.OBJECT,
-    },
-    )
-    def post(self, request):
-        try:
-            data = request.data
-            user = request.user
-            customer_data = data.get("customer", {})
-            address_data = data.get("delivery_address", {})
-            payment_data = data.get("payment", {})
-            cart_id = data.get("cart_id")
-            rental_data = data.get("rental", {})
-            promocode_data = data.get("promocode")
-            order_type = data.get("order_type")
-
-            if not cart_id:
-                return Response({
-                    "status":False,
-                    "statusCode":400,
-                    "error": "cart_id is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                cart = Cart.objects.get(id=cart_id, user=user, is_active=True)
-            except Cart.DoesNotExist:
-                return Response({
-                    "status":False,
-                    "statusCode":400,
-                    "error": "Cart not found."}, status=status.HTTP_400_BAD_REQUEST)
-
-            # -------------------- CustomerDetails: get or update --------------------
-            try:
-                customer = CustomerDetails.objects.get(user=user)
-                customer.first_name = customer_data.get("first_name", customer.first_name)
-                customer.last_name = customer_data.get("last_name", customer.last_name)
-                customer.email = customer_data.get("email", customer.email)
-                customer.phone = customer_data.get("phone", customer.phone)
-                customer.address_line_1 = address_data.get("address_line_1", customer.address_line_1)
-                customer.address_line_2 = address_data.get("address_line_2", customer.address_line_2)
-                customer.city = address_data.get("city", customer.city)
-                customer.postal_code = address_data.get("postal_code", customer.postal_code)
-                customer.country = address_data.get("country", customer.country)
-                customer.payment_method = payment_data.get("payment_method", customer.payment_method)
-                customer.save()
-            except CustomerDetails.DoesNotExist:
-                customer = CustomerDetails.objects.create(
-                    user=user,
-                    first_name=customer_data.get("first_name", user.firstName or ""),
-                    last_name=customer_data.get("last_name", user.lastName or ""),
-                    email=customer_data.get("email", user.email or ""),
-                    phone=customer_data.get("phone", user.phone or ""),
-                    address_line_1=address_data.get("address_line_1", ""),
-                    address_line_2=address_data.get("address_line_2", ""),
-                    city=address_data.get("city", ""),
-                    postal_code=address_data.get("postal_code", ""),
-                    country=address_data.get("country", ""),
-                    payment_method=payment_data.get("payment_method", "COD"),
-                )
-
-            cart_items = cart.items.all()
-            if not cart_items.exists():
-                return Response({
-                    "status":False,
-                    "statusCode":400,
-                    "error": "No items found in this cart."}, status=status.HTTP_400_BAD_REQUEST)
-
-            total_amount = sum((Decimal(item.total_price or 0) for item in cart_items), Decimal("0.00"))
-            original_amount = total_amount
-            discount_amount = Decimal("0.00")
-
-            # -------------------- Rental Dates --------------------
-            start_date_str = rental_data.get("start_date")
-            return_date_str = rental_data.get("return_date")
-            start_date = parse_date(start_date_str) if start_date_str else None
-            return_date = parse_date(return_date_str) if return_date_str else None
-            if not start_date or not return_date or return_date < start_date:
-                return Response({
-                    "status":False,
-                    "statusCode":400,
-                    "error": "Invalid rental dates."}, status=status.HTTP_400_BAD_REQUEST)
-
-            # -------------------- Order Type Validation --------------------
-            if order_type not in ["uniform", "table"]:
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "Invalid order_type. Must be 'uniform' or 'table'."
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            # -------------------- Promocode --------------------
-            promocode = None
-            now = timezone.now()
-            if promocode_data and promocode_data.get("code"):
-                code = promocode_data.get("code")
-                try:
-                    promocode = Promocode.objects.get(promocodeName=code, isActive=True, isDeleted=False)
-                except Promocode.DoesNotExist:
-                    return Response({"status": False,
-                                    "statusCode": 400,
-                                    "error": "Promocode not found or invalid."},
-                                    status=status.HTTP_400_BAD_REQUEST)
-
-                if (promocode.started_at and promocode.started_at > now) or \
-                   (promocode.ended_at and promocode.ended_at < now):
-                    return Response({"status": False, 
-                                     "statusCode": 400, 
-                                     "error": "Promocode not active or expired."},
-                                    status=status.HTTP_400_BAD_REQUEST)
-
-                if Order.objects.filter(customer=customer, promocode=promocode).exists():
-                    return Response({"status": False,
-                                      "statusCode": 400,
-                                      "error": "You have already used this promocode."},
-                                    status=status.HTTP_400_BAD_REQUEST)
-
-                if promocode.promocodeType == "fix_price" and promocode.amount is not None:
-                    discount_amount = Decimal(promocode.amount)
-                elif promocode.promocodeType == "discount" and promocode.amount is not None:
-                    discount_amount = original_amount * (Decimal(promocode.amount) / 100)
-
-                total_amount = max(original_amount - discount_amount, Decimal("0.00"))
-
-            # -------------------- Create Order --------------------
-            order = Order.objects.create(
+            cart = Cart.objects.filter(
                 user=request.user,
+                is_active=True
+            ).first()
+
+            if not cart:
+                return Response({
+                    "status": False,
+                    "statusCode":200,
+                    "message": "Cart is empty",
+                    "items": [],
+                    "summary": {}
+                }, status=status.HTTP_200_OK)
+
+            cart_items = CartItem.objects.select_related("product").filter(
                 cart=cart,
-                customer=customer,
-                order_type=order_type,
-                total_amount=total_amount,
-                shipping_fee=Decimal("100"),
-                tax=Decimal("10"),
-                start_date=start_date,
-                return_date=return_date,
-                status="confirmed",
-                promocode=promocode
+                is_active=True
             )
 
-            rental_days = (return_date - start_date).days + 1
+            items = []
+            subtotal = 0
+            total_discount = 0
 
-            # -------------------- Create Order Items --------------------
             for item in cart_items:
-                OrderItem.objects.create(
+
+                original_total = item.price * item.quantity
+                discounted_total = item.final_price * item.quantity
+                discount_amount = original_total - discounted_total
+
+                subtotal += discounted_total
+                total_discount += discount_amount
+
+                items.append({
+                    "product_id": item.product.id,
+                    "product_name": item.product.productName,
+                    "product_image": item.product.ProductImage.url if item.product.ProductImage else None,
+                    "quantity": item.quantity,
+                    "unit_price": item.price,
+                    "final_price": item.final_price,
+                    "total_price": discounted_total,
+                    "discount": discount_amount
+                })
+
+            shipping = cart.shipping_amount if hasattr(cart, "shipping_amount") else 0
+            tax = cart.tax_amount if hasattr(cart, "tax_amount") else 0
+            fees = cart.fees_amount if hasattr(cart, "fees_amount") else 0
+
+            grand_total = subtotal + shipping + tax + fees
+
+            return Response({
+                "status": True,
+                "statusCode":200,
+                "items": items,
+                "summary": {
+                    "subtotal": subtotal,
+                    "discount": total_discount,
+                    "shipping": shipping,
+                    "tax": tax,
+                    "fees": fees,
+                    "grand_total": grand_total
+                }
+            }, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Something went wrong",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    
+class CreateOrderAPIView(APIView):
+    @transaction.atomic
+    def post(self, request):
+        try:
+            user = request.user
+            data = request.data
+
+            cart_id = data.get("cart_id")
+            if not cart_id:
+                return Response({
+                    "status": False,
+                    "statusCode": 400, 
+                    "message": "cart_id is required"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+            cart = Cart.objects.filter(id=cart_id, user=user, is_active=True).first()
+            if not cart or not cart.items.exists():
+                return Response({
+                    "status": False,
+                    "statusCode": 404, 
+                    "message": "Cart not found or empty"}, status=status.HTTP_404_NOT_FOUND)
+
+            try:
+                start_date = datetime.strptime(data.get("rental_start_date"), "%Y-%m-%d").date()
+                end_date = datetime.strptime(data.get("rental_end_date"), "%Y-%m-%d").date()
+            except:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Invalid date format. Use YYYY-MM-DD"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if end_date < start_date:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Rental end date cannot be before start date"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+            rental_days = (end_date - start_date).days + 1
+
+            customer_data = data.get("customer")
+            customer_id = data.get("customer_id")
+            customer = None
+
+            if customer_id:
+                customer = CustomerDetails.objects.filter(id=customer_id, user=user).first()
+                if not customer:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "Invalid customer_id"}, status=status.HTTP_400_BAD_REQUEST)
+            elif customer_data:
+                customer = CustomerDetails.objects.filter(user=user, email=customer_data.get("email")).first()
+                if not customer:
+                    customer = CustomerDetails.objects.create(
+                        user=user,
+                        email=customer_data.get("email"),
+                        first_name=customer_data.get("first_name"),
+                        last_name=customer_data.get("last_name"),
+                        phone=customer_data.get("phone"),
+                        address_line_1=customer_data.get("address_line1"),
+                        address_line_2=customer_data.get("address_line2"),
+                        city=customer_data.get("city"),
+                        postal_code=customer_data.get("postal_code"),
+                        country=customer_data.get("country"),
+                    )
+            else:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Customer info is required"
+                    },status=status.HTTP_400_BAD_REQUEST)
+
+            # ------------------- Subtotal -------------------
+            subtotal_day = sum([Decimal(item.total_price or 0) for item in cart.items.all()])
+            subtotal = subtotal_day * rental_days
+
+            # ------------------- Promocode -------------------
+            promo_discount = Decimal("0.00")
+            applied_promo = None
+            promocode_code = data.get("promocode")
+            if promocode_code:
+                promo = Promocode.objects.filter(promocodeName=promocode_code, isActive=True, isDeleted=False).first()
+                if not promo:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400, 
+                        "message": "Promocode not found or inactive"
+                        }, status=status.HTTP_400_BAD_REQUEST)
+
+                now = timezone.now()
+                if (promo.started_at and promo.started_at > now) or (promo.ended_at and promo.ended_at < now):
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "Promocode is expired or not active"
+                        }, status=status.HTTP_400_BAD_REQUEST)
+
+                if Order.objects.filter(customer=customer, promocode=promo).exists():
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "You have already used this promocode"
+                        }, status=status.HTTP_400_BAD_REQUEST)
+
+                if promo.promocodeType == "discount":
+                    promo_discount = (subtotal * Decimal(promo.amount or 0)) / 100
+                elif promo.promocodeType == "fix_price":
+                    promo_discount = Decimal(promo.amount or 0)
+
+                if promo_discount >= subtotal:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "Promocode discount cannot exceed subtotal"
+                        }, status=status.HTTP_400_BAD_REQUEST)
+
+                applied_promo = promo
+            tax_amount = Decimal("10")
+            shipping_charge = Decimal("10")
+            total_amount = subtotal - promo_discount + tax_amount + shipping_charge
+
+            order = Order.objects.create(
+                user=user,
+                cart=cart,
+                customer=customer,
+                rental_start_date=start_date,
+                rental_end_date=end_date,
+                rental_days=rental_days,
+                subtotal=subtotal,
+                total_amount=total_amount,
+                shipping_charge=shipping_charge,
+                tax=tax_amount,
+                promocode=applied_promo,
+            )
+
+            order_items = []
+            for item in cart.items.all():
+                line_total = Decimal(item.total_price or 0) * rental_days
+                order_item = OrderItem(
                     order=order,
                     product=item.product,
                     quantity=item.quantity,
-                    rental_days=rental_days,
-                    price_per_day=item.product.price or 0
+                    price_per_day=Decimal(item.final_price or 0),
+                    subtotal=line_total
                 )
+                order_items.append(order_item)
 
-            # -------------------- Admin Notification --------------------
-            create_admin_order_notification(
-                instance=order,
-                title=f"New Order created: {order.order_id}",
-                message=f"A new Order request has been created by {customer.user}.",
-                priority="high",
-                object_id=order.order_id
-            )
+            OrderItem.objects.bulk_create(order_items)
+            for item in cart.items.all():
+                product = item.product
+                product.available_quantity -= item.quantity
+                if product.available_quantity < 0:
+                    product.available_quantity = 0
+                product.save()
 
-            # -------------------- Response --------------------
             response_data = {
-                "cart": {
-                    "cart_id": cart.id,
-                    "items": [{"id": item.id, "total_price": float(item.total_price or 0)} for item in cart_items]
-                },
+                "order_id": order.order_id,
+                "order_status":order.status,
                 "customer": {
+                    "id": customer.id,
                     "first_name": customer.first_name,
                     "last_name": customer.last_name,
                     "email": customer.email,
                     "phone": customer.phone
                 },
                 "delivery_address": {
-                    "address_line_1": customer.address_line_1,
-                    "address_line_2": customer.address_line_2,
+                    "address_line1": customer.address_line_1,
+                    "address_line2": customer.address_line_2,
                     "city": customer.city,
                     "postal_code": customer.postal_code,
                     "country": customer.country
                 },
-                "rental": {
+                "rental_period": {
                     "start_date": start_date.strftime("%Y-%m-%d"),
-                    "return_date": return_date.strftime("%Y-%m-%d"),
+                    "end_date": end_date.strftime("%Y-%m-%d"),
                     "duration_days": rental_days
                 },
-                "payment": {
-                    "payment_method": customer.payment_method
+                "order_items": [
+                    {
+                        "product_id": item.product.id,
+                        "product_name": item.product.productName,
+                        "product_image": item.product.ProductImage.url if item.product.ProductImage else None,
+                        "quantity": item.quantity,
+                        "price_per_day": str(item.price_per_day),
+                        "total_price": str(item.subtotal)
+                    } for item in order.items.all()
+                ],
+                "order_summary": {
+                    # "status":order.status,
+                    "subtotal": str(subtotal),
+                    "promo_discount": str(promo_discount),
+                    "tax": str(tax_amount),
+                    "shipping_charge": str(shipping_charge),
+                    "total_amount": str(total_amount)
                 },
-                "promocode": {
-                    "code": promocode.promocodeName if promocode else None
-                },
-                "order": {
-                    "order_id": str(order.order_id),
-                    "total_amount": float(total_amount),
-                    "discount": float(discount_amount),
-                    "order_status": order.status
-                }
+                "promocode": promocode_code or None,
             }
 
             return Response({
@@ -1550,15 +1695,12 @@ class CreateOrderAPIView(APIView):
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            import traceback
-            print(traceback.format_exc())
             return Response({
                 "status": False,
                 "statusCode": 500,
-                "error": str(e)
+                "error": "Internal server error.",
+                "details": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 
 class OrderSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1580,161 +1722,125 @@ class OrderSummaryAPIView(APIView):
             404: OpenApiTypes.OBJECT,
         },
         )
-
-    def get(self, request,order_id):
-
-        order_id = request.data.get("order_id")
-        if not order_id:
-            return Response(
-                {"error": "Order ID is required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
+    def get(self, request, order_id=None):
         try:
+            order_id = order_id or request.data.get("order_id")
             if not order_id:
                 return Response({
-                    "status":False,
-                    "statusCode":400,
-                    "message": "Order ID is required."},
-                    status=status.HTTP_400_BAD_REQUEST)
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Order ID is required."
+                    },status=status.HTTP_400_BAD_REQUEST)
+            
             try:
-                order = Order.objects.get(order_id=order_id, customer__user=request.user)
+                order = Order.objects.get(order_id=order_id, user=request.user)
             except Order.DoesNotExist:
                 return Response({
-                    "status":False,
-                    "statusCode":404,
-                    "message": "Order not found."},
-                    status=status.HTTP_404_NOT_FOUND )
-            customer = order.customer
-            cart_items = order.cart.items.all()  
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Order not found."
+                    },status=status.HTTP_404_NOT_FOUND)
 
-            order_items_list = []
-            for item in cart_items:
-                order_items_list.append({
+            customer = order.customer
+            order_items = order.items.all()
+
+            items_list = []
+            for item in order_items:
+                items_list.append({
                     "name": item.product.productName,
                     "quantity": item.quantity,
-                    "price_per_item": Decimal(item.price),
-                    "total_price": Decimal(item.total_price),
-                    "product_image": item.product.ProductImage.url if item.product.ProductImage else None
+                    "price_per_day": str(Decimal(item.price_per_day)),
+                    "total_price": str(Decimal(item.subtotal)),
+                    "product_image": request.build_absolute_uri(item.product.ProductImage.url) if item.product.ProductImage else None
                 })
-            duration_days = (order.return_date - order.start_date).days + 1
-            subtotal = Decimal(sum(item.total_price for item in cart_items))
+
+            rental_days = (order.rental_end_date - order.rental_start_date).days + 1 if order.rental_start_date and order.rental_end_date else 0
+            subtotal = Decimal(order.subtotal or sum(item.subtotal for item in order_items))
+            shipping = Decimal(order.shipping_charge or 0)
+            tax = Decimal(order.tax or 0)
             total_amount = Decimal(order.total_amount)
-            discount = Decimal(subtotal - total_amount) if subtotal > total_amount else 0.0
 
             response_data = {
                 "contact_information": {
-                    "name": f"{customer.first_name} {customer.last_name}",
-                    "email": customer.email,
-                    "phone": customer.phone
+                    "name": f"{customer.first_name} {customer.last_name}" if customer else None,
+                    "email": customer.email if customer else None,
+                    "phone": customer.phone if customer else None
                 },
                 "delivery_address": {
-                        "address_line_1": customer.address_line_1,
-                        "address_line_2": customer.address_line_2,
-                        "city": customer.city,
-                        "postal_code": customer.postal_code,
-                        "country": customer.country
-                    },
+                    "address_line_1": customer.address_line_1 if customer else None,
+                    "address_line_2": customer.address_line_2 if customer else None,
+                    "city": customer.city if customer else None,
+                    "postal_code": customer.postal_code if customer else None,
+                    "country": customer.country if customer else None
+                },
                 "rental_period": {
-                    "start": order.start_date.strftime("%Y-%m-%d"),
-                    "return": order.return_date.strftime("%Y-%m-%d"),
-                    "duration": f"{duration_days} days"
+                    "start": order.rental_start_date.strftime("%Y-%m-%d") if order.rental_start_date else None,
+                    "end": order.rental_end_date.strftime("%Y-%m-%d") if order.rental_end_date else None,
+                    "duration": f"{rental_days} days"
                 },
-                "order_items": order_items_list,
-                "payment": {
-                    "payment_method": order.payment_method
-                },
-                "promocode": {
-                    "code": order.promocode.promocodeName if order.promocode else None
-                },
+                "order_items": items_list,
                 "order_summary": {
-                    "order_id":order.order_id,
-                    "subtotal": subtotal,
-                    "discount": discount,
-                    "total": total_amount
+                    "subtotal": str(subtotal),
+                    "shipping": str(shipping),
+                    "tax": str(tax),
+                    "total": str(total_amount)
                 }
             }
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Order review fetched successfully",
-                "data": response_data},status=status.HTTP_200_OK)
+            return Response(
+                { "status": True,
+                  "statusCode": 200,
+                  "message": "Order summary fetched successfully", 
+                  "data": response_data},
+                status=status.HTTP_200_OK
+            )
         except Exception as e:
             return Response({
                     "status": False,
                     "statusCode": 500,
                     "error": "Something went wrong while fetching order summary.",
-                    "details": str(e) 
-                },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    "details": str(e)
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class UserOrderListAPIView(APIView):
-    permission_classes = [IsAuthenticated]  
+    permission_classes = [IsAuthenticated]
 
-    @extend_schema(
-    summary="OrderList API",
-    
-    tags=["Payment Gateway"],
-    responses={200: OpenApiTypes.OBJECT}
-    )
     def get(self, request):
-        user = request.user
+        try:
+            user = request.user
+            orders = Order.objects.filter(user=user, is_active=True, is_deleted=False).order_by("-created_at")
 
-        if not user.is_authenticated:
-            return Response({
-                "status": False,
-                "statusCode": 401,
-                "message": "Authentication failed. Please login.",
-                "data": {}
-            })
-        orders = Order.objects.filter(user__email=user.email, is_active=True, is_deleted=False).order_by("-created_at")
-        if not orders.exists():
+            if not orders.exists():
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "No orders found for this user",
+                    "data": []
+                },status=status.HTTP_200_OK)
+
+            serializer = OrderSerializer(orders, many=True)
             return Response({
                 "status": True,
                 "statusCode": 200,
-                "message": "No orders found for this user",
-                "data": []
-            })
-
-        serializer = OrderSerializer(orders, many=True)
-        return Response({
-            "status": True,
-            "statusCode": 200,
-            "message": "Orders fetched successfully",
-            "data": serializer.data
-        })
+                "message": "Orders fetched successfully",
+                "data": serializer.data
+            },status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "statusCode": 500,
+                    "error": "Something went wrong while fetching order.",
+                    "details": str(e)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+# views.py
 class OrderDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(
-    summary="OrderDetail API",
-    tags=["Payment Gateway"],
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "order_id": {"type": "string"}
-            },
-            "required": ["order_id"]
-        }
-    },
-    responses={
-        200: OpenApiTypes.OBJECT,
-        404: OpenApiTypes.OBJECT,
-    },
-    )
-
-    def get(self, request, order_id=None):
-        order_id = request.data.get("order_id")
-
-        if not order_id:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "message": "order_id is required",
-                "data": {}
-            }, status=status.HTTP_400_BAD_REQUEST)
-
+    def get(self, request, order_id):
         try:
             if not order_id:
                 return Response({
@@ -1744,9 +1850,7 @@ class OrderDetailAPIView(APIView):
                     "data": {}
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            customer = CustomerDetails.objects.get(user=request.user)
-            order = Order.objects.filter(order_id=order_id, customer=customer).first()
-
+            order = Order.objects.filter(order_id=order_id, user=request.user, is_active=True, is_deleted=False).first()
             if not order:
                 return Response({
                     "status": False,
@@ -1761,48 +1865,79 @@ class OrderDetailAPIView(APIView):
                 "statusCode": 200,
                 "message": "Order fetched successfully",
                 "data": serializer.data
-            }, status=status.HTTP_200_OK)
-
+            }) 
         except Exception as e:
-            import traceback
-            print(traceback.format_exc())
-            return Response({
-                "status": False,
-                "statusCode": 500,
-                "error": "Internal server error.",
-                "details": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {
+                    "status": False,
+                    "statusCode": 500,
+                    "error": "Something went wrong while fetching order.",
+                    "details": str(e)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class UserCancelOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @transaction.atomic
     def post(self, request, order_id):
-        user = request.user
-        cancel_reason = request.data.get(
-            "cancel_reason",
-            "Cancelled by customer"
-        )
         try:
-            order = Order.objects.get(
-                order_id=order_id,
-                customer__user=user,
-                is_active=True,
-                is_deleted=False
-            )
-            today = timezone.now().date()
-            days_until_shipment = (order.start_date - today).days
-            if days_until_shipment < 5:
+            cancel_reason = request.data.get("cancel_reason")
+
+            if not cancel_reason:
                 return Response({
                     "status": False,
-                    "statusCode": 400,
-                    "error": "Cancellation allowed only more than 5 days before shipment."
+                    "statusCode":400,
+                    "message": "Cancel reason is required."
                 }, status=status.HTTP_400_BAD_REQUEST)
-            if order.status not in ["pending", "confirmed"]:
+
+            try:
+                order = Order.objects.select_related("rental").get(
+                    order_id=order_id,
+                    customer__user=request.user,
+                    is_active=True,
+                    is_deleted=False
+                )
+            except Order.DoesNotExist:
                 return Response({
                     "status": False,
-                    "statusCode": 400,
-                    "error": "Order cannot be cancelled after shipment."
+                    "statusCode":404,
+                    "message": "Order not found."
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            if order.status == "cancelled":
+                return Response({
+                    "status": False,
+                    "statusCode":400,
+                    "message": "Order already cancelled."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if order.status in ["out_for_delivery", "delivered"]:
+                return Response({
+                    "status": False,
+                    "statusCode":400,
+                    "message": "Order already shipped. Cannot cancel."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if not hasattr(order, "rental"):
+                return Response({
+                    "status": False,
+                    "statusCode":400,
+                    "message": "Rental details not found."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            shipping_date = order.rental.start_date
+            today = timezone.now().date()
+
+            last_cancel_date = shipping_date - timedelta(days=5)
+
+            if today > last_cancel_date:
+                return Response({
+                    "status": False,
+                    "statusCode":400,
+                    "message": f"Cancellation allowed only before {last_cancel_date}."
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             order.status = "cancelled"
@@ -1810,360 +1945,176 @@ class UserCancelOrderAPIView(APIView):
             order.cancelled_by = "customer"
             order.save()
 
-            rentals = Rental.objects.filter(order_item__order=order)
-            for rental in rentals:
-                rental.status = "cancelled"
-                rental.save()
-
-            serializer = OrderSerializer(order)
-  
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": f"Order {order.order_id} cancelled successfully.",
-                "order": serializer.data
-            }, status=status.HTTP_200_OK)
-
-        except Order.DoesNotExist:
-            return Response({
-                "status": False,
-                "statusCode": 404,
-                "error": "Order not found."
-            }, status=status.HTTP_404_NOT_FOUND)
-
-        except Exception as e:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "error": str(e)
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-LATE_FEE_PER_DAY = 10  
-COMPENSATION_RATE = 100  
-
-ROUND_TRIP_SHIPPING_FEE = Decimal("50.00")
-CONSUMPTION_TAX_RATE = Decimal("0.10")  
-
-#-------------------User Return Order-------------------
-
-class UserReturnOrderAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    @transaction.atomic
-    def post(self, request, order_id):
-
-        user = request.user
-        return_items = request.data.get("items", [])
-        if not return_items:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "error": "No items provided for return."
-            }, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            order = Order.objects.get(
-                order_id=order_id,
-                customer__user=user,
-                is_active=True,
-                is_deleted=False
-            )
-        except Order.DoesNotExist:
-            return Response({
-                "status": False,
-                "statusCode": 404,
-                "error": "Order not found."
-            }, status=status.HTTP_404_NOT_FOUND)
-
-        try:
-            rental = order.rental  
-        except:
-            return Response({
-                "status": False,
-                "statusCode": 404,
-                "error": "Rental not found."
-            }, status=status.HTTP_404_NOT_FOUND)
-
-        if order.status in ["pending", "confirmed"]:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "error": "Returns not allowed before shipment."
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        today = timezone.now().date()
-
-        total_late_fee = Decimal("0.00")
-        total_lost_compensation = Decimal("0.00")
-        for item_data in return_items:
-
-            product_id = item_data.get("product_id")
-            qty_to_return = int(item_data.get("quantity", 0))
-            lost = item_data.get("lost", False)
-
-            if not product_id or qty_to_return <= 0:
-                continue
-
-            try:
-                rental_item = RentalItem.objects.get(
-                    rental=rental,
-                    product_id=product_id
-                )
-            except RentalItem.DoesNotExist:
-                continue
-
-            remaining_qty = (
-                rental_item.quantity
-                - rental_item.returned_quantity
-                - rental_item.lost_quantity
-            )
-
-            if qty_to_return > remaining_qty:
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": f"Return quantity exceeds remaining quantity for {rental_item.product.productName}."
-                }, status=status.HTTP_400_BAD_REQUEST)
-            if lost:
-
-                lost_amount = (
-                    rental_item.price_per_day
-                    * max((rental.end_date - rental.start_date).days, 1)
-                    * qty_to_return
-                )
-
-                rental_item.lost_quantity += qty_to_return
-
-                if rental_item.lost_quantity >= rental_item.quantity:
-                    rental_item.is_lost = True
-
-                total_lost_compensation += lost_amount
-            else:
-
-                late_days = max((today - rental.end_date).days, 0)
-                late_fee = Decimal(late_days * 20 * qty_to_return) 
-                total_late_fee += late_fee
-                rental_item.returned_quantity += qty_to_return
-
-                if rental_item.returned_quantity >= rental_item.quantity:
-                    rental_item.is_returned = True
-                rental_item.product.available_quantity += qty_to_return
-                rental_item.product.save()
-
-            rental_item.save()
-        rental.late_fee += total_late_fee
-        rental.lost_fee += total_lost_compensation
-        rental_subtotal = sum(item.subtotal for item in rental.items.all())
-        rental.total_amount = (
-            rental_subtotal
-            + rental.late_fee
-            + rental.lost_fee
-            + rental.damage_fee
-            + rental.shipping_fee
-            + rental.tax
-            - rental.discount_amount
-        )
-        remaining_items = rental.items.filter(
-            quantity__gt=F("returned_quantity") + F("lost_quantity")
-        )
-
-        if not remaining_items.exists():
-            rental.status = "returned"
-            rental.actual_return_date = today
-            order.status = "delivered"
-        else:
-            rental.status = "partial_return"
-            order.status = "processing"
-
-        rental.save()
-        order.total_amount = rental.total_amount
-        order.save()
-
-        return Response({
-            "status": True,
-            "statusCode": 200,
-            "message": "Return processed successfully.",
-            "late_fee_added": float(total_late_fee),
-            "lost_fee_added": float(total_lost_compensation),
-            "updated_total_amount": float(order.total_amount)
-        }, status=status.HTTP_200_OK)
-
-
-class CreateRentalOrderAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    @transaction.atomic
-    def post(self, request):
-        try:
-            user = request.user
-            data = request.data
-
-            cart_id = data.get("cart_id")
-            rental_data = data.get("rental", {})
-            payment_method = data.get("payment_method")
-            order_type = data.get("order_type")
-
-            if not cart_id:
-                return Response({
-                    "status": False,
-                    "statusCode":400,
-                    "error": "cart_id is required"
-                }, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                cart = Cart.objects.get(id=cart_id, user=user, is_active=True)
-            except Cart.DoesNotExist:
-                return Response({
-                    "status": False,
-                    "statusCode":400,
-                    "error": "Cart not found"
-                },status=status.HTTP_400_BAD_REQUEST)
-
-            cart_items = cart.items.all()
-            if not cart_items.exists():
-                return Response({
-                    "status": False,
-                    "statusCode":400,
-                    "error": "Cart is empty",
-                }, status=status.HTTP_400_BAD_REQUEST)
-            start_date = parse_date(rental_data.get("start_date"))
-            return_date = parse_date(rental_data.get("return_date"))
-
-            if not start_date or not return_date or return_date < start_date:
-                return Response({
-                    "status": False,
-                    "statusCode":400,
-                    "error": "Invalid rental dates",
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            rental_days = (return_date - start_date).days + 1
-            for item in cart_items:
-                if item.quantity > item.product.available_quantity:
-                    return Response({
-                        "status": False,
-                        "statusCode":400,
-                        "error": f"{item.product.productName} not available",
-                    }, status=status.HTTP_400_BAD_REQUEST)
-            TAX_RATE = Decimal("0.10")
-            SHIPPING_FEE = Decimal("50.00")
-
-            rental_subtotal = Decimal("0.00")
-
-            for item in cart_items:
-                rental_subtotal += (
-                    Decimal(item.product.price)
-                    * item.quantity
-                    * rental_days
-                )
-
-            shipping_fee = SHIPPING_FEE
-            tax_amount = (rental_subtotal + shipping_fee) * TAX_RATE
-            total_amount = rental_subtotal + shipping_fee + tax_amount
-            try:
-                customer = CustomerDetails.objects.get(user=user)
-            except CustomerDetails.DoesNotExist:
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "error": "Customer details not found"
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            order = Order.objects.create(
-                cart=cart,
-                customer=customer,
-                payment_method=payment_method,
-                order_type=order_type,
-                total_amount=total_amount,
-                shipping_fee=shipping_fee,     
-                tax=tax_amount,                
-                start_date=start_date,
-                return_date=return_date,
-                status="confirmed"
-            )
-            # send_notification(
-            #     user=order.customer.user,
-            #     notification_type="order_confirmation",
-            #     subject="Order Confirmed",
-            #     message=f"Your order #{order.order_id} has been confirmed."
-            # )
-            for item in cart_items:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    quantity=item.quantity,
-                    rental_days=rental_days,
-                    price_per_day=item.product.price
-                )
-                item.product.available_quantity -= item.quantity
+            for item in order.items.all():
+                item.product.available_quantity += item.quantity
                 item.product.save()
 
-            rental = Rental.objects.create(
-                order=order,                      
-                customer=customer,
-                start_date=start_date,
-                end_date=return_date,
-                shipping_address=customer.address_line_1,
-                shipping_fee=shipping_fee,
-                tax=tax_amount,
-                total_amount=total_amount,
-                status="rented"
-            )
-            for order_item in order.items.all():
-                RentalItem.objects.create(
-                    rental=rental,
-                    product=order_item.product,
-                    quantity=order_item.quantity,
-                    price_per_day=order_item.price_per_day
-                )
-
-            cart.items.all().delete()
-            cart.is_active = False
-            cart.save()
-    
             return Response({
                 "status": True,
-                "statusCode":201,
-                "message": "Order created successfully",
-                "order_id": order.order_id,
-                "total_amount": float(total_amount)
-            }, status=status.HTTP_201_CREATED)
-
-        except Exception as e:
-            return Response({
-                "status": False,
-                "statusCode":500,
-                "error": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-class RentalListAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        try:
-            rentals_qs = Rental.objects.filter(isDeleted=False).order_by("created_at")
-
-            paginator = CustomPagination()
-            page = paginator.paginate_queryset(rentals_qs, request)
-            serializer = RentalSerializer(page, many=True)
-
-            return Response({
-                "status": True,
-                "statusCode": 200,
-                "message": "Rental list fetched successfully",
-                "data": serializer.data,
-                "pagination": {
-                    "page": paginator.page.number,
-                    "page_size": paginator.get_page_size(request),
-                    "total_pages": paginator.page.paginator.num_pages,
-                    "total_items": paginator.page.paginator.count
-                }
-            })
-
+                "statusCode":200,
+                "message": "Order cancelled successfully."
+            }, status=status.HTTP_200_OK)
+        
         except Exception as e:
             return Response({
                 "status": False,
                 "statusCode": 500,
                 "error": str(e)
-            }, status=500)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class ReturnOrderAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @transaction.atomic
+    def post(self, request):
+        try:
+            order_id = request.data.get("order_id")
+            return_items = request.data.get("items", [])
+
+            if not order_id:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "order_id is required."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if not return_items:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "No items provided for return."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                order = Order.objects.select_related("customer", "rental").get(
+                    order_id=order_id,
+                    customer__user=request.user,
+                    is_active=True,
+                    is_deleted=False
+                )
+            except Order.DoesNotExist:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Order not found."
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            rental = getattr(order, "rental", None)
+            if not rental:
+                rental = Rental.objects.create(
+                    order=order,
+                    customer=order.customer,
+                    start_date=order.rental_start_date,
+                    end_date=order.rental_end_date,
+                    shipping_address=getattr(order.customer, "address", ""),
+                    shipping_fee=order.shipping_charge or 0,
+                    tax=order.tax or 0,
+                    total_amount=order.total_amount or 0,
+                    status='rented'
+                )
+                for item in order.items.all():
+                    RentalItem.objects.create(
+                        rental=rental,
+                        product=item.product,
+                        quantity=item.quantity,
+                        price_per_day=item.price_per_day,
+                        subtotal=item.subtotal
+                    )
+
+            # if order.status != "delivered":
+            #     return Response({
+            #         "status": False,
+            #         "statusCode": 400,
+            #         "error": "Return allowed only after delivery."
+            #     }, status=status.HTTP_400_BAD_REQUEST)
+
+            today = timezone.now().date()
+            # if today < rental.end_date:
+            #     return Response({
+            #         "status": False,
+            #         "statusCode": 400,
+            #         "error": "Return allowed only after rental end date."
+            #     }, status=status.HTTP_400_BAD_REQUEST)
+
+            late_days = max((today - rental.end_date).days, 0)
+            total_late_fee = Decimal("0.00")
+            total_lost_fee = Decimal("0.00")
+
+            for item_data in return_items:
+                product_id = item_data.get("product_id")
+                returned_qty = int(item_data.get("quantity", 0))
+
+                if returned_qty <= 0:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "Invalid return quantity."
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+                try:
+                    rental_item = RentalItem.objects.get(
+                        rental=rental,
+                        product_id=product_id
+                    )
+                except RentalItem.DoesNotExist:
+                    return Response({
+                        "status": False,
+                        "statusCode": 404,
+                        "message": f"Rental item not found for product {product_id}."
+                    }, status=status.HTTP_404_NOT_FOUND)
+
+                if rental_item.returned_quantity + returned_qty > rental_item.quantity:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "Return quantity exceeds rented quantity."
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+                rental_item.returned_quantity += returned_qty
+                if rental_item.returned_quantity == rental_item.quantity:
+                    rental_item.is_returned = True
+                rental_item.save()
+
+                rental_item.product.available_quantity += returned_qty
+                rental_item.product.save()
+
+                late_fee_per_day = Decimal("20.00")
+                late_fee = late_days * late_fee_per_day * returned_qty
+                total_late_fee += late_fee
+
+                remaining_qty = rental_item.quantity - rental_item.returned_quantity
+                if remaining_qty > 0:
+                    rental_days = max((rental.end_date - rental.start_date).days, 1)
+                    lost_fee = rental_item.price_per_day * rental_days * remaining_qty
+                    total_lost_fee += lost_fee
+
+            order.total_amount += (total_late_fee + total_lost_fee)
+            if all(item.is_returned for item in rental.items.all()):
+                rental.status = "returned"
+                rental.save()
+           
+            order.status = "returned"
+            order.is_returned = True
+            order.save()
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Return processed successfully",
+                "late_fee": float(total_late_fee),
+                "lost_fee": float(total_lost_fee),
+                "final_total_amount": float(order.total_amount),
+                "order_status": order.status,
+                "rental_id": rental.rental_id,
+                "rental_status": rental.status
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                    "status": False,
+                    "statusCode": 500,
+                    "details": str(e)
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class UserQuotationStatusUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -2271,38 +2222,7 @@ class UserQuotationStatusUpdateAPIView(APIView):
             "message": "Quotation cancelled successfully",
             "cancelled_by": user_role
         }, status=status.HTTP_200_OK)
-    
          
-#<------------OrderItem--------------->
-class UserOrderItemCreateAPIView(APIView):
-    permission_classes=[IsAuthenticated]
-    
-    def post(self,request):
-        try:
-            serializer = OrderItemSerializer(data=request.data,context={"request": request})
-            if serializer.is_valid():
-                serializer.save()
-                return Response({
-                    "statusCode":201,
-                    "status":True,
-                    "message":"Order Item Create Successfully. ",
-                    "data":serializer.data
-                },status=status.HTTP_201_CREATED)
-            else:
-                return Response({
-                    "statusCode":400,
-                    "status":False,
-                    "message":"Unable to create order item",
-                    "error":serializer.errors
-                },status=status.HTTP_400_BAD_REQUEST)
-        except OrderItem.DoesNotExist as e:
-            return Response({
-                "statusCode":500,
-                "status":False,
-                "message":"Something went wrong on server",
-                "error":str(e)
-            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
 
 #<-----------save quotation-------------->
 def send_quotation_contract(quotation):

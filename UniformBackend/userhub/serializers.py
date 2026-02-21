@@ -134,9 +134,19 @@ class VerifyUserSerializer(serializers.Serializer):
         if attrs["is_verify"] is not True:
             raise serializers.ValidationError("is_verify must be true.")
         return attrs
-
+from rest_framework import serializers
 
 class CartItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(
+        source='product.productName',
+        read_only=True
+    )
+
+    product_image = serializers.ImageField(
+        source='product.ProductImage',
+        read_only=True
+    )
+
     class Meta:
         model = CartItem
         fields = [
@@ -145,32 +155,48 @@ class CartItemSerializer(serializers.ModelSerializer):
             'product_image',
             'quantity',
             'price',
+            'final_price',
             'total_price'
         ]
-        read_only_fields = ['price', 'final_price', 'total_price']
-   
-class ProductMiniSerializer(serializers.ModelSerializer):
-    category_name = serializers.CharField(source="category.name", read_only=True)
-    subcategory_name = serializers.CharField(source="subcategory.name", read_only=True)
-
-
-    class Meta:
-        model = Product
-        fields = [
-            "id","productName","slug","description","price",
-            "discount","ProductImage","productType","type",
-            "category_name","subcategory_name","available_quantity","isPopular",
+        read_only_fields = [
+            'price',
+            'final_price',
+            'total_price'
         ]
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        request = self.context.get('request')
+
+        if request and representation.get('product_image'):
+            representation['product_image'] = request.build_absolute_uri(
+                representation['product_image']
+            )
+
+        return representation
+    
+# class ProductMiniSerializer(serializers.ModelSerializer):
+#     category_name = serializers.CharField(source="category.name", read_only=True)
+#     subcategory_name = serializers.CharField(source="subcategory.name", read_only=True)
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    items = CartItemSerializer(many=True, read_only=True)
-    estimated_delivery = serializers.SerializerMethodField()
+#     class Meta:
+#         model = Product
+#         fields = [
+#             "id","productName","slug","description","price",
+#             "discount","ProductImage","productType","type",
+#             "category_name","subcategory_name","available_quantity","isPopular",
+#         ]
 
-    class Meta:
-        model = Cart
-        fields = ['id', 'user', 'is_active', 'created_at', 'items',]
+
+
+# class OrderSerializer(serializers.ModelSerializer):
+#     items = CartItemSerializer(many=True, read_only=True)
+#     estimated_delivery = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = Cart
+#         fields = ['id', 'user', 'is_active', 'created_at', 'items',]
 
 class CustomerDetailsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -229,21 +255,11 @@ class RentalSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    # product = ProductSerializer(read_only=True)
-    subtotal = serializers.SerializerMethodField()
-    # rental = RentalSerializer(read_only=True)
- 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'quantity', 'rental_days', 'price_per_day', 'subtotal', 'rental']
-        read_only_fields = ['subtotal']
- 
-    def get_subtotal(self, obj):
-        return obj.quantity * obj.price_per_day * obj.rental_days
-    
+        fields = '__all__'
+        
 class OrderSerializer(serializers.ModelSerializer):
-    items = CartItemSerializer(many=True, read_only=True)
-
     class Meta:
         model = Order
         fields = '__all__' 
@@ -256,7 +272,6 @@ class OrderSerializer(serializers.ModelSerializer):
             "total_amount",
             "status",
             "created_at",
-            "estimated_delivery",
         ] 
         
 
@@ -274,7 +289,6 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = '__all__'
-
 
 
 class FavouriteSerializer(serializers.ModelSerializer):
