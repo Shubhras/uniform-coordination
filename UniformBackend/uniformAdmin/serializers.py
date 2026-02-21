@@ -724,26 +724,27 @@ class PartsMiniSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     isActive = serializers.BooleanField(required=False, default=True)
-
+ 
     category = CategoryMiniSerializer(read_only=True)
     subcategory = SubCategoryMiniSerializer(read_only=True)
     parts = PartsMiniSerializer(read_only=True, many=True)
-    ProductImage = serializers.SerializerMethodField()
-
+    ProductImage = serializers.SerializerMethodField()  # for response
+    ProductImage_file = serializers.ImageField(write_only=True, required=False) 
+ 
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.filter(isActive=True, isDeleted=False),
         source="category",
         write_only=True,
         required=False
     )
-
+ 
     subcategory_id = serializers.PrimaryKeyRelatedField(
         queryset=SubCategory.objects.filter(isActive=True, isDeleted=False),
         source="subcategory",
         write_only=True,
         required=False
     )
-
+ 
     parts_ids = serializers.PrimaryKeyRelatedField(
         queryset=Parts.objects.filter(isActive=True, isDeleted=False),
         source="parts",
@@ -757,7 +758,7 @@ class ProductSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
-
+ 
     class Meta:
         model = Product
         fields = [
@@ -765,18 +766,18 @@ class ProductSerializer(serializers.ModelSerializer):
             "theme",
 
             # READ
-            "category", "subcategory", "parts",
+            "category", "subcategory", "parts", "ProductImage",
 
             # WRITE
-            "category_id", "subcategory_id", "parts_ids",
+            "category_id", "subcategory_id", "parts_ids", "ProductImage_file",
 
-            "price", "discount",
-            "total_quantity", "available_quantity",
-            "ProductImage", "isActive", "created_at"
-        ]
+            "price", "discount", "total_quantity", "available_quantity",
+            "isActive", "created_at"
+]
+
     def to_internal_value(self, data):
         data = data.copy()
-
+ 
         parts = data.get("parts_ids")
         if parts and isinstance(parts, str):
             try:
@@ -785,68 +786,78 @@ class ProductSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     "parts_ids": "Invalid format. Use [1,2,3]."
                 })
-
+ 
         return super().to_internal_value(data)
     def validate_productName(self, value):
         queryset = Product.objects.filter(
             productName__iexact=value,
             isDeleted=False
         )
-
+ 
         if self.instance:
             queryset = queryset.exclude(id=self.instance.id)
-
+ 
         if queryset.exists():
             raise serializers.ValidationError(
                 "Product with this name already exists."
             )
-
+ 
         return value
     
     
     
     def validate(self, data):
         product_type = data.get("productType")
-
+ 
         theme_provided = "theme" in self.initial_data
         theme_value = data.get("theme")
-
+ 
         category = data.get("category")
         subcategory = data.get("subcategory")
-
+ 
         if subcategory and category and subcategory.category != category:
             raise serializers.ValidationError({
                 "subcategory": "Selected subcategory does not belong to selected category"
             })
-
+ 
         total_qty = data.get("total_quantity", 0)
         avail_qty = data.get("available_quantity", 0)
-
+ 
         if avail_qty > total_qty:
             raise serializers.ValidationError({
                 "available_quantity": "Available quantity cannot exceed total quantity"
             })
-
+ 
         if product_type == "table" and not theme_value:
             raise serializers.ValidationError({
                 "theme": "Theme is required when product type is table."
             })
-
+ 
         if product_type == "uniform" and theme_provided:
             raise serializers.ValidationError({
                 "theme": "Theme is not allowed for uniform products."
             })
-
+ 
         return data
         read_only_fields = ["slug", "created_at"]
 
-  
     def get_ProductImage(self, obj):
-        return build_media_url(obj.ProductImage)
+        if obj.ProductImage:
+            return build_media_url(obj.ProductImage)
+        return None
 
+    def create(self, validated_data):
+        image = validated_data.pop('ProductImage_file', None)
+        product = super().create(validated_data)
+        if image:
+            product.ProductImage = image
+            product.save()
+        return product    
+ 
+  
     def to_internal_value(self, data):
         data = data.copy()
-
+ 
         parts = data.get("parts_ids")
         if parts and isinstance(parts, str):
             try:
@@ -855,45 +866,44 @@ class ProductSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     "parts_ids": "Invalid format. Use [1,2,3]."
                 })
-
+ 
         return super().to_internal_value(data)
-
+ 
     
     def validate(self, data):
         product_type = data.get("productType")
-
+ 
         theme_provided = "theme" in self.initial_data
         theme_value = data.get("theme")
-
+ 
         category = data.get("category")
         subcategory = data.get("subcategory")
-
+ 
         if subcategory and category and subcategory.category != category:
             raise serializers.ValidationError({
                 "subcategory": "Selected subcategory does not belong to selected category"
             })
-
+ 
         total_qty = data.get("total_quantity", 0)
         avail_qty = data.get("available_quantity", 0)
-
+ 
         if avail_qty > total_qty:
             raise serializers.ValidationError({
                 "available_quantity": "Available quantity cannot exceed total quantity"
             })
-
+ 
         if product_type == "table" and not theme_value:
             raise serializers.ValidationError({
                 "theme": "Theme is required when product type is table."
             })
-
+ 
         if product_type == "uniform" and theme_provided:
             raise serializers.ValidationError({
                 "theme": "Theme is not allowed for uniform products."
             })
-
+ 
         return data
-
-    
+ 
     
     
 
@@ -1302,63 +1312,50 @@ class UserListSerializer(serializers.ModelSerializer):
         return obj.lastLogin >= active_window
 
 
-
 class OrderUpdateSerializer(serializers.ModelSerializer):
     customer = serializers.SerializerMethodField()
     payment = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = "__all__"
-       
-    def validate(self, attrs):
+        # fields admin can update + fields for nested info
+        fields = '__all__'
 
+    def validate(self, attrs):
         order = self.instance
         new_status = attrs.get("status", order.status)
         if order.status == "cancelled" and new_status == "cancelled":
-
             raise serializers.ValidationError("Order already cancelled")
-        if new_status == "cancelled" and order.status in [
-            "out_for_delivery",
-            "delivered"
-
-        ]:
-            raise serializers.ValidationError(
-                "Order cannot be cancelled after Out For Delivery or Delivered"
-            )
-        if order.status == new_status and new_status in [
-            "out_for_delivery",
-            "delivered"
-        ]:
-            raise serializers.ValidationError(
-                f"Order already marked as {new_status.replace('_', ' ').title()}"
-            )
+        if new_status == "cancelled" and order.status in ["out_for_delivery", "delivered"]:
+            raise serializers.ValidationError("Order cannot be cancelled after Out For Delivery or Delivered")
+        if order.status == new_status and new_status in ["out_for_delivery", "delivered"]:
+            raise serializers.ValidationError(f"Order already marked as {new_status.replace('_', ' ').title()}")
         return attrs
+
     def update(self, instance, validated_data):
         if validated_data.get("status") == "cancelled":
             instance.cancelled_by = "admin"
         return super().update(instance, validated_data)
-    
+
     def get_customer(self, obj):
-        if not obj.user:  # check if user exists
+        if not obj.user:
             return None
         try:
             customer = obj.user.customerdetails
             return {
-            "full_name": f"{customer.first_name} {customer.last_name}",
-                        "email": customer.email,
-                        "address": {
-                            "address_line_1": customer.address_line_1,
-                            "address_line_2": customer.address_line_2,
-                            "city": customer.city,
-                            "postal_code": customer.postal_code,
-                            "country": customer.country
-                        }
-                    }
+                "full_name": f"{customer.first_name} {customer.last_name}",
+                "email": customer.email,
+                "address": {
+                    "address_line_1": customer.address_line_1,
+                    "address_line_2": customer.address_line_2,
+                    "city": customer.city,
+                    "postal_code": customer.postal_code,
+                    "country": customer.country
+                }
+            }
         except CustomerDetails.DoesNotExist:
-                return None
+            return None
 
- 
     def get_payment(self, obj):
         payment = Payment.objects.filter(order=obj).first()
         if payment:
@@ -1369,15 +1366,70 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
             }
         return None
 
-  
+# class OrderUpdateSerializer(serializers.ModelSerializer):
+#     customer = serializers.SerializerMethodField()
+#     payment = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = Order
+#         fields = "__all__"
+       
+#     def validate(self, attrs):
+
+#         order = self.instance
+#         new_status = attrs.get("status", order.status)
+#         if order.status == "cancelled" and new_status == "cancelled":
+
+#             raise serializers.ValidationError("Order already cancelled")
+#         if new_status == "cancelled" and order.status in [
+#             "out_for_delivery",
+#             "delivered"
+
+#         ]:
+#             raise serializers.ValidationError(
+#                 "Order cannot be cancelled after Out For Delivery or Delivered"
+#             )
+#         if order.status == new_status and new_status in [
+#             "out_for_delivery",
+#             "delivered"
+#         ]:
+#             raise serializers.ValidationError(
+#                 f"Order already marked as {new_status.replace('_', ' ').title()}"
+#             )
+#         return attrs
+#     def update(self, instance, validated_data):
+#         if validated_data.get("status") == "cancelled":
+#             instance.cancelled_by = "admin"
+#         return super().update(instance, validated_data)
+    
+#     def get_customer(self, obj):
+#         if not obj.user: 
+#             return None
+#         try:
+#             customer = obj.user.customerdetails
+#             return {
+#             "full_name": f"{customer.first_name} {customer.last_name}",
+#                         "email": customer.email,
+#                         "address": {
+#                             "address_line_1": customer.address_line_1,
+#                             "address_line_2": customer.address_line_2,
+#                             "city": customer.city,
+#                             "postal_code": customer.postal_code,
+#                             "country": customer.country
+#                         }
+#                     }
+#         except CustomerDetails.DoesNotExist:
+#                 return None
 
  
-    
-class OrderUpdateSerializer(serializers.ModelSerializer):
-    # user = serializers.StringRelatedField()
-    # customer = serializers.StringRelatedField()
+#     def get_payment(self, obj):
+#         payment = Payment.objects.filter(order=obj).first()
+#         if payment:
+#             return {
+#                 "payment_id": payment.payment_id,
+#                 "payment_method": payment.payment_method,
+#                 "payment_status": payment.payment_status
+#             }
+#         return None
 
-    class Meta:
-        model = Order
-        # admin jo fields update kar sakta hai
-        fields = ['status', 'payment_method', 'order_type', 'total_amount', 'return_date', 'is_active']
+  

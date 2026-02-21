@@ -8,6 +8,7 @@ from django.utils import timezone
 from uniformAdmin.models import Product
 import uuid
 from django.utils.text import slugify
+from decimal import Decimal
 
 
 class Users(models.Model):
@@ -108,24 +109,28 @@ class CartItem(models.Model):
     product = models.ForeignKey("uniformAdmin.Product", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)  
-    discount = models.PositiveIntegerField(null=True, blank=True)  
-    final_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0) 
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    final_price = models.DecimalField(max_digits=10, decimal_places=2,default=0) 
+    total_price = models.DecimalField(max_digits=10, decimal_places=2,default=0)
     
-    created_at = models.DateTimeField(default=timezone.now) 
-    updated_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True) 
+    updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)  
 
     def save(self, *args, **kwargs):
-            self.price = self.product.price
-            self.discount = self.product.discount or 0  
+
+            self.price = Decimal(self.product.price)
+            self.discount = Decimal(self.product.discount or 0)
+
             if self.discount > 0:
-                discount_amount = (self.price * self.discount) / 100
+                discount_amount = (self.price * self.discount) / Decimal("100")
                 self.final_price = self.price - discount_amount
             else:
                 self.final_price = self.price
-            self.total_price = self.final_price * self.quantity
+
+            self.total_price = self.final_price * Decimal(self.quantity)
+
             super().save(*args, **kwargs)
 
 
@@ -163,35 +168,40 @@ class Order(models.Model):
  
     STATUS_CHOICE = [
        ('pending','Pending'),
-       ('conformed', 'Conformed'),
+       ('confirmed', 'Confirmed'),
        ('cancelled','Cancelled'),
        ('processing', 'Processing'),
        ('out_for_delivery', 'Out For Delivery'),
        ('delivered', 'Delivered'),
-       ('paid','PAID'),
+       ('returned', 'Returned'),
+       ('paid','Paid'),
     ]
     user =models.ForeignKey(Users,on_delete=models.SET_NULL,null=True,blank=True)
-    # order_id = models.CharField(max_length=100, unique=True)
     order_id = models.CharField(max_length=100, unique=True, blank=True, null=True)
-
-
+    shipping_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0,null=True,blank=True)
+    tax = models.DecimalField(max_digits=10, decimal_places=2, default=0,null=True,blank=True)
     cart = models.ForeignKey(Cart,on_delete=models.SET_NULL,null=True,blank=True)
     customer =models.ForeignKey(CustomerDetails,on_delete=models.SET_NULL,null=True,blank=True)
-    payment_method = models.CharField(max_length=50,null=True,blank=True)
+    payment_method = models.CharField(max_length=500,null=True,blank=True)
     currency = models.CharField(max_length=10,null=True,blank=True)
     status = models.CharField(max_length=50,choices=STATUS_CHOICE,default='pending')
     order_type =models.CharField(max_length=50,choices=ORDER_TYPE_CHOICES)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    start_date =models.DateField(auto_now_add=True)
-    return_date =models.DateField(auto_now_add=True)
+    rental_start_date = models.DateField(null=True,blank=True)
+    rental_end_date = models.DateField(null=True,blank=True)
+    rental_days = models.PositiveIntegerField(default=1, null=True, blank=True)  
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True, blank=True) 
     cancel_reason = models.CharField(max_length=50,null=True, blank=True)
     admin_cancel_reason = models.CharField(max_length=255, null=True, blank=True)
     cancelled_by = models.CharField(max_length=20, null=True, blank=True)
     promocode =models.ForeignKey("uniformAdmin.Promocode",on_delete=models.SET_NULL,null=True, blank=True)
+    is_paid =models.BooleanField(default=False,null=True,blank=True)
+    is_returned = models.BooleanField(default=False,null=True,blank=True)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
     is_update = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
 
 
     def save(self, *args, **kwargs):
@@ -208,14 +218,13 @@ class OrderItem(models.Model):
     order =models.ForeignKey(Order,on_delete=models.CASCADE,related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    rental_days = models.PositiveIntegerField(default=1)
+    # rental_days = models.PositiveIntegerField(default=1)
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2)
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    def save(self, *args, **kwargs):
-         self.subtotal = self.quantity * self.price_per_day * self.rental_days
-         super().save(*args, **kwargs)
+
+    
 
     def __str__(self):
         return f"{self.product.productName} x {self.quantity}"
@@ -296,8 +305,8 @@ class Payment(models.Model):
     ]
    
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    payment_id = models.CharField(max_length=50, unique=True)
-    customer_id = models.CharField(max_length=100, blank=True, null=True)  
+    payment_id = models.CharField(max_length=255, unique=True)
+    customer_id = models.CharField(max_length=255, blank=True, null=True)  
     payment_method_id = models.CharField(max_length=100, blank=True, null=True) 
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS)
     payment_method = models.CharField(max_length=20)
@@ -307,7 +316,7 @@ class Payment(models.Model):
     client_secret = models.CharField(max_length=255, blank=True, null=True) 
     is_active = models.BooleanField(default=True,null=True, blank=True)
     is_delete = models.DateTimeField(auto_now_add=True,null=True, blank=True)
-    is_update = models.DateField(auto_now_add=True,null=True, blank=True)
+    is_update = models.DateField(auto_now=True,null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
 
 class Refund(models.Model):
