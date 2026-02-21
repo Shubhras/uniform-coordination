@@ -2753,3 +2753,49 @@ class QuotationDetailByEnvelopeAPIView(APIView):
             "db_data": db_data,
             "docusign_data": docusign_data
         },status=201)
+
+
+#<------------------OrderCancelledAdminAPI------------------->
+class AdminOrderCancelAPIView(APIView):
+    authentication_classes=[IsAdminUserJWT]
+    
+    def post(self,request,order_id):
+        try:
+           order = Order.objects.get(order_id=order_id)
+        except Order.DoesNotExist as e:
+            return Response({
+                "statusCode":404,
+                "status":False,
+                "message":"Order Does not found",
+                "error":str(e)
+            },status=status.HTTP_404_NOT_FOUND)
+        
+        if order.status=='cancelled':
+            return Response({
+                "statusCode":409,
+                "status":False,
+                "message":"Order already cancelled"
+            },status=status.HTTP_409_CONFLICT)
+        if order.status in ["delivered", "paid"]:
+            return Response({
+                "StatusCode":409,
+                "status":False,
+                "message":"Cannot cancel completed order",
+            },status=status.HTTP_409_CONFLICT)
+        
+        reason = request.data.get("reason", "")
+        with transaction.atomic():
+            for item in order.items.all():
+                product = item.product
+                product.available_quantity += item.quantity
+                product.save()
+            
+            order.status = "cancelled"
+            order.cancelled_by = request.user.name
+            order.admin_cancel_reason = reason
+            order.save()
+            return Response({
+                "statusCode":200,
+                "status":True,
+                "message":"Order cancelled successfully & stock restored"
+            },status=status.HTTP_200_OK)
