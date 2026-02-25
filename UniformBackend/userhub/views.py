@@ -1255,7 +1255,7 @@ class UpdateCartItemAPIView(APIView):
                     "message": "Item removed from cart"
                 }, status=status.HTTP_200_OK)
 
-            item.quantity = quantity
+            item.quantity += quantity
             item.save()
 
             serializer = CartItemSerializer(
@@ -1376,21 +1376,22 @@ class ClearCartAPIView(APIView):
                     "statusCode": 404,
                     "message": "No active cart found."
                 }, status=status.HTTP_404_NOT_FOUND)
+            
+            active_items = cart.items.filter(is_active=True)
+            items_count = active_items.count()
 
-            for item in cart.items.filter(is_active=True):
+            for item in active_items:
                 product = item.product
                 product.available_quantity += item.quantity
                 product.save()
 
-                item.is_active = False
-                item.deleted_at = timezone.now()
-                item.save()
+            active_items.delete()
 
             return Response({
                 "status": True,
                 "statusCode": 200,
                 "message": "Cart cleared successfully",
-                "items_cleared": cart.items.filter(is_active=False).count()
+                "items_cleared": items_count,
             }, status=status.HTTP_200_OK)
 
         except Exception as e:
@@ -1420,6 +1421,7 @@ class ItemSummaryAPIView(APIView):
                 user=request.user,
                 is_active=True
             ).first()
+            print("Cart:", cart)
 
             if not cart:
                 return Response({
@@ -1876,92 +1878,64 @@ class OrderDetailAPIView(APIView):
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-
 class UserCancelOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @transaction.atomic
     def post(self, request, order_id):
         try:
-            cancel_reason = request.data.get("cancel_reason")
+            order = Order.objects.get(
+                order_id=order_id,
+                customer__user=request.user,
+                is_active=True,
+                is_deleted=False
+            )
+        except Order.DoesNotExist:
+            return Response({
+                "statusCode": 404,
+                "status": False,
+                "message": "Order not found"
+            }, status=status.HTTP_404_NOT_FOUND)
 
-            if not cancel_reason:
-                return Response({
-                    "status": False,
-                    "statusCode":400,
-                    "message": "Cancel reason is required."
-                }, status=status.HTTP_400_BAD_REQUEST)
+        if order.status.lower() == "cancelled":
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "message": "Order already cancelled. You cannot cancel again."
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-            try:
-                order = Order.objects.select_related("rental").get(
-                    order_id=order_id,
-                    customer__user=request.user,
-                    is_active=True,
-                    is_deleted=False
-                )
-            except Order.DoesNotExist:
-                return Response({
-                    "status": False,
-                    "statusCode":404,
-                    "message": "Order not found."
-                }, status=status.HTTP_404_NOT_FOUND)
 
-            if order.status == "cancelled":
-                return Response({
-                    "status": False,
-                    "statusCode":400,
-                    "message": "Order already cancelled."
-                }, status=status.HTTP_400_BAD_REQUEST)
+        if order.status in ["delivered", "out_for_delivery"]:
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "message": "Order already shipped/delivered. Cannot cancel."
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-            if order.status in ["out_for_delivery", "delivered"]:
-                return Response({
-                    "status": False,
-                    "statusCode":400,
-                    "message": "Order already shipped. Cannot cancel."
-                }, status=status.HTTP_400_BAD_REQUEST)
+        reason = request.data.get("reason")
 
-            if not hasattr(order, "rental"):
-                return Response({
-                    "status": False,
-                    "statusCode":400,
-                    "message": "Rental details not found."
-                }, status=status.HTTP_400_BAD_REQUEST)
+        if not reason:
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "message": "Cancel reason is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-            shipping_date = order.rental.start_date
-            today = timezone.now().date()
-
-            last_cancel_date = shipping_date - timedelta(days=5)
-
-            if today > last_cancel_date:
-                return Response({
-                    "status": False,
-                    "statusCode":400,
-                    "message": f"Cancellation allowed only before {last_cancel_date}."
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            order.status = "cancelled"
-            order.cancel_reason = cancel_reason
-            order.cancelled_by = "customer"
-            order.save()
-
-            for item in order.items.all():
+        with transaction.atomic():
+            for item in order.items.select_related("product"):
                 item.product.available_quantity += item.quantity
                 item.product.save()
 
-            return Response({
-                "status": True,
-                "statusCode":200,
-                "message": "Order cancelled successfully."
-            }, status=status.HTTP_200_OK)
-        
-        except Exception as e:
-            return Response({
-                "status": False,
-                "statusCode": 500,
-                "error": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+            order.status = "cancelled"
+            order.cancel_reason = reason
+            order.cancelled_by = "customer"
+            order.save()
 
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "message": "Order cancelled successfully"
+        }, status=status.HTTP_200_OK)
 
 class ReturnOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]

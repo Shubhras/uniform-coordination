@@ -157,7 +157,7 @@ urlpatterns = [
 
 
     #<-------------------Dashboardes------------------------------->
-    path("admindesh/",AdminDashAPIView.as_view(),name="admin-desh-info"),
+    path("admindesh/",AdminDashAPIView.as_view(),name="admin-dash-info"),
 
     #<-------------------Homepage------------------------------->
     path("uniform-home/", HomePageAPIView.as_view(), name="home-page"),
@@ -175,4 +175,5 @@ urlpatterns = [
     path('orderdetail/<str:order_id>/get/',AdminOrderDetailAPIView.as_view(),name='order_Detail'),
     
     path('quotation-detail/<str:external_document_id>/get/', QuotationDetailByEnvelopeAPIView.as_view(), name='quotation-detail-by-envelope'),
+
 ]

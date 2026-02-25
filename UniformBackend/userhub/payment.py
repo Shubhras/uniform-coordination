@@ -15,7 +15,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 stripe.api_key = settings.STRIPE_SECRET_KEY
-
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 # pagination 
 class CustomPagination(PageNumberPagination):
@@ -98,17 +99,22 @@ class CreatePaymentAPIView(APIView):
                     "user_id": request.user.id,
                 }
             )
+            payment_method_obj = stripe.PaymentMethod.retrieve(intent.payment_method)
+            method_name = payment_method_obj.type
 
             payment = Payment.objects.create(
                 order=order,
                 payment_id=intent.id,
                 customer_id=customer_id,
                 payment_method_id=payment_method_id,
+                payment_method =method_name,
                 amount=order.total_amount,
                 currency=currency.upper(),
                 payment_status="pending",
                 client_secret=intent.client_secret,
             )
+
+    
            
             if intent.status == "succeeded":
                 payment.payment_status = "success"
@@ -137,7 +143,7 @@ class CreatePaymentAPIView(APIView):
                     "total_amount": float(order.total_amount),
                     "currency": currency.upper(),
                     "payment_id": payment.payment_id,
-                    # "payment_method": order.payment_method,
+                    "payment_method": method_name,
                     "payment_client_secret": payment.client_secret,
                     "payment_status": payment.payment_status
                 }, status=status.HTTP_200_OK)
@@ -183,7 +189,59 @@ class CreatePaymentAPIView(APIView):
                 "statusCode": 500,
                 "message": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
+
+
+@csrf_exempt
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
+    endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError:
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError:
+        return HttpResponse(status=400)
+
+    if event["type"] == "payment_intent.succeeded":
+        intent = event["data"]["object"]
+
+        order_db_id = intent["metadata"].get("order_db_id")
+
+        try:
+            order = Order.objects.get(id=order_db_id)
+            payment = Payment.objects.get(payment_id=intent["id"])
+
+            if payment.payment_status != "success":
+
+                payment.payment_status = "success"
+                payment.paid_at = timezone.now()
+                payment.save(update_fields=["payment_status", "paid_at"])
+
+                order.status = "confirmed"
+                order.is_paid = True
+                order.save(update_fields=["status", "is_paid"])
+
+        except Order.DoesNotExist:
+            print("Order not found in webhook")
+
+    elif event["type"] == "payment_intent.payment_failed":
+        intent = event["data"]["object"]
+
+        try:
+            payment = Payment.objects.get(payment_id=intent["id"])
+            payment.payment_status = "failed"
+            payment.save(update_fields=["payment_status"])
+        except Payment.DoesNotExist:
+            print("Payment not found")
+
+    return HttpResponse(status=200)
+
+
 
 class UserPaymentListAPIView(APIView):
     permission_classes = [IsAuthenticated]
