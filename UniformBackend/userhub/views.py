@@ -1380,12 +1380,13 @@ class ClearCartAPIView(APIView):
             active_items = cart.items.filter(is_active=True)
             items_count = active_items.count()
 
-            for item in active_items:
-                product = item.product
-                product.available_quantity += item.quantity
-                product.save()
+            if items_count>0: 
+                for item in active_items:
+                    product = item.product
+                    product.available_quantity += item.quantity
+                    product.save()
 
-            active_items.delete()
+                active_items.delete()
 
             return Response({
                 "status": True,

@@ -571,7 +571,7 @@ def generate_payment_pdf(payment, user, request=None):
         leading=2
     )
 
-    # --- EXACT SAME LOGO AS QUOTATION PDF ---
+    # --- LOGO ---
     left_logo_block = Table(
         [
             [RoundedKFBox()],
