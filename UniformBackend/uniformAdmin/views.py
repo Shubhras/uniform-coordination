@@ -28,10 +28,8 @@ from .auth import IsAdminUserJWT
 from django.conf import settings
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
-
 stripe.api_key = settings.STRIPE_SECRET_KEY
-
-
+from .utils import render_quotation_template , generate_quotation_template_pdf
 from .auth import IsAdminUserJWT,MultiRoleJWTAuth
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 from userhub.views import get_docusign_token
@@ -1276,95 +1274,110 @@ class QuotationRequestListAPIView(APIView):
         },status=status.HTTP_200_OK)
     
 #<---------------------QuotationTemplate--------------------->
-'''
+
+
+# class QuotationTemplateCreateAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     @extend_schema(
+#     tags=["Quotation Template"],
+#     summary="Create Quotation Template API",
+#     description="Render a quotation using a selected quotation template.",
+#     request={
+#         "application/json": {
+#             "type": "object",
+#             "required": ["quotation_id", "template_slug"],
+#             "properties": {
+#                 "quotation_id": {
+#                     "type": "string",
+#                     "example": "QTN-1001"
+#                 },
+#                 "template_slug": {
+#                     "type": "string",
+#                     "example": "default-quotation-template"
+#                 }
+#             }
+#         }
+#     },
+#     responses={
+#         200: OpenApiResponse(description="Quotation rendered successfully"),
+#         400: OpenApiResponse(description="Missing required fields"),
+#         404: OpenApiResponse(description="Quotation or Template not found"),
+#     },
+#     )
+#     def post(self, request):
+#         quotation_id = request.data.get("quotation_id")
+#         template_slug = request.data.get("template_slug")
+
+#         if not quotation_id or not template_slug:
+#             return Response(
+#                 {"message": "quotation_id and template_slug are required"},
+#                 status=400
+#             )
+
+#         quotation = QuotationRequest.objects.filter(
+#             quotation_id=quotation_id,
+#             isDeleted=False
+#         ).first()
+
+#         template = QuotationTemplate.objects.filter(
+#             slug=template_slug,
+#             is_active=True,
+#             is_deleted=False
+#         ).first()
+
+#         if not quotation:
+#             return Response({"message": "Quotation not found"}, status=404)
+
+#         if not template:
+#             return Response({"message": "Template not found"}, status=404)
+
+#         rendered_text = render_quotation_template(
+#             template.content,
+#             quotation
+#         )
+
+#         return Response({
+#             "quotation_id": quotation.quotation_id,
+#             "rendered_content": rendered_text
+#         })
+
 class QuotationTemplateCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self,request):
-        try:
-            serializer = QuotationTemplateSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({
-                    'statusCode':201,
-                    'status':True,
-                    'message':'Quotation Template create successfully. ',
-                    'data':serializer.data
-                },status=status.HTTP_201_CREATED)
-            else:
-                return Response({
-                    'statusCode':400,
-                    'status':False,
-                    'message':'Invalid data',
-                    'error':serializer.erros
-                },status=status.HTTP_400_BAD_REQUEST)
-        
-        except Exception as e:
-            return Response({
-                'statusCode':500,
-                'status':False,
-                'message':'Something went wrong on server. ',
-                'error':str(e)
-            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)'''
-
-
-from .utils import render_quotation_template
-
-class QuotationTemplateCreateAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    @extend_schema(
-    tags=["Quotation Template"],
-    summary="Create Quotation Template API",
-    description="Render a quotation using a selected quotation template.",
-    request={
-        "application/json": {
-            "type": "object",
-            "required": ["quotation_id", "template_slug"],
-            "properties": {
-                "quotation_id": {
-                    "type": "string",
-                    "example": "QTN-1001"
-                },
-                "template_slug": {
-                    "type": "string",
-                    "example": "default-quotation-template"
-                }
-            }
-        }
-    },
-    responses={
-        200: OpenApiResponse(description="Quotation rendered successfully"),
-        400: OpenApiResponse(description="Missing required fields"),
-        404: OpenApiResponse(description="Quotation or Template not found"),
-    },
-    )
     def post(self, request):
+
         quotation_id = request.data.get("quotation_id")
-        template_slug = request.data.get("template_slug")
 
-        if not quotation_id or not template_slug:
-            return Response(
-                {"message": "quotation_id and template_slug are required"},
-                status=400
-            )
-
+        if not quotation_id:
+            return Response({
+                "statusCode":400,
+                "status":False,
+                "message": "quotation_id is required"
+                },status=400)
         quotation = QuotationRequest.objects.filter(
             quotation_id=quotation_id,
             isDeleted=False
         ).first()
 
+        if not quotation:
+            return Response({
+                "statusCode":404,
+                "status":False,
+                "message": "Quotation not found"
+                }, status=404)
+
         template = QuotationTemplate.objects.filter(
-            slug=template_slug,
             is_active=True,
             is_deleted=False
-        ).first()
-
-        if not quotation:
-            return Response({"message": "Quotation not found"}, status=404)
+        ).order_by("-created_at").first()
 
         if not template:
-            return Response({"message": "Template not found"}, status=404)
+            return Response({
+                "stautsCode":404,
+                "status":False,
+                "message": "No active template found"
+                }, status=404)
 
         rendered_text = render_quotation_template(
             template.content,
@@ -1372,9 +1385,12 @@ class QuotationTemplateCreateAPIView(APIView):
         )
 
         return Response({
+            "statusCode":200,
+            "status":True,
             "quotation_id": quotation.quotation_id,
+            "template_used": template.slug,
             "rendered_content": rendered_text
-        })
+        },status=200)
 
 '''
 class QuotationTemplateListAPIView(APIView):
@@ -1472,23 +1488,7 @@ class QuotationTemplateListAPIView(APIView):
             'data': rendered_data
         })
 
-'''
-class QuotationTemplateDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated]
 
-    def get(self, request, quotation_id):
-        # Fetch the quotation using quotation_id
-        quotation = get_object_or_404(QuotationRequest, quotation_id=quotation_id, isDeleted=False)
-
-        serializer = QuotationRequestSerializer(quotation, context={'request': request})
-
-        return Response({
-            'statusCode': 200,
-            'status': True,
-            'message': 'Quotation found successfully using quotation_id.',
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
-'''
 class QuotationTemplateDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1678,6 +1678,44 @@ class QuotationTemplateDeleteAPIView(APIView):
             'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
     
+class QuotationTamplateExportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, quotation_id):
+
+        try:
+            quotation = QuotationRequest.objects.get(
+                quotation_id=quotation_id,
+                isActive=True,
+                isDeleted=False
+            )
+        except QuotationRequest.DoesNotExist:
+            return Response({
+                "status": False,
+                "message": "Quotation not found"
+            }, status=404)
+
+        # TEMPLATE FETCH
+        template = QuotationTemplate.objects.filter(title="quotation").first()
+
+        if not template:
+            return Response({
+                "status": False,
+                "message": "Template not found"
+            }, status=404)
+
+        # ✅ Generate PDF (this returns MEDIA_URL path)
+        pdf_path = generate_quotation_template_pdf(quotation, template.content)
+
+        # ✅ Convert to full absolute URL
+        pdf_url = request.build_absolute_uri(pdf_path)
+
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "message": "PDF generated successfully",
+            "pdf_url": pdf_url
+        })
 #<------------------AdminNotification------------------>
 
 class AdminNotificationListAPIView(APIView):

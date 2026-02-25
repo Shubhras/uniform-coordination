@@ -674,7 +674,14 @@ class QuotationRequestExportPDFAPIView(APIView):
                 "message": "Quotation not found"
             }, status=404)
 
-        pdf_url = generate_quotation_pdf(quotation, request)
+        file_path = generate_quotation_pdf(quotation, request)
+
+# Convert Path → string
+        file_path = str(file_path)
+
+        relative_path = file_path.replace(str(settings.MEDIA_ROOT), "").replace("\\", "/")
+
+        pdf_url = settings.MEDIA_URL + relative_path.lstrip("/")
 
         return Response({
             "statusCode": 200,
@@ -682,7 +689,7 @@ class QuotationRequestExportPDFAPIView(APIView):
             "message": "PDF generated successfully",
             "pdf_url": request.build_absolute_uri(pdf_url)
         })
-    
+            
 
 class QuotationRequestsListAPIView(APIView):
     permission_classes = [IsAuthenticated]

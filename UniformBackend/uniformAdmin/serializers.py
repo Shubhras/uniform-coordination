@@ -1185,7 +1185,7 @@ class UnitPriceSerializer(serializers.Serializer):
     itemName = serializers.CharField()
     unit = serializers.CharField()
     basePrice = serializers.DecimalField(max_digits=10, decimal_places=2)
-    bulk = serializers.DecimalField(max_digits=10, decimal_places=2)
+    bulk = serializers.DecimalField(max_digits=10, decimal_places=2,allow_null=True)
     action = serializers.CharField()
 
 #<====================B2B=========================>

@@ -134,6 +134,7 @@ urlpatterns = [
     path('quotationrequesttamplate/<str:quotation_id>/get/',QuotationTemplateDetailAPIView.as_view(), name='QuotationRequest-create'),
     path('quotationrequesttamplate/<str:quotation_id>/update/',QuotationTemplateUpdateAPIView.as_view(), name='QuotationRequest-create'),
     path('quotationrequesttamplate/delete/',QuotationTemplateDeleteAPIView.as_view(), name='QuotationRequest-create'),
+    path('quotationrequesttamplate/<str:quotation_id>/export/',QuotationTamplateExportAPIView.as_view(),name='get-export'),
 
     #<---------------------AdminuserNotification------------------>
     path("notifications/get-list/", AdminNotificationListAPIView.as_view(),name='adminNotification-get_list'),

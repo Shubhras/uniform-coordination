@@ -302,7 +302,7 @@ def generate_customization_pdf(obj, user):
 
 
 def generate_quotation_pdf(quotation, request):
-    file_name = f"quotation_{quotation.uuids}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+    file_name = f"quotation_{quotation.quotation_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
     file_path = os.path.join(settings.MEDIA_ROOT, "exports", file_name)
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     doc = SimpleDocTemplate(

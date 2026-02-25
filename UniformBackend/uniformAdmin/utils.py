@@ -1,4 +1,4 @@
-from userhub.models import QuotationRequest
+from userhub.models import *
 from .models import AdminNotification
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import send_mail
@@ -6,35 +6,60 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-import re
+import os, re
+from reportlab.platypus import *
+from reportlab.lib.styles import *
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.enums import TA_RIGHT
+from datetime import datetime
+from userhub.utils import RoundedKFBox
+from reportlab.platypus import TableStyle
 
-
-def render_quotation_template(template_text: str, quotation: QuotationRequest):
+def render_quotation_template(template_text: str, quotation):
     if not template_text or not quotation:
         return template_text
 
+    product = None
+    try:
+        if quotation.customupdatemodel and quotation.customupdatemodel.model_info:
+            product = quotation.customupdatemodel.model_info.product
+    except Exception as e:
+        print("Error fetching product:", e)
+        product = None
+
+    price = float(getattr(product, "price", 0)) if product else 0
+    discount = float(getattr(product, "discount", 0)) if product else 0
+    quantity = 0
+    if getattr(quotation, "size_quantity", None):
+        numbers = re.findall(r"\d+", quotation.size_quantity)
+        quantity = sum(int(n) for n in numbers)
+
+    subtotal = quantity * price
+    discount_amount = (subtotal * discount) / 100
+    total = subtotal - discount_amount
+
     data = {
-        "{QUOTATION_ID}": quotation.quotation_id or "",
-        "{DATE}": quotation.created_at.strftime("%d-%m-%Y") if quotation.created_at else "",
-        "{DELIVERY_DATE}": quotation.delivery_date.strftime("%d-%m-%Y") if quotation.delivery_date else "",
-        "{CLIENT_NAME}": quotation.company_name or "",
-        "{ITEM_TYPE}": quotation.item_type or "",
-        "{MATERIAL}": quotation.material or "",
-        "{SIZE_QUANTITY}": quotation.size_quantity or "",
-        "{NOTE}": quotation.additional_note or "",
-        "{STATUS}": quotation.quotation_status.upper() if quotation.quotation_status else "",
+        "quotation_id": getattr(quotation, "quotation_id", "") or "",
+        "contact_person": getattr(quotation, "contact_person", "") or "",
+        "company_name": getattr(quotation, "company_name", "") or "",
+        "item_type": getattr(quotation, "item_type", "") or "",
+        "material": getattr(quotation, "material", "") or "",
+        "size_quantity": getattr(quotation, "size_quantity", "") or "",
+        "delivery_date": quotation.delivery_date.strftime("%d-%m-%Y") if getattr(quotation, "delivery_date", None) else "",
+        "additional_note": getattr(quotation, "additional_note", "") or "",
+
+        "quantity": quantity,
+        "unit_price": round(price, 2),
+        "subtotal": round(subtotal, 2),
+        "discount": discount,
+        "total": round(total, 2),
     }
 
-    for key, value in data.items():
-        template_text = template_text.replace(key, str(value))
-
-    # Detect unresolved placeholders
-    # unresolved = re.findall(r"\{[A-Z_]+\}", template_text)
-    # if unresolved:
-    #     raise Exception(f"Unresolved placeholders in template: {unresolved}")
-
-
-    return template_text
+    try:
+        return template_text.format(**data)
+    except KeyError as e:
+        return f"Template error: Missing field {str(e)}"
 
 
 def create_admin_notification(instance, title, message, priority="low"):
@@ -109,4 +134,160 @@ class BaseAPIView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+def generate_quotation_template_pdf(quotation, template_text):
+    # ---------- RENDER DATA ----------
+    render_quotation_template(template_text, quotation)
+
+    product = quotation.customupdatemodel.model_info.product
+    price = float(product.price)
+    discount = float(product.discount)
+
+    qty = sum(int(x) for x in __import__("re").findall(r"\d+", quotation.size_quantity))
+    subtotal = qty * price
+    discount_amt = subtotal * discount / 100
+    total = subtotal - discount_amt
+
+    # ---------- FILE ----------
+    file_name = f"quotation_{quotation.quotation_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+    file_path = os.path.join(settings.MEDIA_ROOT, "exports", file_name)
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    doc = SimpleDocTemplate(file_path, pagesize=A4,
+                            leftMargin=40, rightMargin=40,
+                            topMargin=40, bottomMargin=40)
+
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # ---------- STYLES ----------
+    normal = ParagraphStyle("Normal", fontSize=11, leading=18)
+    bold = ParagraphStyle("Bold", fontSize=11, leading=18, fontName="Helvetica-Bold")
+
+    right = ParagraphStyle("Right", alignment=TA_RIGHT, fontSize=10)
+
+    title = ParagraphStyle("Title", fontSize=16, fontName="Helvetica-Bold")
+ # --- LOGO STYLES ---
+    logo_text_style = ParagraphStyle(
+        "LogoText",
+        fontSize=14,
+        fontName="Helvetica-Bold",
+        textColor=colors.HexColor("#0B3C5D"),
+        leading=16
+    )
+    logo_tagline_style = ParagraphStyle(
+        "LogoTagline",
+        fontSize=9,
+        textColor=colors.HexColor("#0B3C5D"),
+        leading=2
+    )
  
+    # ---LOGO ---
+    left_logo_block = Table(
+        [
+            [RoundedKFBox()],
+            [Paragraph("Cleanliness and Trust.", logo_tagline_style)],
+        ],
+        colWidths=[100]
+    )
+    left_logo_block.setStyle(TableStyle([
+        ("ALIGN", (0, 1), (0, 1), "CENTER"),
+        ("TOPPADDING", (0, 1), (0, 1), 4),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+ 
+    right_logo_text = Table(
+        [
+            [Spacer(1, 8)],
+            [Paragraph("KIREIZ", logo_text_style)],
+            [Paragraph("FORM", logo_text_style)],
+        ],
+        colWidths=[140]
+    )
+    right_logo_text.setStyle(TableStyle([
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+ 
+    logo_table = Table(
+        [
+            [left_logo_block, right_logo_text],
+        ],
+        colWidths=[55, 440]
+    )
+    logo_table.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+ 
+    elements.append(logo_table)
+    elements.append(Spacer(1, 20))
+ 
+
+    # ---------- QUOTE INFO ----------
+    elements.append(Paragraph(f"<b>QUOTATION #{quotation.quotation_id}</b>", title))
+    elements.append(Spacer(1, 10))
+
+    today = datetime.now().strftime("%d/%m/%Y")
+    valid = quotation.delivery_date.strftime("%d/%m/%Y")
+
+    elements.append(Paragraph(f"<b>Date:</b> {today}", normal))
+    elements.append(Paragraph(f"<b>Valid until:</b> {valid}", normal))
+
+    elements.append(Spacer(1, 20))
+
+    # ---------- BODY ----------
+    elements.append(Paragraph(f"Dear {quotation.contact_person},", normal))
+    elements.append(Spacer(1, 10))
+
+    elements.append(Paragraph(
+        "Thank you for your interest in our products. Based on your requirements, we are pleased to offer the following quotation:",
+        normal
+    ))
+
+    elements.append(Spacer(1, 20))
+
+    # ---------- PRODUCT ----------
+    elements.append(Paragraph(f"<b>Item:</b> {quotation.item_type}", normal))
+    elements.append(Paragraph(f"<b>Material:</b> {quotation.material}", normal))
+    elements.append(Paragraph(f"<b>Quantity:</b> {qty} meters", normal))
+    elements.append(Paragraph(f"<b>Unit Price:</b>  {price}", normal))
+
+    elements.append(Spacer(1, 10))
+
+    # Divider
+    elements.append(Paragraph("_________________________________________", normal))
+
+    elements.append(Paragraph(f"<b>Subtotal:</b> {subtotal}", normal))
+    elements.append(Paragraph(f"<b>Discount:</b> {discount} %", normal))
+
+    elements.append(Paragraph("_________________________________________", normal))
+
+    elements.append(Spacer(1, 10))
+
+    elements.append(Paragraph(f"<b>TOTAL:  {round(total,2)}</b>", bold))
+
+    elements.append(Spacer(1, 20))
+
+    # ---------- TERMS ----------
+    elements.append(Paragraph("<b>Terms & Conditions:</b>", bold))
+    elements.append(Paragraph("1. 50% advance payment required.", normal))
+    elements.append(Paragraph("2. Delivery within 14 days of confirmation.", normal))
+
+    elements.append(Spacer(1, 30))
+
+    # ---------- FOOTER ----------
+    elements.append(Paragraph("Sincerely,", normal))
+    elements.append(Paragraph("Sales Team", normal))
+
+    # ---------- BUILD ----------
+    doc.build(elements)
+
+    return f"{settings.MEDIA_URL}exports/{file_name}"
