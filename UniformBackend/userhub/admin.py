@@ -52,7 +52,7 @@ class OrderAdmin(admin.ModelAdmin):
         'order_id',
         'user',
         'customer',
-        'order_type',
+        # 'order_type',
         'status',
         'total_amount',
         'created_at',

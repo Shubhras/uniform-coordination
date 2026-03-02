@@ -73,7 +73,6 @@ urlpatterns = [
     path('payment/<int:payment_id>/pdf/', PaymentPDFView.as_view(), name='payment-pdf'),
     path('stripe/webhook/', stripe_webhook, name='stripe-webhook'),
 
-
     path("admin/payments/",AdminPaymentListAPIView.as_view()),
     path("admin/payments/detail/<str:payment_id>/",AdminPaymentDetailAPIView.as_view()),
     
