@@ -12,6 +12,8 @@ from reportlab.lib.styles import getSampleStyleSheet,ParagraphStyle
 from reportlab.lib.enums import TA_CENTER 
 from reportlab.lib.enums import TA_RIGHT, TA_CENTER,TA_LEFT
 from reportlab.platypus import Flowable
+from django.core.mail import send_mail
+
 
 
 def generate_custom_tokens(user):
@@ -718,3 +720,59 @@ def generate_payment_pdf(payment, user, request=None):
 #             exc_info=True
 #         )
 #         raise Exception("Notification service temporarily unavailable.")
+
+
+def send_registration_email(user):
+    send_mail(
+        subject="Registration Successful",
+        message=f"""
+Hello {user.firstName if user.lastName else "User"},
+
+Your registration was successful 
+
+Thank You,
+UserHub Team
+""",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+
+
+def send_login_alert_email(user):
+    send_mail(
+        subject="Login Alert",
+        message=f"""
+Hello {user.firstName if user.lastName else "User"},
+
+Your account has been logged in successfully.
+
+If this was not you, please change your password immediately.
+
+Thank You,
+UserHub Team
+""",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+
+def send_order_confirmation_email(user, order, start_date, end_date, total_amount):
+    send_mail(
+        subject="Order Confirmation",
+        message=f"""
+Hello {user.userName},
+
+Your order has been placed successfully 
+
+Order ID: {order.order_id}
+Rental Period: {start_date} to {end_date}
+Total Amount: ₹{total_amount}
+
+Thank You,
+UserHub Team
+""",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[user.email],   
+        fail_silently=False,
+    )

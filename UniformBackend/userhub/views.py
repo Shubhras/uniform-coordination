@@ -131,6 +131,7 @@ class SignupAPIView(APIView):
         try:
             if serializer.is_valid():
                 user = serializer.save()
+                send_registration_email(user)
                 
                  # EMAIL VERIFICATION 
                 uid = user.id  #urlsafe_base64_encode(force_bytes(user.id))                
@@ -277,6 +278,7 @@ class UserLoginAPIView(APIView):
             user.lastLogin = now()
             # user.is_currently_login = True   #for get currently login 
             user.save()
+            send_login_alert_email(user)
 
             # ---------------------------------------------------------
             # CASE 1: NORMAL USER → call external custom token function
@@ -1507,12 +1509,23 @@ class CreateOrderAPIView(APIView):
                     }, status=status.HTTP_400_BAD_REQUEST)
 
             cart = Cart.objects.filter(id=cart_id, user=user, is_active=True).first()
+            existing_order = Order.objects.filter(
+                cart=cart,
+                user=user,
+                status__in=["pending", "processing"]
+            ).first()
+
+            if existing_order:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Order already exists for this cart. Please complete payment."
+                }, status=status.HTTP_400_BAD_REQUEST)
             if not cart or not cart.items.exists():
                 return Response({
                     "status": False,
                     "statusCode": 404, 
                     "message": "Cart not found or empty"}, status=status.HTTP_404_NOT_FOUND)
-
             try:
                 start_date = datetime.strptime(data.get("rental_start_date"), "%Y-%m-%d").date()
                 end_date = datetime.strptime(data.get("rental_end_date"), "%Y-%m-%d").date()
@@ -1564,51 +1577,56 @@ class CreateOrderAPIView(APIView):
                     "message": "Customer info is required"
                     },status=status.HTTP_400_BAD_REQUEST)
 
-            # ------------------- Subtotal -------------------
             subtotal_day = sum([Decimal(item.total_price or 0) for item in cart.items.all()])
             subtotal = subtotal_day * rental_days
 
             # ------------------- Promocode -------------------
+            promocode_code = data.get("promocode", "").strip()
             promo_discount = Decimal("0.00")
             applied_promo = None
-            promocode_code = data.get("promocode")
+
             if promocode_code:
-                promo = Promocode.objects.filter(promocodeName=promocode_code, isActive=True, isDeleted=False).first()
+                promo = Promocode.objects.filter(
+                    promocodeName__iexact=promocode_code,
+                    isActive=True,
+                    isDeleted=False
+                ).first()
+
                 if not promo:
                     return Response({
                         "status": False,
-                        "statusCode": 400, 
-                        "message": "Promocode not found or inactive"
-                        }, status=status.HTTP_400_BAD_REQUEST)
+                        "statusCode": 400,
+                        "message": "Promocode not found"
+                    })
 
                 now = timezone.now()
-                if (promo.started_at and promo.started_at > now) or (promo.ended_at and promo.ended_at < now):
-                    return Response({
-                        "status": False,
-                        "statusCode": 400,
-                        "message": "Promocode is expired or not active"
-                        }, status=status.HTTP_400_BAD_REQUEST)
 
-                if Order.objects.filter(customer=customer, promocode=promo).exists():
+                if promo.started_at and promo.started_at > now:
                     return Response({
                         "status": False,
-                        "statusCode": 400,
-                        "message": "You have already used this promocode"
-                        }, status=status.HTTP_400_BAD_REQUEST)
+                        "message": "Promocode not started yet"
+                    })
+
+                if promo.ended_at and promo.ended_at < now:
+                    return Response({
+                        "status": False,
+                        "message": "Promocode expired"
+                    })
 
                 if promo.promocodeType == "discount":
-                    promo_discount = (subtotal * Decimal(promo.amount or 0)) / 100
+                    promo_discount = (subtotal * promo.amount) / 100
+
                 elif promo.promocodeType == "fix_price":
-                    promo_discount = Decimal(promo.amount or 0)
+                    promo_discount = promo.amount
 
                 if promo_discount >= subtotal:
                     return Response({
                         "status": False,
-                        "statusCode": 400,
-                        "message": "Promocode discount cannot exceed subtotal"
-                        }, status=status.HTTP_400_BAD_REQUEST)
+                        "message": "Discount exceeds subtotal"
+                    })
 
                 applied_promo = promo
+           
             tax_amount = Decimal("10")
             shipping_charge = Decimal("10")
             total_amount = subtotal - promo_discount + tax_amount + shipping_charge
@@ -1689,7 +1707,14 @@ class CreateOrderAPIView(APIView):
                 },
                 "promocode": promocode_code or None,
             }
-
+            send_order_confirmation_email(
+                        request.user,
+                        order,
+                        start_date,
+                        end_date,
+                        total_amount
+                    )
+                
             return Response({
                 "status": True,
                 "statusCode": 201,
