@@ -326,6 +326,7 @@ class QuotationRequestCreateAPIView(APIView):
             quotation.external_document_id = envelope_id
             quotation.workflow_status = "SENT"
             quotation.save()
+            send_admin_quotation_email(quotation)
             create_admin_notification(
                 instance=quotation,
                 title=f"New Quotation Request: {quotation.quotation_id }",

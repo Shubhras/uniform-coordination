@@ -291,3 +291,35 @@ def generate_quotation_template_pdf(quotation, template_text):
     doc.build(elements)
 
     return f"{settings.MEDIA_URL}exports/{file_name}"
+
+def send_b2b_welcome_email(user, raw_password):
+    subject = "Welcome to Our B2B Portal 🎉"
+
+    def row(label, value):
+        return f"{label:<15} : {value}"
+
+    message = f"""
+                    WELCOME B2B USER
+
+        Hello {user.name},
+
+        Your B2B account has been successfully created.
+
+        {row("Name", user.name)}
+        {row("Company", user.company_name)}
+        {row("Email", user.email)}
+        {row("Mobile", user.mobile)}
+        {row("Tier", user.tier)}
+        {row("Password", raw_password)}
+
+        Please login and change your password after first login.
+
+        """
+
+    send_mail(
+        subject,
+        message,
+        settings.EMAIL_HOST_USER,
+        [user.email],  
+        fail_silently=False,
+    )

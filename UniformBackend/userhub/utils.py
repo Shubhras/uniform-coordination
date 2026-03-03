@@ -12,7 +12,10 @@ from reportlab.lib.styles import getSampleStyleSheet,ParagraphStyle
 from reportlab.lib.enums import TA_CENTER 
 from reportlab.lib.enums import TA_RIGHT, TA_CENTER,TA_LEFT
 from reportlab.platypus import Flowable
+from django.core.mail import send_mail
+from django.contrib.auth import get_user_model
 
+from userhub.models import Users
 
 def generate_custom_tokens(user):
     """Generate custom access & refresh tokens for normal Users."""
@@ -649,3 +652,43 @@ def generate_payment_pdf(payment, user, request=None):
 #             exc_info=True
 #         )
 #         raise Exception("Notification service temporarily unavailable.")
+
+
+
+def send_admin_quotation_email(quotation):
+    subject = f"New Quotation create {quotation.quotation_id}"
+
+    message = f"""
+            New Quotation Request Create
+
+    Quotation ID     :    {quotation.quotation_id}
+    Company_name     :    {quotation.company_name}
+    Contact Person   :    {quotation.contact_person}
+    Email            :    {quotation.email}
+    Phone            :    {quotation.phone_number}
+
+    Item Type:            {quotation.item_type}
+    Material:             {quotation.material}
+    Size & Quantity  :    {quotation.size_quantity}
+    Delivery Date    :    {quotation.delivery_date}
+    Additional Note  :    {quotation.additional_note}
+    Status           :    {quotation.quotation_status}
+    Workflow Status  :    {quotation.workflow_status}
+
+    Created At       :  {quotation.created_at}
+    """
+
+    # admin_emails = list(
+    #     Users.objects.filter(userType="admin")
+    #     .exclude(email="")
+    #     .values_list("email", flat=True)
+    # )
+
+    send_mail(
+        subject,
+        message,
+        settings.EMAIL_HOST_USER,
+        ["rt61240@gmail.com"],  
+        # admin_emails
+        fail_silently=False,
+    )

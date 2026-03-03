@@ -23,7 +23,7 @@ from rest_framework.exceptions import AuthenticationFailed
 import jwt  # PyJWT library
 from django.conf import settings
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
-
+from .utils import send_b2b_welcome_email
 
 
 # class IsAdminUserJWT(BasePermission):
@@ -645,7 +645,13 @@ class AdminUserCreateAPIView(APIView):
 
             serializer = AdminUserSerializer(data=data)
             if serializer.is_valid():
-                serializer.save()
+                user = serializer.save()
+
+                raw_password = request.data.get("password")
+
+    
+                send_b2b_welcome_email(user, raw_password)
+
                 return Response({
                     "statusCode": 201,
                     "status": True,
