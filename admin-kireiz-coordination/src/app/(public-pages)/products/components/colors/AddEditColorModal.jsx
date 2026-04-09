@@ -220,19 +220,18 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData, onSaveS
 
                 </div>
 
-                <div className="border-t px-6 py-4 flex justify-end gap-3">
-                    <Button variant="plain" size="sm" onClick={onClose} disabled={saving}>
+                <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
+                    <Button variant="plain" onClick={onClose} size="sm" disabled={saving}>
                         Cancel
                     </Button>
-
                     <Button
                         variant="solid"
                         size="sm"
-                        className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white px-6"
+                        className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
                         onClick={handleSave}
                         loading={saving}
                     >
-                        {mode === "edit" ? "Update Color" : "Save Color"}
+                        {mode === "edit" ? "Update" : "Save"}
                     </Button>
                 </div>
 

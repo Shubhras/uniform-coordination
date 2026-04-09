@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button";
 import Select from "react-select";
 import { FiUpload } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiCreateCatalogImage, apiUpdateCatalogImage } from "@/services/CatalogService";
+import { apiCreateSubcategory, apiUpdateSubcategory } from "@/services/SubcategoryService";
 import { apiGetCategoryList } from "@/services/CategoryService";
 
 const selectStyles = {
@@ -31,7 +31,14 @@ const selectStyles = {
     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const AddEditCatalogModal = ({ isOpen, onClose, mode = "add", initialData, onSaveSuccess }) => {
+const AddEditSubcategoryModal = ({
+    isOpen,
+    onClose,
+    mode = "add",
+    initialData,
+    onSaveSuccess,
+    defaultCategoryId,
+}) => {
     const fileRef = useRef(null);
     const { session } = useCurrentSession();
     const accessToken = session?.user?.accessToken;
@@ -39,6 +46,7 @@ const AddEditCatalogModal = ({ isOpen, onClose, mode = "add", initialData, onSav
     // Form fields
     const [name, setName] = useState("");
     const [category, setCategory] = useState(null);
+    const [description, setDescription] = useState("");
     const [imageFile, setImageFile] = useState(null);
     const [preview, setPreview] = useState(null);
 
@@ -57,7 +65,7 @@ const AddEditCatalogModal = ({ isOpen, onClose, mode = "add", initialData, onSav
         const fetchCategories = async () => {
             setLoadingCategories(true);
             try {
-                const response = await apiGetCategoryList(accessToken);
+                const response = await apiGetCategoryList(accessToken, 1, 100);
                 if (response?.status && response?.data) {
                     const options = response.data.map((c) => ({
                         value: c.id,
@@ -81,33 +89,43 @@ const AddEditCatalogModal = ({ isOpen, onClose, mode = "add", initialData, onSav
 
         if (mode === "edit" && initialData) {
             setName(initialData.name || "");
+            setDescription(initialData.description || "");
             setImageFile(null);
-            setPreview(initialData.image || null);
+            setPreview(initialData.subcategoryImage || null);
 
-            // Pre-select category by name
             if (initialData.category) {
-                setCategory({ value: initialData.category, label: initialData.category });
+                setCategory({ value: initialData.category, label: `Category #${initialData.category}` });
             } else {
                 setCategory(null);
             }
         } else {
             setName("");
-            setCategory(null);
+            setDescription("");
             setImageFile(null);
             setPreview(null);
+
+            // Pre-select category if defaultCategoryId is provided (adding from within a category dropdown)
+            if (defaultCategoryId) {
+                setCategory({ value: defaultCategoryId, label: `Category #${defaultCategoryId}` });
+            } else {
+                setCategory(null);
+            }
         }
         setError("");
-    }, [mode, initialData, isOpen]);
+    }, [mode, initialData, isOpen, defaultCategoryId]);
 
-    // Resolve category label once options load (edit mode)
+    // Resolve category label once options load
     useEffect(() => {
-        if (mode === "edit" && initialData?.category && categoryOptions.length > 0) {
-            const match = categoryOptions.find(
-                (c) => c.label === initialData.category || c.value === initialData.category
-            );
+        if (categoryOptions.length === 0) return;
+
+        if (mode === "edit" && initialData?.category) {
+            const match = categoryOptions.find((c) => c.value === initialData.category);
+            if (match) setCategory(match);
+        } else if (defaultCategoryId) {
+            const match = categoryOptions.find((c) => c.value === defaultCategoryId);
             if (match) setCategory(match);
         }
-    }, [categoryOptions, mode, initialData]);
+    }, [categoryOptions, mode, initialData, defaultCategoryId]);
 
     /* ---------- FILE HANDLER ---------- */
     const handleFile = (file) => {
@@ -119,7 +137,7 @@ const AddEditCatalogModal = ({ isOpen, onClose, mode = "add", initialData, onSav
     /* ---------- SAVE ---------- */
     const handleSave = async () => {
         if (!name.trim()) {
-            setError("Name is required");
+            setError("Subcategory name is required");
             return;
         }
 
@@ -133,22 +151,25 @@ const AddEditCatalogModal = ({ isOpen, onClose, mode = "add", initialData, onSav
             if (category) {
                 formData.append("category", category.value);
             }
+            if (description.trim()) {
+                formData.append("description", description.trim());
+            }
             if (imageFile) {
-                formData.append("image", imageFile);
+                formData.append("subcategoryImage", imageFile);
             }
 
             if (mode === "edit" && initialData?.id) {
-                await apiUpdateCatalogImage(accessToken, initialData.id, formData);
+                await apiUpdateSubcategory(accessToken, initialData.id, formData);
             } else {
-                await apiCreateCatalogImage(accessToken, formData);
+                await apiCreateSubcategory(accessToken, formData);
             }
 
             if (onSaveSuccess) {
                 onSaveSuccess();
             }
         } catch (err) {
-            console.error("Catalog save error:", err);
-            setError(err?.response?.data?.message || "Failed to save. Please try again.");
+            console.error("Subcategory save error:", err);
+            setError(err?.response?.data?.message || "Failed to save subcategory. Please try again.");
         } finally {
             setSaving(false);
         }
@@ -166,7 +187,7 @@ const AddEditCatalogModal = ({ isOpen, onClose, mode = "add", initialData, onSav
 
                 <div className="border-b px-6 py-4">
                     <h2 className="text-2xl font-semibold text-[#1C2C56]">
-                        {mode === "edit" ? "Edit Catalog Image" : "Add Catalog Image"}
+                        {mode === "edit" ? "Edit Subcategory" : "Add Subcategory"}
                     </h2>
                 </div>
 
@@ -187,7 +208,7 @@ const AddEditCatalogModal = ({ isOpen, onClose, mode = "add", initialData, onSav
                         <input
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Enter catalog name"
+                            placeholder="Eg:- Medical Scrubs"
                             className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                         />
                     </div>
@@ -195,7 +216,7 @@ const AddEditCatalogModal = ({ isOpen, onClose, mode = "add", initialData, onSav
                     {/* Category (React Select from API) */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
-                            Category
+                            Category<span className="text-red-500">*</span>
                         </label>
                         <Select
                             options={categoryOptions}
@@ -216,7 +237,7 @@ const AddEditCatalogModal = ({ isOpen, onClose, mode = "add", initialData, onSav
                     {/* Image Upload */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
-                            Image<span className="text-red-500">*</span>
+                            Image
                         </label>
 
                         <button
@@ -245,6 +266,20 @@ const AddEditCatalogModal = ({ isOpen, onClose, mode = "add", initialData, onSav
                             />
                         </div>
                     )}
+
+                    {/* Description */}
+                    <div>
+                        <label className="text-base font-medium text-[#1C2C56]">
+                            Description
+                        </label>
+                        <textarea
+                            rows={3}
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Subcategory description..."
+                            className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
+                        />
+                    </div>
                 </div>
 
                 <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
@@ -267,4 +302,4 @@ const AddEditCatalogModal = ({ isOpen, onClose, mode = "add", initialData, onSav
     );
 };
 
-export default AddEditCatalogModal;
+export default AddEditSubcategoryModal;

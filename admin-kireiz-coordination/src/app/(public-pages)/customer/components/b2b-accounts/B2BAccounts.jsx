@@ -1,48 +1,126 @@
 "use client";
 
-import { useState } from "react";
-import { FiSearch, FiMoreVertical, FiPlus, FiMail, FiPhone } from "react-icons/fi";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { FiSearch, FiPlus, FiMail, FiPhone, FiEdit2, FiTrash2 } from "react-icons/fi";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { apiGetB2BAccountList, apiDeleteB2BAccount } from "@/services/B2BAccountService";
 import AddEditB2BAccountModal from "./AddEditB2BAccountModal";
-const accounts = [
-    {
-        company: "Acme Corp",
-        person: "John Doe",
-        email: "john@acme.com",
-        phone: "+1 (555) 123-4567",
-        tier: "Gold",
-    },
-    {
-        company: "Globex Inc",
-        person: "Sarah Smith",
-        email: "sarah@globex.com",
-        phone: "+1 (555) 987-6543",
-        tier: "Silver",
-    },
-    {
-        company: "Soylent Corp",
-        person: "Mike Jones",
-        email: "mike@soylent.com",
-        phone: "+1 (555) 456-7890",
-        tier: "Bronze",
-    },
-    {
-        company: "Initech",
-        person: "Peter Gibbons",
-        email: "peter@initech.com",
-        phone: "+1 (555) 111-2222",
-        tier: "Silver",
-    },
-];
+import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
 const tierColors = {
-    Gold: "bg-yellow-50 text-yellow-700 border border-yellow-200",
-    Silver: "bg-slate-50 text-slate-700 border border-slate-200",
-    Bronze: "bg-orange-50 text-orange-700 border border-orange-200",
+    gold: "bg-yellow-50 text-yellow-700 border border-yellow-200",
+    silver: "bg-slate-50 text-slate-700 border border-slate-200",
+    bronze: "bg-orange-50 text-orange-700 border border-orange-200",
 };
 
 const B2BAccounts = () => {
+    const { session } = useCurrentSession();
+    const accessToken = session?.user?.accessToken;
+
+    const [accounts, setAccounts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState("");
+
+    // Modal
     const [openModal, setOpenModal] = useState(false);
     const [editData, setEditData] = useState(null);
+
+    // Delete
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [accountToDelete, setAccountToDelete] = useState(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+
+    /* ---------- FETCH ---------- */
+    const fetchAccounts = useCallback(async () => {
+        if (!accessToken) return;
+
+        try {
+            setLoading(true);
+            const response = await apiGetB2BAccountList(accessToken);
+
+            if (response?.results) {
+                setAccounts(response.results);
+            } else if (response?.status && response?.data) {
+                setAccounts(response.data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch B2B accounts:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [accessToken]);
+
+    useEffect(() => {
+        fetchAccounts();
+    }, [fetchAccounts]);
+
+    /* ---------- DELETE ---------- */
+    const handleDeleteConfirm = async () => {
+        if (!accountToDelete || !accessToken) return;
+
+        try {
+            setDeleteLoading(true);
+            await apiDeleteB2BAccount(accessToken, accountToDelete.id);
+            setDeleteDialogOpen(false);
+            setAccountToDelete(null);
+            fetchAccounts();
+        } catch (error) {
+            console.error("Failed to delete account:", error);
+        } finally {
+            setDeleteLoading(false);
+        }
+    };
+
+    /* ---------- HANDLERS ---------- */
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setEditData(null);
+    };
+
+    const handleSaveSuccess = () => {
+        handleCloseModal();
+        fetchAccounts();
+    };
+
+    /* ---------- FILTER ---------- */
+    const filteredAccounts = useMemo(() => {
+        const term = search.trim().toLowerCase();
+        if (!term) return accounts;
+        return accounts.filter((acc) =>
+            acc.name?.toLowerCase().includes(term) ||
+            acc.company_name?.toLowerCase().includes(term) ||
+            acc.email?.toLowerCase().includes(term)
+        );
+    }, [accounts, search]);
+
+    /* ---------- SKELETON ---------- */
+    const TableSkeleton = () => (
+        <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-[#E2E8F0]">
+            <table className="min-w-[800px] w-full text-sm text-left">
+                <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
+                    <tr>
+                        <th className="px-5 py-3 font-medium">Company</th>
+                        <th className="px-5 py-3 font-medium">Contact Person</th>
+                        <th className="px-5 py-3 font-medium">Contact Info</th>
+                        <th className="px-5 py-3 font-medium">Tier</th>
+                        <th className="px-5 py-3 font-medium text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <tr key={i} className="border-b border-[#E2E8F0]">
+                            <td className="px-5 py-4"><div className="h-4 bg-gray-200 rounded w-28 animate-pulse" /></td>
+                            <td className="px-5 py-4"><div className="h-4 bg-gray-200 rounded w-24 animate-pulse" /></td>
+                            <td className="px-5 py-4"><div className="h-4 bg-gray-200 rounded w-36 animate-pulse" /></td>
+                            <td className="px-5 py-4"><div className="h-4 bg-gray-200 rounded w-16 animate-pulse" /></td>
+                            <td className="px-5 py-4"><div className="h-4 bg-gray-200 rounded w-12 ml-auto animate-pulse" /></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+
     return (
         <>
             <div className="bg-white rounded-xl shadow md:p-6 p-3">
@@ -66,7 +144,6 @@ const B2BAccounts = () => {
                         <FiPlus size={16} />
                         Add Account
                     </button>
-
                 </div>
 
                 {/* Search */}
@@ -75,84 +152,118 @@ const B2BAccounts = () => {
                     <input
                         type="text"
                         placeholder="Search..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
                         className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none"
                     />
                 </div>
 
                 {/* Table */}
-                <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-[#E2E8F0]">
-                    <table className="min-w-[800px] w-full text-sm text-left">
-                        <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
-                            <tr>
-                                <th className="px-5 py-3 font-medium">Company</th>
-                                <th className="px-5 py-3 font-medium">Contact Person</th>
-                                <th className="px-5 py-3 font-medium">Contact Info</th>
-                                <th className="px-5 py-3 font-medium">Tier</th>
-                                <th className="px-5 py-3 font-medium text-right">Actions</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {accounts.map((acc, index) => (
-                                <tr
-                                    key={index}
-                                    className="border-b last:border-none border-[#E2E8F0] hover:bg-gray-50 transition"
-                                >
-                                    <td className="px-5 py-4 font-medium text-[#1C2C56]">
-                                        {acc.company}
-                                    </td>
-
-                                    <td className="px-5 py-4 text-gray-600">{acc.person}</td>
-
-                                    <td className="px-5 py-4 text-gray-600">
-                                        <div className="flex flex-col gap-1 text-xs">
-
-                                            <div className="flex items-center gap-2">
-                                                <FiMail className="text-[#1C2C56]" size={14} />
-                                                <span>{acc.email}</span>
-                                            </div>
-
-                                            <div className="flex items-center gap-2">
-                                                <FiPhone className="text-[#1C2C56]" size={14} />
-                                                <span>{acc.phone}</span>
-                                            </div>
-
-                                        </div>
-                                    </td>
-
-
-                                    <td className="px-5 py-4">
-                                        <span
-                                            className={`px-3 py-1 rounded-full text-xs font-medium border ${tierColors[acc.tier]}`}
-                                        >
-                                            {acc.tier}
-                                        </span>
-                                    </td>
-
-                                    <td className="px-5 py-4 text-right">
-                                        <button
-                                            className="text-gray-500 hover:text-[#1C2C56]"
-                                            onClick={() => {
-                                                setEditData(acc);
-                                                setOpenModal(true);
-                                            }}
-                                        >
-                                            <FiMoreVertical size={18} />
-                                        </button>
-
-                                    </td>
+                {loading ? (
+                    <TableSkeleton />
+                ) : filteredAccounts.length === 0 ? (
+                    <div className="text-center py-16 text-[#94A3B8]">No accounts found</div>
+                ) : (
+                    <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-[#E2E8F0]">
+                        <table className="min-w-[800px] w-full text-sm text-left">
+                            <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
+                                <tr>
+                                    <th className="px-5 py-3 font-medium">Company</th>
+                                    <th className="px-5 py-3 font-medium">Contact Person</th>
+                                    <th className="px-5 py-3 font-medium">Contact Info</th>
+                                    <th className="px-5 py-3 font-medium">Tier</th>
+                                    <th className="px-5 py-3 font-medium text-right">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+
+                            <tbody>
+                                {filteredAccounts.map((acc) => {
+                                    const tierKey = acc.tier?.toLowerCase();
+                                    const tierStyle = tierColors[tierKey] || "bg-gray-50 text-gray-600 border border-gray-200";
+
+                                    return (
+                                        <tr
+                                            key={acc.id}
+                                            className="border-b last:border-none border-[#E2E8F0] hover:bg-gray-50 transition"
+                                        >
+                                            <td className="px-5 py-4 font-medium text-[#1C2C56]">
+                                                {acc.company_name}
+                                            </td>
+
+                                            <td className="px-5 py-4 text-gray-600">{acc.name}</td>
+
+                                            <td className="px-5 py-4 text-gray-600">
+                                                <div className="flex flex-col gap-1 text-xs">
+                                                    <div className="flex items-center gap-2">
+                                                        <FiMail className="text-[#1C2C56]" size={14} />
+                                                        <span>{acc.email}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <FiPhone className="text-[#1C2C56]" size={14} />
+                                                        <span>{acc.mobile}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td className="px-5 py-4">
+                                                <span
+                                                    className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${tierStyle}`}
+                                                >
+                                                    {acc.tier}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-5 py-4">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <button
+                                                        className="text-[#1C2C56] hover:text-[#0F172A] p-1.5 rounded hover:bg-[#EEF2FF]"
+                                                        onClick={() => {
+                                                            setEditData(acc);
+                                                            setOpenModal(true);
+                                                        }}
+                                                    >
+                                                        <FiEdit2 size={16} />
+                                                    </button>
+                                                    <button
+                                                        className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50"
+                                                        onClick={() => {
+                                                            setAccountToDelete(acc);
+                                                            setDeleteDialogOpen(true);
+                                                        }}
+                                                    >
+                                                        <FiTrash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
 
+            {/* Modals */}
             <AddEditB2BAccountModal
                 isOpen={openModal}
-                onClose={() => setOpenModal(false)}
+                onClose={handleCloseModal}
                 mode={editData ? "edit" : "add"}
                 initialData={editData}
+                onSaveSuccess={handleSaveSuccess}
+            />
+
+            <DeleteConfirmDialog
+                isOpen={deleteDialogOpen}
+                onClose={() => {
+                    setDeleteDialogOpen(false);
+                    setAccountToDelete(null);
+                }}
+                onConfirm={handleDeleteConfirm}
+                title="Delete Account"
+                message="Are you sure you want to delete this B2B account? This action cannot be undone."
+                itemName={accountToDelete?.company_name}
+                loading={deleteLoading}
             />
         </>
     );

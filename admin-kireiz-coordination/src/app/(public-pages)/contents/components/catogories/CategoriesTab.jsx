@@ -16,36 +16,37 @@ import {
 } from "@hello-pangea/dnd";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetCategoryList, apiDeleteCategory, apiReorderCategory } from "@/services/CategoryService";
-import { apiGetSubcategoriesByCategoryId } from "@/services/SubcategoryService";
+import { apiGetSubcategoriesByCategoryId, apiDeleteSubcategory } from "@/services/SubcategoryService";
 import AddEditCategoryModal from "./AddEditCategoryModal";
+import AddEditSubcategoryModal from "./AddEditSubcategoryModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
 /* ---------- SUBCATEGORY DROPDOWN CONTENT ---------- */
-const SubcategoryList = ({ categoryId, accessToken, isOpen }) => {
+const SubcategoryList = ({ categoryId, accessToken, isOpen, onEdit, onDelete, onAdd }) => {
   const [subcategories, setSubcategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
 
-  useEffect(() => {
-    if (!isOpen || !accessToken || !categoryId || fetched) return;
-
-    const fetchSubcategories = async () => {
-      setLoading(true);
-      try {
-        const response = await apiGetSubcategoriesByCategoryId(accessToken, categoryId);
-        if (response?.status && response?.data) {
-          setSubcategories(response.data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch subcategories:", err);
-      } finally {
-        setLoading(false);
-        setFetched(true);
+  const fetchSubcategories = useCallback(async () => {
+    if (!accessToken || !categoryId) return;
+    setLoading(true);
+    try {
+      const response = await apiGetSubcategoriesByCategoryId(accessToken, categoryId);
+      if (response?.status && response?.data) {
+        setSubcategories(response.data);
       }
-    };
+    } catch (err) {
+      console.error("Failed to fetch subcategories:", err);
+    } finally {
+      setLoading(false);
+      setFetched(true);
+    }
+  }, [accessToken, categoryId]);
 
+  useEffect(() => {
+    if (!isOpen || fetched) return;
     fetchSubcategories();
-  }, [isOpen, accessToken, categoryId, fetched]);
+  }, [isOpen, fetched, fetchSubcategories]);
 
   // Reset when closed so next open refetches fresh data
   useEffect(() => {
@@ -99,12 +100,27 @@ const SubcategoryList = ({ categoryId, accessToken, isOpen }) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className={`text-xs px-2 py-0.5 rounded-full ${sub.isActive ? "bg-[#EEF2FF] text-[#1C2C56]" : "bg-red-50 text-red-600"}`}>
+          <div className="flex items-center gap-2">
+            {/* <span className={`text-xs px-2 py-0.5 rounded-full ${sub.isActive ? "bg-[#EEF2FF] text-[#1C2C56]" : "bg-red-50 text-red-600"}`}>
               {sub.isActive ? "Active" : "Inactive"}
-            </span>
-            <button className="text-[#1C2C56] hover:text-[#0F172A] p-1 rounded hover:bg-[#EEF2FF]">
+            </span> */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(sub);
+              }}
+              className="text-[#1C2C56] hover:text-[#0F172A] p-1 rounded hover:bg-[#EEF2FF]"
+            >
               <FiEdit2 size={16} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(sub);
+              }}
+              className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
+            >
+              <FiTrash2 size={16} />
             </button>
           </div>
         </div>
@@ -112,7 +128,13 @@ const SubcategoryList = ({ categoryId, accessToken, isOpen }) => {
 
       {/* Always show Add Subcategory button */}
       <div className="px-6 py-3 rounded-xl border border-dashed border-[#CBD5E1] bg-white text-center">
-        <button className="bg-[#1C2C56] text-white text-sm px-5 py-2 rounded-md font-medium inline-flex items-center gap-2">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAdd(categoryId);
+          }}
+          className="bg-[#1C2C56] text-white text-sm px-5 py-2 rounded-md font-medium inline-flex items-center gap-2"
+        >
           <FiPlus size={14} />
           Add Subcategory
         </button>
@@ -131,16 +153,21 @@ const CategoriesTab = () => {
   const [search, setSearch] = useState("");
   const [openCategory, setOpenCategory] = useState(null);
 
-  // Modal
+  // Category modal
   const [openModal, setOpenModal] = useState(false);
   const [editCategory, setEditCategory] = useState(null);
 
-  // Delete
+  // Subcategory modal
+  const [subModalOpen, setSubModalOpen] = useState(false);
+  const [editSubcategory, setEditSubcategory] = useState(null);
+  const [defaultCategoryId, setDefaultCategoryId] = useState(null);
+
+  // Delete (shared for both category & subcategory)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null); // { type: 'category' | 'subcategory', item }
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  /* ---------- FETCH ---------- */
+  /* ---------- FETCH CATEGORIES ---------- */
   const fetchCategories = useCallback(async () => {
     if (!accessToken) return;
 
@@ -164,16 +191,24 @@ const CategoriesTab = () => {
 
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
-    if (!categoryToDelete || !accessToken) return;
+    if (!deleteTarget || !accessToken) return;
 
     try {
       setDeleteLoading(true);
-      await apiDeleteCategory(accessToken, categoryToDelete.id);
+      if (deleteTarget.type === "category") {
+        await apiDeleteCategory(accessToken, deleteTarget.item.id);
+        fetchCategories();
+      } else {
+        await apiDeleteSubcategory(accessToken, deleteTarget.item.id);
+        // Force subcategory list to refetch by toggling the open state
+        const catId = openCategory;
+        setOpenCategory(null);
+        setTimeout(() => setOpenCategory(catId), 100);
+      }
       setDeleteDialogOpen(false);
-      setCategoryToDelete(null);
-      fetchCategories();
+      setDeleteTarget(null);
     } catch (error) {
-      console.error("Failed to delete category:", error);
+      console.error("Failed to delete:", error);
     } finally {
       setDeleteLoading(false);
     }
@@ -187,11 +222,9 @@ const CategoriesTab = () => {
     const destIndex = result.destination.index;
     if (sourceIndex === destIndex) return;
 
-    // Get the order value of the category at the destination position
     const destCategory = categories[destIndex];
     const newOrder = destCategory?.order ?? destIndex + 1;
 
-    // Optimistic UI update
     const updated = Array.from(categories);
     const [moved] = updated.splice(sourceIndex, 1);
     updated.splice(destIndex, 0, moved);
@@ -199,7 +232,6 @@ const CategoriesTab = () => {
 
     try {
       await apiReorderCategory(accessToken, moved.id, newOrder);
-      // Refetch to get the accurate order values from the server
       fetchCategories();
     } catch (error) {
       console.error("Failed to reorder category:", error);
@@ -207,7 +239,7 @@ const CategoriesTab = () => {
     }
   };
 
-  /* ---------- HANDLERS ---------- */
+  /* ---------- CATEGORY MODAL HANDLERS ---------- */
   const handleCloseModal = () => {
     setOpenModal(false);
     setEditCategory(null);
@@ -216,6 +248,38 @@ const CategoriesTab = () => {
   const handleSaveSuccess = () => {
     handleCloseModal();
     fetchCategories();
+  };
+
+  /* ---------- SUBCATEGORY MODAL HANDLERS ---------- */
+  const handleAddSubcategory = (categoryId) => {
+    setEditSubcategory(null);
+    setDefaultCategoryId(categoryId);
+    setSubModalOpen(true);
+  };
+
+  const handleEditSubcategory = (sub) => {
+    setEditSubcategory(sub);
+    setDefaultCategoryId(null);
+    setSubModalOpen(true);
+  };
+
+  const handleCloseSubModal = () => {
+    setSubModalOpen(false);
+    setEditSubcategory(null);
+    setDefaultCategoryId(null);
+  };
+
+  const handleSubSaveSuccess = () => {
+    handleCloseSubModal();
+    // Force subcategory list to refetch
+    const catId = openCategory;
+    setOpenCategory(null);
+    setTimeout(() => setOpenCategory(catId), 100);
+  };
+
+  const handleDeleteSubcategory = (sub) => {
+    setDeleteTarget({ type: "subcategory", item: sub });
+    setDeleteDialogOpen(true);
   };
 
   /* ---------- FILTER ---------- */
@@ -349,7 +413,7 @@ const CategoriesTab = () => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setCategoryToDelete(cat);
+                                  setDeleteTarget({ type: "category", item: cat });
                                   setDeleteDialogOpen(true);
                                 }}
                                 className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
@@ -371,6 +435,9 @@ const CategoriesTab = () => {
                               categoryId={cat.id}
                               accessToken={accessToken}
                               isOpen={openCategory === cat.id}
+                              onEdit={handleEditSubcategory}
+                              onDelete={handleDeleteSubcategory}
+                              onAdd={handleAddSubcategory}
                             />
                           </div>
                         </div>
@@ -386,7 +453,7 @@ const CategoriesTab = () => {
         )}
       </div>
 
-      {/* Modals */}
+      {/* Category Modal */}
       <AddEditCategoryModal
         isOpen={openModal}
         onClose={handleCloseModal}
@@ -395,16 +462,27 @@ const CategoriesTab = () => {
         onSaveSuccess={handleSaveSuccess}
       />
 
+      {/* Subcategory Modal */}
+      <AddEditSubcategoryModal
+        isOpen={subModalOpen}
+        onClose={handleCloseSubModal}
+        mode={editSubcategory ? "edit" : "add"}
+        initialData={editSubcategory}
+        onSaveSuccess={handleSubSaveSuccess}
+        defaultCategoryId={defaultCategoryId}
+      />
+
+      {/* Delete Confirmation (shared) */}
       <DeleteConfirmDialog
         isOpen={deleteDialogOpen}
         onClose={() => {
           setDeleteDialogOpen(false);
-          setCategoryToDelete(null);
+          setDeleteTarget(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Category"
-        message="Are you sure you want to delete this category? This action cannot be undone."
-        itemName={categoryToDelete?.categoryName}
+        title={deleteTarget?.type === "subcategory" ? "Delete Subcategory" : "Delete Category"}
+        message={`Are you sure you want to delete this ${deleteTarget?.type || "item"}? This action cannot be undone.`}
+        itemName={deleteTarget?.type === "subcategory" ? deleteTarget?.item?.name : deleteTarget?.item?.categoryName}
         loading={deleteLoading}
       />
     </>
