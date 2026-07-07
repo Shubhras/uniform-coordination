@@ -18,6 +18,10 @@ export default {
                 /** validate credentials from backend here */
                 // const user = await validateCredential(credentials)
                 const response = await apiLogin(credentials)
+                //console.log("response-----------------", response)
+                if (!response?.status) {
+                    throw new Error(response?.message || 'Invalid email or password')
+                }
                 const user = response?.data;
 
                 // return;
@@ -114,5 +118,19 @@ export default {
         //         },
         //     }
         // },
+    },
+    cookies: {
+        sessionToken: {
+            name: `uniform-kireiz.session-token`,
+            options: { httpOnly: true, sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+        },
+        callbackUrl: {
+            name: `uniform-kireiz.callback-url`,
+            options: { sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+        },
+        csrfToken: {
+            name: `uniform-kireiz.csrf-token`,
+            options: { httpOnly: true, sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+        },
     },
 }

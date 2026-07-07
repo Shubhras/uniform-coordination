@@ -61,9 +61,9 @@ export async function apiResetPassword(data) {
 
 
 export async function verifyEmail(data) {
-    return ApiService.fetchDataWithAxios({
-        url: '/v1/userhub/verify-user/',
-        method: 'post',
-        data,
-    })
+  return ApiService.fetchDataWithAxios({
+    url: '/v1/userhub/verify-user/',
+    method: 'post',
+    data,
+  })
 }
