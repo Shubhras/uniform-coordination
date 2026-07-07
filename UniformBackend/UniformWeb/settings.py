@@ -9,15 +9,21 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from decouple import config
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+dotenv_path = BASE_DIR / ".env"
+load_dotenv(dotenv_path)
 
-
+# Test immediately
+# print("DOCUSIGN_BASE_URL:", os.getenv("DOCUSIGN_BASE_URL"))
+# print("DOCUSIGN_ACCOUNT_ID:", os.getenv("DOCUSIGN_ACCOUNT_ID"))
+# print("DOCUSIGN_USER_ID:", os.getenv("DOCUSIGN_USER_ID"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -27,9 +33,20 @@ SECRET_KEY = 'django-insecure-a)&ww89mdf0z@0z_&lm=9ia79zry+d_wi((4x=5-*!ysby@&fz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
-
+ALLOWED_HOSTS = [
+    "192.168.29.193",
+    "192.168.1.31",
+    "127.0.0.1",
+    "localhost",
+    "localhost:7000",
+    "localhost:7001",
+    "192.168.1.56",
+    "54.81.43.26",
+    "0.0.0.0:8000",
+    "0.0.0.0",
+    "moira-diamond-unfiltrated.ngrok-free.dev",
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,19 +57,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework_simplejwt',
     'corsheaders',
     'uniformAdmin',
-    'userhub',
-]
-# AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
+    'userhub']
+AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -106,6 +125,13 @@ DATABASES = {
 }
 
 
+
+
+# AUTH_USER_MODEL = "uniformAdmin.AdminUser"  # replace yourapp with the actual app name
+# AUTH_USER_MODEL = "userhub.Users"
+
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -142,6 +168,16 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+SITE_DOMAIN = "http://54.81.43.26"
+
+#large file/JSON upload (R.T)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -149,10 +185,47 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        # "rest_framework_simplejwt.authentication.JWTAuthentication",  
+        "rest_framework.authentication.SessionAuthentication",
+        "userhub.authentication.CustomUserJWTAuthentication",# For Customers
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    'PAGE_SIZE': 10,
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
     ),
 }
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8000",
+    "http://192.168.1.31:8000",
+    "http://192.168.1.56:8000",
+    "http://localhost:7000",
+    "http://localhost:7001",
+    "http://0.0.0.0:8000",
+    "http://54.81.43.26",
+    
+
+]
+
+CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_ALL_ORIGINS = True
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "moriji345@gmail.com"
+EMAIL_HOST_PASSWORD = "hqymjygpiifyfdfg"
+EMAIL_HOST_USER="sourabh.mori1digiprima@gmail.com"
+EMAIL_HOST_PASSWORD="xuwkrhblrzorjyyj"
 
 
 SIMPLE_JWT = {
@@ -161,3 +234,52 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
 }
+
+
+
+"stripe payment"
+STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY")
+STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLISHABLE_KEY")
+STRIPE_WEBHOOK_SECRET =config("STRIPE_WEBHOOK_SECRET")
+# import os
+
+# ONESIGNAL_APP_ID = os.getenv("ONESIGNAL_APP_ID")
+# ONESIGNAL_API_KEY = os.getenv("ONESIGNAL_API_KEY")
+
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",   # your source static files
+]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"   # collected files for production
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Uniform Coordination Apis",
+    "DESCRIPTION": "API documentation for UniformCoordination platform",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+
+    # JWT support
+    "SECURITY": [{"bearerAuth": []}],
+    "COMPONENT_SPLIT_REQUEST": True,
+
+    "SWAGGER_UI_SETTINGS": {
+        "persistAuthorization": True,
+    },
+}
+
+
+#Docusign 
+DOCUSIGN_INTEGRATION_KEY = "2abc67a8-b4d2-439d-8742-e26437450cc1"
+DOCUSIGN_USER_ID = "02601a1d-eb9b-41de-a590-ea0c4e99d6ea"
+DOCUSIGN_ACCOUNT_ID = "e1187f26-fc71-49cc-b41f-8f1ac6215e5e"
+DOCUSIGN_PRIVATE_KEY_PATH = "private.key"
+
+#ngrok for webhook
+ALLOWED_HOSTS = ["*"]
