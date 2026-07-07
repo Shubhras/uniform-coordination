@@ -57,4 +57,18 @@ export default {
             }
         },
     },
+    cookies: {
+        sessionToken: {
+            name: `admin-kireiz.session-token`,
+            options: { httpOnly: true, sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+        },
+        callbackUrl: {
+            name: `admin-kireiz.callback-url`,
+            options: { sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+        },
+        csrfToken: {
+            name: `admin-kireiz.csrf-token`,
+            options: { httpOnly: true, sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+        },
+    },
 }
