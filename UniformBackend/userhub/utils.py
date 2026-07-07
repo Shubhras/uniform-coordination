@@ -13,7 +13,6 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.enums import TA_RIGHT, TA_CENTER,TA_LEFT
 from reportlab.platypus import Flowable
 from django.core.mail import send_mail
-from django.contrib.auth import get_user_model
 
 from userhub.models import Users
 
@@ -514,7 +513,6 @@ def generate_payment_pdf(payment, user, request=None):
     file_path = os.path.join(settings.MEDIA_ROOT, "exports", file_name)
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-
     doc = SimpleDocTemplate(
         file_path,
         pagesize=A4,
@@ -526,13 +524,13 @@ def generate_payment_pdf(payment, user, request=None):
 
     styles = getSampleStyleSheet()
     elements = []
+
     CURRENCY_SYMBOLS = {
         "USD": "$",
         "INR": "₹",
         "EUR": "€",
         "GBP": "£",
     }
-
     currency_code = (payment.currency or "").upper()
     currency_symbol = CURRENCY_SYMBOLS.get(currency_code, currency_code)
 
@@ -559,8 +557,74 @@ def generate_payment_pdf(payment, user, request=None):
         fontSize=9,
         textColor=colors.grey
     )
+
+    # --- LOGO STYLES ---
+    logo_text_style = ParagraphStyle(
+        "LogoText",
+        fontSize=14,
+        fontName="Helvetica-Bold",
+        textColor=colors.HexColor("#0B3C5D"),
+        leading=16
+    )
+    logo_tagline_style = ParagraphStyle(
+        "LogoTagline",
+        fontSize=9,
+        textColor=colors.HexColor("#0B3C5D"),
+        leading=2
+    )
+
+    # --- LOGO ---
+    left_logo_block = Table(
+        [
+            [RoundedKFBox()],
+            [Paragraph("Cleanliness and Trust.", logo_tagline_style)],
+        ],
+        colWidths=[100]
+    )
+    left_logo_block.setStyle(TableStyle([
+        ("ALIGN", (0, 1), (0, 1), "CENTER"),
+        ("TOPPADDING", (0, 1), (0, 1), 4),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+
+    right_logo_text = Table(
+        [
+            [Spacer(1, 8)],
+            [Paragraph("KIREIZ", logo_text_style)],
+            [Paragraph("FORM", logo_text_style)],
+        ],
+        colWidths=[140]
+    )
+    right_logo_text.setStyle(TableStyle([
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+
+    logo_table = Table(
+        [
+            [left_logo_block, right_logo_text],
+        ],
+        colWidths=[55, 440]
+    )
+    logo_table.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+
+    elements.append(logo_table)
+    elements.append(Spacer(1, 20))
+
+    # Title
     elements.append(Paragraph("Payment Summary", title_style))
 
+    # User Info
     full_name = f"{user.firstName or ''} {user.lastName or ''}".strip()
     user_data = [
         ["Payment ID", payment.id],
@@ -580,9 +644,10 @@ def generate_payment_pdf(payment, user, request=None):
     ]))
     elements.append(user_table)
 
+    # Payment Details
     elements.append(Paragraph("Payment Details", section_style))
     payment_data = [
-        ["Order ID", getattr(payment, "order", None) and payment.order.id or "-"],
+        ["Order ID", getattr(payment, "order", None) and payment.order.order_id or "-"],
         ["Payment Status", (payment.payment_status or "").capitalize()],
         ["Payment Method", payment.payment_method or "-"],
         ["Amount", f"{currency_symbol} {float(payment.amount):,.2f}" if payment.amount else "-"],
@@ -601,6 +666,8 @@ def generate_payment_pdf(payment, user, request=None):
         ("TOPPADDING", (0, 0), (-1, -1), 8),
     ]))
     elements.append(payment_table)
+
+    # Footer
     elements.append(Spacer(1, 30))
     elements.append(
         Paragraph(
@@ -608,6 +675,7 @@ def generate_payment_pdf(payment, user, request=None):
             muted_style
         )
     )
+
     doc.build(elements)
     pdf_relative_url = f"{settings.MEDIA_URL}exports/{file_name}"
     if request:
@@ -688,7 +756,62 @@ def send_admin_quotation_email(quotation):
         subject,
         message,
         settings.EMAIL_HOST_USER,
-        ["rt61240@gmail.com"],  
+        ["rt61240@gmail.com"],  )
         # admin_emails
+        
+        
+        
+def send_registration_email(user):
+    send_mail(
+        subject="Registration Successful",
+        message=f"""
+Hello {user.firstName if user.lastName else "User"},
+
+Your registration was successful 
+
+Thank You,
+UserHub Team
+""",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+
+
+def send_login_alert_email(user):
+    send_mail(
+        subject="Login Alert",
+        message=f"""
+Hello {user.firstName if user.lastName else "User"},
+
+Your account has been logged in successfully.
+
+If this was not you, please change your password immediately.
+
+Thank You,
+UserHub Team
+""",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+
+def send_order_confirmation_email(user, order, start_date, end_date, total_amount):
+    send_mail(
+        subject="Order Confirmation",
+        message=f"""
+Hello {user.userName},
+
+Your order has been placed successfully 
+
+Order ID: {order.order_id}
+Rental Period: {start_date} to {end_date}
+Total Amount: ₹{total_amount}
+
+Thank You,
+UserHub Team
+""",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[user.email],   
         fail_silently=False,
     )

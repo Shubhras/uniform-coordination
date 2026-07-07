@@ -1905,12 +1905,12 @@ class AdminDashAPIView(APIView):
             previous_month_start = previous_month_end.replace(day=1)
 
             current_month_b2b = AdminUser.objects.filter(
-                role__role_name="b2b",
+                role__role_name="b2b_user",
                 created_at__gte=current_month_start
             ).count()
 
             previous_month_b2b = AdminUser.objects.filter(
-                role__role_name="b2b",
+                role__role_name="b2b_user",
                 created_at__gte=previous_month_start,
                 created_at__lte=previous_month_end
             ).count()
@@ -1946,12 +1946,15 @@ class AdminDashAPIView(APIView):
             DAY_MAP = {1: "Sun", 2: "Mon", 3: "Tue", 4: "Wed", 5: "Thu", 6: "Fri", 7: "Sat"}
             weekly_result = {i: 0 for i in range(1, 8)}
 
+            start_of_week = today_dt - timedelta(days=today_dt.weekday())
+            end_of_week = start_of_week + timedelta(days=6)
+
             week_qs = (
                 QuotationRequest.objects
                 .filter(
                     isDeleted=False,
-                    created_at__year=today_dt.year,
-                    created_at__week=today_dt.isocalendar()[1]
+                    created_at__date__gte=start_of_week.date(),
+                    created_at__date__lte=end_of_week.date()
                 )
                 .annotate(day=ExtractWeekDay("created_at"))
                 .values("day")
@@ -2010,7 +2013,7 @@ class AdminDashAPIView(APIView):
                 .values("fabricName", "total_count")
                 .order_by("-total_count")[:4]
             )
-            #  Command out when sales_representative  model is make
+            #  Command out when sales_representative  model is create
             # sales_qs = (
             #     QuotationRequest.objects
             #     .filter(
@@ -2355,7 +2358,6 @@ class AdminOrderRefundAPI(APIView):
                           "message": "Refund amount exceeds payment amount"},
                           status=status.HTTP_400_BAD_REQUEST
                     )
-
             elif refund_type == 'percentage':
                 percentage = Decimal(str(data.get('refund_percentage', '0')))
                 if percentage <= 0 or percentage > 100:

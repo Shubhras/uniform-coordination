@@ -63,10 +63,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'uniformAdmin',
-    'userhub',
-    #'contracts',
-    # 'drf_yasg',
-]
+    'userhub']
 AUTH_USER_MODEL = 'uniformAdmin.AdminUser'
 
 
