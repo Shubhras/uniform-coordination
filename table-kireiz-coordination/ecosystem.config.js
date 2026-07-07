@@ -4,7 +4,8 @@ module.exports = {
       name: "table-kireiz-coordination",
       script: "npm",
       args: "run start",
-      cwd: "/root/uniform-coordination/table-kireiz-coordination",
+      // cwd: "/root/uniform-coordination/table-kireiz-coordination",
+      cwd: "/home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/table-kireiz-coordination",
       watch: true,
       env: {
         NODE_ENV: "production",

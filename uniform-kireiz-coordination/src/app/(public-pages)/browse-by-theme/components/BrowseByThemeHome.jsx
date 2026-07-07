@@ -3,9 +3,11 @@
 import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import BrowseBYThemeHero from './BrowseBYThemeHero'
-import LandingFooter from '../../table-form/components/LandingFooter'
-import NavigationBar from '../../table-form/components/NavigationBar'
+
+
+import NavigationBar from '../../kireiz-form/components/NavigationBar'
 import ThemeCards from './ThemeCards'
+import LandingFooter from '../../kireiz-form/components/LandingFooter'
 
 
 const BrowseByThemeHome = () => {
