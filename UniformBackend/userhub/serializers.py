@@ -170,6 +170,20 @@ class CartItemSerializer(serializers.ModelSerializer):
             'final_price',
             'total_price'
         ]
+        read_only_fields = ['price', 'final_price', 'total_price']
+   
+#class CartSerializer(serializers.ModelSerializer):
+    
+
+class ProductMiniSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source="category.name", read_only=True)
+    subcategory_name = serializers.CharField(source="subcategory.name", read_only=True)
+
+    class Meta:
+        model = Product
+        fields = ["id","productName","slug","description","price",
+            "discount","ProductImage","productType","type",
+            "category_name","subcategory_name","available_quantity","isPopular",]
         read_only_fields = [
             'price',
             'final_price',

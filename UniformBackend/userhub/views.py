@@ -37,8 +37,8 @@ from django.core.files.base import ContentFile
 from django.utils.timezone import now
 from django.core.mail import EmailMessage
 from docusign_esign import EnvelopesApi, ApiClient
-from decimal import Decimal
-
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 # class SignupAPIView(APIView):
 #     permission_classes=[AllowAny]
 #     def post(self, request, *args, **kwargs):
@@ -214,15 +214,6 @@ class SignupAPIView(APIView):
   
 class UserLoginAPIView(APIView):
     permission_classes = [AllowAny]
-    
-    # @extend_schema(
-    # summary="Login API",
-    
-    # request=LoginSerializer,
-    # responses={200: dict},
-    # auth=[],
-    # tags=["UserHub Authentication"]
-    # )
     def post(self, request):
         
         try:
@@ -1750,7 +1741,14 @@ class OrderSummaryAPIView(APIView):
             404: OpenApiTypes.OBJECT,
         },
         )
-    def get(self, request, order_id=None):
+    def get(self, request,order_id):
+        order_id = request.data.get("order_id")
+        if not order_id:
+            return Response(
+                {"error": "Order ID is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
             order_id = order_id or request.data.get("order_id")
             if not order_id:
@@ -1867,8 +1865,35 @@ class UserOrderListAPIView(APIView):
 # views.py
 class OrderDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    @extend_schema(
+        summary="OrderDetail API",
+        tags=["Payment Gateway"],
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "order_id": {"type": "string"}
+                },
+                "required": ["order_id"]
+            }
+        },
+        responses={
+            200: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT,
+        },
+        )
 
-    def get(self, request, order_id):
+    def get(self, request, order_id=None):
+        order_id = request.data.get("order_id")
+
+        if not order_id:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "order_id is required",
+                "data": {}
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             if not order_id:
                 return Response({
@@ -2333,6 +2358,7 @@ def send_quotation_contract(quotation):
 #                 }, status=400)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class DocuSignWebhookAPIView(APIView):
     permission_classes = []
 
@@ -2342,7 +2368,8 @@ class DocuSignWebhookAPIView(APIView):
 
         envelope_id = data.get("envelopeId")
         status = data.get("status")
-
+        
+        
         if not envelope_id:
             return Response({"statusCode":400,"status":False,"message": "No envelope id"}, status=400)
 

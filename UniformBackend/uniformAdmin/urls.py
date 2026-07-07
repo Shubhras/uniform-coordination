@@ -134,6 +134,7 @@ urlpatterns = [
     path('quotationrequesttamplate/<str:quotation_id>/get/',QuotationTemplateDetailAPIView.as_view(), name='QuotationRequest-create'),
     path('quotationrequesttamplate/<str:quotation_id>/update/',QuotationTemplateUpdateAPIView.as_view(), name='QuotationRequest-create'),
     path('quotationrequesttamplate/delete/',QuotationTemplateDeleteAPIView.as_view(), name='QuotationRequest-create'),
+    path('quotationrequesttamplate/<str:quotation_id>/export/',QuotationTamplateExportAPIView.as_view(),name='get-export'),
 
     #<---------------------AdminuserNotification------------------>
     path("notifications/get-list/", AdminNotificationListAPIView.as_view(),name='adminNotification-get_list'),
@@ -172,7 +173,8 @@ urlpatterns = [
     #<--------------OrderUpdate--------------------->
     path('orderupdate/<str:order_id>/update/',AdminOderUpdateAPIView.as_view(),name='AdminOderUpdate'),
     path('orderlist/get/',AdminOrderListAPIView.as_view(),name='Oder_list'),
-    path('orderdetail/<str:order_id>/get/',AdminOrderDetailAPIView.as_view(),name='order_Detail'),
+    path('orderdetail/<int:order_id>/get/',AdminOrderDetailAPIView.as_view(),name='order_Detail'),
+    path('orderordercancel/<str:order_id>/post/',AdminOrderCancelAPIView.as_view(),name='AdminOrderCancel-post'),
     
     path('quotation-detail/<str:external_document_id>/get/', QuotationDetailByEnvelopeAPIView.as_view(), name='quotation-detail-by-envelope'),
 

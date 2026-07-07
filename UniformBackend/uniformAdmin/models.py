@@ -557,9 +557,8 @@ class QuotationTemplate(models.Model):
     )
  
     title = models.CharField(max_length=50,choices=TITLE_CHOICES )
- 
     slug = models.SlugField(unique=True, help_text="example: quotation-default")
- 
+
     content = models.TextField(help_text="Use placeholders like {CLIENT_NAME}, {ITEM_TYPE}")
  
     userType = models.CharField( max_length=50, default="admin")

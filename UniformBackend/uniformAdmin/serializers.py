@@ -225,6 +225,13 @@ class PartsSerializer(serializers.ModelSerializer):
             })
 
         return data
+    
+    def create(self, validated_data):
+        if "isActive" not in self.initial_data:
+            validated_data["isActive"] = True
+        return super().create(validated_data)
+
+
 
 
 
@@ -331,7 +338,19 @@ class TemplateSerializer(serializers.ModelSerializer):
         if "isActive" not in self.initial_data:
             validated_data["isActive"] = True
         return super().create(validated_data)
+    
+    def validate_templateName(self, value):
+        qs = Template.objects.filter(templateName__iexact=value)
 
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+
+        if qs.exists():
+            raise serializers.ValidationError(
+                "Template with this name already exists."
+            )
+
+        return value
 
 
 
@@ -495,7 +514,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class CatalogImageSerializer(serializers.ModelSerializer):
-
     name = serializers.CharField(
         required=True,
         error_messages={
@@ -511,6 +529,10 @@ class CatalogImageSerializer(serializers.ModelSerializer):
             "required": "category is required.",
             "null": "category is required.",
         }
+    )
+    category_name = serializers.CharField(
+        source="category.categoryName",
+        read_only=True
     )
 
     image = serializers.ImageField(
@@ -531,6 +553,7 @@ class CatalogImageSerializer(serializers.ModelSerializer):
             "image",
             "slug",
             "category",
+            "category_name",
             "description",
             "isActive",
             "isDeleted",
@@ -555,12 +578,14 @@ class CatalogImageSerializer(serializers.ModelSerializer):
 
 
 class SubCategorySerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source="category.categoryName",read_only=True)
     class Meta:
         model = SubCategory
         fields = [            
             "id",
             "name",
-            "category",           
+            "category",
+            "category_name",           
             "subcategoryImage",
             "slug",
             "type", 
@@ -628,6 +653,17 @@ class TableThemeSerializer(serializers.ModelSerializer):
         else:
             data['image'] = None
         return data
+    
+    def validate_title(self,value):
+        qs = TableTheme.objects.filter(title__iexact=value,isDeleted=False)
+        if self.instance:
+             qs = qs.exclude(id=self.instance.id)
+        if qs.exists():
+            raise serializers.ValidationError(
+                "Catalog Image with this Name already exists."
+            )
+
+        return value
     
 
     
@@ -1159,7 +1195,7 @@ class UnitPriceSerializer(serializers.Serializer):
     itemName = serializers.CharField()
     unit = serializers.CharField()
     basePrice = serializers.DecimalField(max_digits=10, decimal_places=2)
-    bulk = serializers.DecimalField(max_digits=10, decimal_places=2)
+    bulk = serializers.DecimalField(max_digits=10, decimal_places=2,allow_null=True)
     action = serializers.CharField()
 
 #<====================B2B=========================>

@@ -14,7 +14,7 @@ from reportlab.lib.enums import TA_RIGHT, TA_CENTER,TA_LEFT
 from reportlab.platypus import Flowable
 from django.core.mail import send_mail
 
-
+from userhub.models import Users
 
 def generate_custom_tokens(user):
     """Generate custom access & refresh tokens for normal Users."""
@@ -304,7 +304,7 @@ def generate_customization_pdf(obj, user):
 
 
 def generate_quotation_pdf(quotation, request):
-    file_name = f"quotation_{quotation.uuids}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+    file_name = f"quotation_{quotation.quotation_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
     file_path = os.path.join(settings.MEDIA_ROOT, "exports", file_name)
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     doc = SimpleDocTemplate(
@@ -722,6 +722,45 @@ def generate_payment_pdf(payment, user, request=None):
 #         raise Exception("Notification service temporarily unavailable.")
 
 
+
+def send_admin_quotation_email(quotation):
+    subject = f"New Quotation create {quotation.quotation_id}"
+
+    message = f"""
+            New Quotation Request Create
+
+    Quotation ID     :    {quotation.quotation_id}
+    Company_name     :    {quotation.company_name}
+    Contact Person   :    {quotation.contact_person}
+    Email            :    {quotation.email}
+    Phone            :    {quotation.phone_number}
+
+    Item Type:            {quotation.item_type}
+    Material:             {quotation.material}
+    Size & Quantity  :    {quotation.size_quantity}
+    Delivery Date    :    {quotation.delivery_date}
+    Additional Note  :    {quotation.additional_note}
+    Status           :    {quotation.quotation_status}
+    Workflow Status  :    {quotation.workflow_status}
+
+    Created At       :  {quotation.created_at}
+    """
+
+    # admin_emails = list(
+    #     Users.objects.filter(userType="admin")
+    #     .exclude(email="")
+    #     .values_list("email", flat=True)
+    # )
+
+    send_mail(
+        subject,
+        message,
+        settings.EMAIL_HOST_USER,
+        ["rt61240@gmail.com"],  )
+        # admin_emails
+        
+        
+        
 def send_registration_email(user):
     send_mail(
         subject="Registration Successful",
