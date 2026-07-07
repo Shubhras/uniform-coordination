@@ -33,6 +33,7 @@ class CustomPagination(PageNumberPagination):
             "data": data  
         })
 
+
 class CreatePaymentAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -62,7 +63,7 @@ class CreatePaymentAPIView(APIView):
                 "statusCode": 404,
                 "message": "Order not found"
             }, status=status.HTTP_404_NOT_FOUND)
-
+       
         if order.status == "confirmed":
             return Response({
                 "status": False,
@@ -70,11 +71,39 @@ class CreatePaymentAPIView(APIView):
                 "message": "Order already paid"
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        amount = int(order.total_amount) if currency in ["jpy", "krw"] else int(order.total_amount * 100)
 
+        existing_payment = Payment.objects.filter(
+            order=order,
+            payment_status__in=["pending", "processing"]
+        ).first()
+
+        if existing_payment:
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Payment already in processing",
+                "order_id": str(order.order_id),
+                "payment_id": existing_payment.payment_id,
+                "payment_status": existing_payment.payment_status,
+                "client_secret": existing_payment.client_secret
+            }, status=status.HTTP_200_OK)
+
+        amount = int(order.total_amount) if currency in ["jpy", "krw"] else int(order.total_amount * 100)
         try:
-          
-            if not request.user.stripeOrderCustomerId:
+            customer_id = request.user.stripeOrderCustomerId
+
+            if customer_id:
+                try:
+                    stripe.Customer.retrieve(customer_id)
+                except stripe.error.InvalidRequestError:
+                    stripe_customer = stripe.Customer.create(
+                        email=request.user.email,
+                        name=request.user.userName
+                    )
+                    request.user.stripeOrderCustomerId = stripe_customer.id
+                    request.user.save(update_fields=["stripeOrderCustomerId"])
+                    customer_id = stripe_customer.id
+            else:
                 stripe_customer = stripe.Customer.create(
                     email=request.user.email,
                     name=request.user.userName
@@ -82,8 +111,6 @@ class CreatePaymentAPIView(APIView):
                 request.user.stripeOrderCustomerId = stripe_customer.id
                 request.user.save(update_fields=["stripeOrderCustomerId"])
                 customer_id = stripe_customer.id
-            else:
-                customer_id = str(request.user.stripeOrderCustomerId)
 
             intent = stripe.PaymentIntent.create(
                 amount=amount,
@@ -91,14 +118,18 @@ class CreatePaymentAPIView(APIView):
                 customer=customer_id,
                 payment_method=payment_method_id,
                 confirm=True,
-                automatic_payment_methods={"enabled": True, "allow_redirects": "never"},
+                automatic_payment_methods={
+                    "enabled": True,
+                    "allow_redirects": "never"
+                },
                 setup_future_usage="off_session",
                 metadata={
-                    "order_id": order.order_id,
-                    "order_db_id": order.id,
-                    "user_id": request.user.id,
+                    "order_id": str(order.order_id),
+                    "order_db_id": str(order.id),
+                    "user_id": str(request.user.id),
                 }
             )
+
             payment_method_obj = stripe.PaymentMethod.retrieve(intent.payment_method)
             method_name = payment_method_obj.type
 
@@ -107,50 +138,30 @@ class CreatePaymentAPIView(APIView):
                 payment_id=intent.id,
                 customer_id=customer_id,
                 payment_method_id=payment_method_id,
-                payment_method =method_name,
+                payment_method=method_name,
                 amount=order.total_amount,
                 currency=currency.upper(),
                 payment_status="pending",
                 client_secret=intent.client_secret,
             )
 
-    
-           
             if intent.status == "succeeded":
-                payment.payment_status = "success"
+                payment.payment_status = "processing"
                 payment.paid_at = timezone.now()
                 payment.save(update_fields=["payment_status", "paid_at"])
-
-                order.status = "confirmed"
-                order.currency = currency.upper()
-                order.is_paid = True
-                # order.payment_method = Payment.payment_method 
-                order.save(update_fields=["status","is_paid", "currency"])
-
-                try:
-                    cart = Cart.objects.get(user=request.user, is_active=True)
-                    cart_items = cart.items.all()  
-                    cart_items.delete()           
-                    cart.delete()                  
-                except Cart.DoesNotExist:
-                    print(f"No active cart found for user {request.user.id}")
 
                 return Response({
                     "status": True,
                     "statusCode": 200,
-                    "ordr_status":order.status,
+                    "message": "Payment processing. Waiting for confirmation.",
                     "order_id": str(order.order_id),
-                    "total_amount": float(order.total_amount),
-                    "currency": currency.upper(),
                     "payment_id": payment.payment_id,
                     "payment_method": method_name,
-                    "payment_client_secret": payment.client_secret,
+                    "client_secret": payment.client_secret,
                     "payment_status": payment.payment_status
                 }, status=status.HTTP_200_OK)
 
             elif intent.status == "requires_action":
-                payment.payment_status = "pending"
-                payment.save(update_fields=["payment_status"])
                 return Response({
                     "status": True,
                     "statusCode": 200,
@@ -189,9 +200,7 @@ class CreatePaymentAPIView(APIView):
                 "statusCode": 500,
                 "message": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
+        
 @csrf_exempt
 def stripe_webhook(request):
     payload = request.body
@@ -199,9 +208,7 @@ def stripe_webhook(request):
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
     try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, endpoint_secret
-        )
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
     except ValueError:
         return HttpResponse(status=400)
     except stripe.error.SignatureVerificationError:
@@ -209,25 +216,35 @@ def stripe_webhook(request):
 
     if event["type"] == "payment_intent.succeeded":
         intent = event["data"]["object"]
-
         order_db_id = intent["metadata"].get("order_db_id")
+        if not order_db_id:
+            print("Metadata missing!")
+            return HttpResponse(status=200)
 
-        try:
-            order = Order.objects.get(id=order_db_id)
-            payment = Payment.objects.get(payment_id=intent["id"])
+        order_db_id = int(order_db_id)
+        with transaction.atomic():
+            try:
+                order = Order.objects.select_for_update().get(id=int(order_db_id))
+                payment = Payment.objects.get(payment_id=intent["id"])
 
-            if payment.payment_status != "success":
+                if payment.payment_status != "success":
 
-                payment.payment_status = "success"
-                payment.paid_at = timezone.now()
-                payment.save(update_fields=["payment_status", "paid_at"])
+                    payment.payment_status = "success"
+                    payment.paid_at = timezone.now()
+                    payment.save(update_fields=["payment_status", "paid_at"])
 
-                order.status = "confirmed"
-                order.is_paid = True
-                order.save(update_fields=["status", "is_paid"])
+                    order.status = "confirmed"
+                    order.is_paid = True
+                    order.save(update_fields=["status", "is_paid"])
 
-        except Order.DoesNotExist:
-            print("Order not found in webhook")
+                    # CART DELETE HERE (FINAL SUCCESS ONLY)
+                    cart = Cart.objects.filter(user=order.customer.user, is_active=True).first()
+                    if cart:
+                        cart.items.all().delete()
+                        cart.delete()
+
+            except Order.DoesNotExist:
+                print("Order not found in webhook")
 
     elif event["type"] == "payment_intent.payment_failed":
         intent = event["data"]["object"]
@@ -239,9 +256,7 @@ def stripe_webhook(request):
         except Payment.DoesNotExist:
             print("Payment not found")
 
-    return HttpResponse(status=200)
-
-
+    return HttpResponse(status=200)        
 
 class UserPaymentListAPIView(APIView):
     permission_classes = [IsAuthenticated]
