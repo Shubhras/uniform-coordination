@@ -13,7 +13,7 @@ const ResetPasswordClient = () => {
     // const token = searchParams.get('token')
 
     const userId = searchParams.get('user_id')
-    console.log(userId)
+    // console.log(userId)
 
     // const handleResetPassword = async (payload) => {
     //     const { values, setSubmitting, setMessage, setResetComplete } = payload
@@ -36,6 +36,10 @@ const ResetPasswordClient = () => {
         console.log(values)
         try {
             setSubmitting(true)
+            if (!userId) {
+                setMessage('Invalid or expired reset link. Please request a new one.')
+                return
+            }
             await apiResetPassword({
                 ...values,
                 userId
@@ -49,7 +53,11 @@ const ResetPasswordClient = () => {
             router.push('/sign-in')
 
         } catch (error) {
-            setMessage(error)
+            setMessage(
+                error?.response?.data?.message ||
+                error?.message ||
+                'Something went wrong. Please try again.'
+            )
         } finally {
             setSubmitting(false)
         }

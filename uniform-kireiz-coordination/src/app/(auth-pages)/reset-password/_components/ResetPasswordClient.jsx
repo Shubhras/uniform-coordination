@@ -16,6 +16,10 @@ const ResetPasswordClient = () => {
         const { values, setSubmitting, setMessage, setResetComplete } = payload
         try {
             setSubmitting(true)
+            if (!userId) {
+                setMessage('Invalid or expired reset link. Please request a new one.')
+                return
+            }
             await apiResetPassword({
                 ...values,
                 userId,
@@ -29,7 +33,11 @@ const ResetPasswordClient = () => {
             router.push('/sign-in')
 
         } catch (error) {
-            setMessage(error)
+            setMessage(
+                error?.response?.data?.message ||
+                error?.message ||
+                'Something went wrong. Please try again.'
+            )
         } finally {
             setSubmitting(false)
         }

@@ -18,16 +18,20 @@ export async function apiSignUp(data) {
 }
 
 export async function apiForgotPassword(data) {
+    const payload = {
+        ...data,
+        userType: 'uniform',
+    };
     return ApiService.fetchDataWithAxios({
-        url: '/auth/forgot-password',
+        url: '/v1/userhub/forgot-password/',
         method: 'post',
-        data,
+        data: payload,
     })
 }
 
 export async function apiResetPassword(data) {
     return ApiService.fetchDataWithAxios({
-        url: '/auth/reset-password',
+        url: '/v1/userhub/reset-password/',
         method: 'post',
         data,
     })
