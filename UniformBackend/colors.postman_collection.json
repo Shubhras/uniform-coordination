@@ -1,0 +1,163 @@
+{
+  "info": {
+    "_postman_id": "5460d139-804e-4cf5-9c70-e74742b5533f",
+    "name": "colors",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50369969",
+    "_collection_link": "https://go.postman.co/collection/50369969-5460d139-804e-4cf5-9c70-e74742b5533f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "list",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "create",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzczOTg3MzM2LCJpYXQiOjE3NzEzOTUzMzYsImp0aSI6ImZhYzljNTMyYzNlODRhYWE5NjE1YWJiMzVkZDhhM2ZiIiwidXNlcl9pZCI6MSwicm9sZSI6ImFkbWluIn0.HUA1tqMkxl4dxeoqf2H9FUj07Pzy3V-B1H--0EbWVsc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"colorName\": \"Sky Blue\",\n  \"colorCode\": \"#87CEEB\",\n  \"compatibleFabric_ids\": [1, 2, 3],\n  \"isActive\": true,\n  \"isDeleted\": false\n}\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://54.81.43.26/api/v1/uniformAdmin/colors/create/",
+          "protocol": "http",
+          "host": [
+            "54",
+            "81",
+            "43",
+            "26"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "uniformAdmin",
+            "colors",
+            "create",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "by _id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://54.81.43.26/api/v1/uniformAdmin/colors/1/",
+          "protocol": "http",
+          "host": [
+            "54",
+            "81",
+            "43",
+            "26"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "uniformAdmin",
+            "colors",
+            "1",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "update",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzczOTg3MzM2LCJpYXQiOjE3NzEzOTUzMzYsImp0aSI6ImZhYzljNTMyYzNlODRhYWE5NjE1YWJiMzVkZDhhM2ZiIiwidXNlcl9pZCI6MSwicm9sZSI6ImFkbWluIn0.HUA1tqMkxl4dxeoqf2H9FUj07Pzy3V-B1H--0EbWVsc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"colorName\":\"Navy Blue\"      \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://54.81.43.26/api/v1/uniformAdmin/colors/update/1/",
+          "protocol": "http",
+          "host": [
+            "54",
+            "81",
+            "43",
+            "26"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "uniformAdmin",
+            "colors",
+            "update",
+            "1",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "delete",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://54.81.43.26/api/v1/uniformAdmin/colors/delete/1/",
+          "protocol": "http",
+          "host": [
+            "54",
+            "81",
+            "43",
+            "26"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "uniformAdmin",
+            "colors",
+            "delete",
+            "1",
+            ""
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
