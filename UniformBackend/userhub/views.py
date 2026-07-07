@@ -248,13 +248,13 @@ class UserLoginAPIView(APIView):
            ##
             #  EMAIL VERIFICATION CHECK 
            ##
-            if not user.is_verify:
-                return Response({
-                    "status": False,
-                    "statusCode": 403,
-                    "message": "Please verify your email before logging in."
-                }, status=200)
-           ##
+        #     if not user.is_verify:
+        #         return Response({
+        #             "status": False,
+        #             "statusCode": 403,
+        #             "message": "Please verify your email before logging in."
+        #         }, status=200)
+        #    ##
             
 
             # Check matching userType

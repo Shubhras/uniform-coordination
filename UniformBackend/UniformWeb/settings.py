@@ -41,6 +41,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "localhost:7000",
     "localhost:7001",
+    "localhost:7002",
     "192.168.1.56",
     "54.81.43.26",
     "0.0.0.0:8000",
@@ -209,6 +210,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.1.56:8000",
     "http://localhost:7000",
     "http://localhost:7001",
+    "http://localhost:7002",
     "http://0.0.0.0:8000",
     "http://54.81.43.26",
     
