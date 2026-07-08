@@ -55,6 +55,7 @@ const navMenu = [
     { title: "Uniform Design", value: "uniformDesign", url: "/dashboards/uniform-3d-design" },
     { title: "Blog", value: "blog", url: "/blog" },
     { title: `FAQ's`, value: "faq", url: "/faq" },
+    { title: "Table", value: "table", url: "http://localhost:7001/table-form" },
 ];
 
 const Header = () => {
@@ -122,7 +123,7 @@ const Header = () => {
 
         </header>
 
-        
+
     );
 };
 
