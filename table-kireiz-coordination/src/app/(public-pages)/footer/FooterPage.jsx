@@ -88,7 +88,7 @@ const FooterPage = ({ mode }) => {
                     <div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4
                     flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
                         <p className="text-[#2D3E72] font-semibold">
-                            ©{year} KIREIZ FORM. All rights reserved.
+                            ©{year} KIREIZ SPACE. All rights reserved.
                         </p>
                         <div className="flex gap-6 font-semibold text-[#2D3E72]">
                             <Link href="#" className="hover:underline">Privacy & Policy</Link>
@@ -163,7 +163,7 @@ const FooterPage = ({ mode }) => {
                     <div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4
                     flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-[#A9ACB3]">
                         <p className="font-semibold">
-                            ©{year} KIREIZ FORM. All rights reserved.
+                            ©{year} KIREIZ SPACE. All rights reserved.
                         </p>
                         <div className="flex gap-6 font-semibold ">
                             <Link href='/private-policy' className="hover:underline">Privacy & Policy</Link>

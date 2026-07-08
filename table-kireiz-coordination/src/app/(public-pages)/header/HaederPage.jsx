@@ -16,7 +16,6 @@ const navMenu = [
   { title: "Browse by Color", value: "browseByColor", to: "browseByColor", url: "/browse-by-color" },
   { title: "Browse by Theme", value: "browseByTheme", to: "browseByTheme", url: "/browse-by-theme" },
   { title: "Canvas", value: "canvas", to: "canvas", url: "/dashboards/uniform-3d-design" },
-  { title: "Uniform", value: "uniform", url: "http://localhost:7000/kireiz-form" },
   // { title: "Faq", value: "faq", to: "faq", url: "/faq" },
   // { title: "Blog", value: "blog", to: "blog", url: "/blog" },
 ];

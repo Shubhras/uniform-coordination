@@ -53,7 +53,6 @@ const SignInClient = () => {
                 'Login failed'
 
             setMessage(errorMessage)
-        } finally {
             setSubmitting(false)
         }
     }

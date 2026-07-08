@@ -31,7 +31,7 @@ const SignInForm = (props) => {
   } = useForm({
     defaultValues: {
       email: "admin@gmail.com",
-      password: "",
+      password: "1234567",
     },
     resolver: zodResolver(validationSchema),
   });
