@@ -3,7 +3,7 @@ import Dialog from '@/components/ui/Dialog'
 import { apiExportQuotationPdf } from '@/services/QuotationRequestService'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-const QuoteRequestPopup = ({ isOpen, onClose,quoteData }) => {
+const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
     const router = useRouter()
     const { data: session } = useSession()
     if (!isOpen || !quoteData) return null
@@ -61,6 +61,7 @@ const QuoteRequestPopup = ({ isOpen, onClose,quoteData }) => {
                 mx-4
                 sm:mx-auto
             "
+            style={{ minWidth: '550px' }}
         >
             <div className="
                 flex
@@ -103,10 +104,10 @@ const QuoteRequestPopup = ({ isOpen, onClose,quoteData }) => {
                     <div className="mb-8">
                         <h5 className="font-medium mb-1">We’ll reach out to:</h5>
                         <p className="mt-2 text-xs sm:text-sm text-gray-700">
-                        {email || 'N/A'}
+                            {email || 'N/A'}
                         </p>
                         <p className="text-xs sm:text-sm text-gray-700">
-                        {phone_number || 'N/A'}
+                            {phone_number || 'N/A'}
                         </p>
                     </div>
 

@@ -88,10 +88,12 @@ const DeliveryInformation = () => {
             payment: {
                 payment_method: form.payment_method,
             },
-            rental: {
-                start_date: form.start_date,
-                return_date: form.return_date,
-            },
+            rental_start_date: form.start_date,
+            rental_end_date: form.return_date,
+            // rental: {
+            //     start_date: form.start_date,
+            //     return_date: form.return_date,
+            // },
             promocode: couponCode ? { code: couponCode } : {},
         };
         console.log(payload)

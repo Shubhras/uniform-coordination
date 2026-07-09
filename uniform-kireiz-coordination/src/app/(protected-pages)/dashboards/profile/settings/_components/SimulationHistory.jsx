@@ -47,7 +47,7 @@ const SimulationHistory = () => {
         }
     }
 
-    const handlePdfDownload = async (id) => {   
+    const handlePdfDownload = async (id) => {
         try {
             if (!session?.accessToken || !id) return
 
@@ -200,10 +200,10 @@ const SimulationHistory = () => {
                                 <div className="flex justify-center mb-6">
                                     <div className="w-[240px] h-[240px] rounded-full flex items-center justify-center overflow-hidden bg-gray-100">
                                         <Image
-                                            src={product?.ProductImage}
+                                            src={item?.ProductImage}
                                             width={240}
                                             height={240}
-                                            alt={product?.productName || 'Product'}
+                                            alt={item?.productName || 'Product'}
                                             className="object-cover h-full w-full"
                                             unoptimized
                                         />
@@ -211,7 +211,7 @@ const SimulationHistory = () => {
                                 </div>
 
                                 <h4 className="text-[#1C2C56] text-[16px] font-semibold">
-                                    {product?.productName || '-'}
+                                    {item?.productName || '-'}
                                 </h4>
 
                                 <p className="text-[#6B7280] text-[13px] mt-1">

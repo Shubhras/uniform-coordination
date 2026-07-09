@@ -294,7 +294,7 @@ const Uniform3DmoduleDegisn = () => {
 
   const handleUniformDesignResult = () => {
     console.log("FINAL DESIGN JSON:", designJSON);
-    // router.push("/dashboards/design-result?id=16");
+    router.push("/dashboards/design-result?id=5");
   };
   const [position, setPosition] = useState("top"); // top | bottom
 

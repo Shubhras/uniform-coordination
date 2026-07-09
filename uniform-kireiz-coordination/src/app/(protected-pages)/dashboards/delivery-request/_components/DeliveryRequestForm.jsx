@@ -33,6 +33,7 @@ const DeliveryRequestForm = () => {
     const { data: session } = useSession()
     const [dialogTermsOpen, setDialogTermsOpen] = useState(false)
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const {
         handleSubmit,
@@ -69,12 +70,15 @@ const DeliveryRequestForm = () => {
                 alert("Please login first!")
                 return
             }
+            setIsSubmitting(true)
             const response = await apiCreateQuotationRequest(payload, session.accessToken)
             setQuoteData(response.data)
             setDialogQuoteRequestOpen(true)
         } catch (error) {
             console.error("Error creating quotation request:", error)
             alert("Failed to create quotation request.")
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -267,6 +271,7 @@ const DeliveryRequestForm = () => {
                         <Button
                             type="submit"
                             variant="solid"
+                            loading={isSubmitting}
                             className="w-full mt-4 bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-3"
                         >
                             Request a Quote
