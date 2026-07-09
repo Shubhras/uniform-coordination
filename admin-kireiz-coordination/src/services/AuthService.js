@@ -23,7 +23,7 @@ export async function apiForgotPassword(data) {
         userType: 'uniform',
     };
     return ApiService.fetchDataWithAxios({
-        url: '/v1/userhub/forgot-password/',
+        url: '/v1/uniformAdmin/forgot-password/',
         method: 'post',
         data: payload,
     })

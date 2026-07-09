@@ -7,8 +7,16 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
+// const validationSchema = z.object({
+//   email: z.string().email().min(5),
+// });
+
 const validationSchema = z.object({
-  email: z.string().email().min(5),
+  email: z
+    .string()
+    .trim()
+    .min(1, { message: "Please enter your email" })
+    .email({ message: "Please enter a valid email" }),
 });
 
 const ForgotPasswordForm = (props) => {
@@ -28,6 +36,9 @@ const ForgotPasswordForm = (props) => {
     formState: { errors },
     control,
   } = useForm({
+    defaultValues: {
+      email: "",
+    },
     resolver: zodResolver(validationSchema),
   });
 
@@ -55,7 +66,7 @@ const ForgotPasswordForm = (props) => {
               control={control}
               render={({ field }) => (
                 <Input
-                  type="email"
+                  type="text"
                   placeholder="Email"
                   autoComplete="off"
                   {...field}

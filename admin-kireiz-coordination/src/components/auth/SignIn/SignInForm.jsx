@@ -11,9 +11,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 const validationSchema = z.object({
+  // email: z
+  //   .string({ required_error: "Please enter your email" })
+  //   .min(1, { message: "Please enter your email" }),
   email: z
-    .string({ required_error: "Please enter your email" })
-    .min(1, { message: "Please enter your email" }),
+    .string()
+    .min(1, { message: "Please enter your email" })
+    .email({ message: "Please enter a valid email" }),
+
   password: z
     .string({ required_error: "Please enter your password" })
     .min(1, { message: "Please enter your password" }),
@@ -54,7 +59,7 @@ const SignInForm = (props) => {
             control={control}
             render={({ field }) => (
               <Input
-                type="email"
+                type="text"
                 placeholder="Email"
                 autoComplete="off"
                 {...field}
@@ -67,7 +72,7 @@ const SignInForm = (props) => {
           errorMessage={errors.password?.message}
           className={classNames(
             passwordHint ? "mb-0" : "",
-            errors.password?.message ? "mb-8" : ""
+            errors.password?.message ? "mb-8" : "",
           )}
         >
           <Controller

@@ -196,7 +196,7 @@ const PartsTab = () => {
 
                 <button
                     onClick={handleAdd}
-                    className="bg-[#1C2C56] text-white px-4 py-2 font-medium rounded-md text-sm flex items-center gap-2"
+                    className="bg-[#1C4FA8] text-white px-4 py-2 font-medium rounded-md text-sm flex items-center gap-2"
                 >
                     <FiPlus size={14} />
                     Upload New Part
@@ -286,7 +286,7 @@ const PartsTab = () => {
                                         <div className="flex gap-2 mt-3">
                                             <button
                                                 onClick={() => handleEdit(part)}
-                                                className="flex-1 bg-[#1C2C56] text-white text-xs py-1.5 rounded-md"
+                                                className="flex-1 bg-[#1C4FA8] text-white text-xs py-1.5 rounded-md"
                                             >
                                                 Edit
                                             </button>

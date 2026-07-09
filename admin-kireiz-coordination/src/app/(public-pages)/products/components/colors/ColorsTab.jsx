@@ -164,7 +164,7 @@ const ColorsTab = () => {
 
           <button
             onClick={handleAddColor}
-            className="bg-[#1C2C56] text-white px-4 py-2 rounded-md text-sm flex items-center gap-2"
+            className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm flex items-center gap-2"
           >
             <FiPlus size={14} />
             Add Color
@@ -190,7 +190,7 @@ const ColorsTab = () => {
         ) : filteredColors.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">No colors found</div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredColors.map((color) => (
               <div
                 key={color.id}
@@ -217,12 +217,12 @@ const ColorsTab = () => {
                         Compatible Fabrics:
                       </p>
                       <div className="flex gap-2 flex-wrap">
-                        {color.compatibleFabric.map((f) => (
+                        {color.compatibleFabric.map((fabric, index) => (
                           <span
-                            key={f.id}
-                            className="text-xs px-2 py-0.5 rounded-full bg-[#EEF2FF] text-[#1C2C56]"
+                            key={index}
+                            className="text-xs px-3 py-1 rounded-full bg-[#EEF2FF] text-[#1C2C56]"
                           >
-                            {f.fabricName}
+                            {fabric}
                           </span>
                         ))}
                       </div>
@@ -232,7 +232,7 @@ const ColorsTab = () => {
                   <div className="flex gap-2 mt-4">
                     <button
                       onClick={() => handleEditColor(color)}
-                      className="flex-1 bg-[#1C2C56] text-white text-xs py-1.5 rounded-md"
+                      className="flex-1 bg-[#1C4FA8] text-white text-xs py-1.5 rounded-md"
                     >
                       Edit
                     </button>
@@ -244,8 +244,14 @@ const ColorsTab = () => {
                       }}
                       className="flex-1 border border-red-200 text-red-500 text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                     >
-                      <FiTrash2 size={12} />
+                      {/* <FiTrash2 size={12} /> */}
                       Delete
+                    </button>
+                     <button
+                      onClick={() => handleEditColor(color)}
+                      className="flex-1 border border-gray-300 text-[#91A1B6] text-xs py-1.5 rounded-md"
+                    >
+                      Duplicate
                     </button>
                   </div>
                 </div>

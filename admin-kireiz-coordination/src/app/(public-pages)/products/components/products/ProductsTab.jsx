@@ -149,7 +149,7 @@ const ProductsTab = () => {
 
         <button
           onClick={handleAdd}
-          className="bg-[#1C2C56] text-white px-4 py-2 rounded-md text-sm font-medium"
+          className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium"
         >
           + Add Product
         </button>
@@ -188,11 +188,11 @@ const ProductsTab = () => {
                 <div className="flex gap-2 mt-4">
                   <button
                     onClick={() => handleEdit(item)}
-                    className="flex-1 bg-[#1C2C56] text-white text-xs py-2 rounded-md"
+                    className="flex-1 bg-[#1C4FA8] text-white text-xs py-2 rounded-md"
                   >
                     Edit
                   </button>
-                  <button
+                  {/* <button
                     onClick={() => {
                       setProductToDelete(item);
                       setDeleteDialogOpen(true);
@@ -201,7 +201,7 @@ const ProductsTab = () => {
                   >
                     <FiTrash2 size={12} />
                     Delete
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
