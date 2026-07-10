@@ -52,7 +52,7 @@ const DeleteConfirmDialog = ({
                         size="sm"
                         onClick={onClose}
                         disabled={loading}
-                        className="px-6"
+                        className="px-6 bg-blue-100 rounded-lg"
                     >
                         Cancel
                     </Button>

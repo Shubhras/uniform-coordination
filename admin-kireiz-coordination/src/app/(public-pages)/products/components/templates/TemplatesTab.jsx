@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { FiSearch, FiPlus, FiTrash2, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiSearch, FiPlus, FiTrash2, FiChevronLeft, FiChevronRight,FiX } from "react-icons/fi";
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetTemplatesList, apiDeleteTemplate } from "@/services/TemplateService";
@@ -206,6 +206,15 @@ const TemplatesTab = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm"
             />
+              {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery("")}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
+                        >
+                          <FiX size={16} />
+                        </button>
+                      )}
           </div>
 
           <Select
@@ -269,7 +278,7 @@ const TemplatesTab = () => {
                       }}
                       className="flex-1 border border-red-200 text-red-500 text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                     >
-                      <FiTrash2 size={12} />
+                      {/* <FiTrash2 size={12} /> */}
                       Delete
                     </button>
                     <button className="flex-1 border border-[#CBD5E1] text-[#1C2C56] text-xs py-1.5 rounded-md">
