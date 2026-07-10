@@ -1,10 +1,20 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { FiSearch, FiPlus, FiTrash2, FiChevronLeft, FiChevronRight,FiX } from "react-icons/fi";
+import {
+  FiSearch,
+  FiPlus,
+  FiTrash2,
+  FiChevronLeft,
+  FiChevronRight,
+  FiX,
+} from "react-icons/fi";
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiGetTemplatesList, apiDeleteTemplate } from "@/services/TemplateService";
+import {
+  apiGetTemplatesList,
+  apiDeleteTemplate,
+} from "@/services/TemplateService";
 import AddEditTemplateModal from "./AddEditTemplateModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
@@ -40,6 +50,9 @@ const TemplatesTab = () => {
     { value: "aprons", label: "Aprons" },
   ];
 
+    const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
+
+
   const selectStyles = {
     control: (base) => ({
       ...base,
@@ -68,25 +81,28 @@ const TemplatesTab = () => {
   };
 
   /* ---------- FETCH TEMPLATES ---------- */
-  const fetchTemplates = useCallback(async (page = 1) => {
-    if (!accessToken) return;
+  const fetchTemplates = useCallback(
+    async (page = 1) => {
+      if (!accessToken) return;
 
-    try {
-      setLoading(true);
-      const response = await apiGetTemplatesList(accessToken, page);
+      try {
+        setLoading(true);
+        const response = await apiGetTemplatesList(accessToken, page);
 
-      if (response?.status && response?.data) {
-        setTemplates(response.data);
-        if (response.pagination) {
-          setPagination(response.pagination);
+        if (response?.status && response?.data) {
+          setTemplates(response.data);
+          if (response.pagination) {
+            setPagination(response.pagination);
+          }
         }
+      } catch (error) {
+        console.error("Failed to fetch templates:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to fetch templates:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [accessToken]);
+    },
+    [accessToken],
+  );
 
   useEffect(() => {
     fetchTemplates(currentPage);
@@ -150,7 +166,10 @@ const TemplatesTab = () => {
   const CardSkeleton = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
       {Array.from({ length: 10 }).map((_, i) => (
-        <div key={i} className="border border-[#E2E8F0] rounded-xl animate-pulse">
+        <div
+          key={i}
+          className="border border-[#E2E8F0] rounded-xl animate-pulse"
+        >
           <div className="flex justify-center items-center p-3">
             <div className="w-32 h-32 rounded-full bg-gray-200" />
           </div>
@@ -198,7 +217,10 @@ const TemplatesTab = () => {
 
         <div className="flex flex-wrap gap-4 items-center mb-6">
           <div className="relative w-full md:w-72">
-            <FiSearch className="absolute left-3 top-2.5 text-[#64748B]" size={16} />
+            <FiSearch
+              className="absolute left-3 top-2.5 text-[#64748B]"
+              size={16}
+            />
             <input
               type="text"
               placeholder="Search Templates..."
@@ -206,31 +228,48 @@ const TemplatesTab = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm"
             />
-              {searchQuery && (
-                        <button
-                          type="button"
-                          onClick={() => setSearchQuery("")}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
-                        >
-                          <FiX size={16} />
-                        </button>
-                      )}
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
+              >
+                <FiX size={16} />
+              </button>
+            )}
           </div>
 
           <Select
             options={filterOptions}
-            defaultValue={filterOptions[0]}
+            // defaultValue={filterOptions[0]}
+            value={selectedFilter}
+            onChange={setSelectedFilter}
             styles={selectStyles}
-            menuPortalTarget={typeof document !== "undefined" ? document.body : null}
+            menuPortalTarget={
+              typeof document !== "undefined" ? document.body : null
+            }
             menuPosition="fixed"
             className="w-48 text-sm"
           />
+
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery("");
+              setSelectedFilter(filterOptions[0]); // ya null agar placeholder dikhana ho
+            }}
+            className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-white bg-[#1C4FA8] hover:bg-[#163F86] transition-colors"
+          >
+            Reset
+          </button>
         </div>
 
         {loading ? (
           <CardSkeleton />
         ) : filteredTemplates.length === 0 ? (
-          <div className="text-center py-16 text-[#94A3B8]">No templates found</div>
+          <div className="text-center py-16 text-[#94A3B8]">
+            No templates found
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {filteredTemplates.map((t) => (
@@ -257,10 +296,13 @@ const TemplatesTab = () => {
                     {t.partName} &nbsp; | &nbsp; {t.partUsageCount} Parts
                   </p>
 
-                  <span className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs ${t.isActive
-                    ? "bg-[#EEF2FF] text-[#1C2C56]"
-                    : "bg-red-50 text-red-600"
-                    }`}>
+                  <span
+                    className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs ${
+                      t.isActive
+                        ? "bg-[#EEF2FF] text-[#1C2C56]"
+                        : "bg-red-50 text-red-600"
+                    }`}
+                  >
                     {t.isActive ? "Active" : "Inactive"}
                   </span>
 
@@ -295,7 +337,8 @@ const TemplatesTab = () => {
         {!loading && pagination.total_pages > 1 && (
           <div className="flex items-center justify-between mt-6 px-2">
             <p className="text-sm text-[#64748B]">
-              Page {pagination.page} of {pagination.total_pages} ({pagination.total_items} items)
+              Page {pagination.page} of {pagination.total_pages} (
+              {pagination.total_items} items)
             </p>
 
             <div className="flex items-center gap-1">

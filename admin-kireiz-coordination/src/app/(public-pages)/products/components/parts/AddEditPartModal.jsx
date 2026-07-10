@@ -25,9 +25,13 @@ const validationSchema = z.object({
     message: "Category is required",
   }),
 
-  fabric: z.any().optional(),
+  fabric: z.any().refine((val) => val !== null, {
+    message: "Fabric is required",
+  }),
 
-  zIndex: z.string().optional(),
+  zIndex: z.string().trim().min(1, {
+    message: "Z-Index is required",
+  }),
 });
 
 const AddEditPartModal = ({
@@ -284,6 +288,10 @@ const AddEditPartModal = ({
       } else {
         await apiCreatePart(accessToken, formData);
       }
+      if (!imageFile && !preview) {
+        setError("Part image is required");
+        return;
+      }
 
       onSaveSuccess?.();
     } catch (err) {
@@ -399,7 +407,7 @@ const AddEditPartModal = ({
               menuPosition="fixed"
               className="mt-1"
             /> */}
-              <Controller
+              {/* <Controller
                 name="fabric"
                 control={control}
                 render={({ field }) => (
@@ -412,7 +420,26 @@ const AddEditPartModal = ({
                     isClearable
                   />
                 )}
-              />
+              /> */}
+              <FormItem
+                invalid={Boolean(errors.fabric)}
+                errorMessage={errors.fabric?.message}
+              >
+                <Controller
+                  name="fabric"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={fabricOptions}
+                      styles={selectStyles}
+                      value={field.value}
+                      onChange={field.onChange}
+                      isClearable
+                    />
+                  )}
+                />
+              </FormItem>
             </div>
 
             {/* z-Index */}
@@ -427,13 +454,25 @@ const AddEditPartModal = ({
               placeholder="Eg:- 1"
               className="mt-1 w-full border border-[#E2E8F0] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
             /> */}
-              <Controller
+              {/* <Controller
                 name="zIndex"
                 control={control}
                 render={({ field }) => (
                   <Input type="number" placeholder="Eg:- 1" {...field} />
                 )}
-              />
+              /> */}
+              <FormItem
+                invalid={Boolean(errors.zIndex)}
+                errorMessage={errors.zIndex?.message}
+              >
+                <Controller
+                  name="zIndex"
+                  control={control}
+                  render={({ field }) => (
+                    <Input type="number" placeholder="Eg:- 1" {...field} />
+                  )}
+                />
+              </FormItem>
             </div>
 
             {/* Upload Image */}
@@ -494,6 +533,11 @@ const AddEditPartModal = ({
                 <FiCheckCircle className="text-green-600" size={16} />
                 <span>Image validated successfully</span>
               </div>
+            )}
+            {!imageFile && !preview && error === "Part image is required" && (
+              <p className="text-red-500 text-sm mt-1">
+                Part image is required
+              </p>
             )}
           </div>
 
