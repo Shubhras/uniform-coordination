@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import {
     FiGrid,
@@ -18,37 +19,45 @@ const sidebarMenu = [
         label: 'Dashboard',
         icon: FiGrid,
         path: '/admin-form',
+        slug: "dashboard",
     },
     {
         label: 'Product & Specification',
         icon: FiPackage,
         path: '/products',
+        slug: "product_specification", // Changed back to products so it hides properly
     },
     {
         label: 'Content & Media',
         icon: FiFileText,
         path: '/contents',
+        slug: "content_media",
     },
     {
         label: 'Pricing & Quotation',
         icon: FiDollarSign,
         path: '/pricing',
+        slug: "order_manage", // Assigned 'order_manage' here based on API
     },
     {
         label: 'Customer & Sales Representative',
         icon: FiUsers,
         path: '/customer',
+        slug: "customer_sales_representative",
     },
     {
         label: 'PDF & Simulation Configuration',
         icon: FiSettings,
         path: '/simulation-configuration',
+        slug: "pdf_simulation_configuration",
     },
 ]
 
 const AdminSidebar = ({ collapsed, onToggle }) => {
     const pathname = usePathname()
     const router = useRouter()
+    const { data: session } = useSession()
+    const userPermissions = session?.user?.permissions || []
 
     const isActive = (path) => {
         if (path === '/admin-form') {
@@ -119,6 +128,11 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
             <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3">
                 <ul className="space-y-1">
                     {sidebarMenu.map((item) => {
+                        // Permission check: item ka slug permissions array me nahi hai, toh render mat karo
+                        if (item.slug && !userPermissions.includes(item.slug)) {
+                            return null;
+                        }
+
                         const Icon = item.icon
                         const active = isActive(item.path)
 
@@ -133,7 +147,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
                                         transition-all duration-200 cursor-pointer
                                         ${collapsed ? 'px-3 py-3 justify-center' : 'px-3 py-2.5'}
                                         ${active
-                                            ? 'bg-[#D1D9E9] text-[#1C2C56] shadow-md shadow-[#1C2C56]/20'
+                                            ? 'bg-[#D1D9E9] text-[#1C2C56] shadow-none'
                                             : 'text-[#1C2C56] hover:bg-[#F1F5F9] hover:text-[#1C2C56]'
                                         }
                                     `}
