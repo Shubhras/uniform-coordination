@@ -19,7 +19,7 @@ const Split = ({ children, content, ...rest }) => {
           <Link href="/table-form">
             <img
               src="/img/others/auth-logo.png"
-              alt="KIREIZ FORM"
+              alt="KIREIZ SPACE"
               className="md:h-12 h-10 w-auto"
             />
           </Link>
