@@ -3,6 +3,7 @@
 @config '../../../../tailwind.config.js';
 
 @layer theme {
+
 	/* :root {
 		--neutral: #ffffff;
 		--primary: #2a85ff;
@@ -56,9 +57,9 @@
 		--gray-900: #171717;
 		--gray-950: #0a0a0a;
 	} */
-	 :root {
+	:root {
 		--neutral: #ffffff;
-		--primary: #2a85ff;
+		--primary: #003562;
 		--primary-deep: #0069f6;
 		--primary-mild: #1C2C56;
 		--primary-subtle: #2a85ff1a;
@@ -85,12 +86,13 @@
 
 	.dark {
 		--neutral: #ffffff;
-		--primary: #2a85ff;
+		/* --primary: #2a85ff; */
+		--primary: #003562;
 		--primary-deep: #0069f6;
 		--primary-mild: #1C2C56;
 		--primary-subtle: #2a85ff1a;
 		--error: #ff6a55;
-		--error-subtle: #ff6a551a; 
+		--error-subtle: #ff6a551a;
 		--success: #10b981;
 		--success-subtle: #05eb7624;
 		--info: #2a85ff;
@@ -112,6 +114,7 @@
 }
 
 @layer base {
+
 	*,
 	::after,
 	::before,
@@ -120,7 +123,8 @@
 		border-color: var(--color-gray-200, currentColor);
 	}
 
-	button, [role=button] {
+	button,
+	[role=button] {
 		cursor: pointer;
 	}
 

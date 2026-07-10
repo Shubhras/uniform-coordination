@@ -62,8 +62,8 @@ export const publicRoutes = {
     key: "email-verification-page",
     authority: [],
   },
-  "/account-verified-popup": {
-    key: "account-verified-popup",
+  "/account-verified-page": {
+    key: "account-verified-page",
     authority: [],
   },
   "/reset-password": {

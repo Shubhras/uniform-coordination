@@ -102,24 +102,24 @@ const UniformLatestFAQPosts = ({ faqs = [], loading }) => {
           return (
             <div
               key={faq.id}
-              className={`rounded-xl px-6 py-5 ${isOpen ? "bg-white shadow-md" : "bg-[#F5F7FB]"
-                }`}
-            >
+              className={`rounded-xl px-6 py-5 ${isOpen ? "bg-white shadow-md" : "bg-[#F5F7FB]"}`}>
               <button
                 onClick={() => setActiveIndex(isOpen ? null : index)}
-                className="w-full flex justify-between"
+                className="w-full flex items-center gap-4 text-left"
               >
+                <span className="text-xl text-[#1C2C56] flex-shrink-0">
+                  {isOpen ? <FiMinus /> : <FiPlus />}
+                </span>
                 <span className="font-medium text-[#1C2C56]">
                   {faq.title}
-                </span> 
-                {isOpen ? <FiMinus /> : <FiPlus />}
+                </span>
               </button>
 
               {isOpen && (
-                <ul className="mt-4 space-y-2">
+                <ul className="mt-4 space-y-2 ml-9">
                   {faq.descriptions.map((d) => (
                     <li key={d.id} className="text-gray-600 text-sm">
-                      • {d.description}
+                      {d.description}
                     </li>
                   ))}
                 </ul>
