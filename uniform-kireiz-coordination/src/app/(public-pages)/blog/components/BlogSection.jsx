@@ -365,7 +365,7 @@ const BlogSection = () => {
           <h2 className="text-[#1C2C56] lg:text-4xl text-3xl font-semibold">
             Blog
           </h2>
-          <div className="w-24 h-1 rounded-full bg-[#1C2C56] mx-auto mt-2" />
+          <div className="w-24 h-1 rounded-full bg-[#87CEEB] mx-auto mt-2" />
           <p className="text-[#6B7280] text-sm mt-4 max-w-xl mx-auto">
             Read our latest updates and insights
           </p>

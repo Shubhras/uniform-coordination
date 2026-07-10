@@ -110,13 +110,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FiPlus, FiMinus, FiSearch } from "react-icons/fi";
+import { FiPlus, FiMinus, FiSearch, FiX } from "react-icons/fi";
 import { apiGetFaq } from "@/services/FaqService";
 
 const FaqSection = () => {
     const [faqs, setFaqs] = useState([]);
     const [activeIndex, setActiveIndex] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const toggleFAQ = (index) => {
         setActiveIndex(activeIndex === index ? null : index);
@@ -150,6 +151,11 @@ const FaqSection = () => {
         fetchFaqs();
     }, []);
 
+    const filteredFaqs = faqs.filter(faq => 
+        faq.question?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        faq.answer?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <section className="relative pt-8 pb-20 bg-white px-5">
             {/* Header */}
@@ -163,8 +169,19 @@ const FaqSection = () => {
                         <input
                             type="text"
                             placeholder="Search"
-                            className="w-full h-11 pl-11 pr-4 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#005CA7]/30 text-sm"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full h-11 pl-11 pr-10 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#005CA7]/30 text-sm"
                         />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery("")}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                aria-label="Clear search"
+                            >
+                                <FiX size={18} />
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -180,13 +197,13 @@ const FaqSection = () => {
                         Loading FAQs...
                     </p>
                 )}
-                {!loading && faqs.length === 0 && (
+                {!loading && filteredFaqs.length === 0 && (
                     <p className="text-center text-gray-500 text-sm">
-                        No FAQs available
+                        No FAQs found.
                     </p>
                 )}
                 {!loading &&
-                    faqs.map((faq, index) => {
+                    filteredFaqs.map((faq, index) => {
                         const isOpen = activeIndex === index;
 
                         return (
@@ -200,20 +217,19 @@ const FaqSection = () => {
                                 {/* Question */}
                                 <button
                                     onClick={() => toggleFAQ(index)}
-                                    className="w-full flex items-center justify-between text-left"
+                                    className="w-full flex items-center gap-4 text-left"
                                 >
+                                    <span className="text-[#1C2C56] text-xl flex-shrink-0">
+                                        {isOpen ? <FiMinus /> : <FiPlus />}
+                                    </span>
                                     <span className="text-[#1C2C56] font-medium text-sm md:text-base">
                                         {faq.question}
-                                    </span>
-
-                                    <span className="text-[#1C2C56] text-xl">
-                                        {isOpen ? <FiMinus /> : <FiPlus />}
                                     </span>
                                 </button>
 
                                 {/* Answer */}
                                 {isOpen && faq.answer && (
-                                    <p className="mt-4 text-sm text-gray-600 leading-relaxed">
+                                    <p className="mt-4 ml-9 text-sm text-gray-600 leading-relaxed">
                                         {faq.answer}
                                     </p>
                                 )}

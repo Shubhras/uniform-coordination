@@ -4,26 +4,19 @@ import Button from "@/components/ui/Button";
 import Image from "next/image";
 import { HiBadgeCheck } from "react-icons/hi";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { verifyEmail } from "@/services/AuthService";
-import AccountVerifiedPopup from "../../account-verified-popup/AccountVerifiedPopup";
+import { useState } from "react";
+import HaederPage from "../../header/HaederPage";
 
-const EmailVerificationPage = () => {
+import { verifyEmail } from "@/services/AuthService";
+
+const EmailVerificatinoPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
 
     const userId = searchParams.get("user_id");
+    const email = searchParams.get("email");
 
     const [loading, setLoading] = useState(true);
-    const [isVerified, setIsVerified] = useState(false);
-    const [response, setResponse] = useState(null);
-
-    const maskEmail = (email) => {
-        if (!email) return "";
-        const [name, domain] = email.split("@");
-        const firstTwo = name.slice(0, 2);
-        return `${firstTwo}****@${domain}`;
-    };
 
     const verifyUserEmail = async () => {
         try {
@@ -35,9 +28,7 @@ const EmailVerificationPage = () => {
             });
 
             if (res?.status || res?.data?.success) {
-                setResponse(res);
-                setIsVerified(true);
-                router.push("/sign-in")
+                router.push("/account-verified-page")
             }
         } catch (error) {
             console.error("Email verification failed", error);
@@ -48,74 +39,73 @@ const EmailVerificationPage = () => {
 
     return (
         <>
-            <div className="min-h-screen bg-black/40 flex items-center justify-center px-4">
-                <div className="bg-white rounded-xl px-8 py-10 text-center shadow-lg w-full max-w-xl">
+            <HaederPage />
+            {/* FIXED OVERLAY TO BLOCK CLICKS */}
+            <div className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center px-4">
+                <div className="bg-white rounded-xl px-8 py-10 text-center shadow-lg w-full max-w-xl relative">
 
                     {/* LOGO */}
                     <div className="flex items-center gap-3 mb-8">
                         <Image
-                            src="/img/logo/logo-table-footer.png"
+                            src="/img/logo/logo-table.png"
                             alt="Table Form"
                             width={60}
                             height={60}
                         />
                         {/* TITLE */}
-                        <h2 className="text-xl font-semibold text-[#8a5a75]">
-                            Welcome!
+                        <h2 className="text-xl font-semibold text-[#583D4C]">
+                            Welcome User!
                         </h2>
                     </div>
 
-                    <h2 className="text-2xl font-semibold text-[#8a5a75]">
+                    <h2 className="text-2xl font-semibold text-[#583D4C]">
                         Thanks for registering
                     </h2>
-
                     {/* VERIFY INFO */}
-                    {/* 
                     <p className="text-sm text-gray-600 mt-2">
-                        <span className="text-blue-600 underline">Verify Email</span>{" "}
-                        starts with XYZ****@gmail.com
-                    </p> 
-                    */}
+                        <span className="text-[#A0522D] underline">Verify Email</span> Starts with{" "}
+                        {(() => {
+                            if (!email) return "";
+                            const [name, domain] = email.split("@");
+                            if (!name) return email;
+                            const start = name.substring(0, 3);
+                            const end = name.length > 3 ? name.substring(name.length - 2) : "";
+                            const masked = `${start}*****${end}`;
+                            return domain ? `${masked}@${domain}` : masked;
+                        })()}
+                    </p>
 
                     {/* NOTE */}
                     <p className="text-sm text-gray-500 mt-4">
                         Please verify your email address.{" "}
-                        <span className="text-blue-600 underline cursor-pointer" onClick={verifyUserEmail}>
+                        <span className="text-[#A0522D] underline cursor-pointer" onClick={verifyUserEmail}>
                             Click here
                         </span>
                     </p>
 
                     {/* VERIFIED STATUS */}
-                    <div className="mt-6 text-[#8a5a75] font-semibold text-lg flex justify-center">
+                    <div className="mt-6 text-[#583D4C] font-semibold text-lg flex justify-center">
                         <span className="inline-flex items-center gap-1">
-                            Email verified
+                            Email Verified
                             <HiBadgeCheck size={24} />
                         </span>
                     </div>
 
                     {/* ACTION */}
-                    {/*
-                    <div className="mt-8 flex justify-center">
-                        <Button
-                            variant="solid"
-                            className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white px-10"
-                            onClick={() => router.push("/sign-in")}
-                        >
-                            OK
-                        </Button>
-                    </div>
-                    */}
+                    {/* <div className="mt-8 flex justify-center">
+                    <Button
+                        variant="solid"
+                        className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white px-10"
+                        onClick={() => router.push("/sign-in")}
+                    >
+                        OK
+                    </Button>
+                </div> */}
+
                 </div>
             </div>
-
-            {/* SUCCESS POPUP */}
-            <AccountVerifiedPopup
-                response={response}
-                isOpen={isVerified}
-                onClose={() => setIsVerified(false)}
-            />
         </>
     );
 };
 
-export default EmailVerificationPage;
+export default EmailVerificatinoPage;
