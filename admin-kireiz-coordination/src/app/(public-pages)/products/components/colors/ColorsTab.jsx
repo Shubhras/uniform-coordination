@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { FiSearch, FiPlus, FiTrash2, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import {
+  FiSearch,
+  FiPlus,
+  FiTrash2,
+  FiChevronLeft,
+  FiChevronRight,
+  FiX,
+} from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetColorsList, apiDeleteColor } from "@/services/ColorsService";
 import AddEditColorModal from "./AddEditColorModal";
@@ -35,25 +42,28 @@ const ColorsTab = () => {
   });
 
   /* ---------- FETCH COLORS ---------- */
-  const fetchColors = useCallback(async (page = 1) => {
-    if (!accessToken) return;
+  const fetchColors = useCallback(
+    async (page = 1) => {
+      if (!accessToken) return;
 
-    try {
-      setLoading(true);
-      const response = await apiGetColorsList(accessToken, page);
+      try {
+        setLoading(true);
+        const response = await apiGetColorsList(accessToken, page);
 
-      if (response?.status && response?.data) {
-        setColors(response.data);
-        if (response.pagination) {
-          setPagination(response.pagination);
+        if (response?.status && response?.data) {
+          setColors(response.data);
+          if (response.pagination) {
+            setPagination(response.pagination);
+          }
         }
+      } catch (error) {
+        console.error("Failed to fetch colors:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to fetch colors:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [accessToken]);
+    },
+    [accessToken],
+  );
 
   useEffect(() => {
     fetchColors(currentPage);
@@ -130,7 +140,10 @@ const ColorsTab = () => {
   const CardSkeleton = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="border border-[#1C2C5633] rounded-xl overflow-hidden animate-pulse">
+        <div
+          key={i}
+          className="border border-[#1C2C5633] rounded-xl overflow-hidden animate-pulse"
+        >
           <div className="h-52 bg-gray-200" />
           <div className="p-4 space-y-2">
             <div className="h-4 bg-gray-200 rounded w-3/4" />
@@ -164,7 +177,7 @@ const ColorsTab = () => {
 
           <button
             onClick={handleAddColor}
-            className="bg-[#1C2C56] text-white px-4 py-2 rounded-md text-sm flex items-center gap-2"
+            className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm flex items-center gap-2"
           >
             <FiPlus size={14} />
             Add Color
@@ -183,14 +196,25 @@ const ColorsTab = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
+            >
+              <FiX size={16} />
+            </button>
+          )}
         </div>
 
         {loading ? (
           <CardSkeleton />
         ) : filteredColors.length === 0 ? (
-          <div className="text-center py-16 text-[#94A3B8]">No colors found</div>
+          <div className="text-center py-16 text-[#94A3B8]">
+            No colors found
+          </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredColors.map((color) => (
               <div
                 key={color.id}
@@ -211,28 +235,29 @@ const ColorsTab = () => {
                   </p>
 
                   {/* Compatible Fabrics from API */}
-                  {color.compatibleFabric && color.compatibleFabric.length > 0 && (
-                    <div className="mt-3">
-                      <p className="text-xs text-[#486284] mb-1">
-                        Compatible Fabrics:
-                      </p>
-                      <div className="flex gap-2 flex-wrap">
-                        {color.compatibleFabric.map((f) => (
-                          <span
-                            key={f.id}
-                            className="text-xs px-2 py-0.5 rounded-full bg-[#EEF2FF] text-[#1C2C56]"
-                          >
-                            {f.fabricName}
-                          </span>
-                        ))}
+                  {color.compatibleFabric &&
+                    color.compatibleFabric.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-xs text-[#486284] mb-1">
+                          Compatible Fabrics:
+                        </p>
+                        <div className="flex gap-2 flex-wrap">
+                          {color.compatibleFabric.map((fabric, index) => (
+                            <span
+                              key={index}
+                              className="text-xs px-3 py-1 rounded-full bg-[#EEF2FF] text-[#1C2C56]"
+                            >
+                              {fabric}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   <div className="flex gap-2 mt-4">
                     <button
                       onClick={() => handleEditColor(color)}
-                      className="flex-1 bg-[#1C2C56] text-white text-xs py-1.5 rounded-md"
+                      className="flex-1 bg-[#1C4FA8] text-white text-xs py-1.5 rounded-md"
                     >
                       Edit
                     </button>
@@ -244,8 +269,14 @@ const ColorsTab = () => {
                       }}
                       className="flex-1 border border-red-200 text-red-500 text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                     >
-                      <FiTrash2 size={12} />
+                      {/* <FiTrash2 size={12} /> */}
                       Delete
+                    </button>
+                    <button
+                      onClick={() => handleEditColor(color)}
+                      className="flex-1 border border-gray-300 text-[#91A1B6] text-xs py-1.5 rounded-md"
+                    >
+                      Duplicate
                     </button>
                   </div>
                 </div>
@@ -258,7 +289,8 @@ const ColorsTab = () => {
         {!loading && pagination.total_pages > 1 && (
           <div className="flex items-center justify-between mt-6 px-2">
             <p className="text-sm text-[#64748B]">
-              Page {pagination.page} of {pagination.total_pages} ({pagination.total_items} items)
+              Page {pagination.page} of {pagination.total_pages} (
+              {pagination.total_items} items)
             </p>
 
             <div className="flex items-center gap-1">

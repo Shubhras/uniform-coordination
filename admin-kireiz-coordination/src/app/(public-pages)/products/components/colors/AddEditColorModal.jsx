@@ -79,17 +79,37 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData, onSaveS
             setHex(initialData.colorCode || "#000000");
 
             // Pre-select compatible fabrics
-            if (initialData.compatibleFabric && Array.isArray(initialData.compatibleFabric)) {
-                const preSelected = initialData.compatibleFabric.map((f) => {
-                    // f is { id, fabricName } from the API
-                    const match = fabricOptions.find((opt) => opt.value === f.id || opt.label === f.fabricName);
-                    if (match) return match;
-                    return { value: f.id, label: f.fabricName || String(f.id) };
+            // if (initialData.compatibleFabric && Array.isArray(initialData.compatibleFabric)) {
+            //     const preSelected = initialData.compatibleFabric.map((f) => {
+            //         const match = fabricOptions.find((opt) => opt.value === f.id || opt.label === f.fabricName);
+            //         if (match) return match;
+            //         return { value: f.id, label: f.fabricName || String(f.id) };
+            //     });
+            //     setSelectedFabrics(preSelected);
+            // } else {
+            //     setSelectedFabrics([]);
+            // }
+            if (
+                initialData.compatibleFabric &&
+                Array.isArray(initialData.compatibleFabric)
+                ) {
+                const preSelected = initialData.compatibleFabric.map((fabric) => {
+                    const match = fabricOptions.find(
+                    (opt) => opt.value === fabric
+                    );
+
+                    return (
+                    match || {
+                        value: fabric,
+                        label: fabric.charAt(0).toUpperCase() + fabric.slice(1),
+                    }
+                    );
                 });
+
                 setSelectedFabrics(preSelected);
-            } else {
+                } else {
                 setSelectedFabrics([]);
-            }
+                }
         } else {
             setName("");
             setHex("#000000");
@@ -227,7 +247,7 @@ const AddEditColorModal = ({ isOpen, onClose, mode = "add", initialData, onSaveS
                     <Button
                         variant="solid"
                         size="sm"
-                        className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+                        className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
                         onClick={handleSave}
                         loading={saving}
                     >

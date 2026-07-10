@@ -133,15 +133,15 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
                                         transition-all duration-200 cursor-pointer
                                         ${collapsed ? 'px-3 py-3 justify-center' : 'px-3 py-2.5'}
                                         ${active
-                                            ? 'bg-[#1C2C56] text-white shadow-md shadow-[#1C2C56]/20'
-                                            : 'text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#1C2C56]'
+                                            ? 'bg-[#D1D9E9] text-[#1C2C56] shadow-md shadow-[#1C2C56]/20'
+                                            : 'text-[#1C2C56] hover:bg-[#F1F5F9] hover:text-[#1C2C56]'
                                         }
                                     `}
                                 >
                                     <Icon
                                         size={20}
                                         className={`flex-shrink-0 transition-colors duration-200
-                                            ${active ? 'text-white' : 'text-[#94A3B8] group-hover:text-[#1C2C56]'}
+                                            ${active ? 'text-[#1C2C56]' : 'text-[#1C2C56] group-hover:text-[#1C2C56]'}
                                         `}
                                     />
                                     {!collapsed && (

@@ -8,19 +8,29 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import PasswordInput from "@/components/shared/PasswordInput";
 
-const validationSchema = z
-  .object({
-    email: z.string({ required_error: "Please enter your email" }),
-    userName: z.string({ required_error: "Please enter your name" }),
-    password: z.string({ required_error: "Password Required" }),
-    // confirmPassword: z.string({
-    //   required_error: "Confirm Password Required",
-    // }),
-  })
-  // .refine((data) => data.password === data.confirmPassword, {
-  //   message: "Password not match",
-  //   path: ["confirmPassword"],
-  // }
+const validationSchema = z.object({
+  // email: z.string({ required_error: "Please enter your email" }),
+  // userName: z.string({ required_error: "Please enter your name" }),
+  // password: z.string({ required_error: "Password Required" }),
+
+  userName: z.string().trim().min(1, { message: "Please enter your name" }),
+
+  email: z
+    .string()
+    .trim()
+    .min(1, { message: "Please enter your email" })
+    .email({ message: "Please enter a valid email" }),
+
+  password: z.string().min(1, { message: "Please enter your password" }),
+
+  // confirmPassword: z.string({
+  //   required_error: "Confirm Password Required",
+  // }),
+});
+// .refine((data) => data.password === data.confirmPassword, {
+//   message: "Password not match",
+//   path: ["confirmPassword"],
+// }
 // );
 
 const SignUpForm = (props) => {
@@ -33,16 +43,20 @@ const SignUpForm = (props) => {
     formState: { errors },
     control,
   } = useForm({
+    defaultValues: {
+      userName: "",
+      email: "",
+      password: "",
+    },
     resolver: zodResolver(validationSchema),
   });
-  console.log(errors)
+  console.log(errors);
 
- const handleSignUp = async (values) => {
-  if (onSignUp) {
-    onSignUp({ values, setSubmitting, setMessage });
-  }
-};
-
+  const handleSignUp = async (values) => {
+    if (onSignUp) {
+      onSignUp({ values, setSubmitting, setMessage });
+    }
+  };
 
   return (
     <div className={className}>
@@ -74,7 +88,7 @@ const SignUpForm = (props) => {
             control={control}
             render={({ field }) => (
               <Input
-                type="email"
+                type="text"
                 placeholder="Email"
                 autoComplete="off"
                 {...field}
