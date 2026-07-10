@@ -172,7 +172,10 @@ STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-SITE_DOMAIN = "http://54.81.43.26"
+# SITE_DOMAIN = "http://54.81.43.26"
+SITE_DOMAIN = "https://t8sjq87n-8001.inc1.devtunnels.ms"
+
+SITE_URL = "https://t8sjq87n-8001.inc1.devtunnels.ms"
 
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024

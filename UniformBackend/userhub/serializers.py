@@ -145,32 +145,75 @@ class CartSerializer(serializers.ModelSerializer):
             'created_at'
         ]
 
+# from uniformAdmin.utils import new_build_media_url
+# class CartItemSerializer(serializers.ModelSerializer):
+#     cart = CartSerializer(read_only=True)
+#     product_name = serializers.CharField(
+#         source='product.productName',
+#         read_only=True
+#     )
+
+#     product_image = serializers.ImageField(
+#         source='product.ProductImage',
+#         read_only=True
+#     )
+
+#     class Meta:
+#         model = CartItem
+#         fields = [
+#             'id',
+#             'cart',
+#             'product_name',
+#             'product_image',
+#             'quantity',
+#             'price',
+#             'final_price',
+#             'total_price'
+#         ]
+#         read_only_fields = ['price', 'final_price', 'total_price']
+        
+#     def get_product_image(self, obj):
+#         if obj.product:
+#             return new_build_media_url(obj.product.ProductImage)
+#         return None
+
+
+from rest_framework import serializers
+# from unif .utils import build_media_url
+from uniformAdmin.utils import new_build_media_url
 
 class CartItemSerializer(serializers.ModelSerializer):
     cart = CartSerializer(read_only=True)
+
     product_name = serializers.CharField(
-        source='product.productName',
+        source="product.productName",
         read_only=True
     )
 
-    product_image = serializers.ImageField(
-        source='product.ProductImage',
-        read_only=True
-    )
+    product_image = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
         fields = [
-            'id',
-            'cart',
-            'product_name',
-            'product_image',
-            'quantity',
-            'price',
-            'final_price',
-            'total_price'
+            "id",
+            "cart",
+            "product_name",
+            "product_image",
+            "quantity",
+            "price",
+            "final_price",
+            "total_price",
         ]
-        read_only_fields = ['price', 'final_price', 'total_price']
+        read_only_fields = [
+            "price",
+            "final_price",
+            "total_price",
+        ]
+
+    def get_product_image(self, obj):
+        if obj.product:
+            return new_build_media_url(obj.product.ProductImage)
+        return None
    
 #class CartSerializer(serializers.ModelSerializer):
     
@@ -200,6 +243,29 @@ class ProductMiniSerializer(serializers.ModelSerializer):
             )
 
         return representation
+    
+    
+
+
+class UpdateProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Users
+        fields = [
+            "firstName",
+            "lastName",
+            "phone",
+            "gender",
+            "language",
+            "userName",
+            "userType",
+            "profileImage",
+        ]
+
+    def validate_userName(self, value):
+        user = self.instance
+        if value and Users.objects.filter(userName=value).exclude(id=user.id).exists():
+            raise serializers.ValidationError("Username already exists.")
+        return value    
     
 # class ProductMiniSerializer(serializers.ModelSerializer):
 #     category_name = serializers.CharField(source="category.name", read_only=True)
@@ -443,33 +509,82 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
         return super().create(validated_data)
 
+# class CustomUpdateModelsSerializer(serializers.ModelSerializer):
+#     json_file_url = serializers.SerializerMethodField()
+#     class Meta:
+#         model = CustomUpdateModels
+#         fields = [
+#             "id",
+#             "user",
+#             "model_info",
+#             "design_specifications",
+#             "json_file_path",
+#             "json_file_url",
+#             "isActive",
+#             "isDeleted",
+#             "created_at"
+#         ]
+#         read_only_fields = ["user", "json_file_path"]
+
+#     def get_json_file_url(self, obj):
+#         request = self.context.get("request")
+
+#         if not obj.json_file_path:
+#             return None
+
+#         if request:
+#             return request.build_absolute_uri(
+#                 settings.MEDIA_URL + obj.json_file_path
+#             )
+
+#         # Agar request context na ho, relative URL return karega
+#         return settings.MEDIA_URL + obj.json_file_path
+
+
+# new 
 class CustomUpdateModelsSerializer(serializers.ModelSerializer):
     json_file_url = serializers.SerializerMethodField()
+
+    productName = serializers.SerializerMethodField()
+    ProductImage = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomUpdateModels
         fields = [
             "id",
             "user",
             "model_info",
+
+            "productName",
+            "ProductImage",
+
             "design_specifications",
             "json_file_path",
             "json_file_url",
+
             "isActive",
             "isDeleted",
-            "created_at"
+            "created_at",
         ]
         read_only_fields = ["user", "json_file_path"]
 
-    def get_json_file_url(self, obj):
-        request = self.context.get("request")
+    def get_productName(self, obj):
+        if obj.model_info and obj.model_info.product:
+            return obj.model_info.product.productName
+        return None
 
+    def get_ProductImage(self, obj):
+        if obj.model_info and obj.model_info.product:
+            return new_build_media_url(obj.model_info.product.ProductImage)
+        return None
+
+    def get_json_file_url(self, obj):
         if not obj.json_file_path:
             return None
 
-        if request:
-            return request.build_absolute_uri(
-                settings.MEDIA_URL + obj.json_file_path
-            )
-
-        # Agar request context na ho, relative URL return karega
-        return settings.MEDIA_URL + obj.json_file_path
+        return (
+            f"{settings.SITE_URL}"
+            f"{settings.MEDIA_URL}"
+            f"{obj.json_file_path.lstrip('/')}"
+        )    
+    

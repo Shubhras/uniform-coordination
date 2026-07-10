@@ -6,7 +6,7 @@ import re
 from django.utils import timezone
 from .models import *
 from datetime import timedelta
-from .utils import get_default_b2b_role
+from .utils import get_default_b2b_role, new_build_media_url
 from userhub.models import *
 # User = get_user_model()
 import json
@@ -353,6 +353,78 @@ class TemplateSerializer(serializers.ModelSerializer):
         return value
 
 
+# correct 
+# class BlogSerializer(serializers.ModelSerializer):
+#     categoryName = serializers.CharField(
+#         source="category.categoryName",
+#         read_only=True
+#     )
+
+#     #  WRITE image to DB
+#     image = serializers.ImageField(required=False, allow_null=True)
+#     slug = serializers.SerializerMethodField()
+#     isActive = serializers.BooleanField(default=True)
+
+#     class Meta:
+#         model = Blog
+#         fields = [
+#             "id",
+#             "title",
+#             "slug",
+#             "category",
+#             "categoryName",
+#             "type",
+#             "image",        #  ONLY ONE image field
+#             "description",
+#             "isActive",
+#             "created_at",
+#             "updated_at",
+#         ]
+
+#     # -----------------------------
+#     # Replace dash (-) with underscore (_)
+#     # -----------------------------
+#     def get_slug(self, obj):
+#         if obj.slug:
+#             return obj.slug.replace("-", "_")
+#         return None
+
+#     # -----------------------------
+#     # Return ABSOLUTE image URL using SAME field
+#     # -----------------------------
+#     def to_representation(self, instance):
+#         data = super().to_representation(instance)
+#         request = self.context.get("request")
+
+#         if instance.image:
+#             image_name = instance.image.name
+#             if image_name.startswith("http://") or image_name.startswith("https://"):
+#                 data["image"] = image_name
+#             elif request:
+#                 data["image"] = request.build_absolute_uri(instance.image.url)
+#             else:
+#                 data["image"] = instance.image.url
+#         else:
+#             data["image"] = None
+
+#         return data
+
+#     # def validate_title(self, value):
+#     #     if not value.strip():
+#     #         raise serializers.ValidationError("Title is required.")
+#     #     return value
+
+#     def validate_title(self, value):
+#         qs = Blog.objects.filter(title__iexact=value,isDeleted=False)
+#         if self.instance:
+#             qs = qs.exclude(id=self.instance.id)
+
+#         if qs.exists():
+#             raise serializers.ValidationError("Blog with this title already exists.")
+
+#         return value
+
+# for new url /////////////////////////////
 
 class BlogSerializer(serializers.ModelSerializer):
     categoryName = serializers.CharField(
@@ -360,8 +432,9 @@ class BlogSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    #  WRITE image to DB
-    image = serializers.ImageField(required=False, allow_null=True)
+    image = serializers.ImageField(required=False, allow_null=True, write_only=True)
+    image_url = serializers.SerializerMethodField(read_only=True)
+
     slug = serializers.SerializerMethodField()
     isActive = serializers.BooleanField(default=True)
 
@@ -374,7 +447,8 @@ class BlogSerializer(serializers.ModelSerializer):
             "category",
             "categoryName",
             "type",
-            "image",        #  ONLY ONE image field
+            "image",        # For upload only
+            "image_url",    # For response
             "description",
             "isActive",
             "created_at",
@@ -390,37 +464,29 @@ class BlogSerializer(serializers.ModelSerializer):
         return None
 
     # -----------------------------
-    # Return ABSOLUTE image URL using SAME field
+    # Return image URL
     # -----------------------------
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        request = self.context.get("request")
+    def get_image_url(self, obj):
+        return build_media_url(obj.image)
 
-        print("DEBUG request:", request)
-        print("DEBUG image:", instance.image)
-
-        if instance.image and request:
-            data["image"] = request.build_absolute_uri(instance.image.url)
-        else:
-            data["image"] = None
-
-        return data
-
-    # def validate_title(self, value):
-    #     if not value.strip():
-    #         raise serializers.ValidationError("Title is required.")
-    #     return value
-
+    # -----------------------------
+    # Validate title
+    # -----------------------------
     def validate_title(self, value):
-        qs = Blog.objects.filter(title__iexact=value,isDeleted=False)
+        qs = Blog.objects.filter(
+            title__iexact=value,
+            isDeleted=False
+        )
+
         if self.instance:
             qs = qs.exclude(id=self.instance.id)
 
         if qs.exists():
-            raise serializers.ValidationError("Blog with this title already exists.")
+            raise serializers.ValidationError(
+                "Blog with this title already exists."
+            )
 
         return value
-
 
 class FAQDescriptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -562,6 +628,23 @@ class CatalogImageSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ("slug",)
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+
+        if instance.image:
+            image_name = instance.image.name
+            if image_name.startswith("http://") or image_name.startswith("https://"):
+                data["image"] = image_name
+            elif request:
+                data["image"] = request.build_absolute_uri(instance.image.url)
+            else:
+                data["image"] = instance.image.url
+        else:
+            data["image"] = None
+
+        return data
+
     def validate_name(self, value):
         qs = CatalogImage.objects.filter(name__iexact=value, isDeleted=False)
         if self.instance:
@@ -577,26 +660,84 @@ class CatalogImageSerializer(serializers.ModelSerializer):
 
 
 
+# class SubCategorySerializer(serializers.ModelSerializer):
+#     category_name = serializers.CharField(source="category.categoryName",read_only=True)
+#     class Meta:
+#         model = SubCategory
+#         fields = [            
+#             "id",
+#             "name",
+#             "category",
+#             "category_name",           
+#             "subcategoryImage",
+#             "slug",
+#             "type", 
+#             "order",
+#             "description",
+#             "isActive",
+#             "isDeleted",
+#             "created_at",
+#             "updated_at"
+#         ]
+#         read_only_fields = ("id", "created_at", "updated_at")
+
+#     def validate(self, attrs):
+#         name = attrs.get("name")
+#         category = attrs.get("category")
+
+#         if name and category:
+#             exists = SubCategory.objects.filter(
+#                 name__iexact=name,
+#                 category=category,
+#                 isDeleted=False
+#             ).exists()
+
+#             if exists:
+#                 raise serializers.ValidationError({
+#                     "name": "Validation Failed;subcategory with this name already exists in this category."
+#                 })
+
+#         return attrs
+
+
+from django.conf import settings
+from rest_framework import serializers
+
 class SubCategorySerializer(serializers.ModelSerializer):
-    category_name = serializers.CharField(source="category.categoryName",read_only=True)
+    category_name = serializers.CharField(
+        source="category.categoryName",
+        read_only=True
+    )
+    subcategoryImage = serializers.SerializerMethodField()
+
     class Meta:
         model = SubCategory
-        fields = [            
+        fields = [
             "id",
             "name",
             "category",
-            "category_name",           
+            "category_name",
             "subcategoryImage",
             "slug",
-            "type", 
+            "type",
             "order",
             "description",
             "isActive",
             "isDeleted",
             "created_at",
-            "updated_at"
+            "updated_at",
         ]
         read_only_fields = ("id", "created_at", "updated_at")
+
+    def get_subcategoryImage(self, obj):
+        if not obj.subcategoryImage:
+            return None
+
+        # External URL (e.g. Unsplash)
+        if obj.subcategoryImage.name.startswith(("http://", "https://")):
+            return obj.subcategoryImage.name
+
+        return f"{settings.SITE_URL}{obj.subcategoryImage.url}"
 
     def validate(self, attrs):
         name = attrs.get("name")
@@ -607,11 +748,13 @@ class SubCategorySerializer(serializers.ModelSerializer):
                 name__iexact=name,
                 category=category,
                 isDeleted=False
+            ).exclude(
+                pk=self.instance.pk if self.instance else None
             ).exists()
 
             if exists:
                 raise serializers.ValidationError({
-                    "name": "Validation Failed;subcategory with this name already exists in this category."
+                    "name": "Validation Failed; subcategory with this name already exists in this category."
                 })
 
         return attrs
@@ -839,6 +982,9 @@ class ProductSerializer(serializers.ModelSerializer):
             )
  
         return value
+    
+    def get_ProductImage(self, obj):
+        return new_build_media_url(obj.ProductImage)
     
     
     
@@ -1250,6 +1396,62 @@ class AdminUserSerializer(serializers.ModelSerializer):
             return False
         active_window = timezone.now() - timedelta(minutes=30)
         return obj.lastLogin >= active_window
+
+
+class AdminSignupSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = AdminUser
+        fields = [
+            "id",
+            "name",
+            "company_name",
+            "email",
+            "mobile",
+            "tier",
+            "password",
+            "is_active",
+            "language",
+        ]
+        read_only_fields = ["id"]
+
+    def validate_email(self, value):
+        if AdminUser.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("An admin user with this email already exists.")
+        return value
+
+    def validate_password(self, value):
+        if len(value) < 6:
+            raise serializers.ValidationError("Password must be at least 6 characters long.")
+        if not re.search(r"[A-Za-z]", value):
+            raise serializers.ValidationError("Password must contain at least one letter.")
+        if not re.search(r"[0-9]", value):
+            raise serializers.ValidationError("Password must contain at least one number.")
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
+            raise serializers.ValidationError("Password must contain at least one special character like @,#,$.")
+        return value
+
+    def create(self, validated_data):
+        password = validated_data.pop("password")
+
+        admin_role, _ = Role.objects.get_or_create(
+            role_name="admin",
+            defaults={
+                "slug": "admin",
+                "description": "Admin role with full access"
+            }
+        )
+
+        validated_data["role"] = admin_role
+        validated_data["is_staff"] = True
+
+        user = AdminUser.objects.create_user(
+            password=password,
+            **validated_data
+        )
+        return user
+
 
    
    

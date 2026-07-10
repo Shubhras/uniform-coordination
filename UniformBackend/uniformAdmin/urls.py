@@ -18,6 +18,7 @@ from .home_page import *
 
 
 urlpatterns = [
+    path('signup/', AdminSignupAPIView.as_view(), name='admin-signup'),
     path('login/', AdminLoginAPIView.as_view(), name='admin-login'),
     path('change-password/',ChangePasswordAPIView.as_view(), name='admin-change-password'),
     path('update-profile/', UpdateProfileAPIView.as_view(), name='admin-change-password'),
