@@ -30,6 +30,7 @@ export default {
                     accessToken: user.accessToken,
                     refreshToken: user.refreshToken,
                     authority: user.authority,
+                    permissions: user.permissions, // Added permissions here!
                 }
             },
         }),
@@ -41,6 +42,7 @@ export default {
                 token.accessToken = user.accessToken
                 token.refreshToken = user.refreshToken
                 token.authority = user.authority
+                token.permissions = user.permissions
             }
             return token
         },
@@ -53,6 +55,7 @@ export default {
                     id: payload.token.sub,
                     authority: payload.token.authority || ['admin', 'user'],
                     accessToken: payload.token.accessToken,
+                    permissions: payload.token.permissions || [],
                 },
             }
         },

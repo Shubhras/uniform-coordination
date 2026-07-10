@@ -3,10 +3,12 @@
 import Chart from "react-apexcharts";
 
 const QuotationsByStatusChart = ({ data }) => {
-  const statusData = data?.Quote_status_distribution?.data || [];
+  const statusData = Array.isArray(data?.Quote_status_distribution?.data) 
+    ? data.Quote_status_distribution.data 
+    : [];
 
-  const labels = statusData.map((item) => item.label);
-  const values = statusData.map((item) => item.value);
+  const labels = statusData.map((item) => item?.label || "");
+  const values = statusData.map((item) => item?.value || 0);
 
   // Fallback if no data
   const hasData = values.some((v) => v > 0);

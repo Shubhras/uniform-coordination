@@ -16,6 +16,19 @@ const validateCredential = async (values) => {
         const data = await response.json()
 
         if (data.status && data.statusCode === 200) {
+            // Extract permission slugs to keep session data light
+            const permissions = []
+            if (data.data.permissions && Array.isArray(data.data.permissions)) {
+                data.data.permissions.forEach(perm => {
+                    if (perm.slug) permissions.push(perm.slug)
+                    if (perm.submenus && Array.isArray(perm.submenus)) {
+                        perm.submenus.forEach(sub => {
+                            if (sub.slug) permissions.push(sub.slug)
+                        })
+                    }
+                })
+            }
+
             return {
                 id: String(data.data.user.id),
                 email: data.data.user.email,
@@ -24,6 +37,7 @@ const validateCredential = async (values) => {
                 authority: [data.data.user.role || 'admin'],
                 accessToken: data.data.access_token,
                 refreshToken: data.data.refresh_token,
+                permissions: permissions,
             }
         }
 

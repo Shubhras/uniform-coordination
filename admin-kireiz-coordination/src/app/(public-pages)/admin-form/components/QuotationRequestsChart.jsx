@@ -8,9 +8,9 @@ const QuotationRequestsChart = ({ data }) => {
 
   const [period, setPeriod] = useState("yearly");
 
-  const periodData = volumeData?.[period] || [];
-  const categories = periodData.map((item) => item.label);
-  const values = periodData.map((item) => item.value);
+  const periodData = Array.isArray(volumeData?.[period]) ? volumeData[period] : [];
+  const categories = periodData.map((item) => item?.label || "");
+  const values = periodData.map((item) => item?.value || 0);
 
   const options = {
     chart: {

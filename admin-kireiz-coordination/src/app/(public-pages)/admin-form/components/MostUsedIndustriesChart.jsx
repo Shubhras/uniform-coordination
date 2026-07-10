@@ -5,16 +5,20 @@ import Chart from "react-apexcharts";
 const MostUsedIndustriesChart = ({ data }) => {
   const chartData = data?.most_used_industries;
 
-  const categories = chartData?.categories || [
-    "Chef uniform",
-    "Medical Coat",
-    "Cotton Fabric",
-    "Corporate uniform",
-    "Medical Cap",
-    "Food service",
-  ];
+  const categories = Array.isArray(chartData?.categories) 
+    ? chartData.categories 
+    : [
+        "Chef uniform",
+        "Medical Coat",
+        "Cotton Fabric",
+        "Corporate uniform",
+        "Medical Cap",
+        "Food service",
+      ];
 
-  const values = chartData?.values || [300, 320, 350, 380, 420, 450];
+  const values = Array.isArray(chartData?.values) 
+    ? chartData.values 
+    : [300, 320, 350, 380, 420, 450];
 
   const options = {
     chart: {

@@ -97,7 +97,7 @@ const AddEditConditionModal = ({ isOpen, onClose, mode = "add", initialData, onS
                 title: title.trim(),
                 condition_type: conditionType?.value || "",
                 description: description.trim(),
-                discount_percentage: discountPercentage,
+                discount_percentage: parseFloat(discountPercentage || 0),
                 priority_support: prioritySupport,
                 net_30_terms: net30Terms,
                 free_samples: freeSamples,
