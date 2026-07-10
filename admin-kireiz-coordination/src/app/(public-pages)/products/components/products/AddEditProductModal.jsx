@@ -350,7 +350,7 @@ const AddEditProductModal = ({
 
             <button
               onClick={() => fileRef.current.click()}
-              className="mt-2 w-full bg-[#1C2C56] text-white py-2 rounded-md text-sm flex items-center justify-center gap-2"
+              className="mt-2 w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm flex items-center justify-center gap-2"
             >
               <FiUpload size={16} />
               Upload Image
@@ -513,16 +513,16 @@ const AddEditProductModal = ({
         </div>
 
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
-          <Button variant="plain" onClick={onClose} size="sm" disabled={saving}>
+          <Button variant="plain" onClick={onClose} size="sm" disabled={saving} className="bg-blue-100 rounded-md">
             Cancel
           </Button>
-          <Button variant="plain" size="sm">
+          <Button variant="plain" size="sm" className="bg-blue-100 rounded-lg">
             Save & Add Another
           </Button>
           <Button
             variant="solid"
             size="sm"
-            className="bg-[#1C4FA8] px-6 hover:bg-[#1C4FA8] text-white py-2 rounded-md"
+            className="bg-[#1C4FA8] px-6 hover:bg-[#163F86] text-white py-2 rounded-md"
             onClick={handleSave}
             loading={saving}
           >

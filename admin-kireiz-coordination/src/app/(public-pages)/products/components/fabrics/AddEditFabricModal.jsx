@@ -134,6 +134,9 @@ const AddEditFabricModal = ({
       .refine((val) => !isNaN(Number(val)), {
         message: "Enter a valid price",
       }),
+    category: z.any().refine((val) => val !== null, {
+      message: "Category is required",
+    }),
   });
 
   const {
@@ -147,6 +150,7 @@ const AddEditFabricModal = ({
       fabricName: "",
       materialType: null,
       price: "",
+      category: null,
     },
   });
 
@@ -209,6 +213,7 @@ const AddEditFabricModal = ({
         fabricName: initialData.fabricName || "",
         materialType: mat || null,
         price: String(initialData.pricePerUnit || ""),
+        category: cat || null,
       });
 
       setSelectedColor(initialData.color || "#87CEEB");
@@ -221,6 +226,7 @@ const AddEditFabricModal = ({
         fabricName: "",
         materialType: null,
         price: "",
+        category:null
       });
 
       // Reset for add mode
@@ -403,7 +409,8 @@ const AddEditFabricModal = ({
               <label className="text-[#1C2C56] text-base font-medium">
                 Fabric Name<span className="text-red-500">*</span>
               </label>
-              <FormItem className="mt-1"
+              <FormItem
+                className="mt-1"
                 invalid={Boolean(errors.fabricName)}
                 errorMessage={errors.fabricName?.message}
               >
@@ -514,6 +521,7 @@ const AddEditFabricModal = ({
               <FormItem
                 invalid={Boolean(errors.price)}
                 errorMessage={errors.price?.message}
+                className="mt-1"
               >
                 <Controller
                   name="price"
@@ -530,7 +538,7 @@ const AddEditFabricModal = ({
               <label className="text-[#1C2C56] text-base font-medium">
                 Category
               </label>
-              <Select
+              {/* <Select
                 options={categoryOptions}
                 styles={selectStyles}
                 value={category}
@@ -541,7 +549,34 @@ const AddEditFabricModal = ({
                 }
                 menuPosition="fixed"
                 className="mt-1"
-              />
+              /> */}
+                <FormItem
+                invalid={Boolean(errors.category)}
+                errorMessage={errors.category?.message}
+                className="mt-1"
+              >
+                <Controller
+                  name="category"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={categoryOptions}
+                      styles={selectStyles}
+                      value={field.value}
+                      onChange={(value) => {
+                        field.onChange(value);
+                        setCategory(value);
+                      }}
+                      placeholder="Select Category"
+                      menuPortalTarget={
+                        typeof document !== "undefined" ? document.body : null
+                      }
+                      menuPosition="fixed"
+                    />
+                  )}
+                />
+              </FormItem>
             </div>
 
             {/* Sub Category */}
@@ -614,7 +649,7 @@ const AddEditFabricModal = ({
               type="submit"
               variant="solid"
               size="sm"
-              className="bg-[#1C4FA8] px-6 hover:bg-[#1C4FA8] text-white py-2 rounded-md"
+              className="bg-[#1C4FA8] px-6 hover:bg-[#163F86] text-white py-2 rounded-md"
               // onClick={handleSave}
               loading={saving}
             >
