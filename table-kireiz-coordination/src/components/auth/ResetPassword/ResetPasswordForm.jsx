@@ -9,10 +9,12 @@ import { z } from "zod";
 
 const validationSchema = z
   .object({
-    newPassword: z.string({ required_error: "Please enter your password" }),
-    confirmPassword: z.string({
-      required_error: "Confirm Password Required",
-    }),
+    newPassword: z
+      .string({ required_error: "Please enter your password" })
+      .min(1, "Please enter your password"),
+    confirmPassword: z
+      .string({ required_error: "Confirm Password Required" })
+      .min(1, "Confirm Password Required"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Your passwords do not match",
@@ -88,10 +90,23 @@ const ResetPasswordForm = (props) => {
           </FormItem>
           <div className="mb-6 mt-2 flex justify-between items-center">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                className="accent-primary cursor-pointer"
-              />
+              <div className="relative w-5 h-5 shrink-0 flex items-center justify-center">
+                <input
+                  type="checkbox"
+                  className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded bg-white checked:bg-[#8a5a75] checked:border-[#8a5a75] cursor-pointer transition-all m-0"
+                />
+                <svg
+                  className="absolute w-3.5 h-3.5 pointer-events-none opacity-0 peer-checked:opacity-100 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
               <p>
                 I Agree to privacy
                 <span className="text-blue-400"> policy & terms</span>

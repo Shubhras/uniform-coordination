@@ -39,19 +39,32 @@ const SignIn = ({
                         passwordHint={
                             <>
                                 {/* Remember Me */}
-                                <div className="mb-6 mt-2 flex justify-between items-center">
+                                <div className="mb-6 mt-4 flex justify-between items-center">
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            className="accent-primary cursor-pointer"
-                                        />
+                                        <div className="relative w-5 h-5 shrink-0 flex items-center justify-center">
+                                            <input
+                                                type="checkbox"
+                                                className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded bg-white checked:bg-[#003562] checked:border-[#003562] cursor-pointer transition-all m-0"
+                                            />
+                                            <svg
+                                                className="absolute w-3.5 h-3.5 pointer-events-none opacity-0 peer-checked:opacity-100 text-white"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="3.5"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>
+                                        </div>
                                         <span className="text-sm text-gray-700">Remember me</span>
                                     </label>
 
                                     {/* Forgot password */}
                                     <ActionLink
                                         href={forgetPasswordUrl}
-                                        className="text-blue-400 heading-text text-sm"
+                                        className="text-[#87CEEB] heading-text text-sm"
                                         themeColor={false}
                                     >
                                         Forgot Password?
@@ -66,7 +79,7 @@ const SignIn = ({
                         <span>{`New on our platform?`} </span>
                         <ActionLink
                             href={signUpUrl}
-                            className="heading-text text-blue-400"
+                            className="heading-text text-[#87CEEB]"
                             themeColor={false}
                         >
                             Create an account

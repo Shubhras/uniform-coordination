@@ -63,7 +63,7 @@ const EmailVerificatinoPage = () => {
                     </h2>
                     {/* VERIFY INFO */}
                     <p className="text-sm text-gray-600 mt-2">
-                        <span className="text-[#A0522D] underline">Verify Email</span> Starts with{" "}
+                        <span className="text-[#3B82F6] underline">Verify Email</span> Starts with{" "}
                         {(() => {
                             if (!email) return "";
                             const [name, domain] = email.split("@");
@@ -78,7 +78,7 @@ const EmailVerificatinoPage = () => {
                     {/* NOTE */}
                     <p className="text-sm text-gray-500 mt-4">
                         Please verify your email address.{" "}
-                        <span className="text-[#A0522D] underline cursor-pointer" onClick={verifyUserEmail}>
+                        <span className="text-[#3B82F6] underline cursor-pointer" onClick={verifyUserEmail}>
                             Click here
                         </span>
                     </p>
