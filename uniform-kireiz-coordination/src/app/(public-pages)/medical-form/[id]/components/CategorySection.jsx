@@ -5,59 +5,68 @@ import { useRouter } from "next/navigation";
 import { useState } from 'react'
 import { FiChevronDown } from 'react-icons/fi'
 
-const categories = [
-    {
-        title: 'Medical Scrubs',
-        desc: 'Professional, heat-resistant jackets for kitchen safety and comfort',
-        points: [
-            'Classic Double-Breasted | Euro Style | Slim Fit',
-            '12+ Colors | Multiple Sizes',
-            'Heat-Resistant Fabrics | Breathable Cotton',
-        ],
-        img: '/img/medical-form/category/category1.png',
-        btn: 'Customize Jacket',
-    },
-    {
-        title: 'Professional Lab Coats',
-        desc: 'Durable, comfortable pants designed for long hours in the kitchen',
-        points: [
-            'Classic Checkered | Solid Black | Striped',
-            'Elastic Waist | Drawstring | Traditional',
-            'Stain-Resistant | Quick-Drying',
-        ],
-        img: '/img/medical-form/category/category2.png',
-        btn: 'Design Pants',
-    },
-    {
-        title: 'Clinical Staff Wear',
-        desc: 'Protective aprons for chefs and kitchen staff',
-        points: [
-            'Waist Aprons | Bib Aprons | Full Length',
-            'Multiple Colors | Custom Printing',
-            'Water-Resistant | Easy Clean',
-        ],
-        img: '/img/medical-form/category/category3.png',
-        btn: 'View Aprons',
-    },
-    {
-        title: 'Office & Admin Staff',
-        desc: 'Hygienic and professional head coverings',
-        points: [
-            'Chef Hats | Skull Caps | Bandanas',
-            'Disposable Options | Reusable Cotton',
-            'Branding Available',
-        ],
-        img: '/img/medical-form/category/category4.png',
-        btn: 'Explore Headwear',
-    },
-]
+// const categories = [
+//     {
+//         title: 'Medical Scrubs',
+//         desc: 'Professional, heat-resistant jackets for kitchen safety and comfort',
+//         points: [
+//             'Classic Double-Breasted | Euro Style | Slim Fit',
+//             '12+ Colors | Multiple Sizes',
+//             'Heat-Resistant Fabrics | Breathable Cotton',
+//         ],
+//         img: '/img/medical-form/category/category1.png',
+//         btn: 'Customize Jacket',
+//     },
+//     {
+//         title: 'Professional Lab Coats',
+//         desc: 'Durable, comfortable pants designed for long hours in the kitchen',
+//         points: [
+//             'Classic Checkered | Solid Black | Striped',
+//             'Elastic Waist | Drawstring | Traditional',
+//             'Stain-Resistant | Quick-Drying',
+//         ],
+//         img: '/img/medical-form/category/category2.png',
+//         btn: 'Design Pants',
+//     },
+//     {
+//         title: 'Clinical Staff Wear',
+//         desc: 'Protective aprons for chefs and kitchen staff',
+//         points: [
+//             'Waist Aprons | Bib Aprons | Full Length',
+//             'Multiple Colors | Custom Printing',
+//             'Water-Resistant | Easy Clean',
+//         ],
+//         img: '/img/medical-form/category/category3.png',
+//         btn: 'View Aprons',
+//     },
+//     {
+//         title: 'Office & Admin Staff',
+//         desc: 'Hygienic and professional head coverings',
+//         points: [
+//             'Chef Hats | Skull Caps | Bandanas',
+//             'Disposable Options | Reusable Cotton',
+//             'Branding Available',
+//         ],
+//         img: '/img/medical-form/category/category4.png',
+//         btn: 'Explore Headwear',
+//     },
+// ]
 
-const filters = ['All', 'Scrub', 'Lab Coats', 'Patient Care', 'Administrative']
-const sortOptions = ['Popular', 'Newest', 'Price: Low to High', 'Price: High to Low']
-const CategorySection = ({ data }) => {
-    console.log(data)
-    const [activeFilter, setActiveFilter] = useState('All')
-    const [sortBy, setSortBy] = useState('Popular')
+export const filters = [
+    { id: 'all', name: 'All' },
+    { id: 'scrub', name: 'Scrub' },
+    { id: 'lab-coats', name: 'Lab Coats' },
+    { id: 'patient-care', name: 'Patient Care' },
+    { id: 'administrative', name: 'Administrative' }
+]
+export const sortOptions = [
+    { id: 'popular', name: 'Popular' },
+    { id: 'newest', name: 'Newest' },
+    { id: 'price-low-to-high', name: 'Price: Low to High' },
+    { id: 'price-high-to-low', name: 'Price: High to Low' }
+]
+const CategorySection = ({ data, activeFilter, setActiveFilter, sortBy, setSortBy }) => {
+    console.log('sssssssssssssssssssssssss', data)
     const [openSort, setOpenSort] = useState(false)
 
     const router = useRouter();
@@ -90,16 +99,16 @@ const CategorySection = ({ data }) => {
 
                             {filters.map((item) => (
                                 <button
-                                    key={item}
+                                    key={item.id}
                                     onClick={() => setActiveFilter(item)}
                                     className={`text-sm px-3 py-1 rounded-md transition
-                                ${activeFilter === item
+                                ${activeFilter.id === item.id
                                             ? 'bg-[#1C2C56] text-white'
                                             : 'text-[#1C2C56] hover:bg-[#1C2C5615]'
                                         }
                             `}
                                 >
-                                    {item}
+                                    {item.name}
                                 </button>
                             ))}
                         </div>
@@ -121,7 +130,7 @@ const CategorySection = ({ data }) => {
                         "
                             >
                                 <span>
-                                    Sort By : <span className="font-medium">{sortBy}</span>
+                                    Sort By : <span className="font-medium">{sortBy.name}</span>
                                 </span>
                                 <FiChevronDown />
                             </button>
@@ -130,14 +139,14 @@ const CategorySection = ({ data }) => {
                                 <div className="absolute right-0 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-md z-20">
                                     {sortOptions.map((option) => (
                                         <button
-                                            key={option}
+                                            key={option.id}
                                             onClick={() => {
                                                 setSortBy(option)
                                                 setOpenSort(false)
                                             }}
                                             className="w-full text-left px-4 py-2 text-sm hover:bg-[#F5F8FF] text-[#1C2C56]"
                                         >
-                                            {option}
+                                            {option.name}
                                         </button>
                                     ))}
                                 </div>

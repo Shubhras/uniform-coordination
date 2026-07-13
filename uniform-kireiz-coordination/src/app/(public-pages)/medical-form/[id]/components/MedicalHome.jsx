@@ -3,7 +3,7 @@
 import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import HeroContent from './HeroContent'
-import CategorySection from './CategorySection'
+import CategorySection, { filters, sortOptions } from './CategorySection'
 import ProfessionalSection from './ProfessionalSection'
 import UniformTemplate from './UniformTemplate'
 import HaederPage from '../../../header/HaederPage'
@@ -21,11 +21,14 @@ const MedicalHome = () => {
     const { id } = useParams();
     const [categoryData, setCategoryData] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [activeFilter, setActiveFilter] = useState(filters[0]);
+    const [sortBy, setSortBy] = useState(sortOptions[0]);
 
     useEffect(() => {
         const fetchCategory = async () => {
+            setLoading(true);
             try {
-                const res = await apiCategoryById(id);
+                const res = await apiCategoryById(id, activeFilter.id, sortBy.id);
                 if (res?.status) {
                     setCategoryData(res.data);
                 }
@@ -37,7 +40,7 @@ const MedicalHome = () => {
         };
 
         if (id) fetchCategory();
-    }, [id]);
+    }, [id, activeFilter, sortBy]);
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }
@@ -47,8 +50,14 @@ const MedicalHome = () => {
         <main className="text-base bg-white dark:bg-gray-900">
             <HaederPage toggleMode={toggleMode} mode={mode} />
             <HeroContent />
-            <CategorySection data={categoryData|| []}/>
-            <UniformTemplate  />
+            <CategorySection 
+                data={categoryData || []} 
+                activeFilter={activeFilter}
+                setActiveFilter={setActiveFilter}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+            />
+            <UniformTemplate />
             <ProfessionalSection />
             <ChatbotSection />
             <FooterPage mode={mode} />
