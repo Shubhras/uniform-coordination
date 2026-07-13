@@ -20,6 +20,7 @@ const MedicalHome = () => {
     const setSchema = useTheme((state) => state.setSchema)
     const { id } = useParams();
     const [categoryData, setCategoryData] = useState([]);
+    const [subCategoryData, setSubCategoryData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [activeFilter, setActiveFilter] = useState(filters[0]);
     const [sortBy, setSortBy] = useState(sortOptions[0]);
@@ -30,7 +31,8 @@ const MedicalHome = () => {
             try {
                 const res = await apiCategoryById(id, activeFilter.id, sortBy.id);
                 if (res?.status) {
-                    setCategoryData(res.data);
+                    setSubCategoryData(res.data);
+                    setCategoryData(res.category);
                 }
             } catch (err) {
                 console.error("Failed to load category detail", err);
@@ -49,9 +51,9 @@ const MedicalHome = () => {
     return (
         <main className="text-base bg-white dark:bg-gray-900">
             <HaederPage toggleMode={toggleMode} mode={mode} />
-            <HeroContent />
+            <HeroContent categoryData={categoryData || []} />
             <CategorySection
-                categoryData={categoryData || []}
+                subCategoryData={subCategoryData || []}
                 activeFilter={activeFilter}
                 setActiveFilter={setActiveFilter}
                 sortBy={sortBy}

@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
-const HeroContent = () => {
+const HeroContent = ({ categoryData }) => {
     const router = useRouter()
 
     return (

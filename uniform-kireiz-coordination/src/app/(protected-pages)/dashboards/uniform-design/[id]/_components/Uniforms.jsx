@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { FiChevronDown } from 'react-icons/fi'
+import Link from 'next/link'
+import { FiChevronDown, FiArrowLeft } from 'react-icons/fi'
 import { useParams, useRouter } from 'next/navigation'
 import { apiGetProductById } from '@/services/ProductService'
 
@@ -29,30 +30,13 @@ const Uniforms = () => {
         { key: 'newest', name: 'Newest' }
     ]
 
-    // const [activeFilter, setActiveFilter] = useState('All')
     const [activeTab, setActiveTab] = useState(tabs[0])
     const [sortBy, setSortBy] = useState(sortOptions[0])
     const [openSort, setOpenSort] = useState(false)
-
-    /* IMAGE DATA */
-    // const imagesByTab = {
-    //     'All Scrubs': [
-    //         ...Array.from({ length: 6 }, (_, i) => `/img/uniform/top${i + 1}.png`),
-    //         ...Array.from({ length: 3 }, (_, i) => `/img/uniform/bottom${i + 1}.png`),
-    //     ],
-    //     Tops: Array.from({ length: 6 }, (_, i) => `/img/uniform/top${i + 1}.png`),
-    //     Bottoms: Array.from({ length: 3 }, (_, i) => `/img/uniform/bottom${i + 1}.png`),
-    //     Sets: Array.from({ length: 6 }, (_, i) => `/img/uniform/top${i + 1}.png`),
-    //     // 'Best Sellers': Array.from({ length: 3 }, (_, i) => `/img/uniform/bottom${i + 1}.png`),
-    //     // 'New Arrivals': Array.from({ length: 6 }, (_, i) => `/img/uniform/top${i + 1}.png`),
-    // }
-
-    // const { } = imagesByTab
-
     const [productData, setProductData] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
-
+    const [subCategoryData, setSubCategoryData] = useState({});
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -72,6 +56,7 @@ const Uniforms = () => {
 
                 if (res?.status) {
                     setProductData(res.data || [])
+                    setSubCategoryData(res?.subcategory)
                 } else {
                     setProductData([])
                     setError('Failed to fetch products')
@@ -92,7 +77,18 @@ const Uniforms = () => {
     return (
         <section className="w-full bg-white flex flex-col lg:flex-row px-5 md:px-8 lg:px-12 py-5 gap-10 mt-15">
             <div className="w-full mx-auto">
-                <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p>
+                <div className="flex items-center gap-2 py-5">
+                    <button onClick={() => router.back()} className="text-[#1C2C56] hover:text-[#1C4FA8] transition-colors" title="Go Back">
+                        <FiArrowLeft size={20} />
+                    </button>
+                    <p className='text-sm text-[#486284]'>
+                        <Link href="/kireiz-form" className="hover:underline hover:text-[#1C4FA8] cursor-pointer">My dashboard</Link>
+                        {' '} / {' '}
+                        <Link href={`/medical-form/${subCategoryData?.category?.id}`} className="hover:underline hover:text-[#1C4FA8] cursor-pointer">{subCategoryData?.category?.categoryName}</Link>
+                        {' '} / {' '}
+                        {subCategoryData?.name}
+                    </p>
+                </div>
 
                 {/* FILTER + SORT */}
                 <div className="flex justify-end gap-4 mb-5">
@@ -150,7 +146,7 @@ const Uniforms = () => {
                             <button
                                 key={tab.key}
                                 onClick={() => setActiveTab(tab)}
-                                className={`pb-2 text-sm whitespace-nowrap border-b-2 transition
+                                className={`pb-2 text-sm whitespace-nowrap border-b-3 transition
                   ${activeTab.key === tab.key
                                         ? 'border-[#1C2C56] text-[#1C2C56] font-medium'
                                         : 'border-transparent text-[#6B7280]'

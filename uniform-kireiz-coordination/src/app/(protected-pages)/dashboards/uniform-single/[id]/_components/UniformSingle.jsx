@@ -4,7 +4,8 @@ import { apiGetProductDetailsById } from '@/services/ProductService'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { FiChevronDown } from 'react-icons/fi'
+import Link from 'next/link'
+import { FiChevronDown, FiArrowLeft } from 'react-icons/fi'
 const filters = ['All', 'Scrub', 'Lab Coats', 'Patient Care', 'Administrative']
 const sortOptions = ['Popular', 'Newest', 'Price: Low to High', 'Price: High to Low']
 
@@ -59,7 +60,19 @@ const UniformSingle = () => {
     return (
         <section className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10 mt-15 ">
             <div className="w-full mx-auto">
-                <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p>
+                {/* <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p> */}
+                <div className="flex items-center gap-2 py-5">
+                    <button onClick={() => router.back()} className="text-[#1C2C56] hover:text-[#1C4FA8] transition-colors" title="Go Back">
+                        <FiArrowLeft size={20} />
+                    </button>
+                    <p className='text-sm text-[#486284]'>
+                        <Link href="/kireiz-form" className="hover:underline hover:text-[#1C4FA8] cursor-pointer">My dashboard</Link>
+                        {' '} / {' '}
+                        <Link href={`/medical-form/${product?.category?.id}`} className="hover:underline hover:text-[#1C4FA8] cursor-pointer">{product?.category?.categoryName}</Link>
+                        {' '} / {' '}
+                        {product?.subcategory?.name}
+                    </p>
+                </div>
                 {/* FILTER + SORT */}
                 {/* <div className="flex flex-col lg:flex-row justify-between gap-4 mb-5">
                    
@@ -121,14 +134,13 @@ const UniformSingle = () => {
                     {/* MAIN CONTENT */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start ">
                         {/* LEFT INFO CARD */}
-                        {/* LEFT INFO CARD */}
                         <div className="order-2 lg:order-1 bg-white border border-[#1C2C56] rounded-[20px] md:p-8 p-5 flex flex-col h-full">
 
                             {/* LOADING */}
                             {loading && (
-                                <p className="text-center text-sm text-[#6B7280]">
-                                    Loading product details...
-                                </p>
+                                <div className="flex justify-center items-center py-20">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+                                </div>
                             )}
 
                             {/* ERROR */}
@@ -167,7 +179,7 @@ const UniformSingle = () => {
                                     </div>
 
                                     <button
-                                        className="w-full bg-[#1C2C56] text-white py-3 rounded-md text-sm font-medium mt-6"
+                                        className="w-full bg-[#1C4FA8] text-white py-3 rounded-md text-sm font-medium mt-6"
                                         onClick={handleUniformDesigning}
                                     >
                                         Customize
@@ -217,7 +229,8 @@ const UniformSingle = () => {
                             />
                             <div className="relative z-10">
                                 <Image
-                                    src="/img/uniform/uniform.png"
+                                    // src="/img/uniform/uniform.png"
+                                    src={product?.ProductImage || '/img/uniform/uniform.png'}
                                     alt="Uniform"
                                     width={450}
                                     height={800}

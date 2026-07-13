@@ -66,7 +66,7 @@ export const sortOptions = [
     // { id: 'price-low-to-high', name: 'Price: Low to High' },
     // { id: 'price-high-to-low', name: 'Price: High to Low' }
 ]
-const CategorySection = ({ categoryData, activeFilter, setActiveFilter, sortBy, setSortBy, loading }) => {
+const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortBy, setSortBy, loading }) => {
 
     const [openSort, setOpenSort] = useState(false)
 
@@ -162,8 +162,8 @@ const CategorySection = ({ categoryData, activeFilter, setActiveFilter, sortBy, 
                     <div className="flex justify-center items-center py-20">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
                     </div>
-                ) : categoryData?.length > 0 ? (
-                    categoryData.map((item, index) => {
+                ) : subCategoryData?.length > 0 ? (
+                    subCategoryData.map((item, index) => {
                         const isReverse = index % 2 !== 0
 
                         return (
