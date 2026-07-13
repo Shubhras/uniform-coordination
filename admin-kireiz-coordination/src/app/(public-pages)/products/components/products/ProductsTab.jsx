@@ -300,7 +300,7 @@ const ProductsTab = () => {
                   >
                     Edit
                   </button>
-                  {/* <button
+                  <button
                     onClick={() => {
                       setProductToDelete(item);
                       setDeleteDialogOpen(true);
@@ -309,7 +309,7 @@ const ProductsTab = () => {
                   >
                     <FiTrash2 size={12} />
                     Delete
-                  </button> */}
+                  </button>
                 </div>
               </div>
             </div>

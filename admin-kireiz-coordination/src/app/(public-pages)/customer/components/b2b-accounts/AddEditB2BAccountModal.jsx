@@ -247,11 +247,12 @@ const AddEditB2BAccountModal = ({
                     <Button
                         variant="solid"
                         size="sm"
-                        className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+                        className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
                         onClick={handleSave}
                         loading={saving}
                     >
-                        {mode === "edit" ? "Update" : "Save"}
+                        {/* {mode === "edit" ? "Update" : "Save"} */}
+                        {mode === "edit" ? "Update" : "Create Account"}
                     </Button>
                 </div>
             </div>

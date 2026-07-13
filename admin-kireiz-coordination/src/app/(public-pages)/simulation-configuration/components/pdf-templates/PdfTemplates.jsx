@@ -112,7 +112,7 @@ const PdfTemplates = () => {
                             Cancel
                         </button>
 
-                        <button className="bg-[#1C2C56] text-white px-5 py-2 rounded-md text-sm font-medium">
+                        <button className="bg-[#1C4FA8] text-white px-5 py-2 rounded-md text-sm font-medium">
                             Save Changes
                         </button>
                     </div>

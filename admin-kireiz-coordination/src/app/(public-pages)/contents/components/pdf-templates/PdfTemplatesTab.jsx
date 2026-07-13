@@ -48,7 +48,7 @@ const PdfTemplatesTab = () => {
           </p>
         </div>
 
-        <button className="bg-[#1C2C56] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2">
+        <button className="bg-[#1C4FA8] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2">
           <FiPlus size={16} />
           Add Template
         </button>
