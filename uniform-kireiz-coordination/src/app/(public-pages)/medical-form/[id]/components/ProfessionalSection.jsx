@@ -30,7 +30,7 @@ const features = [
             'Professional appearance',
         ],
     },
-    
+
 ]
 
 const ProfessionalSection = () => {
@@ -39,7 +39,7 @@ const ProfessionalSection = () => {
             <div className="px-8 py-10 bg-[#E6ECF770] mt-10">
 
                 {/* SECTION TITLE */}
-                <h2 className="text-center text-[#1C2C56] lg:text-4xl md:text-3xl text-2xl font-semibold mb-10">
+                <h2 className="text-center text-[#1C2C56] md:text-3xl text-2xl font-semibold mb-10">
                     Designed for Healthcare Professionals
                 </h2>
 
@@ -67,7 +67,7 @@ const ProfessionalSection = () => {
                                         key={idx}
                                         className="flex items-center gap-2 text-sm text-[#4B5563]"
                                     >
-                                        <FiCheckCircle className="text-[#1C4FA8] text-base shrink-0" />
+                                        <FiCheckCircle className="text-[#3A8BBD] text-base shrink-0" />
                                         {item}
                                     </li>
                                 ))}

@@ -44,18 +44,19 @@ const MedicalHome = () => {
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }
-    console.log(categoryData)
+    //console.log(categoryData)
 
     return (
         <main className="text-base bg-white dark:bg-gray-900">
             <HaederPage toggleMode={toggleMode} mode={mode} />
             <HeroContent />
-            <CategorySection 
-                data={categoryData || []} 
+            <CategorySection
+                categoryData={categoryData || []}
                 activeFilter={activeFilter}
                 setActiveFilter={setActiveFilter}
                 sortBy={sortBy}
                 setSortBy={setSortBy}
+                loading={loading}
             />
             <UniformTemplate />
             <ProfessionalSection />

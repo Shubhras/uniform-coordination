@@ -371,11 +371,15 @@ const BlogSection = () => {
           </p>
         </div>
 
-        <h2 className="mb-5 lg:text-4xl text-3xl font-semibold text-[#1C2C56]">
+        <h2 className="mb-5 lg:text-3xl text-3xl font-semibold text-[#1C2C56]">
           Our Latest Blog Posts
         </h2>
 
-        {loading && <p className="text-center">Loading blogs...</p>}
+        {loading ? <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+          </div>
+        </section> : null}
 
         {/* Cards (SAME AS STATIC UI) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
