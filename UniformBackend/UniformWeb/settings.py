@@ -41,6 +41,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "localhost:7000",
     "localhost:7001",
+    "localhost:7002",
     "192.168.1.56",
     "54.81.43.26",
     "0.0.0.0:8000",
@@ -171,7 +172,10 @@ STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-SITE_DOMAIN = "http://54.81.43.26"
+# SITE_DOMAIN = "http://54.81.43.26"
+SITE_DOMAIN = "https://t8sjq87n-8001.inc1.devtunnels.ms"
+
+SITE_URL = "https://t8sjq87n-8001.inc1.devtunnels.ms"
 
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
@@ -209,6 +213,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.1.56:8000",
     "http://localhost:7000",
     "http://localhost:7001",
+    "http://localhost:7002",
     "http://0.0.0.0:8000",
     "http://54.81.43.26",
     

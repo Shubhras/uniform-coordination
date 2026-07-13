@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Category, Blog, FAQ, FAQDescription, CatalogImage
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
-
+from django.conf import settings
 
 # class HomePageAPIView(APIView):
 
@@ -110,6 +110,19 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
         # 500: OpenApiResponse(description="Internal server error"),
     },
 )
+
+
+
+def build_media_url(request, file_field):
+    if not file_field:
+        return None
+
+    # Already an absolute URL (e.g. Unsplash)
+    if file_field.name.startswith(("http://", "https://")):
+        return file_field.name
+
+    return f"{settings.SITE_URL}{file_field.url}"
+    
 class HomePageAPIView(APIView):
 
     def get(self, request):
@@ -138,7 +151,8 @@ class HomePageAPIView(APIView):
                 "categoryName": c.categoryName,
                 "slug": c.slug,
                 "description": c.description,
-                "categoryImage": request.build_absolute_uri(c.categoryImage.url) if c.categoryImage else None
+                # "categoryImage": request.build_absolute_uri(c.categoryImage.url) if c.categoryImage else None
+                "categoryImage": build_media_url(request, c.categoryImage)
             })
 
         # ------- BLOGS -------
@@ -154,11 +168,19 @@ class HomePageAPIView(APIView):
 
         blogs_data = []
         for b in blogs:
+            image_url = None
+            if b.image:
+                if b.image.name.startswith("http://") or b.image.name.startswith("https://"):
+                    image_url = b.image.name
+                else:
+                    # image_url = request.build_absolute_uri(b.image.url)
+                    image_url = build_media_url(request, b.image)
+
             blogs_data.append({
                 "id": b.id,
                 "title": b.title,
                 "slug": b.slug,
-                "image": request.build_absolute_uri(b.image.url) if b.image else None,
+                "image": image_url,
                 "category": b.category.categoryName if b.category else None,
                 "description": b.description,
                 "type": b.type
@@ -210,11 +232,19 @@ class HomePageAPIView(APIView):
 
         catalog_images_data = []
         for ci in catalog_images:
+            image_url = None
+            if ci.image:
+                if ci.image.name.startswith("http://") or ci.image.name.startswith("https://"):
+                    image_url = ci.image.name
+                else:
+                    # image_url = request.build_absolute_uri(ci.image.url)
+                    image_url = build_media_url(request, ci.image)
+
             catalog_images_data.append({
                 "id": ci.id,
                 "name": ci.name,
                 "slug": ci.slug,
-                "image": request.build_absolute_uri(ci.image.url) if ci.image else None,
+                "image": image_url,
                 "category": ci.category.categoryName if ci.category else None,
                 "description": ci.description
             })

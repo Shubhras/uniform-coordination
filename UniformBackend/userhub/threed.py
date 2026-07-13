@@ -682,13 +682,15 @@ class QuotationRequestExportPDFAPIView(APIView):
 
         relative_path = file_path.replace(str(settings.MEDIA_ROOT), "").replace("\\", "/")
 
-        pdf_url = settings.MEDIA_URL + relative_path.lstrip("/")
+        # pdf_url = settings.MEDIA_URL + relative_path.lstrip("/")
+        pdf_url = f"{settings.SITE_URL}{settings.MEDIA_URL}{relative_path.lstrip('/')}"
 
         return Response({
             "statusCode": 200,
             "status": True,
             "message": "PDF generated successfully",
-            "pdf_url": request.build_absolute_uri(pdf_url)
+            # "pdf_url": request.build_absolute_uri(pdf_url)
+            "pdf_url": pdf_url
         })
             
 
