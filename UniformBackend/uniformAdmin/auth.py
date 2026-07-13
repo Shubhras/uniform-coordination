@@ -8,7 +8,7 @@ from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, Bl
 from django.db import transaction
 from django.utils import timezone
 from django.contrib.auth.tokens import default_token_generator
-from .models import AdminUser
+from .models import AdminUser, Menu, RoleMenuPermission, RoleSubMenuPermission
 from .serializers import *
 from rest_framework.views import APIView
 from rest_framework.permissions import BasePermission
@@ -250,8 +250,10 @@ class AdminLoginAPIView(APIView):
                                 "id": 1,
                                 "email": "admin@example.com",
                                 "name": "Admin User",
-                                "role": "admin"
+                                "role": "admin",
+                                "permissions": []
                             },
+                            "permissions": [],
                             "access_token": "jwt-access-token",
                             "refresh_token": "jwt-refresh-token"
                         }
@@ -301,6 +303,43 @@ class AdminLoginAPIView(APIView):
         user.is_currently_login = True
         user.save(update_fields=["last_login","is_currently_login"])
 
+        # Fetch menu/submenu permissions for user's role
+        role = user.role
+        permissions_list = []
+        if role:
+            allowed_menu_ids = RoleMenuPermission.objects.filter(
+                role=role, can_view=True
+            ).values_list("menu_id", flat=True)
+
+            allowed_submenu_ids = RoleSubMenuPermission.objects.filter(
+                role=role, can_view=True
+            ).values_list("submenu_id", flat=True)
+
+            menus = Menu.objects.filter(
+                id__in=allowed_menu_ids, isDeleted=False, isActive=True
+            ).order_by("order")
+
+            for menu in menus:
+                submenus_list = []
+                for sub in menu.submenus.filter(
+                    id__in=allowed_submenu_ids, isDeleted=False, isActive=True
+                ).order_by("order"):
+                    submenus_list.append({
+                        "id": sub.id,
+                        "name": sub.name,
+                        "slug": sub.slug,
+                        "route": sub.route
+                    })
+                
+                permissions_list.append({
+                    "id": menu.id,
+                    "name": menu.name,
+                    "slug": menu.slug,
+                    "icon": menu.icon,
+                    "route": menu.route,
+                    "submenus": submenus_list
+                })
+
         return Response({
             "status": True,
             "statusCode": 200,
@@ -310,8 +349,10 @@ class AdminLoginAPIView(APIView):
                     "id": user.id,
                     "email": user.email,
                     "name": user.name,
-                    "role": user.role.role_name if user.role else None
+                    "role": user.role.role_name if user.role else None,
+                    # "permissions": permissions_list
                 },
+                "permissions": permissions_list,
                 "access_token": str(refresh.access_token),
                 "refresh_token": str(refresh)
             }
@@ -618,7 +659,7 @@ class ForgotPasswordAPIView(APIView):
 
         # Generate frontend URL based on type
         if user_type.lower() == "uniform":
-            base_url = "http://23.23.88.239:7000"
+            base_url = "http://23.23.88.239:7002"
         elif user_type.lower() == "table":
             base_url = "http://23.23.88.239:7001"
         else:

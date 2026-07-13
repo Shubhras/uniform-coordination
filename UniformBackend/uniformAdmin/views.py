@@ -853,12 +853,33 @@ class AdminListProductsAPIView(APIView):
             else:  # newest (default)
                 products = products.order_by("-created_at")
 
-            serializer = ProductSerializer(products, many=True)
+            serializer = ProductSerializer(products, many=True, context={'request': request})
+
+            # Fetch subcategory details and category details if subcategory_id is provided
+            subcategory_data = None
+            if subcategory_id:
+                try:
+                    subcat = SubCategory.objects.get(id=subcategory_id, isDeleted=False)
+                    have_product = Product.objects.filter(subcategory=subcat, isDeleted=False).exists()
+                    category_info = CategorySerializer(subcat.category, context={'request': request}).data if subcat.category else None
+                    if category_info and subcat.category:
+                        category_info["haveSubCategory"] = SubCategory.objects.filter(category=subcat.category, isDeleted=False).exists()
+                    subcategory_data = {
+                        "id": subcat.id,
+                        "name": subcat.name,
+                        "slug": subcat.slug,
+                        "description": subcat.description,
+                        "haveProduct": have_product,
+                        "category": category_info
+                    }
+                except SubCategory.DoesNotExist:
+                    pass
 
             return Response({
                 "status": True,
                 "statusCode": 200,
                 "message": "Products fetched successfully.",
+                "subcategory": subcategory_data,
                 "data": serializer.data
             }, status=status.HTTP_200_OK)
 
@@ -922,38 +943,38 @@ class AdminDeleteProductAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 #<------------------------------SpecialCondition----------------------->
+
 class SpecialConditionCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    
-    @extend_schema(
-    tags=["Special Condition"],
-    summary="Create Special Condition",
-    description="Create a new special condition (Authenticated users only).",
-    request=SpecialConditionSerializer,
-    responses={
-        201: OpenApiResponse(description="Special Condition created successfully"),
-        400: OpenApiResponse(description="Validation error"),
-        500: OpenApiResponse(description="Server error"),
-    },
-)
-    def post(self,request):
+
+    def post(self, request):
         try:
             serializer = SpecialConditionSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+
             return Response({
-                'statusCode':201,
-                'status':True,
-                "message":'Special Condition create successfully. ',
-                'data':serializer.data
-            },status=status.HTTP_201_CREATED)
+                "statusCode": 201,
+                "status": True,
+                "message": "Special Condition created successfully.",
+                "data": serializer.data
+            }, status=status.HTTP_201_CREATED)
+
+        except ValidationError as e:
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "message": "Validation Error",
+                "errors": e.detail
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
             return Response({
-                'statusCode':500,
-                'status':False,
-                'message':'Something went wrong on server.',
-                'error':str(e)
-                },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                "statusCode": 500,
+                "status": False,
+                "message": "Something went wrong on server.",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 class  SpecialConditionListAPIView(APIView):
     permission_classes = [IsAuthenticated]
