@@ -193,9 +193,9 @@ const FaqSection = () => {
             {/* FAQ List */}
             <div className="max-w-5xl mx-auto space-y-6">
                 {loading && (
-                    <p className="text-center text-gray-500 text-sm">
-                        Loading FAQs...
-                    </p>
+                    <div className="flex justify-center items-center py-10">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+                    </div>
                 )}
                 {!loading && filteredFaqs.length === 0 && (
                     <p className="text-center text-gray-500 text-sm">

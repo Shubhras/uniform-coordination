@@ -30,7 +30,7 @@ export const publicRoutes = {
         key: 'table-form',
         authority: [],
     },
-    '/tbrowse-by-color': {
+    '/browse-by-color': {
         key: 'browse-by-color',
         authority: [],
     },

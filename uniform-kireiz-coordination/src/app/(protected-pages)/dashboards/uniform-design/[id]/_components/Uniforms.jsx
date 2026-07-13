@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { FiChevronDown } from 'react-icons/fi'
+import Link from 'next/link'
+import { FiChevronDown, FiArrowLeft } from 'react-icons/fi'
 import { useParams, useRouter } from 'next/navigation'
 import { apiGetProductById } from '@/services/ProductService'
 
@@ -14,48 +15,28 @@ const Uniforms = () => {
         router.push(`/dashboards/uniform-single/${id}`);
     };
 
-    // const filters = ['All', 'Scrub', 'Lab Coats', 'Patient Care', 'Administrative']
-    const tabs = ['All Scrubs', 'Tops', 'Bottoms', 'Sets', 'Best Sellers', 'New Arrivals']
-    const sortOptions = ['Oldest', 'Newest']
+    const tabs = [
+        { key: '', name: 'All Scrubs' },
+        { key: 'top', name: 'Tops' },
+        { key: 'bottom', name: 'Bottoms' },
+        { key: 'set', name: 'Sets' },
+        { key: 'best_seller', name: 'Best Sellers' },
+        { key: 'newest', name: 'New Arrivals' }
+    ]
 
-    const TAB_TYPE_MAP = {
-        'All Scrubs': undefined,
-        'Tops': 'tops',
-        'Bottoms': 'bottoms',
-        'Sets': 'sets',
-        'Best Sellers': 'best_sellers',
-        'New Arrivals': 'new_arrivals',
-    }
+    const sortOptions = [
+        { key: '', name: 'All' },
+        { key: 'oldest', name: 'Oldest' },
+        { key: 'newest', name: 'Newest' }
+    ]
 
-    const SORT_MAP = {
-        Oldest: 'oldest',
-        Newest: 'newest',
-    }
-
-    const [activeFilter, setActiveFilter] = useState('All')
-    const [activeTab, setActiveTab] = useState('All Scrubs')
-    const [sortBy, setSortBy] = useState('Newest')
+    const [activeTab, setActiveTab] = useState(tabs[0])
+    const [sortBy, setSortBy] = useState(sortOptions[0])
     const [openSort, setOpenSort] = useState(false)
-
-    /* IMAGE DATA */
-    const imagesByTab = {
-        'All Scrubs': [
-            ...Array.from({ length: 6 }, (_, i) => `/img/uniform/top${i + 1}.png`),
-            ...Array.from({ length: 3 }, (_, i) => `/img/uniform/bottom${i + 1}.png`),
-        ],
-        Tops: Array.from({ length: 6 }, (_, i) => `/img/uniform/top${i + 1}.png`),
-        Bottoms: Array.from({ length: 3 }, (_, i) => `/img/uniform/bottom${i + 1}.png`),
-        Sets: Array.from({ length: 6 }, (_, i) => `/img/uniform/top${i + 1}.png`),
-        // 'Best Sellers': Array.from({ length: 3 }, (_, i) => `/img/uniform/bottom${i + 1}.png`),
-        // 'New Arrivals': Array.from({ length: 6 }, (_, i) => `/img/uniform/top${i + 1}.png`),
-    }
-
-    const { } = imagesByTab
-
     const [productData, setProductData] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
-
+    const [subCategoryData, setSubCategoryData] = useState({});
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -68,18 +49,14 @@ const Uniforms = () => {
                 params.subcategory_id = id
                 params.productType = 'uniform'
 
-                if (TAB_TYPE_MAP[activeTab]) {
-                    params.type = TAB_TYPE_MAP[activeTab]
-                }
-
-                if (SORT_MAP[sortBy]) {
-                    params.ordering = SORT_MAP[sortBy]
-                }
+                params.type = activeTab.key;
+                params.ordering = sortBy.key;
 
                 const res = await apiGetProductById(params)
 
                 if (res?.status) {
                     setProductData(res.data || [])
+                    setSubCategoryData(res?.subcategory)
                 } else {
                     setProductData([])
                     setError('Failed to fetch products')
@@ -100,7 +77,18 @@ const Uniforms = () => {
     return (
         <section className="w-full bg-white flex flex-col lg:flex-row px-5 md:px-8 lg:px-12 py-5 gap-10 mt-15">
             <div className="w-full mx-auto">
-                <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p>
+                <div className="flex items-center gap-2 py-5">
+                    <button onClick={() => router.back()} className="text-[#1C2C56] hover:text-[#1C4FA8] transition-colors" title="Go Back">
+                        <FiArrowLeft size={20} />
+                    </button>
+                    <p className='text-sm text-[#486284]'>
+                        <Link href="/kireiz-form" className="hover:underline hover:text-[#1C4FA8] cursor-pointer">My dashboard</Link>
+                        {' '} / {' '}
+                        <Link href={`/medical-form/${subCategoryData?.category?.id}`} className="hover:underline hover:text-[#1C4FA8] cursor-pointer">{subCategoryData?.category?.categoryName}</Link>
+                        {' '} / {' '}
+                        {subCategoryData?.name}
+                    </p>
+                </div>
 
                 {/* FILTER + SORT */}
                 <div className="flex justify-end gap-4 mb-5">
@@ -115,7 +103,7 @@ const Uniforms = () => {
                             className="flex items-center justify-between gap-2 border border-[#1C2C56] bg-[#F5F8FF]
                                 px-4 py-3 rounded-lg text-sm min-w-[190px]"
                         >
-                            <span>Sort By : <b>{sortBy}</b></span>
+                            <span>Sort By : <b>{sortBy.name}</b></span>
                             <FiChevronDown />
                         </button>
 
@@ -123,14 +111,14 @@ const Uniforms = () => {
                             <div className="absolute right-0 mt-2 w-full bg-white border rounded-lg shadow-md z-20">
                                 {sortOptions.map(option => (
                                     <button
-                                        key={option}
+                                        key={option.key}
                                         onClick={() => {
                                             setSortBy(option)
                                             setOpenSort(false)
                                         }}
                                         className="w-full text-left px-4 py-2 text-sm hover:bg-[#F5F8FF]"
                                     >
-                                        {option}
+                                        {option.name}
                                     </button>
                                 ))}
                             </div>
@@ -140,10 +128,14 @@ const Uniforms = () => {
 
                 {/* HEADER */}
                 <div className="bg-[#F5F8FF] rounded-xl pt-10 text-center border-b px-5">
-                    <h2 className="text-3xl font-semibold text-[#1C2C56]">
-                        Placeholder Text
-                    </h2>
-                    <div className="w-20 h-1 bg-[#1C2C56] mx-auto mt-2" />
+                    <div className="text-center mb-6">
+                        <div className="inline-flex flex-col items-end">
+                            <h2 className="text-[#1C2C56] md:text-3xl text-2xl font-semibold">
+                                Placeholder Text
+                            </h2>
+                            <div className="w-[50px] md:w-[70px] h-[3px] bg-[#87CEEB] mt-2" />
+                        </div>
+                    </div>
                     <p className="text-sm text-[#6B7280] mt-4 max-w-lg mx-auto">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                     </p>
@@ -152,15 +144,15 @@ const Uniforms = () => {
                     <div className="flex gap-6 mt-6 justify-start overflow-x-auto ">
                         {tabs.map(tab => (
                             <button
-                                key={tab}
+                                key={tab.key}
                                 onClick={() => setActiveTab(tab)}
-                                className={`pb-2 text-sm whitespace-nowrap border-b-2 transition
-                  ${activeTab === tab
+                                className={`pb-2 text-sm whitespace-nowrap border-b-3 transition
+                  ${activeTab.key === tab.key
                                         ? 'border-[#1C2C56] text-[#1C2C56] font-medium'
                                         : 'border-transparent text-[#6B7280]'
                                     }`}
                             >
-                                {tab}
+                                {tab.name}
                             </button>
                         ))}
                     </div>
@@ -174,8 +166,8 @@ const Uniforms = () => {
   gap-6 bg-[#F5F8FF] p-5">
 
                     {loading && (
-                        <div className=" col-span-full  flex items-center justify-center text-center text-sm text-[#6B7280] min-h-32">
-                            Loading products...
+                        <div className="col-span-full flex justify-center items-center py-20">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
                         </div>
                     )}
 
@@ -210,7 +202,7 @@ const Uniforms = () => {
                                 <h4 className="text-[#1C2C56] font-medium">{product.productName}</h4>
                                 <p className="text-xs text-[#6B7280]">{product.description}</p>
                                 <button
-                                    className=" bg-[#1C2C56] text-white text-sm py-2 rounded-md"
+                                    className=" bg-[#1C4FA8] text-white text-sm py-2 rounded-md"
                                     onClick={() => handleUniformDesigning(product.id)}
                                 >
                                     Customize

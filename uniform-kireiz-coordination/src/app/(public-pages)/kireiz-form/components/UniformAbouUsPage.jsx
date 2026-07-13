@@ -86,11 +86,20 @@ const UniformAbouUsPage = () => {
     <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12 py-12">
       <div className="bg-[#EEF3FB] rounded-bl-[120px]">
         <div className="relative py-8">
-          <div className="text-center mb-10">
+          {/* <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-semibold text-[#1C2C56]">
               Trusted by 500+ Businesses
             </h2>
             <div className="w-20 h-[2px] bg-[#1C2C56] mx-auto mt-3" />
+          </div> */}
+
+          <div className="text-center mb-10">
+            <div className="inline-flex flex-col items-end">
+              <h2 className="text-[#1C2C56] md:text-3xl text-2xl font-semibold">
+                Trusted by 500+ Businesses
+              </h2>
+              <div className="w-[180px] md:w-[270px] h-[3px] bg-[#87CEEB] mt-2" />
+            </div>
           </div>
           <div className="relative flex items-center justify-center">
             {/* <button
@@ -99,7 +108,7 @@ const UniformAbouUsPage = () => {
             >
               <FiArrowLeft className="text-lg text-gray-600" />
             </button> */}
-             <FiArrowLeft   onClick={prev} size={25} className="text-lg text-gray-600 cursor-pointer absolute left-2 md:left-4" />
+            <FiArrowLeft onClick={prev} size={25} className="text-lg text-gray-600 cursor-pointer absolute left-2 md:left-4" />
             <div
               className=" grid w-full px-14 md:px-18 gap-6 mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {testimonials
@@ -121,7 +130,7 @@ const UniformAbouUsPage = () => {
                   </div>
                 ))}
             </div>
-            <FiArrowRight  onClick={next} size={25} className="text-lg text-gray-600 cursor-pointer absolute right-2 md:right-4" />
+            <FiArrowRight onClick={next} size={25} className="text-lg text-gray-600 cursor-pointer absolute right-2 md:right-4" />
             {/* <button
               onClick={next}
               className="absolute right-2 md:right-4 z-10 h-10 w-10 border rounded-full flex items-center justify-center hover:bg-gray-100"
@@ -133,7 +142,7 @@ const UniformAbouUsPage = () => {
         </div>
         <div className="pb-20 px-6">
           <div className="text-center max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-5xl font-semibold text-[#1C2C56] mb-6">
+            <h2 className="text-3xl md:text-4xl font-semibold text-[#1C2C56] mb-6">
               About Us
             </h2>
             <p className="text-sm md:text-base text-gray-600 leading-relaxed text-left">

@@ -352,9 +352,18 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
         {/* DIVIDER */}
         <div className="w-full h-px bg-gray-300 my-14" />
 
-        <h2 className="text-center text-3xl font-semibold text-[#1C2C56]">
+        {/* <h2 className="text-center text-3xl font-semibold text-[#1C2C56]">
           Industry-Specific Uniform Solutions
         </h2>
+        <div className="w-[180px] md:w-[270px] h-[3px] bg-[#87CEEB] mt-2" /> */}
+        <div className="text-center mb-6">
+          <div className="inline-flex flex-col items-end">
+            <h2 className="text-[#1C2C56]  md:text-3xl text-2xl font-semibold">
+              Industry-Specific Uniform Solutions
+            </h2>
+            <div className="w-[180px] md:w-[270px] h-[3px] bg-[#87CEEB] mt-2" />
+          </div>
+        </div>
 
         {/* SLIDER ARROWS */}
         <div className="flex justify-end gap-6 mt-6 mr-6">

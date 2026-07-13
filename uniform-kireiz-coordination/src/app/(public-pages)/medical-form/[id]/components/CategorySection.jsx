@@ -53,20 +53,21 @@ import { FiChevronDown } from 'react-icons/fi'
 // ]
 
 export const filters = [
-    { id: 'all', name: 'All' },
+    { id: '', name: 'All' },
     { id: 'scrub', name: 'Scrub' },
     { id: 'lab-coats', name: 'Lab Coats' },
     { id: 'patient-care', name: 'Patient Care' },
     { id: 'administrative', name: 'Administrative' }
 ]
 export const sortOptions = [
+    { id: '', name: 'All' },
     { id: 'popular', name: 'Popular' },
     { id: 'newest', name: 'Newest' },
-    { id: 'price-low-to-high', name: 'Price: Low to High' },
-    { id: 'price-high-to-low', name: 'Price: High to Low' }
+    // { id: 'price-low-to-high', name: 'Price: Low to High' },
+    // { id: 'price-high-to-low', name: 'Price: High to Low' }
 ]
-const CategorySection = ({ data, activeFilter, setActiveFilter, sortBy, setSortBy }) => {
-    console.log('sssssssssssssssssssssssss', data)
+const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortBy, setSortBy, loading }) => {
+
     const [openSort, setOpenSort] = useState(false)
 
     const router = useRouter();
@@ -82,10 +83,13 @@ const CategorySection = ({ data, activeFilter, setActiveFilter, sortBy, setSortB
 
                     {/* TITLE */}
                     <div className="text-center mb-6">
-                        <h2 className="text-[#1C2C56] lg:text-4xl md:text-3xl text-2xl font-semibold">
-                            Featured Medical Categories
-                        </h2>
-                        <div className="w-24 h-1 rounded-full bg-[#1C2C56] mx-auto mt-2" />
+                        <div className="inline-flex flex-col items-end">
+                            <h2 className="text-[#1C2C56] md:text-3xl text-2xl font-semibold">
+                                {/* Featured Medical Categories */}
+                                Featured Sub Categories
+                            </h2>
+                            <div className="w-[180px] md:w-[270px] h-[3px] bg-[#87CEEB] mt-2" />
+                        </div>
                     </div>
 
                     {/* FILTER + SORT BAR */}
@@ -154,63 +158,73 @@ const CategorySection = ({ data, activeFilter, setActiveFilter, sortBy, setSortB
                         </div>
                     </div>
                 </div>
-                {data.map((item, index) => {
-                    const isReverse = index % 2 !== 0
+                {loading ? (
+                    <div className="flex justify-center items-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+                    </div>
+                ) : subCategoryData?.length > 0 ? (
+                    subCategoryData.map((item, index) => {
+                        const isReverse = index % 2 !== 0
 
-                    return (
-                        <div
-                            key={index}
-                            className={`
-                                relative
-                                bg-[#E6ECF770]
-                                overflow-hidden
-                                p-4
-                                flex
-                                flex-col-reverse
-                                lg:flex-row
-                                items-center
-                                min-h-[260px]
-                                ${isReverse ? 'lg:flex-row-reverse rounded-tl-[50px]' : 'rounded-tr-[50px]'}
-                            `}
-                        >
-                            {/* TEXT CONTENT */}
-                            <div className="w-full lg:w-[40%] px-6 py-6 lg:px-8 lg:py-12 flex flex-col items-center lg:items-start">
-                                <h3 className="text-[#1C2C56] text-xl font-semibold mb-3 capitalize">
-                                    {item.name}
-                                </h3>
+                        return (
+                            <div
+                                key={index}
+                                className={`
+                                    relative
+                                    bg-[#E6ECF770]
+                                    overflow-hidden
+                                    p-4
+                                    flex
+                                    flex-col-reverse
+                                    lg:flex-row
+                                    items-center
+                                    min-h-[260px]
+                                    ${isReverse ? 'lg:flex-row-reverse rounded-tl-[50px]' : 'rounded-tr-[50px]'}
+                                `}
+                            >
+                                {/* TEXT CONTENT */}
+                                <div className="w-full lg:w-[40%] px-6 py-6 lg:px-8 lg:py-12 flex flex-col items-center lg:items-start">
+                                    <h3 className="text-[#1C2C56] text-xl font-semibold mb-3 capitalize">
+                                        {item.name}
+                                    </h3>
 
-                                <p className="text-[#6B7280] text-sm mb-1">
-                                    {item.description}
-                                </p>
+                                    <p className="text-[#6B7280] text-sm mb-1">
+                                        {item.description}
+                                    </p>
 
-                                {/* <ul className="text-[#6B7280] text-sm space-y-1 mb-6">
+                                    {/* <ul className="text-[#6B7280] text-sm space-y-1 mb-6">
                                     {item.points.map((point, i) => (
                                         <li key={i}>• {point}</li>
                                     ))}
                                 </ul> */}
 
-                                <button className="bg-[#1C2C56] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#1C2C56]" onClick={() => handleStartDesigning(item.id)}>
-                                    {/* {item.btn} */}
-                                    Customize
-                                </button>
-                            </div>
+                                    <button className="bg-[#1C4FA8] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-blue-800" onClick={() => handleStartDesigning(item.id)}>
+                                        {/* {item.btn} */}
+                                        Customize
+                                    </button>
+                                </div>
 
-                            {/* IMAGE */}
-                            <div className="relative w-full lg:w-[60%] h-[200px] md:h-[260px] lg:h-[300px]">
-                                <Image
-                                    // src={item.subcategoryImage}
-                                    src={`/img/medical-form/category/category${(index % 3) + 1}.png`}
-                                    alt={item.name}
-                                    fill
-                                    className={`object-contain ${isReverse ? 'lg:object-left' : 'lg:object-right'
-                                        } object-center`}
-                                    priority
-                                    unoptimized
-                                />
+                                {/* IMAGE */}
+                                <div className="relative w-full lg:w-[60%] h-[200px] md:h-[260px] lg:h-[300px]">
+                                    <Image
+                                        // src={item.subcategoryImage}
+                                        src={`/img/medical-form/category/category${(index % 3) + 1}.png`}
+                                        alt={item.name}
+                                        fill
+                                        className={`object-contain ${isReverse ? 'lg:object-left' : 'lg:object-right'
+                                            } object-center`}
+                                        priority
+                                        unoptimized
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    )
-                })}
+                        )
+                    })
+                ) : (
+                    <div className="text-center py-10 text-gray-500">
+                        No categories found.
+                    </div>
+                )}
             </div>
         </section>
     )

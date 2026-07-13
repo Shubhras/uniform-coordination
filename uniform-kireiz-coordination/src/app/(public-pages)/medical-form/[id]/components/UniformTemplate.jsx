@@ -128,10 +128,12 @@ const UniformTemplate = () => {
 
                 {/* HEADER */}
                 <div className="text-center mb-10">
-                    <h2 className="text-[#1C2C56] lg:text-4xl md:text-3xl text-2xl font-semibold">
-                        Popular Medical Uniform Templates
-                    </h2>
-                    <div className="w-24 h-1 rounded-full bg-[#1C2C56] mx-auto mt-2" />
+                    <div className="inline-flex flex-col items-end">
+                        <h2 className="text-[#1C2C56] md:text-3xl text-2xl font-semibold">
+                            Popular Medical Uniform Templates
+                        </h2>
+                        <div className="w-[180px] md:w-[270px] h-[3px] bg-[#87CEEB] mt-2" />
+                    </div>
                     <p className="text-[#6B7280] text-sm mt-4 max-w-xl mx-auto">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
                         eiusmod tempor incididunt ut labore et
@@ -159,11 +161,11 @@ const UniformTemplate = () => {
                                 <div
                                     key={i}
                                     className="
-            bg-white
-            border border-[#E3E8F1]
-            rounded-[18px]
-            shadow-sm
-          "
+                                        bg-white
+                                        border border-[#E3E8F1]
+                                        rounded-[18px]
+                                        shadow-sm
+                                    "
                                 >
                                     {/* IMAGE (UNCHANGED) */}
                                     <div className="relative w-full h-[220px] overflow-hidden rounded-t-[18px]">
@@ -187,7 +189,7 @@ const UniformTemplate = () => {
                                             ))}
                                         </ul>
 
-                                        <button className="w-full mt-3 bg-[#1C2C56] text-white py-2 rounded-md text-sm font-medium">
+                                        <button className="w-full mt-3 bg-[#1C4FA8] text-white py-2 rounded-md text-sm font-medium">
                                             Use Template
                                         </button>
                                     </div>

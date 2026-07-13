@@ -20,6 +20,7 @@ const MedicalHome = () => {
     const setSchema = useTheme((state) => state.setSchema)
     const { id } = useParams();
     const [categoryData, setCategoryData] = useState([]);
+    const [subCategoryData, setSubCategoryData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [activeFilter, setActiveFilter] = useState(filters[0]);
     const [sortBy, setSortBy] = useState(sortOptions[0]);
@@ -30,7 +31,8 @@ const MedicalHome = () => {
             try {
                 const res = await apiCategoryById(id, activeFilter.id, sortBy.id);
                 if (res?.status) {
-                    setCategoryData(res.data);
+                    setSubCategoryData(res.data);
+                    setCategoryData(res.category);
                 }
             } catch (err) {
                 console.error("Failed to load category detail", err);
@@ -44,18 +46,19 @@ const MedicalHome = () => {
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }
-    console.log(categoryData)
+    //console.log(categoryData)
 
     return (
         <main className="text-base bg-white dark:bg-gray-900">
             <HaederPage toggleMode={toggleMode} mode={mode} />
-            <HeroContent />
-            <CategorySection 
-                data={categoryData || []} 
+            <HeroContent categoryData={categoryData || []} />
+            <CategorySection
+                subCategoryData={subCategoryData || []}
                 activeFilter={activeFilter}
                 setActiveFilter={setActiveFilter}
                 sortBy={sortBy}
                 setSortBy={setSortBy}
+                loading={loading}
             />
             <UniformTemplate />
             <ProfessionalSection />

@@ -92,7 +92,7 @@ const UniformLatestFAQPosts = ({ faqs = [], loading }) => {
   return (
     <section className="px-5 py-16 bg-white">
       <div className="text-center mb-14">
-        <h2 className="text-4xl font-semibold text-[#1C2C56]">FAQ’s</h2>
+        <h2 className="text-3xl md:text-3xl font-semibold text-[#1C2C56]">FAQ’s</h2>
       </div>
 
       <div className="max-w-7xl mx-auto space-y-6">
