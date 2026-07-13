@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: uniform-mysql
+    restart: unless-stopped
+
+    environment:
+      MYSQL_DATABASE: uniform_db
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_USER: uniformuser
+      MYSQL_PASSWORD: uniformpass
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot123"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: uniform-backend
+    restart: unless-stopped
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    command: >
+      sh -c "
+      python manage.py runserver 0.0.0.0:8000
+      "
+
+    volumes:
+      - .:/app
+
+    environment:
+      DB_NAME: uniform_db
+      DB_USER: uniformuser
+      DB_PASSWORD: uniformpass
+      DB_HOST: mysql
+      DB_PORT: "3306"
+
+      STRIPE_SECRET_KEY: test
+      STRIPE_PUBLISHABLE_KEY: test
+      STRIPE_WEBHOOK_SECRET: test
+
+    ports:
+      - "8000:8000"
+
+volumes:
+  mysql_data:
