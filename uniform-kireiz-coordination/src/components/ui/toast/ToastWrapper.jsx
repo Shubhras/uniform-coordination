@@ -44,20 +44,21 @@ const useMessages = (msgKey) => {
 
     const remove = useCallback(
         (key) => {
-            setMessages(
-                messages.map((elm) => {
-                    if (elm.key === getKey(key)) {
-                        elm.visible = false
+            const targetKey = getKey(key)
+            setMessages((prevMessages) =>
+                prevMessages.map((elm) => {
+                    if (elm.key === targetKey) {
+                        return { ...elm, visible: false }
                     }
                     return elm
-                }),
+                })
             )
 
             setTimeout(() => {
-                setMessages(messages.filter((msg) => msg.visible))
+                setMessages((prevMessages) => prevMessages.filter((msg) => msg.visible))
             }, 50)
         },
-        [messages, getKey],
+        [getKey],
     )
 
     return { messages, push, removeAll, remove }
@@ -120,7 +121,7 @@ const ToastWrapper = (props) => {
 
     return (
         <div
-            style={placementTransition.default}
+            style={{ ...placementTransition.default, zIndex: 9999 }}
             {...rest}
             ref={(thisRef) => {
                 rootRef.current = thisRef

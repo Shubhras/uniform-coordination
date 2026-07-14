@@ -12,6 +12,7 @@ const Uniforms = () => {
     const { id } = useParams()
 
     const handleUniformDesigning = (id) => {
+        // product id 
         router.push(`/dashboards/uniform-single/${id}`);
     };
 

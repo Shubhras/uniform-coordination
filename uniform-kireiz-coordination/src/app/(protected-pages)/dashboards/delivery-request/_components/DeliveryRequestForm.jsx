@@ -258,7 +258,7 @@ const DeliveryRequestForm = () => {
                                     <Checkbox {...field}>
                                         I agree to privacy
                                         <span
-                                            className="text-blue-500 cursor-pointer ml-2"
+                                            className="text-[#87CEEB] cursor-pointer ml-2"
                                             onClick={openDialogTerms}
                                         >
                                             policy & terms
@@ -272,7 +272,7 @@ const DeliveryRequestForm = () => {
                             type="submit"
                             variant="solid"
                             loading={isSubmitting}
-                            className="w-full mt-4 bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-3"
+                            className="w-full mt-4 bg-[#1C4FA8] hover:bg-[#1C4FA8] text-white py-3"
                         >
                             Request a Quote
                         </Button>
