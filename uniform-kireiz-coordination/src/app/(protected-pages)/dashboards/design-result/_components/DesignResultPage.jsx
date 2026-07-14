@@ -30,9 +30,12 @@ import {
     FiLayers,
     FiArchive,
 } from "react-icons/fi"
-import { useRouter, useSearchParams } from 'next/navigation'
-import { apiSaveDesign, apiExportDesignPdf, apiGetModalInfo } from '@/services/SaveDesignService'
+import { useRouter, useParams } from 'next/navigation'
+import { apiUpadteDesign, apiExportDesignPdf, apiGetModalInfo } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
+import Notification from '@/components/ui/Notification'
+import toast from '@/components/ui/toast'
+import Spinner from '@/components/ui/Spinner'
 
 const iconMap = {
     "Cut Style": FiScissors,
@@ -45,12 +48,13 @@ const iconMap = {
 }
 const DesignResultPage = () => {
     const router = useRouter();
+    const [isSaving, setIsSaving] = useState(false);
     const [dialogTermsOpen, setDialogTermsOpen] = useState(false);
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false);
     const { data: session } = useSession()
     // console.log("session", session)
-    const searchParams = useSearchParams()
-    const id = searchParams.get('id')
+    const params = useParams()
+    const id = params?.id
 
     useEffect(() => {
         const fetchModalInfo = async () => {
@@ -130,10 +134,11 @@ const DesignResultPage = () => {
     }
     const handleSaveDesign = async () => {
         if (!session?.accessToken) return
+        setIsSaving(true);
 
         const payload = {
             "user": session?.user?.id,
-            "model_info": id,
+            // "model_info": id,
             "config_json": {
                 "color": "grey",
                 "size": "M",
@@ -149,26 +154,40 @@ const DesignResultPage = () => {
         }
 
         try {
-            const response = await apiSaveDesign(payload, session.accessToken);
+            const response = await apiUpadteDesign(id, payload, session.accessToken);
             console.log("Design Saved Successfully:", response);
-            alert("Design saved successfully");
+            toast.push(
+                <Notification title="Success!" type="success">
+                    Design saved successfully
+                </Notification>
+            );
         } catch (error) {
             console.error("Save Design Error:", error);
-            alert("Failed to save design");
+            toast.push(
+                <Notification title="Error!" type="danger">
+                    Failed to save design
+                </Notification>
+            );
+        } finally {
+            setIsSaving(false);
         }
     };
 
 
     const handleExportPdf = async () => {
         if (!session?.accessToken) {
-            alert("Please login first");
+            toast.push(
+                <Notification title="Warning!" type="warning">
+                    Please login first
+                </Notification>
+            );
             return;
         }
 
         try {
             const userId = session?.user?.id;
             const response = await apiExportDesignPdf(
-                userId,
+                id,
                 session.accessToken
             );
             const pdfUrl = response?.pdf_url;
@@ -180,7 +199,11 @@ const DesignResultPage = () => {
 
         } catch (error) {
             console.error("Export PDF Error:", error);
-            alert("Failed to export PDF");
+            toast.push(
+                <Notification title="Error!" type="danger">
+                    Failed to export PDF
+                </Notification>
+            );
         }
     };
 
@@ -274,10 +297,11 @@ const DesignResultPage = () => {
                                 {/* Save Design */}
                                 <button
                                     onClick={handleSaveDesign}
-                                    className="w-full sm:w-auto flex-1 flex flex-col items-center justify-center gap-2 text-xs border border-[#E5E7EB] rounded-lg bg-[#F7FBFF] text-[#1C2C56] hover:bg-[#EEF5FF] transition py-2 h-[55px]"
+                                    disabled={isSaving}
+                                    className={`w-full sm:w-auto flex-1 flex flex-col items-center justify-center gap-2 text-xs border border-[#E5E7EB] rounded-lg bg-[#F7FBFF] text-[#1C2C56] hover:bg-[#EEF5FF] transition py-2 h-[55px] ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                    <FiSave size={18} />
-                                    <span>Save Design</span>
+                                    {isSaving ? <Spinner size={18} /> : <FiSave size={18} />}
+                                    <span>{isSaving ? 'Saving...' : 'Save Design'}</span>
                                 </button>
                                 {/* Export PDF */}
                                 <button onClick={handleExportPdf}

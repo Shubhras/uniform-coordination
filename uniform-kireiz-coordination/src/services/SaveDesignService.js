@@ -23,6 +23,18 @@ export async function apiSaveDesign(data, token) {
     },
   });
 }
+export async function apiUpadteDesign(id, data, token) {
+
+  console.log("apiUpadteDesign", id, data);
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/userhub/customupdatemodels/${id}/update/`,
+    method: "put",
+    data,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
 
 export async function apiExportDesignPdf(id, token) {
   return ApiService.fetchDataWithAxios({
@@ -36,7 +48,7 @@ export async function apiExportDesignPdf(id, token) {
 }
 
 
-export async function apiGetModalInfo(token, id) {
+export async function apiGetModalInfo(id, token) {
   return ApiService.fetchDataWithAxios({
     url: `/v1/userhub/customupdatemodels/${id}/get/`,
     responseType: "json",

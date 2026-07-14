@@ -55,13 +55,7 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
             isOpen={isOpen}
             onClose={onClose}
             onRequestClose={onClose}
-            className="
-                w-full
-                max-w-[800px]
-                mx-4
-                sm:mx-auto
-            "
-            style={{ minWidth: '550px' }}
+            width={800}
         >
             <div className="
                 flex
@@ -133,8 +127,8 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
                         variant="solid"
                         className="
                             w-full sm:w-auto
-                            bg-[#1C2C56]
-                            hover:bg-[#1C2C56]
+                            bg-[#1C4FA8]
+                            hover:bg-[#1C4FA8]
                             text-white
                             px-10
                             py-2

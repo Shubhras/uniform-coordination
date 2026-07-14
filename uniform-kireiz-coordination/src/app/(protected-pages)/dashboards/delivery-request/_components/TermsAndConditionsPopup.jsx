@@ -7,19 +7,14 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
             isOpen={isOpen}
             onClose={onClose}
             onRequestClose={onClose}
-            className="
-                w-full
-                max-w-[800px]
-                mx-4
-                sm:mx-auto
-            "
+            width={800}
         >
-            <div className="flex flex-col h-full max-h-[90vh]">
+            <div className="flex flex-col h-full max-h-[90vh] min-h-[400px]">
 
                 {/* HEADER */}
                 <div className="
                     relative
-                    px-4 sm:px-6
+                    px-16 sm:px-16
                     pt-5 pb-4
                     border-b
                     flex

@@ -12,7 +12,7 @@ import UniformCanvas from './UniformCanvas'
 import { controlsApi } from './UniformCanvas'
 import { uniformState } from './uniformStore'
 import { FiChevronRight, FiChevronDown } from "react-icons/fi";
-import { apiModelInfoCreate } from '@/services/SaveDesignService'
+import { apiModelInfoCreate, apiSaveDesign } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -236,6 +236,7 @@ const Uniform3DmoduleDegisn = () => {
   // const [cameraHistory, setCameraHistory] = useState([]);
   // const [redoStack, setRedoStack] = useState([]);
   // // const [mounted, setMounted] = useState(false)
+  const [isSaving, setIsSaving] = useState(false);
   const panelRef = useRef(null)
 
   useEffect(() => {
@@ -299,49 +300,6 @@ const Uniform3DmoduleDegisn = () => {
     controlsApi.redo()
   }
 
-  const handleUniformDesignResult = async () => {
-    console.log("FINAL DESIGN JSON:", designJSON);
-    //router.push("/dashboards/design-result?id=5");
-
-    setIsSubmitting(true);
-
-    const formData = new FormData();
-    formData.append("product", id || "");
-    formData.append("model_file", ""); // Send empty or file object
-    formData.append("description", "School uniform 3D model");
-
-    try {
-      const response = await apiModelInfoCreate(formData, session?.accessToken);
-      console.log("Design create Successfully:", response);
-
-      if (response?.status) {
-        toast.push(
-          <Notification title="Success!" type="success">
-            {response.message || "3D model information created successfully"}
-          </Notification>
-        );
-
-        router.push(`/dashboards/design-result?id=${response.data?.id}`);
-      } else {
-        toast.push(
-          <Notification title="Error!" type="danger">
-            {response?.message || "Failed to save design"}
-          </Notification>
-        );
-      }
-
-    } catch (error) {
-      console.error("Save Design Error:", error);
-      toast.push(
-        <Notification title="Error!" type="danger">
-          Something went wrong.
-        </Notification>
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-
-  };
   const [position, setPosition] = useState("top"); // top | bottom
 
   const COMMON_BUTTONS = ["color", "size"];
@@ -368,6 +326,96 @@ const Uniform3DmoduleDegisn = () => {
 
 
   const [showDropdown, setShowDropdown] = useState(false);
+  const handleUniformDesignResult = async () => {
+    console.log("FINAL DESIGN JSON:", designJSON);
+
+    setIsSubmitting(true);
+
+    const formData = new FormData();
+    formData.append("product", id || "");
+    formData.append("model_file", ""); // Send empty or file object
+    formData.append("description", "School uniform 3D model");
+
+    try {
+      const response = await apiModelInfoCreate(formData, session?.accessToken);
+      // console.log("Design create Successfully:", response);
+
+      if (response?.status) {
+        // toast.push(
+        //   <Notification title="Success!" type="success">
+        //     {response.message || "3D model information created successfully"}
+        //   </Notification>
+        // );
+        handleSaveDesign(response.data?.id);
+      } else {
+        toast.push(
+          <Notification title="Error!" type="danger">
+            {response?.message || "Failed to save design"}
+          </Notification>
+        );
+      }
+
+    } catch (error) {
+      console.error("Save Design Error:", error);
+      toast.push(
+        <Notification title="Error!" type="danger">
+          Something went wrong.
+        </Notification>
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+
+  };
+
+
+
+  const handleSaveDesign = async (modelId) => {
+    if (!session?.accessToken) return
+    setIsSaving(true);
+
+    const payload = {
+      "user": session?.user?.id,
+      "model_info": modelId,
+      "config_json": {
+        "color": "grey",
+        "size": "M",
+        "material": "cotton"
+      },
+      "design_specifications": {
+        "logo_position": "front",
+        "print_type": "embroidery",
+        "text": "My Brand"
+      },
+      "json_file_path": "uploads/configs/user6_model3.json",
+      "isActive": true
+    }
+
+    try {
+      const response = await apiSaveDesign(payload, session.accessToken);
+      console.log("Design Saved Successfully:", response);
+      toast.push(
+        <Notification title="Success!" type="success">
+          Design saved successfully
+        </Notification>
+      );
+      // custum upadte id
+      const id = response?.data?.id;
+      // Redirect to result page
+      router.push(`/dashboards/design-result/${id}`);
+
+    } catch (error) {
+      console.error("Save Design Error:", error);
+      toast.push(
+        <Notification title="Error!" type="danger">
+          Failed to save design
+        </Notification>
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
 
   return (
     <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-11 ">
@@ -831,7 +879,7 @@ const Uniform3DmoduleDegisn = () => {
               <Button
                 type="submit"
                 variant="solid"
-                loading={isSubmitting}
+                loading={isSubmitting || isSaving}
                 className="w-full h-10 ml-10 mt-8 bg-[#1C4FA8] hover:bg-[#1C4FA8] text-white py-2" onClick={handleUniformDesignResult}
               >
                 Confirm Design
