@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 
 const HeroContent = ({ categoryData }) => {
     const router = useRouter()
+    console.log("🚀 ~ categoryData:", categoryData)
 
     return (
         // <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12">
@@ -104,15 +105,18 @@ const HeroContent = ({ categoryData }) => {
                         {/* LEFT WHITE CARD */}
                         <div className="absolute left-0  w-[45%] z-0 -bottom-10">
                             <div className="bg-gradient-to-r to-[#dce4f7] from-white rounded-tl-[60px] rounded-tr-[60px] rounded-br-[60px] px-16 py-40 shadow-[0_30px_80px_rgba(28,44,86,0.15)]">
-
-                                <h1 className="text-[#1C2C56] text-5xl font-bold leading-tight mb-4">
+                                {/* <h1 className="text-[#1C2C56] text-5xl font-bold leading-tight mb-4">
                                     Medical Care <br /> Uniforms
                                 </h1>
-
                                 <p className="text-[#6B7280] text-base mb-6 font-medium max-w-md">
                                     Professional, hygienic, and comfortable uniforms for healthcare excellence
+                                </p> */}
+                                <h1 className="text-[#1C2C56] text-5xl font-bold leading-tight mb-4">
+                                    {categoryData?.categoryName}
+                                </h1>
+                                <p className="text-[#6B7280] text-base mb-6 font-medium max-w-md">
+                                    {categoryData?.description}
                                 </p>
-
                                 <button
                                     onClick={() => router.push("/kireiz-form")}
                                     className="bg-[#1C2C56] text-white px-6 py-3 rounded-md text-sm font-medium w-fit"
@@ -148,11 +152,10 @@ const HeroContent = ({ categoryData }) => {
 
                         <div className="text-center px-2 pb-8">
                             <h1 className="text-[#1C2C56] text-3xl md:text-4xl font-bold mb-3">
-                                Medical Care Uniforms
+                                {categoryData?.categoryName}
                             </h1>
-
                             <p className="text-[#6B7280] text-sm md:text-base mb-5">
-                                Professional, hygienic, and comfortable uniforms for healthcare excellence
+                                {categoryData?.description}
                             </p>
 
                             <button

@@ -9,5 +9,12 @@ export async function apiCategoryById(id, filterId = "", sortId = "") {
   });
 }
 
+export async function apiGetTemplateByCategory(categoryId, search = "") {
+  let url = `/v1/uniformAdmin/templates/list/?category_id=${categoryId}&search=${search}`;
 
+  return ApiService.fetchDataWithAxios({
+    url,
+    method: "get",
+  });
+}
 

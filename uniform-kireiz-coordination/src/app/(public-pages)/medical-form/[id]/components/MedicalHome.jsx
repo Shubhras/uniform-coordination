@@ -9,7 +9,7 @@ import UniformTemplate from './UniformTemplate'
 import HaederPage from '../../../header/HaederPage'
 import FooterPage from '../../../footer/FooterPage'
 import ChatbotSection from '../../../kireiz-form/components/ChatbotSection'
-import { apiCategoryById } from '@/services/CategoryService'
+import { apiCategoryById, apiGetTemplateByCategory } from '@/services/CategoryService'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 // import ChatbotSection from '../../chatbot-section/ChatbotSection'
@@ -24,6 +24,19 @@ const MedicalHome = () => {
     const [loading, setLoading] = useState(false);
     const [activeFilter, setActiveFilter] = useState(filters[0]);
     const [sortBy, setSortBy] = useState(sortOptions[0]);
+
+    useEffect(() => {
+        const fetchTemplates = async () => {
+            try {
+                const res = await apiGetTemplateByCategory(id);
+                console.log("Templates API Response:", res);
+            } catch (err) {
+                console.error("Failed to fetch templates", err);
+            }
+        };
+        
+        if (id) fetchTemplates();
+    }, [id]);
 
     useEffect(() => {
         const fetchCategory = async () => {
@@ -43,6 +56,8 @@ const MedicalHome = () => {
 
         if (id) fetchCategory();
     }, [id, activeFilter, sortBy]);
+
+
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }

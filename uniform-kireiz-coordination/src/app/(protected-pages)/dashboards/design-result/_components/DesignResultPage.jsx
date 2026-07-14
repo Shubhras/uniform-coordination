@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FormItem, Form } from '@/components/ui/Form'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
@@ -31,7 +31,7 @@ import {
     FiArchive,
 } from "react-icons/fi"
 import { useRouter, useSearchParams } from 'next/navigation'
-import { apiSaveDesign, apiExportDesignPdf } from '@/services/SaveDesignService'
+import { apiSaveDesign, apiExportDesignPdf, apiGetModalInfo } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
 
 const iconMap = {
@@ -48,9 +48,23 @@ const DesignResultPage = () => {
     const [dialogTermsOpen, setDialogTermsOpen] = useState(false);
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false);
     const { data: session } = useSession()
-    console.log("session", session)
+    // console.log("session", session)
     const searchParams = useSearchParams()
     const id = searchParams.get('id')
+
+    useEffect(() => {
+        const fetchModalInfo = async () => {
+            if (id && session?.accessToken) {
+                try {
+                    const res = await apiGetModalInfo(id, session.accessToken);
+                    console.log("Modal Info Response:", res);
+                } catch (err) {
+                    console.error("Failed to fetch Modal Info:", err);
+                }
+            }
+        };
+        fetchModalInfo();
+    }, [id, session?.accessToken]);
 
     const {
         handleSubmit,
@@ -117,28 +131,9 @@ const DesignResultPage = () => {
     const handleSaveDesign = async () => {
         if (!session?.accessToken) return
 
-        // const payload = {
-        //     user: session?.user?.id,
-        //     model_info: 7,
-        //     config_json: {
-        //         color: "Navy Blue",
-        //         size: "M",
-        //         material: "Polyester",
-        //     },
-        //     design_specifications: {
-        //         cut_style: "Modern Fit",
-        //         collar_type: "V-Neck Reinforced",
-        //         sleeve_length: "Short",
-        //         pocket_configuration: "1 Chest, 2 Lower Patch",
-        //         pant: "Straight Pant",
-        //     },
-        //     json_file_path: "uploads/configs/user7_model13.json",
-        //     isActive: true,
-        // };
-
         const payload = {
             "user": session?.user?.id,
-            "model_info": 8,
+            "model_info": id,
             "config_json": {
                 "color": "grey",
                 "size": "M",
@@ -162,38 +157,6 @@ const DesignResultPage = () => {
             alert("Failed to save design");
         }
     };
-
-    // const handleSaveDesign = async () => {
-    //     if (!session?.accessToken) return
-
-    //     const payload = {
-    //         user: session?.user?.id,
-    //         model_info: 13,
-    //         config_json: {
-    //             color: "Navy Blue",
-    //             size: "M",
-    //             material: "Polyester",
-    //         },
-    //         design_specifications: {
-    //             cut_style: "Modern Fit",
-    //             collar_type: "V-Neck Reinforced",
-    //             sleeve_length: "Short",
-    //             pocket_configuration: "1 Chest, 2 Lower Patch",
-    //             pant: "Straight Pant",
-    //         },
-    //         json_file_path: "uploads/configs/user7_model13.json",
-    //         isActive: true,
-    //     };
-
-    //     try { 
-    //         const response = await apiSaveDesign(payload);
-    //         console.log("Design Saved Successfully:", response);
-    //         alert("Design saved successfully");
-    //     } catch (error) {
-    //         console.error("Save Design Error:", error);
-    //         alert("Failed to save design");
-    //     }
-    // };
 
 
     const handleExportPdf = async () => {
@@ -318,21 +281,7 @@ const DesignResultPage = () => {
                                 </button>
                                 {/* Export PDF */}
                                 <button onClick={handleExportPdf}
-                                    className="
-      w-full sm:w-auto
-      flex-1
-      flex flex-col items-center justify-center
-      gap-2
-      text-xs
-      border border-[#E5E7EB]
-      rounded-lg
-      bg-[#F7FBFF]
-      text-[#1C2C56]
-      hover:bg-[#EEF5FF]
-      transition
-      py-2
-      h-[55px]
-    "
+                                    className="w-full sm:w-auto flex-1 flex flex-col items-center justify-center gap-2 text-xs border border-[#E5E7EB] rounded-lg bg-[#F7FBFF] text-[#1C2C56] hover:bg-[#EEF5FF] transition py-2 h-[55px]"
                                 >
                                     <FiFileText size={18} />
                                     <span>Export PDF</span>
@@ -340,17 +289,7 @@ const DesignResultPage = () => {
 
                                 {/* Next (larger on sm+) */}
                                 <button
-                                    className="
-      w-full sm:w-auto
-      flex-[2]
-      h-[55px]
-      bg-[#1C2C56]
-      text-white
-      px-12
-      py-4
-      rounded-md
-      flex items-center justify-center
-    "
+                                    className=" w-full sm:w-auto flex-[2] h-[55px] bg-[#1C4FA8] text-white px-12 py-4 rounded-md flex items-center justify-center"
                                     onClick={handleRedirect}
                                 >
                                     Next

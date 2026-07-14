@@ -88,8 +88,8 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
                         variant="solid"
                         className="
                             w-full sm:w-auto
-                            bg-[#1C2C56]
-                            hover:bg-[#1C2C56]
+                            bg-[#1C4FA8]
+                            hover:bg-[#1C4FA8]
                             text-white
                             px-10
                             py-2

@@ -7,12 +7,15 @@ import ColorPickerPopup from './ColorPickerPopup'
 // const SAMPLE_MODEL = '/img/3dmodels/doctor_uniform.glb'
 const FALLBACK_MODEL = '' //'https://modelviewer.dev/shared-assets/models/Astronaut.glb'
 import Button from '@/components/ui/Button';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import UniformCanvas from './UniformCanvas'
 import { controlsApi } from './UniformCanvas'
 import { uniformState } from './uniformStore'
 import { FiChevronRight, FiChevronDown } from "react-icons/fi";
-
+import { apiModelInfoCreate } from '@/services/SaveDesignService'
+import { useSession } from 'next-auth/react'
+import Notification from '@/components/ui/Notification'
+import toast from '@/components/ui/toast'
 
 const PANELS = {
   color: {
@@ -157,6 +160,10 @@ const PANELS = {
 };
 
 const Uniform3DmoduleDegisn = () => {
+  const { id } = useParams();
+  const { data: session } = useSession();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  //console.log("Current Product ID:", id);
   const [counts, setCounts] = useState({});
   const [designJSON, setDesignJSON] = useState({
     colors: {
@@ -292,9 +299,48 @@ const Uniform3DmoduleDegisn = () => {
     controlsApi.redo()
   }
 
-  const handleUniformDesignResult = () => {
+  const handleUniformDesignResult = async () => {
     console.log("FINAL DESIGN JSON:", designJSON);
-    router.push("/dashboards/design-result?id=5");
+    //router.push("/dashboards/design-result?id=5");
+
+    setIsSubmitting(true);
+
+    const formData = new FormData();
+    formData.append("product", id || "");
+    formData.append("model_file", ""); // Send empty or file object
+    formData.append("description", "School uniform 3D model");
+
+    try {
+      const response = await apiModelInfoCreate(formData, session?.accessToken);
+      console.log("Design create Successfully:", response);
+
+      if (response?.status) {
+        toast.push(
+          <Notification title="Success!" type="success">
+            {response.message || "3D model information created successfully"}
+          </Notification>
+        );
+
+        router.push(`/dashboards/design-result?id=${response.data?.id}`);
+      } else {
+        toast.push(
+          <Notification title="Error!" type="danger">
+            {response?.message || "Failed to save design"}
+          </Notification>
+        );
+      }
+
+    } catch (error) {
+      console.error("Save Design Error:", error);
+      toast.push(
+        <Notification title="Error!" type="danger">
+          Something went wrong.
+        </Notification>
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+
   };
   const [position, setPosition] = useState("top"); // top | bottom
 
@@ -308,9 +354,9 @@ const Uniform3DmoduleDegisn = () => {
     "zipper",
     "cuff",
   ];
-  const BOTTOM_ONLY_BUTTONS = [
-    "legy", "pants", "pocket", "aprons"
-  ];
+  // const BOTTOM_ONLY_BUTTONS = [
+  //   "legy", "pants", "pocket", "aprons"
+  // ];
 
   useEffect(() => {
     uniformState.active3dPart = "top";
@@ -330,7 +376,7 @@ const Uniform3DmoduleDegisn = () => {
           <div className="relative mb-2">
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="w-full flex items-center justify-between px-4 py-2 bg-[#1c2c56] text-white rounded-lg shadow text-sm"
+              className="w-full flex items-center justify-between px-4 py-2 bg-[#1C4FA8] text-white rounded-lg shadow text-sm"
             >
               {position === "top" ? "Top" : "Bottom"}
               <span className="text-lg">
@@ -646,21 +692,19 @@ const Uniform3DmoduleDegisn = () => {
                       {/* Counter */}
                       <div className="flex items-center gap-2 my-2">
                         <button
-                          onClick={() => increment(size)}
-                          className="font-bold text-lg border-r border-gray-300 px-2"
-                        >
-                          +
-                        </button>
-
-                        <span className="text-sm text-center px-2 ">
-                          {counts[size] || 0}
-                        </span>
-
-                        <button
                           onClick={() => decrement(size)}
                           className="text-[#1C2C56] px-2 font-bold text-lg border-l border-gray-300"
                         >
                           −
+                        </button>
+                        <span className="text-sm text-center px-2 ">
+                          {counts[size] || 0}
+                        </span>
+                        <button
+                          onClick={() => increment(size)}
+                          className="font-bold text-lg border-r border-gray-300 px-2"
+                        >
+                          +
                         </button>
                       </div>
                     </div>
@@ -696,7 +740,6 @@ const Uniform3DmoduleDegisn = () => {
 
             </div>
           )}
-
         </div>
 
         {/* CENTER MODEL VIEWER */}
@@ -788,18 +831,15 @@ const Uniform3DmoduleDegisn = () => {
               <Button
                 type="submit"
                 variant="solid"
-                className="w-full h-10 ml-10 mt-8 bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2" onClick={handleUniformDesignResult}
+                loading={isSubmitting}
+                className="w-full h-10 ml-10 mt-8 bg-[#1C4FA8] hover:bg-[#1C4FA8] text-white py-2" onClick={handleUniformDesignResult}
               >
                 Confirm Design
               </Button>
             </div>
-
           </div>
-
-
         </div>
       </div>
-
     </section>
   )
 }

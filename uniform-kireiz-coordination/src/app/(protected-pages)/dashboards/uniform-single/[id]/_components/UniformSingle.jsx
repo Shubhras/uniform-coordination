@@ -11,7 +11,7 @@ const sortOptions = ['Popular', 'Newest', 'Price: Low to High', 'Price: High to 
 
 const UniformSingle = () => {
     const { id } = useParams()
-    console.log(id)
+
     const [activeFilter, setActiveFilter] = useState('All')
     const [sortBy, setSortBy] = useState('Popular')
     const [openSort, setOpenSort] = useState(false)
@@ -55,7 +55,8 @@ const UniformSingle = () => {
 
 
     const handleUniformDesigning = () => {
-        router.push("/dashboards/uniform-3d-design");
+        // product id 
+        router.push(`/dashboards/uniform-3d-design/${id}`);
     };
     return (
         <section className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10 mt-15 ">
@@ -229,8 +230,8 @@ const UniformSingle = () => {
                             />
                             <div className="relative z-10">
                                 <Image
-                                    // src="/img/uniform/uniform.png"
-                                    src={product?.ProductImage || '/img/uniform/uniform.png'}
+                                    src="/img/uniform/uniform.png"
+                                    // src={product?.ProductImage || '/img/uniform/uniform.png'}
                                     alt="Uniform"
                                     width={450}
                                     height={800}
