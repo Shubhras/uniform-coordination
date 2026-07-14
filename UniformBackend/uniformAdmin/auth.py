@@ -8,7 +8,7 @@ from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, Bl
 from django.db import transaction
 from django.utils import timezone
 from django.contrib.auth.tokens import default_token_generator
-from .models import AdminUser
+from .models import AdminUser, Menu, RoleMenuPermission, RoleSubMenuPermission
 from .serializers import *
 from rest_framework.views import APIView
 from rest_framework.permissions import BasePermission
@@ -151,97 +151,68 @@ class MultiRoleJWTAuth(BaseAuthentication):
 
         return (user, token)
 
-# class LoginAPIView(APIView):
-#     authentication_classes = []
-#     permission_classes = []
-
-#     def post(self, request):
-#         serializer = AdminLoginSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-
-#         user = serializer.validated_data['user']
-
-#         remember_me = request.data.get("remember_me", False)
-
-#         refresh = RefreshToken.for_user(user)
-#         refresh["user_id"] = user.id
-#         refresh["role"] = "admin"
-
-#         if remember_me:
-#             refresh.set_exp(lifetime=timezone.timedelta(days=30))
-#             refresh.access_token.set_exp(lifetime=timezone.timedelta(days=30))
-#         else:
-#             refresh.set_exp(lifetime=timezone.timedelta(days=1))
-#             refresh.access_token.set_exp(lifetime=timezone.timedelta(hours=1))
-
-#         user.last_login = timezone.now()
-#         user.save(update_fields=["last_login"])
-
-#         return Response({
-#             "status": True,
-#             "statusCode": 200,
-#             "message": "Login successful",
-#             "data": {
-#                 "admin": {
-#                     "id": user.id,
-#                     "email": user.email,
-#                     "name": user.name,
-#                     "role": user.role.role_name if user.role else None
-#                 },
-#                 "access_token": str(refresh.access_token),
-#                 "refresh_token": str(refresh)
-#             }
-#         }, status=status.HTTP_200_OK)
 
 
-# class LoginAPIView(APIView):
-#     authentication_classes = []
-#     permission_classes = []
 
-#     def post(self, request):
-#         serializer = AdminLoginSerializer(data=request.data)
+class AdminSignupAPIView(APIView):
+    authentication_classes = []
+    permission_classes = []
 
-#         if not serializer.is_valid():
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 400,
-#                 "message": "Validation error",
-#                 "errors": serializer.errors
-#             }, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(
+        tags=["Admin Authentication"],
+        summary="Admin Signup",
+        description="Register a new admin user.",
+        request=AdminSignupSerializer,
+        responses={
+            201: OpenApiResponse(
+                description="Signup successful",
+                examples=[
+                    OpenApiExample(
+                        "Success",
+                        value={
+                            "status": True,
+                            "statusCode": 201,
+                            "message": "Admin user registered successfully",
+                            "data": {
+                                "id": 1,
+                                "email": "admin@example.com",
+                                "name": "Admin User",
+                                "role": "admin"
+                            }
+                        }
+                    )
+                ]
+            ),
+            400: OpenApiResponse(description="Invalid input or validation error")
+        }
+    )
+    def post(self, request):
+        serializer = AdminSignupSerializer(data=request.data)
+        if not serializer.is_valid():
+            errors = serializer.errors
+            first_error = None
 
-#         user = serializer.validated_data["user"]
+            if isinstance(errors, dict):
+                for key, value in errors.items():
+                    if isinstance(value, list) and value:
+                        first_error = value[0]
+                        break
 
-#         remember_me = request.data.get("remember_me", False)
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": first_error or "Invalid input",
+                "errors": errors
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-#         refresh = RefreshToken.for_user(user)
-#         refresh["user_id"] = user.id
-#         refresh["role"] = "admin"
-
-#         if remember_me:
-#             refresh.set_exp(lifetime=timezone.timedelta(days=30))
-#             refresh.access_token.set_exp(lifetime=timezone.timedelta(days=30))
-#         else:
-#             refresh.set_exp(lifetime=timezone.timedelta(days=1))
-#             refresh.access_token.set_exp(lifetime=timezone.timedelta(hours=1))
-
-#         user.last_login = timezone.now()
-#         user.save(update_fields=["last_login"])
-
-#         return Response({
-#             "status": True,
-#             "statusCode": 200,
-#             "message": "Login successful",
-#             "data": {
-#                 "admin": {
-#                     "id": user.id,
-#                     "email": user.email,
-#                     "name": user.name,
-#                     "role": user.role.role_name if user.role else None
-#                 },
-#                 "access_token": str(refresh.access_token),
-#                 "refresh_token": str(refresh)
-#             }
-#         }, status=status.HTTP_200_OK)
+        user = serializer.save()
+        response_serializer = AdminDetailSerializer(user)
+        return Response({
+            "status": True,
+            "statusCode": 201,
+            "message": "Admin user registered successfully",
+            "data": response_serializer.data
+        }, status=status.HTTP_201_CREATED)
 
 
 
@@ -279,8 +250,10 @@ class AdminLoginAPIView(APIView):
                                 "id": 1,
                                 "email": "admin@example.com",
                                 "name": "Admin User",
-                                "role": "admin"
+                                "role": "admin",
+                                "permissions": []
                             },
+                            "permissions": [],
                             "access_token": "jwt-access-token",
                             "refresh_token": "jwt-refresh-token"
                         }
@@ -330,6 +303,43 @@ class AdminLoginAPIView(APIView):
         user.is_currently_login = True
         user.save(update_fields=["last_login","is_currently_login"])
 
+        # Fetch menu/submenu permissions for user's role
+        role = user.role
+        permissions_list = []
+        if role:
+            allowed_menu_ids = RoleMenuPermission.objects.filter(
+                role=role, can_view=True
+            ).values_list("menu_id", flat=True)
+
+            allowed_submenu_ids = RoleSubMenuPermission.objects.filter(
+                role=role, can_view=True
+            ).values_list("submenu_id", flat=True)
+
+            menus = Menu.objects.filter(
+                id__in=allowed_menu_ids, isDeleted=False, isActive=True
+            ).order_by("order")
+
+            for menu in menus:
+                submenus_list = []
+                for sub in menu.submenus.filter(
+                    id__in=allowed_submenu_ids, isDeleted=False, isActive=True
+                ).order_by("order"):
+                    submenus_list.append({
+                        "id": sub.id,
+                        "name": sub.name,
+                        "slug": sub.slug,
+                        "route": sub.route
+                    })
+                
+                permissions_list.append({
+                    "id": menu.id,
+                    "name": menu.name,
+                    "slug": menu.slug,
+                    "icon": menu.icon,
+                    "route": menu.route,
+                    "submenus": submenus_list
+                })
+
         return Response({
             "status": True,
             "statusCode": 200,
@@ -339,8 +349,10 @@ class AdminLoginAPIView(APIView):
                     "id": user.id,
                     "email": user.email,
                     "name": user.name,
-                    "role": user.role.role_name if user.role else None
+                    "role": user.role.role_name if user.role else None,
+                    # "permissions": permissions_list
                 },
+                "permissions": permissions_list,
                 "access_token": str(refresh.access_token),
                 "refresh_token": str(refresh)
             }
@@ -532,61 +544,147 @@ class LogoutAPIView(APIView):
             "message": "Logout successful"
         }, status=status.HTTP_200_OK)
 
+# class ForgotPasswordAPIView(APIView):
+#     authentication_classes = []
+#     permission_classes = []
+
+#     @extend_schema(
+#     tags=["Admin Authentication"],
+#     summary="Forgot Password",
+#     description="Send password reset link to admin email.",
+#     request={
+#         "application/json": {
+#             "type": "object",
+#             "properties": {
+#                 "email": {"type": "string", "example": "admin@example.com"}
+#             },
+#             "required": ["email"]
+#         }
+#     },
+#     responses={
+#         200: OpenApiResponse(description="Reset link sent"),
+#         400: OpenApiResponse(description="Email required"),
+#         404: OpenApiResponse(description="User not found")
+#     }
+# )
+#     def post(self, request):
+#         email = request.data.get("email")
+#         type = request.data.get("type")
+
+#         if not email:
+#             return Response({
+#                 "statusCode":400,
+#                 "status":False,
+#                 "message":"Email required.",
+#             },status=status.HTTP_400_BAD_REQUEST)
+#         try:
+#             user = AdminUser.objects.get(email=email, is_active=True)
+#         except AdminUser.DoesNotExist:
+#             return Response({"status": False, "message": "User not found"}, status=404)
+
+#         token = PasswordResetTokenGenerator().make_token(user)
+#         reset_link = f"http://23.23.88.239:7001/reset-password/?user_id={user.id}&token={token}"
+
+#         # ASYNC EMAIL
+#         Thread(
+#             target=send_reset_email,
+#             args=(
+#                 "Reset Your Password",
+#                 f"Click the link to reset password:\n{reset_link}",
+#                 user.email,
+#             ),
+#         ).start()
+
+#         return Response({
+#             "status": True,
+#             "message": "Password reset link sent"
+#         }, status=200)
+
 class ForgotPasswordAPIView(APIView):
     authentication_classes = []
     permission_classes = []
 
     @extend_schema(
-    tags=["Admin Authentication"],
-    summary="Forgot Password",
-    description="Send password reset link to admin email.",
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "email": {"type": "string", "example": "admin@example.com"}
-            },
-            "required": ["email"]
+        tags=["Admin Authentication"],
+        summary="Forgot Password",
+        description="Send password reset link to admin email.",
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "email": {"type": "string", "example": "admin@example.com"},
+                    "type": {
+                        "type": "string",
+                        "example": "uniform",
+                        "enum": ["uniform", "table"]
+                    }
+                },
+                "required": ["email", "userType"]
+            }
+        },
+        responses={
+            200: OpenApiResponse(description="Reset link sent"),
+            400: OpenApiResponse(description="Invalid request"),
+            404: OpenApiResponse(description="User not found")
         }
-    },
-    responses={
-        200: OpenApiResponse(description="Reset link sent"),
-        400: OpenApiResponse(description="Email required"),
-        404: OpenApiResponse(description="User not found")
-    }
-)
+    )
     def post(self, request):
         email = request.data.get("email")
+        user_type = request.data.get("userType")
 
         if not email:
             return Response({
-                "statusCode":400,
-                "status":False,
-                "message":"Email required.",
-            },status=status.HTTP_400_BAD_REQUEST)
+                "statusCode": 400,
+                "status": False,
+                "message": "Email is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not user_type:
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "message": "userType is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             user = AdminUser.objects.get(email=email, is_active=True)
         except AdminUser.DoesNotExist:
-            return Response({"status": False, "message": "User not found"}, status=404)
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "User not found."
+            }, status=status.HTTP_404_NOT_FOUND)
 
         token = PasswordResetTokenGenerator().make_token(user)
-        reset_link = f"http://23.23.88.239:7001/reset-password/?uid={user.id}&token={token}"
 
-        # ASYNC EMAIL
+        # Generate frontend URL based on type
+        if user_type.lower() == "uniform":
+            base_url = "http://23.23.88.239:7002"
+        elif user_type.lower() == "table":
+            base_url = "http://23.23.88.239:7001"
+        else:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Invalid userType. Allowed values are 'uniform' or 'table'."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        reset_link = f"{base_url}/reset-password/?user_id={user.id}&token={token}"
+
         Thread(
             target=send_reset_email,
             args=(
                 "Reset Your Password",
-                f"Click the link to reset password:\n{reset_link}",
+                f"Click the link to reset your password:\n{reset_link}",
                 user.email,
             ),
         ).start()
 
         return Response({
             "status": True,
-            "message": "Password reset link sent"
-        }, status=200)
-
+            "statusCode": 200,
+            "message": "Password reset link sent successfully."
+        }, status=status.HTTP_200_OK)
 
 #<----------------------B2B--------------->
 # class AdminUserCreateAPIView(APIView):

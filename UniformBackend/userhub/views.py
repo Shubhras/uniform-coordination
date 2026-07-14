@@ -24,7 +24,7 @@ from uniformAdmin.models import *
 from rest_framework.permissions import AllowAny
 # from django.utils import timezone
 from django.db.models import Prefetch
-
+from rest_framework.authentication import BaseAuthentication
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
 from django.utils.http import urlsafe_base64_decode
@@ -39,79 +39,8 @@ from django.core.mail import EmailMessage
 from docusign_esign import EnvelopesApi, ApiClient
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-# class SignupAPIView(APIView):
-#     permission_classes=[AllowAny]
-#     def post(self, request, *args, **kwargs):
-#         # request.data._mutable = True
-#         # request.data["userType"] = request.data.get("userType")
-#         serializer = UserSignupSerializer(data=request.data)
-
-#         try:
-#             if serializer.is_valid():
-#                 user = serializer.save()
-                
-#                  # EMAIL VERIFICATION 
-#                 uid = urlsafe_base64_encode(force_bytes(user.id))                
-#                 verify_link = request.build_absolute_uri(f"/api/v1/userhub/verify-email/{uid}/")
-
-
-#                 send_mail(
-#                     subject="Verify your email",
-#                     message=f"Click here to verify your email, it's you:\n{verify_link}",
-#                     from_email=settings.EMAIL_HOST_USER,
-#                     recipient_list=[user.email],
-#                     fail_silently=False
-#                 )
-
-#                 # Serialize full safe user response
-#                 response_data = UserResponseSerializer(
-#                     user,
-#                     context={'request': request}
-#                 ).data
-
-#                 # Convert profileImage to full URL
-#                 if user.profileImage:
-#                     response_data["profileImage"] = request.build_absolute_uri(user.profileImage.url)
-
-#                 return Response({
-#                     "status": True,
-#                     "statusCode": 201,
-#                     "message": "User created successfully.",
-#                     "data": response_data
-#                 }, status=status.HTTP_201_CREATED)
-
-#             else:
-
-#                 errors = serializer.errors
-#                 missing_fields = []
-
-#                 if isinstance(errors, dict):
-#                     for field, messages in errors.items():
-#                         if isinstance(messages, list) and messages:
-#                             # collect fields with "required" error
-#                             if "required" in messages[0].lower():
-#                                 missing_fields.append(field)
-
-#                 if missing_fields:
-#                     fields_str = ", ".join(missing_fields)
-#                     error_message = f"Validation failed; {fields_str} : This field is required."
-#                 else:
-#                     error_message = "Validation failed."
-                                            
-#                 return Response({
-#                     "status": False,
-#                     "statusCode": 400,
-#                     "message": error_message
-#                 }, status=status.HTTP_400_BAD_REQUEST)
-
-#         except Exception as exc:
-#             logger.exception("Signup error")
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                     "message": "Server error while creating user.",
-#                 "error": str(exc)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+from uniformAdmin.utils import new_build_media_url
+from .tasks import send_login_alert_email_task
 
 
 class SignupAPIView(APIView):
@@ -134,8 +63,9 @@ class SignupAPIView(APIView):
                 send_registration_email(user)
                 
                  # EMAIL VERIFICATION 
-                uid = user.id  #urlsafe_base64_encode(force_bytes(user.id))                
-                verify_link = request.build_absolute_uri(f"http://localhost:7001/email-verification-page/?user_id={uid}")
+                uid = user.id  #urlsafe_base64_encode(force_bytes(user.id)) 
+                email = user.email               
+                verify_link = request.build_absolute_uri(f"http://localhost:7000/email-verification-page/?user_id={uid}&email={email}")
 
                 # EMAIL VERIFICATION
                 # uid = urlsafe_base64_encode(force_bytes(user.id))
@@ -164,7 +94,7 @@ class SignupAPIView(APIView):
                     {
                         "status": True,
                         "statusCode": 201,
-                        "message": "User created successfully.",
+                        "message": "Your account has been created successfully. Please check your email and verify your account to log in.",
                         "data": response_data,
                     },
                     status=status.HTTP_201_CREATED,
@@ -269,7 +199,12 @@ class UserLoginAPIView(APIView):
             user.lastLogin = now()
             # user.is_currently_login = True   #for get currently login 
             user.save()
-            send_login_alert_email(user)
+            # send_login_alert_email(user)
+            try:
+                send_login_alert_email_task.delay(user.id)
+                print("Task queued successfully")
+            except Exception as e:
+                print("Celery Error:", e)
 
             # ---------------------------------------------------------
             # CASE 1: NORMAL USER → call external custom token function
@@ -375,7 +310,10 @@ class GetProfileAPIView(APIView):
 
 
 
-class UpdateProfileAPIView(APIView):
+class CustomUserJWTAuthentication(BaseAuthentication):
+
+    def authenticate(self, request):
+        print("===== CustomUserJWTAuthentication =====")
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -388,6 +326,7 @@ class UpdateProfileAPIView(APIView):
     def put(self, request):
         try:
             user = request.user
+            print("userrrrrrrrrrrrrrrrrrrrrrrrrrr",user.id)
 
             allowed_fields = [
                 "firstName", "lastName", "phone",
@@ -447,7 +386,74 @@ class UpdateProfileAPIView(APIView):
             }, status=500)
 
 
+class userUpdateProfileAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Update Profile API",
+        request=UpdateProfileSerializer,
+        responses={200: UserResponseSerializer},
+        tags=["UserHub Authentication"],
+    )
+    def put(self, request):
+        try:
+            user = request.user
+
+            serializer = UpdateProfileSerializer(
+                user,
+                data=request.data,
+                partial=True
+            )
+
+            if not serializer.is_valid():
+                errors = serializer.errors
+                first_key = list(errors.keys())[0]
+                message = errors[first_key][0]
+
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": message
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer.save()
+
+            # Optional email verification update
+            if "is_verify" in request.data:
+                user.is_verify = bool(request.data.get("is_verify"))
+                user.save(update_fields=["is_verify"])
+
+            response_data = UserResponseSerializer(
+                user,
+                context={"request": request}
+            ).data
+
+            if user.profileImage:
+                response_data["profileImage"] = request.build_absolute_uri(
+                    user.profileImage.url
+                )
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Profile updated successfully.",
+                "data": response_data
+            }, status=status.HTTP_200_OK)
+
+        except IntegrityError:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Username already exists."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as exc:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Unable to update profile.",
+                "error": str(exc)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class DeleteProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -478,7 +484,7 @@ class DeleteProfileAPIView(APIView):
             }, status=500)
 
 
-class ForgotPasswordAPIView(APIView):
+class UserForgotPasswordAPIView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
 
@@ -547,7 +553,7 @@ class ForgotPasswordAPIView(APIView):
             user_id = user.id
 
             # Build reset link
-            frontend_url = "http://localhost:7001/reset-password"
+            frontend_url = "http://localhost:7000/reset-password"
             reset_link = f"{frontend_url}?user_id={user_id}"
 
             # -------------------------------
@@ -1447,7 +1453,8 @@ class ItemSummaryAPIView(APIView):
                 items.append({
                     "product_id": item.product.id,
                     "product_name": item.product.productName,
-                    "product_image": item.product.ProductImage.url if item.product.ProductImage else None,
+                    # "product_image": item.product.ProductImage.url if item.product.ProductImage else None,
+                    "product_image": new_build_media_url(item.product.ProductImage),
                     "quantity": item.quantity,
                     "unit_price": item.price,
                     "final_price": item.final_price,
@@ -1549,18 +1556,60 @@ class CreateOrderAPIView(APIView):
             elif customer_data:
                 customer = CustomerDetails.objects.filter(user=user, email=customer_data.get("email")).first()
                 if not customer:
+                    customer_data = data.get("customer")
+                    delivery = data.get("delivery_address", {})
+
                     customer = CustomerDetails.objects.create(
                         user=user,
                         email=customer_data.get("email"),
                         first_name=customer_data.get("first_name"),
                         last_name=customer_data.get("last_name"),
                         phone=customer_data.get("phone"),
-                        address_line_1=customer_data.get("address_line1"),
-                        address_line_2=customer_data.get("address_line2"),
-                        city=customer_data.get("city"),
-                        postal_code=customer_data.get("postal_code"),
-                        country=customer_data.get("country"),
+                        address_line_1=delivery.get("address_line_1"),
+                        address_line_2=delivery.get("address_line_2"),
+                        city=delivery.get("city"),
+                        postal_code=delivery.get("postal_code"),
+                        country=delivery.get("country"),
                     )
+                    
+                #     customer, created = CustomerDetails.objects.get_or_create(
+                #     user=user,
+                #     defaults={
+                #         "email": customer_data.get("email"),
+                #         "first_name": customer_data.get("first_name"),
+                #         "last_name": customer_data.get("last_name"),
+                #         "phone": customer_data.get("phone"),
+                #         "address_line_1": delivery.get("address_line1"),
+                #         "address_line_2": delivery.get("address_line2"),
+                #         "city": delivery.get("city"),
+                #         "postal_code": delivery.get("postal_code"),
+                #         "country": delivery.get("country"),
+                #     }
+                # )
+
+                # if not created:
+                #     customer.email = customer_data.get("email")
+                #     customer.first_name = customer_data.get("first_name")
+                #     customer.last_name = customer_data.get("last_name")
+                #     customer.phone = customer_data.get("phone")
+                #     customer.address_line_1 = delivery.get("address_line1")
+                #     customer.address_line_2 = delivery.get("address_line2")
+                #     customer.city = delivery.get("city")
+                #     customer.postal_code = delivery.get("postal_code")
+                #     customer.country = delivery.get("country")
+                #     customer.save()
+                    # customer = CustomerDetails.objects.create(
+                    #     user=user,
+                    #     email=customer_data.get("email"),
+                    #     first_name=customer_data.get("first_name"),
+                    #     last_name=customer_data.get("last_name"),
+                    #     phone=customer_data.get("phone"),
+                    #     address_line_1=customer_data.get("address_line1"),
+                    #     address_line_2=customer_data.get("address_line2"),
+                    #     city=customer_data.get("city"),
+                    #     postal_code=customer_data.get("postal_code"),
+                    #     country=customer_data.get("country"),
+                    # )
             else:
                 return Response({
                     "status": False,
@@ -1883,7 +1932,7 @@ class OrderDetailAPIView(APIView):
         },
         )
 
-    def get(self, request, order_id=None):
+    def post(self, request, order_id=None):
         order_id = request.data.get("order_id")
 
         if not order_id:

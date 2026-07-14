@@ -9,9 +9,9 @@ urlpatterns = [
     path('signup/', SignupAPIView.as_view(), name='user-signup'),
     path('login/', UserLoginAPIView.as_view(), name="user-login"),
     path("profile/", GetProfileAPIView.as_view(), name="get_profile"),
-    path("profile/update/", UpdateProfileAPIView.as_view(), name="update_profile"),
+    path("profile/update/", userUpdateProfileAPIView.as_view(), name="update_profile"),
     path("profile/delete/", DeleteProfileAPIView.as_view(), name="delete_profile"),
-    path("forgot-password/", ForgotPasswordAPIView.as_view(), name="forgot_password"),
+    path("forgot-password/", UserForgotPasswordAPIView.as_view(), name="forgot_password"),
     path("reset-password/", ResetPasswordAPIView.as_view(), name="reset_password"),
     path("update-password/", UpdatePasswordAPIView.as_view(), name="update-password"),
     path("verify-user/", VerifyUserAPIView.as_view(), name="verify-user"),
@@ -60,6 +60,7 @@ urlpatterns = [
     path("create/order/",CreateOrderAPIView.as_view()),
     path('order/summary/<str:order_id>/',OrderSummaryAPIView.as_view(), name='order-summary'),  #show full checkout/order review
     path("order/<str:order_id>/get/",OrderDetailAPIView.as_view()),
+    path("order/id/",OrderDetailAPIView.as_view()),
     path('user/order/list/', UserOrderListAPIView.as_view(), name='order-list'),  
     path('order/<str:order_id>/cancel/', UserCancelOrderAPIView.as_view(), name='user_cancel_order'),
     # Return an order (post-shipment)

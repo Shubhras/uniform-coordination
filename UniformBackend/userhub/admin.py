@@ -1,13 +1,78 @@
 from django.contrib import admin
 from .models import*
 
+# @admin.register(Users)
+# class UsersAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'userName', 'email', 'firstName','userType', 'lastName', 'isActive', 'isDeleted', 'loginType', 'createdAt')
+#     list_filter = ('isActive', 'isDeleted', 'loginType', 'createdAt')
+#     search_fields = ('email', 'userName', 'firstName', 'lastName')
+#     readonly_fields = ('createdAt', 'updatedAt')
+
+from django import forms
+
+class UsersAdminForm(forms.ModelForm):
+    new_password = forms.CharField(
+        label="New Password",
+        required=False,
+        widget=forms.PasswordInput(render_value=True),
+        help_text="Leave blank to keep the current password."
+    )
+
+    class Meta:
+        model = Users
+        fields = "__all__"
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+
+        password = self.cleaned_data.get("new_password")
+        if password:
+            user.set_password(password)
+
+        if commit:
+            user.save()
+
+        return user
+
 @admin.register(Users)
 class UsersAdmin(admin.ModelAdmin):
-    list_display = ('id', 'userName', 'email', 'firstName','userType', 'lastName', 'isActive', 'isDeleted', 'loginType', 'createdAt')
-    list_filter = ('isActive', 'isDeleted', 'loginType', 'createdAt')
-    search_fields = ('email', 'userName', 'firstName', 'lastName')
-    readonly_fields = ('createdAt', 'updatedAt')
+    form = UsersAdminForm
 
+    list_display = (
+        'id',
+        'userName',
+        'email',
+        'firstName',
+        'userType',
+        'lastName',
+        'isActive',
+        'isDeleted',
+        'loginType',
+        'createdAt'
+    )
+
+    list_filter = (
+        'isActive',
+        'isDeleted',
+        'loginType',
+        'createdAt'
+    )
+
+    search_fields = (
+        'email',
+        'userName',
+        'firstName',
+        'lastName'
+    )
+
+    readonly_fields = (
+        'createdAt',
+        'updatedAt'
+    )
+
+    # Hide the hashed password field
+    exclude = ("password",)
+    
 @admin.register(CartItem)
 class CartItemAdmin(admin.ModelAdmin):
     list_display = [

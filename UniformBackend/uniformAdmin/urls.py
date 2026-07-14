@@ -14,10 +14,13 @@ from .privacyandpolicy import *
 from .unitprice import*
 from .auth import * 
 from .home_page import *
+from .menu import *
+from .permissions import *
 
 
 
 urlpatterns = [
+    path('signup/', AdminSignupAPIView.as_view(), name='admin-signup'),
     path('login/', AdminLoginAPIView.as_view(), name='admin-login'),
     path('change-password/',ChangePasswordAPIView.as_view(), name='admin-change-password'),
     path('update-profile/', UpdateProfileAPIView.as_view(), name='admin-change-password'),
@@ -178,4 +181,22 @@ urlpatterns = [
     
     path('quotation-detail/<str:external_document_id>/get/', QuotationDetailByEnvelopeAPIView.as_view(), name='quotation-detail-by-envelope'),
 
+    # Menu URLs
+    path('menu/create/', MenuCreateView.as_view(), name='menu-create'),
+    path('menu/list/', MenuListView.as_view(), name='menu-list'),
+    path('menu/<int:pk>/', MenuDetailView.as_view(), name='menu-detail'),
+    path('menu/update/<int:pk>/', MenuUpdateView.as_view(), name='menu-update'),
+    path('menu/delete/<int:pk>/', MenuDeleteView.as_view(), name='menu-delete'),
+
+    # SubMenu URLs
+    path('submenu/create/', SubMenuCreateView.as_view(), name='submenu-create'),
+    path('submenu/list/', SubMenuListView.as_view(), name='submenu-list'),
+    path('submenu/<int:pk>/', SubMenuDetailView.as_view(), name='submenu-detail'),
+    path('submenu/update/<int:pk>/', SubMenuUpdateView.as_view(), name='submenu-update'),
+    path('submenu/delete/<int:pk>/', SubMenuDeleteView.as_view(), name='submenu-delete'),
+
+    # Permission URLs
+    path('role-permissions/assign/', RolePermissionAssignView.as_view(), name='role-permissions-assign'),
+    path('role-permissions/list/', RolePermissionListView.as_view(), name='role-permissions-list'),
+    path('my-permissions/', UserMenuPermissionView.as_view(), name='my-permissions'),
 ]

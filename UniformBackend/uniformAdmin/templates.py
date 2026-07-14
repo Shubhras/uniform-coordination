@@ -61,13 +61,34 @@ class TemplateListView(APIView):
     @extend_schema(
         tags=["Template"],
         summary="List Templates",
-        description="Get paginated list of templates with search support",
+        description="Get paginated list of templates with search and filter support",
         parameters=[
             OpenApiParameter(
                 name="search",
-                description="Search by template name or part name",
+                description="Search by template name, part name, or part's category name",
                 required=False,
                 type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="part_id",
+                description="Filter by Part ID",
+                required=False,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="category_id",
+                description="Filter by Part's Category ID",
+                required=False,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="subcategory_id",
+                description="Filter by Part's Subcategory ID",
+                required=False,
+                type=OpenApiTypes.INT,
                 location=OpenApiParameter.QUERY,
             ),
             OpenApiParameter(
@@ -94,20 +115,31 @@ class TemplateListView(APIView):
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
+            part_id = request.query_params.get("part_id") or request.query_params.get("part")
+            category_id = request.query_params.get("category_id") or request.query_params.get("category")
+            subcategory_id = request.query_params.get("subcategory_id") or request.query_params.get("subcategory")
 
             templates = Template.objects.filter(isDeleted=False)
 
             if search:
                 templates = templates.filter(
                     Q(templateName__icontains=search) |
-                    Q(part__category__icontains=search)
+                    Q(part__partName__icontains=search) |
+                    Q(part__category__categoryName__icontains=search)
                 )
+
+            if part_id:
+                templates = templates.filter(part_id=part_id)
+            if category_id:
+                templates = templates.filter(part__category_id=category_id)
+            if subcategory_id:
+                templates = templates.filter(part__subcategory_id=subcategory_id)
 
             templates = templates.order_by("-id")
 
             paginator = CustomPagination()
             page = paginator.paginate_queryset(templates, request)
-            serializer = TemplateSerializer(page, many=True,context={'request': request})
+            serializer = TemplateSerializer(page, many=True, context={'request': request})
 
             return Response({
                 "count": paginator.page.paginator.count,

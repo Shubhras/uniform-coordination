@@ -173,8 +173,28 @@ class SubCategoryListAPIView(APIView):
                 "status": True,
                 "message": "SubCategory list fetched successfully",
                 "data": serializer.data,
-
             }
+
+            # Fetch category details and if it has subcategories if categoryId is provided
+            category_data = None
+            if category_id and category_id.isdigit():
+                try:
+                    cat = Category.objects.get(id=int(category_id), isDeleted=False)
+                    have_subcategory = SubCategory.objects.filter(category=cat, isDeleted=False).exists()
+                    category_data = {
+                        "id": cat.id,
+                        "categoryName": cat.categoryName,
+                        "slug": cat.slug,
+                        "categoryImage": request.build_absolute_uri(cat.categoryImage.url) if cat.categoryImage else "",
+                        "description": cat.description,
+                        "type": cat.type,
+                        "isActive": cat.isActive,
+                        "haveSubCategory": have_subcategory
+                    }
+                except Category.DoesNotExist:
+                    pass
+
+            response["category"] = category_data
 
             return Response(response, status=status.HTTP_200_OK)
 

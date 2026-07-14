@@ -66,6 +66,7 @@ const ProductsTab = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -238,14 +239,26 @@ const ProductsTab = () => {
 
         <Select
           options={filterOptions}
-          defaultValue={filterOptions[0]}
+          // defaultValue={filterOptions[0]}
+          value={selectedFilter}
           styles={selectStyles}
+          onChange={setSelectedFilter}
           menuPortalTarget={
             typeof document !== "undefined" ? document.body : null
           }
           menuPosition="fixed"
           className="w-48 text-sm"
         />
+        <button
+          type="button"
+          onClick={() => {
+            setSearchQuery("");
+            setSelectedFilter(filterOptions[0]); // ya null agar placeholder dikhana ho
+          }}
+          className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-white bg-[#1C4FA8] hover:bg-[#163F86] transition-colors"
+        >
+          Reset
+        </button>
       </div>
 
       {loading ? (
@@ -287,7 +300,7 @@ const ProductsTab = () => {
                   >
                     Edit
                   </button>
-                  {/* <button
+                  <button
                     onClick={() => {
                       setProductToDelete(item);
                       setDeleteDialogOpen(true);
@@ -296,7 +309,7 @@ const ProductsTab = () => {
                   >
                     <FiTrash2 size={12} />
                     Delete
-                  </button> */}
+                  </button>
                 </div>
               </div>
             </div>

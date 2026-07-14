@@ -6,7 +6,7 @@ import re
 from django.utils import timezone
 from .models import *
 from datetime import timedelta
-from .utils import get_default_b2b_role
+from .utils import get_default_b2b_role, new_build_media_url
 from userhub.models import *
 # User = get_user_model()
 import json
@@ -160,12 +160,38 @@ class AdminDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['id',"email","name","mobile","language",'is_staff', 'is_superuser', 'last_login', 'date_joined']
 
 
+class CategoryMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["id", "categoryName", "type", "slug"]
 
+
+class SubCategoryMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategory
+        fields = ["id", "name", "slug"]
 
 
 class FabricSerializer(serializers.ModelSerializer):
     theme = serializers.PrimaryKeyRelatedField(
         queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
+        required=False,
+        allow_null=True
+    )
+    category = CategoryMiniSerializer(read_only=True)
+    subcategory = SubCategoryMiniSerializer(read_only=True)
+
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+    subcategory_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubCategory.objects.filter(isActive=True, isDeleted=False),
+        source="subcategory",
+        write_only=True,
         required=False,
         allow_null=True
     )
@@ -176,7 +202,12 @@ class FabricSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         fabric_type = data.get("fabricType")
+        if fabric_type is None and self.instance:
+            fabric_type = self.instance.fabricType
+
         theme = data.get("theme")
+        if "theme" not in data and self.instance:
+            theme = self.instance.theme
 
         # Table → theme REQUIRED
         if fabric_type == "table" and not theme:
@@ -190,6 +221,19 @@ class FabricSerializer(serializers.ModelSerializer):
                 "theme": "Theme is not allowed in uniform."
             })
 
+        category = data.get("category")
+        if "category" not in data and self.instance:
+            category = self.instance.category
+
+        subcategory = data.get("subcategory")
+        if "subcategory" not in data and self.instance:
+            subcategory = self.instance.subcategory
+
+        if subcategory and category and subcategory.category != category:
+            raise serializers.ValidationError({
+                "subcategory": "Selected subcategory does not belong to selected category"
+            })
+
         return data
 
 
@@ -199,6 +243,23 @@ class FabricSerializer(serializers.ModelSerializer):
 class PartsSerializer(serializers.ModelSerializer):
     theme = serializers.PrimaryKeyRelatedField(
         queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
+        required=False,
+        allow_null=True
+    )
+    category = CategoryMiniSerializer(read_only=True)
+    subcategory = SubCategoryMiniSerializer(read_only=True)
+
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+    subcategory_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubCategory.objects.filter(isActive=True, isDeleted=False),
+        source="subcategory",
+        write_only=True,
         required=False,
         allow_null=True
     )
@@ -222,6 +283,20 @@ class PartsSerializer(serializers.ModelSerializer):
         if part_type == "uniform" and theme:
             raise serializers.ValidationError({
                 "theme": "Theme is not allowed for uniform."
+            })
+
+        # Category -> Subcategory validation
+        category = data.get("category")
+        if "category" not in data and self.instance:
+            category = self.instance.category
+
+        subcategory = data.get("subcategory")
+        if "subcategory" not in data and self.instance:
+            subcategory = self.instance.subcategory
+
+        if subcategory and category and subcategory.category != category:
+            raise serializers.ValidationError({
+                "subcategory": "Selected subcategory does not belong to selected category"
             })
 
         return data
@@ -353,6 +428,78 @@ class TemplateSerializer(serializers.ModelSerializer):
         return value
 
 
+# correct 
+# class BlogSerializer(serializers.ModelSerializer):
+#     categoryName = serializers.CharField(
+#         source="category.categoryName",
+#         read_only=True
+#     )
+
+#     #  WRITE image to DB
+#     image = serializers.ImageField(required=False, allow_null=True)
+#     slug = serializers.SerializerMethodField()
+#     isActive = serializers.BooleanField(default=True)
+
+#     class Meta:
+#         model = Blog
+#         fields = [
+#             "id",
+#             "title",
+#             "slug",
+#             "category",
+#             "categoryName",
+#             "type",
+#             "image",        #  ONLY ONE image field
+#             "description",
+#             "isActive",
+#             "created_at",
+#             "updated_at",
+#         ]
+
+#     # -----------------------------
+#     # Replace dash (-) with underscore (_)
+#     # -----------------------------
+#     def get_slug(self, obj):
+#         if obj.slug:
+#             return obj.slug.replace("-", "_")
+#         return None
+
+#     # -----------------------------
+#     # Return ABSOLUTE image URL using SAME field
+#     # -----------------------------
+#     def to_representation(self, instance):
+#         data = super().to_representation(instance)
+#         request = self.context.get("request")
+
+#         if instance.image:
+#             image_name = instance.image.name
+#             if image_name.startswith("http://") or image_name.startswith("https://"):
+#                 data["image"] = image_name
+#             elif request:
+#                 data["image"] = request.build_absolute_uri(instance.image.url)
+#             else:
+#                 data["image"] = instance.image.url
+#         else:
+#             data["image"] = None
+
+#         return data
+
+#     # def validate_title(self, value):
+#     #     if not value.strip():
+#     #         raise serializers.ValidationError("Title is required.")
+#     #     return value
+
+#     def validate_title(self, value):
+#         qs = Blog.objects.filter(title__iexact=value,isDeleted=False)
+#         if self.instance:
+#             qs = qs.exclude(id=self.instance.id)
+
+#         if qs.exists():
+#             raise serializers.ValidationError("Blog with this title already exists.")
+
+#         return value
+
+# for new url /////////////////////////////
 
 class BlogSerializer(serializers.ModelSerializer):
     categoryName = serializers.CharField(
@@ -360,8 +507,9 @@ class BlogSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    #  WRITE image to DB
-    image = serializers.ImageField(required=False, allow_null=True)
+    image = serializers.ImageField(required=False, allow_null=True, write_only=True)
+    image_url = serializers.SerializerMethodField(read_only=True)
+
     slug = serializers.SerializerMethodField()
     isActive = serializers.BooleanField(default=True)
 
@@ -374,7 +522,8 @@ class BlogSerializer(serializers.ModelSerializer):
             "category",
             "categoryName",
             "type",
-            "image",        #  ONLY ONE image field
+            "image",        # For upload only
+            "image_url",    # For response
             "description",
             "isActive",
             "created_at",
@@ -390,37 +539,29 @@ class BlogSerializer(serializers.ModelSerializer):
         return None
 
     # -----------------------------
-    # Return ABSOLUTE image URL using SAME field
+    # Return image URL
     # -----------------------------
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        request = self.context.get("request")
+    def get_image_url(self, obj):
+        return build_media_url(obj.image)
 
-        print("DEBUG request:", request)
-        print("DEBUG image:", instance.image)
-
-        if instance.image and request:
-            data["image"] = request.build_absolute_uri(instance.image.url)
-        else:
-            data["image"] = None
-
-        return data
-
-    # def validate_title(self, value):
-    #     if not value.strip():
-    #         raise serializers.ValidationError("Title is required.")
-    #     return value
-
+    # -----------------------------
+    # Validate title
+    # -----------------------------
     def validate_title(self, value):
-        qs = Blog.objects.filter(title__iexact=value,isDeleted=False)
+        qs = Blog.objects.filter(
+            title__iexact=value,
+            isDeleted=False
+        )
+
         if self.instance:
             qs = qs.exclude(id=self.instance.id)
 
         if qs.exists():
-            raise serializers.ValidationError("Blog with this title already exists.")
+            raise serializers.ValidationError(
+                "Blog with this title already exists."
+            )
 
         return value
-
 
 class FAQDescriptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -562,6 +703,23 @@ class CatalogImageSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ("slug",)
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+
+        if instance.image:
+            image_name = instance.image.name
+            if image_name.startswith("http://") or image_name.startswith("https://"):
+                data["image"] = image_name
+            elif request:
+                data["image"] = request.build_absolute_uri(instance.image.url)
+            else:
+                data["image"] = instance.image.url
+        else:
+            data["image"] = None
+
+        return data
+
     def validate_name(self, value):
         qs = CatalogImage.objects.filter(name__iexact=value, isDeleted=False)
         if self.instance:
@@ -577,26 +735,82 @@ class CatalogImageSerializer(serializers.ModelSerializer):
 
 
 
+# class SubCategorySerializer(serializers.ModelSerializer):
+#     category_name = serializers.CharField(source="category.categoryName",read_only=True)
+#     class Meta:
+#         model = SubCategory
+#         fields = [            
+#             "id",
+#             "name",
+#             "category",
+#             "category_name",           
+#             "subcategoryImage",
+#             "slug",
+#             "type", 
+#             "order",
+#             "description",
+#             "isActive",
+#             "isDeleted",
+#             "created_at",
+#             "updated_at"
+#         ]
+#         read_only_fields = ("id", "created_at", "updated_at")
+
+#     def validate(self, attrs):
+#         name = attrs.get("name")
+#         category = attrs.get("category")
+
+#         if name and category:
+#             exists = SubCategory.objects.filter(
+#                 name__iexact=name,
+#                 category=category,
+#                 isDeleted=False
+#             ).exists()
+
+#             if exists:
+#                 raise serializers.ValidationError({
+#                     "name": "Validation Failed;subcategory with this name already exists in this category."
+#                 })
+
+#         return attrs
+
+
+
 class SubCategorySerializer(serializers.ModelSerializer):
-    category_name = serializers.CharField(source="category.categoryName",read_only=True)
+    category_name = serializers.CharField(
+        source="category.categoryName",
+        read_only=True
+    )
+    subcategoryImage = serializers.SerializerMethodField()
+
     class Meta:
         model = SubCategory
-        fields = [            
+        fields = [
             "id",
             "name",
             "category",
-            "category_name",           
+            "category_name",
             "subcategoryImage",
             "slug",
-            "type", 
+            "type",
             "order",
             "description",
             "isActive",
             "isDeleted",
             "created_at",
-            "updated_at"
+            "updated_at",
         ]
         read_only_fields = ("id", "created_at", "updated_at")
+
+    def get_subcategoryImage(self, obj):
+        if not obj.subcategoryImage:
+            return None
+
+        # External URL (e.g. Unsplash)
+        if obj.subcategoryImage.name.startswith(("http://", "https://")):
+            return obj.subcategoryImage.name
+
+        return f"{settings.SITE_URL}{obj.subcategoryImage.url}"
 
     def validate(self, attrs):
         name = attrs.get("name")
@@ -607,11 +821,13 @@ class SubCategorySerializer(serializers.ModelSerializer):
                 name__iexact=name,
                 category=category,
                 isDeleted=False
+            ).exclude(
+                pk=self.instance.pk if self.instance else None
             ).exists()
 
             if exists:
                 raise serializers.ValidationError({
-                    "name": "Validation Failed;subcategory with this name already exists in this category."
+                    "name": "Validation Failed; subcategory with this name already exists in this category."
                 })
 
         return attrs
@@ -741,22 +957,14 @@ class TableThemeSerializer(serializers.ModelSerializer):
 
 #         return data
 
-class CategoryMiniSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ["id", "categoryName", "type", "slug"]
-
-
-class SubCategoryMiniSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SubCategory
-        fields = ["id", "name", "slug"]
-
 
 class PartsMiniSerializer(serializers.ModelSerializer):
+    category = CategoryMiniSerializer(read_only=True)
+    subcategory = SubCategoryMiniSerializer(read_only=True)
+
     class Meta:
         model = Parts
-        fields = ["id", "partName", "category"]
+        fields = ["id", "partName", "category", "subcategory"]
 
 class ProductSerializer(serializers.ModelSerializer):
     isActive = serializers.BooleanField(required=False, default=True)
@@ -839,6 +1047,9 @@ class ProductSerializer(serializers.ModelSerializer):
             )
  
         return value
+    
+    def get_ProductImage(self, obj):
+        return new_build_media_url(obj.ProductImage)
     
     
     
@@ -1251,6 +1462,62 @@ class AdminUserSerializer(serializers.ModelSerializer):
         active_window = timezone.now() - timedelta(minutes=30)
         return obj.lastLogin >= active_window
 
+
+class AdminSignupSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = AdminUser
+        fields = [
+            "id",
+            "name",
+            "company_name",
+            "email",
+            "mobile",
+            "tier",
+            "password",
+            "is_active",
+            "language",
+        ]
+        read_only_fields = ["id"]
+
+    def validate_email(self, value):
+        if AdminUser.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("An admin user with this email already exists.")
+        return value
+
+    def validate_password(self, value):
+        if len(value) < 6:
+            raise serializers.ValidationError("Password must be at least 6 characters long.")
+        if not re.search(r"[A-Za-z]", value):
+            raise serializers.ValidationError("Password must contain at least one letter.")
+        if not re.search(r"[0-9]", value):
+            raise serializers.ValidationError("Password must contain at least one number.")
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
+            raise serializers.ValidationError("Password must contain at least one special character like @,#,$.")
+        return value
+
+    def create(self, validated_data):
+        password = validated_data.pop("password")
+
+        admin_role, _ = Role.objects.get_or_create(
+            role_name="admin",
+            defaults={
+                "slug": "admin",
+                "description": "Admin role with full access"
+            }
+        )
+
+        validated_data["role"] = admin_role
+        validated_data["is_staff"] = True
+
+        user = AdminUser.objects.create_user(
+            password=password,
+            **validated_data
+        )
+        return user
+
+
    
    
 # class AdminOrderUpdateSerializer(serializers.ModelSerializer):
@@ -1467,5 +1734,106 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
 #                 "payment_status": payment.payment_status
 #             }
 #         return None
+
+
+# --- Menu and SubMenu Serializers ---
+
+class SubMenuSerializer(serializers.ModelSerializer):
+    menu_name = serializers.CharField(source="menu.name", read_only=True)
+
+    class Meta:
+        model = SubMenu
+        fields = [
+            "id", "menu", "menu_name", "name", "slug", "route", "order",
+            "isActive", "isDeleted", "created_at", "updated_at"
+        ]
+        read_only_fields = ["id", "slug", "created_at", "updated_at"]
+
+    def validate(self, attrs):
+        name = attrs.get("name")
+        menu = attrs.get("menu")
+
+        if name and menu:
+            # Check unique constraint condition
+            qs = SubMenu.objects.filter(name__iexact=name, menu=menu, isDeleted=False)
+            if self.instance:
+                qs = qs.exclude(id=self.instance.id)
+            if qs.exists():
+                raise serializers.ValidationError({
+                    "name": "A submenu with this name already exists under the selected menu."
+                })
+        return attrs
+
+
+class MenuSerializer(serializers.ModelSerializer):
+    submenus = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Menu
+        fields = [
+            "id", "name", "slug", "icon", "route", "order", "submenus",
+            "isActive", "isDeleted", "created_at", "updated_at"
+        ]
+        read_only_fields = ["id", "slug", "created_at", "updated_at"]
+
+    def get_submenus(self, obj):
+        # Only return active, non-deleted submenus
+        active_submenus = obj.submenus.filter(isDeleted=False, isActive=True).order_by("order")
+        return SubMenuSerializer(active_submenus, many=True).data
+
+    def validate_name(self, value):
+        qs = Menu.objects.filter(name__iexact=value, isDeleted=False)
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+        if qs.exists():
+            raise serializers.ValidationError("A menu with this name already exists.")
+        return value
+
+
+# --- Role-Based Permission Serializers ---
+
+class RoleMenuPermissionSerializer(serializers.ModelSerializer):
+    menu_name = serializers.CharField(source="menu.name", read_only=True)
+
+    class Meta:
+        model = RoleMenuPermission
+        fields = ["id", "role", "menu", "menu_name", "can_view", "can_create", "can_update", "can_delete"]
+
+
+class RoleSubMenuPermissionSerializer(serializers.ModelSerializer):
+    submenu_name = serializers.CharField(source="submenu.name", read_only=True)
+
+    class Meta:
+        model = RoleSubMenuPermission
+        fields = ["id", "role", "submenu", "submenu_name", "can_view", "can_create", "can_update", "can_delete"]
+
+
+class SubMenuPermissionAssignSerializer(serializers.Serializer):
+    submenu_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubMenu.objects.filter(isDeleted=False, isActive=True)
+    )
+    can_view = serializers.BooleanField(default=True)
+    can_create = serializers.BooleanField(default=False)
+    can_update = serializers.BooleanField(default=False)
+    can_delete = serializers.BooleanField(default=False)
+
+
+class MenuPermissionAssignSerializer(serializers.Serializer):
+    menu_id = serializers.PrimaryKeyRelatedField(
+        queryset=Menu.objects.filter(isDeleted=False, isActive=True)
+    )
+    can_view = serializers.BooleanField(default=True)
+    can_create = serializers.BooleanField(default=False)
+    can_update = serializers.BooleanField(default=False)
+    can_delete = serializers.BooleanField(default=False)
+    submenus = SubMenuPermissionAssignSerializer(many=True, required=False, default=[])
+
+
+class RolePermissionAssignSerializer(serializers.Serializer):
+    role_id = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects.all(),
+        source="role"
+    )
+    permissions = MenuPermissionAssignSerializer(many=True)
 
   

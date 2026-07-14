@@ -25,3 +25,4 @@ cryptography
 python-dotenv
 ngrok
 xmltodict
+celery>=5.3

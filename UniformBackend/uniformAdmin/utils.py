@@ -323,3 +323,17 @@ def send_b2b_welcome_email(user, raw_password):
         [user.email],  
         fail_silently=False,
     )
+    
+
+def new_build_media_url(file_field):
+    """
+    Returns an absolute URL for an ImageField/FileField.
+    If the value is already an external URL (http/https), return it unchanged.
+    """
+    if not file_field:
+        return None
+
+    if file_field.name.startswith(("http://", "https://")):
+        return file_field.name
+
+    return f"{settings.SITE_URL}{file_field.url}"    

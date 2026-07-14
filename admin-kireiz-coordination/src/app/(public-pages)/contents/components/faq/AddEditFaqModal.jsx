@@ -4,10 +4,30 @@ import { useEffect, useState } from "react";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiCreateFaq, apiUpdateFaq } from "@/services/FaqService";
 
-const AddEditFaqModal = ({ isOpen, onClose, mode = "add", initialData, onSaveSuccess }) => {
+const faqSchema = z.object({
+  title: z.string().trim().min(1, "Title is required"),
+  descriptions: z
+    .array(
+      z.object({
+        description: z.string().trim().min(1, "Description is required"),
+      }),
+    )
+    .min(1, "At least one description is required"),
+});
+
+const AddEditFaqModal = ({
+  isOpen,
+  onClose,
+  mode = "add",
+  initialData,
+  onSaveSuccess,
+}) => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -17,26 +37,60 @@ const AddEditFaqModal = ({ isOpen, onClose, mode = "add", initialData, onSaveSuc
   // Save state
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(faqSchema),
+    defaultValues: {
+      title: "",
+      descriptions: [{ description: "" }],
+    },
+  });
+
+  const watchedDescriptions = watch("descriptions");
 
   /* ---------- RESET / PREFILL ---------- */
   useEffect(() => {
     if (!isOpen) return;
 
+    // if (mode === "edit" && initialData) {
+    //   setTitle(initialData.title || "");
+    //   if (initialData.descriptions?.length > 0) {
+    //     setDescriptions(
+    //       initialData.descriptions.map((d) => ({ description: d.description || "" }))
+    //     );
+    //   } else {
+    //     setDescriptions([{ description: "" }]);
+    //   }
+    // } else {
+    //   setTitle("");
+    //   setDescriptions([{ description: "" }]);
+    // }
+
     if (mode === "edit" && initialData) {
-      setTitle(initialData.title || "");
-      if (initialData.descriptions?.length > 0) {
-        setDescriptions(
-          initialData.descriptions.map((d) => ({ description: d.description || "" }))
-        );
-      } else {
-        setDescriptions([{ description: "" }]);
-      }
+      reset({
+        title: initialData.title || "",
+        descriptions:
+          initialData.descriptions?.length > 0
+            ? initialData.descriptions.map((d) => ({
+                description: d.description || "",
+              }))
+            : [{ description: "" }],
+      });
     } else {
-      setTitle("");
-      setDescriptions([{ description: "" }]);
+      reset({
+        title: "",
+        descriptions: [{ description: "" }],
+      });
     }
+
     setError("");
-  }, [mode, initialData, isOpen]);
+  }, [mode, initialData, isOpen, reset]);
 
   /* ---------- DESCRIPTIONS HANDLERS ---------- */
   const handleDescriptionChange = (index, value) => {
@@ -46,45 +100,39 @@ const AddEditFaqModal = ({ isOpen, onClose, mode = "add", initialData, onSaveSuc
       return updated;
     });
   };
-
   const addDescription = () => {
-    setDescriptions((prev) => [...prev, { description: "" }]);
+    setValue("descriptions", [...watchedDescriptions, { description: "" }]);
   };
 
   const removeDescription = (index) => {
-    if (descriptions.length <= 1) return;
-    setDescriptions((prev) => prev.filter((_, i) => i !== index));
-  };
+    if (watchedDescriptions.length <= 1) return;
 
+    setValue(
+      "descriptions",
+      watchedDescriptions.filter((_, i) => i !== index),
+    );
+  };
   /* ---------- RESET FORM ---------- */
   const resetForm = () => {
-    setTitle("");
-    setDescriptions([{ description: "" }]);
+    reset({
+      title: "",
+      descriptions: [{ description: "" }],
+    });
     setError("");
   };
-
   /* ---------- SAVE ---------- */
-  const handleSave = async ({ keepOpen = false } = {}) => {
-    if (!title.trim()) {
-      setError("Title is required");
-      return;
-    }
-
-    // Filter out empty descriptions
-    const validDescriptions = descriptions.filter((d) => d.description.trim());
-    if (validDescriptions.length === 0) {
-      setError("At least one description is required");
-      return;
-    }
-
+  const handleSave = async (values, { keepOpen = false } = {}) => {
     setError("");
     setSaving(true);
 
     const payload = {
-      title: title.trim(),
-      descriptions: validDescriptions.map((d) => ({
+      title: values.title.trim(),
+      // descriptions: values.validDescriptions.map((d) => ({
+      //   description: d.description.trim(),
+      // })),
+        descriptions: values.descriptions.map((d) => ({
         description: d.description.trim(),
-      })),
+  })),
     };
 
     try {
@@ -96,16 +144,15 @@ const AddEditFaqModal = ({ isOpen, onClose, mode = "add", initialData, onSaveSuc
 
       if (keepOpen && mode !== "edit") {
         resetForm();
-        if (onSaveSuccess) onSaveSuccess();
+        onSaveSuccess?.();
         return;
       }
 
-      if (onSaveSuccess) {
-        onSaveSuccess();
-      }
+      onSaveSuccess?.();
     } catch (err) {
-      console.error("FAQ save error:", err);
-      setError(err?.response?.data?.message || "Failed to save FAQ. Please try again.");
+      setError(
+        err?.response?.data?.message || "Failed to save FAQ. Please try again.",
+      );
     } finally {
       setSaving(false);
     }
@@ -138,13 +185,24 @@ const AddEditFaqModal = ({ isOpen, onClose, mode = "add", initialData, onSaveSuc
             <label className="text-[#1C2C56] text-base font-medium">
               Title<span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              placeholder="Type your question"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
+            <Controller
+              name="title"
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="text"
+                  placeholder="Type your question"
+                  className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
+                />
+              )}
             />
+
+            {errors.title && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.title.message}
+              </p>
+            )}
           </div>
 
           {/* Descriptions (dynamic list) */}
@@ -164,22 +222,36 @@ const AddEditFaqModal = ({ isOpen, onClose, mode = "add", initialData, onSaveSuc
             </div>
 
             <div className="space-y-3">
-              {descriptions.map((desc, index) => (
-                <div key={index} className="flex gap-2">
-                  <textarea
-                    placeholder={`Description ${index + 1}...`}
-                    value={desc.description}
-                    onChange={(e) => handleDescriptionChange(index, e.target.value)}
-                    className="flex-1 border rounded-md px-3 py-2 text-sm h-[80px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-                  />
-                  {descriptions.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeDescription(index)}
-                      className="text-red-500 hover:text-red-700 p-2 self-start rounded hover:bg-red-50"
-                    >
-                      <FiTrash2 size={16} />
-                    </button>
+              {watchedDescriptions.map((_, index) => (
+                <div key={index}>
+                  <div className="flex gap-2">
+                    <Controller
+                      name={`descriptions.${index}.description`}
+                      control={control}
+                      render={({ field }) => (
+                        <textarea
+                          {...field}
+                          placeholder={`Description ${index + 1}...`}
+                          className="flex-1 border rounded-md px-3 py-2 text-sm h-[80px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
+                        />
+                      )}
+                    />
+
+                    {watchedDescriptions.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeDescription(index)}
+                        className="text-red-500 hover:text-red-700 p-2 self-start rounded hover:bg-red-50"
+                      >
+                        <FiTrash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+
+                  {errors.descriptions?.[index]?.description && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.descriptions[index].description.message}
+                    </p>
                   )}
                 </div>
               ))}
@@ -195,7 +267,10 @@ const AddEditFaqModal = ({ isOpen, onClose, mode = "add", initialData, onSaveSuc
           <Button
             variant="plain"
             size="sm"
-            onClick={() => handleSave({ keepOpen: true })}
+            // onClick={() => handleSave({ keepOpen: true })}
+            onClick={handleSubmit((values) =>
+              handleSave(values, { keepOpen: true }),
+            )}
             disabled={saving}
           >
             Save & Add Another
@@ -204,8 +279,11 @@ const AddEditFaqModal = ({ isOpen, onClose, mode = "add", initialData, onSaveSuc
           <Button
             variant="solid"
             size="sm"
-            className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
-            onClick={() => handleSave({ keepOpen: false })}
+            className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+            // onClick={() => handleSave({ keepOpen: false })}
+            onClick={handleSubmit((values) =>
+              handleSave(values, { keepOpen: false }),
+            )}
             loading={saving}
           >
             {mode === "edit" ? "Update" : "Save"}

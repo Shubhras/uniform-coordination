@@ -118,6 +118,8 @@ class Fabric(models.Model):
     fabricType = models.CharField(max_length=20,choices=FABRIC_TYPE_CHOICES,default='uniform')
     theme = models.ForeignKey('TableTheme',on_delete=models.SET_NULL,null=True,blank=True,related_name="fabrics")
     pricePerUnit = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="fabric_category")
+    subcategory = models.ForeignKey('SubCategory', on_delete=models.SET_NULL, null=True, blank=True, related_name="fabric_subcategory")
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)    
     created_at = models.DateTimeField(auto_now_add=True)
@@ -128,17 +130,6 @@ class Fabric(models.Model):
 
 
 class Parts(models.Model):
-    CATEGORY_CHOICES = [
-        ("body", "Body"),
-        ("sleeves", "Sleeves"),
-        ("caps", "Caps"),
-        ("straps", "Straps"),
-        ("collars", "Collars"),
-        ("cuffs", "Cuffs"),
-        ("pockets", "Pockets"),
-        ("hoods", "Hoods"),
-
-    ]
     
     PART_TYPE_CHOICES = [
         ('uniform', 'Uniform'),
@@ -147,7 +138,8 @@ class Parts(models.Model):
     
     partName = models.CharField(max_length=150, unique=True)
     partImage = models.ImageField(upload_to='part_images/', blank=True, null=True)
-    category = models.CharField(max_length=60, choices=CATEGORY_CHOICES)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="parts_category")
+    subcategory = models.ForeignKey('SubCategory', on_delete=models.SET_NULL, null=True, blank=True, related_name="parts_subcategory")
     partType = models.CharField(max_length=20,choices=PART_TYPE_CHOICES,default='uniform')
     fabric = models.ForeignKey(Fabric, on_delete=models.CASCADE)
     usageTemmpCount = models.IntegerField(default=0)
@@ -230,6 +222,9 @@ class Category(models.Model):
                 self.slug = new_slug
 
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.categoryName
     
     
 class Blog(models.Model):
@@ -366,6 +361,9 @@ class SubCategory(models.Model):
                 self.slug = new_slug
 
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
     
     
@@ -630,3 +628,100 @@ class AdminNotification(models.Model):
 
 #     def __str__(self):
 #         return f"{self.name} ({self.template.templateName})"
+
+
+class Menu(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.CharField(max_length=150, unique=True, blank=True, null=True)
+    icon = models.CharField(max_length=100, blank=True, null=True)
+    route = models.CharField(max_length=255, blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old = Menu.objects.get(pk=self.pk)
+            if old.name != self.name:
+                self.slug = slugify(self.name).replace("-", "_")
+        else:
+            self.slug = slugify(self.name).replace("-", "_")
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class SubMenu(models.Model):
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name="submenus")
+    name = models.CharField(max_length=100)
+    slug = models.CharField(max_length=150, blank=True, null=True)
+    route = models.CharField(max_length=255, blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["menu", "name"],
+                condition=models.Q(isDeleted=False),
+                name="unique_submenu_name_per_menu"
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old = SubMenu.objects.get(pk=self.pk)
+            if old.name != self.name:
+                self.slug = slugify(self.name).replace("-", "_")
+        else:
+            self.slug = slugify(self.name).replace("-", "_")
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.menu.name} -> {self.name}"
+
+
+class RoleMenuPermission(models.Model):
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="menu_permissions")
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name="role_permissions")
+    can_view = models.BooleanField(default=True)
+    can_create = models.BooleanField(default=False)
+    can_update = models.BooleanField(default=False)
+    can_delete = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["role", "menu"],
+                name="unique_role_menu_permission"
+            )
+        ]
+
+
+class RoleSubMenuPermission(models.Model):
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="submenu_permissions")
+    submenu = models.ForeignKey(SubMenu, on_delete=models.CASCADE, related_name="role_permissions")
+    can_view = models.BooleanField(default=True)
+    can_create = models.BooleanField(default=False)
+    can_update = models.BooleanField(default=False)
+    can_delete = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["role", "submenu"],
+                name="unique_role_submenu_permission"
+            )
+        ]

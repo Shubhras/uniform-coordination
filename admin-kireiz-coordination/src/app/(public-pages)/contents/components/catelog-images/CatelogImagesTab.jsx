@@ -1,9 +1,21 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { FiSearch, FiPlus, FiImage, FiEdit2, FiTrash2, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import {
+  FiSearch,
+  FiPlus,
+  FiImage,
+  FiEdit2,
+  FiTrash2,
+  FiChevronLeft,
+  FiChevronRight,
+  FiX,
+} from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiGetCatalogImageList, apiDeleteCatalogImage } from "@/services/CatalogService";
+import {
+  apiGetCatalogImageList,
+  apiDeleteCatalogImage,
+} from "@/services/CatalogService";
 import AddEditCatalogModal from "./AddEditCatalogModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
@@ -34,32 +46,38 @@ const CatelogImagesTab = () => {
   });
 
   /* ---------- FETCH ---------- */
-  const fetchImages = useCallback(async (page = 1) => {
-    if (!accessToken) return;
+  const fetchImages = useCallback(
+    async (page = 1) => {
+      if (!accessToken) return;
 
-    try {
-      setLoading(true);
-      const response = await apiGetCatalogImageList(accessToken, page);
+      try {
+        setLoading(true);
+        const response = await apiGetCatalogImageList(accessToken, page);
 
-      if (response?.status && response?.data) {
-        setImages(response.data);
-        if (response.pagination) {
-          setPagination(response.pagination);
-        } else {
-          setPagination((prev) => ({
-            ...prev,
-            total_items: response.count || response.total_items || response.data.length,
-            total_pages: response.total_pages || 1,
-            page: response.page || page,
-          }));
+        if (response?.status && response?.data) {
+          console.log("afsgvegf", response.data);
+          console.log(response.data[0]);
+          setImages(response.data);
+          if (response.pagination) {
+            setPagination(response.pagination);
+          } else {
+            setPagination((prev) => ({
+              ...prev,
+              total_items:
+                response.count || response.total_items || response.data.length,
+              total_pages: response.total_pages || 1,
+              page: response.page || page,
+            }));
+          }
         }
+      } catch (error) {
+        console.error("Failed to fetch catalog images:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to fetch catalog images:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [accessToken]);
+    },
+    [accessToken],
+  );
 
   useEffect(() => {
     fetchImages(currentPage);
@@ -107,10 +125,12 @@ const CatelogImagesTab = () => {
   const filteredImages = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) return images;
-    return images.filter((img) =>
-      img.name?.toLowerCase().includes(term) ||
-      img.category?.toLowerCase().includes(term)
-    );
+    return images.filter((img) => {
+      const name = img.name?.toLowerCase() || "";
+      const category = img.category_name?.toLowerCase() || "";
+
+      return name.includes(term) || category.includes(term);
+    });
   }, [images, search]);
 
   /* ---------- PAGINATION ---------- */
@@ -124,7 +144,10 @@ const CatelogImagesTab = () => {
   const CardSkeleton = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="bg-white border border-[#E2E8F0] rounded-xl p-3 animate-pulse">
+        <div
+          key={i}
+          className="bg-white border border-[#E2E8F0] rounded-xl p-3 animate-pulse"
+        >
           <div className="bg-gray-100 rounded-lg p-3 flex justify-center">
             <div className="w-52 h-52 rounded-full bg-gray-200" />
           </div>
@@ -158,7 +181,7 @@ const CatelogImagesTab = () => {
 
             <button
               onClick={handleAdd}
-              className="bg-[#1C2C56] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+              className="bg-[#1C4FA8] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
             >
               <FiPlus size={16} />
               Upload Image
@@ -168,7 +191,10 @@ const CatelogImagesTab = () => {
 
         {/* Search */}
         <div className="relative w-full md:w-80 mb-6">
-          <FiSearch className="absolute left-3 top-2.5 text-[#64748B]" size={16} />
+          <FiSearch
+            className="absolute left-3 top-2.5 text-[#64748B]"
+            size={16}
+          />
           <input
             type="text"
             placeholder="Search Catalog..."
@@ -176,13 +202,24 @@ const CatelogImagesTab = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none"
           />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
+            >
+              <FiX size={16} />
+            </button>
+          )}
         </div>
 
         {/* Image Grid */}
         {loading ? (
           <CardSkeleton />
         ) : filteredImages.length === 0 ? (
-          <div className="text-center py-16 text-[#94A3B8]">No catalog images found</div>
+          <div className="text-center py-16 text-[#94A3B8]">
+            No catalog images found
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {filteredImages.map((item) => (
@@ -202,9 +239,7 @@ const CatelogImagesTab = () => {
                   <p className="text-base font-semibold text-[#1C2C56]">
                     {item.name}
                   </p>
-                  <p className="text-sm text-[#64748B]">
-                    {item.category}
-                  </p>
+                  <p className="text-sm text-[#64748B]">{item.category}</p>
 
                   <div className="flex justify-end gap-1 mt-2">
                     <button
@@ -246,7 +281,8 @@ const CatelogImagesTab = () => {
         {!loading && pagination.total_pages > 1 && (
           <div className="flex items-center justify-between mt-6 px-2">
             <p className="text-sm text-[#64748B]">
-              Page {pagination.page} of {pagination.total_pages} ({pagination.total_items || images.length} items)
+              Page {pagination.page} of {pagination.total_pages} (
+              {pagination.total_items || images.length} items)
             </p>
 
             <div className="flex items-center gap-1">

@@ -41,6 +41,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "localhost:7000",
     "localhost:7001",
+    "localhost:7002",
     "192.168.1.56",
     "54.81.43.26",
     "0.0.0.0:8000",
@@ -171,7 +172,11 @@ STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-SITE_DOMAIN = "http://54.81.43.26"
+SITE_DOMAIN = "http://185.2.100.37:8005"
+# SITE_DOMAIN = "https://t8sjq87n-8001.inc1.devtunnels.ms"
+
+# SITE_URL = "https://t8sjq87n-8001.inc1.devtunnels.ms"
+SITE_URL = "http://185.2.100.37:8005"
 
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
@@ -202,6 +207,7 @@ REST_FRAMEWORK = {
 }
 
 
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "http://127.0.0.1:8000",
@@ -209,6 +215,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.1.56:8000",
     "http://localhost:7000",
     "http://localhost:7001",
+    "http://localhost:7002",
     "http://0.0.0.0:8000",
     "http://54.81.43.26",
     
@@ -283,3 +290,12 @@ DOCUSIGN_PRIVATE_KEY_PATH = "private.key"
 
 #ngrok for webhook
 ALLOWED_HOSTS = ["*"]
+
+
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE

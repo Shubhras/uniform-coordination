@@ -114,7 +114,8 @@ class PartsListView(APIView):
             if search_query:
                 parts = parts.filter(
                     Q(partName__icontains=search_query) |
-                    Q(category__icontains=search_query) |
+                    Q(category__categoryName__icontains=search_query) |
+                    Q(subcategory__name__icontains=search_query) |
                     Q(fabric__fabricName__icontains=search_query)
                 )
 
