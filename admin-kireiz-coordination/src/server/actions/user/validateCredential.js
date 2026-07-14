@@ -14,6 +14,7 @@ const validateCredential = async (values) => {
         })
 
         const data = await response.json()
+        console.log("dataaaaaa",data)
 
         if (data.status && data.statusCode === 200) {
             // Extract permission slugs to keep session data light

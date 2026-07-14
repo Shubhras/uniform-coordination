@@ -109,7 +109,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
           </button>
 
           {languageOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-[#E2E8F0] py-2 z-50">
+            <div className="absolute right-0 mt-2 w-40 bg-white rounded-l shadow-lg border border-[#E2E8F0] py-2 z-50">
               <button
                 onClick={() => {
                   // set language here
@@ -117,8 +117,8 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
                 }}
                 className="w-full px-4 py-2 text-left text-sm hover:bg-[#F8FAFC] flex items-center justify-between"
               >
-                <span>🇺🇸 English</span>
-                <span className="text-[#1C2C56] font-medium">EN</span>
+                <span>English</span>
+                {/* <span className="text-[#1C2C56] font-medium">EN</span> */}
               </button>
 
               <button
@@ -128,8 +128,8 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
                 }}
                 className="w-full px-4 py-2 text-left text-sm hover:bg-[#F8FAFC] flex items-center justify-between"
               >
-                <span>🇮🇳 Hindi</span>
-                <span className="text-[#1C2C56] font-medium">HI</span>
+                <span>Japenese</span>
+                {/* <span className="text-[#1C2C56] font-medium">JP</span> */}
               </button>
             </div>
           )}
@@ -142,11 +142,11 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
               setNotifOpen(!notifOpen);
               setDropdownOpen(false);
             }}
-            className={`relative text-[#64748B] hover:text-[#1C2C56] transition-colors p-2 rounded-full hover:bg-[#F1F5F9] ${
+            className={`relative bg-[#1C2C56] transition-colors p-2 rounded-full ${
               notifOpen ? "bg-[#F1F5F9] text-[#1C2C56]" : ""
             }`}
           >
-            <FiBell size={20} />
+            <FiBell className="text-white" size={20} />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
           </button>
 

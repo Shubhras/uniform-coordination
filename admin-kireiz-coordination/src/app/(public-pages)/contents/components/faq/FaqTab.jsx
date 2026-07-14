@@ -107,7 +107,7 @@ const FaqTab = () => {
           </div>
 
           <button
-            className="bg-[#1C2C56] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+            className="bg-[#1C4FA8] text-[#FFFFFF] px-4 py-2 rounded-md text-sm fw-500 flex items-center gap-2"
             onClick={() => {
               setEditFaq(null);
               setOpenModal(true);

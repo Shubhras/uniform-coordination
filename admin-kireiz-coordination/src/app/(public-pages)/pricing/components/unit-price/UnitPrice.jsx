@@ -145,7 +145,7 @@ const UnitPrice = () => {
                         <button
                             onClick={() => setExportOpen(!exportOpen)}
                             disabled={exporting}
-                            className="bg-[#1C2C56] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 disabled:opacity-60"
+                            className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 disabled:opacity-60"
                         >
                             <FiDownload size={16} />
                             {exporting ? "Exporting..." : "Export"}
