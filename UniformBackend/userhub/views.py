@@ -40,80 +40,7 @@ from docusign_esign import EnvelopesApi, ApiClient
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from uniformAdmin.utils import new_build_media_url
-
-# class SignupAPIView(APIView):
-#     permission_classes=[AllowAny]
-#     def post(self, request, *args, **kwargs):
-#         # request.data._mutable = True
-#         # request.data["userType"] = request.data.get("userType")
-#         serializer = UserSignupSerializer(data=request.data)
-
-#         try:
-#             if serializer.is_valid():
-#                 user = serializer.save()
-                
-#                  # EMAIL VERIFICATION 
-#                 uid = urlsafe_base64_encode(force_bytes(user.id))                
-#                 verify_link = request.build_absolute_uri(f"/api/v1/userhub/verify-email/{uid}/")
-
-
-#                 send_mail(
-#                     subject="Verify your email",
-#                     message=f"Click here to verify your email, it's you:\n{verify_link}",
-#                     from_email=settings.EMAIL_HOST_USER,
-#                     recipient_list=[user.email],
-#                     fail_silently=False
-#                 )
-
-#                 # Serialize full safe user response
-#                 response_data = UserResponseSerializer(
-#                     user,
-#                     context={'request': request}
-#                 ).data
-
-#                 # Convert profileImage to full URL
-#                 if user.profileImage:
-#                     response_data["profileImage"] = request.build_absolute_uri(user.profileImage.url)
-
-#                 return Response({
-#                     "status": True,
-#                     "statusCode": 201,
-#                     "message": "User created successfully.",
-#                     "data": response_data
-#                 }, status=status.HTTP_201_CREATED)
-
-#             else:
-
-#                 errors = serializer.errors
-#                 missing_fields = []
-
-#                 if isinstance(errors, dict):
-#                     for field, messages in errors.items():
-#                         if isinstance(messages, list) and messages:
-#                             # collect fields with "required" error
-#                             if "required" in messages[0].lower():
-#                                 missing_fields.append(field)
-
-#                 if missing_fields:
-#                     fields_str = ", ".join(missing_fields)
-#                     error_message = f"Validation failed; {fields_str} : This field is required."
-#                 else:
-#                     error_message = "Validation failed."
-                                            
-#                 return Response({
-#                     "status": False,
-#                     "statusCode": 400,
-#                     "message": error_message
-#                 }, status=status.HTTP_400_BAD_REQUEST)
-
-#         except Exception as exc:
-#             logger.exception("Signup error")
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                     "message": "Server error while creating user.",
-#                 "error": str(exc)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+from .tasks import send_login_alert_email_task
 
 
 class SignupAPIView(APIView):
@@ -167,7 +94,7 @@ class SignupAPIView(APIView):
                     {
                         "status": True,
                         "statusCode": 201,
-                        "message": "User created successfully.",
+                        "message": "Your account has been created successfully. Please check your email and verify your account to log in.",
                         "data": response_data,
                     },
                     status=status.HTTP_201_CREATED,
@@ -272,7 +199,12 @@ class UserLoginAPIView(APIView):
             user.lastLogin = now()
             # user.is_currently_login = True   #for get currently login 
             user.save()
-            send_login_alert_email(user)
+            # send_login_alert_email(user)
+            try:
+                send_login_alert_email_task.delay(user.id)
+                print("Task queued successfully")
+            except Exception as e:
+                print("Celery Error:", e)
 
             # ---------------------------------------------------------
             # CASE 1: NORMAL USER → call external custom token function
@@ -621,7 +553,7 @@ class UserForgotPasswordAPIView(APIView):
             user_id = user.id
 
             # Build reset link
-            frontend_url = "http://localhost:7001/reset-password"
+            frontend_url = "http://localhost:7000/reset-password"
             reset_link = f"{frontend_url}?user_id={user_id}"
 
             # -------------------------------

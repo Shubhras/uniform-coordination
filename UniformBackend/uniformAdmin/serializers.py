@@ -160,12 +160,38 @@ class AdminDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['id',"email","name","mobile","language",'is_staff', 'is_superuser', 'last_login', 'date_joined']
 
 
+class CategoryMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["id", "categoryName", "type", "slug"]
 
+
+class SubCategoryMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategory
+        fields = ["id", "name", "slug"]
 
 
 class FabricSerializer(serializers.ModelSerializer):
     theme = serializers.PrimaryKeyRelatedField(
         queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
+        required=False,
+        allow_null=True
+    )
+    category = CategoryMiniSerializer(read_only=True)
+    subcategory = SubCategoryMiniSerializer(read_only=True)
+
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+    subcategory_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubCategory.objects.filter(isActive=True, isDeleted=False),
+        source="subcategory",
+        write_only=True,
         required=False,
         allow_null=True
     )
@@ -176,7 +202,12 @@ class FabricSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         fabric_type = data.get("fabricType")
+        if fabric_type is None and self.instance:
+            fabric_type = self.instance.fabricType
+
         theme = data.get("theme")
+        if "theme" not in data and self.instance:
+            theme = self.instance.theme
 
         # Table → theme REQUIRED
         if fabric_type == "table" and not theme:
@@ -190,6 +221,19 @@ class FabricSerializer(serializers.ModelSerializer):
                 "theme": "Theme is not allowed in uniform."
             })
 
+        category = data.get("category")
+        if "category" not in data and self.instance:
+            category = self.instance.category
+
+        subcategory = data.get("subcategory")
+        if "subcategory" not in data and self.instance:
+            subcategory = self.instance.subcategory
+
+        if subcategory and category and subcategory.category != category:
+            raise serializers.ValidationError({
+                "subcategory": "Selected subcategory does not belong to selected category"
+            })
+
         return data
 
 
@@ -199,6 +243,23 @@ class FabricSerializer(serializers.ModelSerializer):
 class PartsSerializer(serializers.ModelSerializer):
     theme = serializers.PrimaryKeyRelatedField(
         queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
+        required=False,
+        allow_null=True
+    )
+    category = CategoryMiniSerializer(read_only=True)
+    subcategory = SubCategoryMiniSerializer(read_only=True)
+
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+    subcategory_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubCategory.objects.filter(isActive=True, isDeleted=False),
+        source="subcategory",
+        write_only=True,
         required=False,
         allow_null=True
     )
@@ -222,6 +283,20 @@ class PartsSerializer(serializers.ModelSerializer):
         if part_type == "uniform" and theme:
             raise serializers.ValidationError({
                 "theme": "Theme is not allowed for uniform."
+            })
+
+        # Category -> Subcategory validation
+        category = data.get("category")
+        if "category" not in data and self.instance:
+            category = self.instance.category
+
+        subcategory = data.get("subcategory")
+        if "subcategory" not in data and self.instance:
+            subcategory = self.instance.subcategory
+
+        if subcategory and category and subcategory.category != category:
+            raise serializers.ValidationError({
+                "subcategory": "Selected subcategory does not belong to selected category"
             })
 
         return data
@@ -700,8 +775,6 @@ class CatalogImageSerializer(serializers.ModelSerializer):
 #         return attrs
 
 
-from django.conf import settings
-from rest_framework import serializers
 
 class SubCategorySerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(
@@ -884,22 +957,14 @@ class TableThemeSerializer(serializers.ModelSerializer):
 
 #         return data
 
-class CategoryMiniSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ["id", "categoryName", "type", "slug"]
-
-
-class SubCategoryMiniSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SubCategory
-        fields = ["id", "name", "slug"]
-
 
 class PartsMiniSerializer(serializers.ModelSerializer):
+    category = CategoryMiniSerializer(read_only=True)
+    subcategory = SubCategoryMiniSerializer(read_only=True)
+
     class Meta:
         model = Parts
-        fields = ["id", "partName", "category"]
+        fields = ["id", "partName", "category", "subcategory"]
 
 class ProductSerializer(serializers.ModelSerializer):
     isActive = serializers.BooleanField(required=False, default=True)
@@ -1669,5 +1734,106 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
 #                 "payment_status": payment.payment_status
 #             }
 #         return None
+
+
+# --- Menu and SubMenu Serializers ---
+
+class SubMenuSerializer(serializers.ModelSerializer):
+    menu_name = serializers.CharField(source="menu.name", read_only=True)
+
+    class Meta:
+        model = SubMenu
+        fields = [
+            "id", "menu", "menu_name", "name", "slug", "route", "order",
+            "isActive", "isDeleted", "created_at", "updated_at"
+        ]
+        read_only_fields = ["id", "slug", "created_at", "updated_at"]
+
+    def validate(self, attrs):
+        name = attrs.get("name")
+        menu = attrs.get("menu")
+
+        if name and menu:
+            # Check unique constraint condition
+            qs = SubMenu.objects.filter(name__iexact=name, menu=menu, isDeleted=False)
+            if self.instance:
+                qs = qs.exclude(id=self.instance.id)
+            if qs.exists():
+                raise serializers.ValidationError({
+                    "name": "A submenu with this name already exists under the selected menu."
+                })
+        return attrs
+
+
+class MenuSerializer(serializers.ModelSerializer):
+    submenus = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Menu
+        fields = [
+            "id", "name", "slug", "icon", "route", "order", "submenus",
+            "isActive", "isDeleted", "created_at", "updated_at"
+        ]
+        read_only_fields = ["id", "slug", "created_at", "updated_at"]
+
+    def get_submenus(self, obj):
+        # Only return active, non-deleted submenus
+        active_submenus = obj.submenus.filter(isDeleted=False, isActive=True).order_by("order")
+        return SubMenuSerializer(active_submenus, many=True).data
+
+    def validate_name(self, value):
+        qs = Menu.objects.filter(name__iexact=value, isDeleted=False)
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+        if qs.exists():
+            raise serializers.ValidationError("A menu with this name already exists.")
+        return value
+
+
+# --- Role-Based Permission Serializers ---
+
+class RoleMenuPermissionSerializer(serializers.ModelSerializer):
+    menu_name = serializers.CharField(source="menu.name", read_only=True)
+
+    class Meta:
+        model = RoleMenuPermission
+        fields = ["id", "role", "menu", "menu_name", "can_view", "can_create", "can_update", "can_delete"]
+
+
+class RoleSubMenuPermissionSerializer(serializers.ModelSerializer):
+    submenu_name = serializers.CharField(source="submenu.name", read_only=True)
+
+    class Meta:
+        model = RoleSubMenuPermission
+        fields = ["id", "role", "submenu", "submenu_name", "can_view", "can_create", "can_update", "can_delete"]
+
+
+class SubMenuPermissionAssignSerializer(serializers.Serializer):
+    submenu_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubMenu.objects.filter(isDeleted=False, isActive=True)
+    )
+    can_view = serializers.BooleanField(default=True)
+    can_create = serializers.BooleanField(default=False)
+    can_update = serializers.BooleanField(default=False)
+    can_delete = serializers.BooleanField(default=False)
+
+
+class MenuPermissionAssignSerializer(serializers.Serializer):
+    menu_id = serializers.PrimaryKeyRelatedField(
+        queryset=Menu.objects.filter(isDeleted=False, isActive=True)
+    )
+    can_view = serializers.BooleanField(default=True)
+    can_create = serializers.BooleanField(default=False)
+    can_update = serializers.BooleanField(default=False)
+    can_delete = serializers.BooleanField(default=False)
+    submenus = SubMenuPermissionAssignSerializer(many=True, required=False, default=[])
+
+
+class RolePermissionAssignSerializer(serializers.Serializer):
+    role_id = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects.all(),
+        source="role"
+    )
+    permissions = MenuPermissionAssignSerializer(many=True)
 
   
