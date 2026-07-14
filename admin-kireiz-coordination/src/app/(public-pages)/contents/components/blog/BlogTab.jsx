@@ -213,10 +213,6 @@ const BlogTab = () => {
           )}
         </div>
 
-        <h2 className="mb-5 lg:text-3xl text-2xl font-semibold text-[#1C2C56]">
-          Our Latest Blog Posts
-        </h2>
-
         {loading ? (
           <CardSkeleton />
         ) : filteredPosts.length === 0 ? (

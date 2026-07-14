@@ -309,8 +309,8 @@ const PartsTab = () => {
                     {part.category} · z-index: {part.zIndex}
                   </p> */}
                   <p className="text-xs text-[#486284] capitalize">
-  {part.category?.categoryName} · z-index: {part.zIndex}
-</p>
+                    {part.category?.categoryName} · z-index: {part.zIndex}
+                  </p>
 
                   <div className="flex gap-2 mt-3">
                     <button
@@ -388,7 +388,8 @@ const PartsTab = () => {
                     </td>
 
                     <td className="px-4 py-3 text-[#486284] capitalize">
-                      {part.category}
+                      {/* {part.category} */}
+                      {part.category?.categoryName}
                     </td>
 
                     <td className="px-4 py-3 text-[#1C2C56]">

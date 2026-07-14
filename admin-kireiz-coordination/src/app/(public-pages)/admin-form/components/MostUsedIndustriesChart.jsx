@@ -58,8 +58,8 @@ const MostUsedIndustriesChart = ({ data }) => {
   ];
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-5">
-      <h3 className="text-[#1C2C56] font-semibold mb-4">
+    <div className="bg-white border border-[#ececec] rounded-xl shadow-lg p-5">
+      <h3 className="text-[#1C2C56] text-[17px] font-semibold mb-4">
         Most Used Industries
       </h3>
 

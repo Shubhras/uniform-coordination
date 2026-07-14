@@ -13,7 +13,10 @@ import Input from "@/components/ui/Input";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiCreatePart, apiUpdatePart } from "@/services/PartsService";
 import { apiGetFabricList } from "@/services/FabricService";
-
+import {
+  apiGetCategoryList,
+  apiGetSubcategoryList,
+} from "@/services/CategoryService";
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 const validationSchema = z.object({
@@ -32,6 +35,7 @@ const validationSchema = z.object({
   zIndex: z.string().trim().min(1, {
     message: "Z-Index is required",
   }),
+  subcategory: z.any().optional(),
 });
 
 const AddEditPartModal = ({
@@ -45,16 +49,11 @@ const AddEditPartModal = ({
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
-  const categoryOptions = [
-    { value: "body", label: "Body" },
-    { value: "caps", label: "Caps" },
-    { value: "collars", label: "Collars" },
-    { value: "cuffs", label: "Cuffs" },
-    { value: "hoods", label: "Hoods" },
-    { value: "pockets", label: "Pockets" },
-    { value: "sleeves", label: "Sleeves" },
-    { value: "straps", label: "Straps" },
-  ];
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [subcategoryOptions, setSubcategoryOptions] = useState([]);
+
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [loadingSubcategories, setLoadingSubcategories] = useState(false);
 
   // Form fields
   const [partName, setPartName] = useState("");
@@ -77,16 +76,19 @@ const AddEditPartModal = ({
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(validationSchema),
     defaultValues: {
       partName: "",
       category: null,
+      subcategory: null,
       fabric: null,
       zIndex: "",
     },
   });
+  const selectedCategory = watch("category");
 
   /* ---------- SELECT STYLES ---------- */
   const selectStyles = {
@@ -112,13 +114,82 @@ const AddEditPartModal = ({
   };
 
   /* ---------- FETCH FABRICS ---------- */
+  // useEffect(() => {
+  //   if (!isOpen || !accessToken) return;
+
+  //   const fetchFabrics = async () => {
+  //     setLoadingFabrics(true);
+  //     try {
+  //       const response = await apiGetFabricList(accessToken, 1, 100);
+  //       if (response?.status && response?.data) {
+  //         const options = response.data
+  //           .filter((f) => f.isActive && !f.isDeleted)
+  //           .map((f) => ({
+  //             value: f.id,
+  //             label: f.fabricName,
+  //           }));
+  //         setFabricOptions(options);
+  //       }
+  //     } catch (err) {
+  //       console.error("Failed to load fabrics:", err);
+  //     } finally {
+  //       setLoadingFabrics(false);
+  //     }
+  //   };
+
+  //   fetchFabrics();
+  // }, [isOpen, accessToken]);
   useEffect(() => {
     if (!isOpen || !accessToken) return;
 
+    const fetchCategories = async () => {
+      setLoadingCategories(true);
+
+      try {
+        const response = await apiGetCategoryList(accessToken);
+
+        if (response?.status && response?.data) {
+          const options = response.data.map((item) => ({
+            value: item.id,
+            label: item.categoryName,
+          }));
+
+          setCategoryOptions(options);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    const fetchSubcategories = async () => {
+      setLoadingSubcategories(true);
+
+      try {
+        const response = await apiGetSubcategoryList(accessToken);
+
+        if (response?.status && response?.data) {
+          const options = response.data.map((item) => ({
+            value: item.id,
+            label: item.name,
+          }));
+
+          setSubcategoryOptions(options);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingSubcategories(false);
+      }
+    };
+
     const fetchFabrics = async () => {
       setLoadingFabrics(true);
+
       try {
         const response = await apiGetFabricList(accessToken, 1, 100);
+
         if (response?.status && response?.data) {
           const options = response.data
             .filter((f) => f.isActive && !f.isDeleted)
@@ -126,17 +197,52 @@ const AddEditPartModal = ({
               value: f.id,
               label: f.fabricName,
             }));
+
           setFabricOptions(options);
         }
       } catch (err) {
-        console.error("Failed to load fabrics:", err);
+        console.error(err);
       } finally {
         setLoadingFabrics(false);
       }
     };
 
+    fetchCategories();
     fetchFabrics();
   }, [isOpen, accessToken]);
+
+  useEffect(() => {
+    if (!selectedCategory?.value || !accessToken) {
+      setSubcategoryOptions([]);
+      return;
+    }
+
+    const fetchSubcategories = async () => {
+      setLoadingSubcategories(true);
+
+      try {
+        const response = await apiGetSubcategoryList(
+          accessToken,
+          selectedCategory.value,
+        );
+
+        if (response?.status && response?.data) {
+          const options = response.data.map((item) => ({
+            value: item.id,
+            label: item.name,
+          }));
+
+          setSubcategoryOptions(options);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingSubcategories(false);
+      }
+    };
+
+    fetchSubcategories();
+  }, [selectedCategory, accessToken]);
 
   /* ---------- RESET / PREFILL ---------- */
   useEffect(() => {
@@ -174,8 +280,12 @@ const AddEditPartModal = ({
     if (mode === "edit" && initialData) {
       reset({
         partName: initialData.partName || "",
-        category:
-          categoryOptions.find((c) => c.value === initialData.category) || null,
+        category: initialData.category
+          ? {
+              value: initialData.category,
+              label: `Category #${initialData.category}`,
+            }
+          : null,
         fabric:
           fabricOptions.find((f) => f.value === initialData.fabric) || null,
         zIndex: initialData.zIndex?.toString() || "",
@@ -231,6 +341,34 @@ const AddEditPartModal = ({
     }
   }, [fabricOptions, mode, initialData]);
 
+  useEffect(() => {
+    if (mode !== "edit" || !initialData) return;
+
+    if (categoryOptions.length) {
+      const cat = categoryOptions.find(
+        (x) => x.value === initialData.category?.id,
+      );
+
+      if (cat) {
+        reset((values) => ({
+          ...values,
+          category: cat,
+        }));
+      }
+    }
+
+    if (fabricOptions.length) {
+      const fabric = fabricOptions.find((x) => x.value === initialData.fabric);
+
+      if (fabric) {
+        reset((values) => ({
+          ...values,
+          fabric,
+        }));
+      }
+    }
+  }, [categoryOptions, fabricOptions]);
+
   /* ---------- FILE HANDLERS ---------- */
   const handleFile = (file) => {
     if (!file) return;
@@ -273,6 +411,9 @@ const AddEditPartModal = ({
 
       if (values.fabric) {
         formData.append("fabric", values.fabric.value);
+      }
+      if (values.subcategory) {
+        formData.append("subcategory", values.subcategory.value);
       }
 
       if (values.zIndex) {
@@ -382,6 +523,36 @@ const AddEditPartModal = ({
                       styles={selectStyles}
                       value={field.value}
                       onChange={field.onChange}
+                      placeholder="Select Category"
+                      isLoading={loadingCategories}
+                      isClearable
+                      menuPortalTarget={
+                        typeof document !== "undefined" ? document.body : null
+                      }
+                      menuPosition="fixed"
+                    />
+                  )}
+                />
+              </FormItem>
+
+              <FormItem label="Subcategory">
+                <Controller
+                  name="subcategory"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={subcategoryOptions}
+                      value={field.value}
+                      onChange={field.onChange}
+                      styles={selectStyles}
+                      placeholder="Select Subcategory"
+                      isLoading={loadingSubcategories}
+                      isClearable
+                      menuPortalTarget={
+                        typeof document !== "undefined" ? document.body : null
+                      }
+                      menuPosition="fixed"
                     />
                   )}
                 />
@@ -483,7 +654,7 @@ const AddEditPartModal = ({
 
               <button
                 type="button"
-                className="w-full bg-[#1C2C56] text-white py-2 rounded-md text-sm mt-2"
+                className="w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm mt-2"
                 onClick={() => fileInputRef.current.click()}
               >
                 Upload image
@@ -548,6 +719,7 @@ const AddEditPartModal = ({
               onClick={onClose}
               size="sm"
               disabled={saving}
+              className="bg-blue-100 rounded-lg"
             >
               Cancel
             </Button>
@@ -556,7 +728,7 @@ const AddEditPartModal = ({
               type="submit"
               variant="solid"
               size="sm"
-              className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+              className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
               // onClick={handleSave}
               loading={saving}
             >

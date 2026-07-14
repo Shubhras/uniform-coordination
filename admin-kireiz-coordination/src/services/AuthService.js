@@ -36,3 +36,12 @@ export async function apiResetPassword(data) {
         data,
     })
 }
+
+
+export async function apiLogout(data) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/uniformAdmin/logout/",
+    method: "post",
+    data,
+  });
+}

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import signOut from "@/server/actions/auth/handleSignOut";
+import { apiLogout } from "@/services/AuthService";
 import NotificationPopup from "./NotificationPopup";
 import {
   FiBell,
@@ -13,7 +14,7 @@ import {
   FiUser,
   FiSettings,
   FiLogOut,
-  FiMenu,
+  FiMenu,FiLock
 } from "react-icons/fi";
 
 const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
@@ -45,8 +46,20 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
   }, []);
 
   const handleSignOut = async () => {
-    setDropdownOpen(false);
-    await signOut();
+    try {
+      setDropdownOpen(false);
+      console.log("Session:", session);
+      await apiLogout({
+        refresh_token: session?.user?.refreshToken,
+      });
+
+      await signOut();
+    } catch (error) {
+      console.error("Logout failed:", error);
+
+      // API fail ho jaye tab bhi local session logout kar do
+      await signOut();
+    }
   };
 
   const userName = session?.user?.name || "Admin";
@@ -209,28 +222,29 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
               </div>
 
               {/* Menu Items */}
-              {/* <div className="py-1">
-                                <button
-                                    onClick={() => {
-                                        setDropdownOpen(false)
-                                        router.push('/dashboards/profile/settings')
-                                    }}
-                                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1C2C56] transition-colors"
-                                >
-                                    <FiUser size={16} />
-                                    <span>My Profile</span>
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setDropdownOpen(false)
-                                        router.push('/dashboards/profile/settings')
-                                    }}
-                                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1C2C56] transition-colors"
-                                >
-                                    <FiSettings size={16} />
-                                    <span>Settings</span>
-                                </button>
-                            </div> */}
+              <div className="py-1">
+                <button
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    router.push("/profile");
+                  }}
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1C2C56] transition-colors"
+                >
+                  <FiUser size={16} />
+                  <span>My Profile</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    router.push("/changePassword");
+                  }}
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1C2C56] transition-colors"
+                >
+                  {/* <FiSettings size={16} /> */}
+                  <FiLock size={16} />
+                  <span>Change Password</span>
+                </button>
+              </div>
 
               {/* Sign Out */}
               <div className="border-t border-[#F1F5F9] pt-1">

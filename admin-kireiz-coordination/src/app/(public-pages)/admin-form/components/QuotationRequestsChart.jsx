@@ -73,9 +73,9 @@ const QuotationRequestsChart = ({ data }) => {
   ];
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-5">
+    <div className="bg-white border border-[#ececec] rounded-xl shadow-lg p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-[#1C2C56] font-semibold">
+        <h3 className="text-[#1C2C56] font-semibold text-[17px]">
           Quotation Volume
         </h3>
 

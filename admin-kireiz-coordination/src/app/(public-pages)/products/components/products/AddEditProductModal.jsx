@@ -79,31 +79,13 @@ const validationSchema = z.object({
       message: "Category is required",
     }),
 
-  subcategory: z
-    .object({
-      value: z.any(),
-      label: z.string(),
-    })
-    .nullable()
-    .refine((val) => val !== null, {
-      message: "Subcategory is required",
-    }),
+  subcategory: z.any().optional(),
 
   price: z
     .string()
     .min(1, "Price is required")
     .refine((val) => !isNaN(Number(val)), {
       message: "Enter valid price",
-    }),
-
-  productType: z
-    .object({
-      value: z.string(),
-      label: z.string(),
-    })
-    .nullable()
-    .refine((val) => val !== null, {
-      message: "Product type is required",
     }),
 
   selectedParts: z.array(z.any()).min(1, "Parts is required"),
@@ -157,11 +139,11 @@ const AddEditProductModal = ({
       category: null,
       subcategory: null,
       price: "",
-      productType: productTypeOptions[0],
       selectedParts: [],
       image: null,
     },
   });
+  const selectedCategory = watch("category");
 
   // Save state
   const [saving, setSaving] = useState(false);
@@ -191,23 +173,6 @@ const AddEditProductModal = ({
     };
 
     // Fetch subcategories
-    const fetchSubcategories = async () => {
-      setLoadingSubcategories(true);
-      try {
-        const response = await apiGetSubcategoryList(accessToken);
-        if (response?.status && response?.data) {
-          const options = response.data.map((s) => ({
-            value: s.id,
-            label: s.name,
-          }));
-          setSubcategoryOptions(options);
-        }
-      } catch (err) {
-        console.error("Failed to load subcategories:", err);
-      } finally {
-        setLoadingSubcategories(false);
-      }
-    };
 
     // Fetch parts
     const fetchParts = async () => {
@@ -231,9 +196,42 @@ const AddEditProductModal = ({
     };
 
     fetchCategories();
-    fetchSubcategories();
     fetchParts();
   }, [isOpen, accessToken]);
+
+  useEffect(() => {
+    if (!selectedCategory?.value || !accessToken) {
+      setSubcategoryOptions([]);
+      setValue("subcategory", null);
+      return;
+    }
+
+    const fetchSubcategories = async () => {
+      setLoadingSubcategories(true);
+
+      try {
+        const response = await apiGetSubcategoryList(
+          accessToken,
+          selectedCategory.value,
+        );
+
+        if (response?.status && response?.data) {
+          const options = response.data.map((item) => ({
+            value: item.id,
+            label: item.name,
+          }));
+
+          setSubcategoryOptions(options);
+        }
+      } catch (err) {
+        console.error("Failed to load subcategories:", err);
+      } finally {
+        setLoadingSubcategories(false);
+      }
+    };
+
+    fetchSubcategories();
+  }, [selectedCategory, accessToken, setValue]);
 
   /* ---------- RESET / PREFILL ---------- */
   // useEffect(() => {
@@ -322,11 +320,6 @@ const AddEditProductModal = ({
             value: id,
             label: `Part #${id}`,
           })) || [],
-
-        productType:
-          productTypeOptions.find(
-            (item) => item.value === initialData.productType,
-          ) || productTypeOptions[0],
       });
 
       setPreview(initialData.ProductImage || null);
@@ -412,7 +405,7 @@ const AddEditProductModal = ({
     try {
       const formData = new FormData();
       formData.append("productName", values.productName.trim());
-      formData.append("productType", values.productType.value);
+      formData.append("productType", "uniform");
 
       if (values.description.trim()) {
         formData.append("description", values.description.trim());
@@ -754,7 +747,7 @@ const AddEditProductModal = ({
               className="mt-1"
             />
           </div> */}
-          <FormItem
+          {/* <FormItem
             label="Product Type"
             invalid={!!errors.productType}
             errorMessage={errors.productType?.message}
@@ -771,7 +764,7 @@ const AddEditProductModal = ({
                 />
               )}
             />
-          </FormItem>
+          </FormItem> */}
         </div>
 
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
