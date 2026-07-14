@@ -315,6 +315,75 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 
+from django.contrib import admin
+from .models import QuotationTemplate
+
+
+@admin.register(QuotationTemplate)
+class QuotationTemplateAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "title",
+        "slug",
+        "userType",
+        "language",
+        "version",
+        "is_active",
+        "is_deleted",
+        "created_at",
+    )
+
+    list_filter = (
+        "title",
+        "userType",
+        "language",
+        "is_active",
+        "is_deleted",
+        "created_at",
+    )
+
+    search_fields = (
+        "slug",
+        "content",
+        "version",
+    )
+
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+    )
+
+    ordering = ("-created_at",)
+
+    fieldsets = (
+        ("Template Information", {
+            "fields": (
+                "title",
+                "slug",
+                "content",
+            )
+        }),
+        ("Configuration", {
+            "fields": (
+                "userType",
+                "language",
+                "version",
+            )
+        }),
+        ("Status", {
+            "fields": (
+                "is_active",
+                "is_deleted",
+            )
+        }),
+        ("Timestamps", {
+            "fields": (
+                "created_at",
+                "updated_at",
+            )
+        }),
+    )
+
 @admin.register(Template)
 class TemplateAdmin(admin.ModelAdmin):
     list_display = (
