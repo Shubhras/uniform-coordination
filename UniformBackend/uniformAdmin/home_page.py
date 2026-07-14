@@ -151,8 +151,8 @@ class HomePageAPIView(APIView):
                 "categoryName": c.categoryName,
                 "slug": c.slug,
                 "description": c.description,
-                # "categoryImage": request.build_absolute_uri(c.categoryImage.url) if c.categoryImage else None
-                "categoryImage": build_media_url(request, c.categoryImage)
+                "categoryImage": request.build_absolute_uri(c.categoryImage.url) if c.categoryImage else None
+                # "categoryImage": build_media_url(request, c.categoryImage)
             })
 
         # ------- BLOGS -------
@@ -173,8 +173,8 @@ class HomePageAPIView(APIView):
                 if b.image.name.startswith("http://") or b.image.name.startswith("https://"):
                     image_url = b.image.name
                 else:
-                    # image_url = request.build_absolute_uri(b.image.url)
-                    image_url = build_media_url(request, b.image)
+                    image_url = request.build_absolute_uri(b.image.url)
+                    # image_url = build_media_url(request, b.image)
 
             blogs_data.append({
                 "id": b.id,
@@ -237,8 +237,8 @@ class HomePageAPIView(APIView):
                 if ci.image.name.startswith("http://") or ci.image.name.startswith("https://"):
                     image_url = ci.image.name
                 else:
-                    # image_url = request.build_absolute_uri(ci.image.url)
-                    image_url = build_media_url(request, ci.image)
+                    image_url = request.build_absolute_uri(ci.image.url)
+                    # image_url = build_media_url(request, ci.image)
 
             catalog_images_data.append({
                 "id": ci.id,
