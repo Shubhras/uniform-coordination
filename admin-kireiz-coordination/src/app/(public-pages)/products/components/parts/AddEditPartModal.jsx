@@ -71,6 +71,7 @@ const AddEditPartModal = ({
   // Save state
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [imageError, setImageError] = useState("");
 
   const {
     control,
@@ -370,9 +371,36 @@ const AddEditPartModal = ({
   }, [categoryOptions, fabricOptions]);
 
   /* ---------- FILE HANDLERS ---------- */
+
+  const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
+  // const handleFile = (file) => {
+  //   if (!file) return;
+
+  //   setImageFile(file);
+  //   setPreview(URL.createObjectURL(file));
+  //   setValidated(true);
+  // };
+
   const handleFile = (file) => {
     if (!file) return;
 
+    // File size validation
+    if (file.size > MAX_FILE_SIZE) {
+      // setError("Image size should not exceed 2 MB");
+      setImageError("Image size should not exceed 2 MB");
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      return;
+    }
+
+    setImageError("");
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
     setValidated(true);
@@ -659,6 +687,9 @@ const AddEditPartModal = ({
               >
                 Upload image
               </button>
+              {imageError && (
+                <p className="text-red-500 text-sm mt-1">{imageError}</p>
+              )}
 
               <div
                 onDrop={handleDrop}

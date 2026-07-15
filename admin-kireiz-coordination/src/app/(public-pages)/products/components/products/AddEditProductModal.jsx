@@ -123,6 +123,8 @@ const AddEditProductModal = ({
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [loadingSubcategories, setLoadingSubcategories] = useState(false);
   const [loadingParts, setLoadingParts] = useState(false);
+  const [imageError, setImageError] = useState("");
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
   const {
     control,
@@ -334,6 +336,7 @@ const AddEditProductModal = ({
       reset();
       setPreview(null);
       setImageFile(null);
+      setImageError("");
       setImageValidated(false);
     }
   }, [isOpen, initialData]);
@@ -397,6 +400,20 @@ const AddEditProductModal = ({
   /* ---------- FILE HANDLER ---------- */
   const handleFile = (file) => {
     if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      setImageError("Image size should not exceed 2 MB");
+      setImageFile(null);
+      setPreview(null);
+      setImageValidated(false);
+
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
+      return;
+    }
+
+    setImageError("");
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
     setImageValidated(true);
@@ -494,6 +511,9 @@ const AddEditProductModal = ({
               <FiUpload size={16} />
               Upload Image
             </button>
+            {imageError && (
+              <p className="text-red-500 text-sm mt-1">{imageError}</p>
+            )}
             <div
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
@@ -504,7 +524,7 @@ const AddEditProductModal = ({
               or{" "}
               <span
                 className="text-[#1C2C56] underline cursor-pointer"
-                onClick={() => fileInputRef.current.click()}
+                onClick={() => fileRef.current.click()}
               >
                 click to browse here
               </span>
