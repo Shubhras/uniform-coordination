@@ -49,9 +49,11 @@ const ViewOrderPopup = ({ isOpen, onClose, orderId }) => {
 
                 {/* LOADING STATE */}
                 {loading && (
-                    <div className="py-20 text-center text-sm text-gray-500">
-                        Loading order details...
-                    </div>
+                    <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+                        <div className="flex justify-center items-center py-20">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+                        </div>
+                    </section>
                 )}
 
                 {/* EMPTY STATE */}

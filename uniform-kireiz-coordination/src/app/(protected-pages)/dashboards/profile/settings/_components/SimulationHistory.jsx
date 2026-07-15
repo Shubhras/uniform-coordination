@@ -12,7 +12,7 @@ import { apiGetHomeData } from '@/services/HomeService'
 import { useSession } from 'next-auth/react'
 import { formatDate } from '@/utils/dateFormater'
 import { Alert } from '@/components/ui/Alert'
-
+import Spinner from '@/components/ui/Spinner'
 const SimulationHistory = () => {
     const { data: session } = useSession();
 
@@ -31,8 +31,9 @@ const SimulationHistory = () => {
 
     const router = useRouter()
 
-    const handleRedirect = () => {
-        router.push('/dashboards/uniform-3d-design')
+    const handleRedirect = (id) => {
+        // product id 
+        router.push(`/dashboards/uniform-3d-design/${id}`);
     }
 
     /* -------------------- FETCH HOME DATA (CATEGORIES) -------------------- */
@@ -53,7 +54,7 @@ const SimulationHistory = () => {
 
             setPdfLoadingId(id)
             setPdfError('')
-
+            return
             const res = await apiSimulationExportPdf(session.accessToken, id)
 
             if (res?.status && res?.pdf_url) {
@@ -133,7 +134,7 @@ const SimulationHistory = () => {
                         }
                         className="w-full sm:w-auto py-2 text-sm rounded-md border border-[#D0D7E2] px-4 sm:px-5 text-[#0F2A44]"
                     >
-                        <option value="">Industry</option>
+                        <option value="">All Industry</option>
                         {categories.map((cat) => (
                             <option key={cat.id} value={cat.slug}>
                                 {cat.categoryName}
@@ -174,9 +175,11 @@ const SimulationHistory = () => {
 
             {/* LOADING STATE */}
             {loading && (
-                <div className="text-center py-10 text-[#6B7280] text-sm">
-                    Loading simulations...
-                </div>
+                <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+                    <div className="flex justify-center items-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+                    </div>
+                </section>
             )}
 
             {/* EMPTY STATE */}
@@ -220,10 +223,10 @@ const SimulationHistory = () => {
 
                                 <div className="mt-6 flex gap-3">
                                     <Button
-                                        className="flex-[2] bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md"
+                                        className="flex-[2] bg-[#1C4FA8] hover:bg-[#1C4FA8] text-white py-2 rounded-md"
                                         size="sm"
                                         icon={<FiExternalLink size={16} />}
-                                        onClick={handleRedirect}
+                                        onClick={() => handleRedirect(item.id)}
                                     >
                                         OPEN
                                     </Button>
@@ -232,11 +235,11 @@ const SimulationHistory = () => {
                                         className="flex-[1] border border-[#1C2C56] text-[#1C2C56] rounded-md"
                                         size="sm"
                                         variant="default"
-                                        icon={<LiaFileDownloadSolid />}
-                                        disabled={pdfLoadingId === item.id}
-                                        onClick={() => handlePdfDownload(item.id)}
+                                        icon={pdfLoadingId === item?.id ? <Spinner size={18} /> : <LiaFileDownloadSolid />}
+                                        disabled={pdfLoadingId === item?.id}
+                                        onClick={() => handlePdfDownload(item?.id)}
                                     >
-                                        {pdfLoadingId === item.id ? 'PDF...' : 'PDF'}
+                                        {pdfLoadingId === item?.id ? 'PDF...' : 'PDF'}
                                     </Button>
 
                                 </div>

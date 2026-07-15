@@ -1,7 +1,7 @@
 'use client'
 
 import { lazy, Suspense } from 'react'
-import React, { useRef, useState,useEffect } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import SettingsMenu from './SettingsMenu'
 import SettingMobileMenu from './SettingMobileMenu'
@@ -17,7 +17,7 @@ const OrderHistory = lazy(() => import('./LinkedOrderAndQuotes'))
 const Notifications = lazy(() => import('./NotificationSetting'))
 
 const Settings = () => {
-    
+
     const { currentView } = useSettingsStore()
     const { data: session } = useSession()
     const [profile, setProfile] = useState(null)
@@ -49,7 +49,11 @@ const Settings = () => {
                         <SettingMobileMenu />
                     </div>
                     <Suspense
-                        fallback={<Loading loading={true} className="w-full" />}
+                        fallback={<section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+                            <div className="flex justify-center items-center py-20">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+                            </div>
+                        </section>}
                     >
                         {currentView === 'my-profile' && <MyProfile />}
                         {currentView === 'personal-information' && <PersonalInformation />}

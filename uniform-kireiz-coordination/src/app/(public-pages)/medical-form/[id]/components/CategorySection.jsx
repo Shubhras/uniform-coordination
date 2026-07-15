@@ -148,7 +148,7 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                                                 setSortBy(option)
                                                 setOpenSort(false)
                                             }}
-                                            className="w-full text-left px-4 py-2 text-sm hover:bg-[#F5F8FF] text-[#1C2C56]"
+                                            className="w-full text-left px-4 py-3 text-sm hover:bg-[#F5F8FF] text-[#1C2C56]"
                                         >
                                             {option.name}
                                         </button>
@@ -198,7 +198,7 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                                     ))}
                                 </ul> */}
 
-                                    <button className="bg-[#1C4FA8] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-blue-800" onClick={() => handleStartDesigning(item.id)}>
+                                    <button className="mt-5 bg-[#1C4FA8] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-blue-800" onClick={() => handleStartDesigning(item.id)}>
                                         {/* {item.btn} */}
                                         Customize
                                     </button>

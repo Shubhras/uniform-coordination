@@ -9,10 +9,13 @@ import { FiFileText } from 'react-icons/fi'
 import { apiGetProfile, apiGetQuotation } from '@/services/AuthProfileService'
 import { CiUser } from 'react-icons/ci'
 import { GoArrowRight } from 'react-icons/go'
+import Spinner from '@/components/ui/Spinner'
+import { useSettingsStore } from '../_store/settingsStore'
 
 const MyProfile = () => {
     const fileRef = useRef(null)
     const { data: session } = useSession()
+    const { setCurrentView } = useSettingsStore()
 
     const [profile, setProfile] = useState(null)
     const [quotationData, setQuotationData] = useState([])
@@ -47,6 +50,7 @@ const MyProfile = () => {
 
             setQuotationLoading(true)
             const res = await apiGetQuotation(session.accessToken)
+            console.log('apiGetQuotation', res)
 
             if (res?.status) {
                 setQuotationData(res.data || [])
@@ -82,9 +86,11 @@ const MyProfile = () => {
 
     if (profileLoading) {
         return (
-            <div className="max-w-7xl mx-auto text-center py-20 text-sm text-gray-500">
-                Loading profile...
-            </div>
+            <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+                <div className="flex justify-center items-center py-20">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+                </div>
+            </section>
         )
     }
 
@@ -130,21 +136,21 @@ const MyProfile = () => {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-10">
                             <div>
-                                <p className="text-xs text-gray-500">First Name</p>
+                                <p className="text-xs text-gray-500 mb-1">First Name</p>
                                 <p className="text-sm font-medium text-[#0F172A]">
                                     {profile?.firstName || '-'}
                                 </p>
                             </div>
 
                             <div>
-                                <p className="text-xs text-gray-500">Last Name</p>
+                                <p className="text-xs text-gray-500 mb-1">Last Name</p>
                                 <p className="text-sm font-medium text-[#0F172A]">
                                     {profile?.lastName || '-'}
                                 </p>
                             </div>
 
                             <div>
-                                <p className="text-xs text-gray-500">Email Address</p>
+                                <p className="text-xs text-gray-500 mb-1">Email Address</p>
                                 <p className="text-sm font-medium flex items-center gap-1 text-[#0F172A]">
                                     {profile?.email || '-'}
                                     <HiCheckCircle className="text-green-500" />
@@ -152,14 +158,14 @@ const MyProfile = () => {
                             </div>
 
                             <div>
-                                <p className="text-xs text-gray-500">Phone Number</p>
+                                <p className="text-xs text-gray-500 mb-1">Phone Number</p>
                                 <p className="text-sm font-medium text-[#0F172A]">
                                     {profile?.phone || '-'}
                                 </p>
                             </div>
 
                             <div>
-                                <p className="text-xs text-gray-500">Position</p>
+                                <p className="text-xs text-gray-500 mb-1">Position</p>
                                 <p className="text-sm font-medium text-[#0F172A]">
                                     {profile?.roleName || '-'}
                                 </p>
@@ -169,15 +175,15 @@ const MyProfile = () => {
 
                     {/* Actions */}
                     <div className="flex flex-wrap gap-2">
-                        <Button size="sm" className="flex items-center gap-2 border border-[#ADC2DE]">
+                        <Button size="sm" className="flex items-center gap-2 border border-[#ADC2DE]" onClick={() => setCurrentView('personal-information')}>
                             <FiEdit2 /> Edit Profile
                         </Button>
-                        <Button size="sm" className="flex items-center gap-2 border border-[#ADC2DE]">
+                        <Button size="sm" className="flex items-center gap-2 border border-[#ADC2DE]" onClick={() => setCurrentView('change-password')}>
                             <FiLock /> Change Password
                         </Button>
-                        <Button size="sm" className="flex items-center gap-2 border border-[#ADC2DE]">
+                        {/* <Button size="sm" className="flex items-center gap-2 border border-[#ADC2DE]">
                             <FiMail /> Verify Email
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
 
@@ -220,7 +226,7 @@ const MyProfile = () => {
                             className="flex justify-between items-center bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl px-5 py-4"
                         >
                             <p className="text-sm font-medium text-[#0F172A]">
-                                {q.companyName || '-'}
+                                {q.company_name || '-'}
                             </p>
 
                             <button className="flex items-center gap-2 text-xs text-[#2563A8] font-medium">
@@ -275,14 +281,14 @@ const MyProfile = () => {
                         <div className="flex gap-3">
                             <Button
                                 size="sm"
-                                className="bg-[#1C2C56] hover:bg-[#0c2452] text-white w-full"
+                                className="bg-[#1C4FA8] hover:bg-[#1C4FA8] text-white w-full"
                             >
                                 View Details
                             </Button>
                             <Button
                                 size="sm"
                                 variant="default"
-                                className="border border-[#1E4FA8]  text-[#1E4FA8] w-full"
+                                className="border border-[#1E3A5F]  text-[#1E3A5F] w-full"
                             >
                                 Track
                             </Button>

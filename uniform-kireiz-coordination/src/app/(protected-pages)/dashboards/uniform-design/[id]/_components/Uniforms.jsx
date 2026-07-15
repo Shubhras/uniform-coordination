@@ -102,7 +102,7 @@ const Uniforms = () => {
                         <button
                             onClick={() => setOpenSort(!openSort)}
                             className="flex items-center justify-between gap-2 border border-[#1C2C56] bg-[#F5F8FF]
-                                px-4 py-3 rounded-lg text-sm min-w-[190px]"
+                                px-4 py-2 rounded-lg text-sm min-w-[190px]"
                         >
                             <span>Sort By : <b>{sortBy.name}</b></span>
                             <FiChevronDown />
