@@ -6,6 +6,22 @@ import Link from 'next/link'
 import { FiChevronDown, FiArrowLeft } from 'react-icons/fi'
 import { useParams, useRouter } from 'next/navigation'
 import { apiGetProductById } from '@/services/ProductService'
+import Select from '@/components/ui/Select'
+import { HiCheck } from 'react-icons/hi'
+
+const CustomOption = (props) => {
+    const { innerProps, label, isSelected, isDisabled } = props
+    return (
+        <div
+            className={`flex items-center justify-between px-3 py-2 cursor-pointer ${isSelected ? 'text-[#1C4FA8] bg-[#F2F7FF]' : 'text-[#1C2C56] hover:bg-gray-100'
+                } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            {...innerProps}
+        >
+            <span className="text-sm font-medium">{label}</span>
+            {isSelected && <HiCheck className="text-lg text-[#1C4FA8]" />}
+        </div>
+    )
+}
 
 const Uniforms = () => {
     const router = useRouter()
@@ -98,32 +114,33 @@ const Uniforms = () => {
                     {/* commented code stays commented */}
 
                     {/* SORT */}
-                    <div className="relative">
-                        <button
-                            onClick={() => setOpenSort(!openSort)}
-                            className="flex items-center justify-between gap-2 border border-[#1C2C56] bg-[#F5F8FF]
-                                px-4 py-2 rounded-lg text-sm min-w-[190px]"
-                        >
-                            <span>Sort By : <b>{sortBy.name}</b></span>
-                            <FiChevronDown />
-                        </button>
-
-                        {openSort && (
-                            <div className="absolute right-0 mt-2 w-full bg-white border rounded-lg shadow-md z-20">
-                                {sortOptions.map(option => (
-                                    <button
-                                        key={option.key}
-                                        onClick={() => {
-                                            setSortBy(option)
-                                            setOpenSort(false)
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm hover:bg-[#F5F8FF]"
-                                    >
-                                        {option.name}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+                    <div className="relative min-w-[220px] z-[60]">
+                        <Select
+                            options={sortOptions.map(opt => ({ value: opt.key, label: `${opt.name}` }))}
+                            value={{ value: sortBy.key, label: `Sort By : ${sortBy.name}` }}
+                            onChange={(selected) => {
+                                const option = sortOptions.find(o => o.key === selected.value);
+                                if (option) setSortBy(option);
+                            }}
+                            components={{ Option: CustomOption }}
+                            styles={{
+                                control: () => ({
+                                    borderRadius: '8px',
+                                    borderColor: '#1C2C56',
+                                    borderStyle: 'solid',
+                                    borderWidth: '1px',
+                                    backgroundColor: '#F5F8FF',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '2px 8px',
+                                    cursor: 'pointer',
+                                    height: '38px'
+                                }),
+                                singleValue: () => ({ color: '#1C2C56', fontSize: '14px' }),
+                                placeholder: () => ({ color: '#1C2C56', fontSize: '14px' })
+                            }}
+                        />
                     </div>
                 </div>
 

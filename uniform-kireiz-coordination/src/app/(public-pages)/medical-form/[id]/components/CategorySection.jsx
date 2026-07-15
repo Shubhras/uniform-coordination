@@ -4,6 +4,22 @@ import Image from 'next/image'
 import { useRouter } from "next/navigation";
 import { useState } from 'react'
 import { FiChevronDown } from 'react-icons/fi'
+import Select from '@/components/ui/Select'
+import { HiCheck } from 'react-icons/hi'
+
+const CustomOption = (props) => {
+    const { innerProps, label, isSelected, isDisabled } = props
+    return (
+        <div
+            className={`flex items-center justify-between px-3 py-2 cursor-pointer ${isSelected ? 'text-[#1C4FA8] bg-[#F2F7FF]' : 'text-[#1C2C56] hover:bg-gray-100'
+                } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            {...innerProps}
+        >
+            <span className="text-sm font-medium">{label}</span>
+            {isSelected && <HiCheck className="text-lg text-[#1C4FA8]" />}
+        </div>
+    )
+}
 
 // const categories = [
 //     {
@@ -118,43 +134,33 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                         </div>
 
                         {/* SORT DROPDOWN */}
-                        <div className="relative">
-                            <button
-                                onClick={() => setOpenSort(!openSort)}
-                                className="
-                            flex items-center gap-2
-                            border border-[#1C2C56]
-                            rounded-lg
-                            px-4 py-2
-                            text-sm
-                            text-[#1C2C56]
-                            bg-[#F5F8FF]
-                            min-w-[190px]
-                            justify-between
-                        "
-                            >
-                                <span>
-                                    Sort By : <span className="font-medium">{sortBy.name}</span>
-                                </span>
-                                <FiChevronDown />
-                            </button>
-
-                            {openSort && (
-                                <div className="absolute right-0 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-md z-20">
-                                    {sortOptions.map((option) => (
-                                        <button
-                                            key={option.id}
-                                            onClick={() => {
-                                                setSortBy(option)
-                                                setOpenSort(false)
-                                            }}
-                                            className="w-full text-left px-4 py-3 text-sm hover:bg-[#F5F8FF] text-[#1C2C56]"
-                                        >
-                                            {option.name}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                        <div className="relative min-w-[220px] z-[60]">
+                            <Select
+                                options={sortOptions.map(opt => ({ value: opt.id, label: `${opt.name}` }))}
+                                value={{ value: sortBy.id, label: `Sort By : ${sortBy.name}` }}
+                                onChange={(selected) => {
+                                    const option = sortOptions.find(o => o.id === selected.value);
+                                    if (option) setSortBy(option);
+                                }}
+                                components={{ Option: CustomOption }}
+                                styles={{
+                                    control: () => ({
+                                        borderRadius: '8px',
+                                        borderColor: '#1C2C56',
+                                        borderStyle: 'solid',
+                                        borderWidth: '1px',
+                                        backgroundColor: '#F5F8FF',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        padding: '2px 8px',
+                                        cursor: 'pointer',
+                                        height: '38px'
+                                    }),
+                                    singleValue: () => ({ color: '#1C2C56', fontSize: '14px' }),
+                                    placeholder: () => ({ color: '#1C2C56', fontSize: '14px' })
+                                }}
+                            />
                         </div>
                     </div>
                 </div>

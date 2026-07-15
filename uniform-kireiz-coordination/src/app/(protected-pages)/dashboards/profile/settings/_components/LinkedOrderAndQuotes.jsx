@@ -6,10 +6,14 @@ import {
     FiBox,
     FiClock,
     FiCheckCircle,
+    FiLoader,
 } from 'react-icons/fi'
 import { CiDeliveryTruck } from 'react-icons/ci'
 import ViewOrderPopup from './ViewOrderPopup'
 import { useSession } from 'next-auth/react'
+import { IoChevronBack, IoChevronForward } from 'react-icons/io5'
+
+const ITEMS_PER_PAGE = 3
 import { apiOrderAndQuotation } from '@/services/AuthProfileService'
 import { formatDate } from '@/utils/dateFormater'
 
@@ -56,6 +60,14 @@ const LinkedOrderAndQuotes = () => {
 
     const [orderAndQuotationData, setOrderAndQuotationData] = useState([])
     const [loading, setLoading] = useState(false)
+    const [currentPage, setCurrentPage] = useState(1)
+
+    const totalPages = Math.ceil(orderAndQuotationData.length / ITEMS_PER_PAGE) || 1
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    const currentOrders = orderAndQuotationData.slice(
+        startIndex,
+        startIndex + ITEMS_PER_PAGE
+    )
 
     const fetchSimulationHistory = async () => {
         try {
@@ -106,7 +118,10 @@ const LinkedOrderAndQuotes = () => {
                     {tabs.map((tab) => (
                         <button
                             key={tab}
-                            onClick={() => setActiveTab(tab)}
+                            onClick={() => {
+                                setActiveTab(tab)
+                                setCurrentPage(1)
+                            }}
                             className={`py-2 px-3 sm:px-5 text-xs sm:text-sm font-medium border rounded-md transition flex items-center gap-2 whitespace-nowrap
                 ${activeTab === tab
                                     ? 'bg-[#1C2C56] text-white'
@@ -153,13 +168,13 @@ const LinkedOrderAndQuotes = () => {
                 )}
 
                 {/* Orders */}
-                {!loading && orderAndQuotationData.length > 0 && (
+                {!loading && currentOrders.length > 0 && (
                     <div className="space-y-8">
-                        {orderAndQuotationData.map((order, i) => (
+                        {currentOrders.map((order, i) => (
                             <div key={i}>
                                 {/* Order meta */}
-                                <p className="text-[#003562] text-xs font-medium mb-1">
-                                    OrderId: {order.id}
+                                <p className="text-[#003562] text-sm font-medium mb-1">
+                                    #{order.order_no}
                                 </p>
                                 <h4 className="text-[#003562] text-sm sm:text-base font-semibold mb-2">
                                     {order.title}
@@ -167,15 +182,27 @@ const LinkedOrderAndQuotes = () => {
 
                                 {/* Card */}
                                 <div className="bg-white rounded-xl shadow-md p-5 mb-3">
-                                    <div
-                                        className={`flex items-center gap-2 text-xs sm:text-sm font-medium mb-2 ${order.statusColor}`}
-                                    >
-                                        {order.statusIcon}
-                                        Status: {order.status}
-                                    </div>
+                                    {order.status == "Drafted" && (
+                                        <div className={`flex items-center gap-2 text-xs sm:text-sm font-medium mb-2 text-red-500`}>
+                                            <FiClock size={18} />
+                                            Status: {order.status}
+                                        </div>
+                                    )}
+                                    {order.status == "Submitted" && (
+                                        <div className={`flex items-center gap-2 text-xs sm:text-sm font-medium mb-2 text-[#1C4FA8]`}>
+                                            <CiDeliveryTruck size={22} />
+                                            Status: {order.status}
+                                        </div>
+                                    )}
+                                    {order.status == "Pending" && (
+                                        <div className={`flex items-center gap-2 text-xs sm:text-sm font-medium mb-2 text-orange-500`}>
+                                            <FiLoader size={18} />
+                                            Status: {order.status}
+                                        </div>
+                                    )}
 
                                     <p className="text-xs sm:text-sm text-gray-500 mb-1">
-                                        {formatDate(order.date)}
+                                        Delivery: {formatDate(order.date)}
                                     </p>
 
                                     <p className="text-xs sm:text-sm text-gray-700">
@@ -197,14 +224,38 @@ const LinkedOrderAndQuotes = () => {
                     </div>
                 )}
 
-                {/* Footer */}
-                {
-                    orderAndQuotationData.length > 0 && <div className="mt-8 text-center">
-                        <button className="text-[#1C4FA8] text-xs sm:text-sm font-medium">
-                            View All Orders
-                        </button>
+                {/* Pagination */}
+                {!loading && totalPages > 1 && (
+                    <div className="flex items-center justify-between mt-8 text-sm text-[#64748B]">
+                        <span>
+                            Page {currentPage} of {totalPages}
+                        </span>
+
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className={`h-9 w-9 flex items-center justify-center rounded-md border transition-colors ${currentPage === 1
+                                    ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                                    : 'border-[#1C4FA8] bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]'
+                                    }`}
+                            >
+                                <IoChevronBack size={16} />
+                            </button>
+
+                            <button
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className={`h-9 w-9 flex items-center justify-center rounded-md border transition-colors ${currentPage === totalPages
+                                    ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                                    : 'border-[#1C4FA8] bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]'
+                                    }`}
+                            >
+                                <IoChevronForward size={16} />
+                            </button>
+                        </div>
                     </div>
-                }
+                )}
 
             </div>
 

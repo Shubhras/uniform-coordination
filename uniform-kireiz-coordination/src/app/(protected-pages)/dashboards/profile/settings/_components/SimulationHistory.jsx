@@ -13,6 +13,40 @@ import { useSession } from 'next-auth/react'
 import { formatDate } from '@/utils/dateFormater'
 import { Alert } from '@/components/ui/Alert'
 import Spinner from '@/components/ui/Spinner'
+import Select from '@/components/ui/Select'
+import { IoChevronBack, IoChevronForward } from 'react-icons/io5'
+import { HiCheck } from 'react-icons/hi'
+
+const ITEMS_PER_PAGE = 8
+
+const CustomOption = (props) => {
+    const { innerProps, label, isSelected, isDisabled } = props
+    return (
+        <div
+            className={`flex items-center justify-between px-3 py-2 cursor-pointer ${
+                isSelected ? 'text-[#1C4FA8] bg-[#F2F7FF]' : 'text-[#1C2C56] hover:bg-gray-100'
+            } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            {...innerProps}
+        >
+            <span className="ml-2 text-sm font-medium">{label}</span>
+            {isSelected && <HiCheck className="text-lg" />}
+        </div>
+    )
+}
+
+const sortOptions = [
+    { value: '', label: 'Sort' },
+    { value: 'new', label: 'Newest' },
+    { value: 'old', label: 'Oldest' },
+]
+
+const rangeOptions = [
+    { value: '', label: 'Select Date Range' },
+    { value: '30', label: 'Last 30 Days' },
+    { value: '180', label: 'Last 6 Month' },
+    { value: '365', label: 'Last 1 Year' },
+]
+
 const SimulationHistory = () => {
     const { data: session } = useSession();
 
@@ -21,19 +55,25 @@ const SimulationHistory = () => {
     const [loading, setLoading] = useState(false)
     const [pdfLoadingId, setPdfLoadingId] = useState(null)
     const [pdfError, setPdfError] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
 
-
+    const totalPages = Math.ceil(simulationData.length / ITEMS_PER_PAGE) || 1
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    const currentSimulations = simulationData.slice(
+        startIndex,
+        startIndex + ITEMS_PER_PAGE
+    )
     const [filters, setFilters] = useState({
         category: '',
-        sort: '',
-        range: '',
+        sort: 'new',
+        range: '30',
     })
 
     const router = useRouter()
 
     const handleRedirect = (id) => {
         // product id 
-        router.push(`/dashboards/uniform-3d-design/${id}`);
+        router.push(`/dashboards/design-result/${id}`);
     }
 
     /* -------------------- FETCH HOME DATA (CATEGORIES) -------------------- */
@@ -54,7 +94,7 @@ const SimulationHistory = () => {
 
             setPdfLoadingId(id)
             setPdfError('')
-            return
+
             const res = await apiSimulationExportPdf(session.accessToken, id)
 
             if (res?.status && res?.pdf_url) {
@@ -76,7 +116,7 @@ const SimulationHistory = () => {
         try {
             if (!session?.accessToken) return
             setLoading(true)
-
+            setCurrentPage(1)
             const params = {}
 
             if (filters.category) params.category = filters.category
@@ -126,49 +166,85 @@ const SimulationHistory = () => {
             <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 mb-8">
 
                 {/* LEFT */}
-                <div className="flex gap-2">
-                    <select
-                        value={filters.category}
-                        onChange={(e) =>
-                            setFilters({ ...filters, category: e.target.value })
+                <div className="flex gap-2 w-full sm:w-auto z-[60]">
+                    <Select
+                        options={[{ value: '', label: 'All Industry' }, ...categories.map(cat => ({ value: cat.slug, label: cat.categoryName }))]}
+                        value={[{ value: '', label: 'All Industry' }, ...categories.map(cat => ({ value: cat.slug, label: cat.categoryName }))].find(o => o.value === filters.category) || { value: '', label: 'All Industry' }}
+                        onChange={(selected) =>
+                            setFilters({ ...filters, category: selected?.value || '' })
                         }
-                        className="w-full sm:w-auto py-2 text-sm rounded-md border border-[#D0D7E2] px-4 sm:px-5 text-[#0F2A44]"
-                    >
-                        <option value="">All Industry</option>
-                        {categories.map((cat) => (
-                            <option key={cat.id} value={cat.slug}>
-                                {cat.categoryName}
-                            </option>
-                        ))}
-                    </select>
+                        className="w-full min-w-[180px]"
+                        components={{ Option: CustomOption }}
+                        styles={{
+                            control: () => ({
+                                borderRadius: '10px',
+                                borderColor: '#B2C7E3',
+                                borderStyle: 'solid',
+                                borderWidth: '1px',
+                                backgroundColor: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '4px 8px',
+                                cursor: 'pointer'
+                            }),
+                            singleValue: () => ({ color: '#1C2C56', fontWeight: 500, fontSize: '14px' }),
+                            placeholder: () => ({ color: '#1C2C56', fontWeight: 500, fontSize: '14px' })
+                        }}
+                    />
                 </div>
 
                 {/* RIGHT */}
-                <div className="flex gap-3">
-                    <select
-                        value={filters.sort}
-                        onChange={(e) =>
-                            setFilters({ ...filters, sort: e.target.value })
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-3 sm:mt-0 z-[50]">
+                    <Select
+                        options={sortOptions}
+                        value={sortOptions.find((o) => o.value === filters.sort) || sortOptions[0]}
+                        onChange={(selected) =>
+                            setFilters({ ...filters, sort: selected?.value || '' })
                         }
-                        className="w-full sm:w-auto py-2 text-sm rounded-md border border-[#D0D7E2] px-4 sm:px-5 text-[#0F2A44]"
-                    >
-                        <option value="">Sort</option>
-                        <option value="new">New</option>
-                        <option value="old">Old</option>
-                    </select>
+                        className="w-full min-w-[180px]"
+                        components={{ Option: CustomOption }}
+                        styles={{
+                            control: () => ({
+                                borderRadius: '10px',
+                                borderColor: '#B2C7E3',
+                                borderStyle: 'solid',
+                                borderWidth: '1px',
+                                backgroundColor: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '4px 8px',
+                                cursor: 'pointer'
+                            }),
+                            singleValue: () => ({ color: '#1C2C56', fontWeight: 500, fontSize: '14px' })
+                        }}
+                    />
 
-                    <select
-                        value={filters.range}
-                        onChange={(e) =>
-                            setFilters({ ...filters, range: e.target.value })
+                    <Select
+                        options={rangeOptions}
+                        value={rangeOptions.find((o) => o.value === filters.range) || rangeOptions[0]}
+                        onChange={(selected) =>
+                            setFilters({ ...filters, range: selected?.value || '' })
                         }
-                        className="w-full sm:w-auto py-2 text-sm rounded-md border border-[#D0D7E2] px-4 sm:px-5 text-[#0F2A44]"
-                    >
-                        <option value="">Date Range</option>
-                        <option value="30">Last 30 Days</option>
-                        <option value="180">Last 6 Month</option>
-                        <option value="365">Last 1 Year</option>
-                    </select>
+                        className="w-full min-w-[160px]"
+                        components={{ Option: CustomOption }}
+                        styles={{
+                            control: () => ({
+                                borderRadius: '10px',
+                                borderColor: '#B2C7E3',
+                                borderStyle: 'solid',
+                                borderWidth: '1px',
+                                backgroundColor: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '4px 8px',
+                                cursor: 'pointer'
+                            }),
+                            singleValue: () => ({ color: '#1C2C56', fontWeight: 500, fontSize: '14px' })
+                        }}
+                    />
                 </div>
 
             </div>
@@ -190,9 +266,9 @@ const SimulationHistory = () => {
             )}
 
             {/* CARDS */}
-            {!loading && simulationData.length > 0 && (
+            {!loading && currentSimulations.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-                    {simulationData.map((item, i) => {
+                    {currentSimulations.map((item, i) => {
                         const product = item.product_details?.[0]
 
                         return (
@@ -249,6 +325,38 @@ const SimulationHistory = () => {
                 </div>
             )}
 
+            {/* Pagination */}
+            {!loading && totalPages > 1 && (
+                <div className="flex items-center justify-between mt-8 text-sm text-[#64748B]">
+                    <span>
+                        Page {currentPage} of {totalPages}
+                    </span>
+
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className={`h-9 w-9 flex items-center justify-center rounded-md border transition-colors ${currentPage === 1
+                                ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                                : 'border-[#1C4FA8] bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]'
+                                }`}
+                        >
+                            <IoChevronBack size={16} />
+                        </button>
+
+                        <button
+                            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className={`h-9 w-9 flex items-center justify-center rounded-md border transition-colors ${currentPage === totalPages
+                                ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                                : 'border-[#1C4FA8] bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]'
+                                }`}
+                        >
+                            <IoChevronForward size={16} />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
