@@ -1,27 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { FormItem, Form } from '@/components/ui/Form'
-import Input from '@/components/ui/Input'
-import Button from '@/components/ui/Button'
-import Checkbox from '@/components/ui/Checkbox'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import DatePicker from '@/components/ui/DatePicker'
 import Image from 'next/image'
 import { TbView360Number } from 'react-icons/tb'
-const validationSchema = z.object({
-    companyName: z.string().min(1, 'Company Name Required'),
-    contactPerson: z.string().min(1, 'Contact Person Required'),
-    email: z.string().email('Invalid Email'),
-    phone: z.string().min(8, 'Phone Required'),
-    itemType: z.string().min(1, 'Item Type Required'),
-    material: z.string().min(1, 'Material Required'),
-    sizeQty: z.string().min(1, 'Size & Quantity Required'),
-    deliveryDate: z.string().min(1, 'Delivery Date Required'),
-    notes: z.string().optional(),
-    agree: z.boolean().refine(val => val === true, { message: 'Required' }),
-})
+
 import {
     FiSave,
     FiFileText,
@@ -30,9 +11,12 @@ import {
     FiLayers,
     FiArchive,
 } from "react-icons/fi"
-import { useRouter, useSearchParams } from 'next/navigation'
-import { apiSaveDesign, apiExportDesignPdf, apiGetModalInfo } from '@/services/SaveDesignService'
+import { useRouter, useParams } from 'next/navigation'
+import { apiUpadteDesign, apiExportDesignPdf, apiGetModalInfo } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
+import Notification from '@/components/ui/Notification'
+import toast from '@/components/ui/toast'
+import Spinner from '@/components/ui/Spinner'
 
 const iconMap = {
     "Cut Style": FiScissors,
@@ -45,12 +29,11 @@ const iconMap = {
 }
 const DesignResultPage = () => {
     const router = useRouter();
-    const [dialogTermsOpen, setDialogTermsOpen] = useState(false);
-    const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const { data: session } = useSession()
-    // console.log("session", session)
-    const searchParams = useSearchParams()
-    const id = searchParams.get('id')
+    const params = useParams()
+
+    const id = params?.id    // custom update model id
 
     useEffect(() => {
         const fetchModalInfo = async () => {
@@ -66,37 +49,7 @@ const DesignResultPage = () => {
         fetchModalInfo();
     }, [id, session?.accessToken]);
 
-    const {
-        handleSubmit,
-        reset,
-        formState: { errors },
-        control,
-    } = useForm({
-        defaultValues: {
-            companyName: "",
-            contactPerson: "",
-            email: "",
-            phone: "",
-            itemType: "",
-            material: "",
-            sizeQty: "",
-            deliveryDate: "",
-            notes: "",
-            agree: false,
-        },
-        resolver: zodResolver(validationSchema),
-    });
 
-    const onSubmit = (values) => {
-        console.log('summit from', values);
-    };
-
-    const openDialogTerms = () => {
-        setDialogTermsOpen(true)
-    }
-    const openDialogQuoteRequest = () => {
-        setDialogQuoteRequestOpen(true)
-    }
     const SpecCard = ({ title, value }) => {
         const Icon = iconMap[title]
 
@@ -126,14 +79,16 @@ const DesignResultPage = () => {
     )
 
     const handleRedirect = () => {
-        router.push('/dashboards/delivery-request')
+        // Redirect to  Delivery Request Form page
+        router.push(`/dashboards/delivery-request/${id}`);
     }
     const handleSaveDesign = async () => {
         if (!session?.accessToken) return
+        setIsSaving(true);
 
         const payload = {
             "user": session?.user?.id,
-            "model_info": id,
+            // "model_info": id,
             "config_json": {
                 "color": "grey",
                 "size": "M",
@@ -149,26 +104,40 @@ const DesignResultPage = () => {
         }
 
         try {
-            const response = await apiSaveDesign(payload, session.accessToken);
+            const response = await apiUpadteDesign(id, payload, session.accessToken);
             console.log("Design Saved Successfully:", response);
-            alert("Design saved successfully");
+            toast.push(
+                <Notification title="Success!" type="success">
+                    Design saved successfully
+                </Notification>
+            );
         } catch (error) {
             console.error("Save Design Error:", error);
-            alert("Failed to save design");
+            toast.push(
+                <Notification title="Error!" type="danger">
+                    Failed to save design
+                </Notification>
+            );
+        } finally {
+            setIsSaving(false);
         }
     };
 
 
     const handleExportPdf = async () => {
         if (!session?.accessToken) {
-            alert("Please login first");
+            toast.push(
+                <Notification title="Warning!" type="warning">
+                    Please login first
+                </Notification>
+            );
             return;
         }
 
         try {
             const userId = session?.user?.id;
             const response = await apiExportDesignPdf(
-                userId,
+                id,
                 session.accessToken
             );
             const pdfUrl = response?.pdf_url;
@@ -180,7 +149,11 @@ const DesignResultPage = () => {
 
         } catch (error) {
             console.error("Export PDF Error:", error);
-            alert("Failed to export PDF");
+            toast.push(
+                <Notification title="Error!" type="danger">
+                    Failed to export PDF
+                </Notification>
+            );
         }
     };
 
@@ -274,10 +247,11 @@ const DesignResultPage = () => {
                                 {/* Save Design */}
                                 <button
                                     onClick={handleSaveDesign}
-                                    className="w-full sm:w-auto flex-1 flex flex-col items-center justify-center gap-2 text-xs border border-[#E5E7EB] rounded-lg bg-[#F7FBFF] text-[#1C2C56] hover:bg-[#EEF5FF] transition py-2 h-[55px]"
+                                    disabled={isSaving}
+                                    className={`w-full sm:w-auto flex-1 flex flex-col items-center justify-center gap-2 text-xs border border-[#E5E7EB] rounded-lg bg-[#F7FBFF] text-[#1C2C56] hover:bg-[#EEF5FF] transition py-2 h-[55px] ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                    <FiSave size={18} />
-                                    <span>Save Design</span>
+                                    {isSaving ? <Spinner size={18} /> : <FiSave size={18} />}
+                                    <span>{isSaving ? 'Saving...' : 'Save Design'}</span>
                                 </button>
                                 {/* Export PDF */}
                                 <button onClick={handleExportPdf}

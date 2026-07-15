@@ -1,5 +1,5 @@
 import AdaptiveCard from "@/components/shared/AdaptiveCard"
-import DesignResultPage from "./_components/DesignResultPage"
+import DesignResultPage from "../_components/DesignResultPage"
 
 const Page = () => {
 

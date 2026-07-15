@@ -7,7 +7,7 @@ const PrivatePolicyHero = () => {
     const [error, setError] = useState(null)
     const [policy, setPolicy] = useState(null)
 
-    // API HIDE KIYA GAYA HAI LIKIN REMOVE NAHI KIYA HAI
+
     const fetchPrivatePolicy = async (policyType) => {
         try {
             setLoading(true)

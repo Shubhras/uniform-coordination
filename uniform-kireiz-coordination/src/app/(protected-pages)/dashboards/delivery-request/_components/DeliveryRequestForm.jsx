@@ -12,20 +12,36 @@ import TermsAndConditionsPopup from './TermsAndConditionsPopup'
 import QuoteRequestPopup from './QuoteRequestPopup'
 import { apiCreateQuotationRequest } from '@/services/QuotationRequestService'
 import { useSession } from 'next-auth/react'
-
+import { useParams } from 'next/navigation'
 const validationSchema = z.object({
-    company_name: z.string().min(1, 'Company Name Required'),
-    contact_person: z.string().min(1, 'Contact Person Required'),
-    email: z.string().email('Invalid Email'),
-    phone_number: z.string().min(8, 'Phone Required'),
-    item_type: z.string().min(1, 'Item Type Required'),
-    material: z.string().min(1, 'Material Required'),
-    size_quantity: z.string().min(1, 'Size & Quantity Required'),
+    company_name: z
+        .string({ required_error: 'Please enter company name' })
+        .min(1, { message: 'Please enter company name' }),
+    contact_person: z
+        .string({ required_error: 'Please enter contact person' })
+        .min(1, { message: 'Please enter contact person' }),
+    email: z
+        .string({ required_error: 'Please enter your email' })
+        .min(1, { message: 'Please enter your email' })
+        .email({ message: 'Please enter a valid email address' }),
+    phone_number: z
+        .string({ required_error: 'Please enter phone number' })
+        .regex(/^\d+$/, { message: 'Phone number must contain only numbers' })
+        .min(8, { message: 'Please enter a valid phone number (min. 8 digits)' }),
+    item_type: z
+        .string({ required_error: 'Please enter item type' })
+        .min(1, { message: 'Please enter item type' }),
+    material: z
+        .string({ required_error: 'Please enter material' })
+        .min(1, { message: 'Please enter material' }),
+    size_quantity: z
+        .string({ required_error: 'Please enter size and quantity' })
+        .min(1, { message: 'Please enter size and quantity' }),
     delivery_date: z.date({
-        required_error: 'Delivery Date Required',
+        required_error: 'Please select delivery date',
     }),
     additional_note: z.string().optional(),
-    agreed_to_terms: z.boolean().refine(val => val === true, { message: 'Required' }),
+    agreed_to_terms: z.boolean().refine(val => val === true, { message: 'Please agree to terms and conditions' }),
 })
 
 const DeliveryRequestForm = () => {
@@ -34,7 +50,9 @@ const DeliveryRequestForm = () => {
     const [dialogTermsOpen, setDialogTermsOpen] = useState(false)
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const params = useParams()
 
+    const id = params?.id  // custom update model id
     const {
         handleSubmit,
         reset,
@@ -62,7 +80,7 @@ const DeliveryRequestForm = () => {
             delivery_date: values.delivery_date
                 ? values.delivery_date.toISOString().split('T')[0]
                 : "",
-            customupdatemodel: 13,
+            customupdatemodel: id,
         }
 
         try {
@@ -90,7 +108,7 @@ const DeliveryRequestForm = () => {
         <>
             <div className="w-full bg-white ">
                 <div className="w-full mx-auto max-w-[720px]">
-                    <h4 className="font-semibold mb-8">
+                    <h4 className="font-semibold mb-8 text-[#003562]">
                         Quotation & Delivery Request Form
                     </h4>
 
@@ -221,6 +239,7 @@ const DeliveryRequestForm = () => {
                                             value={field.value}
                                             onChange={(date) => field.onChange(date)}
                                             placeholder="Delivery Date"
+                                            minDate={new Date()}
                                         />
                                     )}
                                 />

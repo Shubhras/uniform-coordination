@@ -53,15 +53,9 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
     return (
         <Dialog
             isOpen={isOpen}
-            onClose={onClose}
-            onRequestClose={onClose}
-            className="
-                w-full
-                max-w-[800px]
-                mx-4
-                sm:mx-auto
-            "
-            style={{ minWidth: '550px' }}
+            onClose={handleBackToHome}
+            onRequestClose={handleBackToHome}
+            width={800}
         >
             <div className="
                 flex
@@ -74,7 +68,7 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
             ">
                 {/* Header */}
                 <div className="px-4 sm:px-6 pt-6 sm:pt-8 text-center">
-                    <h2 className="text-xl sm:text-2xl font-semibold text-[#1A1A1A]">
+                    <h2 className="text-xl sm:text-2xl font-semibold text-[#003562]">
                         Your Quote Request Has Been Submitted!
                     </h2>
                     <p className="text-gray-600 mt-2 text-xs sm:text-sm">
@@ -133,8 +127,8 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
                         variant="solid"
                         className="
                             w-full sm:w-auto
-                            bg-[#1C2C56]
-                            hover:bg-[#1C2C56]
+                            bg-[#1C4FA8]
+                            hover:bg-[#1C4FA8]
                             text-white
                             px-10
                             py-2
@@ -148,7 +142,8 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
                     <button
                         className="
                             w-full sm:w-auto
-                            border
+                            border  border-[#1C4FA8]
+                            text-[#003562]
                             px-6
                             py-2
                             rounded-md

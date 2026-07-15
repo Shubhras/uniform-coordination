@@ -1,25 +1,51 @@
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
+import React, { useState, useEffect } from 'react'
+import { apiPrivatePolicy } from '@/services/privatePolicyService'
+import { formatDate } from '@/utils/dateFormater'
 
 const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
+
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
+    const [termsConditions, setTermsConditions] = useState(null)
+
+
+    const fetchPrivatePolicy = async (policyType) => {
+        try {
+            setLoading(true)
+            setError(null)
+
+            const res = await apiPrivatePolicy(policyType)
+
+            if (res?.status && res?.data?.length > 0) {
+                setTermsConditions(res.data[0]) // taking first terms conditions
+            } else {
+                setError('Data not found')
+            }
+        } catch (err) {
+            setError('Failed to load data')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchPrivatePolicy("agreement")
+    }, [])
     return (
         <Dialog
             isOpen={isOpen}
             onClose={onClose}
             onRequestClose={onClose}
-            className="
-                w-full
-                max-w-[800px]
-                mx-4
-                sm:mx-auto
-            "
+            width={800}
         >
-            <div className="flex flex-col h-full max-h-[90vh]">
+            <div className="flex flex-col h-full max-h-[90vh] min-h-[400px]">
 
                 {/* HEADER */}
                 <div className="
                     relative
-                    px-4 sm:px-6
+                    px-16 sm:px-16
                     pt-5 pb-4
                     border-b
                     flex
@@ -35,6 +61,7 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
                         font-semibold
                         text-center
                         sm:text-left
+                        text-[#003562]
                     ">
                         Terms & Conditions
                     </h2>
@@ -46,7 +73,7 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
                         text-center
                         sm:text-right
                     ">
-                        Last Updated: December 1, 2025
+                        Last Updated: {termsConditions?.updated_at && formatDate(termsConditions.updated_at)}
                     </span>
                 </div>
 
@@ -57,12 +84,24 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
                     overflow-y-auto
                     flex-1
                 ">
-                    <h5 className="font-medium mt-3 mb-3">
-                        1. AGREEMENT TO TERMS
-                    </h5>
-                    <p className="text-sm sm:text-base leading-relaxed">
-                        By placing an order for custom uniforms through KIREIZU UNIFORM, you acknowledge.
-                    </p>
+                    {loading && (
+                        <div className="flex justify-center items-center py-20">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+                        </div>
+                    )}
+
+                    {!loading && termsConditions && (
+                        <div
+                            className="space-y-4 prose max-w-none text-sm sm:text-base leading-relaxed text-[#374151]"
+                            dangerouslySetInnerHTML={{ __html: termsConditions.content }}
+                        />
+                    )}
+
+                    {!loading && !termsConditions && (
+                        <div className="py-20 text-center text-gray-500 text-lg font-medium">
+                            Data not found
+                        </div>
+                    )}
                 </div>
 
                 {/* FOOTER */}
