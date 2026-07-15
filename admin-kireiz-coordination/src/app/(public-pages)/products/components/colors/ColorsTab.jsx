@@ -273,7 +273,7 @@ const ColorsTab = () => {
                       Delete
                     </button>
                     <button
-                      onClick={() => handleEditColor(color)}
+                      // onClick={() => handleEditColor(color)}
                       className="flex-1 border border-gray-300 text-[#91A1B6] text-xs py-1.5 rounded-md"
                     >
                       Duplicate

@@ -206,9 +206,7 @@ const NotificationPage = () => {
                             return (
                                 <div
                                     key={item.id}
-                                    className={`flex items-start justify-between p-4 md:p-5 border-b border-[#F1F5F9] hover:bg-[#FAFBFF] transition-colors cursor-pointer group
-                                        ${!item.is_seen ? 'bg-[#F8FAFF] border-l-[3px] border-l-[#1C2C56]' : 'border-l-[3px] border-l-transparent'}
-                                    `}
+                                    className="flex items-start justify-between p-4 md:p-5 border-b border-[#F1F5F9] hover:bg-[#FAFBFF] transition-colors cursor-pointer group bg-[#EFF5FF] mb-2"
                                 >
                                     <div className="flex items-start gap-3 md:gap-4 flex-1">
                                         {/* Icon — dark blue bg, white icon */}
@@ -219,7 +217,7 @@ const NotificationPage = () => {
                                         {/* Content */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 flex-wrap">
-                                                <h4 className={`text-sm font-semibold text-[#0F172A] ${!item.is_seen ? 'underline decoration-[#1C2C56]' : ''}`}>
+                                                <h4 className="text-sm font-semibold text-[#0F172A]">
                                                     {item.title}
                                                 </h4>
 

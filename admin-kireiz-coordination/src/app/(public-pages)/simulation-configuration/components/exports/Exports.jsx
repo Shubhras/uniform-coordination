@@ -116,7 +116,7 @@ const Exports = () => {
                     </div>
 
                     {/* Save Preset Button */}
-                    <button className="mt-8 w-full flex items-center justify-center gap-2 bg-[#1C4FA8] text-white py-3 rounded-xl text-sm font-medium hover:opacity-90 transition">
+                    <button className="mt-8 w-full flex items-center justify-center gap-2 bg-[#1C4FA8] text-white py-3 rounded-xl text-sm font-medium transition">
                         <FiDownload />
                         Save Export Preset
                     </button>
@@ -127,7 +127,7 @@ const Exports = () => {
                             Cancel
                         </button>
 
-                        <button className="flex items-center gap-2 bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition">
+                        <button className="flex items-center gap-2 bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm font-medium transition">
                             <FiSave />
                             Save Changes
                         </button>

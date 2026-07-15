@@ -233,6 +233,11 @@ const AddEditProductModal = ({
     fetchSubcategories();
   }, [selectedCategory, accessToken, setValue]);
 
+  const handleDrop = (e) => {
+    e.preventDefault();
+    handleFile(e.dataTransfer.files[0]);
+  };
+
   /* ---------- RESET / PREFILL ---------- */
   // useEffect(() => {
   //   if (!isOpen) return;
@@ -489,6 +494,27 @@ const AddEditProductModal = ({
               <FiUpload size={16} />
               Upload Image
             </button>
+            <div
+              onDrop={handleDrop}
+              onDragOver={(e) => e.preventDefault()}
+              className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
+            >
+              Drag & Drop your image file here
+              <br />
+              or{" "}
+              <span
+                className="text-[#1C2C56] underline cursor-pointer"
+                onClick={() => fileInputRef.current.click()}
+              >
+                click to browse here
+              </span>
+              <p className="text-xs mt-2 text-[#64748B]">
+                PNG, JPG, JPEG files
+              </p>
+              <p className="text-xs mt-2 text-[#64748B]">
+                Maximum dimension 1000×1000px
+              </p>
+            </div>
 
             <input
               type="file"
@@ -498,7 +524,12 @@ const AddEditProductModal = ({
               onChange={(e) => handleFile(e.target.files[0])}
             />
           </div>
-
+          {imageValidated && (
+            <div className="mt-2 flex items-center gap-2 text-sm text-green-600 font-medium">
+              <FiCheckCircle className="text-green-600" size={16} />
+              <span>Image validated successfully</span>
+            </div>
+          )}
           {preview && (
             <div className="flex justify-center">
               <img
@@ -506,12 +537,6 @@ const AddEditProductModal = ({
                 alt="Preview"
                 className="w-32 h-32 object-cover rounded-lg shadow"
               />
-            </div>
-          )}
-          {imageValidated && (
-            <div className="mt-2 flex items-center gap-2 text-sm text-green-600 font-medium">
-              <FiCheckCircle className="text-green-600" size={16} />
-              <span>Image validated successfully</span>
             </div>
           )}
 

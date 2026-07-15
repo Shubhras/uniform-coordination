@@ -8,6 +8,8 @@ import Button from "@/components/ui/Button";
 import { Form, FormItem } from "@/components/ui/Form";
 import { HiCheck } from "react-icons/hi";
 import PasswordInput from "@/components/shared/PasswordInput";
+import { apiChangePassword } from "@/services/AuthService";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { FiLock } from "react-icons/fi";
 
 /* ----------------_toggle schema ---------------- */
@@ -42,6 +44,9 @@ const validationSchema = z
   });
 /* ---------------- component ---------------- */
 const ChangePassword = () => {
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
   const {
     handleSubmit,
     control,
@@ -64,10 +69,22 @@ const ChangePassword = () => {
     [newPassword, confirmPassword],
   );
 
-  // ✅ ONLY CHANGE IS HERE
   const onSubmit = async (values) => {
-    console.log("Change Password Form Data:", values);
+    try {
+      const payload = {
+        current_password: values.currentPassword,
+        new_password: values.newPassword,
+        confirm_password: values.confirmPassword,
+      };
+
+      const res = await apiChangePassword(payload, accessToken);
+
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
   };
+
   const progressValue = [rules.length, rules.number, rules.symbol].filter(
     Boolean,
   ).length;
@@ -178,7 +195,7 @@ const ChangePassword = () => {
             type="submit"
             loading={isSubmitting}
             size="sm"
-            className="bg-[#1C2C56] hover:bg-[#1C2C56] px-6 text-white py-2 rounded-md"
+            className="bg-[#1C4FA8] px-6 text-white py-2 rounded-md"
           >
             Update
           </Button>

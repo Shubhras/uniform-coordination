@@ -690,6 +690,13 @@ const AddEditPartModal = ({
                 onChange={handleBrowse}
               />
             </div>
+            {validated && (
+              <div className="mb-2 flex items-center gap-2 text-sm text-green-600 font-medium">
+                <FiCheckCircle className="text-green-600" size={16} />
+                <span>Image validated successfully</span>
+              </div>
+            )}
+
             {preview && (
               <div className="flex justify-center">
                 <img
@@ -697,12 +704,6 @@ const AddEditPartModal = ({
                   alt="Preview"
                   className="w-32 h-32 object-contain rounded-lg shadow"
                 />
-              </div>
-            )}
-            {validated && (
-              <div className="mt-2 flex items-center gap-2 text-sm text-green-600 font-medium">
-                <FiCheckCircle className="text-green-600" size={16} />
-                <span>Image validated successfully</span>
               </div>
             )}
             {!imageFile && !preview && error === "Part image is required" && (

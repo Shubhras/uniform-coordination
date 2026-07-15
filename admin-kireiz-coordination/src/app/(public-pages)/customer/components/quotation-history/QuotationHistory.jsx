@@ -97,7 +97,7 @@ const QuotationHistory = () => {
           </p>
         </div>
 
-        <button className="flex items-center gap-2 bg-[#2B5BA9] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#1C2C56] transition">
+        <button className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium transition">
           <FiDownload />
           Export CSV
         </button>
@@ -134,7 +134,7 @@ const QuotationHistory = () => {
               <th className="px-5 py-3">Amount</th>
               <th className="px-5 py-3">Date</th>
               <th className="px-5 py-3">Status</th>
-              <th className="px-5 py-3 text-right">Actions</th>
+              <th className="px-5 py-3">Actions</th>
             </tr>
           </thead>
 
@@ -155,9 +155,9 @@ const QuotationHistory = () => {
                     {q.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3">
                   <button className="text-gray-500 hover:text-[#1C2C56]">
-                    <FiEye />
+                    <FiEye fontSize={16} />
                   </button>
                 </td>
               </tr>

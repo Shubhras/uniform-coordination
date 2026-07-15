@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Select from "react-select";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, get } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormItem } from "@/components/ui/Form";
@@ -33,32 +33,33 @@ const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const validationSchema = z
-  .object({
-    name: z.string().min(1, "Name is required"),
+const getValidationSchema = (mode) =>
+  z
+    .object({
+      name: z.string().min(1, "Name is required"),
 
-    companyName: z.string().optional(),
+      companyName: z.string().trim().min(1, "Company Name is required"),
 
-    email: z
-      .string()
-      .min(1, "Email is required")
-      .email("Invalid email address"),
+      email: z
+        .string()
+        .min(1, "Email is required")
+        .email("Invalid email address"),
 
-    mobile: z.string().optional(),
+      mobile: z.string().optional(),
 
-    tier: z.any().nullable().optional(),
+      tier: z.any().nullable().optional(),
 
-    password: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (mode === "add" && !data.password?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["password"],
-        message: "Password is required",
-      });
-    }
-  });
+      password: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (mode === "add" && !data.password?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["password"],
+          message: "Password is required",
+        });
+      }
+    });
 
 const AddEditB2BAccountModal = ({
   isOpen,
@@ -88,7 +89,7 @@ const AddEditB2BAccountModal = ({
     reset,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(validationSchema),
+    resolver: zodResolver(getValidationSchema(mode)),
     defaultValues: {
       name: "",
       companyName: "",
@@ -254,12 +255,28 @@ const AddEditB2BAccountModal = ({
             <label className="text-[#1C2C56] text-sm font-medium">
               Company Name
             </label>
-            <input
+            {/* <input
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               placeholder="e.g. HP Pvt Ltd"
               className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-            />
+            /> */}
+            <FormItem
+              invalid={Boolean(errors.companyName)}
+              errorMessage={errors.companyName?.message}
+            >
+              <Controller
+                name="companyName"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    {...field}
+                    placeholder="e.g. HP Pvt Ltd"
+                    className="mt-1 w-full border rounded-md px-3 py-2 text-sm"
+                  />
+                )}
+              />
+            </FormItem>
           </div>
 
           {/* Email + Phone */}
