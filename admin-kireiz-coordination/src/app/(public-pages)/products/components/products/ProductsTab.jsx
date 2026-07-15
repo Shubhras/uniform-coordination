@@ -29,6 +29,7 @@ const ProductsTab = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filterOptions = [
+    { value: "all", label: "All Categories" },
     { value: "Health Care", label: "Health Care" },
     { value: "Food Service", label: "Food Service" },
     { value: "Retail", label: "Retail" },

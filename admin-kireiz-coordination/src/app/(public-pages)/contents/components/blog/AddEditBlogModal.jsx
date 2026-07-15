@@ -454,7 +454,7 @@ const AddEditBlogModal = ({
         </div>
 
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
-          <Button variant="plain" onClick={onClose} size="sm" disabled={saving}>
+          <Button variant="plain" onClick={onClose} size="sm" disabled={saving} className="bg-blue-100 rounded-lg">
             Cancel
           </Button>
 
@@ -463,6 +463,7 @@ const AddEditBlogModal = ({
             size="sm"
             onClick={() => handleSave({ keepOpen: true })}
             disabled={saving}
+            className="bg-blue-100 rounded-lg"
           >
             Save & Add Another
           </Button>

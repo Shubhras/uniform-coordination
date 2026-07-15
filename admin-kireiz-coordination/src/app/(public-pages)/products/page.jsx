@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import FabricsTab from "./components/fabrics/FabricsTab";
 import PartsTab from "./components/parts/PartsTab";
 import TemplatesTab from "./components/templates/TemplatesTab";
@@ -9,6 +10,14 @@ import ProductsTab from "./components/products/ProductsTab";
 import Tabs from "./components/Tabs";
 
 const ProductSpecificationPage = () => {
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
   const [activeTab, setActiveTab] = useState("Fabrics");
 
   const renderTab = () => {
@@ -32,7 +41,8 @@ const ProductSpecificationPage = () => {
     <div className="px-5 md:px-8 lg:px-12 py-8 bg-white min-h-screen">
       {/* Page Header */}
       <p className="text-sm text-[#486284] mb-2">
-        Admin Dashboard / <span className="text-[#1C2C56]">Product & Specification</span>
+        Admin Dashboard /{" "}
+        <span className="text-[#1C2C56]">Product & Specification</span>
       </p>
 
       <h1 className="text-2xl font-semibold text-[#1C2C56]">
@@ -46,9 +56,7 @@ const ProductSpecificationPage = () => {
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Tab Content */}
-      <div className="mt-6">
-        {renderTab()}
-      </div>
+      <div className="mt-6">{renderTab()}</div>
     </div>
   );
 };

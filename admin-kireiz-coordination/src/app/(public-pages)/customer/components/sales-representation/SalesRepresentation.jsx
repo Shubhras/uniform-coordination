@@ -54,7 +54,7 @@ const SalesRepresentation = () => {
                     <p className="text-[#486284] text-sm">Manage discount tiers and corporate rules</p>
                 </div>
 
-                <button className="flex items-center gap-2 bg-[#2B5BA9] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#1C2C56] transition">
+                <button className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium transition">
                     <FiUserPlus />
                     Add Representative
                 </button>
@@ -111,7 +111,7 @@ const SalesRepresentation = () => {
 
                         {/* Footer Buttons */}
                         <div className="flex items-center gap-2">
-                            <button className="flex-1 bg-[#1C2C56] text-white py-2 rounded-lg text-sm font-medium hover:bg-[#2B5BA9] transition">
+                            <button className="flex-1 bg-[#1C4FA8] text-white py-2 rounded-lg text-sm font-medium transition">
                                 View Profile
                             </button>
                             <button className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100">

@@ -9,6 +9,7 @@ import {
   FiEdit2,
   FiTrash2,
   FiX,
+  FiEye,
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
@@ -16,6 +17,7 @@ import {
   apiDeleteB2BAccount,
 } from "@/services/B2BAccountService";
 import AddEditB2BAccountModal from "./AddEditB2BAccountModal";
+import ViewB2BModal from "./ViewB2BModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
 const tierColors = {
@@ -40,6 +42,9 @@ const B2BAccounts = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(null);
 
   /* ---------- FETCH ---------- */
   const fetchAccounts = useCallback(async () => {
@@ -255,6 +260,15 @@ const B2BAccounts = () => {
                       <td className="px-5 py-4">
                         <div className="flex items-center justify-end gap-1">
                           <button
+                            className="text-[#1C4FA8] hover:bg-[#EEF4FF] p-1.5 rounded"
+                            onClick={() => {
+                              setSelectedAccount(acc);
+                              setViewModalOpen(true);
+                            }}
+                          >
+                            <FiEye size={17} />
+                          </button>
+                          <button
                             className="text-[#1C2C56] hover:text-[#0F172A] p-1.5 rounded hover:bg-[#EEF2FF]"
                             onClick={() => {
                               setEditData(acc);
@@ -284,6 +298,16 @@ const B2BAccounts = () => {
       </div>
 
       {/* Modals */}
+
+      <ViewB2BModal
+        isOpen={viewModalOpen}
+        onClose={() => {
+          setViewModalOpen(false);
+          setSelectedAccount(null);
+        }}
+        account={selectedAccount}
+      />
+
       <AddEditB2BAccountModal
         isOpen={openModal}
         onClose={handleCloseModal}

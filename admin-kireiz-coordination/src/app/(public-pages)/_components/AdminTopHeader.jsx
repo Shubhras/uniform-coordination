@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import signOut from "@/server/actions/auth/handleSignOut";
+import { apiLogout } from "@/services/AuthService";
 import NotificationPopup from "./NotificationPopup";
 import {
   FiBell,
@@ -14,7 +15,10 @@ import {
   FiSettings,
   FiLogOut,
   FiMenu,
+  FiLock,
 } from "react-icons/fi";
+import India from "../../../assets/indaimages.jpeg";
+import Japan from "../../../assets/japanflag.png";
 
 const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
   const { session } = useCurrentSession();
@@ -22,6 +26,12 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
+
+  const [selectedLanguage, setSelectedLanguage] = useState({
+    name: "English",
+    code: "EN",
+    flag: India,
+  });
 
   const languageRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -45,8 +55,20 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
   }, []);
 
   const handleSignOut = async () => {
-    setDropdownOpen(false);
-    await signOut();
+    try {
+      setDropdownOpen(false);
+      console.log("Session:", session);
+      await apiLogout({
+        refresh_token: session?.user?.refreshToken,
+      });
+
+      await signOut();
+    } catch (error) {
+      console.error("Logout failed:", error);
+
+      // API fail ho jaye tab bhi local session logout kar do
+      await signOut();
+    }
   };
 
   const userName = session?.user?.name || "Admin";
@@ -99,7 +121,11 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
             }`}
           >
             <FiGlobe size={18} />
-            <span className="text-sm font-medium hidden sm:inline">EN</span>
+          
+
+            <span className="text-sm font-medium hidden sm:inline">
+              {selectedLanguage.code}
+            </span>
             <FiChevronDown
               size={14}
               className={`transition-transform ${
@@ -112,24 +138,44 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
             <div className="absolute right-0 mt-2 w-40 bg-white rounded-l shadow-lg border border-[#E2E8F0] py-2 z-50">
               <button
                 onClick={() => {
-                  // set language here
+                  setSelectedLanguage({
+                    name: "English",
+                    code: "EN",
+                    flag: India,
+                  });
                   setLanguageOpen(false);
                 }}
-                className="w-full px-4 py-2 text-left text-sm hover:bg-[#F8FAFC] flex items-center justify-between"
+                className="w-full px-4 py-2 text-left text-sm hover:bg-[#F8FAFC] flex items-center gap-3"
               >
+                <Image
+                  src={India}
+                  alt="English"
+                  width={20}
+                  height={20}
+                  className="rounded-full object-cover"
+                />
                 <span>English</span>
-                {/* <span className="text-[#1C2C56] font-medium">EN</span> */}
               </button>
 
               <button
                 onClick={() => {
-                  // set language here
+                  setSelectedLanguage({
+                    name: "Japanese",
+                    code: "JP",
+                    flag: Japan,
+                  });
                   setLanguageOpen(false);
                 }}
-                className="w-full px-4 py-2 text-left text-sm hover:bg-[#F8FAFC] flex items-center justify-between"
+                className="w-full px-4 py-2 text-left text-sm hover:bg-[#F8FAFC] flex items-center gap-3"
               >
-                <span>Japenese</span>
-                {/* <span className="text-[#1C2C56] font-medium">JP</span> */}
+                <Image
+                  src={Japan}
+                  alt="Japanese"
+                  width={20}
+                  height={20}
+                  className="rounded-full object-cover"
+                />
+                <span>Japanese</span>
               </button>
             </div>
           )}
@@ -209,28 +255,29 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
               </div>
 
               {/* Menu Items */}
-              {/* <div className="py-1">
-                                <button
-                                    onClick={() => {
-                                        setDropdownOpen(false)
-                                        router.push('/dashboards/profile/settings')
-                                    }}
-                                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1C2C56] transition-colors"
-                                >
-                                    <FiUser size={16} />
-                                    <span>My Profile</span>
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setDropdownOpen(false)
-                                        router.push('/dashboards/profile/settings')
-                                    }}
-                                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1C2C56] transition-colors"
-                                >
-                                    <FiSettings size={16} />
-                                    <span>Settings</span>
-                                </button>
-                            </div> */}
+              <div className="py-1">
+                <button
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    router.push("/profile");
+                  }}
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1C2C56] transition-colors"
+                >
+                  <FiUser size={16} />
+                  <span>My Profile</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    router.push("/changePassword");
+                  }}
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1C2C56] transition-colors"
+                >
+                  {/* <FiSettings size={16} /> */}
+                  <FiLock size={16} />
+                  <span>Change Password</span>
+                </button>
+              </div>
 
               {/* Sign Out */}
               <div className="border-t border-[#F1F5F9] pt-1">

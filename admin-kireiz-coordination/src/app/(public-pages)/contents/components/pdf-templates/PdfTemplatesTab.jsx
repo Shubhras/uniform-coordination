@@ -1,12 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { FiGrid, FiEdit2, FiPlus } from "react-icons/fi";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-} from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 const PdfTemplatesTab = () => {
   const [templates, setTemplates] = useState([
@@ -24,6 +21,7 @@ const PdfTemplatesTab = () => {
     },
   ]);
 
+  const router = useRouter();
   // Handle drag reorder
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -48,7 +46,10 @@ const PdfTemplatesTab = () => {
           </p>
         </div>
 
-        <button className="bg-[#1C4FA8] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2">
+        <button
+          onClick={() => router.push("/contents/add-template")}
+          className="bg-[#1C4FA8] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+        >
           <FiPlus size={16} />
           Add Template
         </button>
@@ -81,10 +82,7 @@ const PdfTemplatesTab = () => {
                           {...provided.dragHandleProps}
                           className="cursor-grab active:cursor-grabbing"
                         >
-                          <FiGrid
-                            className="text-[#94A3B8]"
-                            size={18}
-                          />
+                          <FiGrid className="text-[#94A3B8]" size={18} />
                         </span>
 
                         <div>
@@ -98,7 +96,10 @@ const PdfTemplatesTab = () => {
                       </div>
 
                       {/* Edit Button */}
-                      <button className="text-[#1C2C56] hover:text-[#0F172A]">
+                      <button
+                        className="text-[#1C2C56] hover:text-[#0F172A]"
+                        onClick={() => router.push("/contents/add-template")}
+                      >
                         <FiEdit2 size={18} />
                       </button>
                     </div>

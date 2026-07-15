@@ -67,7 +67,7 @@ const TemplatesTab = () => {
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isSelected
-        ? "#1C2C56"
+        ? "#1C4FA8"
         : state.isFocused
           ? "#EEF2FF"
           : "white",

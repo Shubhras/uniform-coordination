@@ -105,6 +105,7 @@ const UnitPrice = () => {
                         <th className="px-4 py-4 text-left font-medium">Unit</th>
                         <th className="px-4 py-4 text-left font-medium">Base Price</th>
                         <th className="px-4 py-4 text-left font-medium">Bulk (10+)</th>
+                        <th className="px-4 py-4 text-left font-medium">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -115,6 +116,9 @@ const UnitPrice = () => {
                             <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded w-16 animate-pulse" /></td>
                             <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded w-20 animate-pulse" /></td>
                             <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded w-20 animate-pulse" /></td>
+                            <td className="px-4 py-4">
+                                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse" />
+                            </td>
                         </tr>
                     ))}
                 </tbody>
@@ -188,6 +192,7 @@ const UnitPrice = () => {
                                 <th className="px-4 py-4 text-left font-medium">Unit</th>
                                 <th className="px-4 py-4 text-left font-medium">Base Price</th>
                                 <th className="px-4 py-4 text-left font-medium">Bulk (10+)</th>
+                                <th className="px-4 py-4 text-left font-medium">Action</th>
                             </tr>
                         </thead>
 
@@ -213,6 +218,13 @@ const UnitPrice = () => {
                                     <td className="px-4 py-4 font-medium">₹{item.basePrice}</td>
 
                                     <td className="px-4 py-4 font-medium">₹{item.bulk}</td>
+                                    <td className="px-4 py-4">
+                                        <button
+                                            className="text-[#1C4FA8] hover:text-[#163E85] transition-colors"
+                                        >
+                                            <FiEdit2 size={18} />
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

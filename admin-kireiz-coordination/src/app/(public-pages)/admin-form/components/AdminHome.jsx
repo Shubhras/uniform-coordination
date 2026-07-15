@@ -6,6 +6,7 @@ import { apiGetDashboard } from '@/services/DashboardService'
 import HeroContent from './HeroContent'
 import DashboardStats from './DashboardStats'
 import QuickActionsCard from './QuickActionsCard'
+import RecentlyCards from './RecentlyCards'
 import ActiveAlerts from './ActiveAlerts'
 import DashboardSkeleton from './DashboardSkeleton'
 
@@ -51,17 +52,20 @@ const AdminHome = () => {
   }
 
   return (
-    <main className="text-base bg-[#F8FAFC] pb-20">
+    <main className="text-base bg-white pb-20">
       <HeroContent data={dashboardData} />
       <DashboardStats data={dashboardData} />
-      <div className=' mt-10 px-5 md:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 gap-5'>
+      <div className='mt-5 px-5 md:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 gap-5'>
         <MostUsedIndustriesChart data={dashboardData} />
         <QuotationRequestsChart data={dashboardData} />
       </div>
-      <div className=' mt-10 px-5 md:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 gap-5'>
-        <QuickActionsCard data={dashboardData} />
+      <div className=' mt-5 px-5 md:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 gap-5'>
+        <RecentlyCards data={dashboardData} />
         <QuotationsByStatusChart data={dashboardData} />
       </div>
+      <div className="mt-5 px-5 md:px-8 lg:px-12">
+        <QuickActionsCard />
+    </div>
       <ActiveAlerts data={dashboardData} />
     </main>
   )

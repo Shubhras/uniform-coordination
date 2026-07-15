@@ -424,6 +424,7 @@ const AddEditTemplateModal = ({
               onClick={onClose}
               size="sm"
               disabled={saving}
+              className="bg-blue-100 rounded-lg"
             >
               Cancel
             </Button>
