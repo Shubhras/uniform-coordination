@@ -173,14 +173,14 @@ const PersonalInformation = () => {
         setLoading(true)
         try {
             if (!session?.accessToken) return
-            
+
             setLoading(true)
-            
+
             const payload = {
                 firstName: values.firstName,
                 lastName: values.lastName,
                 phone: values.phoneNumber || null,
-               // profileImage: values.img || null,
+                // profileImage: values.img || null,
             }
             if (values.img instanceof File) {
                 payload.profileImage = values.img
@@ -389,7 +389,7 @@ const PersonalInformation = () => {
                                 invalid={Boolean(errors.phoneNumber)}
                                 errorMessage={errors.phoneNumber?.message}
                             >
-                                 <label className="form-label mb-2">Phone number</label>
+                                <label className="form-label mb-2">Phone number</label>
                                 <Controller
                                     name="phoneNumber"
                                     control={control}
@@ -433,7 +433,7 @@ const PersonalInformation = () => {
                             type="submit"
                             size="sm"
                             loading={isSubmitting}
-                            className="w-full sm:w-auto bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+                            className="w-full sm:w-auto bg-[#1C4FA8] hover:bg-[#1C4FA8] px-6 text-white py-2 rounded-md"
 
                         >
                             Save Changes

@@ -1,115 +1,45 @@
 'use client'
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
+import { apiGetNotifications } from "@/services/AuthProfileService"
 import {
   IoNotificationsOutline,
   IoChevronForward,
   IoChevronBack,
 } from "react-icons/io5"
 
-const notificationsData = [
-  {
-    id: 1,
-    title: "Quote #Q-2024-089 expiring soon",
-    description: "ABC Corporation quote expires in 2 days",
-    time: "2 hours ago",
-  },
-  {
-    id: 2,
-    title: "Invoice #INV-1021 generated",
-    description: "New invoice generated for XYZ Ltd",
-    time: "5 hours ago",
-  },
-  {
-    id: 3,
-    title: "Payment reminder",
-    description: "Payment pending from Delta Corp",
-    time: "1 day ago",
-  },
-  {
-    id: 4,
-    title: "Quote #Q-2024-076 approved",
-    description: "Client approved the quotation",
-    time: "2 days ago",
-  },
-  {
-    id: 5,
-    title: "New inquiry received",
-    description: "You received a new sales inquiry",
-    time: "3 days ago",
-  },
-  {
-    id: 6,
-    title: "Quote #Q-2024-089 expiring soon",
-    description: "ABC Corporation quote expires in 2 days",
-    time: "2 hours ago",
-  },
-  {
-    id: 7,
-    title: "Invoice #INV-1021 generated",
-    description: "New invoice generated for XYZ Ltd",
-    time: "5 hours ago",
-  },
-  {
-    id: 8,
-    title: "Payment reminder",
-    description: "Payment pending from Delta Corp",
-    time: "1 day ago",
-  },
-  {
-    id: 9,
-    title: "Quote #Q-2024-076 approved",
-    description: "Client approved the quotation",
-    time: "2 days ago",
-  },
-  {
-    id: 10,
-    title: "New inquiry received",
-    description: "You received a new sales inquiry",
-    time: "3 days ago",
-  },
-  {
-    id: 11,
-    title: "Quote #Q-2024-089 expiring soon",
-    description: "ABC Corporation quote expires in 2 days",
-    time: "2 hours ago",
-  },
-  {
-    id: 12,
-    title: "Invoice #INV-1021 generated",
-    description: "New invoice generated for XYZ Ltd",
-    time: "5 hours ago",
-  },
-  {
-    id: 13,
-    title: "Payment reminder",
-    description: "Payment pending from Delta Corp",
-    time: "1 day ago",
-  },
-  {
-    id: 14,
-    title: "Quote #Q-2024-076 approved",
-    description: "Client approved the quotation",
-    time: "2 days ago",
-  },
-  {
-    id: 15,
-    title: "New inquiry received",
-    description: "You received a new sales inquiry",
-    time: "3 days ago",
-  },
-]
+
 
 const ITEMS_PER_PAGE = 6
 
 const NotificationSetting = () => {
+  const { data: session } = useSession()
+  const [notifications, setNotifications] = useState([])
+  const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
 
-  const totalPages = Math.ceil(
-    notificationsData.length / ITEMS_PER_PAGE
-  )
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (session?.accessToken) {
+        setLoading(true)
+        try {
+          const res = await apiGetNotifications(session.accessToken)
+          const data = res?.data || []
+          setNotifications(Array.isArray(data) ? data : [])
+        } catch (error) {
+          console.error("Error fetching notifications:", error)
+        } finally {
+          setLoading(false)
+        }
+      }
+    }
+    fetchNotifications()
+  }, [session?.accessToken])
+
+  const totalPages = Math.ceil(notifications.length / ITEMS_PER_PAGE) || 1
 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const currentNotifications = notificationsData.slice(
+  const currentNotifications = notifications.slice(
     startIndex,
     startIndex + ITEMS_PER_PAGE
   )
@@ -142,60 +72,79 @@ const NotificationSetting = () => {
       </div>
 
       {/* Notifications List */}
-      <div className="flex flex-col gap-3 mb-6">
-        {currentNotifications.map((item) => (
-          <div
-            key={item.id}
-            className="bg-[#F2F7FF]  p-4 flex justify-between items-start"
-          >
-            <div className="flex items-start gap-3">
-              {/* Icon */}
-              <div className="h-10 w-10 rounded-full bg-[#003562] flex items-center justify-center">
-                <IoNotificationsOutline size={20} className="text-white" />
-              </div>
+      {loading ? (
+        <section className="relative w-full bg-transparent mx-auto px-5 md:px-8 lg:px-12 mt-15 mb-6">
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+          </div>
+        </section>
+      ) : notifications.length === 0 ? (
+        <div className="text-center py-10 text-sm text-gray-500 mb-6">
+          No notifications found.
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3 mb-6">
+          {currentNotifications.map((item) => (
+            <div
+              key={item.id}
+              className={`p-4 flex justify-between items-start rounded-xl ${!item.is_seen ? 'bg-white' : 'bg-white border border-[#E2E8F0]'}`}
+            >
+              <div className="flex items-start gap-3">
+                {/* Icon */}
+                <div className="h-10 w-10 rounded-full bg-[#1C4FA8] flex items-center justify-center shrink-0">
+                  <IoNotificationsOutline size={20} className="text-white" />
+                </div>
 
-              {/* Content */}
-              <div>
-                <h4 className="font-semibold text-sm text-[#0F172A]">
-                  {item.title}
-                </h4>
-                <p className="text-sm text-gray-500">
-                  {item.description}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  {item.time}
-                </p>
+                {/* Content */}
+                <div>
+                  <h4 className="font-semibold text-sm text-[#0F172A]">
+                    {item.title}
+                  </h4>
+                  <p className="text-sm text-gray-500">
+                    {item.message}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(item.created_at).toLocaleString('en-US', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
               </div>
             </div>
-
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Pagination */}
-      <div className="flex items-center justify-between text-sm text-gray-500">
-        <span>
-          Page {currentPage} of {totalPages}
-        </span>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-8 text-sm text-[#64748B]">
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
 
-        <div className="flex gap-2">
-          <button
-            onClick={handlePrev}
-            disabled={currentPage === 1}
-            className="h-8 w-8 flex items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:bg-gray-100 disabled:opacity-40  disabled:cursor-not-allowed"
-          >
-            <IoChevronBack />
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className={`h-9 w-9 flex items-center justify-center rounded-md border transition-colors ${currentPage === 1
+                ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                : 'border-[#1C4FA8] bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]'
+                }`}
+            >
+              <IoChevronBack size={16} />
+            </button>
 
-          <button
-            onClick={handleNext}
-            disabled={currentPage === totalPages}
-            className="h-8 w-8 flex items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <IoChevronForward />
-          </button>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className={`h-9 w-9 flex items-center justify-center rounded-md border transition-colors ${currentPage === totalPages
+                ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                : 'border-[#1C4FA8] bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]'
+                }`}
+            >
+              <IoChevronForward size={16} />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

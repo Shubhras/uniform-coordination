@@ -138,9 +138,11 @@ const LinkedOrderAndQuotes = () => {
 
                 {/* Loading State */}
                 {loading && (
-                    <div className="text-center py-10 text-gray-500 text-sm">
-                        Loading orders...
-                    </div>
+                    <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+                        <div className="flex justify-center items-center py-20">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+                        </div>
+                    </section>
                 )}
 
                 {/* Empty State */}
@@ -185,7 +187,7 @@ const LinkedOrderAndQuotes = () => {
                                 <Button
                                     size="sm"
                                     onClick={() => openDialogViewOrder(order.id)}
-                                    className="w-full sm:w-auto bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+                                    className="w-full sm:w-auto bg-[#1C4FA8] hover:bg-[#1C4FA8]] px-6 text-white py-2 rounded-md"
                                 >
                                     View order
                                 </Button>

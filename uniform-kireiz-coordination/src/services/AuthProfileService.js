@@ -122,3 +122,13 @@ export async function apiGetQuotation(token) {
     },
   });
 }
+
+export async function apiGetNotifications(token) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/uniformAdmin/notifications/get-list/",
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
