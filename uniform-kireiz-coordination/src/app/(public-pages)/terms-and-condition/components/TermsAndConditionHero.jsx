@@ -5,9 +5,9 @@ import React, { useEffect, useState } from 'react'
 const TermsAndConditionsContent = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
-    const [policy, setPolicy] = useState(null)
+    const [termsConditions, setTermsConditions] = useState(null)
 
-    // API HIDE KIYA GAYA HAI LIKIN REMOVE NAHI KIYA HAI
+
     const fetchPrivatePolicy = async (policyType) => {
         try {
             setLoading(true)
@@ -16,7 +16,7 @@ const TermsAndConditionsContent = () => {
             const res = await apiPrivatePolicy(policyType)
 
             if (res?.status && res?.data?.length > 0) {
-                setPolicy(res.data[0]) // taking first policy
+                setTermsConditions(res.data[0]) // taking first terms conditions
             } else {
                 setError('Data not found')
             }
@@ -45,24 +45,24 @@ const TermsAndConditionsContent = () => {
                 )}
 
 
-                {!loading && policy && (
+                {!loading && termsConditions && (
                     <>
                         {/* <h1 className="text-3xl md:text-3xl font-semibold text-[#1C2C56]">
-                            {policy.title}
+                            {termsConditions.title}
                         </h1> */}
 
                         <p className="text-sm text-gray-500">
-                            Version {policy.version}
+                            Version {termsConditions.version}
                         </p>
 
                         <div
                             className="space-y-4 prose max-w-none text-[#374151]"
-                            dangerouslySetInnerHTML={{ __html: policy.content }}
+                            dangerouslySetInnerHTML={{ __html: termsConditions.content }}
                         />
                     </>
                 )}
 
-                {!loading && !policy && (
+                {!loading && !termsConditions && (
                     <div className="py-20 text-center text-gray-500 text-lg font-medium">
                         Data not found
                     </div>

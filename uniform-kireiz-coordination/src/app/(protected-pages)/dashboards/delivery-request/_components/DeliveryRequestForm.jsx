@@ -12,7 +12,7 @@ import TermsAndConditionsPopup from './TermsAndConditionsPopup'
 import QuoteRequestPopup from './QuoteRequestPopup'
 import { apiCreateQuotationRequest } from '@/services/QuotationRequestService'
 import { useSession } from 'next-auth/react'
-
+import { useParams } from 'next/navigation'
 const validationSchema = z.object({
     company_name: z
         .string({ required_error: 'Please enter company name' })
@@ -50,7 +50,9 @@ const DeliveryRequestForm = () => {
     const [dialogTermsOpen, setDialogTermsOpen] = useState(false)
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const params = useParams()
 
+    const id = params?.id  // custom update model id
     const {
         handleSubmit,
         reset,
@@ -78,7 +80,7 @@ const DeliveryRequestForm = () => {
             delivery_date: values.delivery_date
                 ? values.delivery_date.toISOString().split('T')[0]
                 : "",
-            customupdatemodel: 16,
+            customupdatemodel: id,
         }
 
         try {
@@ -106,7 +108,7 @@ const DeliveryRequestForm = () => {
         <>
             <div className="w-full bg-white ">
                 <div className="w-full mx-auto max-w-[720px]">
-                    <h4 className="font-semibold mb-8">
+                    <h4 className="font-semibold mb-8 text-[#003562]">
                         Quotation & Delivery Request Form
                     </h4>
 
@@ -237,6 +239,7 @@ const DeliveryRequestForm = () => {
                                             value={field.value}
                                             onChange={(date) => field.onChange(date)}
                                             placeholder="Delivery Date"
+                                            minDate={new Date()}
                                         />
                                     )}
                                 />

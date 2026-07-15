@@ -53,8 +53,8 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
     return (
         <Dialog
             isOpen={isOpen}
-            onClose={onClose}
-            onRequestClose={onClose}
+            onClose={handleBackToHome}
+            onRequestClose={handleBackToHome}
             width={800}
         >
             <div className="
@@ -68,7 +68,7 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
             ">
                 {/* Header */}
                 <div className="px-4 sm:px-6 pt-6 sm:pt-8 text-center">
-                    <h2 className="text-xl sm:text-2xl font-semibold text-[#1A1A1A]">
+                    <h2 className="text-xl sm:text-2xl font-semibold text-[#003562]">
                         Your Quote Request Has Been Submitted!
                     </h2>
                     <p className="text-gray-600 mt-2 text-xs sm:text-sm">

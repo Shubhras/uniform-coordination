@@ -160,6 +160,7 @@ const PANELS = {
 };
 
 const Uniform3DmoduleDegisn = () => {
+  // 
   const { id } = useParams();
   const { data: session } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -399,8 +400,8 @@ const Uniform3DmoduleDegisn = () => {
           Design saved successfully
         </Notification>
       );
-      // custum upadte id
-      const id = response?.data?.id;
+
+      const id = response?.data?.id;  // custom update model id
       // Redirect to result page
       router.push(`/dashboards/design-result/${id}`);
 

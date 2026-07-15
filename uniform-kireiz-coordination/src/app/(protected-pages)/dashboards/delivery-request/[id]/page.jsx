@@ -1,5 +1,5 @@
 import AdaptiveCard from "@/components/shared/AdaptiveCard"
-import DeliveryRequestForm from "./_components/DeliveryRequestForm"
+import DeliveryRequestForm from "../_components/DeliveryRequestForm"
 
 const Page = () => {
 

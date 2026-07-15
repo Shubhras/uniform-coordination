@@ -1,27 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { FormItem, Form } from '@/components/ui/Form'
-import Input from '@/components/ui/Input'
-import Button from '@/components/ui/Button'
-import Checkbox from '@/components/ui/Checkbox'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import DatePicker from '@/components/ui/DatePicker'
 import Image from 'next/image'
 import { TbView360Number } from 'react-icons/tb'
-const validationSchema = z.object({
-    companyName: z.string().min(1, 'Company Name Required'),
-    contactPerson: z.string().min(1, 'Contact Person Required'),
-    email: z.string().email('Invalid Email'),
-    phone: z.string().min(8, 'Phone Required'),
-    itemType: z.string().min(1, 'Item Type Required'),
-    material: z.string().min(1, 'Material Required'),
-    sizeQty: z.string().min(1, 'Size & Quantity Required'),
-    deliveryDate: z.string().min(1, 'Delivery Date Required'),
-    notes: z.string().optional(),
-    agree: z.boolean().refine(val => val === true, { message: 'Required' }),
-})
+
 import {
     FiSave,
     FiFileText,
@@ -49,12 +30,10 @@ const iconMap = {
 const DesignResultPage = () => {
     const router = useRouter();
     const [isSaving, setIsSaving] = useState(false);
-    const [dialogTermsOpen, setDialogTermsOpen] = useState(false);
-    const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false);
     const { data: session } = useSession()
-    // console.log("session", session)
     const params = useParams()
-    const id = params?.id
+
+    const id = params?.id    // custom update model id
 
     useEffect(() => {
         const fetchModalInfo = async () => {
@@ -70,37 +49,7 @@ const DesignResultPage = () => {
         fetchModalInfo();
     }, [id, session?.accessToken]);
 
-    const {
-        handleSubmit,
-        reset,
-        formState: { errors },
-        control,
-    } = useForm({
-        defaultValues: {
-            companyName: "",
-            contactPerson: "",
-            email: "",
-            phone: "",
-            itemType: "",
-            material: "",
-            sizeQty: "",
-            deliveryDate: "",
-            notes: "",
-            agree: false,
-        },
-        resolver: zodResolver(validationSchema),
-    });
 
-    const onSubmit = (values) => {
-        console.log('summit from', values);
-    };
-
-    const openDialogTerms = () => {
-        setDialogTermsOpen(true)
-    }
-    const openDialogQuoteRequest = () => {
-        setDialogQuoteRequestOpen(true)
-    }
     const SpecCard = ({ title, value }) => {
         const Icon = iconMap[title]
 
@@ -130,7 +79,8 @@ const DesignResultPage = () => {
     )
 
     const handleRedirect = () => {
-        router.push('/dashboards/delivery-request')
+        // Redirect to  Delivery Request Form page
+        router.push(`/dashboards/delivery-request/${id}`);
     }
     const handleSaveDesign = async () => {
         if (!session?.accessToken) return
