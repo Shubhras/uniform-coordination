@@ -142,7 +142,8 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
                     <button
                         className="
                             w-full sm:w-auto
-                            border
+                            border  border-[#1C4FA8]
+                            text-[#003562]
                             px-6
                             py-2
                             rounded-md
