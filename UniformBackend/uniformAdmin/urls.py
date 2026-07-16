@@ -22,11 +22,17 @@ from .permissions import *
 urlpatterns = [
     path('signup/', AdminSignupAPIView.as_view(), name='admin-signup'),
     path('login/', AdminLoginAPIView.as_view(), name='admin-login'),
-    path('change-password/',ChangePasswordAPIView.as_view(), name='admin-change-password'),
+    path('reset-password/',ResetPasswordAPIView.as_view(), name='admin-change-password'),
     path('update-profile/', UpdateProfileAPIView.as_view(), name='admin-change-password'),
     path('profile/',ProfileAPIView.as_view(), name='admin-details'),
     path('logout/', LogoutAPIView.as_view(), name='admin-details'),
     path('forgot-password/', ForgotPasswordAPIView.as_view(), name='forgot-password'),
+    
+    path(
+        "change-password/",
+        ChangePasswordAPIView.as_view(),
+        name="admin-change-password",
+    ),
 
     # Fabric URLs
     path('fabric/create/', FabricCreateView.as_view()),

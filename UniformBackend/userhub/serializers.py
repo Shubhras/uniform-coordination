@@ -8,7 +8,8 @@ from datetime import timedelta
 from datetime import date
 # from userhub.models import Notifications
 from uniformAdmin.serializers import ProductSerializer
-
+# from unif .utils import build_media_url
+from uniformAdmin.utils import new_build_media_url
 class UserSignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, min_length=6)
     email = serializers.EmailField(required=True)
@@ -176,11 +177,6 @@ class CartSerializer(serializers.ModelSerializer):
 #         if obj.product:
 #             return new_build_media_url(obj.product.ProductImage)
 #         return None
-
-
-from rest_framework import serializers
-# from unif .utils import build_media_url
-from uniformAdmin.utils import new_build_media_url
 
 class CartItemSerializer(serializers.ModelSerializer):
     cart = CartSerializer(read_only=True)
@@ -414,29 +410,61 @@ class FavouriteSerializer(serializers.ModelSerializer):
 #         if "type" in attrs and not attrs["type"]:
 #             raise serializers.ValidationError("Notification type is required.")
 #         return attrs
+ 
 
 class ModelInfoSerializer(serializers.ModelSerializer):
+    model_file = serializers.SerializerMethodField()
+
     isActive = serializers.BooleanField(default=True)
     isDeleted = serializers.BooleanField(default=False)
+
     class Meta:
         model = ModelInfo
         fields = [
-            'id',
-            'product',
-            'model_file',
-            'description',
-            'isActive',
-            'isDeleted',
-            'created_at',
-            'updated_at',
+            "id",
+            "product",
+            "model_file",
+            "description",
+            "isActive",
+            "isDeleted",
+            "created_at",
+            "updated_at",
         ]
-        read_only_fields = ['created_at', 'updated_at']
-    
+        read_only_fields = ["created_at", "updated_at"]
+
     def get_model_file(self, obj):
-        request = self.context.get('request')
-        if obj.model_file and request:
+        request = self.context.get("request")
+
+        if not obj.model_file:
+            return None
+
+        if request:
             return request.build_absolute_uri(obj.model_file.url)
-        return None
+
+        return obj.model_file.url
+    
+# class ModelInfoSerializer(serializers.ModelSerializer):
+#     isActive = serializers.BooleanField(default=True)
+#     isDeleted = serializers.BooleanField(default=False)
+#     class Meta:
+#         model = ModelInfo
+#         fields = [
+#             'id',
+#             'product',
+#             'model_file',
+#             'description',
+#             'isActive',
+#             'isDeleted',
+#             'created_at',
+#             'updated_at',
+#         ]
+#         read_only_fields = ['created_at', 'updated_at']
+    
+#     def get_model_file(self, obj):
+#         request = self.context.get('request')
+#         if obj.model_file and request:
+#             return request.build_absolute_uri(obj.model_file.url)
+#         return None
     
 class RentalItemSerializer(serializers.ModelSerializer):
     # product = ProductSerializer(read_only=True)

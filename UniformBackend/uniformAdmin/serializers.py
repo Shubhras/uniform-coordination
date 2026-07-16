@@ -144,6 +144,45 @@ class AdminChangePasswordSerializer(serializers.Serializer):
         return data
 
 
+
+class UpdateChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
+    def validate_old_password(self, value):
+        user = self.context["request"].user
+
+        if not user.check_password(value):
+            raise serializers.ValidationError("Old password is incorrect.")
+
+        return value
+
+    def validate(self, attrs):
+        if attrs["new_password"] != attrs["confirm_password"]:
+            raise serializers.ValidationError({
+                "confirm_password": "New password and confirm password do not match."
+            })
+
+        if len(attrs["new_password"]) < 8:
+            raise serializers.ValidationError({
+                "new_password": "Password must be at least 8 characters long."
+            })
+
+        return attrs
+
+class ChangePasswordSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    new_password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        if attrs["new_password"] != attrs["confirm_password"]:
+            raise serializers.ValidationError({
+                "confirm_password": "New password and confirm password do not match."
+            })
+        return attrs
+
 class AdminUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminUser
