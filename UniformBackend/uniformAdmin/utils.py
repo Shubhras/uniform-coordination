@@ -323,12 +323,16 @@ def send_b2b_welcome_email(user, raw_password):
         [user.email],  
         fail_silently=False,
     )
-    
 
-def new_build_media_url(file_field):
+
+
+
+from django.conf import settings
+
+def get_file_url(file_field):
     """
-    Returns an absolute URL for an ImageField/FileField.
-    If the value is already an external URL (http/https), return it unchanged.
+    Returns the correct absolute URL for a FileField/ImageField.
+    Supports both local media files and external URLs.
     """
     if not file_field:
         return None
@@ -336,4 +340,15 @@ def new_build_media_url(file_field):
     if file_field.name.startswith(("http://", "https://")):
         return file_field.name
 
-    return f"{settings.SITE_URL}{file_field.url}"    
+    return f"{settings.SITE_URL}{file_field.url}"  
+
+
+def new_build_media_url(file_field):
+    """
+    Returns absolute media URL for a FileField/ImageField
+    Works without request object
+    """
+    if not file_field:
+        return None
+
+    return f"{settings.SITE_DOMAIN}{settings.MEDIA_URL}{file_field.name}"  

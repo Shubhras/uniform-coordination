@@ -686,6 +686,106 @@ class ForgotPasswordAPIView(APIView):
             "message": "Password reset link sent successfully."
         }, status=status.HTTP_200_OK)
 
+
+class ResetPasswordAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
+    permission_classes = [IsAdminUserJWT]
+
+    @extend_schema(
+        tags=["Admin User"],
+        summary="Change Password",
+        description="Change password for logged-in admin user.",
+        request=UpdateChangePasswordSerializer,
+        responses={
+            200: OpenApiResponse(description="Password changed successfully"),
+            400: OpenApiResponse(description="Validation error"),
+            401: OpenApiResponse(description="Unauthorized"),
+        },
+    )
+    def post(self, request):
+        serializer = UpdateChangePasswordSerializer(
+            data=request.data,
+            context={"request": request}
+        )
+
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Validation Error",
+                    "errors": serializer.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = request.user
+
+        with transaction.atomic():
+            user.set_password(serializer.validated_data["new_password"])
+            user.save()
+
+        return Response(
+            {
+                "status": True,
+                "statusCode": 200,
+                "message": "Password changed successfully.",
+            },
+            status=status.HTTP_200_OK,
+        )
+class ChangePasswordAPIView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    @extend_schema(
+        tags=["Admin User"],
+        summary="Change Password",
+        description="Change password using user ID.",
+        request=ChangePasswordSerializer,
+        responses={
+            200: OpenApiResponse(description="Password changed successfully"),
+            400: OpenApiResponse(description="Validation error"),
+            404: OpenApiResponse(description="User not found"),
+        },
+    )
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Validation Error",
+                    "errors": serializer.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user = AdminUser.objects.get(id=serializer.validated_data["user_id"])
+        except AdminUser.DoesNotExist:
+            return Response(
+                {
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "User not found."
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        with transaction.atomic():
+            user.set_password(serializer.validated_data["new_password"])
+            user.save()
+
+        return Response(
+            {
+                "status": True,
+                "statusCode": 200,
+                "message": "Password changed successfully."
+            },
+            status=status.HTTP_200_OK,
+        )     
 #<----------------------B2B--------------->
 # class AdminUserCreateAPIView(APIView):
 #     authentication_classes = [IsAdminUserJWT]

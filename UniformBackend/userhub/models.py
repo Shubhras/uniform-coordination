@@ -391,7 +391,14 @@ class Refund(models.Model):
 
 
 class ModelInfo(models.Model):
-    product = models.OneToOneField(Product,on_delete=models.CASCADE,related_name="model_info",null=True,blank=True)
+    # product = models.OneToOneField(Product,on_delete=models.CASCADE,related_name="model_info",null=True,blank=True)
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="model_infos",
+        null=True,
+        blank=True
+    )
     model_file = models.FileField(upload_to="3d_models/",null=True,blank=True)
     description = models.TextField(blank=True, null=True)
     isActive = models.BooleanField(default=True)
