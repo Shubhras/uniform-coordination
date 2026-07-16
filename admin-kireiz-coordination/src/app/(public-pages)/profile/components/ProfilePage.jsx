@@ -7,9 +7,14 @@ import Select, { Option as DefaultOption } from "@/components/ui/Select";
 import Avatar from "@/components/ui/Avatar";
 import { Form, FormItem } from "@/components/ui/Form";
 import NumericInput from "@/components/shared/NumericInput";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { countryList } from "@/constants/countries.constant";
 import { components } from "react-select";
-import { apiGetSettingsProfile } from "@/services/AccontsService";
+import {
+  apiGetSettingsProfile,
+  apiUpdateSettingsProfile,
+} from "@/services/AccontsService";
 import sleep from "@/utils/sleep";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import useSWR from "swr";
@@ -174,17 +179,47 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    if (data) {
-      reset(data);
+    if (data?.data) {
+      const profile = data.data;
+
+      const nameParts = profile.name?.trim().split(" ") || [];
+
+      reset({
+        firstName: nameParts[0] || "",
+        lastName: nameParts.slice(1).join(" ") || "",
+        email: profile.email || "",
+        phoneNumber: profile.mobile || "",
+        position: profile.role_name || "",
+        dialCode: "+91", // ya API se aaye to wahi use karo
+        img: profile.profile_image || "",
+      });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [data, reset]);
 
   const onSubmit = async (values) => {
-    console.log("Form Data:", values); // <-- log all form data
-    await sleep(500);
-    if (data) {
-      mutate({ ...data, ...values }, false);
+    try {
+      const payload = {
+        name: `${values.firstName} ${values.lastName}`.trim(),
+        email: values.email,
+        mobile: values.phoneNumber,
+        language: "en",
+      };
+
+      console.log("Payload:", payload);
+
+      const res = await apiUpdateSettingsProfile(accessToken, payload);
+      toast.push(
+        <Notification title="Success" type="success">
+          {res?.message}
+        </Notification>,
+      );
+
+      if (res?.data?.status) {
+        mutate(); // profile dobara fetch ho jayegi
+        console.log("Profile updated successfully");
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 

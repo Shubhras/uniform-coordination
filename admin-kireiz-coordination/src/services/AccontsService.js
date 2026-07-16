@@ -10,6 +10,17 @@ export async function apiGetSettingsProfile(accessToken) {
   });
 }
 
+export async function apiUpdateSettingsProfile(accessToken, payload) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/uniformAdmin/update-profile/",
+    method: "put",
+    data: payload,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+
 export async function apiGetSettingsNotification() {
   return ApiService.fetchDataWithAxios({
     url: "/setting/notification",

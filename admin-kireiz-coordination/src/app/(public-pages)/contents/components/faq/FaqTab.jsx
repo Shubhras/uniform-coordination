@@ -60,7 +60,7 @@ const FaqTab = () => {
       toast.push(
         <Notification title="Success" type="success">
           {response?.message}
-        </Notification>,
+        </Notification>
       );
       setDeleteDialogOpen(false);
       setFaqToDelete(null);
