@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Select from "react-select";
-import { FiUpload } from "react-icons/fi";
+import { FiUpload, FiCheckCircle } from "react-icons/fi";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -75,6 +75,9 @@ const AddEditTemplateModal = ({
   // Part options from API
   const [partOptions, setPartOptions] = useState([]);
   const [loadingParts, setLoadingParts] = useState(false);
+  const [validated, setValidated] = useState(false);
+  const [imageError, setImageError] = useState("");
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
   const {
     control,
@@ -152,6 +155,7 @@ const AddEditTemplateModal = ({
       setIsActive(initialData.isActive ?? true);
       setImageFile(null);
       setPreview(initialData.templateImage || null);
+      setValidated(!!initialData.templateImage);
     } else {
       // setTemplateName("");
       // setPart(null);
@@ -166,6 +170,7 @@ const AddEditTemplateModal = ({
       setIsActive(true);
       setImageFile(null);
       setPreview(null);
+      setValidated(false);
     }
     setError("");
   }, [isOpen, mode, initialData, reset, setValue]);
@@ -184,8 +189,21 @@ const AddEditTemplateModal = ({
   /* ---------- FILE HANDLER ---------- */
   const handleFile = (file) => {
     if (!file) return;
+    if (file.size > MAX_FILE_SIZE) {
+      setImageError("Image size should not exceed 2 MB");
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
+
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
+      return;
+    }
+    setImageError("");
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
+    setValidated(true);
   };
 
   /* ---------- SAVE ---------- */
@@ -233,6 +251,10 @@ const AddEditTemplateModal = ({
     } finally {
       setSaving(false);
     }
+  };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    handleFile(e.dataTransfer.files[0]);
   };
 
   return (
@@ -397,6 +419,36 @@ const AddEditTemplateModal = ({
                 <FiUpload size={16} />
                 Upload Image
               </button>
+              {imageError && (
+                <p className="text-red-500 text-sm mt-1">{imageError}</p>
+              )}
+              {validated && (
+                <div className="mb-2 flex items-center gap-2 text-sm text-green-600 font-medium">
+                  <FiCheckCircle className="text-green-600" size={16} />
+                  <span>Image validated successfully</span>
+                </div>
+              )}
+              <div
+                onDrop={handleDrop}
+                onDragOver={(e) => e.preventDefault()}
+                className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
+              >
+                Drag & Drop your image file here
+                <br />
+                or{" "}
+                <span
+                  className="text-[#1C2C56] underline cursor-pointer"
+                  onClick={() => fileRef.current.click()}
+                >
+                  click to browse here
+                </span>
+                <p className="text-xs mt-2 text-[#64748B]">
+                  PNG, JPG, JPEG files
+                </p>
+                <p className="text-xs mt-2 text-[#64748B]">
+                  Maximum dimension 1000×1000px
+                </p>
+              </div>
 
               <input
                 type="file"
