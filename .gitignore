@@ -3,11 +3,16 @@
 /uniform-kireiz-coordination/node_modules
 /table-kireiz-coordination/node_modules
 /admin-kireiz-coordination/node_modules
+/admin-table-coordination/node_modules
 # Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 /uniform-kireiz-coordination/npm-debug.log
+/table-kireiz-coordination/npm-debug.log
+/table-kireiz-coordination/npm-debug.log
+/admin-table-coordination/npm-debug.log
+
 
 # Testing
 /coverage
@@ -22,6 +27,7 @@ yarn-error.log*
 /uniform-kireiz-coordination/.env
 /table-kireiz-coordination/.env
 /admin-kireiz-coordination/.env
+/admin-table-coordination/.env
 
 
 .env
