@@ -16,6 +16,7 @@ import {
   apiGetCategoryList,
   apiGetSubcategoryList,
 } from "@/services/CategoryService";
+
 import { apiGetPartsList } from "@/services/PartsService";
 
 const productTypeOptions = [
@@ -35,7 +36,7 @@ const selectStyles = {
   option: (base, state) => ({
     ...base,
     backgroundColor: state.isSelected
-      ? "#1C2C56"
+      ? "#1C4FA8"
       : state.isFocused
         ? "#EEF2FF"
         : "white",
@@ -310,22 +311,22 @@ const AddEditProductModal = ({
 
         category: initialData.category
           ? {
-              value: initialData.category,
-              label: `Category #${initialData.category}`,
+              value: initialData.category.id,
+              label: initialData.category.categoryName,
             }
           : null,
 
         subcategory: initialData.subcategory
           ? {
-              value: initialData.subcategory,
-              label: `Subcategory #${initialData.subcategory}`,
+              value: initialData.subcategory.id,
+              label: initialData.subcategory.name,
             }
           : null,
 
         selectedParts:
-          initialData.parts?.map((id) => ({
-            value: id,
-            label: `Part #${id}`,
+          initialData.parts?.map((part) => ({
+            value: part.id,
+            label: part.partName,
           })) || [],
       });
 
@@ -343,60 +344,26 @@ const AddEditProductModal = ({
 
   // Resolve labels once options load (edit mode)
 
-  useEffect(() => {
-    if (!isEdit || !initialData) return;
-
-    if (categoryOptions.length) {
-      const cat = categoryOptions.find(
-        (x) => x.value === initialData.category?.id,
-      );
-      if (cat) {
-        setValue("category", cat);
-      }
-    }
-
-    if (subcategoryOptions.length) {
-      const sub = subcategoryOptions.find(
-        (x) => x.value === initialData.subcategory?.id,
-      );
-      if (sub) {
-        setValue("subcategory", sub);
-      }
-    }
-
-    if (partOptions.length) {
-      const parts =
-        initialData.parts?.map((id) => {
-          return partOptions.find((p) => p.value === id);
-        }) || [];
-
-      setValue("selectedParts", parts);
-    }
-  }, [categoryOptions, subcategoryOptions, partOptions, initialData]);
   // useEffect(() => {
   //   if (!isEdit || !initialData) return;
 
-  //   if (initialData.category && categoryOptions.length > 0) {
-  //     const match = categoryOptions.find(
-  //       (c) => c.value === initialData.category,
+  //   if (categoryOptions.length) {
+  //     const cat = categoryOptions.find(
+  //       (x) => x.value === initialData.category.id,
   //     );
-  //     if (match) setCategory(match);
+  //     if (cat) setValue("category", cat);
   //   }
-  //   if (initialData.subcategory && subcategoryOptions.length > 0) {
-  //     const match = subcategoryOptions.find(
-  //       (s) => s.value === initialData.subcategory,
-  //     );
-  //     if (match) setSubcategory(match);
-  //   }
-  //   if (initialData.parts?.length > 0 && partOptions.length > 0) {
-  //     const resolved = initialData.parts.map((pId) => {
-  //       const match = partOptions.find((p) => p.value === pId);
-  //       return match || { value: pId, label: `Part #${pId}` };
-  //     });
-  //     setSelectedParts(resolved);
-  //   }
-  // }, [categoryOptions, subcategoryOptions, partOptions, isEdit, initialData]);
 
+  //   if (subcategoryOptions.length && initialData?.subcategory?.id) {
+  //     const sub = subcategoryOptions.find(
+  //       (x) => x.value === initialData.subcategory.id,
+  //     );
+
+  //     if (sub) {
+  //       setValue("subcategory", sub);
+  //     }
+  //   }
+  // }, [categoryOptions, subcategoryOptions]);
   /* ---------- FILE HANDLER ---------- */
   const handleFile = (file) => {
     if (!file) return;
@@ -436,18 +403,19 @@ const AddEditProductModal = ({
         formData.append("price", values.price);
       }
       if (values.category) {
-        formData.append("category", values.category.value);
+        formData.append("category_id", values.category.value);
       }
       if (values.subcategory) {
-        formData.append("subcategory", values.subcategory.value);
+        formData.append("subcategory_id", values.subcategory.value);
       }
       if (values.selectedParts.length > 0) {
-        values.selectedParts.forEach((p) => {
-          formData.append("parts", p.value);
-        });
+        formData.append(
+          "parts_ids",
+          JSON.stringify(values.selectedParts.map((p) => p.value)),
+        );
       }
       if (imageFile) {
-        formData.append("productImage", imageFile);
+        formData.append("ProductImage_file", imageFile);
       }
 
       if (isEdit && initialData?.id) {
@@ -455,7 +423,7 @@ const AddEditProductModal = ({
           accessToken,
           initialData.id,
           formData,
-          values.productType.value,
+          // values.productType.value,
         );
       } else {
         await apiCreateProduct(accessToken, formData);
@@ -650,7 +618,9 @@ const AddEditProductModal = ({
                   {...field}
                   options={categoryOptions}
                   styles={selectStyles}
+                  placeholder="Select Category"
                   onChange={field.onChange}
+                  
                 />
               )}
             />
@@ -741,6 +711,7 @@ const AddEditProductModal = ({
                     options={partOptions}
                     styles={selectStyles}
                     onChange={field.onChange}
+                    placeholder="Select Parts"
                   />
                 )}
               />
@@ -770,7 +741,7 @@ const AddEditProductModal = ({
               name="price"
               control={control}
               render={({ field }) => (
-                <Input {...field} type="number" placeholder="100" />
+                <Input {...field} type="number" placeholder="Enter price" />
               )}
             />
           </FormItem>
@@ -822,7 +793,7 @@ const AddEditProductModal = ({
           >
             Cancel
           </Button>
-          <Button variant="plain" size="sm" className="bg-blue-100 rounded-lg">
+          <Button variant="plain" size="sm" onClick={handleSubmit(handleSave)} className="bg-blue-100 rounded-lg">
             Save & Add Another
           </Button>
           <Button

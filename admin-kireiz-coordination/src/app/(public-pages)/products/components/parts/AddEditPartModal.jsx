@@ -10,6 +10,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormItem } from "@/components/ui/Form";
 import Input from "@/components/ui/Input";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiCreatePart, apiUpdatePart } from "@/services/PartsService";
 import { apiGetFabricList } from "@/services/FabricService";
@@ -452,15 +454,31 @@ const AddEditPartModal = ({
         formData.append("partImage", imageFile);
       }
 
-      if (mode === "edit" && initialData?.id) {
-        await apiUpdatePart(accessToken, initialData.id, formData);
-      } else {
-        await apiCreatePart(accessToken, formData);
-      }
+      // if (mode === "edit" && initialData?.id) {
+      //   await apiUpdatePart(accessToken, initialData.id, formData);
+      // } else {
+      //   await apiCreatePart(accessToken, formData);
+      // }
+      // if (!imageFile && !preview) {
+      //   setError("Part image is required");
+      //   return;
+      // }
+
       if (!imageFile && !preview) {
         setError("Part image is required");
         return;
       }
+
+      const response =
+        mode === "edit" && initialData?.id
+          ? await apiUpdatePart(accessToken, initialData.id, formData)
+          : await apiCreatePart(accessToken, formData);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
 
       onSaveSuccess?.();
     } catch (err) {
@@ -592,34 +610,6 @@ const AddEditPartModal = ({
               <label className="text-[#1C2C56] text-base font-medium">
                 Fabric
               </label>
-              {/* <Select
-              options={fabricOptions}
-              value={fabric}
-              onChange={setFabric}
-              styles={selectStyles}
-              placeholder="Select Fabric"
-              isLoading={loadingFabrics}
-              loadingMessage={() => "Loading fabrics..."}
-              noOptionsMessage={() => "No fabrics found"}
-              isClearable
-              menuPortalTarget={typeof document !== "undefined" ? document.body : null}
-              menuPosition="fixed"
-              className="mt-1"
-            /> */}
-              {/* <Controller
-                name="fabric"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    options={fabricOptions}
-                    styles={selectStyles}
-                    value={field.value}
-                    onChange={field.onChange}
-                    isClearable
-                  />
-                )}
-              /> */}
               <FormItem
                 invalid={Boolean(errors.fabric)}
                 errorMessage={errors.fabric?.message}
@@ -634,6 +624,7 @@ const AddEditPartModal = ({
                       styles={selectStyles}
                       value={field.value}
                       onChange={field.onChange}
+                      placeholder="Select Fabric"
                       isClearable
                     />
                   )}

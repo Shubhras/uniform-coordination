@@ -6,6 +6,8 @@ import Button from "@/components/ui/Button";
 import Select from "react-select";
 import { useForm, Controller, get } from "react-hook-form";
 import { z } from "zod";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormItem } from "@/components/ui/Form";
 import { FiEye, FiEyeOff } from "react-icons/fi";
@@ -141,11 +143,21 @@ const AddEditB2BAccountModal = ({
         payload.password = values.password.trim();
       }
 
-      if (mode === "edit" && initialData?.id) {
-        await apiUpdateB2BAccount(accessToken, initialData.id, payload);
-      } else {
-        await apiCreateB2BAccount(accessToken, payload);
-      }
+      // if (mode === "edit" && initialData?.id) {
+      //   await apiUpdateB2BAccount(accessToken, initialData.id, payload);
+      // } else {
+      //   await apiCreateB2BAccount(accessToken, payload);
+      // }
+      const response =
+        mode === "edit" && initialData?.id
+          ? await apiUpdateB2BAccount(accessToken, initialData.id, payload)
+          : await apiCreateB2BAccount(accessToken, payload);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
 
       onSaveSuccess?.();
       onClose?.();
@@ -317,7 +329,16 @@ const AddEditB2BAccountModal = ({
                   render={({ field }) => (
                     <input
                       {...field}
+                      type="tel"
+                      inputMode="numeric"
                       placeholder="9763880909"
+                      maxLength={10}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                        field.onChange(value);
+                      }}
                       className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                     />
                   )}

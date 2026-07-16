@@ -11,6 +11,7 @@ import {
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetProductList, apiDeleteProduct } from "@/services/ProductService";
+import { apiFabricCategoryList } from "@/services/FabricService";
 import AddEditProductModal from "./AddEditProductModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
@@ -27,14 +28,25 @@ const ProductsTab = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const filterOptions = [
-    { value: "all", label: "All Categories" },
-    { value: "Health Care", label: "Health Care" },
-    { value: "Food Service", label: "Food Service" },
-    { value: "Retail", label: "Retail" },
-    { value: "Corporate", label: "Corporate" },
-  ];
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const [categoryOptions, setCategoryOptions] = useState([
+    { value: "", label: "All Categories" },
+  ]);
+
+  const [selectedCategory, setSelectedCategory] = useState({
+    value: "",
+    label: "All Categories",
+  });
 
   const selectStyles = {
     control: (base) => ({
@@ -67,7 +79,6 @@ const ProductsTab = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,7 +96,16 @@ const ProductsTab = () => {
 
       try {
         setLoading(true);
-        const response = await apiGetProductList(accessToken, page);
+        const response = await apiGetProductList(accessToken, {
+          page,
+          pageSize: 10,
+          productType: "uniform",
+          search: debouncedSearch,
+          categoryId: selectedCategory?.value,
+          // subcategoryId: selectedSubcategory?.value,
+          // type: selectedType?.value,
+          // ordering: selectedOrdering?.value,
+        });
 
         if (response?.status && response?.data) {
           setProducts(response.data);
@@ -105,7 +125,7 @@ const ProductsTab = () => {
         setLoading(false);
       }
     },
-    [accessToken],
+    [accessToken, debouncedSearch, selectedCategory],
   );
 
   useEffect(() => {
@@ -172,6 +192,32 @@ const ProductsTab = () => {
       item.description?.toLowerCase().includes(query)
     );
   });
+  const fetchCategories = useCallback(async () => {
+    if (!accessToken) return;
+
+    try {
+      const res = await apiFabricCategoryList(accessToken, 1, 100);
+
+      if (res?.status && res?.data) {
+        const options = [
+          { value: "", label: "All Categories" },
+          ...res.data.map((item) => ({
+            value: item.id,
+            label: item.categoryName,
+          })),
+        ];
+
+        setCategoryOptions(options);
+        setSelectedCategory(options[0]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [accessToken]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   /* ---------- SKELETON ---------- */
   const CardSkeleton = () => (
@@ -239,22 +285,23 @@ const ProductsTab = () => {
         </div>
 
         <Select
-          options={filterOptions}
-          // defaultValue={filterOptions[0]}
-          value={selectedFilter}
+          options={categoryOptions}
+          value={selectedCategory}
+          onChange={setSelectedCategory}
           styles={selectStyles}
-          onChange={setSelectedFilter}
           menuPortalTarget={
             typeof document !== "undefined" ? document.body : null
           }
           menuPosition="fixed"
           className="w-48 text-sm"
         />
+
         <button
           type="button"
           onClick={() => {
             setSearchQuery("");
-            setSelectedFilter(filterOptions[0]); // ya null agar placeholder dikhana ho
+            setSelectedCategory(categoryOptions[0]);
+            setCurrentPage(1);
           }}
           className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-white bg-[#1C4FA8] hover:bg-[#163F86] transition-colors"
         >

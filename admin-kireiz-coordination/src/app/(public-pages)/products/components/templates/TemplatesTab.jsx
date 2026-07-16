@@ -16,6 +16,8 @@ import {
   apiDeleteTemplate,
 } from "@/services/TemplateService";
 import { apiFabricCategoryList } from "@/services/FabricService";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import AddEditTemplateModal from "./AddEditTemplateModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import PreviewTemplateModal from "./PreviewTemplateModal";
@@ -146,7 +148,16 @@ const TemplatesTab = () => {
 
     try {
       setDeleteLoading(true);
-      await apiDeleteTemplate(accessToken, templateToDelete.id);
+      const response = await apiDeleteTemplate(
+        accessToken,
+        templateToDelete.id,
+      );
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
       setDeleteDialogOpen(false);
       setTemplateToDelete(null);
       fetchTemplates(currentPage);

@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
 import Upload from "@/components/ui/Upload";
 import Input from "@/components/ui/Input";
@@ -107,6 +107,7 @@ const CustomControl = ({ children, ...props }) => {
 const ProfilePage = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
+  const [imageError, setImageError] = useState("");
 
   const { data, mutate } = useSWR(
     "/api/settings/profile/",
@@ -127,20 +128,40 @@ const ProfilePage = () => {
     });
   }, []);
 
-  const beforeUpload = (files) => {
-    let valid = true;
+  // const beforeUpload = (files) => {
+  //   let valid = true;
 
+  //   const allowedFileType = ["image/jpeg", "image/png"];
+  //   if (files) {
+  //     const fileArray = Array.from(files);
+  //     for (const file of fileArray) {
+  //       if (!allowedFileType.includes(file.type)) {
+  //         valid = "Please upload a .jpeg or .png file!";
+  //       }
+  //     }
+  //   }
+
+  //   return valid;
+  // };
+  const beforeUpload = (files) => {
     const allowedFileType = ["image/jpeg", "image/png"];
-    if (files) {
-      const fileArray = Array.from(files);
-      for (const file of fileArray) {
-        if (!allowedFileType.includes(file.type)) {
-          valid = "Please upload a .jpeg or .png file!";
-        }
-      }
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
+
+    const file = files?.[0];
+    if (!file) return false;
+
+    if (!allowedFileType.includes(file.type)) {
+      setImageError("Please upload only JPG or PNG images.");
+      return false;
     }
 
-    return valid;
+    if (file.size > MAX_FILE_SIZE) {
+      setImageError("Image size should not exceed 2 MB.");
+      return false;
+    }
+
+    setImageError("");
+    return true;
   };
 
   const {
@@ -203,7 +224,7 @@ const ProfilePage = () => {
                           size="sm"
                           type="button"
                           // icon={<TbPlus />}
-                          className=" bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md px-6"
+                          className=" bg-[#1C4FA8] hover:bg-[#1C4FA8] text-white py-2 rounded-md px-6"
                         >
                           Upload Image
                         </Button>
@@ -214,6 +235,7 @@ const ProfilePage = () => {
                         className="border px-6 py-2 rounded-md"
                         onClick={() => {
                           field.onChange("");
+                          setImageError("");
                         }}
                       >
                         Remove
@@ -222,6 +244,9 @@ const ProfilePage = () => {
                     <p className="text-[#5175B2] text-center text-xs">
                       Recommended: 500x500px, JPG/PNG
                     </p>
+                    {imageError && (
+                      <p className="text-red-500 text-xs mt-1">{imageError}</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -366,11 +391,11 @@ const ProfilePage = () => {
               Cancel
             </Button>
             <Button
-              variant="solid"
+              // variant="solid"
               type="submit"
               size="sm"
               loading={isSubmitting}
-              className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+              className="bg-[#1C4FA8] hover:bg-[#1C4FA8] px-6 text-white py-2 rounded-md"
             >
               Save Changes
             </Button>

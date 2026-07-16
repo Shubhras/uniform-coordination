@@ -12,6 +12,8 @@ import {
   FiEye,
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import {
   apiGetB2BAccountList,
   apiDeleteB2BAccount,
@@ -76,7 +78,17 @@ const B2BAccounts = () => {
 
     try {
       setDeleteLoading(true);
-      await apiDeleteB2BAccount(accessToken, accountToDelete.id);
+      const response = await apiDeleteB2BAccount(
+        accessToken,
+        accountToDelete.id,
+      );
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message || "User Deleted successfully"}
+        </Notification>,
+      );
+
       setDeleteDialogOpen(false);
       setAccountToDelete(null);
       fetchAccounts();

@@ -242,7 +242,7 @@ const AddEditSubcategoryModal = ({
 
                         <button
                             onClick={() => fileRef.current.click()}
-                            className="mt-2 w-full bg-[#1C2C56] text-white py-2 rounded-md text-sm flex items-center justify-center gap-2"
+                            className="mt-2 w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm flex items-center justify-center gap-2"
                         >
                             <FiUpload size={16} />
                             Upload Image
@@ -289,7 +289,7 @@ const AddEditSubcategoryModal = ({
                     <Button
                         variant="solid"
                         size="sm"
-                        className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+                        className="bg-[#1C4FA8] px-6 hover:bg-[#1C4FA8] text-white py-2 rounded-md"
                         onClick={handleSave}
                         loading={saving}
                     >

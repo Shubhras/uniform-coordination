@@ -10,6 +10,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormItem } from "@/components/ui/Form";
 import Input from "@/components/ui/Input";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
   apiCreateCatalogImage,
@@ -30,9 +32,7 @@ const catalogSchema = z.object({
       message: "Category is required",
     }),
 
-  image: z.any().refine((file) => file instanceof File, {
-    message: "Image is required",
-  }),
+  image: z.any().optional(),
 });
 
 const selectStyles = {
@@ -213,6 +213,14 @@ const AddEditCatalogModal = ({
 
   /* ---------- SAVE ---------- */
   const handleSave = async (values) => {
+    if (mode === "add" && !imageFile) {
+      setImageError("Image is required");
+      return;
+    }
+
+    // if (imageFile) {
+    //   formData.append("image", imageFile);
+    // }
     setError("");
     setSaving(true);
 
@@ -227,11 +235,22 @@ const AddEditCatalogModal = ({
         formData.append("image", imageFile);
       }
 
-      if (mode === "edit" && initialData?.id) {
-        await apiUpdateCatalogImage(accessToken, initialData.id, formData);
-      } else {
-        await apiCreateCatalogImage(accessToken, formData);
-      }
+      // if (mode === "edit" && initialData?.id) {
+      //   await apiUpdateCatalogImage(accessToken, initialData.id, formData);
+      // } else {
+      //   await apiCreateCatalogImage(accessToken, formData);
+      // }
+
+      const response =
+        mode === "edit" && initialData?.id
+          ? await apiUpdateCatalogImage(accessToken, initialData.id, formData)
+          : await apiCreateCatalogImage(accessToken, formData);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
 
       if (onSaveSuccess) {
         onSaveSuccess();
@@ -332,7 +351,7 @@ const AddEditCatalogModal = ({
                       styles={selectStyles}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Select category..."
+                      placeholder="Select category"
                       isLoading={loadingCategories}
                       loadingMessage={() => "Loading categories..."}
                       noOptionsMessage={() => "No categories found"}
@@ -426,7 +445,7 @@ const AddEditCatalogModal = ({
             <Button
               variant="solid"
               size="sm"
-              className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+              className="bg-[#1C4FA8] px-6 hover:bg-[#1C4FA8] text-white py-2 rounded-md"
               //   onClick={handleSave}
               onClick={handleSubmit(handleSave)}
               loading={saving}

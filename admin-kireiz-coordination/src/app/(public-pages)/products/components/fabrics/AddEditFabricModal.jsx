@@ -5,6 +5,8 @@ import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { z } from "zod";
 import { Form, FormItem } from "@/components/ui/Form";
 import Input from "@/components/ui/Input";
@@ -226,7 +228,7 @@ const AddEditFabricModal = ({
         fabricName: "",
         materialType: null,
         price: "",
-        category:null
+        category: null,
       });
 
       // Reset for add mode
@@ -300,16 +302,36 @@ const AddEditFabricModal = ({
 
     try {
       if (mode === "edit" && initialData?.id) {
-        await apiUpdateFabric(accessToken, initialData.id, payload);
+        const response = await apiUpdateFabric(
+          accessToken,
+          initialData.id,
+          payload,
+        );
+
+        toast.push(
+          <Notification title="Success" type="success">
+            {response?.message || "Fabric updated successfully"}
+          </Notification>,
+        );
       } else {
-        await apiCreateFabric(accessToken, payload);
+        const response = await apiCreateFabric(accessToken, payload);
+
+        toast.push(
+          <Notification title="Success" type="success">
+            {response?.message || "Fabric created successfully"}
+          </Notification>,
+        );
       }
 
       if (onSaveSuccess) {
         onSaveSuccess();
       }
     } catch (err) {
-      console.error("Fabric save error:", err);
+      toast.push(
+        <Notification title="Error" type="danger">
+          {err?.response?.data?.message || "Failed to save fabric."}
+        </Notification>,
+      );
       setError(
         err?.response?.data?.message ||
           "Failed to save fabric. Please try again.",
@@ -499,6 +521,7 @@ const AddEditFabricModal = ({
                       styles={selectStyles}
                       value={field.value}
                       onChange={field.onChange}
+                      placeholder="Select Material Type"
                     />
                   )}
                 />
@@ -550,7 +573,7 @@ const AddEditFabricModal = ({
                 menuPosition="fixed"
                 className="mt-1"
               /> */}
-                <FormItem
+              <FormItem
                 invalid={Boolean(errors.category)}
                 errorMessage={errors.category?.message}
                 className="mt-1"
