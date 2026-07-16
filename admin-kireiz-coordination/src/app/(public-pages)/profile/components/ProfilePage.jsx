@@ -11,6 +11,7 @@ import { countryList } from "@/constants/countries.constant";
 import { components } from "react-select";
 import { apiGetSettingsProfile } from "@/services/AccontsService";
 import sleep from "@/utils/sleep";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import useSWR from "swr";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
@@ -104,9 +105,12 @@ const CustomControl = ({ children, ...props }) => {
 };
 
 const ProfilePage = () => {
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
   const { data, mutate } = useSWR(
     "/api/settings/profile/",
-    () => apiGetSettingsProfile(),
+    () => apiGetSettingsProfile(accessToken),
     {
       revalidateOnFocus: false,
       revalidateIfStale: false,

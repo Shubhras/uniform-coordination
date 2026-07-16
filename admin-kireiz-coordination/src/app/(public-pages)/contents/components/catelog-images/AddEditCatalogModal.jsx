@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Select from "react-select";
-import { FiUpload } from "react-icons/fi";
+import { FiUpload, FiCheckCircle } from "react-icons/fi";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -79,6 +79,10 @@ const AddEditCatalogModal = ({
   // Save state
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [imageError, setImageError] = useState("");
+  const [validated, setValidated] = useState(false);
+
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
   const {
     control,
@@ -126,6 +130,8 @@ const AddEditCatalogModal = ({
 
     if (mode === "edit" && initialData) {
       setImageFile(null);
+      setValidated(!!initialData.image);
+      setImageError("");
       setPreview(initialData.image || null);
 
       reset({
@@ -137,6 +143,8 @@ const AddEditCatalogModal = ({
       // setName("");
       // setCategory(null);
       setImageFile(null);
+      setValidated(false);
+      setImageError("");
       setPreview(null);
       reset({
         name: "",
@@ -167,12 +175,39 @@ const AddEditCatalogModal = ({
   /* ---------- FILE HANDLER ---------- */
   const handleFile = (file) => {
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setImageError("Only image files are allowed");
+      setValidated(false);
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setImageError("Image size should not exceed 2 MB");
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
+
+      setValue("image", null, {
+        shouldValidate: true,
+      });
+
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
+
+      return;
+    }
+
+    setImageError("");
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
+    setValidated(true);
 
     setValue("image", file, {
       shouldValidate: true,
     });
+
     trigger("image");
   };
 
@@ -209,6 +244,10 @@ const AddEditCatalogModal = ({
     } finally {
       setSaving(false);
     }
+  };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    handleFile(e.dataTransfer.files[0]);
   };
 
   return (
@@ -322,6 +361,31 @@ const AddEditCatalogModal = ({
                 <FiUpload size={16} />
                 Upload Image
               </button>
+              {imageError && (
+                <p className="text-red-500 text-sm mt-1">{imageError}</p>
+              )}
+
+              <div
+                onDrop={handleDrop}
+                onDragOver={(e) => e.preventDefault()}
+                className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
+              >
+                Drag & Drop your image file here
+                <br />
+                or{" "}
+                <span
+                  className="text-[#1C2C56] underline cursor-pointer"
+                  onClick={() => fileRef.current.click()}
+                >
+                  click to browse here
+                </span>
+                <p className="text-xs mt-2 text-[#64748B]">
+                  JPG, PNG, or WEBP files
+                </p>
+                <p className="text-xs mt-2 text-[#64748B]">
+                  Maximum dimension 1000×1000px
+                </p>
+              </div>
 
               <input
                 type="file"
@@ -330,12 +394,13 @@ const AddEditCatalogModal = ({
                 accept="image/*"
                 onChange={(e) => handleFile(e.target.files[0])}
               />
-              {errors.image && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.image.message}
-                </p>
-              )}
             </div>
+            {validated && (
+              <div className="mb-2 flex items-center gap-2 text-sm text-green-600 font-medium">
+                <FiCheckCircle className="text-green-600" size={16} />
+                <span>Image validated successfully</span>
+              </div>
+            )}
 
             {preview && (
               <div className="flex justify-center">

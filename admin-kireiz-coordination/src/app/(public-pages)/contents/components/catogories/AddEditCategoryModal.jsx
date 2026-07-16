@@ -59,6 +59,8 @@ const AddEditCategoryModal = ({
   // Save state
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [imageError, setImageError] = useState("");
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
   /* ---------- RESET / PREFILL ---------- */
   useEffect(() => {
@@ -81,6 +83,7 @@ const AddEditCategoryModal = ({
       setImageFile(null);
       setPreview(null);
       setValidated(false);
+      setImageError("");
       reset({
         categoryName: "",
         description: "",
@@ -90,12 +93,37 @@ const AddEditCategoryModal = ({
     setError("");
   }, [mode, initialData, isOpen]);
 
-  /* ---------- FILE HANDLERS ---------- */
   const handleFile = (file) => {
-    if (!file || !file.type.startsWith("image/")) return;
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setImageError("Only image files are allowed");
+      setValidated(false);
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setImageError("Image size should not exceed 2 MB");
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
+
+      setValue("image", null, {
+        shouldValidate: true,
+      });
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      return;
+    }
+
+    setImageError("");
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
     setValidated(true);
+
     setValue("image", file, {
       shouldValidate: true,
     });
@@ -117,6 +145,7 @@ const AddEditCategoryModal = ({
     setImageFile(null);
     setPreview(null);
     setValidated(false);
+    setImageError("");
     setError("");
     reset({
       categoryName: "",
@@ -229,6 +258,9 @@ const AddEditCategoryModal = ({
                 <FiUpload size={16} />
                 Upload image
               </button>
+              {imageError && (
+                <p className="text-red-500 text-sm mt-1">{imageError}</p>
+              )}
 
               <div
                 onDrop={handleDrop}

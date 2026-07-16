@@ -15,8 +15,10 @@ import {
   apiGetTemplatesList,
   apiDeleteTemplate,
 } from "@/services/TemplateService";
+import { apiFabricCategoryList } from "@/services/FabricService";
 import AddEditTemplateModal from "./AddEditTemplateModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import PreviewTemplateModal from "./PreviewTemplateModal";
 
 const TemplatesTab = () => {
   const { session } = useCurrentSession();
@@ -34,6 +36,34 @@ const TemplatesTab = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState(null);
+
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const [categoryOptions, setCategoryOptions] = useState([
+    { value: "", label: "All Categories" },
+  ]);
+
+  const [selectedCategory, setSelectedCategory] = useState(categoryOptions[0]);
+
+  const handlePreview = (template) => {
+    setPreviewTemplate(template);
+    setPreviewOpen(true);
+  };
+
+  const handleClosePreview = () => {
+    setPreviewOpen(false);
+    setPreviewTemplate(null);
+  };
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,8 +80,7 @@ const TemplatesTab = () => {
     { value: "aprons", label: "Aprons" },
   ];
 
-    const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
-
+  const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
 
   const selectStyles = {
     control: (base) => ({
@@ -87,13 +116,16 @@ const TemplatesTab = () => {
 
       try {
         setLoading(true);
-        const response = await apiGetTemplatesList(accessToken, page);
+        const response = await apiGetTemplatesList(accessToken, {
+          page,
+          pageSize: 10,
+          search: debouncedSearch,
+          categoryId: selectedCategory?.value,
+        });
 
-        if (response?.status && response?.data) {
+        if (response?.status) {
           setTemplates(response.data);
-          if (response.pagination) {
-            setPagination(response.pagination);
-          }
+          setPagination(response.pagination);
         }
       } catch (error) {
         console.error("Failed to fetch templates:", error);
@@ -101,7 +133,7 @@ const TemplatesTab = () => {
         setLoading(false);
       }
     },
-    [accessToken],
+    [accessToken, debouncedSearch, selectedCategory],
   );
 
   useEffect(() => {
@@ -161,6 +193,33 @@ const TemplatesTab = () => {
       setCurrentPage(page);
     }
   };
+
+  const fetchCategories = useCallback(async () => {
+    if (!accessToken) return;
+
+    try {
+      const res = await apiFabricCategoryList(accessToken, 1, 100);
+
+      if (res?.status && res?.data) {
+        const options = [
+          { value: "", label: "All Categories" },
+          ...res.data.map((item) => ({
+            value: item.id,
+            label: item.categoryName,
+          })),
+        ];
+
+        setCategoryOptions(options);
+        setSelectedCategory(options[0]);
+      }
+    } catch (err) {
+      console.error("Category fetch failed", err);
+    }
+  }, [accessToken]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   /* ---------- SKELETON ---------- */
   const CardSkeleton = () => (
@@ -240,23 +299,23 @@ const TemplatesTab = () => {
           </div>
 
           <Select
-            options={filterOptions}
-            // defaultValue={filterOptions[0]}
-            value={selectedFilter}
-            onChange={setSelectedFilter}
+            options={categoryOptions}
+            value={selectedCategory}
+            onChange={setSelectedCategory}
             styles={selectStyles}
             menuPortalTarget={
               typeof document !== "undefined" ? document.body : null
             }
             menuPosition="fixed"
-            className="w-48 text-sm"
+            className="w-60 text-sm"
           />
 
           <button
             type="button"
             onClick={() => {
               setSearchQuery("");
-              setSelectedFilter(filterOptions[0]); // ya null agar placeholder dikhana ho
+              setSelectedCategory(categoryOptions[0]);
+              setCurrentPage(1);
             }}
             className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-white bg-[#1C4FA8] hover:bg-[#163F86] transition-colors"
           >
@@ -323,7 +382,10 @@ const TemplatesTab = () => {
                       {/* <FiTrash2 size={12} /> */}
                       Delete
                     </button>
-                    <button className="flex-1 border border-[#CBD5E1] text-[#1C2C56] text-xs py-1.5 rounded-md">
+                    <button
+                      onClick={() => handlePreview(t)}
+                      className="flex-1 border border-[#CBD5E1] text-[#1C2C56] text-xs py-1.5 rounded-md"
+                    >
                       Preview
                     </button>
                   </div>
@@ -382,6 +444,11 @@ const TemplatesTab = () => {
         message="Are you sure you want to delete this template? This action cannot be undone."
         itemName={templateToDelete?.templateName}
         loading={deleteLoading}
+      />
+      <PreviewTemplateModal
+        isOpen={previewOpen}
+        onClose={handleClosePreview}
+        template={previewTemplate}
       />
     </>
   );
