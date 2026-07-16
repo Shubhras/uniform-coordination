@@ -397,14 +397,7 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
                   <div className="flex justify-center mb-6">
                     <div className="w-[180px] h-[200px] md:w-[200px] md:h-[220px] rounded-full overflow-hidden">
                       <Image
-                        src={item.categoryImage}
-                        // src={
-                        //   (index + i) % 3 === 0
-                        //     ? "https://t8sjq87n-8001.inc1.devtunnels.ms/media/category/medicalcategory.png"
-                        //     : (index + i) % 3 === 1
-                        //       ? "https://t8sjq87n-8001.inc1.devtunnels.ms/media/category/Office__Back-End_Operations.png"
-                        //       : "https://t8sjq87n-8001.inc1.devtunnels.ms/media/category/Food_Service__Dining.jpg"
-                        // }
+                        src={item.img}
                         alt={item.id}
                         width={200}
                         height={220}

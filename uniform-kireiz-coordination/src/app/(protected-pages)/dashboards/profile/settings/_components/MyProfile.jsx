@@ -6,7 +6,7 @@ import { FiBox, FiChevronRight, FiDownload, FiEdit2, FiLock, FiMail } from 'reac
 import { HiCheckCircle } from 'react-icons/hi'
 import { useSession } from 'next-auth/react'
 import { FiFileText } from 'react-icons/fi'
-import { apiGetProfile, apiGetQuotation } from '@/services/AuthProfileService'
+import { apiGetProfile, apiGetQuotation, apiSimulationExportPdf } from '@/services/AuthProfileService'
 import { CiUser } from 'react-icons/ci'
 import { GoArrowRight } from 'react-icons/go'
 import Spinner from '@/components/ui/Spinner'
@@ -16,7 +16,7 @@ const MyProfile = () => {
     const fileRef = useRef(null)
     const { data: session } = useSession()
     const { setCurrentView } = useSettingsStore()
-
+    // const [pdfLoadingId, setPdfLoadingId] = useState(null)
     const [profile, setProfile] = useState(null)
     const [quotationData, setQuotationData] = useState([])
     const [image, setImage] = useState(null)
@@ -83,6 +83,27 @@ const MyProfile = () => {
             fileRef.current.value = ''
         }
     }
+    // const handlePdfDownload = async (id) => {
+    //     try {
+    //         if (!session?.accessToken || !id) return
+
+    //         setPdfLoadingId(id)
+    //         //setPdfError('')
+
+    //         const res = await apiSimulationExportPdf(session.accessToken, id)
+
+    //         if (res?.status && res?.pdf_url) {
+    //             window.open(res.pdf_url, '_blank')
+    //         } else {
+    //             //setPdfError(res?.message || 'PDF URL not found')
+    //         }
+    //     } catch (err) {
+    //         console.error('Failed to download PDF', err)
+    //         //setPdfError('Failed to download PDF. Please try again.')
+    //     } finally {
+    //         setPdfLoadingId(null)
+    //     }
+    // }
 
     if (profileLoading) {
         return (
@@ -245,7 +266,7 @@ const MyProfile = () => {
                         <h4 className="text-sm font-semibold flex items-center gap-2 text-[#0F172A]">
                             <FiBox /> Recent Orders
                         </h4>
-                        <button className="text-xs text-[#2563A8] font-medium flex items-center gap-1">
+                        <button className="text-xs text-[#2563A8] font-medium flex items-center gap-1" onClick={() => setCurrentView('order-history')}>
                             View All <GoArrowRight />
                         </button>
                     </div>
@@ -328,7 +349,7 @@ const MyProfile = () => {
                             ))}
                         </div>
 
-                        <p className="text-xs text-center mt-4 text-[#1C2C56] cursor-pointer">
+                        <p className="text-xs text-center mt-4 text-[#1C2C56] cursor-pointer" onClick={() => setCurrentView('order-history')}>
                             View All Linked Orders
                         </p>
                     </div>
@@ -341,7 +362,7 @@ const MyProfile = () => {
                             <FiFileText size={16} />
                             Recent Simulations
                         </h4>
-                        <button className="text-xs text-[#2563A8] font-medium flex items-center gap-1">
+                        <button className="text-xs text-[#2563A8] font-medium flex items-center gap-1" onClick={() => setCurrentView('simulation-history')}>
                             View All <GoArrowRight />
                         </button>
                     </div>

@@ -23,19 +23,10 @@ const SingleBlogSection = () => {
         const res = await apiGetBlogDetail(id);
         if (res?.status) {
           setBlogData({
-            img:
-              String(res.data.id) === "54"
-                ? "https://t8sjq87n-8001.inc1.devtunnels.ms/media/blog_images/blog1.jpg"
-                : String(res.data.id) === "53"
-                  ? "https://t8sjq87n-8001.inc1.devtunnels.ms/media/blog_images/bog2.jpeg"
-                  : String(res.data.id) === "52"
-                    ? "https://t8sjq87n-8001.inc1.devtunnels.ms/media/blog_images/photo-1445205170230-053b83016050_1.jpeg"
-                    : String(res.data.id) === "51"
-                      ? "https://t8sjq87n-8001.inc1.devtunnels.ms/media/blog_images/blog4.jpeg"
-                      : res.data.image || "/img/placeholder.png",
-            title: res.data.title,
-            date: formatDate(res.data.created_at),
-            description: res.data.description,
+            img: res?.data?.image_url,
+            title: res?.data?.title,
+            date: formatDate(res?.data?.created_at),
+            description: res?.data?.description,
           });
         }
       } catch (err) {

@@ -36,7 +36,7 @@ const BlogSection = () => {
           const mapped = response.data.map((post) => ({
             id: post.id,
             slug: post.slug,
-            img: post.image || "/img/placeholder.png",
+            image: post.image_url || "/img/placeholder.png",
             date: formatDate(post.created_at),
             category: post.categoryName || "Category",
             title: post.title,
@@ -90,15 +90,7 @@ const BlogSection = () => {
               {/* Image */}
               <div className="p-3">
                 <Image
-                  src={
-                    index % 4 === 0
-                      ? "https://t8sjq87n-8001.inc1.devtunnels.ms/media/blog_images/blog1.jpg"
-                      : index % 4 === 1
-                        ? "https://t8sjq87n-8001.inc1.devtunnels.ms/media/blog_images/bog2.jpeg"
-                        : index % 4 === 2
-                          ? "https://t8sjq87n-8001.inc1.devtunnels.ms/media/blog_images/photo-1445205170230-053b83016050_1.jpeg"
-                          : "https://t8sjq87n-8001.inc1.devtunnels.ms/media/blog_images/blog4.jpeg"
-                  }
+                  src={post.image}
                   alt={post.title || "Blog Image"}
                   width={500}
                   height={300}
