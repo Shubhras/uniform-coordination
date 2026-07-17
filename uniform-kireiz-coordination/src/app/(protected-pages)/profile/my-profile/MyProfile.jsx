@@ -10,12 +10,12 @@ import { apiGetProfile, apiGetQuotation, apiSimulationExportPdf } from '@/servic
 import { CiUser } from 'react-icons/ci'
 import { GoArrowRight } from 'react-icons/go'
 import Spinner from '@/components/ui/Spinner'
-import { useSettingsStore } from '../_store/settingsStore'
+import { useRouter } from 'next/navigation'
 
 const MyProfile = () => {
     const fileRef = useRef(null)
     const { data: session } = useSession()
-    const { setCurrentView } = useSettingsStore()
+    const router = useRouter()
     // const [pdfLoadingId, setPdfLoadingId] = useState(null)
     const [profile, setProfile] = useState(null)
     const [quotationData, setQuotationData] = useState([])
@@ -196,10 +196,10 @@ const MyProfile = () => {
 
                     {/* Actions */}
                     <div className="flex flex-wrap gap-2">
-                        <Button size="sm" className="flex items-center gap-2 border border-[#ADC2DE]" onClick={() => setCurrentView('personal-information')}>
+                        <Button size="sm" className="flex items-center gap-2 border border-[#ADC2DE]" onClick={() => router.push('/profile/personal-information')}>
                             <FiEdit2 /> Edit Profile
                         </Button>
-                        <Button size="sm" className="flex items-center gap-2 border border-[#ADC2DE]" onClick={() => setCurrentView('change-password')}>
+                        <Button size="sm" className="flex items-center gap-2 border border-[#ADC2DE]" onClick={() => router.push('/profile/change-password')}>
                             <FiLock /> Change Password
                         </Button>
                         {/* <Button size="sm" className="flex items-center gap-2 border border-[#ADC2DE]">

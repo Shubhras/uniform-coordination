@@ -19,7 +19,6 @@ import { HiOutlineUser } from 'react-icons/hi'
 import { TbPlus } from 'react-icons/tb'
 import { CiUser } from 'react-icons/ci'
 import { apiGetProfile, apiUpdateProfile } from '@/services/AuthProfileService'
-import { useSettingsStore } from '../_store/settingsStore'
 import { useSession } from 'next-auth/react'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
@@ -79,7 +78,6 @@ const CustomControl = ({ children, ...props }) => {
 
 const PersonalInformation = () => {
     const { data: session } = useSession()
-    const { currentView } = useSettingsStore()
     const [loading, setLoading] = useState(false)
     const {
         handleSubmit,
@@ -132,8 +130,6 @@ const PersonalInformation = () => {
     //     // eslint-disable-next-line react-hooks/exhaustive-deps
     // }, [data])
     useEffect(() => {
-        if (currentView !== 'personal-information') return
-
         const fetchProfile = async () => {
             try {
                 if (!session?.accessToken) return
@@ -161,7 +157,7 @@ const PersonalInformation = () => {
         }
 
         fetchProfile()
-    }, [currentView, reset])
+    }, [reset])
     // const onSubmit = async (values) => {
     //     console.log('Form Data:', values) // <-- log all form data
     //     await sleep(500)

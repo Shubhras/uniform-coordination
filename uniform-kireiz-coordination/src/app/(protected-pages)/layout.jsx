@@ -6,3 +6,14 @@ const Layout = async ({ children }) => {
 }
 
 export default Layout
+// import AdminLayoutWrapper from './AdminLayoutWrapper'
+
+// const PublicPagesLayout = ({ children }) => {
+//     return (
+//         <AdminLayoutWrapper>
+//             {children}
+//         </AdminLayoutWrapper>
+//     )
+// }
+
+// export default PublicPagesLayout
