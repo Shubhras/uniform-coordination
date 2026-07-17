@@ -99,7 +99,7 @@ const stackList = [
   {
     id: "location",
     icon: PiMapPinFill,
-    title: "Design Uniform/Table",
+    title: "Design Uniform",
     description:
       "Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices, orci vitae convallis mattis.",
   },
@@ -121,7 +121,7 @@ const stackList = [
 
 const TechStack = () => {
   return (
-    <section className="w-full bg-white px-4 sm:px-6 lg:px-12 py-16">
+    <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12 py-16">
       {/* HEADER */}
       <div className="text-center mb-14">
         <h2 className="text-2xl md:text-3xl font-semibold text-[#1C2C56]">
@@ -149,7 +149,7 @@ const TechStack = () => {
                 {/* ICON */}
                 <div className="relative z-10 mb-6">
                   <div className="w-20 h-20 rounded-xl bg-[#f3f6fb] flex items-center justify-center shadow-sm">
-                    <Icon size={40} className="text-[#1C2C56]" />
+                    <Icon size={40} className="text-[#1C4FA8]" />
                   </div>
                 </div>
 

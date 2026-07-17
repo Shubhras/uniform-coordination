@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import Image from "next/image";
 import { FaRegHeart } from 'react-icons/fa6';
+import { useRouter } from 'next/navigation';
 
 const ThemeCards = () => {
     const [activeFilter, setActiveFilter] = useState("All");
-
+    const router = useRouter();
     const filters = ["All", "Wedding", "Corporate", "Parties", "Seasonal"];
 
     const bottomCards = [
@@ -56,6 +57,9 @@ const ThemeCards = () => {
         },
     ];
 
+    const handleCustomizeClick = () => {
+        router.push("/dashboards/uniform-3d-design")
+    }
     const filteredCards =
         activeFilter === "All"
             ? bottomCards
@@ -66,6 +70,7 @@ const ThemeCards = () => {
 
             {/* ================= FILTER SECTION ================= */}
             <div className="flex gap-3 flex-wrap items-center pt-6">
+                <h4 className='text-sm font-medium'>Filters :</h4>
                 {filters.map((filter) => (
                     <button
                         key={filter}
@@ -73,12 +78,11 @@ const ThemeCards = () => {
                         className={`
                             px-5 py-2
                             rounded-full
-                            text-sm font-medium
+                            text-xs sm:text-sm font-medium
                             transition
-                            ${
-                                activeFilter === filter
-                                    ? "bg-[#A0614D] text-white shadow"
-                                    : " text-[#6B7280] hover:bg-[#ead7c5]"
+                            ${activeFilter === filter
+                                ? "bg-[#A0614D] text-white shadow"
+                                : " text-[#6B7280] hover:bg-[#ead7c5]"
                             }
                         `}
                     >
@@ -134,6 +138,7 @@ const ThemeCards = () => {
                                             bg-[#A0614D]
                                             rounded-xl
                                         "
+                                        onClick={handleCustomizeClick}
                                     >
                                         View & Customize This Theme
                                     </button>

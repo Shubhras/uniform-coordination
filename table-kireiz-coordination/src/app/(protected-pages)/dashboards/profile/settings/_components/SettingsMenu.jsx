@@ -15,6 +15,7 @@ import { LuPalette } from 'react-icons/lu'
 const { MenuItem } = Menu
 
 const menuList = [
+        { label: 'My Profile', value: 'my-profile', icon: <TbUserSquare /> },
     { label: 'Personal Information', value: 'personal-information', icon: <TbUserSquare /> },
     { label: 'Change Password', value: 'change-password', icon: <FiLock /> },
     { label: 'Simulation History', value: 'simulation-history', icon: <LuPalette /> },
@@ -44,7 +45,7 @@ export const SettingsMenu = ({ onChange }) => {
                             key={menu.value}
                             eventKey={menu.value}
                             className={`mb-2 ${currentView === menu.value
-                                ? 'border-b-2 border-[#8a5a75]'
+                                ? 'border-b-2 border-[#A0522D]'
                                 : ''
                                 }`}
                             isActive={currentPath === menu.value}

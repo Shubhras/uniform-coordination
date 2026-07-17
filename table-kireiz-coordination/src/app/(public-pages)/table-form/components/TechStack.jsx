@@ -121,8 +121,8 @@ const stackList = [
 
 const TechStack = () => {
   return (
-    <section className="w-full bg-[#fffdfb] px-4 sm:px-6 md:px-8 lg:px-12 ">
-      <div className="bg-[#F8D7DA33] px-6 md:px-10 py-10 md:py-16">
+    <section className="w-full bg-[#A0522D0D] mx-auto px-5 md:px-8 lg:px-12">
+      <div className=" px-6 md:px-10 py-10 md:py-16">
 
         {/* HEADER */}
         <div className="text-center mb-14">
@@ -138,7 +138,7 @@ const TechStack = () => {
         {/* CONTENT */}
         <div className="relative  mx-auto">
           {/* Horizontal line (Desktop only) */}
-          <div className="hidden md:block absolute top-10 left-[15%] right-[15%] h-[2px] bg-gray-300" />
+          <div className="hidden md:block absolute top-10 left-[16%] right-[15%] h-[2px] bg-gray-300" />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
             {stackList.map((stack) => {
@@ -149,17 +149,17 @@ const TechStack = () => {
                   className="flex flex-col items-center text-center md:text-left"
                 >
                   {/* ICON */}
-                  <div className="relative z-10 mb-6">
-                    <div className="w-20 h-20 rounded-xl bg-white flex items-center justify-center shadow-sm border border-[#FFB6A3]">
-                      <Icon size={40} className="text-[#8A5A75]" />
+                  <div className="relative z-20 mb-6">
+                    <div className="w-20 h-20 rounded-xl bg-[#E8B4A94D] flex items-center justify-center shadow-sm ">
+                      <Icon size={40} className="text-[#A0522DCC]" />
                     </div>
                   </div>
 
                   {/* TEXT */}
-                  <h3 className="text-base font-semibold text-[#8A5A75] mb-2 ">
+                  <h3 className="text-base font-semibold text-[#1A202C] mb-2 ">
                     {stack.title}
                   </h3>
-                  <p className="text-[#8A5A75] text-sm leading-relaxed max-w-xs">
+                  <p className="text-[#7A7A7A] text-sm leading-relaxed max-w-xs">
                     {stack.description}
                   </p>
                 </div>

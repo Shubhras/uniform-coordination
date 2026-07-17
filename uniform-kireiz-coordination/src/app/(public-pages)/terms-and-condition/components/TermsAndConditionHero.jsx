@@ -1,0 +1,76 @@
+'use client'
+import { apiPrivatePolicy } from '@/services/privatePolicyService'
+import React, { useEffect, useState } from 'react'
+
+const TermsAndConditionsContent = () => {
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
+    const [termsConditions, setTermsConditions] = useState(null)
+
+
+    const fetchPrivatePolicy = async (policyType) => {
+        try {
+            setLoading(true)
+            setError(null)
+
+            const res = await apiPrivatePolicy(policyType)
+
+            if (res?.status && res?.data?.length > 0) {
+                setTermsConditions(res.data[0]) // taking first terms conditions
+            } else {
+                setError('Data not found')
+            }
+        } catch (err) {
+            setError('Failed to load data')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchPrivatePolicy("terms_and_conditions")
+    }, [])
+    return (
+        <section className="relative w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 py-20 mt-15">
+            <div className="max-w-7xl mx-auto text-[#374151] space-y-8">
+
+                <h1 className="text-3xl md:text-4xl font-semibold text-[#1C2C56]">
+                    Terms & Conditions
+                </h1>
+                {/* LOADING STATE */}
+                {loading && (
+                    <div className="flex justify-center items-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+                    </div>
+                )}
+
+
+                {!loading && termsConditions && (
+                    <>
+                        {/* <h1 className="text-3xl md:text-3xl font-semibold text-[#1C2C56]">
+                            {termsConditions.title}
+                        </h1> */}
+
+                        <p className="text-sm text-gray-500">
+                            Version {termsConditions.version}
+                        </p>
+
+                        <div
+                            className="space-y-4 prose max-w-none text-[#374151]"
+                            dangerouslySetInnerHTML={{ __html: termsConditions.content }}
+                        />
+                    </>
+                )}
+
+                {!loading && !termsConditions && (
+                    <div className="py-20 text-center text-gray-500 text-lg font-medium">
+                        Data not found
+                    </div>
+                )}
+
+            </div>
+        </section>
+    )
+}
+
+export default TermsAndConditionsContent

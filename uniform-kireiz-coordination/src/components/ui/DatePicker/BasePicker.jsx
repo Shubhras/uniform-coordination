@@ -66,7 +66,7 @@ const BasePicker = (props) => {
             <CloseButton className="text-base" onClick={onClear} />
         )
     ) : inputSuffix ? (
-        <>{inputSuffix}</>
+        <div onClick={handleInputClick} className="cursor-pointer">{inputSuffix}</div>
     ) : null
 
     const toggleDropdown = (open) => {
@@ -129,7 +129,7 @@ const BasePicker = (props) => {
         <>
             <Input
                 ref={useMergedRef(ref, refs.setReference)}
-                className={className}
+                className={`${className || ''} ${!inputtable ? 'cursor-pointer' : ''}`.trim()}
                 placeholder={placeholder}
                 size={size}
                 name={name}
@@ -142,7 +142,6 @@ const BasePicker = (props) => {
                 disabled={disabled}
                 asElement={'input'}
                 onKeyDown={handleKeyDown}
-                onClick={handleInputClick}
                 onChange={onChange}
                 {...getReferenceProps({
                     onBlur: handleInputBlur,

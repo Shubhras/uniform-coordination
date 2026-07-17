@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 
 const initialState = {
-    currentView: 'personal-information',
+    currentView: 'my-profile',
 }
 
 export const useSettingsStore = create((set) => ({

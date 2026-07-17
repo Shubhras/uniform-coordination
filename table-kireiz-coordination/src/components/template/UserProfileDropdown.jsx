@@ -94,11 +94,14 @@ const _UserDropdown = () => {
     const handleProfile = () => {
         router.push("/dashboards/profile/settings");
     };
+       const handleCartSummary = () => {
+        router.push("/cart-summary");
+    };
     return (
         <>
             {session?.user?.email && (
                 <>
-                    <PiShoppingCartThin className='cursor-pointer z-10' size={25} />
+                    <PiShoppingCartThin className='cursor-pointer z-10' size={25} onClick={handleCartSummary} />
                     <div className="cursor-pointer flex items-center">
                         <Avatar size={38} {...avatarProps} onClick={handleProfile} />
                     </div>

@@ -27,6 +27,7 @@ const Notification = (props) => {
 
     const handleClose = useCallback(
         (e) => {
+            console.log("Close button clicked in Notification!");
             setDisplay('hiding')
             onClose?.(e)
             clear()
@@ -87,7 +88,7 @@ const Notification = (props) => {
             </div>
             {closable && (
                 <CloseButton
-                    className="notification-close"
+                    className="notification-close cursor-pointer"
                     absolute={true}
                     onClick={handleClose}
                 />

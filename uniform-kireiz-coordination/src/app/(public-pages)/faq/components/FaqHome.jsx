@@ -7,7 +7,8 @@ import FaqHero from './FaqHero'
 import FaqSection from './FaqSection'
 import HaederPage from '../../header/HaederPage'
 import FooterPage from '../../footer/FooterPage'
-import ChatbotSection from '../../chatbot-section/ChatbotSection'
+import ChatbotSection from '../../kireiz-form/components/ChatbotSection'
+// import ChatbotSection from '../../chatbot-section/ChatbotSection'
 
 const FaqHome = () => {
     const mode = useTheme((state) => state.mode)

@@ -13,7 +13,8 @@ import { z } from "zod";
 const validationSchema = z.object({
   email: z
     .string({ required_error: "Please enter your email" })
-    .min(1, { message: "Please enter your email" }),
+    .min(1, { message: "Please enter your email" })
+    .email({ message: "Please enter a valid email address" }),
   password: z
     .string({ required_error: "Please enter your password" })
     .min(1, { message: "Please enter your password" }),
@@ -30,8 +31,8 @@ const SignInForm = (props) => {
     control,
   } = useForm({
     defaultValues: {
-      email: "admin-01@ecme.com",
-      password: "123Qwe",
+      // email: "admin-01@ecme.com",
+      // password: "123Qwe",
     },
     resolver: zodResolver(validationSchema),
   });
@@ -54,7 +55,7 @@ const SignInForm = (props) => {
             control={control}
             render={({ field }) => (
               <Input
-                type="email"
+                type="text"
                 placeholder="Email"
                 autoComplete="off"
                 {...field}
@@ -73,7 +74,6 @@ const SignInForm = (props) => {
           <Controller
             name="password"
             control={control}
-            rules={{ required: true }}
             render={({ field }) => (
               <PasswordInput
                 type="text"

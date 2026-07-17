@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -9,6 +9,12 @@ import { Form, FormItem } from '@/components/ui/Form'
 import { HiCheck } from 'react-icons/hi'
 import PasswordInput from '@/components/shared/PasswordInput'
 import { FiLock } from 'react-icons/fi'
+
+/* ✅ ADDED (same as reference file) */
+import { useSession } from 'next-auth/react'
+import { apiUpdatePassword } from '@/services/AuthProfileService'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
 
 /* ----------------_toggle schema ---------------- */
 const passwordSchema = z
@@ -30,10 +36,15 @@ const validationSchema = z
 
 /* ---------------- component ---------------- */
 const ChangePassword = () => {
+    /* ✅ ADDED */
+    const { data: session } = useSession()
+    const [loading, setLoading] = useState(false)
+
     const {
         handleSubmit,
         control,
         watch,
+        reset,
         formState: { errors, isSubmitting },
     } = useForm({
         resolver: zodResolver(validationSchema),
@@ -54,19 +65,52 @@ const ChangePassword = () => {
         [newPassword, confirmPassword],
     )
 
-    // ✅ ONLY CHANGE IS HERE
+    // ✅ API IMPLEMENTED (same pattern as reference)
     const onSubmit = async (values) => {
-        console.log('Change Password Form Data:', values)
+        try {
+            setLoading(true)
+            if (!session?.accessToken) return
+
+            const payload = {
+                currentPassword: values.currentPassword,
+                newPassword: values.newPassword,
+                confirmPassword: values.confirmPassword,
+            }
+
+            await apiUpdatePassword(session.accessToken, payload)
+            toast.push(
+                <Notification title="Password success!" type="success">
+                    Password updated successfully
+                </Notification>,
+            )
+            reset()
+        } catch (error) {
+            console.error('Password update failed:', error)
+
+            const errorMessage =
+                error?.response?.data?.message ||
+                error?.response?.data?.error ||
+                'Something went wrong. Please try again.'
+
+            toast.push(
+                <Notification title="Password update failed" type="danger">
+                    {errorMessage}
+                </Notification>
+            )
+        } finally {
+            setLoading(false)
+        }
     }
+
     const progressValue =
         [rules.length, rules.number, rules.symbol].filter(Boolean).length
 
     const progressPercent = (progressValue / 3) * 100
 
     return (
-        <div className='bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md'>
+        <div className='bg-[#F5F0EE30] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md'>
             <Form onSubmit={handleSubmit(onSubmit)}>
-                <h4 className="text-[#8a5a75] text-lg font-semibold mb-1 flex items-center gap-1">
+                <h4 className=" text-lg font-semibold mb-1 flex items-center gap-1">
                     <FiLock size={23} />
                     Change Password
                 </h4>
@@ -154,7 +198,7 @@ const ChangePassword = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex justify-end gap-4">
+                <div className="flex flex-col sm:flex-row justify-end gap-3">
                     <Button
                         type="button"
                         variant="default"
@@ -165,16 +209,15 @@ const ChangePassword = () => {
                     </Button>
                     <Button
                         type="submit"
-                        loading={isSubmitting}
+                        loading={loading || isSubmitting}
                         size="sm"
-                        className="bg-[#8a5a75] hover:bg-[#8a5a75] px-6 text-white py-2 rounded-md"
+                        className="bg-[#A0522D] hover:bg-[#8a5a75] px-6 text-white py-2 rounded-md"
                     >
                         Update
                     </Button>
                 </div>
             </Form>
         </div>
-
     )
 }
 

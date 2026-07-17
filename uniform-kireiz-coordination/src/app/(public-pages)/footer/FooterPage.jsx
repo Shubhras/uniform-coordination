@@ -17,7 +17,7 @@ const FooterPage = ({ mode }) => {
     return (
         <>
             <footer className="bg-[#171a4b] text-white pt-16">
-                <div className=" mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+                <div className=" mx-auto px-5 md:px-8 lg:px-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="max-w-[300px]">
                             <img
@@ -80,8 +80,8 @@ const FooterPage = ({ mode }) => {
                             ©{year} KIREIZ FORM. All rights reserved.
                         </p>
                         <div className="flex gap-6 font-semibold text-[#2D3E72]">
-                            <Link href="#" className="hover:underline">Privacy & Policy</Link>
-                            <Link href="#" className="hover:underline">Terms & Condition</Link>
+                            <Link href='/private-policy'  className="hover:underline">Privacy & Policy</Link>
+                            <Link href='/terms-and-condition' className="hover:underline">Terms & Condition</Link>
                         </div>
                     </div>
                 </div>

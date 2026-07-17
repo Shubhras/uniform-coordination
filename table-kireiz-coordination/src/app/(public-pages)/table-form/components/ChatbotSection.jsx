@@ -4,7 +4,7 @@ import Image from 'next/image'
 
 const ChatbotSection = () => {
     return (
-        <section className="w-full bg-white  sm:px-6 md:px-8 ">
+        <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12 py-5">
             <div className=" mx-auto flex justify-end px-4">
 
                 {/* CHAT CONTAINER */}
@@ -13,7 +13,7 @@ const ChatbotSection = () => {
                     {/* MESSAGE BUBBLE */}
                     {/* MESSAGE BUBBLE */}
                     <div className="relative bg-white px-8 py-4 rounded-xl shadow-lg max-w-lg">
-                        <p className="text-[#1C2C56] text-lg ">
+                        <p className="text-[#1C2C56] md:text-lg text-base ">
                             Need help with designs or orders? Ask me anything!
                         </p>
 
@@ -33,7 +33,7 @@ const ChatbotSection = () => {
                     {/* CHATBOT ICON */}
                     <div className="relative w-[100px] h-[100px]">
                         <Image
-                            src="/img/logo/chatbot.png"
+                          src="/img/table-form/table-chatbot.png"
                             alt="Chatbot"
                             fill
                             className="object-contain h-full w-full "

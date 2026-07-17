@@ -3,7 +3,7 @@ import React from 'react'
 
 const FaqHero = () => {
     return (
-        <section className="w-full bg-white mt-14">
+        <section className="w-full bg-[#FAF6F4] mt-14">
             <div
                 className="w-full rounded-br-[60px] bg-gradient-to-r from-[#FAECE5] to-[#E8B4A933]">
                 <div className="w-full mx-auto  py-16">

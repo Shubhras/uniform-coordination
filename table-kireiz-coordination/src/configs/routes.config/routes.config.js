@@ -1,16 +1,16 @@
 import dashboardsRoute from './dashboardsRoute'
-import conceptsRoute from './conceptsRoute'
+// import conceptsRoute from './conceptsRoute'
 import uiComponentsRoute from './uiComponentsRoute'
 import authRoute from './authRoute'
 import authDemoRoute from './authDemoRoute'
-import guideRoute from './guideRoute'
+// import guideRoute from './guideRoute'
 
 export const protectedRoutes = {
     ...dashboardsRoute,
     ...uiComponentsRoute,
     ...authDemoRoute,
-    ...conceptsRoute,
-    ...guideRoute,
+    // ...conceptsRoute,
+    // ...guideRoute,
 }
 
 export const publicRoutes = {
@@ -26,19 +26,11 @@ export const publicRoutes = {
         key: 'single-blog',
         authority: [],
     },
-    '/kireiz-form': {
-        key: 'kireiz-form',
-        authority: [],
-    },
-    '/medical-form': {
-        key: 'medical-form',
-        authority: [],
-    },
     '/table-form': {
         key: 'table-form',
         authority: [],
     },
-    '/tbrowse-by-color': {
+    '/browse-by-color': {
         key: 'browse-by-color',
         authority: [],
     },
@@ -56,6 +48,26 @@ export const publicRoutes = {
     },
     '/dashboards/uniform-3d-design': {
         key: 'dashboards/uniform-3d-design',
+        authority: [],
+    },
+    '/private-policy': {
+        key: 'private-policy',
+        authority: [],
+    },
+    '/terms-and-condition': {
+        key: 'terms-and-condition',
+        authority: [],
+    },
+     '/email-verification-page': {
+        key: 'email-verification-page',
+        authority: [],
+    },
+    '/account-verified-page': {
+        key: 'account-verified-page',
+        authority: [],
+    },
+     '/reset-password': {
+        key: 'reset-password',
         authority: [],
     },
 

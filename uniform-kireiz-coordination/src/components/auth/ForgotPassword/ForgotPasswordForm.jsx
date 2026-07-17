@@ -8,7 +8,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 const validationSchema = z.object({
-  email: z.string().email().min(5),
+  email: z
+    .string({ required_error: "Please enter your email" })
+    .min(1, { message: "Please enter your email" })
+    .email({ message: "Please enter a valid email address" }),
 });
 
 const ForgotPasswordForm = (props) => {
@@ -55,7 +58,7 @@ const ForgotPasswordForm = (props) => {
               control={control}
               render={({ field }) => (
                 <Input
-                  type="email"
+                  type="text"
                   placeholder="Email"
                   autoComplete="off"
                   {...field}

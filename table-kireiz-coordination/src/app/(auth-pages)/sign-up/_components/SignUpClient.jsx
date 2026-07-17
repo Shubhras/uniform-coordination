@@ -11,15 +11,20 @@ const SignUpClient = () => {
     const handlSignUp = async ({ values, setSubmitting, setMessage }) => {
         try {
             setSubmitting(true)
-            await apiSignUp(values)
+            const response = await apiSignUp(values)
             toast.push(
                 <Notification title="Account created!" type="success">
-                    You can now sign in from our sign in page
+                    {response?.data?.message || response?.message || "User created successfully."}
                 </Notification>,
             )
             router.push('/sign-in')
         } catch (error) {
-            setMessage(error)
+            const errorMessage =
+                error?.response?.data?.message ||
+                error?.message ||
+                'Signup failed'
+
+            setMessage(errorMessage)
         } finally {
             setSubmitting(false)
         }

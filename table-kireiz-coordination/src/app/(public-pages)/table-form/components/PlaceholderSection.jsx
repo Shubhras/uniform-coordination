@@ -7,17 +7,17 @@ const PlaceholderSection = () => {
 
                 {/* HEADER */}
                 <div className="flex flex-col items-center gap-8">
-                    <h2 className="text-2xl md:text-3xl font-semibold text-[#402936]">
+                    <h2 className="text-2xl md:text-3xl font-semibold text-black">
                         Placeholder Text
                     </h2>
-                    <p className="max-w-[650px] mx-auto text-[#402936] text-sm md:text-base">
+                    <p className="max-w-[650px] mx-auto text-[#A0522D] text-sm md:text-base">
                         Create unforgettable event experiences with our stunning table designs.
                     </p>
                     <div className="flex md:gap-10 gap-5 items-center text-white">
-                        <div className='bg-[#D4A6A6] rounded-md text-center md:w-[200px] w-[150px] md:py-4 py-2 md:px-8 px-4 cursor-pointer'>
+                        <div className='bg-[#A0522D] font-bold rounded-md text-center md:w-[200px] w-[150px] md:py-4 py-2 md:px-8 px-4 cursor-pointer'>
                             <button>Start Designing</button>
                         </div>
-                        <div className='bg-[#D4A6A6] rounded-md text-center md:w-[200px] w-[150px]  md:py-4 py-2 md:px-8 px-4 cursor-pointer'>
+                        <div className='bg-[#A0522D] font-bold rounded-md text-center md:w-[200px] w-[150px]  md:py-4 py-2 md:px-8 px-4 cursor-pointer'>
                             <button>Contact Us</button>
                         </div>
                     </div>

@@ -15,6 +15,12 @@ export const onSignInWithCredentials = async (
         })
     } catch (error) {
         if (error instanceof AuthError) {
+            /** Extract the custom error message thrown from authorize */
+            const customMessage = error.cause?.err?.message;
+            if (customMessage) {
+                return { error: customMessage };
+            }
+
             /** Customize error message based on AuthError */
             switch (error.type) {
                 case 'CredentialsSignin':
