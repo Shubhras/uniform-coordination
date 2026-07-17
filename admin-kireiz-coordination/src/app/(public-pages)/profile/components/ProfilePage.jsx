@@ -230,7 +230,7 @@ const ProfilePage = () => {
           Personal information
         </h4>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <div className="mb-8">
+          {/* <div className="mb-8">
             <Controller
               name="img"
               control={control}
@@ -286,7 +286,7 @@ const ProfilePage = () => {
                 </div>
               )}
             />
-          </div>
+          </div> */}
           <div className="grid md:grid-cols-2 gap-4">
             <FormItem
               label="First name"
