@@ -13,6 +13,12 @@ const ChangePassword = lazy(() => import('./ChangePassword'))
 const SimulationHistory = lazy(() => import('./SimulationHistory'))
 const OrderHistory = lazy(() => import('./LinkedOrderAndQuotes'))
 const Notifications = lazy(() => import('./NotificationSetting'))
+const MyQuotations = lazy(() => import('./MyQuotations'))
+const SentQuotationDetail = lazy(() => import('./SentQuotationDetail'))
+const RejectedQuotationDetail = lazy(() => import('./RejectedQuotationDetail'))
+const SignedQuotationDetail = lazy(() => import('./SignedQuotationDetail'))
+const QuotationReadyDetail = lazy(() => import('./QuotationReadyDetail'))
+const ContractAcceptedDetail = lazy(() => import('./ContractAcceptedDetail'))
 
 const Settings = () => {
     const { currentView } = useSettingsStore()
@@ -37,6 +43,12 @@ const Settings = () => {
                             {currentView === 'simulation-history' && <SimulationHistory />}
                             {currentView === 'order-history' && <OrderHistory />}
                             {currentView === 'notifications' && <Notifications />}
+                            {currentView === 'my-quotations' && <MyQuotations />}
+                            {currentView === 'sent-quotation-detail' && <SentQuotationDetail />}
+                            {currentView === 'rejected-quotation-detail' && <RejectedQuotationDetail />}
+                            {currentView === 'signed-quotation-detail' && <SignedQuotationDetail />}
+                            {currentView === 'quotation-ready-detail' && <QuotationReadyDetail />}
+                            {currentView === 'contract-accepted-detail' && <ContractAcceptedDetail />}
                         </Suspense>
                     </div>
                 </div>
