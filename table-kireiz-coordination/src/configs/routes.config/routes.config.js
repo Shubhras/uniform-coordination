@@ -38,6 +38,10 @@ export const publicRoutes = {
         key: 'browse-by-theme',
         authority: [],
     },
+    '/theme-details': {
+        key: 'theme-details',
+        authority: [],
+    },
     '/dashboards/uniform-design': {
         key: 'dashboards/uniform-design',
         authority: [],

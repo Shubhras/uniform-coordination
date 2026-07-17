@@ -575,12 +575,132 @@ import ColorPickerPopup from './ColorPickerPopup'
 const SAMPLE_MODEL = '/img/3dmodels/doctor_uniform.glb'
 const FALLBACK_MODEL = '' //'https://modelviewer.dev/shared-assets/models/Astronaut.glb'
 import Button from '@/components/ui/Button';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { RiTable2 } from 'react-icons/ri'
 import { TbTable } from 'react-icons/tb'
 import { IoIosArrowForward } from 'react-icons/io'
 import { FiMinus, FiPlus } from "react-icons/fi";
 
+const themeCatalog = [
+    {
+        id: 1,
+        slug: 'romantic-wedding',
+        title: 'Romantic Wedding',
+        shortTitle: 'Romantic Wedding',
+        description: 'Elegant whites, ivories, and delicate floral accents.',
+        category: 'Wedding',
+        cardImage: '/img/table-form/themes/theme1.png',
+        gallery: ['/img/table-form/themes/theme1.png', '/img/table-form/blog-image/blog1.png', '/img/table-form/blog-image/blog2.png'],
+        packageLabel: '14 items total',
+        packageValueLabel: 'Estimated Package Value',
+        priceLabel: 'Price',
+        items: [
+            { title: 'Table Setup', items: [{ name: 'Round Table', qty: 'x10' }, { name: 'Ivory Tablecloth', qty: 'x10' }, { name: 'Gold Charger Plates', qty: 'x80' }, { name: 'White Dinner Plates', qty: 'x80' }, { name: 'Crystal Glassware', qty: 'x80' }, { name: 'Cloth Napkins (Ivory)', qty: 'x80' }] },
+            { title: 'Floral & Decor', items: [{ name: 'Centerpiece: Soft Rose Arrangement', qty: 'x10' }, { name: 'Candle Stands (Gold)', qty: 'x20' }, { name: 'Table Numbers (Acrylic)', qty: 'x10' }] },
+            { title: 'Seating', items: [{ name: 'Chiavari Chairs (Gold)', qty: 'x80' }, { name: 'White Chair Cushions', qty: 'x80' }] },
+            { title: 'Additional Elements', items: [{ name: 'Welcome Sign', qty: 'x1' }, { name: 'Menu Cards', qty: 'x80' }, { name: 'Place Cards', qty: 'x80' }] },
+        ],
+    },
+    {
+        id: 2,
+        slug: 'olive-chic',
+        title: 'Olive Chic',
+        shortTitle: 'Olive Chic',
+        description: 'Natural olive tones paired with layered greenery and soft neutrals.',
+        category: 'Parties',
+        cardImage: '/img/table-form/themes/theme2.png',
+        gallery: ['/img/table-form/themes/theme2.png', '/img/table-form/blog-image/blog2.png', '/img/table-form/blog-image/blog3.png'],
+        packageLabel: '12 items total',
+        packageValueLabel: 'Estimated Package Value',
+        priceLabel: 'Price',
+        items: [
+            { title: 'Table Setup', items: [{ name: 'Farmhouse Table', qty: 'x8' }, { name: 'Olive Linen Runner', qty: 'x8' }, { name: 'Stoneware Plates', qty: 'x64' }] },
+            { title: 'Greenery Styling', items: [{ name: 'Trailing Olive Garlands', qty: 'x12' }, { name: 'Glass Bud Vases', qty: 'x24' }, { name: 'Tea Lights', qty: 'x40' }] },
+            { title: 'Guest Seating', items: [{ name: 'Crossback Chairs', qty: 'x64' }, { name: 'Neutral Seat Pads', qty: 'x64' }] },
+            { title: 'Stationery', items: [{ name: 'Deckled Menu Cards', qty: 'x64' }, { name: 'Name Cards', qty: 'x64' }] },
+        ],
+    },
+    {
+        id: 3,
+        slug: 'classy-corporate',
+        title: 'Classy Corporate',
+        shortTitle: 'Classy Corporate',
+        description: 'Sharp styling with structured place settings for polished formal events.',
+        category: 'Corporate',
+        cardImage: '/img/table-form/themes/theme3.png',
+        gallery: ['/img/table-form/themes/theme3.png', '/img/table-form/blog-image/blog1.png', '/img/table-form/blog-image/blog3.png'],
+        packageLabel: '10 items total',
+        packageValueLabel: 'Estimated Package Value',
+        priceLabel: 'Price',
+        items: [
+            { title: 'Conference Tables', items: [{ name: 'Rectangular Banquet Table', qty: 'x12' }, { name: 'Charcoal Linen', qty: 'x12' }, { name: 'Acrylic Water Set', qty: 'x96' }] },
+            { title: 'Branding Touchpoints', items: [{ name: 'Custom Name Placards', qty: 'x96' }, { name: 'LED Table Markers', qty: 'x12' }] },
+            { title: 'Seating', items: [{ name: 'Padded Event Chairs', qty: 'x96' }, { name: 'Back Covers', qty: 'x96' }] },
+            { title: 'Presentation Decor', items: [{ name: 'Low Floral Accent', qty: 'x12' }, { name: 'Metal Candle Holders', qty: 'x24' }] },
+        ],
+    },
+    {
+        id: 4,
+        slug: 'festive-blush',
+        title: 'Festive Blush',
+        shortTitle: 'Festive Blush',
+        description: 'Warm blush tones, candlelight, and layered textures for intimate parties.',
+        category: 'Seasonal',
+        cardImage: '/img/table-form/themes/theme1.png',
+        gallery: ['/img/table-form/themes/theme1.png', '/img/table-form/blog-image/blog2.png', '/img/table-form/blog-image/blog1.png'],
+        packageLabel: '11 items total',
+        packageValueLabel: 'Estimated Package Value',
+        priceLabel: 'Price',
+        items: [
+            { title: 'Dining Setup', items: [{ name: 'Round Table', qty: 'x6' }, { name: 'Blush Linen', qty: 'x6' }, { name: 'Rose Gold Flatware', qty: 'x48' }] },
+            { title: 'Accent Decor', items: [{ name: 'Pillar Candles', qty: 'x18' }, { name: 'Mini Floral Bowls', qty: 'x12' }, { name: 'Velvet Table Runner', qty: 'x6' }] },
+            { title: 'Seating', items: [{ name: 'Ghost Chairs', qty: 'x48' }, { name: 'Blush Cushions', qty: 'x48' }] },
+        ],
+    },
+    {
+        id: 5,
+        slug: 'golden-harvest',
+        title: 'Golden Harvest',
+        shortTitle: 'Golden Harvest',
+        description: 'Seasonal golds and earthy neutrals balanced with warm harvest textures.',
+        category: 'Seasonal',
+        cardImage: '/img/table-form/themes/theme2.png',
+        gallery: ['/img/table-form/themes/theme2.png', '/img/table-form/blog-image/blog3.png', '/img/table-form/blog-image/blog2.png'],
+        packageLabel: '13 items total',
+        packageValueLabel: 'Estimated Package Value',
+        priceLabel: 'Price',
+        items: [
+            { title: 'Table Setup', items: [{ name: 'Wood Top Table', qty: 'x10' }, { name: 'Mustard Linen Runner', qty: 'x10' }, { name: 'Amber Glassware', qty: 'x80' }] },
+            { title: 'Harvest Decor', items: [{ name: 'Dried Floral Arrangement', qty: 'x10' }, { name: 'Lantern Set', qty: 'x20' }, { name: 'Seasonal Place Mats', qty: 'x80' }] },
+            { title: 'Seating', items: [{ name: 'Bentwood Chairs', qty: 'x80' }, { name: 'Neutral Chair Ties', qty: 'x80' }] },
+        ],
+    },
+    {
+        id: 6,
+        slug: 'midnight-modern',
+        title: 'Midnight Modern',
+        shortTitle: 'Midnight Modern',
+        description: 'Dark luxe textures with crisp metallic details for premium evening events.',
+        category: 'Parties',
+        cardImage: '/img/table-form/themes/theme3.png',
+        gallery: ['/img/table-form/themes/theme3.png', '/img/table-form/blog-image/blog1.png', '/img/table-form/blog-image/blog2.png'],
+        packageLabel: '9 items total',
+        packageValueLabel: 'Estimated Package Value',
+        priceLabel: 'Price',
+        items: [
+            { title: 'Tablescape', items: [{ name: 'Black Linen', qty: 'x8' }, { name: 'Smoked Charger Plates', qty: 'x64' }, { name: 'Silver Cutlery Set', qty: 'x64' }] },
+            { title: 'Lighting & Decor', items: [{ name: 'Mirror Candle Tray', qty: 'x8' }, { name: 'Cylinder Vase Set', qty: 'x16' }] },
+            { title: 'Seating', items: [{ name: 'Black Napoleon Chairs', qty: 'x64' }, { name: 'Seat Pads', qty: 'x64' }] },
+        ],
+    },
+]
+
+const getThemeById = (themeIdOrSlug) =>
+    themeCatalog.find(
+        (theme) =>
+            theme.slug === themeIdOrSlug ||
+            String(theme.id) === String(themeIdOrSlug),
+    ) || themeCatalog[0]
 const Uniform3DmoduleDegisn = () => {
     const [shapeOpen, setShapeOpen] = useState(false)
     const [sittingOpen, setSittingOpen] = useState(false)
@@ -599,6 +719,7 @@ const Uniform3DmoduleDegisn = () => {
 
 
     const router = useRouter()
+    const searchParams = useSearchParams()
     const mvRef = useRef(null)
     const [modelSrc, setModelSrc] = useState(SAMPLE_MODEL)
     const [active, setActive] = useState('tableShape')
@@ -612,7 +733,9 @@ const Uniform3DmoduleDegisn = () => {
     const [mounted, setMounted] = useState(false)
     const panelRef = useRef(null)
     const [fullView, setFullView] = useState(false);
-
+    const themeIdParam = searchParams.get('themeId')
+    const idParam = searchParams.get('id')
+    const selectedTheme = getThemeById(themeIdParam || idParam)
     const [tableShape, setTableShape] = useState("Circle");
 
     // Category-specific states
@@ -858,7 +981,7 @@ const Uniform3DmoduleDegisn = () => {
                                         </button>
                                     ))}
                                 </div>
-                            )}  
+                            )}
 
                             {/* TABLECLOTHS DETAIL - Updated */}
                             {categoryView === "tablecloths" && (
@@ -1476,7 +1599,7 @@ const Uniform3DmoduleDegisn = () => {
                 h-[620px] w-full flex items-center justify-center">
                         {
                             fullView ? <Image
-                                src="/img/table-form/themes/theme3.png"
+                                src={selectedTheme.cardImage}
                                 alt="Uniform"
                                 width={700}
                                 height={500}

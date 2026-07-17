@@ -13,6 +13,8 @@ const ChangePassword = lazy(() => import('./ChangePassword'))
 const SimulationHistory = lazy(() => import('./SimulationHistory'))
 const OrderHistory = lazy(() => import('./LinkedOrderAndQuotes'))
 const Notifications = lazy(() => import('./NotificationSetting'))
+const MyQuotations = lazy(() => import('./MyQuotations'))
+const MyQuotationDetail = lazy(() => import('./MyQuotationDetail'))
 
 const Settings = () => {
     const { currentView } = useSettingsStore()
@@ -37,6 +39,8 @@ const Settings = () => {
                             {currentView === 'simulation-history' && <SimulationHistory />}
                             {currentView === 'order-history' && <OrderHistory />}
                             {currentView === 'notifications' && <Notifications />}
+                            {currentView === 'my-quotations' && <MyQuotations />}
+                            {currentView === 'my-quotation-detail' && <MyQuotationDetail />}
                         </Suspense>
                     </div>
                 </div>
