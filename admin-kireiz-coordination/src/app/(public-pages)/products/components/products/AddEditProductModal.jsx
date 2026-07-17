@@ -8,6 +8,8 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormItem } from "@/components/ui/Form";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import Input from "@/components/ui/Input";
 import { FiUpload, FiCheckCircle } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -418,15 +420,35 @@ const AddEditProductModal = ({
         formData.append("ProductImage_file", imageFile);
       }
 
+      // if (isEdit && initialData?.id) {
+      //   await apiUpdateProduct(
+      //     accessToken,
+      //     initialData.id,
+      //     formData,
+      //   );
+      // } else {
+      //   await apiCreateProduct(accessToken, formData);
+      // }
+      let response;
+
       if (isEdit && initialData?.id) {
-        await apiUpdateProduct(
+        response = await apiUpdateProduct(
           accessToken,
           initialData.id,
           formData,
-          // values.productType.value,
         );
       } else {
-        await apiCreateProduct(accessToken, formData);
+        response = await apiCreateProduct(accessToken, formData);
+      }
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
+
+      if (onSaveSuccess) {
+        onSaveSuccess();
       }
 
       if (onSaveSuccess) {
@@ -620,7 +642,6 @@ const AddEditProductModal = ({
                   styles={selectStyles}
                   placeholder="Select Category"
                   onChange={field.onChange}
-                  
                 />
               )}
             />
@@ -793,7 +814,12 @@ const AddEditProductModal = ({
           >
             Cancel
           </Button>
-          <Button variant="plain" size="sm" onClick={handleSubmit(handleSave)} className="bg-blue-100 rounded-lg">
+          <Button
+            variant="plain"
+            size="sm"
+            onClick={handleSubmit(handleSave)}
+            className="bg-blue-100 rounded-lg"
+          >
             Save & Add Another
           </Button>
           <Button

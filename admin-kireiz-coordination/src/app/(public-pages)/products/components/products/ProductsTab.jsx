@@ -10,6 +10,8 @@ import {
 } from "react-icons/fi";
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { apiGetProductList, apiDeleteProduct } from "@/services/ProductService";
 import { apiFabricCategoryList } from "@/services/FabricService";
 import AddEditProductModal from "./AddEditProductModal";
@@ -138,7 +140,12 @@ const ProductsTab = () => {
 
     try {
       setDeleteLoading(true);
-      await apiDeleteProduct(accessToken, productToDelete.id);
+     const response= await apiDeleteProduct(accessToken, productToDelete.id);
+       toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
       setDeleteDialogOpen(false);
       setProductToDelete(null);
       fetchProducts(currentPage);
