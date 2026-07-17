@@ -372,7 +372,14 @@ const Uniform3DmoduleDegisn = () => {
 
 
   const handleSaveDesign = async (modelId) => {
-    if (!session?.accessToken) return
+    if (!session?.accessToken) {
+      toast.push(
+        <Notification title="Login Required" type="warning">
+          Pehle login ho, uske baad is page par aaye (Please login first)
+        </Notification>
+      );
+      return;
+    }
     setIsSaving(true);
 
     const payload = {
