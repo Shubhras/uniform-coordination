@@ -814,6 +814,7 @@ class AdminListProductsAPIView(APIView):
             product_type = request.query_params.get("productType")  # REQUIRED
             type_filter = request.query_params.get("type")
             ordering = request.query_params.get("ordering", "newest")
+            search = request.query_params.get("search", "").strip()
 
             # -------------------------
             # productType is required
@@ -852,6 +853,17 @@ class AdminListProductsAPIView(APIView):
                 products = products.order_by("created_at")
             else:  # newest (default)
                 products = products.order_by("-created_at")
+                
+            if search:
+                products = products.filter(productName__icontains=search)    
+
+            # if search:
+            #     products = products.filter(
+            #         Q(productName__icontains=search) |
+            #         Q(category__categoryName__icontains=search) |
+            #         Q(subcategory__name__icontains=search) |
+            #         Q(theme__themeName__icontains=search)  # replace themeName with your actual field if different
+            #     )    
 
             serializer = ProductSerializer(products, many=True, context={'request': request})
 

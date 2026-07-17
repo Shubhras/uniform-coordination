@@ -146,7 +146,7 @@ class AdminChangePasswordSerializer(serializers.Serializer):
 
 
 class UpdateChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(write_only=True)
+    current_password = serializers.CharField(write_only=True)
     new_password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
 
@@ -1055,7 +1055,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "category_id", "subcategory_id", "parts_ids", "ProductImage_file",
 
             "price", "discount", "total_quantity", "available_quantity",
-            "isActive", "created_at"
+            "isActive", "created_at","rental_price_per_day", "security_deposit",
 ]
 
     def to_internal_value(self, data):

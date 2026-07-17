@@ -413,6 +413,19 @@ class Product(models.Model):
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    rental_price_per_day = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    security_deposit = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    
 
 
     def save(self, *args, **kwargs):
