@@ -289,12 +289,18 @@ const ThemePage = () => {
 
                 <div className="flex justify-between items-center mt-5">
                   <div className="flex gap-2">
-                    <button className="flex items-center gap-2 bg-[#A85A32] hover:bg-[#8B4725] text-white text-xs font-medium px-4 py-2 rounded-full">
+                    <button
+                      onClick={() => router.push("/theme-management/view")}
+                      className="flex items-center gap-2 bg-[#A85A32] hover:bg-[#8B4725] text-white text-xs font-medium px-4 py-2 rounded-full"
+                    >
                       <FiEye size={13} />
                       Preview
                     </button>
 
-                    <button className="flex items-center gap-2 border border-[#DDD] hover:border-[#A85A32] text-[#444] text-xs font-medium px-4 py-2 rounded-full">
+                    <button
+                      onClick={() => router.push("/theme-management/edit")}
+                      className="flex items-center gap-2 border border-[#DDD] hover:border-[#A85A32] text-[#444] text-xs font-medium px-4 py-2 rounded-full"
+                    >
                       <FiEdit2 size={13} />
                       Edit
                     </button>
