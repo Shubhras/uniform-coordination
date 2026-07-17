@@ -264,7 +264,7 @@ const AddEditConditionModal = ({
                     {...field}
                     options={conditionTypeOptions}
                     styles={selectStyles}
-                    placeholder="Select condition type..."
+                    placeholder="Select condition type"
                     isClearable
                     menuPortalTarget={
                       typeof document !== "undefined" ? document.body : null
@@ -293,7 +293,7 @@ const AddEditConditionModal = ({
                   <textarea
                     {...field}
                     rows={3}
-                    placeholder="Describe the condition..."
+                    placeholder="Describe the condition"
                     className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                   />
                 )}

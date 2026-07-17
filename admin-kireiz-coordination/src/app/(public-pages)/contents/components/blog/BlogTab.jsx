@@ -12,6 +12,8 @@ import {
   FiX,
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { apiGetBlogList, apiDeleteBlog } from "@/services/BlogService";
 import AddEditBlogModal from "./AddEditBlogModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
@@ -102,7 +104,13 @@ const BlogTab = () => {
 
     try {
       setDeleteLoading(true);
-      await apiDeleteBlog(accessToken, postToDelete.id);
+      const response = await apiDeleteBlog(accessToken, postToDelete.id);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
       setDeleteDialogOpen(false);
       setPostToDelete(null);
       fetchBlogs(currentPage);
@@ -224,19 +232,17 @@ const BlogTab = () => {
             {filteredPosts.map((post) => (
               <div
                 key={post.id}
-                className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
+                className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col h-full"
               >
                 <div className="p-3">
                   <img
-                    src={
-                      post.image || "/img/kireiz-form/features/Rectangle177.png"
-                    }
+                    src={post.image_url}
                     alt={post.title}
                     className="rounded-xl object-cover w-full h-[200px]"
                   />
                 </div>
 
-                <div className="px-5 pb-6 flex flex-col gap-3">
+                <div className="px-5 pb-6 flex flex-col flex-1">
                   <p className="text-xs text-gray-500 mb-2">
                     {formatDate(post.created_at)} &nbsp;&nbsp;{" "}
                     {post.categoryName}
@@ -250,7 +256,7 @@ const BlogTab = () => {
                     {trimText(post.description, 15)}
                   </p>
 
-                  <div className="flex justify-end gap-2">
+                  <div className="flex justify-end gap-2 mt-auto pt-4">
                     <button
                       type="button"
                       className="text-[#1C2C56] hover:text-[#0F172A] p-1.5 rounded hover:bg-[#EEF2FF]"

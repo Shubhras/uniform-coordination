@@ -12,6 +12,8 @@ import {
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetColorsList, apiDeleteColor } from "@/services/ColorsService";
 import AddEditColorModal from "./AddEditColorModal";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
 const ColorsTab = () => {
@@ -75,7 +77,14 @@ const ColorsTab = () => {
 
     try {
       setDeleteLoading(true);
-      await apiDeleteColor(accessToken, colorToDelete.id);
+      const response = await apiDeleteColor(accessToken, colorToDelete.id);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message || "Colors deleted successfully."}
+        </Notification>,
+      );
+
       setDeleteDialogOpen(false);
       setColorToDelete(null);
       fetchColors(currentPage);

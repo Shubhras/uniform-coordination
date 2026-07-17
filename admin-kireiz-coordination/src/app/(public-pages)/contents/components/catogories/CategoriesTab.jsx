@@ -7,9 +7,12 @@ import {
   FiEdit2,
   FiTrash2,
   FiChevronDown,
-  FiGrid,FiX
+  FiGrid,
+  FiX,
 } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
   apiGetCategoryList,
@@ -151,7 +154,7 @@ const SubcategoryList = ({
             e.stopPropagation();
             onAdd(categoryId);
           }}
-          className="bg-[#1C2C56] text-white text-sm px-5 py-2 rounded-md font-medium inline-flex items-center gap-2"
+          className="bg-[#1C4FA8] text-white text-sm px-5 py-2 rounded-md font-medium inline-flex items-center gap-2"
         >
           <FiPlus size={14} />
           Add Subcategory
@@ -214,7 +217,12 @@ const CategoriesTab = () => {
     try {
       setDeleteLoading(true);
       if (deleteTarget.type === "category") {
-        await apiDeleteCategory(accessToken, deleteTarget.item.id);
+      const response=  await apiDeleteCategory(accessToken, deleteTarget.item.id);
+        toast.push(
+          <Notification title="Success" type="success">
+            {response?.message}
+          </Notification>,
+        );
         fetchCategories();
       } else {
         await apiDeleteSubcategory(accessToken, deleteTarget.item.id);

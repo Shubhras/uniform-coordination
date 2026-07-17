@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Select from "react-select";
-import { FiUpload } from "react-icons/fi";
+import { FiUpload, FiCheckCircle } from "react-icons/fi";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormItem } from "@/components/ui/Form";
 import Input from "@/components/ui/Input";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
   apiCreateCatalogImage,
@@ -30,9 +32,7 @@ const catalogSchema = z.object({
       message: "Category is required",
     }),
 
-  image: z.any().refine((file) => file instanceof File, {
-    message: "Image is required",
-  }),
+  image: z.any().optional(),
 });
 
 const selectStyles = {
@@ -79,6 +79,10 @@ const AddEditCatalogModal = ({
   // Save state
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [imageError, setImageError] = useState("");
+  const [validated, setValidated] = useState(false);
+
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
   const {
     control,
@@ -126,6 +130,8 @@ const AddEditCatalogModal = ({
 
     if (mode === "edit" && initialData) {
       setImageFile(null);
+      setValidated(!!initialData.image);
+      setImageError("");
       setPreview(initialData.image || null);
 
       reset({
@@ -137,6 +143,8 @@ const AddEditCatalogModal = ({
       // setName("");
       // setCategory(null);
       setImageFile(null);
+      setValidated(false);
+      setImageError("");
       setPreview(null);
       reset({
         name: "",
@@ -167,17 +175,52 @@ const AddEditCatalogModal = ({
   /* ---------- FILE HANDLER ---------- */
   const handleFile = (file) => {
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setImageError("Only image files are allowed");
+      setValidated(false);
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setImageError("Image size should not exceed 2 MB");
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
+
+      setValue("image", null, {
+        shouldValidate: true,
+      });
+
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
+
+      return;
+    }
+
+    setImageError("");
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
+    setValidated(true);
 
     setValue("image", file, {
       shouldValidate: true,
     });
+
     trigger("image");
   };
 
   /* ---------- SAVE ---------- */
   const handleSave = async (values) => {
+    if (mode === "add" && !imageFile) {
+      setImageError("Image is required");
+      return;
+    }
+
+    // if (imageFile) {
+    //   formData.append("image", imageFile);
+    // }
     setError("");
     setSaving(true);
 
@@ -192,11 +235,22 @@ const AddEditCatalogModal = ({
         formData.append("image", imageFile);
       }
 
-      if (mode === "edit" && initialData?.id) {
-        await apiUpdateCatalogImage(accessToken, initialData.id, formData);
-      } else {
-        await apiCreateCatalogImage(accessToken, formData);
-      }
+      // if (mode === "edit" && initialData?.id) {
+      //   await apiUpdateCatalogImage(accessToken, initialData.id, formData);
+      // } else {
+      //   await apiCreateCatalogImage(accessToken, formData);
+      // }
+
+      const response =
+        mode === "edit" && initialData?.id
+          ? await apiUpdateCatalogImage(accessToken, initialData.id, formData)
+          : await apiCreateCatalogImage(accessToken, formData);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
 
       if (onSaveSuccess) {
         onSaveSuccess();
@@ -209,6 +263,10 @@ const AddEditCatalogModal = ({
     } finally {
       setSaving(false);
     }
+  };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    handleFile(e.dataTransfer.files[0]);
   };
 
   return (
@@ -293,7 +351,7 @@ const AddEditCatalogModal = ({
                       styles={selectStyles}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Select category..."
+                      placeholder="Select category"
                       isLoading={loadingCategories}
                       loadingMessage={() => "Loading categories..."}
                       noOptionsMessage={() => "No categories found"}
@@ -322,6 +380,31 @@ const AddEditCatalogModal = ({
                 <FiUpload size={16} />
                 Upload Image
               </button>
+              {imageError && (
+                <p className="text-red-500 text-sm mt-1">{imageError}</p>
+              )}
+
+              <div
+                onDrop={handleDrop}
+                onDragOver={(e) => e.preventDefault()}
+                className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
+              >
+                Drag & Drop your image file here
+                <br />
+                or{" "}
+                <span
+                  className="text-[#1C2C56] underline cursor-pointer"
+                  onClick={() => fileRef.current.click()}
+                >
+                  click to browse here
+                </span>
+                <p className="text-xs mt-2 text-[#64748B]">
+                  JPG, PNG, or WEBP files
+                </p>
+                <p className="text-xs mt-2 text-[#64748B]">
+                  Maximum dimension 1000×1000px
+                </p>
+              </div>
 
               <input
                 type="file"
@@ -330,12 +413,13 @@ const AddEditCatalogModal = ({
                 accept="image/*"
                 onChange={(e) => handleFile(e.target.files[0])}
               />
-              {errors.image && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.image.message}
-                </p>
-              )}
             </div>
+            {validated && (
+              <div className="mb-2 flex items-center gap-2 text-sm text-green-600 font-medium">
+                <FiCheckCircle className="text-green-600" size={16} />
+                <span>Image validated successfully</span>
+              </div>
+            )}
 
             {preview && (
               <div className="flex justify-center">
@@ -361,7 +445,7 @@ const AddEditCatalogModal = ({
             <Button
               variant="solid"
               size="sm"
-              className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+              className="bg-[#1C4FA8] px-6 hover:bg-[#1C4FA8] text-white py-2 rounded-md"
               //   onClick={handleSave}
               onClick={handleSubmit(handleSave)}
               loading={saving}
