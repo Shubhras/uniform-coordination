@@ -13,6 +13,7 @@ import {
     FiChevronRight,
     FiChevronLeft,
 } from 'react-icons/fi'
+import { IoColorPaletteOutline } from "react-icons/io5";
 
 const sidebarMenu = [
     {
@@ -21,12 +22,12 @@ const sidebarMenu = [
         path: '/admin-form',
         slug: "dashboard",
     },
-    // {
-    //     label: 'Product & Specification',
-    //     icon: FiPackage,
-    //     path: '/products',
-    //     slug: "product_specification", // Changed back to products so it hides properly
-    // },
+    {
+        label: 'Theme Management',
+        icon: IoColorPaletteOutline,
+        path: '/theme-management',
+        slug: "product_specification", // Changed back to products so it hides properly
+    },
     // {
     //     label: 'Content & Media',
     //     icon: FiFileText,

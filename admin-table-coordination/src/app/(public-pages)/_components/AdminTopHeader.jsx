@@ -119,15 +119,15 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
                 : "text-[#64748B] hover:text-[#4A3A3A] hover:bg-[#F1F5F9]"
               }`}
           >
-            <FiGlobe size={18} />
+            <FiGlobe size={18} className="text-[#4A3A3A]"/>
 
 
-            <span className="text-sm font-medium hidden sm:inline">
+            <span className="text-sm font-medium hidden sm:inline text-[#4A3A3A]">
               {selectedLanguage.code}
             </span>
             <FiChevronDown
               size={14}
-              className={`transition-transform ${languageOpen ? "rotate-180" : ""
+              className={`transition-transform text-[#4A3A3A]  ${languageOpen ? "rotate-180" : ""
                 }`}
             />
           </button>

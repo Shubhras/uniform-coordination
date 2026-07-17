@@ -22,55 +22,17 @@ const DashboardStats = ({ data }) => {
   return (
     <section className="w-full mt-5 px-5 md:px-8 lg:px-12">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* CARD 1 — Recently Updated Products / Colour Parts */}
-        {/* <div className="bg-[#F4F7FC] rounded-xl shadow-lg p-5 border border-[#E2E8F0]">
-                    <div className="bg-[#1C4FA8] text-white text-sm font-medium px-4 py-2 rounded-md inline-block">
-                        Recently Updated Products / Colour Parts
-                    </div>
-
-                    <div className="mt-4 space-y-3 text-sm text-[#475569]">
-                        {recentProducts.length > 0 ? (
-                            recentProducts.map((product, idx) => (
-                                <div key={idx} className="flex justify-between">
-                                    <span>{product.partcname}</span>
-                                    <span className="text-[#94A3B8]">{product.created_date}</span>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="text-[#94A3B8] text-center py-2">No recent updates</p>
-                        )}
-                    </div>
-                </div>
-
-                <div className="bg-[#F4F7FC] rounded-xl shadow-lg p-5 border border-[#E2E8F0]">
-                    <div className="bg-[#1C4FA8] text-white text-sm font-medium px-4 py-2 rounded-md inline-block">
-                        Active sales representative
-                    </div>
-
-                    <div className="mt-4 space-y-3 text-sm text-[#475569]">
-                        {salesRepsList.length > 0 ? (
-                            salesRepsList.map((rep, idx) => (
-                                <div key={idx} className="flex justify-between">
-                                    <span>{rep.name}</span>
-                                    <span className="font-medium text-[#1E293B]">{rep.count}</span>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="text-[#94A3B8] text-center py-2">No active reps</p>
-                        )}
-                    </div>
-                </div> */}
-
-        {/* CARD 3 — Pending Quotes */}
-        <div className="bg-[#F4F7FC] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
+        <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
-            <p className="text-[20px] opacity-90 text-[#1C2C56] font-semibold">Pending Quotes</p>
-            <h2 className="text-3xl font-semibold mt-2">
-              {pendingQuotes}
+            <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
+              AVAILABLE INVENTORY
+            </p>
+            <h2 className="text-[30px] font-bold mt-2">
+              {/* {pendingQuotes} */} 1,248
             </h2>
           </div>
 
-          <div className="mt-4 flex items-center gap-2 text-sm">
+          {/* <div className="mt-4 flex items-center gap-2 text-sm">
             {quoteChange >= 0 ? (
               <>
                 <FiTrendingUp className="text-base text-green-400" />
@@ -88,27 +50,27 @@ const DashboardStats = ({ data }) => {
                 <span className="text-[#486284]">Down from yesterday</span>
               </>
             )}
-          </div>
+          </div> */}
         </div>
-        <div className="bg-[#F4F7FC] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
+        <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
-            <p className="text-[20px] opacity-90 text-[#1C2C56] font-semibold">Total Templates</p>
-            <h2 className="text-3xl font-semibold mt-2 text-[#1C2C56]">
-              {templates}
-            </h2>
+            <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
+              ACTIVE RENTALS
+            </p>
+            <h2 className="text-[30px] font-bold mt-2">ACTIVE RENTALS</h2>
           </div>
         </div>
 
         {/* B2B Users */}
-        <div className="bg-[#F4F7FC] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
+        <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
-            <p className="text-[20px] opacity-90 text-[#1C2C56] font-semibold">B2B Users</p>
-            <h2 className="text-3xl font-semibold mt-2">
-              {b2bUsers}
-            </h2>
+            <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
+              PENDING QUOTATIONS
+            </p>
+            <h2 className="text-[30px] font-bold mt-2">45 </h2>
           </div>
 
-          {b2bChange !== 0 && (
+          {/* {b2bChange !== 0 && (
             <div className="mt-4 flex items-center gap-2 text-sm">
               {b2bChange >= 0 ? (
                 <>
@@ -128,12 +90,11 @@ const DashboardStats = ({ data }) => {
                 </>
               )}
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
       {/* Second row — Templates & B2B Users */}
-    
     </section>
   );
 };
