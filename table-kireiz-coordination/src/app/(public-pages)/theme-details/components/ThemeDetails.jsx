@@ -301,12 +301,22 @@ const ThemeDetails = () => {
     const [open, setOpen] = useState(false)
     const [openSections, setOpenSections] = useState([0])
 
-    const themeIdParam = searchParams.get('themeId')
     const idParam = searchParams.get('id')
+    const themeIdParam = searchParams.get('themeId')
+    const selectedThemeId = idParam || themeIdParam
     const theme = useMemo(
-        () => getThemeById(themeIdParam || idParam),
-        [themeIdParam, idParam],
+        () => getThemeById(selectedThemeId),
+        [selectedThemeId],
     )
+
+    useEffect(() => {
+        console.log('Theme details params:', {
+            idParam,
+            themeIdParam,
+            selectedThemeId,
+        })
+        console.log('Theme details matched theme:', theme)
+    }, [idParam, themeIdParam, selectedThemeId, theme])
 
     const totalItems = theme.items.reduce(
         (count, section) => count + section.items.length,

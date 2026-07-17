@@ -13,6 +13,7 @@ export const quotationStatusStyles = {
     'Contract Pending': 'bg-[#FFF5D6] text-[#F59E0B]',
     Completed: 'bg-[#EAFBF0] text-[#16A34A]',
     Sent: 'bg-[#F1EAFE] text-[#7C3AED]',
+    Signed: 'bg-[#E6FFF7] text-[#0F9F6E]',
 }
 
 export const quotationStatusOptions = [
@@ -23,7 +24,16 @@ export const quotationStatusOptions = [
     'Contract Pending',
     'Completed',
     'Sent',
+    'Signed',
 ]
+
+const quotationViewMap = {
+    Accepted: 'contract-accepted-detail',
+    Sent: 'sent-quotation-detail',
+    Rejected: 'rejected-quotation-detail',
+    Signed: 'signed-quotation-detail',
+    'Quotation Ready': 'quotation-ready-detail',
+}
 
 export const quotationsData = [
     {
@@ -31,7 +41,7 @@ export const quotationsData = [
         rentalPeriod: '12 Jun - 26 Jun 2024',
         items: 6,
         submittedOn: 'Aug 15, 2024',
-        status: 'Accepted',
+        status: 'Sent',
         company: 'ABC Hotels Pvt Ltd',
         contact: 'John Smith',
         businessEmail: 'Debra.Holt@Example.Com',
@@ -48,6 +58,7 @@ export const quotationsData = [
         total: '¥18,500',
         notes:
             'We require the chandeliers to be installed no later than 6 AM on the 14th. All items must coordinate in gold and crystal tones. Please confirm availability at your earliest convenience.',
+        requestedItemsSubtitle: '6 items for 2-day rental period',
         requestedItems: [
             { item: 'Crystal Chandelier (Large)', category: 'Lighting', qty: 3, unitRate: '¥450.00' },
             { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '¥85.00' },
@@ -79,6 +90,9 @@ export const quotationsData = [
         total: '¥10,240',
         notes:
             'Client requested a cost reduction on centerpiece rentals and adjusted the guest count after review.',
+        rejectionReason:
+            'Some requested items are unavailable for the selected rental dates. Please update your request or choose alternative items and submit a new quotation request.',
+        requestedItemsSubtitle: '4 items for 2-day rental period',
         requestedItems: [
             { item: 'Acrylic Podium', category: 'Stands', qty: 2, unitRate: '¥180.00' },
             { item: 'Branded Table Runner', category: 'Linens', qty: 10, unitRate: '¥24.00' },
@@ -108,6 +122,8 @@ export const quotationsData = [
         total: '¥26,900',
         notes:
             'Proposal includes floral risers and mirrored stage accents pending final venue walk-through.',
+        documentPreviewName: 'Quotation_X-2024-QT.pdf',
+        requestedItemsSubtitle: '4 items for 2-day rental period',
         requestedItems: [
             { item: 'Mirror Plinth', category: 'Stands', qty: 8, unitRate: '¥88.00' },
             { item: 'Gold Arch Frame', category: 'Decor', qty: 2, unitRate: '¥320.00' },
@@ -204,14 +220,14 @@ export const quotationsData = [
         rentalPeriod: '16 Jul - 18 Jul 2024',
         items: 9,
         submittedOn: 'Aug 01, 2024',
-        status: 'Accepted',
+        status: 'Signed',
         company: 'Pearl & Pine',
         contact: 'Mia Turner',
         businessEmail: 'mia@pearlandpine.com',
         phone: '(235) 555-0290',
         companyAddress: '5 Pearl Square, Kobe, 650-0021 Japan',
         quotationDate: '2024-08-01',
-        quotationStatus: 'Accepted',
+        quotationStatus: 'Signed',
         quotationExpiry: '2024-08-12',
         validity: '11 WD 2024',
         rentalStartDate: '16 Jul 2024',
@@ -219,6 +235,19 @@ export const quotationsData = [
         eventType: 'Wedding',
         venue: 'Pearl Convention',
         total: '¥34,400',
+        signedDate: '22 Mar 2024',
+        contractStatus: 'Signed',
+        customerNotes:
+            'We require the chandeliers to be installed no later than 6 AM on the 14th. All items must coordinate in gold and crystal tones. Please confirm availability at your earliest convenience.',
+        requestedItemsSubtitle: '4 items for 2-day rental period',
+        summary: {
+            items: '4 line items',
+            rentalDuration: '2 days',
+            subtotal: '¥19,500.00',
+            discount: '¥650.00',
+            delivery: '¥500.00',
+            total: '¥18,350.00',
+        },
         notes:
             'Accepted package includes custom charger plates and premium lounge furniture for the cocktail area.',
         requestedItems: [
@@ -279,8 +308,15 @@ const MyQuotations = () => {
     }, [searchTerm, statusFilter])
 
     const handleViewQuotation = (quotationId) => {
+        const selectedQuotation = quotationsData.find((quote) => quote.id === quotationId)
+        const targetView = quotationViewMap[selectedQuotation?.status]
+
+        if (!selectedQuotation || !targetView) {
+            return
+        }
+
         setSelectedQuotationId(quotationId)
-        setCurrentView('my-quotation-detail')
+        setCurrentView(targetView)
     }
 
     const handleResetFilters = () => {
@@ -348,6 +384,7 @@ const MyQuotations = () => {
                             <th className="px-6 py-4">Submitted On</th>
                             <th className="px-6 py-4">Status</th>
                             <th className="px-6 py-4">Action</th>
+                            
                         </tr>
                     </thead>
                     <tbody>

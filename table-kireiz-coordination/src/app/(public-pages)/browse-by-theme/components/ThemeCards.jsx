@@ -288,7 +288,7 @@ const ThemeCards = () => {
     const router = useRouter()
 
     const handleCustomizeClick = (themeId) => {
-        router.push(`/theme-details?themeId=${themeId}`)
+        router.push(`/theme-details?id=${themeId}`)
     }
 
     const filteredCards =
