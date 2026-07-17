@@ -11,7 +11,7 @@ import {
     FiUsers,
     FiSettings,
     FiChevronRight,
-    FiChevronLeft,
+    FiChevronLeft,FiClipboard
 } from 'react-icons/fi'
 import { IoColorPaletteOutline } from "react-icons/io5";
 
@@ -26,14 +26,14 @@ const sidebarMenu = [
         label: 'Theme Management',
         icon: IoColorPaletteOutline,
         path: '/theme-management',
-        slug: "product_specification", // Changed back to products so it hides properly
+        slug: "product_specification",
     },
-    // {
-    //     label: 'Content & Media',
-    //     icon: FiFileText,
-    //     path: '/contents',
-    //     slug: "content_media",
-    // },
+    {
+        label: 'Inventory Management',
+        icon: FiClipboard,
+        path: '/inventory-management',
+        slug: "content_media",
+    },
     // {
     //     label: 'Pricing & Quotation',
     //     icon: FiDollarSign,
