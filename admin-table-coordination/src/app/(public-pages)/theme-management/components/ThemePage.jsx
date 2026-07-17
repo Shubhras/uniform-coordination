@@ -10,8 +10,10 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 import Select from "react-select";
+import { useRouter } from "next/navigation";
 
 const ThemePage = () => {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState("grid");
 
@@ -119,7 +121,10 @@ const ThemePage = () => {
           </p>
         </div>
 
-        <button className="bg-[#A0522D] transition text-white px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium">
+        <button
+          onClick={() => router.push("/theme-management/addTheme")}
+          className="bg-[#A0522D] transition text-white px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium"
+        >
           <FiPlus />
           Add New Theme
         </button>
