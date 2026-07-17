@@ -26,36 +26,6 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
 from .utils import send_b2b_welcome_email
 
 
-# class IsAdminUserJWT(BasePermission):
-#     message = "Only admin users are allowed."
-   
-#     def has_permission(self, request, view):
-#         jwt_auth = JWTAuthentication()
-#         try:
-#             header = jwt_auth.get_header(request)
-#             raw_token = jwt_auth.get_raw_token(header)
-#             validated_token = jwt_auth.get_validated_token(raw_token)
-#         except Exception:
-#             return False
-
-#         # Role must be admin
-#         role = validated_token.get("role")
-#         if role != "admin":
-#             return False
-
-#         # Fetch AdminUser safely
-#         try:
-#             user_id = validated_token.get("user_id")
-#             admin_user = AdminUser.objects.get(id=user_id)
-#             request.user = admin_user  # override request.user
-            
-#         except AdminUser.DoesNotExist:
-#             return False
-
-#         return True
-
-# uniformAdmin/auth.py
-
 
 class IsAdminUserJWT(BaseAuthentication):
     """
@@ -493,7 +463,8 @@ class ProfileAPIView(APIView):
 
 class LogoutAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
-    permission_classes = [IsAdminUserJWT]
+    # permission_classes = [IsAdminUserJWT]
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
     tags=["Admin Authentication"],
@@ -689,7 +660,7 @@ class ForgotPasswordAPIView(APIView):
 
 class ResetPasswordAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
-    permission_classes = [IsAdminUserJWT]
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
         tags=["Admin User"],

@@ -46,6 +46,7 @@ ALLOWED_HOSTS = [
     "54.81.43.26",
     "0.0.0.0:8000",
     "0.0.0.0",
+    "http://localhost:7003",
     "moira-diamond-unfiltrated.ngrok-free.dev",
 ]
 # Application definition
@@ -216,6 +217,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:7000",
     "http://localhost:7001",
     "http://localhost:7002",
+    "http://localhost:7003",
     "http://0.0.0.0:8000",
     "http://54.81.43.26",
     
