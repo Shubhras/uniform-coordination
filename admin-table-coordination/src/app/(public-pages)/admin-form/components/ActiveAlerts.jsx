@@ -5,14 +5,14 @@ import { FiAlertTriangle, FiClock } from "react-icons/fi";
 const defaultAlerts = [
     {
         level: "HIGH",
-        message: "5 quotes pending review - 2 overdue",
+        message: "5 Items Waiting Inspection",
         action: "Review Now",
         icon: "alert",
         color: "text-red-500",
     },
     {
         level: "MEDIUM",
-        message: "3 Quotation request - Contact customers required",
+        message: "3 Late Returns",
         action: "View Details",
         icon: "clock",
         color: "text-orange-500",
@@ -76,7 +76,7 @@ const ActiveAlerts = ({ data }) => {
                                 {/* ACTION BUTTON */}
                                 <div className="flex md:justify-end">
                                     <button className="
-      bg-[#1C2C56] text-white
+      bg-[#6A341A] text-white
       px-3 py-1.5 md:px-4 md:py-2
       rounded-md
       text-xs md:text-sm
