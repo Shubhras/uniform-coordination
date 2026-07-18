@@ -5,15 +5,17 @@ import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import {
     FiGrid,
-    FiPackage,
     FiFileText,
+    FiBell,
+    FiCpu,
     FiDollarSign,
     FiUsers,
     FiSettings,
+    FiBarChart2,
     FiChevronRight,
     FiChevronLeft,
 } from 'react-icons/fi'
-import { IoColorPaletteOutline } from "react-icons/io5";
+import { IoColorPaletteOutline } from 'react-icons/io5'
 
 const sidebarMenu = [
     {
@@ -27,6 +29,54 @@ const sidebarMenu = [
         icon: IoColorPaletteOutline,
         path: '/theme-management',
         slug: "product_specification", // Changed back to products so it hides properly
+    },
+    {
+        label: 'Pricing & Packages',
+        icon: FiDollarSign,
+        path: '/pricing-packages',
+        slug: "product_specification",
+    },
+    {
+        label: 'Contracts & Policies',
+        icon: FiFileText,
+        path: '/contracts-policies',
+        slug: "product_specification",
+    },
+    {
+        label: 'Notifications',
+        icon: FiBell,
+        path: '/notifications',
+        slug: "product_specification",
+    },
+    {
+        label: 'AI & Automation',
+        icon: FiCpu,
+        path: '/ai-automation',
+        slug: "product_specification",
+    },
+    {
+        label: 'Users & Permissions',
+        icon: FiUsers,
+        path: '/users-permissions',
+        slug: "product_specification",
+    },
+    {
+        label: 'Simulation Assets',
+        icon: FiSettings,
+        path: '/simulation-assets',
+        slug: "product_specification",
+    },
+    {
+        label: 'Reports & Analytics',
+        icon: FiBarChart2,
+        path: '/reports-analytics',
+        slug: "product_specification",
+    },
+    {
+        label: 'System Settings',
+        icon: FiSettings,
+        path: '/system-settings',
+        slug: "product_specification",
     },
     // {
     //     label: 'Content & Media',
