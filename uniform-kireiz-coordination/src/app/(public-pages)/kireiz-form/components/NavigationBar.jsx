@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 const navMenu = [
   { title: "Home", value: "home", to: "home", url: "/kireiz-form" },
-  { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign", url: "/dashboards/uniform-3d-design" },
+  { title: "Uniform Design", value: "uniformDesign", to: "uniformDesign", url: "/kireiz-form" },
   { title: "Blog", value: "blog", to: "blog", url: "/blog" },
   { title: `FAQ's`, value: "faq", to: "faq", url: "/faq" },
 ];

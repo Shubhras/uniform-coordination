@@ -7,6 +7,8 @@ import { FiPlus, FiTrash2 } from "react-icons/fi";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiCreateFaq, apiUpdateFaq } from "@/services/FaqService";
 
@@ -130,17 +132,28 @@ const AddEditFaqModal = ({
       // descriptions: values.validDescriptions.map((d) => ({
       //   description: d.description.trim(),
       // })),
-        descriptions: values.descriptions.map((d) => ({
+      descriptions: values.descriptions.map((d) => ({
         description: d.description.trim(),
-  })),
+      })),
     };
 
     try {
-      if (mode === "edit" && initialData?.id) {
-        await apiUpdateFaq(accessToken, initialData.id, payload);
-      } else {
-        await apiCreateFaq(accessToken, payload);
-      }
+      // if (mode === "edit" && initialData?.id) {
+      //   await apiUpdateFaq(accessToken, initialData.id, payload);
+      // } else {
+      //   await apiCreateFaq(accessToken, payload);
+      // }
+
+      const response =
+        mode === "edit" && initialData?.id
+          ? await apiUpdateFaq(accessToken, initialData.id, payload)
+          : await apiCreateFaq(accessToken, payload);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
 
       if (keepOpen && mode !== "edit") {
         resetForm();
@@ -231,7 +244,7 @@ const AddEditFaqModal = ({
                       render={({ field }) => (
                         <textarea
                           {...field}
-                          placeholder={`Description ${index + 1}...`}
+                          placeholder="Type Description"
                           className="flex-1 border rounded-md px-3 py-2 text-sm h-[80px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                         />
                       )}
@@ -260,7 +273,13 @@ const AddEditFaqModal = ({
         </div>
 
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
-          <Button variant="plain" onClick={onClose} size="sm" disabled={saving} className="bg-blue-100 rounded-lg">
+          <Button
+            variant="plain"
+            onClick={onClose}
+            size="sm"
+            disabled={saving}
+            className="bg-blue-100 rounded-lg"
+          >
             Cancel
           </Button>
 
@@ -280,7 +299,7 @@ const AddEditFaqModal = ({
           <Button
             variant="solid"
             size="sm"
-            className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+            className="bg-[#1C4FA8] px-6 hover:bg-[#1C4FA8] text-white py-2 rounded-md"
             // onClick={() => handleSave({ keepOpen: false })}
             onClick={handleSubmit((values) =>
               handleSave(values, { keepOpen: false }),

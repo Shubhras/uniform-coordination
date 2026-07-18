@@ -58,9 +58,15 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
     try {
       setDropdownOpen(false);
       console.log("Session:", session);
-      await apiLogout({
-        refresh_token: session?.user?.refreshToken,
-      });
+      // await apiLogout({
+      //   refresh_token: session?.user?.refreshToken,
+      // });
+      await apiLogout(
+        {
+          refresh_token: session?.user?.refreshToken,
+        },
+        session?.user?.accessToken,
+      );
 
       await signOut();
     } catch (error) {
@@ -121,7 +127,6 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
             }`}
           >
             <FiGlobe size={18} />
-          
 
             <span className="text-sm font-medium hidden sm:inline">
               {selectedLanguage.code}

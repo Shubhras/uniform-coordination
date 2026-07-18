@@ -9,21 +9,13 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { Form, FormItem } from "@/components/ui/Form";
 import Input from "@/components/ui/Input";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
   apiCreateCategory,
   apiUpdateCategory,
 } from "@/services/CategoryService";
-
-const categorySchema = z.object({
-  categoryName: z.string().trim().min(1, "Category name is required"),
-
-  description: z.string().trim().min(1, "Description is required"),
-
-  image: z.any().refine((file) => file instanceof File, {
-    message: "Image is required",
-  }),
-});
 
 const AddEditCategoryModal = ({
   isOpen,
@@ -41,6 +33,23 @@ const AddEditCategoryModal = ({
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [validated, setValidated] = useState(false);
+
+   const categorySchema = z.object({
+    categoryName: z.string().trim().min(1, "Category name is required"),
+
+    description: z.string().trim().min(1, "Description is required"),
+
+    // image: z.any().refine((file) => file instanceof File, {
+    //   message: "Image is required",
+    // }),
+    image:
+      mode === "edit"
+        ? z.any().optional()
+        : z.any().refine((file) => file instanceof File, {
+            message: "Image is required",
+          }),
+  });
+
   const {
     control,
     handleSubmit,
@@ -56,9 +65,12 @@ const AddEditCategoryModal = ({
     },
   });
 
+ 
   // Save state
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [imageError, setImageError] = useState("");
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
   /* ---------- RESET / PREFILL ---------- */
   useEffect(() => {
@@ -81,6 +93,7 @@ const AddEditCategoryModal = ({
       setImageFile(null);
       setPreview(null);
       setValidated(false);
+      setImageError("");
       reset({
         categoryName: "",
         description: "",
@@ -90,12 +103,37 @@ const AddEditCategoryModal = ({
     setError("");
   }, [mode, initialData, isOpen]);
 
-  /* ---------- FILE HANDLERS ---------- */
   const handleFile = (file) => {
-    if (!file || !file.type.startsWith("image/")) return;
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setImageError("Only image files are allowed");
+      setValidated(false);
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setImageError("Image size should not exceed 2 MB");
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
+
+      setValue("image", null, {
+        shouldValidate: true,
+      });
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      return;
+    }
+
+    setImageError("");
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
     setValidated(true);
+
     setValue("image", file, {
       shouldValidate: true,
     });
@@ -117,6 +155,7 @@ const AddEditCategoryModal = ({
     setImageFile(null);
     setPreview(null);
     setValidated(false);
+    setImageError("");
     setError("");
     reset({
       categoryName: "",
@@ -141,11 +180,22 @@ const AddEditCategoryModal = ({
         formData.append("categoryImage", imageFile);
       }
 
-      if (mode === "edit" && initialData?.id) {
-        await apiUpdateCategory(accessToken, initialData.id, formData);
-      } else {
-        await apiCreateCategory(accessToken, formData);
-      }
+      // if (mode === "edit" && initialData?.id) {
+      //   await apiUpdateCategory(accessToken, initialData.id, formData);
+      // } else {
+      //   await apiCreateCategory(accessToken, formData);
+      // }
+
+      const response =
+        mode === "edit" && initialData?.id
+          ? await apiUpdateCategory(accessToken, initialData.id, formData)
+          : await apiCreateCategory(accessToken, formData);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
 
       if (keepOpen && mode !== "edit") {
         resetForm();
@@ -223,12 +273,15 @@ const AddEditCategoryModal = ({
 
               <button
                 type="button"
-                className="w-full bg-[#1C2C56] text-white py-2 rounded-md text-sm mt-2 flex items-center justify-center gap-2"
+                className="w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm mt-2 flex items-center justify-center gap-2"
                 onClick={() => fileInputRef.current.click()}
               >
                 <FiUpload size={16} />
                 Upload image
               </button>
+              {imageError && (
+                <p className="text-red-500 text-sm mt-1">{imageError}</p>
+              )}
 
               <div
                 onDrop={handleDrop}
@@ -310,7 +363,7 @@ const AddEditCategoryModal = ({
                   render={({ field }) => (
                     <textarea
                       {...field}
-                      placeholder="Type..."
+                      placeholder="Type Description"
                       className="mt-1 w-full border rounded-md px-3 py-2 text-sm h-[90px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                     />
                   )}
@@ -346,7 +399,7 @@ const AddEditCategoryModal = ({
             <Button
               variant="solid"
               size="sm"
-              className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+              className="bg-[#1C4FA8] px-6 hover:bg-[#1C4FA8] text-white py-2 rounded-md"
               // onClick={() => handleSave({ keepOpen: false })}
               onClick={handleSubmit((values) =>
                 handleSave(values, { keepOpen: false }),

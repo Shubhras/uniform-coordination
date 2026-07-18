@@ -8,7 +8,7 @@ import {
 } from 'react-icons/tb'
 
 import { useSearchParams } from 'next/navigation'
-import { FiBox, FiLock } from 'react-icons/fi'
+import { FiBox, FiFileText, FiLock } from 'react-icons/fi'
 import { IoNotificationsOutline } from 'react-icons/io5'
 import { LuPalette } from 'react-icons/lu'
 
@@ -21,6 +21,7 @@ const menuList = [
     { label: 'Simulation History', value: 'simulation-history', icon: <LuPalette /> },
     { label: 'Order History', value: 'order-history', icon: <FiBox /> },
     { label: 'Notifications', value: 'notifications', icon: <IoNotificationsOutline /> },
+    { label: 'My Quotations', value: 'my-quotations', icon: <FiFileText /> },
 ]
 
 export const SettingsMenu = ({ onChange }) => {

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
+import { FiArrowLeft } from "react-icons/fi";
 import RichTextEditor from "@/components/shared/RichTextEditor";
 
 const defaultTemplate = `
@@ -54,14 +55,26 @@ export default function AddTemplate() {
     <div className="bg-[#F4F7FC] min-h-screen p-6">
       {/* Heading */}
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-[#1C2C56]">
-          Content & Media
-        </h1>
+      {/* Heading */}
 
-        <p className="text-[#64748B] mt-1 text-sm">
-          Design and preview your quote layouts
-        </p>
+      <div className="mb-6 flex items-start gap-3">
+        {/* Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="w-10 h-10 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition"
+        >
+          <FiArrowLeft className="text-[#1C2C56] text-lg" />
+        </button>
+
+        <div>
+          <h1 className="text-2xl font-semibold text-[#1C2C56]">
+            Content & Media
+          </h1>
+
+          <p className="text-[#64748B] mt-1 text-sm">
+            Design and preview your quote layouts
+          </p>
+        </div>
       </div>
 
       {/* Paper */}

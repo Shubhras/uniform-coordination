@@ -11,6 +11,8 @@ import {
   FiChevronRight,
   FiX,
 } from "react-icons/fi";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
   apiGetCatalogImageList,
@@ -89,7 +91,16 @@ const CatelogImagesTab = () => {
 
     try {
       setDeleteLoading(true);
-      await apiDeleteCatalogImage(accessToken, itemToDelete.id);
+      const response = await apiDeleteCatalogImage(
+        accessToken,
+        itemToDelete.id,
+      );
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
       setDeleteDialogOpen(false);
       setItemToDelete(null);
       fetchImages(currentPage);

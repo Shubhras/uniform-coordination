@@ -9,6 +9,8 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormItem } from "@/components/ui/Form";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import Input from "@/components/ui/Input";
 import { apiCreateColor, apiUpdateColor } from "@/services/ColorsService";
 
@@ -180,11 +182,22 @@ const AddEditColorModal = ({
     };
 
     try {
-      if (mode === "edit" && initialData?.id) {
-        await apiUpdateColor(accessToken, initialData.id, payload);
-      } else {
-        await apiCreateColor(accessToken, payload);
-      }
+      // if (mode === "edit" && initialData?.id) {
+      //   await apiUpdateColor(accessToken, initialData.id, payload);
+      // } else {
+      //   await apiCreateColor(accessToken, payload);
+      // }
+
+      const response =
+        mode === "edit" && initialData?.id
+          ? await apiUpdateColor(accessToken, initialData.id, payload)
+          : await apiCreateColor(accessToken, payload);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
 
       if (onSaveSuccess) {
         onSaveSuccess();

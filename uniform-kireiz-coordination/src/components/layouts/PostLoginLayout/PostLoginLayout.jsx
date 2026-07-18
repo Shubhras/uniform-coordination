@@ -14,6 +14,7 @@ import TopBarClassic from './components/TopBarClassic'
 import ContentOverlay from './components/ContentOverlay'
 import Blank from './components/Blank'
 import PageContainer from '@/components/template/PageContainer'
+import Footer from '@/components/template/Footer'
 import queryRoute from '@/utils/queryRoute'
 import useTheme from '@/utils/hooks/useTheme'
 import { usePathname } from 'next/navigation'
@@ -45,11 +46,14 @@ const PostLoginLayout = ({ children }) => {
     const route = queryRoute(pathname)
 
     return (
-        <Layout
-            layoutType={route?.meta?.layout ? route?.meta?.layout : layoutType}
-        >
-            <PageContainer {...route?.meta}>{children}</PageContainer>
-        </Layout>
+        <div className="flex flex-col min-h-screen w-full bg-[#FFF]">
+            <Layout
+                layoutType={route?.meta?.layout ? route?.meta?.layout : layoutType}
+            >
+                <PageContainer footer={false} {...route?.meta}>{children}</PageContainer>
+            </Layout>
+            <Footer className="w-full mt-auto" />
+        </div>
     )
 }
 

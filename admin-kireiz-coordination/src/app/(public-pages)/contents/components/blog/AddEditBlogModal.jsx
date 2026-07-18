@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Select from "react-select";
-import { FiUpload } from "react-icons/fi";
+import { FiUpload, FiCheckCircle } from "react-icons/fi";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { Form, FormItem } from "@/components/ui/Form";
 import Input from "@/components/ui/Input";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -70,6 +72,8 @@ const AddEditBlogModal = ({
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [validated, setValidated] = useState(false);
+  const [imageError, setImageError] = useState("");
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
   // Category options from API
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -151,6 +155,7 @@ const AddEditBlogModal = ({
     if (mode === "edit" && initialData) {
       setPreview(initialData.image_url || null);
       setValidated(Boolean(initialData.image_url));
+      setImageError("");
       setImageFile(null);
 
       reset({
@@ -161,6 +166,7 @@ const AddEditBlogModal = ({
       });
     } else {
       setImageFile(null);
+      setImageError("");
       setPreview(null);
       setValidated(false);
 
@@ -194,7 +200,32 @@ const AddEditBlogModal = ({
 
   /* ---------- FILE HANDLERS ---------- */
   const handleFile = (file) => {
-    if (!file || !file.type.startsWith("image/")) return;
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setImageError("Only image files are allowed");
+      setValidated(false);
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setImageError("Image size should not exceed 2 MB");
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
+
+      setValue("image", null, {
+        shouldValidate: true,
+      });
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      return;
+    }
+
+    setImageError("");
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
     setValidated(true);
@@ -224,10 +255,17 @@ const AddEditBlogModal = ({
     setPreview(null);
     setValidated(false);
     setError("");
+    setImageError("");
   };
 
   /* ---------- SAVE ---------- */
   const handleSave = async (values, { keepOpen = false } = {}) => {
+    if (!imageFile && !preview) {
+      setImageError("Image is required");
+      return;
+    }
+
+    setImageError("");
     setError("");
     setSaving(true);
 
@@ -245,11 +283,22 @@ const AddEditBlogModal = ({
         formData.append("image", imageFile);
       }
 
-      if (mode === "edit" && initialData?.id) {
-        await apiUpdateBlog(accessToken, initialData.id, formData);
-      } else {
-        await apiCreateBlog(accessToken, formData);
-      }
+      // if (mode === "edit" && initialData?.id) {
+      //   await apiUpdateBlog(accessToken, initialData.id, formData);
+      // } else {
+      //   await apiCreateBlog(accessToken, formData);
+      // }
+
+      const response =
+        mode === "edit" && initialData?.id
+          ? await apiUpdateBlog(accessToken, initialData.id, formData)
+          : await apiCreateBlog(accessToken, formData);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
 
       if (keepOpen && mode !== "edit") {
         resetForm();
@@ -353,6 +402,7 @@ const AddEditBlogModal = ({
                     styles={selectStyles}
                     value={field.value}
                     onChange={field.onChange}
+                    placeholder="Select Category"
                   />
                 )}
               />
@@ -405,12 +455,13 @@ const AddEditBlogModal = ({
           </div>
 
           {validated && (
-            <p className="text-sm text-green-600 flex items-center gap-1">
-              ✔ Image validated successfully
-            </p>
+            <div className="mb-2 flex items-center gap-2 text-sm text-green-600 font-medium">
+              <FiCheckCircle className="text-green-600" size={16} />
+              <span>Image validated successfully</span>
+            </div>
           )}
-          {errors.image && (
-            <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
+          {imageError && (
+            <p className="text-red-500 text-sm mt-1">{imageError}</p>
           )}
 
           {preview && (
@@ -446,6 +497,7 @@ const AddEditBlogModal = ({
                   <textarea
                     {...field}
                     className="mt-1 w-full border rounded-md px-3 py-2 h-[150px]"
+                    placeholder="Type Description"
                   />
                 )}
               />
@@ -454,14 +506,20 @@ const AddEditBlogModal = ({
         </div>
 
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
-          <Button variant="plain" onClick={onClose} size="sm" disabled={saving} className="bg-blue-100 rounded-lg">
+          <Button
+            variant="plain"
+            onClick={onClose}
+            size="sm"
+            disabled={saving}
+            className="bg-blue-100 rounded-lg"
+          >
             Cancel
           </Button>
 
           <Button
             variant="plain"
             size="sm"
-            onClick={() => handleSave({ keepOpen: true })}
+            onClick={handleSubmit(handleSave)}
             disabled={saving}
             className="bg-blue-100 rounded-lg"
           >
@@ -471,7 +529,7 @@ const AddEditBlogModal = ({
           <Button
             variant="solid"
             size="sm"
-            className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+            className="bg-[#1C4FA8] px-6 hover:bg-[#1C4FA8] text-white py-2 rounded-md"
             // onClick={() => handleSave({ keepOpen: false })}
             onClick={handleSubmit(handleSave)}
             loading={saving}

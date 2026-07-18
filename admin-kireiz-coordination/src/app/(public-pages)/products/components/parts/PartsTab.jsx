@@ -13,7 +13,10 @@ import {
 } from "react-icons/fi";
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { apiGetPartsList, apiDeletePart } from "@/services/PartsService";
+import { apiFabricCategoryList } from "@/services/FabricService";
 import AddEditPartModal from "./AddEditPartModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
@@ -39,6 +42,17 @@ const PartsTab = () => {
   // View toggle
   const [view, setView] = useState("grid");
 
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({
@@ -48,16 +62,14 @@ const PartsTab = () => {
     total_items: 0,
   });
 
-  // Category filter
-  const categoryOptions = [
-    { value: "all", label: "All Categories" },
-    { value: "body", label: "Body" },
-    { value: "sleeves", label: "Sleeves" },
-    { value: "details", label: "Details" },
-    { value: "pockets", label: "Pockets" },
-  ];
-  const [category, setCategory] = useState(categoryOptions[0]);
+  const [categoryOptions, setCategoryOptions] = useState([
+    { value: "", label: "All Categories" },
+  ]);
 
+  const [category, setCategory] = useState({
+    value: "",
+    label: "All Categories",
+  });
   /* ---------- SELECT STYLES ---------- */
   const selectStyles = {
     control: (base) => ({
@@ -88,7 +100,13 @@ const PartsTab = () => {
 
       try {
         setLoading(true);
-        const response = await apiGetPartsList(accessToken, page);
+        const response = await apiGetPartsList(
+          accessToken,
+          page,
+          10,
+          debouncedSearch,
+          category?.value,
+        );
 
         if (response?.status && response?.data) {
           setParts(response.data);
@@ -102,12 +120,39 @@ const PartsTab = () => {
         setLoading(false);
       }
     },
-    [accessToken],
+    [accessToken, debouncedSearch, category],
   );
 
   useEffect(() => {
     fetchParts(currentPage);
   }, [fetchParts, currentPage]);
+
+  const fetchCategories = useCallback(async () => {
+    if (!accessToken) return;
+
+    try {
+      const res = await apiFabricCategoryList(accessToken, 1, 100);
+
+      if (res?.status && res?.data) {
+        const options = [
+          { value: "", label: "All Categories" },
+          ...res.data.map((item) => ({
+            value: item.id,
+            label: item.categoryName,
+          })),
+        ];
+
+        setCategoryOptions(options);
+        setCategory(options[0]);
+      }
+    } catch (err) {
+      console.error("Category fetch failed:", err);
+    }
+  }, [accessToken]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
@@ -115,7 +160,14 @@ const PartsTab = () => {
 
     try {
       setDeleteLoading(true);
-      await apiDeletePart(accessToken, partToDelete.id);
+      // await apiDeletePart(accessToken, partToDelete.id);
+      const response = await apiDeletePart(accessToken, partToDelete.id);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message || "Part deleted successfully."}
+        </Notification>,
+      );
       setDeleteDialogOpen(false);
       setPartToDelete(null);
       fetchParts(currentPage);
@@ -149,16 +201,13 @@ const PartsTab = () => {
 
   /* ---------- FILTERING ---------- */
   const filteredParts = parts.filter((p) => {
-    const matchesSearch =
-      p.partName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.category?.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = searchQuery.toLowerCase();
 
-    const matchesCategory =
-      category.value === "all" || p.category?.toLowerCase() === category.value;
-
-    return matchesSearch && matchesCategory;
+    return (
+      p.partName?.toLowerCase().includes(q) ||
+      p.category?.categoryName?.toLowerCase().includes(q)
+    );
   });
-
   /* ---------- PAGINATION ---------- */
   const goToPage = (page) => {
     if (page >= 1 && page <= pagination.total_pages) {
@@ -251,6 +300,17 @@ const PartsTab = () => {
           menuPosition="fixed"
           className="w-48 text-sm"
         />
+        <button
+          type="button"
+          onClick={() => {
+            setSearchQuery("");
+            setCategory(categoryOptions[0]);
+            setCurrentPage(1);
+          }}
+          className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-white bg-[#1C4FA8] hover:bg-[#163F86] transition-colors"
+        >
+          Reset
+        </button>
 
         <div className="ml-auto flex border rounded-md overflow-hidden">
           <button

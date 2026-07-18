@@ -10,6 +10,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormItem } from "@/components/ui/Form";
 import Input from "@/components/ui/Input";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
   apiCreateTemplate,
@@ -233,11 +235,22 @@ const AddEditTemplateModal = ({
         formData.append("templateImage", imageFile);
       }
 
-      if (mode === "edit" && initialData?.id) {
-        await apiUpdateTemplate(accessToken, initialData.id, formData);
-      } else {
-        await apiCreateTemplate(accessToken, formData);
-      }
+      // if (mode === "edit" && initialData?.id) {
+      //   await apiUpdateTemplate(accessToken, initialData.id, formData);
+      // } else {
+      //   await apiCreateTemplate(accessToken, formData);
+      // }
+
+      const response =
+        mode === "edit" && initialData?.id
+          ? await apiUpdateTemplate(accessToken, initialData.id, formData)
+          : await apiCreateTemplate(accessToken, formData);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>,
+      );
 
       if (onSaveSuccess) {
         onSaveSuccess();
@@ -341,6 +354,7 @@ const AddEditTemplateModal = ({
                       styles={selectStyles}
                       value={field.value}
                       onChange={field.onChange}
+                      placeholder="Select Part"
                       isLoading={loadingParts}
                       isClearable
                     />
@@ -413,6 +427,7 @@ const AddEditTemplateModal = ({
               </label>
 
               <button
+                type="button"
                 onClick={() => fileRef.current.click()}
                 className="mt-2 w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm flex items-center justify-center gap-2"
               >

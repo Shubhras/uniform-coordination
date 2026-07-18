@@ -10,6 +10,8 @@ import {
   FiX,
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { apiGetFabricList, apiDeleteFabric } from "@/services/FabricService";
 import AddEditFabricModal from "./AddEditFabricModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
@@ -75,6 +77,13 @@ const FabricsTab = () => {
     try {
       setDeleteLoading(true);
       await apiDeleteFabric(accessToken, fabricToDelete.id);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          Fabric deleted successfully.
+        </Notification>,
+      );
+
       setDeleteDialogOpen(false);
       setFabricToDelete(null);
       fetchFabrics(currentPage); // refresh

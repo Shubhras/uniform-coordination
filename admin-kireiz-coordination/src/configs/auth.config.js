@@ -55,8 +55,9 @@ export default {
                     id: payload.token.sub,
                     authority: payload.token.authority || ['admin', 'user'],
                     accessToken: payload.token.accessToken,
+                    refreshToken: payload.token.refreshToken, 
                     permissions: payload.token.permissions || [],
-                    permissions: payload.token.permissions || [],
+                    // permissions: payload.token.permissions || [],
                 },
             }
         },

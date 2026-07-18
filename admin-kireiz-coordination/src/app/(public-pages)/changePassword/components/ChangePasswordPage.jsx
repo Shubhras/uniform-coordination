@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "@/components/ui/Button";
 import { Form, FormItem } from "@/components/ui/Form";
 import { HiCheck } from "react-icons/hi";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import PasswordInput from "@/components/shared/PasswordInput";
 import { apiChangePassword } from "@/services/AuthService";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -78,6 +80,11 @@ const ChangePassword = () => {
       };
 
       const res = await apiChangePassword(payload, accessToken);
+      toast.push(
+        <Notification title="Success" type="success">
+          {res?.message}
+        </Notification>
+      );
 
       console.log(res);
     } catch (error) {

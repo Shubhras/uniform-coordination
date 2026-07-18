@@ -4,6 +4,8 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import { FiEdit2, FiMinus, FiPlus, FiSearch, FiTrash2 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetFaqList, apiDeleteFaq } from "@/services/FaqService";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import AddEditFaqModal from "./AddEditFaqModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
@@ -53,7 +55,13 @@ const FaqTab = () => {
 
     try {
       setDeleteLoading(true);
-      await apiDeleteFaq(accessToken, faqToDelete.id);
+      const response = await apiDeleteFaq(accessToken, faqToDelete.id);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message}
+        </Notification>
+      );
       setDeleteDialogOpen(false);
       setFaqToDelete(null);
       fetchFaqs();
@@ -79,16 +87,17 @@ const FaqTab = () => {
   const filteredFaqs = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) return faqs;
-    return faqs.filter((faq) =>
-      faq.title?.toLowerCase().includes(term)
-    );
+    return faqs.filter((faq) => faq.title?.toLowerCase().includes(term));
   }, [faqs, search]);
 
   /* ---------- SKELETON ---------- */
   const FaqSkeleton = () => (
     <div className="max-w-5xl mx-auto space-y-4">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="rounded-xl px-6 py-5 bg-[#F5F7FB] animate-pulse">
+        <div
+          key={i}
+          className="rounded-xl px-6 py-5 bg-[#F5F7FB] animate-pulse"
+        >
           <div className="h-5 bg-gray-200 rounded w-3/4" />
         </div>
       ))}
@@ -131,22 +140,20 @@ const FaqTab = () => {
             {filteredFaqs.map((faq) => {
               const isOpen = openFaqId === faq.id;
               // Combine all descriptions into a single answer text
-              const answerText = faq.descriptions
-                ?.map((d) => d.description)
-                .join("\n\n") || "";
+              const answerText =
+                faq.descriptions?.map((d) => d.description).join("\n\n") || "";
 
               return (
                 <div
                   key={faq.id}
-                  className={`rounded-xl px-6 py-5 transition-all duration-300 ${isOpen ? "bg-white shadow-md" : "bg-[#F5F7FB]"
-                    }`}
+                  className={`rounded-xl px-6 py-5 transition-all duration-300 ${
+                    isOpen ? "bg-white shadow-md" : "bg-[#F5F7FB]"
+                  }`}
                 >
                   <div className="w-full flex items-center justify-between text-left gap-4">
                     <button
                       type="button"
-                      onClick={() =>
-                        setOpenFaqId(isOpen ? null : faq.id)
-                      }
+                      onClick={() => setOpenFaqId(isOpen ? null : faq.id)}
                       className="flex-1 flex items-center justify-between text-left gap-4"
                     >
                       <span className="text-[#1C2C56] font-medium text-sm md:text-base">
@@ -187,13 +194,15 @@ const FaqTab = () => {
                   {isOpen && answerText && (
                     <div className="mt-4 space-y-2">
                       {faq.descriptions?.map((d, idx) => (
-                        <p key={d.id || idx} className="text-sm text-gray-600 leading-relaxed">
+                        <p
+                          key={d.id || idx}
+                          className="text-sm text-gray-600 leading-relaxed"
+                        >
                           {d.description}
                         </p>
                       ))}
                     </div>
                   )}
-
                 </div>
               );
             })}
