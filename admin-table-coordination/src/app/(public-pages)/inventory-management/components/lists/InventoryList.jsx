@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Select from "react-select";
-import { FiSearch, FiEye, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+import { FiSearch, FiEye, FiEdit2, FiTrash2, FiX } from "react-icons/fi";
+import NewDeleteModal from "@/components/shared/NewDeleteModal";
 
 const inventoryData = [
   {
@@ -63,6 +65,7 @@ const inventoryData = [
 ];
 
 const InventoryList = () => {
+  const router = useRouter();
   const categoryOptions = [
     { value: "all", label: "All Categories" },
     { value: "tablecloth", label: "Tablecloth" },
@@ -80,6 +83,29 @@ const InventoryList = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState(categoryOptions[0]);
   const [material, setMaterial] = useState(materialOptions[0]);
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [fabricToDelete, setFabricToDelete] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleDeleteClick = (item) => {
+    setFabricToDelete(item);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setDeleteLoading(true);
+
+    // API yaha call hogi
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    setDeleteLoading(false);
+    setDeleteDialogOpen(false);
+    setFabricToDelete(null);
+
+    console.log("Deleted:", fabricToDelete);
+  };
 
   const selectStyles = {
     control: (base) => ({
@@ -120,22 +146,34 @@ const InventoryList = () => {
   };
 
   return (
-    <div className="space-y-5">
-      {/* Search & Filters */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 ">
-        <div className="relative w-full lg:max-w-xl">
-          <FiSearch className="absolute left-4  top-1/2 -translate-y-1/2 text-[#C08457] text-sm" />
+    <>
+      <div className="space-y-5">
+        {/* Search & Filters */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 ">
+          <div className="relative w-full lg:max-w-xl">
+            <FiSearch className="absolute left-4  top-1/2 -translate-y-1/2 text-[#C08457] text-sm" />
 
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="w-full h-11 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
-          />
-        </div>
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-11 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2"
+              >
+                <FiX className="text-gray-500" />
+              </button>
+            )}
+          </div>
 
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          {/* Search */}
-          {/* <div className="relative w-full lg:max-w-xl">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            {/* Search */}
+            {/* <div className="relative w-full lg:max-w-xl">
             <FiSearch
               className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
               size={16}
@@ -150,107 +188,139 @@ const InventoryList = () => {
             />
           </div> */}
 
-          {/* Filters */}
-          <div className="flex gap-3">
-            <div className="w-52">
-              <Select
-                value={category}
-                onChange={setCategory}
-                options={categoryOptions}
-                styles={selectStyles}
-                isSearchable={false}
-              />
-            </div>
+            {/* Filters */}
+            <div className="flex gap-3">
+              <div className="w-52">
+                <Select
+                  value={category}
+                  onChange={setCategory}
+                  options={categoryOptions}
+                  styles={selectStyles}
+                  isSearchable={false}
+                />
+              </div>
 
-            <div className="w-52">
-              <Select
-                value={material}
-                onChange={setMaterial}
-                options={materialOptions}
-                styles={selectStyles}
-                isSearchable={false}
-              />
+              <div className="w-52">
+                <Select
+                  value={material}
+                  onChange={setMaterial}
+                  options={materialOptions}
+                  styles={selectStyles}
+                  isSearchable={false}
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto rounded-l border border-[#EFE5DD]">
-        <table className="min-w-full">
-          <thead className="bg-[#A85A320F]">
-            <tr className="text-left font-normal text-[16px] text-[#5D5E5F]">
-              <th className="px-5 py-3 font-normal">Product Name</th>
-              <th className="px-5 py-3 font-normal">Category</th>
-              <th className="px-5 py-3 font-normal">Fabric</th>
-              <th className="px-5 py-3 font-normal">Total</th>
-              <th className="px-5 py-3 font-normal">Available</th>
-              <th className="px-5 py-3 font-normal">On Rent</th>
-              <th className="px-5 py-3 font-normal ">Cleaning</th>
-              <th className="px-5 py-3 font-normal">Inspect</th>
-              <th className="px-5 py-3 font-normal text-center">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {inventoryData.map((item, index) => (
-              <tr
-                key={item.id}
-                className={`text-[13px] ${
-                  index % 2 === 0 ? "bg-white" : "bg-[#FBF7F3]"
-                }`}
-              >
-                <td className="px-5 py-5 text-[#2C1A0E]">{item.productName}</td>
-
-                <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                  {item.category}
-                </td>
-
-                <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                  {item.fabric}
-                </td>
-
-                <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                  {item.total}
-                </td>
-
-                <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                  {item.available}
-                </td>
-
-                <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                  {item.onRent}
-                </td>
-
-                <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                  {item.cleaning}
-                </td>
-
-                <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                  {item.inspect}
-                </td>
-
-                <td className="px-5 py-5">
-                  <div className="flex justify-center items-center gap-3 text-[#555]">
-                    <button className="text-[#2C1A0E]">
-                      <FiEye size={15} />
-                    </button>
-
-                    <button className="text-[#2C1A0E]">
-                      <FiEdit2 size={15} />
-                    </button>
-
-                    <button className="text-[#2C1A0E]">
-                      <FiTrash2 size={15} />
-                    </button>
-                  </div>
-                </td>
+        {/* Table */}
+        <div className="overflow-x-auto rounded-l border border-[#EFE5DD]">
+          <table className="min-w-full">
+            <thead className="bg-[#A85A320F]">
+              <tr className="text-left font-normal text-[16px] text-[#5D5E5F]">
+                <th className="px-5 py-3 font-normal">Product Name</th>
+                <th className="px-5 py-3 font-normal">Category</th>
+                <th className="px-5 py-3 font-normal">Fabric</th>
+                <th className="px-5 py-3 font-normal">Total</th>
+                <th className="px-5 py-3 font-normal">Available</th>
+                <th className="px-5 py-3 font-normal">On Rent</th>
+                <th className="px-5 py-3 font-normal ">Cleaning</th>
+                <th className="px-5 py-3 font-normal">Inspect</th>
+                <th className="px-5 py-3 font-normal text-center">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {inventoryData.map((item, index) => (
+                <tr
+                  key={item.id}
+                  className={`text-[13px] ${
+                    index % 2 === 0 ? "bg-white" : "bg-[#FBF7F3]"
+                  }`}
+                >
+                  <td className="px-5 py-5 text-[#2C1A0E]">
+                    {item.productName}
+                  </td>
+
+                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
+                    {item.category}
+                  </td>
+
+                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
+                    {item.fabric}
+                  </td>
+
+                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
+                    {item.total}
+                  </td>
+
+                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
+                    {item.available}
+                  </td>
+
+                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
+                    {item.onRent}
+                  </td>
+
+                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
+                    {item.cleaning}
+                  </td>
+
+                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
+                    {item.inspect}
+                  </td>
+
+                  <td className="px-5 py-5">
+                    <div className="flex justify-center items-center gap-3 text-[#555]">
+                      <button
+                        onClick={() =>
+                          router.push(
+                            "/inventory-management/inventory-list/view",
+                          )
+                        }
+                        className="text-[#2C1A0E]"
+                      >
+                        <FiEye size={15} />
+                      </button>
+
+                      <button
+                        className="text-[#2C1A0E]"
+                        onClick={() =>
+                          router.push(
+                            `/inventory-management/add?mode=edit&id=${item.id}`,
+                          )
+                        }
+                      >
+                        <FiEdit2 size={15} />
+                      </button>
+
+                      <button
+                        className="text-[#2C1A0E]"
+                        onClick={() => handleDeleteClick(item)}
+                      >
+                        <FiTrash2 size={15} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+      <NewDeleteModal
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setFabricToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Product"
+        message="Deleting this product will remove it from all over the platform. This action cannot be undone."
+        itemName={fabricToDelete?.productName}
+        loading={deleteLoading}
+      />
+    </>
   );
 };
 

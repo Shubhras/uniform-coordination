@@ -11,7 +11,7 @@ import {
     FiUsers,
     FiSettings,
     FiChevronRight,
-    FiChevronLeft,FiClipboard
+    FiChevronLeft,FiClipboard,FiShoppingCart
 } from 'react-icons/fi'
 import { IoColorPaletteOutline } from "react-icons/io5";
 
@@ -34,12 +34,12 @@ const sidebarMenu = [
         path: '/inventory-management',
         slug: "content_media",
     },
-    // {
-    //     label: 'Pricing & Quotation',
-    //     icon: FiDollarSign,
-    //     path: '/pricing',
-    //     slug: "order_manage", // Assigned 'order_manage' here based on API
-    // },
+    {
+        label: 'Orders & Rentals',
+        icon: FiShoppingCart,
+        path: '/orders',
+        slug: "order_manage", // Assigned 'order_manage' here based on API
+    },
     // {
     //     label: 'Customer & Sales Representative',
     //     icon: FiUsers,
