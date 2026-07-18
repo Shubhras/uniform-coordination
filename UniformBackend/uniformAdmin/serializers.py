@@ -211,6 +211,19 @@ class SubCategoryMiniSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "slug"]
 
 
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = [
+            "id",
+            "role_name",
+            "slug",
+            "description",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "slug", "created_at", "updated_at"]
+
 class FabricSerializer(serializers.ModelSerializer):
     theme = serializers.PrimaryKeyRelatedField(
         queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),

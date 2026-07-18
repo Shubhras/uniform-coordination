@@ -33,6 +33,10 @@ urlpatterns = [
         ChangePasswordAPIView.as_view(),
         name="admin-change-password",
     ),
+    
+    #role 
+    path("roles/create/", CreateRoleAPIView.as_view(), name="create-role"),
+    path("roles/list/", RoleListAPIView.as_view(), name="role-list"),
 
     # Fabric URLs
     path('fabric/create/', FabricCreateView.as_view()),
@@ -203,6 +207,7 @@ urlpatterns = [
 
     # Permission URLs
     path('role-permissions/assign/', RolePermissionAssignView.as_view(), name='role-permissions-assign'),
+    path('role-permissions/update/', SaveUpdateRolePermissionView.as_view(), name='role-permissions-update'),
     path('role-permissions/list/', RolePermissionListView.as_view(), name='role-permissions-list'),
     path('my-permissions/', UserMenuPermissionView.as_view(), name='my-permissions'),
 ]

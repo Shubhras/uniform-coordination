@@ -515,61 +515,6 @@ class LogoutAPIView(APIView):
             "message": "Logout successful"
         }, status=status.HTTP_200_OK)
 
-# class ForgotPasswordAPIView(APIView):
-#     authentication_classes = []
-#     permission_classes = []
-
-#     @extend_schema(
-#     tags=["Admin Authentication"],
-#     summary="Forgot Password",
-#     description="Send password reset link to admin email.",
-#     request={
-#         "application/json": {
-#             "type": "object",
-#             "properties": {
-#                 "email": {"type": "string", "example": "admin@example.com"}
-#             },
-#             "required": ["email"]
-#         }
-#     },
-#     responses={
-#         200: OpenApiResponse(description="Reset link sent"),
-#         400: OpenApiResponse(description="Email required"),
-#         404: OpenApiResponse(description="User not found")
-#     }
-# )
-#     def post(self, request):
-#         email = request.data.get("email")
-#         type = request.data.get("type")
-
-#         if not email:
-#             return Response({
-#                 "statusCode":400,
-#                 "status":False,
-#                 "message":"Email required.",
-#             },status=status.HTTP_400_BAD_REQUEST)
-#         try:
-#             user = AdminUser.objects.get(email=email, is_active=True)
-#         except AdminUser.DoesNotExist:
-#             return Response({"status": False, "message": "User not found"}, status=404)
-
-#         token = PasswordResetTokenGenerator().make_token(user)
-#         reset_link = f"http://23.23.88.239:7001/reset-password/?user_id={user.id}&token={token}"
-
-#         # ASYNC EMAIL
-#         Thread(
-#             target=send_reset_email,
-#             args=(
-#                 "Reset Your Password",
-#                 f"Click the link to reset password:\n{reset_link}",
-#                 user.email,
-#             ),
-#         ).start()
-
-#         return Response({
-#             "status": True,
-#             "message": "Password reset link sent"
-#         }, status=200)
 
 class ForgotPasswordAPIView(APIView):
     authentication_classes = []
@@ -757,6 +702,69 @@ class ChangePasswordAPIView(APIView):
             },
             status=status.HTTP_200_OK,
         )     
+
+
+class CreateRoleAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["Role"],
+        summary="Create Role",
+        description="Create a new role.",
+        request=RoleSerializer,
+        responses={
+            201: RoleSerializer,
+            400: OpenApiResponse(description="Validation Error"),
+        },
+    )
+    def post(self, request):
+        serializer = RoleSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(
+                {
+                    "status": True,
+                    "message": "Role created successfully.",
+                    "data": serializer.data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
+        return Response(
+            {
+                "status": False,
+                "message": "Validation Error.",
+                "errors": serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+        
+        
+class RoleListAPIView(APIView):
+    # permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["Role"],
+        summary="List Roles",
+        description="Get all roles.",
+        responses={200: RoleSerializer(many=True)},
+    )
+    def get(self, request):
+        roles = Role.objects.all().order_by("id")
+        serializer = RoleSerializer(roles, many=True)
+
+        return Response(
+            {
+                "status": True,
+                "message": "Role list fetched successfully.",
+                "count": roles.count(),
+                "data": serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
+                
 #<----------------------B2B--------------->
 # class AdminUserCreateAPIView(APIView):
 #     authentication_classes = [IsAdminUserJWT]
