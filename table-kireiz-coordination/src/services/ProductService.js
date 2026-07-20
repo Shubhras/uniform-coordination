@@ -15,3 +15,19 @@ export async function apiGetProduct({ id, ...params }) {
         params,
     })
 }
+
+export async function apiGetProductById(params) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/product/list/`,
+    method: "get",
+    params,
+  });
+}
+
+export async function apiGetProductDetailsById(id) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/product/get/${id}/`,
+    method: "get",
+  });
+}
+

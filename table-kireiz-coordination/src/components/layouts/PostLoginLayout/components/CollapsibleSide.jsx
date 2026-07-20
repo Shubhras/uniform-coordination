@@ -1,5 +1,6 @@
 'use client'
 import SideNav from '@/components/template/SideNav'
+import AdminSidebar from '@/app/(protected-pages)/_components/AdminSidebar'
 import Header from '@/components/template/Header'
 import SideNavToggle from '@/components/template/SideNavToggle'
 import MobileNav from '@/components/template/MobileNav'
@@ -19,6 +20,7 @@ const CollapsibleSide = ({ children }) => {
         >
             <div className="flex flex-auto min-w-0">
                 {/* <SideNav /> */}
+                <AdminSidebar />
                 <div className="flex flex-col flex-auto min-h-screen min-w-0 relative w-full">
                     <Header
                         className="shadow-sm dark:shadow-2xl"

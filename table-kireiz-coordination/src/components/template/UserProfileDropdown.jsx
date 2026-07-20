@@ -92,7 +92,7 @@ const _UserDropdown = () => {
     }
 
     const handleProfile = () => {
-        router.push("/dashboards/profile/settings");
+        router.push("/profile/my-profile");
     };
        const handleCartSummary = () => {
         router.push("/cart-summary");
