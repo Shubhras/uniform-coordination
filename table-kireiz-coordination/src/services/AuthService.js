@@ -31,7 +31,7 @@ export async function apiSignUp(data) {
     userType: "table",
   };
   return ApiService.fetchDataWithAxios({
-    url: "/v1/userhub/signup/",
+    url: "/v1/space/userhub/signup/",
     method: "post",
     data: payload,
   });
@@ -46,7 +46,7 @@ export async function apiLogin(data) {
   console.log("Login payload:", payload);
 
   return ApiService.fetchDataWithAxios({
-    url: "/v1/userhub/login/",
+    url: "/v1/space/userhub/login/",
     method: "post",
     data: payload,
   });
@@ -58,7 +58,7 @@ export async function apiForgotPassword(data) {
     userType: "table",
   };
   return ApiService.fetchDataWithAxios({
-    url: "/v1/userhub/forgot-password/",
+    url: "/v1/space/userhub/forgot-password/",
     method: "post",
     data: payload,
   });
@@ -72,7 +72,7 @@ export async function apiResetPassword(data) {
   };
 
   return ApiService.fetchDataWithAxios({
-    url: "/v1/userhub/reset-password/",
+    url: "/v1/space/userhub/reset-password/",
     method: "post",
     data: payload,
   });
@@ -81,7 +81,7 @@ export async function apiResetPassword(data) {
 
 export async function verifyEmail(data) {
     return ApiService.fetchDataWithAxios({
-        url: '/v1/userhub/verify-user/',
+        url: '/v1/space/userhub/verify-user/',
         method: 'post',
         data,
     })
