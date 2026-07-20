@@ -12,6 +12,7 @@ import {
     FiClock,
     FiBox,
     FiBell,
+    FiFileText,
     FiChevronRight,
     FiChevronLeft,
 } from 'react-icons/fi'
@@ -51,6 +52,12 @@ const sidebarMenu = [
         label: 'Notifications',
         icon: FiBell,
         path: '/profile/notifications',
+        slug: "profile",
+    },
+    {
+        label: 'My Quotations',
+        icon: FiFileText,
+        path: '/profile/my-quotations',
         slug: "profile",
     },
 ]
