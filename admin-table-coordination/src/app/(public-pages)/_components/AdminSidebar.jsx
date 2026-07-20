@@ -5,15 +5,17 @@ import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import {
     FiGrid,
-    FiPackage,
     FiFileText,
+    FiBell,
+    FiCpu,
     FiDollarSign,
     FiUsers,
     FiSettings,
+    FiBarChart2,
     FiChevronRight,
     FiChevronLeft,FiClipboard,FiShoppingCart
 } from 'react-icons/fi'
-import { IoColorPaletteOutline } from "react-icons/io5";
+import { IoColorPaletteOutline } from 'react-icons/io5'
 
 const sidebarMenu = [
     {
@@ -40,6 +42,66 @@ const sidebarMenu = [
         path: '/orders',
         slug: "order_manage", // Assigned 'order_manage' here based on API
     },
+    {
+        label: 'Pricing & Packages',
+        icon: FiDollarSign,
+        path: '/pricing-packages',
+        slug: "product_specification",
+    },
+    {
+        label: 'Contracts & Policies',
+        icon: FiFileText,
+        path: '/contracts-policies',
+        slug: "product_specification",
+    },
+    {
+        label: 'Notifications',
+        icon: FiBell,
+        path: '/notifications',
+        slug: "product_specification",
+    },
+    {
+        label: 'AI & Automation',
+        icon: FiCpu,
+        path: '/ai-automation',
+        slug: "product_specification",
+    },
+    {
+        label: 'Users & Permissions',
+        icon: FiUsers,
+        path: '/users-permissions',
+        slug: "product_specification",
+    },
+    {
+        label: 'Simulation Assets',
+        icon: FiSettings,
+        path: '/simulation-assets',
+        slug: "product_specification",
+    },
+    {
+        label: 'Reports & Analytics',
+        icon: FiBarChart2,
+        path: '/reports-analytics',
+        slug: "product_specification",
+    },
+    {
+        label: 'System Settings',
+        icon: FiSettings,
+        path: '/system-settings',
+        slug: "product_specification",
+    },
+    // {
+    //     label: 'Content & Media',
+    //     icon: FiFileText,
+    //     path: '/contents',
+    //     slug: "content_media",
+    // },
+    // {
+    //     label: 'Pricing & Quotation',
+    //     icon: FiDollarSign,
+    //     path: '/pricing',
+    //     slug: "order_manage", // Assigned 'order_manage' here based on API
+    // },
     // {
     //     label: 'Customer & Sales Representative',
     //     icon: FiUsers,
@@ -129,7 +191,6 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
             <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3">
                 <ul className="space-y-1">
                     {sidebarMenu.map((item) => {
-                        // Permission check: item ka slug permissions array me nahi hai, toh render mat karo
                         if (item.slug && !userPermissions.includes(item.slug)) {
                             return null;
                         }
