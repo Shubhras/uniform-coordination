@@ -40,7 +40,7 @@ const PromotionDetails = ({ promotionId }) => {
               <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#B3A096]">Discount Value</p>
               <p className="mt-2 text-[13px] font-medium text-[#3F332C]">15%</p>
             </div>
-            <span className="inline-flex items-center rounded-full bg-[#E8FAF2] px-2.5 py-1 text-[10px] font-medium text-[#15AA78]">
+            <span className="inline-flex items-center rounded-full bg-[#E8FAF2] px-2.5 py-1 text-[10px] font-medium text-[#007A55]">
               Active
             </span>
           </div>

@@ -17,7 +17,7 @@ const promotions = [
     id: "summer-celebration-sale-1",
     name: "Summer Celebration Sale",
     type: "Percentage",
-    typeColor: "text-[#C77A46]",
+    typeColor: "text-[#A85A32]",
     value: "15%",
     validityTop: "6-12 July 26",
     validityBottom: "",
@@ -27,7 +27,7 @@ const promotions = [
     id: "new-client-welcome",
     name: "New Client Welcome",
     type: "First Purchase",
-    typeColor: "text-[#17A673]",
+    typeColor: "text-[#007A55]",
     value: "¥200",
     validityTop: "2025-06-01",
     validityBottom: "No end",
@@ -37,7 +37,7 @@ const promotions = [
     id: "loyal-partner-reward",
     name: "Loyal Partner Reward",
     type: "Repeat Customer",
-    typeColor: "text-[#5468FF]",
+    typeColor: "text-[#432DD7]",
     value: "10%",
     validityTop: "2025-06-01",
     validityBottom: "2025-08-31",
@@ -77,7 +77,7 @@ const promotions = [
     id: "summer-celebration-sale-2",
     name: "Summer Celebration Sale",
     type: "Percentage",
-    typeColor: "text-[#C77A46]",
+    typeColor: "text-[#A85A32]",
     value: "15%",
     validityTop: "2025-06-01",
     validityBottom: "2025-08-31",
@@ -87,7 +87,7 @@ const promotions = [
     id: "summer-celebration-sale-3",
     name: "Summer Celebration Sale",
     type: "Percentage",
-    typeColor: "text-[#C77A46]",
+    typeColor: "text-[#A85A32]",
     value: "15%",
     validityTop: "2025-06-01",
     validityBottom: "2025-08-31",
@@ -134,7 +134,7 @@ const selectStyles = {
 };
 
 const getStatusClasses = (status) => {
-  if (status === "Active") return "bg-[#E8FAF2] text-[#15AA78]";
+  if (status === "Active") return "bg-[#E8FAF2] text-[#007A55]";
   if (status === "Expired") return "bg-[#FFE9E8] text-[#F04444]";
   return "bg-[#FFF6E7] text-[#E6A11E]";
 };
@@ -233,7 +233,7 @@ const Promotions = () => {
                   </td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${getStatusClasses(promotion.status)}`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${promotion.status === "Active" ? "bg-[#15AA78]" : promotion.status === "Expired" ? "bg-[#F04444]" : "bg-[#E6A11E]"}`} />
+                      <span className={`h-1.5 w-1.5 rounded-full ${promotion.status === "Active" ? "bg-[#007A55]" : promotion.status === "Expired" ? "bg-[#F04444]" : "bg-[#E6A11E]"}`} />
                       {promotion.status}
                     </span>
                   </td>

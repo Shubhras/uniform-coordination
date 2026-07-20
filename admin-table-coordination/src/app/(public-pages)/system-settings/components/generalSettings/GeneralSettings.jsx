@@ -159,7 +159,7 @@ const GeneralSettings = () => {
       <div className="mt-4">
         <FieldLabel>Logo</FieldLabel>
         <div className="rounded-[14px] border border-dashed border-[#EADBCF] bg-[#FFFDFC] px-4 py-10 text-center">
-          <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-[#FFF3EB] text-[#C77A46]">
+          <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-[#FFF3EB] text-[#A85A32]">
             <FiImage size={14} />
           </div>
           <p className="mt-3 text-[13px] font-medium text-[#4A3D36]">Upload Logo</p>
