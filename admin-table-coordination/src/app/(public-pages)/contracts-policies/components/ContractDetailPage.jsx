@@ -99,7 +99,7 @@ const ContractDetailPage = ({ contract }) => {
             <InfoPair
               label={contract.contractStatusLabel}
               value={contract.contractStatusValue}
-              valueClassName={isSigned ? "text-[#17A673]" : colors.accent}
+              valueClassName={isSigned ? "text-[#007A55]" : colors.accent}
             />
           </div>
 
@@ -161,7 +161,7 @@ const ContractDetailPage = ({ contract }) => {
                       </span>
                     </td>
                     <td className="px-5 py-4">{item.requested}</td>
-                    <td className="px-5 py-4 text-[#17A673]">{item.availability}</td>
+                    <td className="px-5 py-4 text-[#007A55]">{item.availability}</td>
                     <td className="px-5 py-4 text-right">{item.unitRate}</td>
                   </tr>
                 ))}

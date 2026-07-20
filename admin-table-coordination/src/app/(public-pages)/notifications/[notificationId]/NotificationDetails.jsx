@@ -95,7 +95,7 @@ const NotificationDetails = ({ notificationId }) => {
           <span
             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${
               isSent
-                ? "bg-[#E8FAF2] text-[#15AA78]"
+                ? "bg-[#E8FAF2] text-[#007A55]"
                 : "bg-[#FFE9E8] text-[#F04444]"
             }`}
           >

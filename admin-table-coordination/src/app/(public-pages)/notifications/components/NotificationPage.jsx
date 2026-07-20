@@ -6,7 +6,10 @@ import Select from "react-select";
 import {
   FiAlertCircle,
   FiCheckCircle,
+  FiChevronLeft,
+  FiChevronRight,
   FiEye,
+  FiRotateCcw,
   FiSearch,
   FiX,
 } from "react-icons/fi";
@@ -146,6 +149,11 @@ const NotificationPage = () => {
     });
   }, [searchQuery, status]);
 
+  const handleReset = () => {
+    setSearchQuery("");
+    setStatus(statusOptions[0]);
+  };
+
   return (
     <div className="min-h-screen bg-white px-3 py-4 sm:px-6 sm:py-5">
       <div className="mb-4">
@@ -195,6 +203,15 @@ const NotificationPage = () => {
             styles={selectStyles}
           />
         </div>
+
+        <button
+          type="button"
+          onClick={handleReset}
+          className="flex h-[34px] w-full items-center justify-center gap-1 rounded-md border border-[#F2E5DD] bg-white px-3 text-[11px] font-medium text-[#B7774D] transition hover:bg-[#FCF4EF] sm:w-auto"
+        >
+          <FiRotateCcw size={12} />
+          Reset
+        </button>
       </div>
 
       <div className="overflow-x-auto rounded-md border border-[#F4E9E1]">
@@ -228,11 +245,10 @@ const NotificationPage = () => {
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${
-                        isSent
-                          ? "bg-[#E8FAF2] text-[#15AA78]"
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${isSent
+                          ? "bg-[#E8FAF2] text-[#007A55]"
                           : "bg-[#FFE9E8] text-[#F04444]"
-                      }`}
+                        }`}
                     >
                       {isSent ? (
                         <FiCheckCircle size={11} />
@@ -262,6 +278,25 @@ const NotificationPage = () => {
             })}
           </tbody>
         </table>
+      </div>
+      <div className="mt-5 flex flex-col gap-3 text-[11px] text-[#9A8C82] sm:flex-row sm:items-center sm:justify-between">
+        <p>Showing 1-10</p>
+
+        <div className="flex items-center gap-2">
+          <button type="button" className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#C9B2A3]">
+            <FiChevronLeft size={14} />
+          </button>
+          <button type="button" className="flex h-8 min-w-[30px] items-center justify-center rounded bg-[#D88957] px-2 text-white">
+            1
+          </button>
+          <button type="button" className="text-[#8C7C73]">2</button>
+          <button type="button" className="text-[#8C7C73]">3</button>
+          <span className="text-[#8C7C73]">...</span>
+          <button type="button" className="text-[#8C7C73]">10</button>
+          <button type="button" className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#8C7C73]">
+            <FiChevronRight size={14} />
+          </button>
+        </div>
       </div>
     </div>
   );

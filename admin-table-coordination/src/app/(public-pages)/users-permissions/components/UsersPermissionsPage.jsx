@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Select from "react-select";
-import { FiEye, FiSearch, FiSlash, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiEye, FiSearch, FiSlash, FiChevronLeft, FiChevronRight, FiRotateCcw } from "react-icons/fi";
 
 const users = [
   { id: "user-1", fullName: "Guy Hawkins", userType: "B2C", email: "debbie.baker@example.com", registrationDate: "12 July 26", status: "Active" },
@@ -77,6 +77,12 @@ const UsersPermissionsPage = () => {
     });
   }, [searchQuery, status, userType]);
 
+  const handleReset = () => {
+    setSearchQuery("");
+    setUserType(typeOptions[0]);
+    setStatus(statusOptions[0]);
+  };
+
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
       <h1 className="text-[30px] font-semibold leading-tight text-[#2A211D]">
@@ -140,6 +146,15 @@ const UsersPermissionsPage = () => {
                 styles={selectStyles}
               />
             </div>
+
+            <button
+              type="button"
+              onClick={handleReset}
+              className="flex h-[34px] w-full items-center justify-center gap-1 rounded-md border border-[#F2E5DD] bg-white px-3 text-[11px] font-medium text-[#B7774D] transition hover:bg-[#FCF4EF] lg:w-auto"
+            >
+              <FiRotateCcw size={12} />
+              Reset
+            </button>
           </div>
 
           <div className="mt-4 overflow-x-auto rounded-md border border-[#F4E9E1]">
@@ -178,11 +193,11 @@ const UsersPermissionsPage = () => {
                         <span
                           className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${
                             isActive
-                              ? "bg-[#E8FAF2] text-[#15AA78]"
+                              ? "bg-[#E8FAF2] text-[#007A55]"
                               : "bg-[#FFE9E8] text-[#F04444]"
                           }`}
                         >
-                          <span className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-[#15AA78]" : "bg-[#F04444]"}`} />
+                          <span className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-[#007A55]" : "bg-[#F04444]"}`} />
                           {user.status}
                         </span>
                       </td>

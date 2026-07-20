@@ -68,7 +68,7 @@ const ContractStatusPage = ({ contract }) => {
                         isPending
                           ? "border-[#E4CDBD] bg-white text-[#D0A78A]"
                           : isComplete
-                            ? "border-[#17A673] bg-[#17A673] text-white"
+                            ? "border-[#007A55] bg-[#007A55] text-white"
                             : "border-[#B96D38] bg-[#B96D38] text-white"
                       }`}
                     >
@@ -135,7 +135,7 @@ const ContractStatusPage = ({ contract }) => {
                 <span
                   className={`text-right text-[13px] font-semibold normal-case tracking-normal ${
                     contract.status === "Signed"
-                      ? "text-[#17A673]"
+                      ? "text-[#007A55]"
                       : "text-[#F08A24]"
                   }`}
                 >

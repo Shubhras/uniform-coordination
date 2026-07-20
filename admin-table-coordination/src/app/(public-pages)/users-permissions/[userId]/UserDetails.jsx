@@ -58,7 +58,7 @@ const UserDetails = ({ userId }) => {
           </div>
 
           <div className="md:text-right">
-            <span className="inline-flex rounded-full bg-[#E8FAF2] px-3 py-1 text-[11px] font-medium text-[#15AA78]">
+            <span className="inline-flex rounded-full bg-[#E8FAF2] px-3 py-1 text-[11px] font-medium text-[#007A55]">
               Active
             </span>
           </div>

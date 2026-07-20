@@ -84,8 +84,8 @@ const ruleCards = [
         <div className="rounded-[12px] bg-[#FCF7F3] px-5 py-4">
           <p className="text-[28px] font-semibold leading-none text-[#2F241F]">10%</p>
         </div>
-        <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#E8FAF2] px-2.5 py-1 text-[10px] font-medium text-[#15AA78]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#15AA78]" />
+        <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#E8FAF2] px-2.5 py-1 text-[10px] font-medium text-[#007A55]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#007A55]" />
           Active
         </span>
       </div>

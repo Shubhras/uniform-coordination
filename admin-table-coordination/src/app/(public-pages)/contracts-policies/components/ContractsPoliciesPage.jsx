@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Select from "react-select";
-import { FiEye, FiSearch, FiX } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiEye, FiRotateCcw, FiSearch, FiX } from "react-icons/fi";
 import StatusBadge from "./StatusBadge";
 
 const contractRows = [
@@ -156,6 +156,11 @@ const ContractsPoliciesPage = () => {
     });
   }, [searchQuery, status]);
 
+  const handleReset = () => {
+    setSearchQuery("");
+    setStatus(statusOptions[0]);
+  };
+
   return (
     <div className="bg-white p-3 sm:p-6">
       <div className="mb-5">
@@ -170,8 +175,7 @@ const ContractsPoliciesPage = () => {
       </div>
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-        {/* Mobile me full width aur desktop me 50% width */}
-        <div className="relative w-full sm:w-1/2">
+        <div className="relative w-full sm:flex-1">
           <FiSearch
             className="absolute left-4 top-1/2 -translate-y-1/2 text-[#C28E73]"
             size={15}
@@ -210,6 +214,15 @@ const ContractsPoliciesPage = () => {
             styles={selectStyles}
           />
         </div>
+
+        <button
+          type="button"
+          onClick={handleReset}
+          className="flex h-[42px] w-full items-center justify-center gap-1.5 rounded-lg border border-[#F0E6DE] bg-white px-4 text-sm font-medium text-[#A85A32] transition hover:bg-[#FAF3EE] sm:w-auto"
+        >
+          <FiRotateCcw size={14} />
+          Reset
+        </button>
       </div>
 
       <div className="overflow-x-auto rounded-[10px] border border-[#F2EAE4]">
@@ -288,6 +301,25 @@ const ContractsPoliciesPage = () => {
             )}
           </tbody>
         </table>
+      </div>
+      <div className="mt-5 flex flex-col gap-3 text-[11px] text-[#9A8C82] sm:flex-row sm:items-center sm:justify-between">
+        <p>Showing 1-10</p>
+
+        <div className="flex items-center gap-2">
+          <button type="button" className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#C9B2A3]">
+            <FiChevronLeft size={14} />
+          </button>
+          <button type="button" className="flex h-8 min-w-[30px] items-center justify-center rounded bg-[#D88957] px-2 text-white">
+            1
+          </button>
+          <button type="button" className="text-[#8C7C73]">2</button>
+          <button type="button" className="text-[#8C7C73]">3</button>
+          <span className="text-[#8C7C73]">...</span>
+          <button type="button" className="text-[#8C7C73]">10</button>
+          <button type="button" className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#8C7C73]">
+            <FiChevronRight size={14} />
+          </button>
+        </div>
       </div>
     </div>
   );
