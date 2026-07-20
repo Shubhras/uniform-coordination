@@ -113,13 +113,14 @@ export async function apiSimulationExportPdf(token, id) {
 }
 
 
-export async function apiGetQuotation(token) {
+export async function apiGetQuotation(token, params = {}) {
   return ApiService.fetchDataWithAxios({
     url: "/v1/userhub/quotationrequest/get-list/",
     method: "get",
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    params,
   });
 }
 

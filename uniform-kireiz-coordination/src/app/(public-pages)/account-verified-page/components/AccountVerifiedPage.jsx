@@ -68,7 +68,7 @@ const AccountVerifiedPage = () => {
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-10 gap-4">
                             <Spinner size={40} customColorClass="text-[#1C2C56]" />
-                            <span className="text-[#583D4C] text-lg font-medium">Verifying your account, please wait...</span>
+                            <span className="text-[#1C2C56] text-lg font-medium">Verifying your account, please wait...</span>
                         </div>
                     ) : (
                         <>

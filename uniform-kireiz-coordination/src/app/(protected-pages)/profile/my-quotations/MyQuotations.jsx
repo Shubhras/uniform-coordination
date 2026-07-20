@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
-import Button from '@/components/ui/Button'
+import React, { useEffect, useState } from 'react'
 import Spinner from '@/components/ui/Spinner'
 import { useSession } from 'next-auth/react'
 import { FiArrowLeft, FiDownload, FiEye, FiFileText, FiSearch } from 'react-icons/fi'
@@ -34,32 +33,15 @@ const statusStyles = {
     },
 }
 
-const displayStatuses = [
-    'accepted',
-    'declined',
-    'accepted',
-    'declined',
-    'accepted',
-    'declined',
-    'accepted',
-    'submitted',
-    'received',
-    'declined',
-]
+const fallbackItems = []
 
-const fallbackItems = Array.from({ length: 6 }, (_, index) => ({
-    id: `item-${index + 1}`,
-    uniform_name: 'Medical Scrub Set',
-    category: 'Medical',
-    quantity: 150,
-}))
-
-const getNormalizedStatus = (quotation, index) => {
+const getNormalizedStatus = (quotation) => {
     const rawStatus = String(
         quotation?.status ||
         quotation?.quotation_status ||
         quotation?.request_status ||
-        displayStatuses[index % displayStatuses.length],
+        quotation?.state ||
+        'submitted',
     ).toLowerCase()
 
     if (rawStatus.includes('accept')) return 'accepted'
@@ -67,7 +49,7 @@ const getNormalizedStatus = (quotation, index) => {
     if (rawStatus.includes('submit')) return 'submitted'
     if (rawStatus.includes('receiv') || rawStatus.includes('review')) return 'received'
 
-    return displayStatuses[index % displayStatuses.length]
+    return 'submitted'
 }
 
 const getPdfUrl = (quotation) =>
@@ -90,7 +72,7 @@ const getRequestedItems = (quotation) => {
             id: item?.id || `item-${index}`,
             uniform_name: item?.uniform_name || item?.name || item?.product_name || 'Medical Scrub Set',
             category: item?.category || item?.item_type || 'Medical',
-            quantity: item?.quantity || item?.qty || 150,
+            quantity: item?.quantity || item?.qty || '-',
         }))
     }
 
@@ -98,7 +80,7 @@ const getRequestedItems = (quotation) => {
 }
 
 const normalizeQuotation = (quotation, index) => {
-    const statusKey = getNormalizedStatus(quotation, index)
+    const statusKey = getNormalizedStatus(quotation)
 
     return {
         id: quotation?.id || quotation?.quotation_id || quotation?.quotationNo || `RQ-2025-019${index + 1}`,
@@ -109,64 +91,45 @@ const normalizeQuotation = (quotation, index) => {
             quotation?.qty ||
             quotation?.total_quantity ||
             quotation?.requested_quantity ||
-            12,
+            quotation?.size_quantity ||
+            '-',
         statusKey,
         statusLabel: statusStyles[statusKey].label,
-        submittedOn: quotation?.created_at || quotation?.submitted_at || quotation?.request_date || '2025-11-26',
-        companyName: quotation?.company_name || 'Acme Corp',
-        contactPerson: quotation?.contact_person || quotation?.name || 'John Smith',
-        email: quotation?.email || 'Debra.Holt@Example.Com',
-        phoneNumber: quotation?.phone_number || quotation?.phone || '(239) 555-0108',
-        tier: quotation?.tier || 'Bronze',
-        requestedDate: quotation?.requested_date || quotation?.created_at || '2024-05-20',
+        submittedOn: quotation?.created_at || quotation?.submitted_at || quotation?.request_date || '',
+        companyName: quotation?.company_name || '-',
+        contactPerson: quotation?.contact_person || quotation?.name || '-',
+        email: quotation?.email || '-',
+        phoneNumber: quotation?.phone_number || quotation?.phone || '-',
+        tier: quotation?.tier || '-',
+        requestedDate: quotation?.requested_date || quotation?.created_at || '',
         pdfUrl: getPdfUrl(quotation),
         items: getRequestedItems(quotation),
     }
+}
+
+const extractQuotationList = (payload) => {
+    if (Array.isArray(payload)) return payload
+    if (Array.isArray(payload?.data)) return payload.data
+    if (Array.isArray(payload?.results)) return payload.results
+    if (Array.isArray(payload?.data?.results)) return payload.data.results
+    if (Array.isArray(payload?.items)) return payload.items
+    if (Array.isArray(payload?.data?.items)) return payload.data.items
+    return []
+}
+
+const extractQuotationCount = (payload, fallbackLength) => {
+    const count = payload?.count ?? payload?.total ?? payload?.data?.count ?? payload?.data?.total
+    return Number.isFinite(count) ? count : fallbackLength
 }
 
 const buildDisplayQuotations = (rawData) => {
     const source = Array.isArray(rawData) ? rawData : []
 
     if (!source.length) {
-        return displayStatuses.map((_, index) => normalizeQuotation({}, index))
+        return []
     }
 
-    const normalized = source.map((item, index) => normalizeQuotation(item, index))
-
-    if (normalized.length >= displayStatuses.length) {
-        return normalized
-    }
-
-    const expanded = [...normalized]
-
-    for (let index = normalized.length; index < displayStatuses.length; index += 1) {
-        const baseItem = source[index % source.length] || {}
-        const forcedStatus = displayStatuses[index]
-        const normalizedItem = normalizeQuotation(
-            {
-                ...baseItem,
-                status: forcedStatus,
-                quotation_status: forcedStatus,
-                request_status: forcedStatus,
-                quotation_id:
-                    baseItem?.quotation_id ||
-                    baseItem?.quotationNo ||
-                    `RQ-2025-019${index + 1}`,
-            },
-            index,
-        )
-
-        expanded.push({
-            ...normalizedItem,
-            id: `${normalizedItem.id}-${forcedStatus}-${index}`,
-            requestId:
-                index < 9
-                    ? `RQ-2025-019${index + 1}`
-                    : normalizedItem.requestId,
-        })
-    }
-
-    return expanded
+    return source.map((item, index) => normalizeQuotation(item, index))
 }
 
 const StatusBadge = ({ statusKey, statusLabel }) => {
@@ -325,49 +288,55 @@ const MyQuotations = () => {
     const [quotations, setQuotations] = useState([])
     const [selectedQuotation, setSelectedQuotation] = useState(null)
     const [currentPage, setCurrentPage] = useState(1)
+    const [errorMessage, setErrorMessage] = useState('')
+    const [totalCount, setTotalCount] = useState(0)
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+
+    useEffect(() => {
+        const timeoutId = window.setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm.trim())
+        }, 400)
+
+        return () => window.clearTimeout(timeoutId)
+    }, [searchTerm])
 
     useEffect(() => {
         const fetchQuotations = async () => {
             if (!session?.accessToken) return
 
             setLoading(true)
+            setErrorMessage('')
             try {
-                const res = await apiGetQuotation(session.accessToken)
-                const rawData = Array.isArray(res?.data) ? res.data : []
+                const res = await apiGetQuotation(session.accessToken, {
+                    search: debouncedSearchTerm,
+                    page: currentPage,
+                    page_size: ITEMS_PER_PAGE,
+                })
+                const rawData = extractQuotationList(res)
                 setQuotations(buildDisplayQuotations(rawData))
+                setTotalCount(extractQuotationCount(res, rawData.length))
             } catch (error) {
                 console.error('Quotation API error:', error)
-                setQuotations(buildDisplayQuotations([]))
+                setQuotations([])
+                setTotalCount(0)
+                setErrorMessage(
+                    error?.response?.data?.message ||
+                    error?.message ||
+                    'Unable to load quotations right now.',
+                )
             } finally {
                 setLoading(false)
             }
         }
 
         fetchQuotations()
-    }, [session?.accessToken])
-
-    const filteredQuotations = useMemo(() => {
-        const keyword = searchTerm.trim().toLowerCase()
-
-        if (!keyword) {
-            return quotations
-        }
-
-        return quotations.filter((item) =>
-            item.requestId.toLowerCase().includes(keyword),
-        )
-    }, [quotations, searchTerm])
+    }, [session?.accessToken, debouncedSearchTerm, currentPage])
 
     useEffect(() => {
         setCurrentPage(1)
-    }, [searchTerm])
+    }, [debouncedSearchTerm])
 
-    const totalPages = Math.ceil(filteredQuotations.length / ITEMS_PER_PAGE) || 1
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    const currentQuotations = filteredQuotations.slice(
-        startIndex,
-        startIndex + ITEMS_PER_PAGE,
-    )
+    const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE))
 
     if (selectedQuotation) {
         return (
@@ -398,6 +367,12 @@ const MyQuotations = () => {
                 />
             </div>
 
+            {errorMessage ? (
+                <div className="mb-6 rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#B91C1C]">
+                    {errorMessage}
+                </div>
+            ) : null}
+
             {loading ? (
                 <div className="flex items-center justify-center py-16">
                     <Spinner size={28} />
@@ -417,8 +392,8 @@ const MyQuotations = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentQuotations.length ? (
-                                    currentQuotations.map((item, index) => (
+                                {quotations.length ? (
+                                    quotations.map((item, index) => (
                                         <tr
                                             key={`${item.id}-${index}`}
                                             className={`${index % 2 === 0 ? 'bg-white' : 'bg-[#F7F9FC]'} border-b border-[#EEF2F7] last:border-b-0`}
@@ -447,7 +422,7 @@ const MyQuotations = () => {
                                 ) : (
                                     <tr>
                                         <td colSpan={6} className="px-4 py-10 text-center text-sm text-[#6B7280]">
-                                            No quotations found.
+                                            {errorMessage ? 'Quotation data could not be loaded.' : 'No quotations found.'}
                                         </td>
                                     </tr>
                                 )}
@@ -457,7 +432,7 @@ const MyQuotations = () => {
                 </div>
             )}
 
-            {!loading && totalPages > 1 && (
+            {!loading && totalCount > 0 && (
                 <div className="mt-8 flex items-center justify-between text-sm text-[#64748B]">
                     <span>
                         Page {currentPage} of {totalPages}
@@ -467,25 +442,21 @@ const MyQuotations = () => {
                         <button
                             onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                             disabled={currentPage === 1}
-                            className={`flex h-9 w-9 items-center justify-center rounded-md border transition-colors ${
-                                currentPage === 1
-                                    ? 'cursor-not-allowed border-gray-200 text-gray-300'
+                            className={`h-9 w-9 flex items-center justify-center rounded-md border transition-colors ${currentPage === 1
+                                    ? 'border-gray-200 text-gray-300 cursor-not-allowed'
                                     : 'border-[#1C4FA8] bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]'
-                            }`}
+                                }`}
                         >
                             <IoChevronBack size={16} />
                         </button>
 
                         <button
-                            onClick={() =>
-                                setCurrentPage((page) => Math.min(totalPages, page + 1))
-                            }
+                            onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                             disabled={currentPage === totalPages}
-                            className={`flex h-9 w-9 items-center justify-center rounded-md border transition-colors ${
-                                currentPage === totalPages
-                                    ? 'cursor-not-allowed border-gray-200 text-gray-300'
+                            className={`h-9 w-9 flex items-center justify-center rounded-md border transition-colors ${currentPage === totalPages
+                                    ? 'border-gray-200 text-gray-300 cursor-not-allowed'
                                     : 'border-[#1C4FA8] bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]'
-                            }`}
+                                }`}
                         >
                             <IoChevronForward size={16} />
                         </button>
