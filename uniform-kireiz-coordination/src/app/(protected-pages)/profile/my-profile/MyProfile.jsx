@@ -9,23 +9,43 @@ import { useRouter } from 'next/navigation'
 import {
     FiArrowLeft,
     FiBox,
+    FiChevronLeft,
     FiChevronRight,
     FiDownload,
     FiEdit2,
     FiFileText,
     FiLock,
     FiPlus,
+    FiPrinter,
 } from 'react-icons/fi'
 import { HiCheckCircle } from 'react-icons/hi'
 import { CiUser } from 'react-icons/ci'
 import { GoArrowRight } from 'react-icons/go'
 import { apiGetProfile, apiGetQuotation } from '@/services/AuthProfileService'
+import { jsPDF } from 'jspdf'
 
-const defaultTerms = [
-    'Price includes one-time embroidery setup fee of 15%.',
-    'Standard shipping via FedEx Ground 3-5 business days.',
-    '50% deposit required upon acceptance to begin production.',
-    'Returns only accepted for manufacturing defects.',
+const defaultLineItems = [
+    {
+        name: 'Chef Coat - Premium Cotton',
+        meta: 'White, Size M, Embroidered Logo',
+        qty: 50,
+        price: 45.0,
+        total: 2250.0,
+    },
+    {
+        name: 'Apron - Heavy Duty',
+        meta: 'Black, Adjustable Strap',
+        qty: 50,
+        price: 25.0,
+        total: 1250.0,
+    },
+    {
+        name: 'Setup Fee - Embroidery',
+        meta: 'One-time digitizing fee',
+        qty: 1,
+        price: 150.0,
+        total: 150.0,
+    },
 ]
 
 const recentLinkedItems = [
@@ -39,21 +59,6 @@ const recentSimulationItems = [
     { title: 'Food Service & Dining', date: '3 hr, Nov 15', status: 'OPEN' },
     { title: 'Construction & Safety', date: '3 hr, Oct 22', status: 'CLOSED' },
 ]
-
-const getPdfPreviewUrl = (quotation) => {
-    const rawUrl =
-        quotation?.pdf_url ||
-        quotation?.pdf ||
-        quotation?.quotation_pdf ||
-        quotation?.quotationPdf ||
-        quotation?.export_pdf_url
-
-    if (!rawUrl) {
-        return ''
-    }
-
-    return `${rawUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`
-}
 
 const parseSizeRange = (sizeQuantity) => {
     if (Array.isArray(sizeQuantity) && sizeQuantity.length) {
@@ -97,91 +102,230 @@ const formatCreatedLabel = (value) => {
     return `Created ${diff} days ago`
 }
 
-const PdfFallbackPreview = ({ quotation }) => {
+const buildQuotationPdfBlobUrl = (quotation) => {
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' })
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const marginX = 56
+
+    const navy = [0, 53, 96]
+    const darkText = [17, 24, 39]
+    const grayText = [75, 85, 99]
+    const lightGray = [107, 114, 128]
+    const borderBlue = [215, 227, 244]
+    const rowBorder = [238, 242, 247]
+    const topBarBlue = [13, 77, 126]
+
+    doc.setFillColor(...topBarBlue)
+    doc.rect(0, 0, pageWidth, 8, 'F')
+
+    const logoSize = 30
+    const logoY = 40
+    doc.setDrawColor(...borderBlue)
+    doc.rect(marginX, logoY, logoSize, logoSize)
+    doc.setTextColor(...navy)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(10)
+    doc.text('KF', marginX + logoSize / 2, logoY + logoSize / 2 + 3, { align: 'center' })
+
+    doc.setTextColor(...darkText)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(26)
+    doc.text('QUOTATION', marginX, logoY + logoSize + 34)
+
+    doc.setTextColor(...grayText)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    const quotationNo = quotation?.quotationNo || quotation?.quotation_id || 'Q-2023-88'
+    doc.text(`#${quotationNo}`, marginX, logoY + logoSize + 50)
+
     const companyName = quotation?.company_name || quotation?.companyName || 'UniformPro Inc.'
+    const rightX = pageWidth - marginX
+    doc.setTextColor(...navy)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.text(companyName, rightX, 46, { align: 'right' })
+    doc.setTextColor(...grayText)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8.5)
+    doc.text('123 Fashion Blvd', rightX, 60, { align: 'right' })
+    doc.text('New York, NY 10001', rightX, 73, { align: 'right' })
+    doc.text('USA', rightX, 86, { align: 'right' })
 
-    return (
-        <div className="rounded-[10px] bg-white px-8 py-6">
-            <div className="mx-auto max-w-[380px] border-t-[6px] border-[#0D4D7E] bg-white px-7 py-6 shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
-                <div className="mb-6 flex items-start justify-between">
-                    <div>
-                        <div className="mb-3 flex h-10 w-10 items-center justify-center border border-[#D7E3F4] text-[10px] font-bold text-[#003560]">
-                            KF
-                        </div>
-                        <p className="text-[28px] font-semibold tracking-tight text-[#111827]">QUOTATION</p>
-                        <p className="mt-2 text-xs text-[#4B5563]">
-                            #{quotation?.quotationNo || quotation?.quotation_id || 'Q-2023-88'}
-                        </p>
-                    </div>
-                    <div className="text-right text-[11px] text-[#4B5563]">
-                        <p className="text-sm font-semibold text-[#003560]">{companyName}</p>
-                        <p>123 Fashion Blvd</p>
-                        <p>New York, NY 10001</p>
-                        <p>USA</p>
-                    </div>
-                </div>
+    const tableTop = logoY + logoSize + 90
+    const colDesc = marginX
+    const colQty = marginX + 250
+    const colPrice = marginX + 305
+    const colTotal = marginX + 385
 
-                <div className="mb-3 grid grid-cols-[1.8fr_0.5fr_0.8fr_0.9fr] gap-3 border-b border-[#D7E3F4] pb-3 text-[11px] font-medium text-[#4B5563]">
-                    <p>Description</p>
-                    <p>Qty</p>
-                    <p>Unit Price</p>
-                    <p>Total</p>
-                </div>
+    doc.setTextColor(...grayText)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(8.5)
+    doc.text('Description', colDesc, tableTop)
+    doc.text('Qty', colQty, tableTop)
+    doc.text('Unit Price', colPrice, tableTop)
+    doc.text('Total', colTotal, tableTop)
 
-                <div className="space-y-5 text-[11px] text-[#4B5563]">
-                    {[
-                        ['Chef Coat - Premium Cotton', '50', '$45.00', '$2,250.00', 'White, Size M, Embroidered Logo'],
-                        ['Apron - Heavy Duty', '50', '$25.00', '$1,250.00', 'Black, Adjustable Strap'],
-                        ['Setup Fee - Embroidery', '1', '$150.00', '$150.00', 'One-time digitizing fee'],
-                    ].map(([name, qty, price, total, meta]) => (
-                        <div key={name} className="grid grid-cols-[1.8fr_0.5fr_0.8fr_0.9fr] gap-3 border-b border-[#EEF2F7] pb-4">
-                            <div>
-                                <p className="font-semibold text-[#111827]">{name}</p>
-                                <p className="mt-1 text-[10px] text-[#6B7280]">{meta}</p>
-                            </div>
-                            <p>{qty}</p>
-                            <p>{price}</p>
-                            <p className="font-semibold text-[#111827]">{total}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    )
+    doc.setDrawColor(...borderBlue)
+    doc.line(marginX, tableTop + 8, rightX, tableTop + 8)
+
+    const items = quotation?.line_items?.length ? quotation.line_items : defaultLineItems
+    let rowY = tableTop + 32
+    const rowGap = 54
+
+    items.forEach((item) => {
+        doc.setTextColor(...darkText)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(9.5)
+        doc.text(item.name, colDesc, rowY)
+
+        doc.setTextColor(...lightGray)
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(8)
+        doc.text(item.meta || '', colDesc, rowY + 12)
+
+        doc.setTextColor(...grayText)
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(9)
+        doc.text(String(item.qty), colQty, rowY)
+        doc.text(`$${Number(item.price).toFixed(2)}`, colPrice, rowY)
+
+        doc.setTextColor(...darkText)
+        doc.setFont('helvetica', 'bold')
+        doc.text(`$${Number(item.total).toLocaleString('en-US', { minimumFractionDigits: 2 })}`, colTotal, rowY)
+
+        doc.setDrawColor(...rowBorder)
+        doc.line(marginX, rowY + 20, rightX, rowY + 20)
+
+        rowY += rowGap
+    })
+
+    const subtotal = items.reduce((sum, item) => sum + Number(item.total || 0), 0)
+    const tax = 0
+    const total = subtotal + tax
+    const summaryLabelX = colTotal - 80
+
+    doc.setDrawColor(...borderBlue)
+    doc.line(summaryLabelX, rowY + 4, rightX, rowY + 4)
+
+    doc.setTextColor(...grayText)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.text('Subtotal', summaryLabelX, rowY + 22)
+    doc.text(`$${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, rightX, rowY + 22, { align: 'right' })
+
+    doc.text('Tax', summaryLabelX, rowY + 38)
+    doc.text(`$${tax.toFixed(2)}`, rightX, rowY + 38, { align: 'right' })
+
+    doc.setDrawColor(...borderBlue)
+    doc.line(summaryLabelX, rowY + 46, rightX, rowY + 46)
+
+    doc.setTextColor(...navy)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.text('Total Due', summaryLabelX, rowY + 64)
+    doc.text(`$${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, rightX, rowY + 64, { align: 'right' })
+
+    const terms = Array.isArray(quotation?.terms) ? quotation.terms : []
+    const footerY = doc.internal.pageSize.getHeight() - 70
+    doc.setDrawColor(...rowBorder)
+    doc.line(marginX, footerY, rightX, footerY)
+    doc.setTextColor(...lightGray)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7.5)
+    terms.forEach((term, index) => {
+        doc.text(term, marginX, footerY + 16 + index * 12)
+    })
+
+    return { url: URL.createObjectURL(doc.output('blob')), doc }
 }
 
 const QuotationPreviewCard = ({ quotation }) => {
-    const pdfPreviewUrl = getPdfPreviewUrl(quotation)
+    const [pdfUrl, setPdfUrl] = useState('')
+    const docRef = useRef(null)
+
+    useEffect(() => {
+        const existingUrl =
+            quotation?.pdf_url ||
+            quotation?.pdf ||
+            quotation?.quotation_pdf ||
+            quotation?.quotationPdf ||
+            quotation?.export_pdf_url
+
+        if (existingUrl) {
+            setPdfUrl(`${existingUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`)
+            docRef.current = null
+            return
+        }
+
+        const { url, doc } = buildQuotationPdfBlobUrl(quotation)
+        docRef.current = doc
+        setPdfUrl(`${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`)
+
+        return () => {
+            URL.revokeObjectURL(url)
+        }
+    }, [quotation])
+
+    const quotationNo = quotation?.quotationNo || quotation?.quotation_id || 'Uniform_Quote_Q-2023-88'
+
+    const handleDownload = () => {
+        if (docRef.current) {
+            docRef.current.save(`${quotationNo}.pdf`)
+        } else if (pdfUrl) {
+            const link = document.createElement('a')
+            link.href = pdfUrl.split('#')[0]
+            link.download = `${quotationNo}.pdf`
+            link.click()
+        }
+    }
+
+    const handlePrint = () => {
+        const rawUrl = pdfUrl.split('#')[0]
+        if (!rawUrl) return
+        const printWindow = window.open(rawUrl)
+        printWindow?.addEventListener('load', () => printWindow.print())
+    }
 
     return (
-        <div className="rounded-[12px] bg-[#1F2937] p-4 shadow-[0_18px_40px_rgba(15,23,42,0.18)]">
-            <div className="mb-4 flex items-center justify-between gap-3 text-[10px] text-white/85">
-                <div className="max-w-[160px] truncate rounded bg-white/10 px-2.5 py-1.5">
-                    {quotation?.quotationNo || quotation?.quotation_id || 'Uniform_Quote_06-2023-88.pdf'}
+        <div className="relative h-fit rounded-[20px] bg-[#1F2937] p-4 shadow-[0_18px_40px_rgba(15,23,42,0.18)]">
+            <div className="mb-3 flex items-center justify-between text-[11px] text-white/80">
+                <div className="max-w-[200px] truncate rounded-md bg-white/10 px-3 py-1.5">
+                    {quotationNo}
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className="rounded bg-white/10 px-2 py-1">Read Only</span>
-                    <span className="rounded bg-white/10 px-2 py-1">100%</span>
-                    <span className="rounded bg-white/10 px-2 py-1">↓</span>
-                    <span className="rounded bg-white/10 px-2 py-1">⎙</span>
+                <div className="flex items-center gap-1.5">
+                    <span className="rounded-md bg-white/10 px-2.5 py-1.5 text-[10px]">100%</span>
+                    <button className="rounded-md p-1.5 hover:bg-white/10" onClick={handleDownload}>
+                        <FiDownload size={13} />
+                    </button>
+                    <button className="rounded-md p-1.5 hover:bg-white/10" onClick={handlePrint}>
+                        <FiPrinter size={13} />
+                    </button>
                 </div>
             </div>
 
-            <div className="overflow-hidden rounded-[6px] bg-white">
-                {pdfPreviewUrl ? (
+            <div className="relative overflow-hidden rounded-[10px] bg-white">
+                {pdfUrl ? (
                     <iframe
-                        src={pdfPreviewUrl}
+                        src={pdfUrl}
                         title="Quotation PDF preview"
-                        className="h-[520px] w-full border-0 bg-white"
+                        className="h-[560px] w-full border-0 bg-white [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                     />
                 ) : (
-                    <PdfFallbackPreview quotation={quotation} />
+                    <div className="flex h-[560px] items-center justify-center">
+                        <Spinner size={24} />
+                    </div>
                 )}
-            </div>
 
-            <div className="mt-4 flex justify-center">
-                <div className="rounded-full bg-[#111827] px-4 py-2 text-[10px] text-white/85">
-                    Page 1 / 3
+                <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center">
+                    <div className="pointer-events-auto flex items-center gap-3 rounded-full bg-[#111827] px-3 py-1.5 text-[10px] text-white/85 shadow-md">
+                        <button className="text-white/60 hover:text-white">
+                            <FiChevronLeft size={14} />
+                        </button>
+                        <span>Page 1 / 1</span>
+                        <button className="text-white/60 hover:text-white">
+                            <FiChevronRight size={14} />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -212,7 +356,7 @@ const MyProfile = () => {
 
     const activeQuotation = selectedQuotation || quotationData?.[0] || null
     const sizeRange = parseSizeRange(activeQuotation?.size_quantity)
-    const terms = activeQuotation?.terms?.length ? activeQuotation.terms : defaultTerms
+    const terms = Array.isArray(activeQuotation?.terms) ? activeQuotation.terms : []
 
     const fetchProfile = async () => {
         try {
@@ -281,7 +425,7 @@ const MyProfile = () => {
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1.4fr)_320px]">
+                <div className="grid grid-cols-1 gap-8 items-start xl:grid-cols-[minmax(0,1.4fr)_320px]">
                     <QuotationPreviewCard quotation={selectedQuotation} />
 
                     <div className="space-y-5">
@@ -306,7 +450,7 @@ const MyProfile = () => {
                         <div className="rounded-[18px] bg-[#F8FAFC] p-4">
                             <p className="text-[11px] text-[#9CA3AF]">Total Amount (USD)</p>
                             <p className="mt-2 text-xl font-semibold text-[#003560]">
-                                {selectedQuotation?.amount || selectedQuotation?.total_amount || '$0.00'}
+                                {selectedQuotation?.amount || selectedQuotation?.total_amount || ''}
                             </p>
                         </div>
 
@@ -373,7 +517,9 @@ const MyProfile = () => {
                         </div>
 
                         <div className="mt-3 flex justify-center gap-2 text-[10px]">
-                            <button className="text-[#60A5FA]">upload</button>
+                            <button className="text-[#60A5FA]" onClick={() => fileRef.current?.click()}>
+                                upload
+                            </button>
                             <button className="text-[#EF4444]">Preview</button>
                         </div>
 
