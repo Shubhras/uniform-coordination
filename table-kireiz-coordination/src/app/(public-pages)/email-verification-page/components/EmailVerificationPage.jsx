@@ -2,39 +2,20 @@
 
 import Button from "@/components/ui/Button";
 import Image from "next/image";
-import { HiBadgeCheck } from "react-icons/hi";
+import { HiBadgeCheck, HiX } from "react-icons/hi";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import HaederPage from "../../header/HaederPage";
 
-import { verifyEmail } from "@/services/AuthService";
-
 const EmailVerificatinoPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-
     const userId = searchParams.get("user_id");
     const email = searchParams.get("email");
 
-    const [loading, setLoading] = useState(true);
 
     const verifyUserEmail = async () => {
-        try {
-            if (!userId) return;
-
-            const res = await verifyEmail({
-                user_id: userId,
-                is_verify: true,
-            });
-
-            if (res?.status || res?.data?.success) {
-                router.push("/account-verified-page")
-            }
-        } catch (error) {
-            console.error("Email verification failed", error);
-        } finally {
-            setLoading(false);
-        }
+        window.open("https://mail.google.com/", "_blank");
     };
 
     return (
@@ -43,6 +24,14 @@ const EmailVerificatinoPage = () => {
             {/* FIXED OVERLAY TO BLOCK CLICKS */}
             <div className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center px-4">
                 <div className="bg-white rounded-xl px-8 py-10 text-center shadow-lg w-full max-w-xl relative">
+
+                    {/* CLOSE ICON */}
+                    <button
+                        onClick={() => router.push("/")}
+                        className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+                    >
+                        <HiX size={24} />
+                    </button>
 
                     {/* LOGO */}
                     <div className="flex items-center gap-3 mb-8">

@@ -2,7 +2,7 @@ import ApiService from './ApiService'
 
 export async function apiGetProfile(token) {
     return ApiService.fetchDataWithAxios({
-        url: '/v1/userhub/profile/',
+        url: '/v1/space/userhub/profile/',
         method: 'get',
         headers: {
             Authorization: `Bearer ${token}`,
@@ -24,7 +24,7 @@ export async function apiGetProfile(token) {
 //     //}
 
 //     return ApiService.fetchDataWithAxios({
-//         url: '/v1/userhub/profile/update/',
+//         url: '/v1/space/userhub/profile/update/',
 //         method: 'put',
 //         data: formData,
 //         headers: {
@@ -50,7 +50,7 @@ export async function apiUpdateProfile(token, payload) {
     }
 
     return ApiService.fetchDataWithAxios({
-        url: '/v1/userhub/profile/update/',
+        url: '/v1/space/userhub/profile/update/',
         method: 'put',
         data: formData,
         headers: {
@@ -60,7 +60,7 @@ export async function apiUpdateProfile(token, payload) {
 }
 export async function apiUpdatePassword(token, payload) {
     return ApiService.fetchDataWithAxios({
-        url: '/v1/userhub/update-password/',
+        url: '/v1/space/userhub/update-password/',
         method: 'post',
         data: payload,
         headers: {

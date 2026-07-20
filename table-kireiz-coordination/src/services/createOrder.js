@@ -2,7 +2,7 @@ import ApiService from "./ApiService";
 
 export async function apiCreateOrder(token, data) {
   return ApiService.fetchDataWithAxios({
-    url: "/v1/userhub/create/order/",
+    url: "/v1/space/userhub/create/order/",
     method: "post",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -26,7 +26,7 @@ export async function apiApplyPromocode(token, data) {
 
 export async function apiOverviewData(token, data) {
   return ApiService.fetchDataWithAxios({
-    url: "/v1/userhub/order/id/",
+    url: "/v1/space/userhub/order/id/",
     method: "post",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -38,7 +38,7 @@ export async function apiOverviewData(token, data) {
 
 export async function apiGetOverviewSummary(token, data) {
   return ApiService.fetchDataWithAxios({
-    url: "/v1/userhub/order/summary/",
+    url: "/v1/space/userhub/order/summary/",
     method: "post",
     headers: {
       Authorization: `Bearer ${token}`,
