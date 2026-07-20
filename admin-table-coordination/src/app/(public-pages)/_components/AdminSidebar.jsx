@@ -13,7 +13,7 @@ import {
     FiSettings,
     FiBarChart2,
     FiChevronRight,
-    FiChevronLeft,
+    FiChevronLeft,FiClipboard,FiShoppingCart
 } from 'react-icons/fi'
 import { IoColorPaletteOutline } from 'react-icons/io5'
 
@@ -28,7 +28,19 @@ const sidebarMenu = [
         label: 'Theme Management',
         icon: IoColorPaletteOutline,
         path: '/theme-management',
-        slug: "product_specification", // Changed back to products so it hides properly
+        slug: "product_specification",
+    },
+    {
+        label: 'Inventory Management',
+        icon: FiClipboard,
+        path: '/inventory-management',
+        slug: "content_media",
+    },
+    {
+        label: 'Orders & Rentals',
+        icon: FiShoppingCart,
+        path: '/orders',
+        slug: "order_manage", // Assigned 'order_manage' here based on API
     },
     {
         label: 'Pricing & Packages',
@@ -179,7 +191,6 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
             <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3">
                 <ul className="space-y-1">
                     {sidebarMenu.map((item) => {
-                        // Permission check: item ka slug permissions array me nahi hai, toh render mat karo
                         if (item.slug && !userPermissions.includes(item.slug)) {
                             return null;
                         }

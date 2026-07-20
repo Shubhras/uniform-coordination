@@ -6,6 +6,7 @@ import { FiBarChart2 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ThemeBuilder from "./components/ThemeBuilder";
+import PreviewTheme from "./components/PreviewTheme";
 
 const categoryOptions = [
   { value: "Wedding", label: "Wedding" },
@@ -177,7 +178,10 @@ const AddTheme = () => {
 
             {/* Footer Buttons */}
             <div className="flex justify-between mt-10">
-              <button className="px-8 py-2.5 rounded-xl border border-[#E5D5C8] text-[#8C6E5D] font-medium hover:bg-[#FAF5F2]">
+              <button
+                onClick={() => router.back()}
+                className="px-8 py-2.5 rounded-xl border border-[#E5D5C8] text-[#8C6E5D] font-medium hover:bg-[#FAF5F2]"
+              >
                 Cancel
               </button>
 
@@ -191,7 +195,10 @@ const AddTheme = () => {
           </div>
         </>
       )}
-      {step === 2 && <ThemeBuilder onBack={() => setStep(1)} />}
+      {step === 2 && (
+        <ThemeBuilder onBack={() => setStep(1)} onPreview={() => setStep(3)} />
+      )}
+      {step === 3 && <PreviewTheme onBack={() => setStep(2)} />}
     </div>
   );
 };
