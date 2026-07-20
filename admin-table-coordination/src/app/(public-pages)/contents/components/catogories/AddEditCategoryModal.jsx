@@ -6,6 +6,8 @@ import Button from "@/components/ui/Button";
 import { FiUpload } from "react-icons/fi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { Controller, useForm } from "react-hook-form";
 import { Form, FormItem } from "@/components/ui/Form";
 import Input from "@/components/ui/Input";
@@ -15,15 +17,19 @@ import {
   apiUpdateCategory,
 } from "@/services/CategoryService";
 
-const categorySchema = z.object({
-  categoryName: z.string().trim().min(1, "Category name is required"),
+const categorySchema = (mode) =>
+  z.object({
+    categoryName: z.string().trim().min(1, "Category name is required"),
 
-  description: z.string().trim().min(1, "Description is required"),
+    description: z.string().trim().min(1, "Description is required"),
 
-  image: z.any().refine((file) => file instanceof File, {
-    message: "Image is required",
-  }),
-});
+    image:
+      mode === "add"
+        ? z.any().refine((file) => file instanceof File, {
+            message: "Image is required",
+          })
+        : z.any().optional(),
+  });
 
 const AddEditCategoryModal = ({
   isOpen,
@@ -48,7 +54,7 @@ const AddEditCategoryModal = ({
     setValue,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(categorySchema),
+    resolver: zodResolver(categorySchema(mode)),
     defaultValues: {
       categoryName: "",
       description: "",
@@ -142,9 +148,25 @@ const AddEditCategoryModal = ({
       }
 
       if (mode === "edit" && initialData?.id) {
-        await apiUpdateCategory(accessToken, initialData.id, formData);
+        const response = await apiUpdateCategory(
+          accessToken,
+          initialData.id,
+          formData,
+        );
+
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.message}
+          </Notification>,
+        );
       } else {
-        await apiCreateCategory(accessToken, formData);
+        const response = await apiCreateCategory(accessToken, formData);
+
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.message}
+          </Notification>,
+        );
       }
 
       if (keepOpen && mode !== "edit") {
@@ -223,7 +245,7 @@ const AddEditCategoryModal = ({
 
               <button
                 type="button"
-                className="w-full bg-[#1C2C56] text-white py-2 rounded-md text-sm mt-2 flex items-center justify-center gap-2"
+                className="w-full bg-[#A0522D] text-white py-2 rounded-md text-sm mt-2 flex items-center justify-center gap-2"
                 onClick={() => fileInputRef.current.click()}
               >
                 <FiUpload size={16} />
@@ -239,7 +261,7 @@ const AddEditCategoryModal = ({
                 <br />
                 or{" "}
                 <span
-                  className="text-[#1C2C56] underline cursor-pointer"
+                  className="text-[#A0522D] underline cursor-pointer"
                   onClick={() => fileInputRef.current.click()}
                 >
                   click to browse here
@@ -346,7 +368,7 @@ const AddEditCategoryModal = ({
             <Button
               variant="solid"
               size="sm"
-              className="bg-[#1C2C56] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+              className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"
               // onClick={() => handleSave({ keepOpen: false })}
               onClick={handleSubmit((values) =>
                 handleSave(values, { keepOpen: false }),

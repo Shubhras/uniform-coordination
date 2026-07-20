@@ -2,7 +2,7 @@ import ApiService from './ApiService'
 
 export async function apiGetFaqList(accessToken, page = 1, pageSize = 10) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/faqs/list/?page=${page}&page_size=${pageSize}`,
+        url: `/v1/space/uniformAdmin/faqs/list/?page=${page}&page_size=${pageSize}`,
         method: 'get',
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -12,7 +12,7 @@ export async function apiGetFaqList(accessToken, page = 1, pageSize = 10) {
 
 export async function apiDeleteFaq(accessToken, id) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/faqs/delete/${id}/`,
+        url: `/v1/space/uniformAdmin/faqs/delete/${id}/`,
         method: 'delete',
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -22,7 +22,7 @@ export async function apiDeleteFaq(accessToken, id) {
 
 export async function apiCreateFaq(accessToken, payload) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/faqs/create/`,
+        url: `/v1/space/uniformAdmin/faqs/create/`,
         method: 'post',
         data: payload,
         headers: {
@@ -33,7 +33,7 @@ export async function apiCreateFaq(accessToken, payload) {
 
 export async function apiUpdateFaq(accessToken, id, payload) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/faqs/update/${id}/`,
+        url: `/v1/space/uniformAdmin/faqs/update/${id}/`,
         method: 'put',
         data: payload,
         headers: {

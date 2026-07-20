@@ -2,7 +2,7 @@ import ApiService from './ApiService'
 
 export async function apiGetCatalogImageList(accessToken, page = 1, pageSize = 10) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/catalog-image/list/?page=${page}&page_size=${pageSize}`,
+        url: `/v1/space/uniformAdmin/catalog-image/list/?page=${page}&page_size=${pageSize}`,
         method: 'get',
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -12,7 +12,7 @@ export async function apiGetCatalogImageList(accessToken, page = 1, pageSize = 1
 
 export async function apiDeleteCatalogImage(accessToken, id) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/catalog-image/delete/${id}/`,
+        url: `/v1/space/uniformAdmin/catalog-image/delete/${id}/`,
         method: 'delete',
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -22,7 +22,7 @@ export async function apiDeleteCatalogImage(accessToken, id) {
 
 export async function apiCreateCatalogImage(accessToken, formData) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/catalog-image/create/`,
+        url: `/v1/space/uniformAdmin/catalog-image/create/`,
         method: 'post',
         data: formData,
         headers: {
@@ -34,7 +34,7 @@ export async function apiCreateCatalogImage(accessToken, formData) {
 
 export async function apiUpdateCatalogImage(accessToken, id, formData) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/catalog-image/update/${id}/`,
+        url: `/v1/space/uniformAdmin/catalog-image/update/${id}/`,
         method: 'put',
         data: formData,
         headers: {

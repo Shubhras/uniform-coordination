@@ -2,7 +2,7 @@ import ApiService from './ApiService'
 
 export async function apiGetCategoryList(accessToken, page = 1, pageSize = 100) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/categories/list/?page=${page}&page_size=${pageSize}`,
+        url: `/v1/space/uniformAdmin/categories/list/?page=${page}&page_size=${pageSize}`,
         method: 'get',
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -12,7 +12,7 @@ export async function apiGetCategoryList(accessToken, page = 1, pageSize = 100) 
 
 export async function apiGetSubcategoryList(accessToken, categoryId) {
   return ApiService.fetchDataWithAxios({
-    url: `/v1/uniformAdmin/subcategory/list/?categoryId=${categoryId}`,
+    url: `/v1/space/uniformAdmin/subcategory/list/?categoryId=${categoryId}`,
     method: "get",
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -22,7 +22,7 @@ export async function apiGetSubcategoryList(accessToken, categoryId) {
 
 export async function apiDeleteCategory(accessToken, id) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/categories/delete/${id}/`,
+        url: `/v1/space/uniformAdmin/categories/delete/${id}/`,
         method: 'delete',
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -32,7 +32,7 @@ export async function apiDeleteCategory(accessToken, id) {
 
 export async function apiCreateCategory(accessToken, formData) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/categories/create/`,
+        url: `/v1/space/uniformAdmin/categories/create/`,
         method: 'post',
         data: formData,
         headers: {
@@ -44,7 +44,7 @@ export async function apiCreateCategory(accessToken, formData) {
 
 export async function apiUpdateCategory(accessToken, id, formData) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/categories/update/${id}/`,
+        url: `/v1/space/uniformAdmin/categories/update/${id}/`,
         method: 'put',
         data: formData,
         headers: {
@@ -56,7 +56,7 @@ export async function apiUpdateCategory(accessToken, id, formData) {
 
 export async function apiReorderCategory(accessToken, categoryId, newPosition) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/categories/reorder/`,
+        url: `/v1/space/uniformAdmin/categories/reorder/`,
         method: 'put',
         data: {
             category_id: categoryId,

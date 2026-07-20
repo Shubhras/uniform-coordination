@@ -8,6 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormItem } from "@/components/ui/Form";
 import Input from "@/components/ui/Input";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
@@ -134,9 +136,6 @@ const AddEditFabricModal = ({
       .refine((val) => !isNaN(Number(val)), {
         message: "Enter a valid price",
       }),
-    category: z.any().refine((val) => val !== null, {
-      message: "Category is required",
-    }),
   });
 
   const {
@@ -226,7 +225,7 @@ const AddEditFabricModal = ({
         fabricName: "",
         materialType: null,
         price: "",
-        category:null
+        category: null,
       });
 
       // Reset for add mode
@@ -258,6 +257,8 @@ const AddEditFabricModal = ({
   }, [subCategoryOptions, mode, initialData]);
 
   const handleSave = async (values) => {
+    console.log("Save clicked");
+    console.log(values);
     // Validation
 
     // if (!fabricName.trim()) {
@@ -300,9 +301,24 @@ const AddEditFabricModal = ({
 
     try {
       if (mode === "edit" && initialData?.id) {
-        await apiUpdateFabric(accessToken, initialData.id, payload);
+        const response = await apiUpdateFabric(
+          accessToken,
+          initialData.id,
+          payload,
+        );
+
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.message}
+          </Notification>,
+        );
       } else {
-        await apiCreateFabric(accessToken, payload);
+        const response = await apiCreateFabric(accessToken, payload);
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.message}
+          </Notification>,
+        );
       }
 
       if (onSaveSuccess) {
@@ -533,71 +549,6 @@ const AddEditFabricModal = ({
               </FormItem>
             </div>
 
-            {/* Category */}
-            <div>
-              <label className="text-[#1C2C56] text-base font-medium">
-                Category
-              </label>
-              {/* <Select
-                options={categoryOptions}
-                styles={selectStyles}
-                value={category}
-                onChange={setCategory}
-                placeholder="Select Category"
-                menuPortalTarget={
-                  typeof document !== "undefined" ? document.body : null
-                }
-                menuPosition="fixed"
-                className="mt-1"
-              /> */}
-                <FormItem
-                invalid={Boolean(errors.category)}
-                errorMessage={errors.category?.message}
-                className="mt-1"
-              >
-                <Controller
-                  name="category"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      options={categoryOptions}
-                      styles={selectStyles}
-                      value={field.value}
-                      onChange={(value) => {
-                        field.onChange(value);
-                        setCategory(value);
-                      }}
-                      placeholder="Select Category"
-                      menuPortalTarget={
-                        typeof document !== "undefined" ? document.body : null
-                      }
-                      menuPosition="fixed"
-                    />
-                  )}
-                />
-              </FormItem>
-            </div>
-
-            {/* Sub Category */}
-            <div>
-              <label className="text-[#1C2C56] text-base font-medium">
-                Sub Category
-              </label>
-              <Select
-                options={subCategoryOptions}
-                styles={selectStyles}
-                value={subCategory}
-                onChange={setSubCategory}
-                placeholder="Select Sub Category"
-                menuPortalTarget={
-                  typeof document !== "undefined" ? document.body : null
-                }
-                menuPosition="fixed"
-                className="mt-1"
-              />
-            </div>
-
             {/* Status */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
@@ -607,7 +558,7 @@ const AddEditFabricModal = ({
                 <button
                   type="button"
                   onClick={() => setActive(!active)}
-                  className={`w-12 h-6 rounded-full flex items-center px-1 transition ${active ? "bg-[#1C2C56]" : "bg-gray-300"}`}
+                  className={`w-12 h-6 rounded-full flex items-center px-1 transition ${active ? "bg-[#A0522D]" : "bg-gray-300"}`}
                 >
                   <span
                     className={`bg-white w-4 h-4 rounded-full transition ${active ? "translate-x-6" : ""}`}
@@ -649,7 +600,7 @@ const AddEditFabricModal = ({
               type="submit"
               variant="solid"
               size="sm"
-              className="bg-[#1C4FA8] px-6 hover:bg-[#163F86] text-white py-2 rounded-md"
+              className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"
               // onClick={handleSave}
               loading={saving}
             >

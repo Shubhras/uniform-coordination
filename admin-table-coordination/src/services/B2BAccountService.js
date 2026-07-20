@@ -2,7 +2,7 @@ import ApiService from './ApiService'
 
 export async function apiGetB2BAccountList(accessToken, page = 1, pageSize = 100) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/admin-user/get-list/?page=${page}&page_size=${pageSize}`,
+        url: `/v1/space/uniformAdmin/admin-user/get-list/?page=${page}&page_size=${pageSize}`,
         method: 'get',
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -12,7 +12,7 @@ export async function apiGetB2BAccountList(accessToken, page = 1, pageSize = 100
 
 export async function apiCreateB2BAccount(accessToken, payload) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/admin-user/create/`,
+        url: `/v1/space/uniformAdmin/admin-user/create/`,
         method: 'post',
         data: payload,
         headers: {
@@ -23,7 +23,7 @@ export async function apiCreateB2BAccount(accessToken, payload) {
 
 export async function apiUpdateB2BAccount(accessToken, id, payload) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/admin-user/${id}/update/`,
+        url: `/v1/space/uniformAdmin/admin-user/${id}/update/`,
         method: 'put',
         data: payload,
         headers: {
@@ -34,7 +34,7 @@ export async function apiUpdateB2BAccount(accessToken, id, payload) {
 
 export async function apiDeleteB2BAccount(accessToken, id) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/admin-user/delete/${id}/`,
+        url: `/v1/space/uniformAdmin/admin-user/delete/${id}/`,
         method: 'delete',
         headers: {
             Authorization: `Bearer ${accessToken}`,

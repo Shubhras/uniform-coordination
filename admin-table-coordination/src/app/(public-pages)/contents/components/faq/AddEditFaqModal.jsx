@@ -7,6 +7,8 @@ import { FiPlus, FiTrash2 } from "react-icons/fi";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiCreateFaq, apiUpdateFaq } from "@/services/FaqService";
 
@@ -130,16 +132,31 @@ const AddEditFaqModal = ({
       // descriptions: values.validDescriptions.map((d) => ({
       //   description: d.description.trim(),
       // })),
-        descriptions: values.descriptions.map((d) => ({
+      descriptions: values.descriptions.map((d) => ({
         description: d.description.trim(),
-  })),
+      })),
     };
 
     try {
       if (mode === "edit" && initialData?.id) {
-        await apiUpdateFaq(accessToken, initialData.id, payload);
+        const response = await apiUpdateFaq(
+          accessToken,
+          initialData.id,
+          payload,
+        );
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.message}
+          </Notification>,
+        );
       } else {
-        await apiCreateFaq(accessToken, payload);
+        const response = await apiCreateFaq(accessToken, payload);
+
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.message}
+          </Notification>,
+        );
       }
 
       if (keepOpen && mode !== "edit") {
@@ -260,7 +277,13 @@ const AddEditFaqModal = ({
         </div>
 
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
-          <Button variant="plain" onClick={onClose} size="sm" disabled={saving} className="bg-blue-100 rounded-lg">
+          <Button
+            variant="plain"
+            onClick={onClose}
+            size="sm"
+            disabled={saving}
+            className="bg-blue-100 rounded-lg"
+          >
             Cancel
           </Button>
 
@@ -280,7 +303,7 @@ const AddEditFaqModal = ({
           <Button
             variant="solid"
             size="sm"
-            className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+            className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"
             // onClick={() => handleSave({ keepOpen: false })}
             onClick={handleSubmit((values) =>
               handleSave(values, { keepOpen: false }),

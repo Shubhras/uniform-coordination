@@ -11,6 +11,8 @@ import {
   FiChevronRight,
   FiX,
 } from "react-icons/fi";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetBlogList, apiDeleteBlog } from "@/services/BlogService";
 import AddEditBlogModal from "./AddEditBlogModal";
@@ -102,7 +104,13 @@ const BlogTab = () => {
 
     try {
       setDeleteLoading(true);
-      await apiDeleteBlog(accessToken, postToDelete.id);
+      const response = await apiDeleteBlog(accessToken, postToDelete.id);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response.message}
+        </Notification>,
+      );
       setDeleteDialogOpen(false);
       setPostToDelete(null);
       fetchBlogs(currentPage);
@@ -178,7 +186,7 @@ const BlogTab = () => {
             </button>
 
             <button
-              className="bg-[#1C4FA8] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+              className="bg-[#A0522D] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
               onClick={() => {
                 setEditPost(null);
                 setOpenModal(true);
@@ -228,9 +236,7 @@ const BlogTab = () => {
               >
                 <div className="p-3">
                   <img
-                    src={
-                      post.image || "/img/kireiz-form/features/Rectangle177.png"
-                    }
+                    src={post.image_url}
                     alt={post.title}
                     className="rounded-xl object-cover w-full h-[200px]"
                   />

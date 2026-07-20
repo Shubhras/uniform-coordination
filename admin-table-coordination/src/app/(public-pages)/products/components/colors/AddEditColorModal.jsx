@@ -10,6 +10,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormItem } from "@/components/ui/Form";
 import Input from "@/components/ui/Input";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { apiCreateColor, apiUpdateColor } from "@/services/ColorsService";
 
 const validationSchema = z.object({
@@ -50,7 +52,6 @@ const AddEditColorModal = ({
   const accessToken = session?.user?.accessToken;
 
   const [name, setName] = useState("");
-  const [hex, setHex] = useState("#000000");
   const [selectedFabrics, setSelectedFabrics] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -181,9 +182,25 @@ const AddEditColorModal = ({
 
     try {
       if (mode === "edit" && initialData?.id) {
-        await apiUpdateColor(accessToken, initialData.id, payload);
+        const response = await apiUpdateColor(
+          accessToken,
+          initialData.id,
+          payload,
+        );
+
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.message}
+          </Notification>,
+        );
       } else {
-        await apiCreateColor(accessToken, payload);
+        const response = await apiCreateColor(accessToken, payload);
+
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.message}
+          </Notification>,
+        );
       }
 
       if (onSaveSuccess) {
@@ -249,53 +266,41 @@ const AddEditColorModal = ({
             </div>
 
             <div className="flex gap-4 items-end">
-              <div className="flex flex-col">
-                <label className="text-[#1C2C56] text-sm font-medium">
-                  Color<span className="text-red-500">*</span>
-                </label>
-                {/* <input
-                  type="color"
-                  value={hex}
-                  onChange={(e) => setHex(e.target.value)}
-                  className="mt-1 h-10 w-16 p-1 border rounded-md cursor-pointer"
-                /> */}
-                <Controller
-                  name="hex"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      type="color"
-                      {...field}
-                      className="mt-1 h-10 w-16 p-1 border rounded-md cursor-pointer"
-                    />
-                  )}
-                />
-              </div>
+              <Controller
+                name="hex"
+                control={control}
+                render={({ field }) => (
+                  <>
+                    <div className="flex flex-col">
+                      <label className="text-[#1C2C56] text-sm font-medium">
+                        Color<span className="text-red-500">*</span>
+                      </label>
 
-              <div className="flex-1">
-                <label className="text-[#1C2C56] text-sm font-medium">
-                  HEX Code
-                </label>
-                <input
-                  type="text"
-                  value={hex}
-                  onChange={(e) => setHex(e.target.value)}
-                  className="mt-1 w-full border border-[#E2E8F0] rounded-md px-3 py-2 text-sm"
-                />
+                      <input
+                        type="color"
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="mt-1 h-10 w-16 p-1 border rounded-md cursor-pointer"
+                      />
+                    </div>
 
-                {/* <FormItem
-                  invalid={Boolean(errors.hex)}
-                  errorMessage={errors.hex?.message}
-                >
-                  <Controller
-                    name="hex"
-                    control={control}
-                    render={({ field }) => (
-                      <Input {...field} placeholder="#000000" />
-                    )}
-                  />
-                </FormItem> */}
-              </div>
+                    <div className="flex-1">
+                      <label className="text-[#1C2C56] text-sm font-medium">
+                        HEX Code
+                      </label>
+
+                      <input
+                        type="text"
+                        value={field.value}
+                        onChange={(e) =>
+                          field.onChange(e.target.value.toUpperCase())
+                        }
+                        className="mt-1 w-full border border-[#E2E8F0] rounded-md px-3 py-2 text-sm"
+                      />
+                    </div>
+                  </>
+                )}
+              />
             </div>
 
             {/* Compatible Fabrics — Static multi-select */}
@@ -359,7 +364,7 @@ const AddEditColorModal = ({
               type="submit"
               variant="solid"
               size="sm"
-              className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+              className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"
               //   onClick={handleSave}
               loading={saving}
             >

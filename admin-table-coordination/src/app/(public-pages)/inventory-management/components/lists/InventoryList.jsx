@@ -1,93 +1,107 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Select from "react-select";
 import { useRouter } from "next/navigation";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { FiSearch, FiEye, FiEdit2, FiTrash2, FiX } from "react-icons/fi";
 import NewDeleteModal from "@/components/shared/NewDeleteModal";
-
-const inventoryData = [
-  {
-    id: 1,
-    productName: "Grand Tablecloth",
-    category: "Tablecloth",
-    fabric: "Cotton Blend",
-    total: 12,
-    available: 7,
-    onRent: 3,
-    cleaning: 1,
-    inspect: 0,
-  },
-  {
-    id: 2,
-    productName: "Grand Tablecloth",
-    category: "Tablecloth",
-    fabric: "Cotton Blend",
-    total: 12,
-    available: 7,
-    onRent: 3,
-    cleaning: 1,
-    inspect: 0,
-  },
-  {
-    id: 3,
-    productName: "Grand Tablecloth",
-    category: "Tablecloth",
-    fabric: "Cotton Blend",
-    total: 12,
-    available: 7,
-    onRent: 3,
-    cleaning: 1,
-    inspect: 0,
-  },
-  {
-    id: 4,
-    productName: "Grand Tablecloth",
-    category: "Tablecloth",
-    fabric: "Cotton Blend",
-    total: 12,
-    available: 7,
-    onRent: 3,
-    cleaning: 1,
-    inspect: 0,
-  },
-  {
-    id: 5,
-    productName: "Grand Tablecloth",
-    category: "Tablecloth",
-    fabric: "Cotton Blend",
-    total: 12,
-    available: 7,
-    onRent: 3,
-    cleaning: 1,
-    inspect: 0,
-  },
-];
+import { apiGetProductList, apiDeleteProduct } from "@/services/ProductService";
+import { apiGetFabricList } from "@/services/FabricService";
+import { apiGetCategoryList } from "@/services/CategoryService";
 
 const InventoryList = () => {
   const router = useRouter();
-  const categoryOptions = [
-    { value: "all", label: "All Categories" },
-    { value: "tablecloth", label: "Tablecloth" },
-    { value: "napkin", label: "Napkin" },
-    { value: "chair-cover", label: "Chair Cover" },
-  ];
 
-  const materialOptions = [
-    { value: "all", label: "All Material" },
-    { value: "cotton", label: "Cotton" },
-    { value: "cotton-blend", label: "Cotton Blend" },
-    { value: "linen", label: "Linen" },
-  ];
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
 
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState(categoryOptions[0]);
-  const [material, setMaterial] = useState(materialOptions[0]);
+  const [inventoryData, setInventoryData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [categoryList, setCategoryList] = useState([]);
+  const [fabricList, setFabricList] = useState([]);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const [category, setCategory] = useState({
+    value: "all",
+    label: "All Categories",
+  });
+
+  const [material, setMaterial] = useState({
+    value: "all",
+    label: "All Fabrics",
+  });
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [fabricToDelete, setFabricToDelete] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+
+    try {
+      let params = "";
+
+      if (category?.value !== "all") {
+        params += `&category_id=${category.value}`;
+      }
+
+      if (material?.value !== "all") {
+        params += `&fabric_id=${material.value}`;
+      }
+
+      if (searchQuery.trim()) {
+        params += `&search=${encodeURIComponent(debouncedSearch.trim())}`;
+      }
+      const response = await apiGetProductList(
+        accessToken,
+        1,
+        10,
+        "table",
+        params,
+      );
+
+      if (response?.status && response?.data) {
+        setInventoryData(response.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (accessToken) {
+      fetchProducts();
+    }
+  }, [accessToken, category, material, debouncedSearch]);
+
+  const categoryOptions = [
+    { value: "all", label: "All Categories" },
+    ...categoryList.map((item) => ({
+      value: item.id,
+      label: item.categoryName,
+    })),
+  ];
+
+  const materialOptions = [
+    { value: "all", label: "All Fabrics" },
+    ...fabricList.map((item) => ({
+      value: item.id,
+      label: item.fabricName,
+    })),
+  ];
+  const [search, setSearch] = useState("");
 
   const handleDeleteClick = (item) => {
     setFabricToDelete(item);
@@ -95,18 +109,25 @@ const InventoryList = () => {
   };
 
   const handleDeleteConfirm = async () => {
+    if (!fabricToDelete) return;
+
     setDeleteLoading(true);
 
-    // API yaha call hogi
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      const res = await apiDeleteProduct(accessToken, fabricToDelete.id);
 
-    setDeleteLoading(false);
-    setDeleteDialogOpen(false);
-    setFabricToDelete(null);
+      if (res?.status) {
+        await fetchProducts();
 
-    console.log("Deleted:", fabricToDelete);
+        setDeleteDialogOpen(false);
+        setFabricToDelete(null);
+      }
+    } catch (err) {
+      console.error("Delete Error:", err);
+    } finally {
+      setDeleteLoading(false);
+    }
   };
-
   const selectStyles = {
     control: (base) => ({
       ...base,
@@ -144,6 +165,42 @@ const InventoryList = () => {
       color: state.isSelected ? "#fff" : "#444",
     }),
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await apiGetCategoryList(accessToken, 1, 100);
+
+        if (response?.status && response?.data) {
+          setCategoryList(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (accessToken) {
+      fetchCategories();
+    }
+  }, [accessToken]);
+
+  useEffect(() => {
+    const fetchFabricList = async () => {
+      try {
+        const response = await apiGetFabricList(accessToken);
+
+        if (response?.status && response?.data) {
+          setFabricList(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (accessToken) {
+      fetchFabricList();
+    }
+  }, [accessToken]);
 
   return (
     <>
@@ -234,69 +291,51 @@ const InventoryList = () => {
               {inventoryData.map((item, index) => (
                 <tr
                   key={item.id}
-                  className={`text-[13px] ${
-                    index % 2 === 0 ? "bg-white" : "bg-[#FBF7F3]"
-                  }`}
+                  className={`${index % 2 === 0 ? "bg-white" : "bg-[#FBF7F3]"}`}
                 >
-                  <td className="px-5 py-5 text-[#2C1A0E]">
-                    {item.productName}
-                  </td>
+                  <td className="px-3 py-3">{item.productName}</td>
 
-                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                    {item.category}
-                  </td>
+                  <td className="px-3 py-3">{item.category?.categoryName}</td>
 
-                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                    {item.fabric}
-                  </td>
+                  <td className="px-3 py-3">{item.fabric}</td>
 
-                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                    {item.total}
-                  </td>
+                  <td className="px-3 py-3">{item.total_quantity}</td>
 
-                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                    {item.available}
-                  </td>
+                  <td className="px-3 py-3">{item.available_quantity}</td>
 
-                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                    {item.onRent}
-                  </td>
+                  <td className="px-3 py-3">{item.on_rent_quantity ?? 0}</td>
 
-                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                    {item.cleaning}
-                  </td>
+                  <td className="px-3 py-3">{item.cleaning_quantity ?? 0}</td>
 
-                  <td className="px-5 py-5 text-[#2C1A0E] text-[14px]">
-                    {item.inspect}
-                  </td>
+                  <td className="px-3 py-3">{item.inspect_quantity ?? 0}</td>
 
-                  <td className="px-5 py-5">
-                    <div className="flex justify-center items-center gap-3 text-[#555]">
+                  <td className="px-3 py-3">
+                    <div className="flex justify-center items-center gap-1">
                       <button
                         onClick={() =>
                           router.push(
-                            "/inventory-management/inventory-list/view",
+                            `/inventory-management/inventory-list/view?id=${item.id}`,
                           )
                         }
-                        className="text-[#2C1A0E]"
+                        className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
                       >
-                        <FiEye size={15} />
+                        <FiEye size={16} />
                       </button>
 
                       <button
-                        className="text-[#2C1A0E]"
                         onClick={() =>
                           router.push(
                             `/inventory-management/add?mode=edit&id=${item.id}`,
                           )
                         }
+                        className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
                       >
                         <FiEdit2 size={15} />
                       </button>
 
                       <button
-                        className="text-[#2C1A0E]"
                         onClick={() => handleDeleteClick(item)}
+                        className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
                       >
                         <FiTrash2 size={15} />
                       </button>

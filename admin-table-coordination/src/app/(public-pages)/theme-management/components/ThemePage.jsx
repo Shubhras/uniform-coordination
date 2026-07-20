@@ -16,7 +16,7 @@ import NewDeleteModal from "@/components/shared/NewDeleteModal";
 const ThemePage = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [view, setView] = useState("grid");
+  const [view, setView] = useState("list");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -65,7 +65,7 @@ const ThemePage = () => {
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isSelected
-        ? "#1C4FA8"
+        ? "#A0522D"
         : state.isFocused
           ? "#EEF4FF"
           : "#fff",

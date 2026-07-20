@@ -8,10 +8,10 @@ import {
 
 const tabs = [
     { label: "Categories", icon: FiLayers },
-    { label: "Catelog Images", icon: FiGrid },
+    // { label: "Catelog Images", icon: FiGrid },
     { label: "Blog", icon: FiDroplet },
     { label: "FAQ", icon: FiFileText },
-    { label: "PDF Templates", icon: FiPackage },
+    // { label: "PDF Templates", icon: FiPackage },
 ];
 
 const Tabs = ({ activeTab, setActiveTab }) => {

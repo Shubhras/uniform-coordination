@@ -2,7 +2,7 @@ import ApiService from './ApiService'
 
 export async function apiGetSpecialConditionList(accessToken) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/specialcondition/get-list/`,
+        url: `/v1/space/uniformAdmin/specialcondition/get-list/`,
         method: 'get',
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -12,7 +12,7 @@ export async function apiGetSpecialConditionList(accessToken) {
 
 export async function apiCreateSpecialCondition(accessToken, payload) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/specialcondition/create/`,
+        url: `/v1/space/uniformAdmin/specialcondition/create/`,
         method: 'post',
         data: payload,
         headers: {
@@ -23,7 +23,7 @@ export async function apiCreateSpecialCondition(accessToken, payload) {
 
 export async function apiUpdateSpecialCondition(accessToken, id, payload) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/specialcondition/${id}/update/`,
+        url: `/v1/space/uniformAdmin/specialcondition/${id}/update/`,
         method: 'put',
         data: payload,
         headers: {
@@ -34,7 +34,7 @@ export async function apiUpdateSpecialCondition(accessToken, id, payload) {
 
 export async function apiDeleteSpecialCondition(accessToken, id) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/specialcondition/${id}/delete/`,
+        url: `/v1/space/uniformAdmin/specialcondition/${id}/delete/`,
         method: 'delete',
         headers: {
             Authorization: `Bearer ${accessToken}`,

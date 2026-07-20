@@ -2,7 +2,7 @@ import ApiService from './ApiService'
 
 export async function apiGetColorsList(accessToken, page = 1, pageSize = 10) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/colors/list/?page=${page}&page_size=${pageSize}`,
+        url: `/v1/space/uniformAdmin/colors/list/?page=${page}&page_size=${pageSize}`,
         method: 'get',
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -12,7 +12,7 @@ export async function apiGetColorsList(accessToken, page = 1, pageSize = 10) {
 
 export async function apiDeleteColor(accessToken, id) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/colors/delete/${id}/`,
+        url: `/v1/space/uniformAdmin/colors/delete/${id}/`,
         method: 'delete',
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -22,7 +22,7 @@ export async function apiDeleteColor(accessToken, id) {
 
 export async function apiCreateColor(accessToken, payload) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/colors/create/`,
+        url: `/v1/space/uniformAdmin/colors/create/`,
         method: 'post',
         data: payload,
         headers: {
@@ -33,7 +33,7 @@ export async function apiCreateColor(accessToken, payload) {
 
 export async function apiUpdateColor(accessToken, id, payload) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/colors/update/${id}/`,
+        url: `/v1/space/uniformAdmin/colors/update/${id}/`,
         method: 'put',
         data: payload,
         headers: {

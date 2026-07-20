@@ -11,8 +11,8 @@ const DashboardStats = ({ data }) => {
     count,
   }));
 
-  const pendingQuotes = data?.Pending_quotes?.total ?? 0;
-  const quoteChange = data?.Pending_quotes?.change_percentage ?? 0;
+  const pendingQuotes = data?.available_inventory?.total ?? 0;
+  const quoteChange = data?.Pending_quotes?.pending_quation ?? 0;
 
   const templates = data?.Templates?.total ?? 0;
 
@@ -27,9 +27,7 @@ const DashboardStats = ({ data }) => {
             <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
               AVAILABLE INVENTORY
             </p>
-            <h2 className="text-[30px] font-bold mt-2">
-              {/* {pendingQuotes} */} 1,248
-            </h2>
+            <h2 className="text-[30px] font-bold mt-2">{pendingQuotes}</h2>
           </div>
 
           {/* <div className="mt-4 flex items-center gap-2 text-sm">
@@ -67,7 +65,7 @@ const DashboardStats = ({ data }) => {
             <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
               PENDING QUOTATIONS
             </p>
-            <h2 className="text-[30px] font-bold mt-2">45 </h2>
+            <h2 className="text-[30px] font-bold mt-2"> {quoteChange} </h2>
           </div>
 
           {/* {b2bChange !== 0 && (

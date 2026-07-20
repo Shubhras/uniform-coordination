@@ -1,10 +1,38 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FiArrowLeft, FiTrash2, FiEdit2, FiActivity } from "react-icons/fi";
+import { apiGetProductDetails } from "@/services/ProductService";
 
 export default function ViewInventory() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
+  const productId = searchParams.get("id");
+
+  const [product, setProduct] = useState(null);
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await apiGetProductDetails(accessToken, productId);
+
+        if (res?.status && res?.data) {
+          setProduct(res.data);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (accessToken && productId) {
+      fetchProduct();
+    }
+  }, [accessToken, productId]);
 
   return (
     <div className="min-h-screen bg-[#FAF8F6] px-6 py-8">
@@ -42,7 +70,7 @@ export default function ViewInventory() {
         <div className="col-span-12 lg:col-span-8">
           <div className="overflow-hidden rounded-2xl border border-[#EFE5DD] bg-white">
             <img
-              src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=1400"
+              src={product?.ProductImage || "/placeholder-image.png"}
               alt="Inventory"
               className="w-full h-[360px] object-cover rounded-2xl"
             />
@@ -60,7 +88,7 @@ export default function ViewInventory() {
                     Category
                   </p>
                   <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
-                    Tablecloth
+                    {product?.category?.categoryName}
                   </p>
                 </div>
 
@@ -70,7 +98,7 @@ export default function ViewInventory() {
                     Fabric
                   </p>
                   <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
-                    Velvet
+                    {product?.fabric_details?.name || "-"}
                   </p>
                 </div>
 
@@ -80,7 +108,7 @@ export default function ViewInventory() {
                     Table Shape
                   </p>
                   <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
-                    Round
+                    {product?.table_shape}
                   </p>
                 </div>
 
@@ -90,7 +118,7 @@ export default function ViewInventory() {
                     Style
                   </p>
                   <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
-                    Premium
+                    {product?.style}
                   </p>
                 </div>
 
@@ -100,7 +128,7 @@ export default function ViewInventory() {
                     Color
                   </p>
                   <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
-                    Ivory
+                    {product?.color_details?.name || "-"}
                   </p>
                 </div>
 
@@ -110,7 +138,7 @@ export default function ViewInventory() {
                     Size
                   </p>
                   <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
-                    90" × 156"
+                    {product?.size}
                   </p>
                 </div>
 
@@ -120,7 +148,7 @@ export default function ViewInventory() {
                     Rental Price / Day
                   </p>
                   <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
-                    ₹12.00
+                    ₹{product?.rental_price_per_day}
                   </p>
                 </div>
 
@@ -134,7 +162,7 @@ export default function ViewInventory() {
                     <span className="w-2 h-2 rounded-full bg-[#16A34A]" />
 
                     <p className="text-[15px] font-medium text-[#16A34A]">
-                      Enabled
+                      {product?.rfid_tracking_enabled ? "Enabled" : "Disabled"}
                     </p>
                   </div>
                 </div>
@@ -145,7 +173,7 @@ export default function ViewInventory() {
                     Stock Quantity
                   </p>
                   <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
-                    8 Units
+                    {product?.total_quantity} Units
                   </p>
                 </div>
 
@@ -171,11 +199,7 @@ export default function ViewInventory() {
               </h3>
 
               <p className="text-[15px] leading-7 text-[#6B4A2A]">
-                Regal throne chair upholstered in plush ivory velvet with an
-                ornate gold-leaf carved mahogany frame. The statement piece for
-                wedding head tables, VIP seating areas, luxury banquets and
-                premium event décor. Designed to provide both elegance and
-                comfort while complementing sophisticated event themes.
+                {product?.description}
               </p>
             </div>
           </div>
@@ -245,41 +269,59 @@ export default function ViewInventory() {
                 Total Units
               </span>
 
-              <span className="text-[30px] font-bold text-[#1A1410]">8</span>
+              <span className="text-[30px] font-bold text-[#1A1410]">
+                {" "}
+                {product?.units || 0}
+              </span>
             </div>
 
             {/* Status Grid */}
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-2xl border border-[#CBEFD8] bg-[#ECFDF5] p-5 text-center">
-                <h3 className="text-[30px] font-bold text-[#138A4B]">4</h3>
+                <h3 className="text-[30px] font-bold text-[#138A4B]">
+                  {" "}
+                  {product?.available || 0}
+                </h3>
                 <p className="mt-1 text-[11px] uppercase font-semibold text-[#138A4B]">
                   Available
                 </p>
               </div>
 
               <div className="rounded-2xl border border-[#D5E3FF] bg-[#EFF6FF] p-5 text-center">
-                <h3 className="text-[30px] font-bold text-[#2F6BFF]">2</h3>
+                <h3 className="text-[30px] font-bold text-[#2F6BFF]">
+                  {" "}
+                  {product?.rent || 0}
+                </h3>
                 <p className="mt-1 text-[11px] uppercase font-semibold text-[#2F6BFF]">
                   On Rent
                 </p>
               </div>
 
               <div className="rounded-2xl border border-[#FFE2B6] bg-[#FFFBEB] p-5 text-center">
-                <h3 className="text-[30px] font-bold text-[#E48A00]">1</h3>
+                <h3 className="text-[30px] font-bold text-[#E48A00]">
+                  {" "}
+                  {product?.cleaning || 0}
+                </h3>
                 <p className="mt-1 text-[11px] uppercase font-semibold text-[#E48A00]">
                   Cleaning
                 </p>
               </div>
 
               <div className="rounded-2xl border border-[#E8DDFF] bg-[#F5F3FF] p-5 text-center">
-                <h3 className="text-[30px] font-bold text-[#7B3EFF]">0</h3>
+                <h3 className="text-[30px] font-bold text-[#7B3EFF]">
+                  {" "}
+                  {product?.inspection || 0}
+                </h3>
                 <p className="mt-1 text-[11px] uppercase font-semibold text-[#7B3EFF]">
                   Inspection
                 </p>
               </div>
 
               <div className="rounded-2xl border border-[#FFD8D8] bg-[#FFF3F3] p-5 text-center col-span-2">
-                <h3 className="text-[30px] font-bold text-[#E53935]">1</h3>
+                <h3 className="text-[30px] font-bold text-[#E53935]">
+                  {" "}
+                  {product?.damaged || 0}
+                </h3>
                 <p className="mt-1 text-[11px] uppercase font-semibold text-[#E53935]">
                   Damaged
                 </p>

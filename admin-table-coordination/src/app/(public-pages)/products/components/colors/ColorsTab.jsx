@@ -9,6 +9,8 @@ import {
   FiChevronRight,
   FiX,
 } from "react-icons/fi";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetColorsList, apiDeleteColor } from "@/services/ColorsService";
 import AddEditColorModal from "./AddEditColorModal";
@@ -75,7 +77,13 @@ const ColorsTab = () => {
 
     try {
       setDeleteLoading(true);
-      await apiDeleteColor(accessToken, colorToDelete.id);
+      const response = await apiDeleteColor(accessToken, colorToDelete.id);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response.message}
+        </Notification>,
+      );
       setDeleteDialogOpen(false);
       setColorToDelete(null);
       fetchColors(currentPage);
@@ -177,7 +185,7 @@ const ColorsTab = () => {
 
           <button
             onClick={handleAddColor}
-            className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm flex items-center gap-2"
+            className="bg-[#A0522D] text-white px-4 py-2 font-semibold rounded-md text-sm flex items-center gap-2"
           >
             <FiPlus size={14} />
             Add Color
