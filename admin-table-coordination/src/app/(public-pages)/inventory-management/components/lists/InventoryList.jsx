@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Select from "react-select";
 import { useRouter } from "next/navigation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import Spinner from "@/components/ui/Spinner";
 import { FiSearch, FiEye, FiEdit2, FiTrash2, FiX } from "react-icons/fi";
 import NewDeleteModal from "@/components/shared/NewDeleteModal";
 import { apiGetProductList, apiDeleteProduct } from "@/services/ProductService";
@@ -271,10 +272,10 @@ const InventoryList = () => {
         </div>
 
         {/* Table */}
-       <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-[#F1F5F9] text-[#486284]">
-                    <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-[#F1F5F9] text-[#486284]">
+              <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
                 <th className="px-5 py-3 font-normal">Product Name</th>
                 <th className="px-5 py-3 font-normal">Category</th>
                 <th className="px-5 py-3 font-normal">Fabric</th>
@@ -288,61 +289,77 @@ const InventoryList = () => {
             </thead>
 
             <tbody>
-              {inventoryData.map((item, index) => (
-                <tr
-                  key={item.id}
-                  className={`${index % 2 === 0 ? "bg-white" : "bg-[#FBF7F3]"}`}
-                >
-                  <td className="px-3 py-3">{item.productName}</td>
-
-                  <td className="px-3 py-3">{item.category?.categoryName}</td>
-
-                  <td className="px-3 py-3">{item.fabric}</td>
-
-                  <td className="px-3 py-3">{item.total_quantity}</td>
-
-                  <td className="px-3 py-3">{item.available_quantity}</td>
-
-                  <td className="px-3 py-3">{item.on_rent_quantity ?? 0}</td>
-
-                  <td className="px-3 py-3">{item.cleaning_quantity ?? 0}</td>
-
-                  <td className="px-3 py-3">{item.inspect_quantity ?? 0}</td>
-
-                  <td className="px-3 py-3">
-                    <div className="flex justify-center items-center gap-1">
-                      <button
-                        onClick={() =>
-                          router.push(
-                            `/inventory-management/inventory-list/view?id=${item.id}`,
-                          )
-                        }
-                        className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
-                      >
-                        <FiEye size={16} />
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          router.push(
-                            `/inventory-management/add?mode=edit&id=${item.id}`,
-                          )
-                        }
-                        className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
-                      >
-                        <FiEdit2 size={15} />
-                      </button>
-
-                      <button
-                        onClick={() => handleDeleteClick(item)}
-                        className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
-                      >
-                        <FiTrash2 size={15} />
-                      </button>
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="py-16">
+                    <div className="flex justify-center items-center">
+                      <Spinner size={40} customColorClass="text-[#A0522D]" />
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : inventoryData.length > 0 ? (
+                inventoryData.map((item, index) => (
+                  <tr
+                    key={item.id}
+                    className={`${index % 2 === 0 ? "bg-white" : "bg-[#FBF7F3]"}`}
+                  >
+                    <td className="px-3 py-3">{item.productName}</td>
+
+                    <td className="px-3 py-3">{item.category?.categoryName}</td>
+
+                    <td className="px-3 py-3">{item.fabric}</td>
+
+                    <td className="px-3 py-3">{item.total_quantity}</td>
+
+                    <td className="px-3 py-3">{item.available_quantity}</td>
+
+                    <td className="px-3 py-3">{item.on_rent_quantity ?? 0}</td>
+
+                    <td className="px-3 py-3">{item.cleaning_quantity ?? 0}</td>
+
+                    <td className="px-3 py-3">{item.inspect_quantity ?? 0}</td>
+
+                    <td className="px-3 py-3">
+                      <div className="flex justify-center items-center gap-1">
+                        <button
+                          onClick={() =>
+                            router.push(
+                              `/inventory-management/inventory-list/view?id=${item.id}`,
+                            )
+                          }
+                          className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+                        >
+                          <FiEye size={16} />
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            router.push(
+                              `/inventory-management/add?mode=edit&id=${item.id}`,
+                            )
+                          }
+                          className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+                        >
+                          <FiEdit2 size={15} />
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteClick(item)}
+                          className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+                        >
+                          <FiTrash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={9} className="py-10 text-center text-gray-500">
+                    No products found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

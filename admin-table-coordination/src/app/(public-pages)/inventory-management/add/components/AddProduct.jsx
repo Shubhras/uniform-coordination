@@ -12,6 +12,8 @@ import {
   FiLayers,
   FiImage,
 } from "react-icons/fi";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import Select from "react-select";
 import { apiGetFabricList } from "@/services/FabricService";
 import { apiGetCategoryList } from "@/services/CategoryService";
@@ -45,6 +47,51 @@ const AddProduct = () => {
 
   const [colorList, setColorList] = useState([]);
   const [color, setColor] = useState(null);
+  const [errors, setErrors] = useState({});
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.productName.trim()) {
+      newErrors.productName = "Product name is required";
+    }
+
+    if (!category) {
+      newErrors.category = "Category is required";
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+
+    if (!fabric) {
+      newErrors.fabric = "Fabric is required";
+    }
+
+    if (!color) {
+      newErrors.color = "Color is required";
+    }
+
+    if (!formData.size.trim()) {
+      newErrors.size = "Table size is required";
+    }
+
+    if (!formData.rentalPricePerDay) {
+      newErrors.rentalPricePerDay = "Rental price is required";
+    }
+
+    if (!formData.total_quantity) {
+      newErrors.total_quantity = "Stock quantity is required";
+    }
+
+    if (!formData.productImage && !previewImage) {
+      newErrors.productImage = "Product image is required";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   const colorOptions = colorList.map((item) => ({
     value: item.id,
     label: item.colorName,
@@ -191,6 +238,7 @@ const AddProduct = () => {
   };
 
   const handleSave = async () => {
+    if (!validateForm()) return;
     setSaving(true);
     try {
       const payload = new FormData();
@@ -214,10 +262,34 @@ const AddProduct = () => {
         payload.append("ProductImage_file", formData.productImage);
       }
 
+      // if (isEdit) {
+      //   await apiUpdateProduct(accessToken, productId, payload, "uniform");
+      // } else {
+      //   await apiCreateProduct(accessToken, payload);
+      // }
+
+      // router.push("/inventory-management");
       if (isEdit) {
-        await apiUpdateProduct(accessToken, productId, payload, "uniform");
+        const res = await apiUpdateProduct(
+          accessToken,
+          productId,
+          payload,
+          "uniform",
+        );
+
+        toast.push(
+          <Notification title="Success" type="success" duration={2500}>
+            {res?.message || "Product updated successfully"}
+          </Notification>,
+        );
       } else {
-        await apiCreateProduct(accessToken, payload);
+        const res = await apiCreateProduct(accessToken, payload);
+
+        toast.push(
+          <Notification title="Success" type="success" duration={2500}>
+            {res?.message || "Product created successfully"}
+          </Notification>,
+        );
       }
 
       router.push("/inventory-management");
@@ -318,10 +390,20 @@ const AddProduct = () => {
             <input
               type="text"
               value={formData.productName}
-              onChange={(e) => handleChange("productName", e.target.value)}
+              onChange={(e) => {
+                handleChange("productName", e.target.value);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  productName: "",
+                }));
+              }}
               placeholder="Enter product name"
               className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 outline-none focus:border-[#A85A32]"
             />
+            {errors.productName && (
+              <p className="text-red-500 text-sm mt-1">{errors.productName}</p>
+            )}
           </div>
 
           {/* Category */}
@@ -332,12 +414,22 @@ const AddProduct = () => {
 
             <Select
               value={category}
-              onChange={setCategory}
+              onChange={(value) => {
+                setCategory(value);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  category: "",
+                }));
+              }}
               options={categoryOptions}
               styles={selectStyles}
               placeholder="Select Category"
               isSearchable={false}
             />
+            {errors.category && (
+              <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+            )}
           </div>
         </div>
 
@@ -350,10 +442,20 @@ const AddProduct = () => {
           <textarea
             rows={4}
             value={formData.description}
-            onChange={(e) => handleChange("description", e.target.value)}
+            onChange={(e) => {
+              handleChange("description", e.target.value);
+
+              setErrors((prev) => ({
+                ...prev,
+                description: "",
+              }));
+            }}
             placeholder="Write product description..."
             className="w-full rounded-2xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 outline-none resize-none focus:border-[#A85A32]"
           />
+          {errors.description && (
+            <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
@@ -406,12 +508,22 @@ const AddProduct = () => {
 
             <Select
               value={fabric}
-              onChange={setFabric}
+              onChange={(value) => {
+                setFabric(value);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  fabric: "",
+                }));
+              }}
               options={fabricOptions}
               styles={selectStyles}
               placeholder="Select Fabric"
               isSearchable={false}
             />
+            {errors.fabric && (
+              <p className="text-red-500 text-sm mt-1">{errors.fabric}</p>
+            )}
           </div>
 
           {/* Color */}
@@ -422,12 +534,22 @@ const AddProduct = () => {
 
             <Select
               value={color}
-              onChange={setColor}
+              onChange={(value) => {
+                setColor(value);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  color: "",
+                }));
+              }}
               options={colorOptions}
               styles={selectStyles}
               placeholder="Select Color"
               isSearchable={false}
             />
+            {errors.color && (
+              <p className="text-red-500 text-sm mt-1">{errors.color}</p>
+            )}
           </div>
 
           {/* Table Size */}
@@ -440,10 +562,20 @@ const AddProduct = () => {
               <input
                 type="text"
                 value={formData.size}
-                onChange={(e) => handleChange("size", e.target.value)}
+                onChange={(e) => {
+                  handleChange("size", e.target.value);
+
+                  setErrors((prev) => ({
+                    ...prev,
+                    size: "",
+                  }));
+                }}
                 placeholder="Ex-72 Inch"
                 className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 pr-10 outline-none focus:border-[#A85A32]"
               />
+              {errors.size && (
+                <p className="text-red-500 text-sm mt-1">{errors.size}</p>
+              )}
             </div>
           </div>
 
@@ -456,12 +588,22 @@ const AddProduct = () => {
             <input
               type="number"
               value={formData.rentalPricePerDay}
-              onChange={(e) =>
-                handleChange("rentalPricePerDay", e.target.value)
-              }
+              onChange={(e) => {
+                handleChange("rentalPricePerDay", e.target.value);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  rentalPricePerDay: "",
+                }));
+              }}
               placeholder="Ex-250"
               className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 outline-none focus:border-[#A85A32]"
             />
+            {errors.rentalPricePerDay && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.rentalPricePerDay}
+              </p>
+            )}
           </div>
 
           {/* Stock Quantity */}
@@ -472,10 +614,22 @@ const AddProduct = () => {
             <input
               type="number"
               value={formData.total_quantity}
-              onChange={(e) => handleChange("total_quantity", e.target.value)}
+              onChange={(e) => {
+                handleChange("total_quantity", e.target.value);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  total_quantity: "",
+                }));
+              }}
               placeholder="Ex-250"
               className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 outline-none focus:border-[#A85A32]"
             />
+            {errors.total_quantity && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.total_quantity}
+              </p>
+            )}
             {/* <input
               type="number"
               placeholder="0"
@@ -543,12 +697,18 @@ const AddProduct = () => {
               accept="image/*"
               className="hidden"
               onChange={(e) => {
-                const file = e.target.files[0];
+                const file = e.target.files?.[0];
+
                 handleChange("productImage", file);
 
                 if (file) {
                   setPreviewImage(URL.createObjectURL(file));
                 }
+
+                setErrors((prev) => ({
+                  ...prev,
+                  productImage: "",
+                }));
               }}
             />
 
@@ -565,6 +725,10 @@ const AddProduct = () => {
               className="w-44 h-44 rounded-xl border object-cover"
             />
           </div>
+        )}
+
+        {errors.productImage && (
+          <p className="text-red-500 text-sm mt-2">{errors.productImage}</p>
         )}
       </div>
 

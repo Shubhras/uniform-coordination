@@ -1,13 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiCreatePromoCode } from "@/services/PricingPackages";
+import {
+  apiCreatePromoCode,
+  apiUpdatePromotion,
+  apiPromoCodeDetails,
+} from "@/services/PricingPackages";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 
-import { TbArrowLeft, TbCalendar, TbChevronDown } from "react-icons/tb";
+import {
+  FiArrowLeft,
+  FiCalendar,
+  FiChevronDown,
+  FiChevronUp,
+  FiPackage,
+} from "react-icons/fi";
 
 const inputClassName =
   "h-[42px] w-full rounded-[10px] border border-[#F2E5DD] bg-[#FFFCFA] px-4 text-[13px] text-[#5C4F48] outline-none focus:border-[#B56735]";
@@ -20,6 +30,12 @@ const labelClassName =
 
 const CreatePromotion = () => {
   const router = useRouter();
+  const params = useParams();
+  console.log("params", params);
+  console.log("promotionId", params.id);
+
+  const promotionId = params.id;
+  const isEdit = !!promotionId;
 
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -82,6 +98,38 @@ const CreatePromotion = () => {
     description: "",
   });
 
+  useEffect(() => {
+    if (!isEdit || !accessToken) return;
+
+    const getPromotionDetails = async () => {
+      try {
+        const res = await apiPromoCodeDetails(accessToken, promotionId);
+
+        if (res?.status) {
+          const data = res.data;
+
+          setForm({
+            promocodeName: data.promocodeName || "",
+            promocodeType: data.promocodeType || "discount",
+            amount: data.amount || "",
+            started_at: data.started_at
+              ? new Date(data.started_at).toISOString().slice(0, 16)
+              : "",
+            ended_at: data.ended_at
+              ? new Date(data.ended_at).toISOString().slice(0, 16)
+              : "",
+            isActive: data.isActive,
+            description: data.description || "",
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getPromotionDetails();
+  }, [isEdit, promotionId, accessToken]);
+
   const handleCreate = async () => {
     if (!validateForm()) return;
     try {
@@ -103,8 +151,14 @@ const CreatePromotion = () => {
       formData.append("isActive", form.isActive);
       formData.append("description", form.description);
 
-      const res = await apiCreatePromoCode(accessToken, formData);
+      // const res = await apiCreatePromoCode(accessToken, formData);
+      let res;
 
+      if (isEdit) {
+        res = await apiUpdatePromotion(accessToken, promotionId, formData);
+      } else {
+        res = await apiCreatePromoCode(accessToken, formData);
+      }
       if (res?.status) {
         toast.push(
           <Notification title="Success" type="success">
@@ -134,11 +188,11 @@ const CreatePromotion = () => {
           onClick={() => router.back()}
           className="flex h-8 w-8 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058]"
         >
-          <TbArrowLeft size={16} />
+          <FiArrowLeft size={16} />
         </button>
 
         <h1 className="text-[30px] font-semibold text-[#2A211D]">
-          Create Promotion
+          {isEdit ? "Edit Promotion" : "Create Promotion"}
         </h1>
       </div>
 
@@ -201,7 +255,7 @@ const CreatePromotion = () => {
                   {errors.promocodeType}
                 </p>
               )}
-              <TbChevronDown
+              <FiChevronDown
                 size={18}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A38D82] pointer-events-none"
               />
@@ -285,7 +339,7 @@ const CreatePromotion = () => {
                 className={inputClassName}
               />
 
-              <TbCalendar
+              <FiCalendar
                 size={18}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A38D82] pointer-events-none"
               />
@@ -318,7 +372,7 @@ const CreatePromotion = () => {
                 className={inputClassName}
               />
 
-              <TbCalendar
+              <FiCalendar
                 size={18}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A38D82] pointer-events-none"
               />
@@ -419,7 +473,13 @@ const CreatePromotion = () => {
           disabled={loading}
           className="rounded-xl bg-[#B56735] px-5 py-1 text-[13px] font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? "Creating..." : "Create Promotion"}
+          {loading
+            ? isEdit
+              ? "Updating..."
+              : "Creating..."
+            : isEdit
+              ? "Update Promotion"
+              : "Create Promotion"}
         </button>
       </div>
     </div>
