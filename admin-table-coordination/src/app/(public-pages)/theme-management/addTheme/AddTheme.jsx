@@ -17,11 +17,36 @@ const AddTheme = () => {
   const [categoryList, setCategoryList] = useState([]);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
+  const [errors, setErrors] = useState({});
 
   const categoryOptions = categoryList.map((item) => ({
     value: item.id,
     label: item.categoryName,
   }));
+
+  const validateStepOne = () => {
+    const newErrors = {};
+
+    if (!themeData.title.trim()) {
+      newErrors.title = "Theme name is required";
+    }
+
+    if (!themeData.category) {
+      newErrors.category = "Category is required";
+    }
+
+    if (!themeData.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+
+    if (!themeData.image) {
+      newErrors.image = "Thumbnail is required";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -112,15 +137,23 @@ const AddTheme = () => {
                 <input
                   type="text"
                   value={themeData.title}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setThemeData((prev) => ({
                       ...prev,
                       title: e.target.value,
-                    }))
-                  }
+                    }));
+
+                    setErrors((prev) => ({
+                      ...prev,
+                      title: "",
+                    }));
+                  }}
                   placeholder="Enter theme name"
                   className="w-full h-12 rounded-xl border border-[#E7D9CF] px-4 outline-none focus:border-[#A0522D]"
                 />
+                {errors.title && (
+                  <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+                )}
               </div>
 
               <div>
@@ -132,13 +165,21 @@ const AddTheme = () => {
                   options={categoryOptions}
                   styles={selectStyles}
                   value={themeData.category}
-                  onChange={(value) =>
+                  onChange={(value) => {
                     setThemeData((prev) => ({
                       ...prev,
                       category: value,
-                    }))
-                  }
+                    }));
+
+                    setErrors((prev) => ({
+                      ...prev,
+                      category: "",
+                    }));
+                  }}
                 />
+                {errors.category && (
+                  <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+                )}
               </div>
             </div>
 
@@ -150,16 +191,26 @@ const AddTheme = () => {
 
               <textarea
                 value={themeData.description}
-                onChange={(e) =>
+                onChange={(e) => {
                   setThemeData((prev) => ({
                     ...prev,
                     description: e.target.value,
-                  }))
-                }
+                  }));
+
+                  setErrors((prev) => ({
+                    ...prev,
+                    description: "",
+                  }));
+                }}
                 rows={4}
                 placeholder="Write short description..."
                 className="w-full rounded-xl border border-[#E7D9CF] p-4 resize-none outline-none focus:border-[#A0522D]"
               />
+              {errors.description && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.description}
+                </p>
+              )}
             </div>
           </div>
 
@@ -183,44 +234,105 @@ const AddTheme = () => {
               </label>
 
               <div className="overflow-hidden rounded-xl border border-[#EFE5DD] h-[230px]">
-                <div className="overflow-hidden rounded-xl border border-[#EFE5DD] h-[230px]">
-                  {themeData.image ? (
-                    <img
-                      src={URL.createObjectURL(themeData.image)}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <label className="w-full h-full flex items-center justify-center cursor-pointer bg-[#FAF8F6]">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        hidden
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setThemeData((prev) => ({
-                              ...prev,
-                              image: file,
-                            }));
-                          }
-                        }}
-                      />
+                {themeData.image ? (
+                  <img
+                    src={URL.createObjectURL(themeData.image)}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <label className="w-full h-full flex items-center justify-center cursor-pointer bg-[#FAF8F6]">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setThemeData((prev) => ({
+                            ...prev,
+                            image: file,
+                          }));
 
-                      <div className="text-center">
-                        <FiPlus className="mx-auto text-[#A0522D]" size={26} />
-                        <p className="mt-2 text-sm text-[#8C6E5D]">
-                          Upload Thumbnail
-                        </p>
-                      </div>
-                    </label>
-                  )}
-                </div>
+                          setErrors((prev) => ({
+                            ...prev,
+                            image: "",
+                          }));
+                        }
+                      }}
+                    />
+
+                    <div className="text-center">
+                      <FiPlus className="mx-auto text-[#A0522D]" size={26} />
+                      <p className="mt-2 text-sm text-[#8C6E5D]">
+                        Upload Thumbnail
+                      </p>
+                    </div>
+                  </label>
+                )}
               </div>
+              {errors.image && (
+                <p className="text-red-500 text-sm mt-2">{errors.image}</p>
+              )}
             </div>
 
             {/* Gallery */}
-    
+            {/* Gallery */}
+            <div className="mt-8">
+              <label className="block text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-3">
+                Gallery Photos
+              </label>
+
+              <div className="flex gap-3 flex-wrap">
+                {themeData.coverImages.map((img, index) => (
+                  <div
+                    key={index}
+                    className="relative w-24 h-24 rounded-xl overflow-hidden border border-[#E7D9CF]"
+                  >
+                    <img
+                      src={URL.createObjectURL(img)}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setThemeData((prev) => ({
+                          ...prev,
+                          coverImages: prev.coverImages.filter(
+                            (_, i) => i !== index,
+                          ),
+                        }));
+                      }}
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white shadow flex items-center justify-center"
+                    >
+                      <FiX size={12} />
+                    </button>
+                  </div>
+                ))}
+
+                <label className="w-24 h-24 border-2 border-dashed border-[#E7D9CF] rounded-xl flex items-center justify-center cursor-pointer hover:border-[#A0522D]">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    hidden
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+
+                      setThemeData((prev) => ({
+                        ...prev,
+                        image: prev.image || files[0],
+                        coverImages: [...prev.coverImages, ...files],
+                      }));
+                    }}
+                  />
+
+                  <FiPlus size={24} className="text-[#A0522D]" />
+                </label>
+              </div>
+            </div>
 
             {/* Footer Buttons */}
             <div className="flex justify-between mt-10">
@@ -232,7 +344,11 @@ const AddTheme = () => {
               </button>
 
               <button
-                onClick={() => setStep(2)}
+                onClick={() => {
+                  if (validateStepOne()) {
+                    setStep(2);
+                  }
+                }}
                 className="px-8 py-2.5 rounded-xl bg-[#A85A32] text-white font-semibold hover:bg-[#8E4727]"
               >
                 Continue

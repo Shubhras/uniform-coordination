@@ -17,6 +17,7 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
   const router = useRouter();
   const [openModal, setOpenModal] = useState(false);
   const [currentSection, setCurrentSection] = useState("");
+  const [sectionError, setSectionError] = useState("");
 
   const [sections, setSections] = useState([
     {
@@ -62,8 +63,23 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
         [currentSection]: [...prev.theme_items[currentSection], product],
       },
     }));
+    setSectionError("");
 
     setOpenModal(false);
+  };
+
+  const validateSections = () => {
+    const hasItem = Object.values(themeData.theme_items).some(
+      (items) => items.length > 0,
+    );
+
+    if (!hasItem) {
+      setSectionError("At least one product must be added in any one section.");
+      return false;
+    }
+
+    setSectionError("");
+    return true;
   };
 
   return (
@@ -99,9 +115,9 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
 
             <span className="text-[#A08070]">|</span>
 
-            <span className="text-[#A08070]">
+            {/* <span className="text-[#A08070]">
               Last modified Today at 2:34 PM
-            </span>
+            </span> */}
           </div>
         </div>
 
@@ -130,7 +146,7 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
                   </h3>
 
                   <span className="px-2 py-1 rounded-full bg-[#FDF1EA] text-[#A85A32] text-[13px] font-semibold">
-                    {themeData.theme_items[section.key].length}
+                    {themeData.theme_items[section.key].length}{" "}
                     items
                   </span>
                 </div>
@@ -228,6 +244,9 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
               )}
             </div>
           ))}
+          {sectionError && (
+            <p className="text-red-500 text-sm mt-4">{sectionError}</p>
+          )}
         </div>
         <div className="flex justify-between mt-10">
           <button
@@ -238,7 +257,11 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
           </button>
 
           <button
-            onClick={onPreview}
+            onClick={() => {
+              if (validateSections()) {
+                onPreview();
+              }
+            }}
             className="px-8 py-2.5 rounded-xl bg-[#A85A32] text-white font-semibold hover:bg-[#8E4727]"
           >
             Preview Theme

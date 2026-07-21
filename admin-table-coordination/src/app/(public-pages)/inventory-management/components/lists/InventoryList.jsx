@@ -271,10 +271,10 @@ const InventoryList = () => {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto rounded-l border border-[#EFE5DD]">
-          <table className="min-w-full">
-            <thead className="bg-[#A85A320F]">
-              <tr className="text-left font-normal text-[16px] text-[#5D5E5F]">
+       <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-[#F1F5F9] text-[#486284]">
+                    <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
                 <th className="px-5 py-3 font-normal">Product Name</th>
                 <th className="px-5 py-3 font-normal">Category</th>
                 <th className="px-5 py-3 font-normal">Fabric</th>

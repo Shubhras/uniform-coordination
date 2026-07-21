@@ -9,6 +9,8 @@ import {
 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiCreateTheme } from "@/services/ThemeManagement";
 
@@ -79,6 +81,11 @@ const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
       formData.append("theme_items", JSON.stringify(themeItems));
 
       const res = await apiCreateTheme(accessToken, formData);
+      toast.push(
+        <Notification title="Success" type="success">
+          {res.message}
+        </Notification>,
+      );
 
       if (res?.status) {
         console.log("Theme Created Successfully");
