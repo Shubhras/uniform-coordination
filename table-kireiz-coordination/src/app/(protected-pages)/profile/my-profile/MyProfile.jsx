@@ -55,10 +55,8 @@ const MyProfile = () => {
     }
     return (
         <div className="max-w-7xl mx-auto space-y-6">
-
             {/* ================= Profile Card ================= */}
             <div className="relative bg-[#F5F0EE30] rounded-2xl shadow-md md:p-6 p-2 flex flex-col lg:flex-row gap-6">
-
                 {/* Avatar Column */}
                 <div className="flex flex-col items-center lg:items-start">
 
@@ -118,17 +116,17 @@ const MyProfile = () => {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-10">
                             <div>
-                                <p className="text-xs text-[#8B6A55]">First Name</p>
+                                <p className="text-xs text-[#626262]">First Name</p>
                                 <p className="text-sm font-medium text-[#5A3E2B]">{profile?.firstName || '-'}</p>
                             </div>
 
                             <div>
-                                <p className="text-xs text-[#8B6A55]">Last Name</p>
+                                <p className="text-xs text-[#626262]">Last Name</p>
                                 <p className="text-sm font-medium text-[#5A3E2B]">{profile?.lastName || '-'}</p>
                             </div>
 
                             <div>
-                                <p className="text-xs text-[#8B6A55]">Email Address</p>
+                                <p className="text-xs text-[#626262]">Email Address</p>
                                 <p className="text-sm font-medium flex items-center gap-1 text-[#5A3E2B]">
                                     {profile?.email || '-'}
                                     <HiCheckCircle className="text-green-500" />
@@ -136,14 +134,14 @@ const MyProfile = () => {
                             </div>
 
                             <div>
-                                <p className="text-xs text-[#8B6A55]">Phone Number</p>
+                                <p className="text-xs text-[#626262]">Phone Number</p>
                                 <p className="text-sm font-medium text-[#5A3E2B]">
                                     {profile?.phone || '-'}
                                 </p>
                             </div>
 
                             <div>
-                                <p className="text-xs text-[#8B6A55]">Position</p>
+                                <p className="text-xs text-[#626262]">Position</p>
                                 <p className="text-sm font-medium text-[#5A3E2B]">
                                     {profile?.roleName || '-'}
                                 </p>
@@ -155,15 +153,15 @@ const MyProfile = () => {
                     <div className="flex flex-wrap gap-2">
                         <Button
                             onClick={() => router.push('/profile/personal-information')}
-                            size="sm" className="flex items-center gap-2 border border-[#A0522D] text-[#A0522D]">
+                            size="sm" className="flex items-center gap-2 border border-[#515254] text-[#515254]">
                             <FiEdit2 /> Edit Profile
                         </Button>
                         <Button
                             onClick={() => router.push('/profile/change-password')}
-                            size="sm" className="flex items-center gap-2 border border-[#A0522D] text-[#A0522D]">
+                            size="sm" className="flex items-center gap-2 border border-[#515254] text-[#515254]">
                             <FiLock /> Change Password
                         </Button>
-                        <Button size="sm" className="flex items-center gap-2 border border-[#A0522D] text-[#A0522D]">
+                        <Button size="sm" className="flex items-center gap-2 border border-[#515254] text-[#515254]">
                             <FiMail /> Verify Email
                         </Button>
                     </div>

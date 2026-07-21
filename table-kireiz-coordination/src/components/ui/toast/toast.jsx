@@ -4,7 +4,7 @@ import { PLACEMENT } from '../utils/constants'
 export const toastDefaultProps = {
     placement: PLACEMENT.TOP_END,
     offsetX: 30,
-    offsetY: 30,
+    offsetY: 60,
     transitionType: 'scale',
     block: false,
 }
