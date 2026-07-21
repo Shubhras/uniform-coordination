@@ -195,11 +195,11 @@ export default function Footer({ pageContainerType = 'contained', className }) {
             </div>
             <div className="border-t border-white/20 mt-12 bg-white">
                 <div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4
-                    flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
-                    <p className="text-[#000000] font-semibold">
+                    flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-[#A9ACB3]">
+                    <p className="font-semibold">
                         ©{year} KIREIZ SPACE. All rights reserved.
                     </p>
-                    <div className="flex gap-6 font-semibold text-[#000000]">
+                    <div className="flex gap-6 font-semibold">
                         <Link href='/private-policy' className="hover:underline">Privacy & Policy</Link>
                         <Link href='/terms-and-condition' className="hover:underline">Terms & Condition</Link>
                     </div>

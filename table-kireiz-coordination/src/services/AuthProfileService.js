@@ -12,7 +12,7 @@ export async function apiGetProfile(token) {
 
 // export async function apiUpdateProfile(token, payload) {
 //     //console.log('qqq',payload);
-    
+
 //     const formData = new FormData()
 //     formData.append('firstName', payload.firstName || '')
 //     formData.append('lastName', payload.lastName || '')

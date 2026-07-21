@@ -3,7 +3,7 @@ import ApiService from "./ApiService";
 
 export async function apiModelInfoCreate(data, token) {
   return ApiService.fetchDataWithAxios({
-    url: "/v1/userhub/modelinfo/create/",
+    url: "/v1/space/userhub/modelinfo/create/",
     method: "post",
     data,
     headers: {
@@ -15,7 +15,7 @@ export async function apiModelInfoCreate(data, token) {
 
 export async function apiSaveDesign(data, token) {
   return ApiService.fetchDataWithAxios({
-    url: "/v1/userhub/customupdatemodels/create/",
+    url: "/v1/space/userhub/customupdatemodels/create/",
     method: "post",
     data,
     headers: {
@@ -27,7 +27,7 @@ export async function apiUpadteDesign(id, data, token) {
 
   console.log("apiUpadteDesign", id, data);
   return ApiService.fetchDataWithAxios({
-    url: `/v1/userhub/customupdatemodels/${id}/update/`,
+    url: `/v1/space/userhub/customupdatemodels/${id}/update/`,
     method: "put",
     data,
     headers: {
@@ -38,7 +38,7 @@ export async function apiUpadteDesign(id, data, token) {
 
 export async function apiExportDesignPdf(id, token) {
   return ApiService.fetchDataWithAxios({
-    url: `/v1/userhub/customupdatemodels/${id}/export/`,
+    url: `/v1/space/userhub/customupdatemodels/${id}/export/`,
     method: "get",
     responseType: "json",
     headers: {
@@ -50,7 +50,7 @@ export async function apiExportDesignPdf(id, token) {
 
 export async function apiGetModalInfo(id, token) {
   return ApiService.fetchDataWithAxios({
-    url: `/v1/userhub/customupdatemodels/${id}/get/`,
+    url: `/v1/space/userhub/customupdatemodels/${id}/get/`,
     responseType: "json",
     method: "get",
     headers: {

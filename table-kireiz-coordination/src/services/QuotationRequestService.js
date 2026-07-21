@@ -2,7 +2,7 @@ import ApiService from './ApiService';
 
 export async function apiCreateQuotationRequest(data, token) {
     return ApiService.fetchDataWithAxios({
-        url: "/v1/userhub/quotationrequest/create/",
+        url: "/v1/space/userhub/quotationrequest/create/",
         method: "post",
         data,
         headers: {
@@ -15,7 +15,7 @@ export async function apiCreateQuotationRequest(data, token) {
  */
 export async function apiExportQuotationPdf(id, token) {
     return ApiService.fetchDataWithAxios({
-        url: `/v1/userhub/quotationrequest/${id}/export/`,
+        url: `/v1/space/userhub/quotationrequest/${id}/export/`,
         method: "get",
         headers: {
             Authorization: `Bearer ${token}`,
