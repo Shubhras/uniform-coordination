@@ -7,8 +7,11 @@ import {
   FiEdit2,
   FiTrash2,
   FiChevronDown,
-  FiGrid,FiX
+  FiGrid,
+  FiX,
 } from "react-icons/fi";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
@@ -214,7 +217,16 @@ const CategoriesTab = () => {
     try {
       setDeleteLoading(true);
       if (deleteTarget.type === "category") {
-        await apiDeleteCategory(accessToken, deleteTarget.item.id);
+        const response = await apiDeleteCategory(
+          accessToken,
+          deleteTarget.item.id,
+        );
+
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.message}
+          </Notification>,
+        );
         fetchCategories();
       } else {
         await apiDeleteSubcategory(accessToken, deleteTarget.item.id);
@@ -345,7 +357,7 @@ const CategoriesTab = () => {
             </button>
 
             <button
-              className="bg-[#1C4FA8] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+              className="bg-[#A0522D] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
               onClick={() => {
                 setEditCategory(null);
                 setOpenModal(true);
@@ -407,12 +419,12 @@ const CategoriesTab = () => {
                           {...provided.draggableProps}
                         >
                           <div
-                            onClick={() =>
-                              setOpenCategory(
-                                openCategory === cat.id ? null : cat.id,
-                              )
-                            }
-                            className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-[#E2E8F0] px-5 py-5 hover:shadow-md transition cursor-pointer"
+                            // onClick={() =>
+                            //   setOpenCategory(
+                            //     openCategory === cat.id ? null : cat.id,
+                            //   )
+                            // }
+                            className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-[#E2E8F0] px-5 py-5 hover:shadow-md transition"
                           >
                             <div className="flex items-center gap-4">
                               <span
@@ -428,12 +440,12 @@ const CategoriesTab = () => {
                             </div>
 
                             <div className="flex items-center gap-4">
-                              <FiChevronDown
+                              {/* <FiChevronDown
                                 size={18}
                                 className={`text-[#1C2C56] transition-transform ${
                                   openCategory === cat.id ? "rotate-180" : ""
                                 }`}
-                              />
+                              /> */}
 
                               <button
                                 onClick={(e) => {

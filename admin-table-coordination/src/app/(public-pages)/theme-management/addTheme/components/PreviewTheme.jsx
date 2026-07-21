@@ -7,43 +7,92 @@ import {
   FiChevronUp,
   FiPackage,
 } from "react-icons/fi";
-
-const bannerImages = [
-  "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1600",
-  "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1600",
-  "https://images.unsplash.com/photo-1511578314322-379afb476865?w=1600",
-];
+import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { apiCreateTheme } from "@/services/ThemeManagement";
 
 const sectionsData = [
   {
     id: 1,
+    key: "table_setup",
     title: "Table Setup",
-    itemsCount: 14,
     open: true,
   },
   {
     id: 2,
+    key: "floral_decor",
     title: "Floral & Decor",
-    itemsCount: 5,
     open: false,
   },
   {
     id: 3,
-    title: "Furniture",
-    itemsCount: 8,
+    key: "seating",
+    title: "Seating",
     open: false,
   },
   {
     id: 4,
-    title: "Lighting",
-    itemsCount: 2,
+    key: "additional_elements",
+    title: "Additional Elements",
     open: false,
   },
 ];
 
-const PreviewTheme = ({ onBack }) => {
+const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
   const [sections, setSections] = useState(sectionsData);
   const [activeImage, setActiveImage] = useState(0);
+  const totalItems = Object.values(themeData.theme_items).flat().length;
+  const router = useRouter();
+  const [saving, setSaving] = useState(false);
+
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
+  const handlePublish = async () => {
+    try {
+      setSaving(true);
+      const formData = new FormData();
+
+      formData.append("title", themeData.title);
+      formData.append("category", themeData.category.value);
+      formData.append("description", themeData.description);
+      formData.append("image", themeData.image);
+      formData.append("order", themeData.order);
+      formData.append("is_active", themeData.is_active);
+
+      themeData.coverImages.forEach((img) => {
+        formData.append("cover_images", img);
+      });
+
+      const themeItems = [];
+
+      Object.entries(themeData.theme_items).forEach(([section, products]) => {
+        products.forEach((product) => {
+          themeItems.push({
+            product_id: product.id,
+            section,
+          });
+        });
+      });
+
+      formData.append("theme_items", JSON.stringify(themeItems));
+
+      const res = await apiCreateTheme(accessToken, formData);
+
+      if (res?.status) {
+        console.log("Theme Created Successfully");
+      }
+
+      if (res?.status) {
+        router.push("/theme-management");
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const toggleSection = (id) => {
     setSections((prev) =>
@@ -66,16 +115,24 @@ const PreviewTheme = ({ onBack }) => {
             <FiArrowLeft />
           </button>
 
-          <h1 className="text-[30px] font-bold text-[#24160E]">
-            Preview Theme
-          </h1>
+          <div>
+            <h1 className="text-[30px] font-bold text-[#24160E]">
+              Preview Theme
+            </h1>
+
+            <p className="text-[#8B5A3C] mt-1">{themeData.title}</p>
+          </div>
         </div>
 
         {/* Banner */}
 
         <div className="relative overflow-hidden rounded-2xl h-[360px]">
           <img
-            src={bannerImages[activeImage]}
+            src={
+              themeData.coverImages?.length
+                ? URL.createObjectURL(themeData.coverImages[activeImage])
+                : "/images/no-image.png"
+            }
             alt=""
             className="w-full h-full object-cover"
           />
@@ -95,7 +152,7 @@ const PreviewTheme = ({ onBack }) => {
           {/* Slider dots */}
 
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
-            {bannerImages.map((_, index) => (
+            {themeData.coverImages.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setActiveImage(index)}
@@ -115,7 +172,7 @@ const PreviewTheme = ({ onBack }) => {
           </h2>
 
           <span className="px-3 py-1 rounded-full shadow-sm bg-white text-[#8B5A3C] text-sm">
-            14 items total
+            {totalItems} items total
           </span>
         </div>
 
@@ -147,6 +204,28 @@ const PreviewTheme = ({ onBack }) => {
                   <FiChevronDown size={20} className="text-[#8B5A3C]" />
                 )}
               </button>
+
+              {section.open && (
+                <div className="border-t px-5 py-4 space-y-3">
+                  {themeData.theme_items[section.key].map((item) => (
+                    <div key={item.id} className="flex items-center gap-3">
+                      <img
+                        src={item.thumbnail || item.image}
+                        className="w-12 h-12 rounded-lg object-cover"
+                        alt=""
+                      />
+
+                      <div>
+                        <p className="font-medium">{item.productName}</p>
+
+                        <p className="text-xs text-gray-500">
+                          {item.category?.categoryName}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -159,9 +238,13 @@ const PreviewTheme = ({ onBack }) => {
           Back
         </button>
 
-        <button className="px-8 py-2.5 rounded-xl bg-[#A85A32] text-white font-semibold hover:bg-[#8E4727]">
+        <Button
+          onClick={handlePublish}
+          loading={saving}
+          className="px-8 py-2.5 rounded-xl bg-[#A85A32] text-white font-semibold hover:bg-[#8E4727]"
+        >
           Publish Theme
-        </button>
+        </Button>
       </div>
     </div>
   );

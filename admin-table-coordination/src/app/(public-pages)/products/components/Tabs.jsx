@@ -8,10 +8,10 @@ import {
 
 const tabs = [
   { label: "Fabrics", icon: FiLayers },
-  { label: "Parts", icon: FiGrid },
+  // { label: "Parts", icon: FiGrid },
   { label: "Colors", icon: FiDroplet },
-  { label: "Template", icon: FiFileText },
-  { label: "Products", icon: FiPackage },
+  // { label: "Template", icon: FiFileText },
+  // { label: "Products", icon: FiPackage },
 ];
 
 

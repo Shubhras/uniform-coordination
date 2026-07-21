@@ -11,12 +11,16 @@ import {
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetFabricList, apiDeleteFabric } from "@/services/FabricService";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import AddEditFabricModal from "./AddEditFabricModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
 const FabricsTab = () => {
   const { session } = useCurrentSession();
+  console.log(session);
   const accessToken = session?.user?.accessToken;
+  console.log(session?.user?.accessToken);
 
   const [fabrics, setFabrics] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -74,7 +78,13 @@ const FabricsTab = () => {
 
     try {
       setDeleteLoading(true);
-      await apiDeleteFabric(accessToken, fabricToDelete.id);
+      const response = await apiDeleteFabric(accessToken, fabricToDelete.id);
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response.message}
+        </Notification>,
+      );
       setDeleteDialogOpen(false);
       setFabricToDelete(null);
       fetchFabrics(currentPage); // refresh
@@ -151,7 +161,7 @@ const FabricsTab = () => {
             setEditFabric(null);
             setOpenAdd(true);
           }}
-          className="bg-[#1C4FA8] text-white px-4 py-2 font-medium rounded-md text-sm"
+          className="bg-[#A0522D] text-white px-4 py-2 font-semibold rounded-md text-sm"
         >
           + Add New Fabric
         </button>
@@ -184,9 +194,9 @@ const FabricsTab = () => {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-base">
-          <thead className="bg-[#1C4FA80F] text-[#486284]">
-            <tr>
+        <table className="w-full text-sm">
+          <thead className="bg-[#F1F5F9] text-[#486284]">
+            <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
               <th className="text-left px-5 py-4 font-medium">Fabric Name</th>
               <th className="text-left px-5 py-4 font-medium">Color</th>
               <th className="text-left px-5 py-4 font-medium">Material</th>

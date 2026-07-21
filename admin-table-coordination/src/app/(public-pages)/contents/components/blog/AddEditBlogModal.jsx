@@ -9,6 +9,8 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormItem } from "@/components/ui/Form";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import Input from "@/components/ui/Input";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
@@ -246,9 +248,25 @@ const AddEditBlogModal = ({
       }
 
       if (mode === "edit" && initialData?.id) {
-        await apiUpdateBlog(accessToken, initialData.id, formData);
+        const response = await apiUpdateBlog(
+          accessToken,
+          initialData.id,
+          formData,
+        );
+
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.message}
+          </Notification>,
+        );
       } else {
-        await apiCreateBlog(accessToken, formData);
+        const response = await apiCreateBlog(accessToken, formData);
+
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.message}
+          </Notification>,
+        );
       }
 
       if (keepOpen && mode !== "edit") {
@@ -366,7 +384,7 @@ const AddEditBlogModal = ({
             </label>
 
             <button
-              className="w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm mt-2 flex items-center justify-center gap-2"
+              className="w-full bg-[#A0522D] text-white py-2 rounded-md text-sm mt-2 flex items-center justify-center gap-2"
               onClick={() => fileInputRef.current?.click()}
             >
               <FiUpload size={16} />
@@ -382,7 +400,7 @@ const AddEditBlogModal = ({
               <br />
               or{" "}
               <span
-                className="text-[#1C2C56] underline cursor-pointer"
+                className="text-[#A0522D] underline cursor-pointer"
                 onClick={() => fileInputRef.current?.click()}
               >
                 click to browse here
@@ -454,7 +472,13 @@ const AddEditBlogModal = ({
         </div>
 
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
-          <Button variant="plain" onClick={onClose} size="sm" disabled={saving} className="bg-blue-100 rounded-lg">
+          <Button
+            variant="plain"
+            onClick={onClose}
+            size="sm"
+            disabled={saving}
+            className="bg-blue-100 rounded-lg"
+          >
             Cancel
           </Button>
 
@@ -471,7 +495,7 @@ const AddEditBlogModal = ({
           <Button
             variant="solid"
             size="sm"
-            className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
+            className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"
             // onClick={() => handleSave({ keepOpen: false })}
             onClick={handleSubmit(handleSave)}
             loading={saving}

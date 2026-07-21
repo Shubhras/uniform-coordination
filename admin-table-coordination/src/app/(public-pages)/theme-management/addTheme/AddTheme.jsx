@@ -1,31 +1,58 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { FiArrowLeft, FiLayers, FiPlus, FiX } from "react-icons/fi";
 import Select from "react-select";
 import { FiBarChart2 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import ThemeBuilder from "./components/ThemeBuilder";
 import PreviewTheme from "./components/PreviewTheme";
-
-const categoryOptions = [
-  { value: "Wedding", label: "Wedding" },
-  { value: "Corporate", label: "Corporate" },
-  { value: "Birthday", label: "Birthday" },
-];
-
-const galleryImages = [
-  "https://images.unsplash.com/photo-1519741497674-611481863552?w=300",
-  "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300",
-  "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=300",
-  "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=300",
-];
+import { apiGetCategoryList } from "@/services/CategoryService";
 
 const AddTheme = () => {
   const router = useRouter();
 
-  const [category, setCategory] = useState(categoryOptions[0]);
   const [step, setStep] = useState(1);
+  const [categoryList, setCategoryList] = useState([]);
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
+  const categoryOptions = categoryList.map((item) => ({
+    value: item.id,
+    label: item.categoryName,
+  }));
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const res = await apiGetCategoryList(accessToken, 1, 100);
+
+      if (res?.status) {
+        setCategoryList(res.data);
+      }
+    };
+
+    if (accessToken) {
+      fetchCategories();
+    }
+  }, [accessToken]);
+
+  const [themeData, setThemeData] = useState({
+    title: "",
+    category: null,
+    description: "",
+    image: null,
+    coverImages: [],
+    order: 1,
+    is_active: true,
+
+    theme_items: {
+      table_setup: [],
+      floral_decor: [],
+      seating: [],
+      additional_elements: [],
+    },
+  });
 
   const selectStyles = {
     control: (base) => ({
@@ -84,6 +111,13 @@ const AddTheme = () => {
 
                 <input
                   type="text"
+                  value={themeData.title}
+                  onChange={(e) =>
+                    setThemeData((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
                   placeholder="Enter theme name"
                   className="w-full h-12 rounded-xl border border-[#E7D9CF] px-4 outline-none focus:border-[#A0522D]"
                 />
@@ -96,9 +130,14 @@ const AddTheme = () => {
 
                 <Select
                   options={categoryOptions}
-                  value={category}
-                  onChange={setCategory}
                   styles={selectStyles}
+                  value={themeData.category}
+                  onChange={(value) =>
+                    setThemeData((prev) => ({
+                      ...prev,
+                      category: value,
+                    }))
+                  }
                 />
               </div>
             </div>
@@ -110,6 +149,13 @@ const AddTheme = () => {
               </label>
 
               <textarea
+                value={themeData.description}
+                onChange={(e) =>
+                  setThemeData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
                 rows={4}
                 placeholder="Write short description..."
                 className="w-full rounded-xl border border-[#E7D9CF] p-4 resize-none outline-none focus:border-[#A0522D]"
@@ -137,44 +183,44 @@ const AddTheme = () => {
               </label>
 
               <div className="overflow-hidden rounded-xl border border-[#EFE5DD] h-[230px]">
-                <img
-                  src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1400"
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+                <div className="overflow-hidden rounded-xl border border-[#EFE5DD] h-[230px]">
+                  {themeData.image ? (
+                    <img
+                      src={URL.createObjectURL(themeData.image)}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <label className="w-full h-full flex items-center justify-center cursor-pointer bg-[#FAF8F6]">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        hidden
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setThemeData((prev) => ({
+                              ...prev,
+                              image: file,
+                            }));
+                          }
+                        }}
+                      />
+
+                      <div className="text-center">
+                        <FiPlus className="mx-auto text-[#A0522D]" size={26} />
+                        <p className="mt-2 text-sm text-[#8C6E5D]">
+                          Upload Thumbnail
+                        </p>
+                      </div>
+                    </label>
+                  )}
+                </div>
               </div>
             </div>
 
             {/* Gallery */}
-            <div className="mt-6">
-              <label className="block text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-3">
-                Gallery Photos
-              </label>
-
-              <div className="flex gap-4 flex-wrap">
-                {galleryImages.map((img, index) => (
-                  <div
-                    key={index}
-                    className="relative w-[105px] h-[105px] rounded-xl overflow-hidden border border-[#EFE5DD]"
-                  >
-                    <img
-                      src={img}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-
-                    <button className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white flex items-center justify-center shadow">
-                      <FiX size={10} />
-                    </button>
-                  </div>
-                ))}
-
-                {/* Upload */}
-                <button className="w-[105px] h-[105px] rounded-xl border-2 border-dashed border-[#E5D5C8] flex items-center justify-center hover:bg-[#FAF5F2] transition">
-                  <FiPlus className="text-[#A0522D]" size={20} />
-                </button>
-              </div>
-            </div>
+    
 
             {/* Footer Buttons */}
             <div className="flex justify-between mt-10">
@@ -196,9 +242,20 @@ const AddTheme = () => {
         </>
       )}
       {step === 2 && (
-        <ThemeBuilder onBack={() => setStep(1)} onPreview={() => setStep(3)} />
+        <ThemeBuilder
+          themeData={themeData}
+          setThemeData={setThemeData}
+          onBack={() => setStep(1)}
+          onPreview={() => setStep(3)}
+        />
       )}
-      {step === 3 && <PreviewTheme onBack={() => setStep(2)} />}
+      {step === 3 && (
+        <PreviewTheme
+          themeData={themeData}
+          setThemeData={setThemeData}
+          onBack={() => setStep(2)}
+        />
+      )}
     </div>
   );
 };
