@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
   FiSearch,
   FiPlus,
@@ -12,6 +13,7 @@ import {
 import Select from "react-select";
 import { useRouter } from "next/navigation";
 import NewDeleteModal from "@/components/shared/NewDeleteModal";
+import { apiGetThemeList } from "@/services/ThemeManagement";
 
 const ThemePage = () => {
   const router = useRouter();
@@ -19,6 +21,38 @@ const ThemePage = () => {
   const [view, setView] = useState("list");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
+  const [themes, setThemes] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const getThemeList = async () => {
+    try {
+      setLoading(true);
+
+      const res = await apiGetThemeList(accessToken);
+      console.log("API Response:", res);
+      console.log("API Data:", res?.data?.data);
+
+      if (res?.status) {
+        setThemes(res.data || []);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  console.log("accessToken", accessToken);
+  useEffect(() => {
+    console.log("useEffect", accessToken);
+    if (accessToken) {
+      getThemeList();
+    }
+  }, [accessToken]);
 
   const categoryOptions = [
     { value: "all", label: "All Categories" },
@@ -72,59 +106,6 @@ const ThemePage = () => {
       color: state.isSelected ? "#fff" : "#1F2937",
     }),
   };
-
-  const themes = [
-    {
-      id: 1,
-      image: "https://picsum.photos/70/45?1",
-      name: "Coastal Brunch Club",
-      category: "Restaurant",
-      description:
-        "Relaxed coastal vibes with rattan, sea glass, and linen simplicity.",
-      items: 8,
-      usage: "47×",
-    },
-    {
-      id: 2,
-      image: "https://picsum.photos/70/45?2",
-      name: "Garden of Versailles",
-      category: "Wedding",
-      description:
-        "A grand floral affair with cascading blooms and gilded accents.",
-      items: 8,
-      usage: "47×",
-    },
-    {
-      id: 3,
-      image: "https://picsum.photos/70/45?3",
-      name: "Corporate Blue",
-      category: "Office",
-      description:
-        "Layered textiles, pampas grass, and burnished gold in effortless harmony.",
-      items: 8,
-      usage: "47×",
-    },
-    {
-      id: 4,
-      image: "https://picsum.photos/70/45?4",
-      name: "Citrus Glow",
-      category: "Event",
-      description:
-        "Sleek navy and charcoal corporate elegance for high-stakes events.",
-      items: 8,
-      usage: "47×",
-    },
-    {
-      id: 5,
-      image: "https://picsum.photos/70/45?5",
-      name: "Elegant Wedding",
-      category: "Wedding",
-      description:
-        "Earthy warmth with Mediterranean-inspired rustic abundance.",
-      items: 8,
-      usage: "47×",
-    },
-  ];
 
   return (
     <>
@@ -230,55 +211,60 @@ const ThemePage = () => {
               </thead>
 
               <tbody>
-                {themes.map((theme) => (
-                  <tr
-                    key={theme.id}
-                    className="odd:bg-white even:bg-[#FBF8F6] hover:bg-[#F6F0EB] transition"
-                  >
-                    <td className="px-4 py-3">
-                      <img
-                        src={theme.image}
-                        alt=""
-                        className="w-[58px] h-[40px] rounded object-cover"
-                      />
-                    </td>
+                {themes.map((theme) => {
+                  const totalItems =
+                    (theme.theme_items?.table_setup?.length || 0) +
+                    (theme.theme_items?.floral_decor?.length || 0) +
+                    (theme.theme_items?.seating?.length || 0) +
+                    (theme.theme_items?.additional_elements?.length || 0);
 
-                    <td className="px-4 py-3 font-medium text-[#1A1410]">
-                      {theme.name}
-                    </td>
+                  return (
+                    <tr
+                      key={theme.id}
+                      className="odd:bg-white even:bg-[#FBF8F6] hover:bg-[#F6F0EB]"
+                    >
+                      <td className="px-4 py-3">
+                        <img
+                          src={theme.image}
+                          alt={theme.title}
+                          className="w-[58px] h-[40px] rounded object-cover"
+                        />
+                      </td>
 
-                    <td className="px-4 py-3 text-[#4B5563]">
-                      {theme.category}
-                    </td>
+                      <td className="px-4 py-3 font-medium">{theme.title}</td>
 
-                    <td className="px-4 py-3 text-center">{theme.items}</td>
+                      <td className="px-4 py-3">{theme.category}</td>
 
-                    <td className="px-4 py-3 text-center">{theme.usage}</td>
+                      <td className="px-4 py-3 text-center">{totalItems}</td>
 
-                    <td className="px-4 py-3">
-                      <div className="flex justify-center gap-3 text-[#7C6657]">
-                        <button
-                          onClick={() => router.push("/theme-management/view")}
-                        >
-                          <FiEye size={15} />
-                        </button>
+                      <td className="px-4 py-3 text-center">-</td>
 
-                        <button
-                          onClick={() => router.push("/theme-management/edit")}
-                        >
-                          <FiEdit2 size={15} />
-                        </button>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-center gap-3">
+                          <button
+                            onClick={() =>
+                              router.push(`/theme-management/view/${theme.id}`)
+                            }
+                          >
+                            <FiEye />
+                          </button>
 
-                        <button
-                          onClick={() => handleDeleteClick(theme)}
-                          className="hover:text-red-500"
-                        >
-                          <FiTrash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          <button
+                            onClick={() =>
+                              router.push(`/theme-management/edit/${theme.id}`)
+                            }
+                          >
+                            <FiEdit2 />
+                          </button>
+
+                          <button onClick={() => handleDeleteClick(theme)}>
+                            <FiTrash2 />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -286,66 +272,44 @@ const ThemePage = () => {
 
         {view === "grid" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {themes.map((theme) => (
-              <div
-                key={theme.id}
-                className="bg-white rounded-2xl border border-[#E8E2DC] overflow-hidden hover:shadow-md transition"
-              >
-                {/* Image */}
-                <div className="h-32 overflow-hidden">
-                  <img
-                    src={theme.image}
-                    alt={theme.name}
-                    className="w-full h-full object-cover hover:scale-105 transition duration-300"
-                  />
-                </div>
+            {themes.map((theme) => {
+              const totalItems =
+                (theme.theme_items?.table_setup?.length || 0) +
+                (theme.theme_items?.floral_decor?.length || 0) +
+                (theme.theme_items?.seating?.length || 0) +
+                (theme.theme_items?.additional_elements?.length || 0);
 
-                {/* Content */}
-                <div className="p-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-semibold text-[16px] text-[#1A1410]">
-                      {theme.name}
-                    </h3>
-
-                    <span className="text-xs px-3 py-1 rounded-full bg-[#FFF3EC] text-[#A85A32] font-semibold">
-                      {theme.category}
-                    </span>
+              return (
+                <div
+                  key={theme.id}
+                  className="bg-white rounded-2xl border border-[#E8E2DC] overflow-hidden"
+                >
+                  <div className="h-40 overflow-hidden">
+                    <img
+                      src={theme.image}
+                      alt={theme.title}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
 
-                  <p className="text-sm text-[#8A8A8A] mt-3 leading-6 h-12">
-                    {theme.description}
-                  </p>
+                  <div className="p-4">
+                    <div className="flex justify-between">
+                      <h3 className="font-semibold">{theme.title}</h3>
 
-                  <div className="flex justify-between items-center mt-5">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => router.push("/theme-management/view")}
-                        className="flex items-center gap-2 bg-[#A85A32] hover:bg-[#8B4725] text-white text-xs font-medium px-4 py-2 rounded-full"
-                      >
-                        <FiEye size={13} />
-                        Preview
-                      </button>
-
-                      <button
-                        onClick={() => router.push("/theme-management/edit")}
-                        className="flex items-center gap-2 border border-[#DDD] hover:border-[#A85A32] text-[#444] text-xs font-medium px-4 py-2 rounded-full"
-                      >
-                        <FiEdit2 size={13} />
-                        Edit
-                      </button>
+                      <span className="text-xs bg-[#FFF3EC] px-2 py-1 rounded">
+                        {theme.category}
+                      </span>
                     </div>
 
-                    <button className="w-8 h-8 rounded-full border border-[#E5E5E5] flex items-center justify-center hover:bg-red-50">
-                      <FiTrash2
-                        size={14}
-                        onClick={() => handleDeleteClick(theme)}
-                        className="text-[#8A8A8A] hover:text-red-500"
-                      />
-                    </button>
+                    <p className="text-sm mt-2 text-gray-500">
+                      {theme.description}
+                    </p>
+
+                    <p className="mt-3 text-sm">Items: {totalItems}</p>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
