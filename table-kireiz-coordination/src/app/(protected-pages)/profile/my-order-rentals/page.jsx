@@ -1,14 +1,7 @@
-'use client'
-
-import MyOrderRentals from './MyOrderRentals'
-import AdaptiveCard from '@/components/shared/AdaptiveCard'
+import { redirect } from 'next/navigation'
 
 const MyOrderRentalsPage = () => {
-    return (
-        <AdaptiveCard className="h-full mt-8 border-0">
-            <MyOrderRentals />
-        </AdaptiveCard>
-    )
+    redirect('/profile/my-order-rentals/active-orders')
 }
 
 export default MyOrderRentalsPage
