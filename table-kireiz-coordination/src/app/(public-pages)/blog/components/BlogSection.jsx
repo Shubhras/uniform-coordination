@@ -34,21 +34,20 @@ const BlogSection = () => {
         const fetchBlogs = async () => {
             try {
                 const response = await apiGetBlogs();
-
                 if (response?.status) {
-                    const mappedBlogs = response.data.map((post) => ({
+                    const mapped = response.data.map((post) => ({
                         id: post.id,
-                        img: post.image || "/img/table-form/blog-image/blog1.png",
+                        slug: post.slug,
+                        image: post.image_url || "/img/table-form/blog-image/blog1.png",
                         date: formatDate(post.created_at),
                         category: post.categoryName || "Category",
                         title: post.title,
                         desc: post.description,
                     }));
-
-                    setBlogs(mappedBlogs);
+                    setBlogs(mapped);
                 }
-            } catch (error) {
-                console.error("Failed to fetch blogs", error);
+            } catch (err) {
+                console.error("Failed to fetch blogs", err);
             } finally {
                 setLoading(false);
             }
@@ -77,9 +76,11 @@ const BlogSection = () => {
                 </h2>
 
                 {/* Loading state (no CSS change) */}
-                {loading && (
-                    <p className="text-center text-gray-500">Loading blogs...</p>
-                )}
+                {loading ? <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+                    <div className="flex justify-center items-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
+                    </div>
+                </section> : null}
 
                 {/* Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -92,7 +93,7 @@ const BlogSection = () => {
                             {/* Image */}
                             <div className="p-3">
                                 <Image
-                                    src={post.img}
+                                    src={post.image}
                                     alt={post.title}
                                     width={500}
                                     height={300}
