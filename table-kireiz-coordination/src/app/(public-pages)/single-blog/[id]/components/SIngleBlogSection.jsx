@@ -1,3 +1,56 @@
+// "use client";
+
+// import Image from "next/image";
+// import { useParams } from "next/navigation";
+// import { useEffect, useState } from "react";
+// import { apiGetBlogDetail } from "@/services/BlogService";
+
+// /* helpers */
+// const formatDate = (date) => {
+//   if (!date) return "";
+//   return new Date(date).toISOString().split("T")[0];
+// };
+
+// const SingleBlogSection = () => {
+//   const { id } = useParams();
+
+//   const [blogData, setBlogData] = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     const fetchBlog = async () => {
+//       try {
+//         const res = await apiGetBlogDetail(id);
+
+//         if (res?.status) {
+//           setBlogData({
+//             img: res.data.image || "/img/table-form/blog-image/blog2.png",
+//             title: res.data.title,
+//             date: formatDate(res.data.created_at),
+//             description: res.data.description,
+//           });
+//         }
+//       } catch (error) {
+//         console.error("Failed to fetch blog detail", error);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     if (id) fetchBlog();
+//   }, [id]);
+
+//   /* Not Found */
+//   if (!blogData) {
+//     return (
+//       <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+//         <div className="py-20 text-center text-gray-500">
+//           Blog not found
+//         </div>
+//       </section>
+//     );
+//   }
+
 "use client";
 
 import Image from "next/image";
@@ -5,7 +58,6 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiGetBlogDetail } from "@/services/BlogService";
 
-/* helpers */
 const formatDate = (date) => {
   if (!date) return "";
   return new Date(date).toISOString().split("T")[0];
@@ -13,25 +65,24 @@ const formatDate = (date) => {
 
 const SingleBlogSection = () => {
   const { id } = useParams();
-
   const [blogData, setBlogData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchBlog = async () => {
+      setLoading(true);
       try {
         const res = await apiGetBlogDetail(id);
-
         if (res?.status) {
           setBlogData({
-            img: res.data.image || "/img/table-form/blog-image/blog2.png",
-            title: res.data.title,
-            date: formatDate(res.data.created_at),
-            description: res.data.description,
+            img: res?.data?.image_url,
+            title: res?.data?.title,
+            date: formatDate(res?.data?.created_at),
+            description: res?.data?.description,
           });
         }
-      } catch (error) {
-        console.error("Failed to fetch blog detail", error);
+      } catch (err) {
+        console.error("Failed to load blog detail", err);
       } finally {
         setLoading(false);
       }
@@ -40,7 +91,6 @@ const SingleBlogSection = () => {
     if (id) fetchBlog();
   }, [id]);
 
-  /* Not Found */
   if (!blogData) {
     return (
       <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
@@ -50,7 +100,6 @@ const SingleBlogSection = () => {
       </section>
     );
   }
-
   return (
     <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
       <div className="py-10 md:py-8">
@@ -73,8 +122,8 @@ const SingleBlogSection = () => {
         {/* Blog Content */}
         {
           loading ? <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
-            <div className="py-20 text-center text-gray-500">
-              Loading blog...
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
             </div>
           </section> :
             <div className="w-full rounded-3xl p-3">

@@ -225,26 +225,16 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
             .map((item, i) => (
               <div
                 key={i}
-                className="
-    relative
-    overflow-hidden
-    shadow-md
-    
-    w-full
-    p-3 rounded-tl-4xl rounded-br-4xl
-    bg-[#FEF3C7]
-    hover:bg-[#A0522D]
-    transition-all
-    duration-200
-    group
-   
-  "
+                className="relative flex-none overflow-hidden shadow-md w-full p-3 rounded-tl-4xl rounded-br-4xl bg-[#FEF3C7] hover:bg-[#A0522D] transition-all duration-200 group"
+                style={{
+                  maxWidth: `calc(${100 / cardsPerView}% - ${((cardsPerView - 1) * 24) / cardsPerView}px)`,
+                }}
               >
                 {/* IMAGE */}
                 <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl ">
                   <Image
-                    src={item.img}
-                    alt={item.title}
+                    src={item.img || "/img/table-form/themes/theme1.png"}
+                    alt={item.title || "Category Image"}
                     fill
                     className="object-cover"
                     priority={i === 0}
@@ -254,13 +244,7 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
                   {/* OVERLAY BUTTON */}
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%]">
                     <button
-                      className="
-          w-full
-          py-3
-           border border-white
-          text-lg
-          font-medium
-          text-white
+                      className="w-full py-3 border border-white text-lg font-medium text-white
           group-hover:text-black
           bg-[#A0522D]
           rounded-xl
