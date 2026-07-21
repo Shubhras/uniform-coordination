@@ -39,15 +39,15 @@ const SingleBlogSection = () => {
     if (id) fetchBlog();
   }, [id]);
 
-  if (!blogData) {
-    return (
-      <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
-        <div className="py-20 text-center text-gray-500">
-          Blog not found
-        </div>
-      </section>
-    );
-  }
+  // if (!blogData) {
+  //   return (
+  //     <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+  //       <div className="py-20 text-center text-gray-500">
+  //         Blog not found
+  //       </div>
+  //     </section>
+  //   );
+  // }
   return (
     <section className="relative w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 py-20 md:py-24">
       <div className="bg-[#F5F7FB] rounded-3xl px-1 md:px-10 lg:px-8 py-10 md:py-8">
@@ -71,13 +71,16 @@ const SingleBlogSection = () => {
           Our Latest Blog Posts
         </h2>
 
-        {/* Blog Content */}
-        {
-          loading ? <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
-            <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
-            </div>
-          </section> :
+          {/* Blog Content */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+          </div>
+        ) : !blogData ? (
+          <div className="py-20 text-center text-gray-500">
+            Blog not found
+          </div>
+        ) : (
             <div className="w-full bg-[#F5F7FB] rounded-3xl p-3">
 
               {/* Image */}
@@ -108,7 +111,8 @@ const SingleBlogSection = () => {
                 dangerouslySetInnerHTML={{ __html: blogData.description }}
               />
             </div>
-        }
+       )}
+
       </div>
     </section>
   );
