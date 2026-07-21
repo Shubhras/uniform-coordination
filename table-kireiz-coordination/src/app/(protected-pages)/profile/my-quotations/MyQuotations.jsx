@@ -3,10 +3,11 @@
 import { useMemo, useState, useEffect } from 'react'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import Select from '@/components/ui/Select'
 import { FiChevronLeft, FiChevronRight, FiEye, FiFileText, FiSearch } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
 // import { useSettingsStore } from '../_store/settingsStore'
-
+import { HiCheck } from 'react-icons/hi'
 export const quotationStatusStyles = {
     Accepted: 'bg-[#E8F9ED] text-[#2BA24C]',
     Rejected: 'bg-[#FFE8E8] text-[#F04438]',
@@ -18,14 +19,14 @@ export const quotationStatusStyles = {
 }
 
 export const quotationStatusOptions = [
-    'All Status',
-    'Accepted',
-    'Rejected',
-    'Quotation Ready',
-    'Contract Pending',
-    'Completed',
-    'Sent',
-    'Signed',
+    { value: '', label: 'All Status' },
+    { value: 'accepted', label: 'Accepted' },
+    { value: 'rejected', label: 'Rejected' },
+    { value: 'quotation-ready', label: 'Quotation Ready' },
+    { value: 'contract-pending', label: 'Contract Pending' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'sent', label: 'Sent' },
+    { value: 'signed', label: 'Signed' },
 ]
 
 const quotationViewMap = {
@@ -376,6 +377,19 @@ const MyQuotations = () => {
         setStatusFilter('All Status')
         setCurrentPage(1)
     }
+    const CustomOption = (props) => {
+        const { innerProps, label, isSelected, isDisabled } = props
+        return (
+            <div
+                className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${isSelected ? 'text-[#A0522D] bg-[#F2F7FF]' : 'text-[#1C2C56] hover:bg-gray-100'
+                    } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                {...innerProps}
+            >
+                <span className="ml-2 text-sm font-medium">{label}</span>
+                {isSelected && <HiCheck className="text-lg" />}
+            </div>
+        )
+    }
 
     return (
         <div className="w-full bg-[#F5F0EE30] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
@@ -405,18 +419,47 @@ const MyQuotations = () => {
                 </div>
 
                 <div className="flex gap-3 lg:w-auto">
-                    <select
-                        value={statusFilter}
-                        onChange={(event) => setStatusFilter(event.target.value)}
-                        className="min-w-[160px] rounded-md border border-[#E7D8D0] bg-white px-4 py-2 text-sm text-[#8B6A55] outline-none"
-                    >
-                        {quotationStatusOptions.map((status) => (
-                            <option key={status} value={status}>
-                                {status}
-                            </option>
-                        ))}
-                    </select>
-
+                    <Select
+                        options={quotationStatusOptions}
+                        value={quotationStatusOptions.find((o) => o.value === statusFilter) || quotationStatusOptions[0]}
+                        onChange={(selected) => setStatusFilter(selected?.value || 'All Status')}
+                        isSearchable={false}
+                        className="min-w-[180px]"
+                        components={{ Option: CustomOption }}
+                        styles={{
+                            control: (base) => ({
+                                ...base,
+                                borderRadius: '10px',
+                                borderColor: '#E7D8D0',
+                                borderStyle: 'solid',
+                                borderWidth: '1px',
+                                backgroundColor: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '2px 4px',
+                                cursor: 'pointer',
+                                boxShadow: 'none',
+                                '&:hover': { borderColor: '#D7B7A3' },
+                            }),
+                            menu: (base) => ({
+                                ...base,
+                                marginTop: '4px',
+                                borderRadius: '14px',
+                                padding: '6px',
+                                overflow: 'hidden',
+                            }),
+                            menuList: (base) => ({
+                                ...base,
+                                paddingTop: 0,
+                                paddingBottom: 0,
+                                maxHeight: '220px',
+                                overflowY: 'auto',
+                            }),
+                            singleValue: () => ({ color: '#A0522D', fontWeight: 500, fontSize: '14px' })
+                        }}
+                        maxMenuHeight={220}
+                    />
                     <Button
                         type="button"
                         onClick={handleResetFilters}
