@@ -9,3 +9,13 @@ export async function apiGetNotificationList(accessToken) {
         },
     })
 }
+
+export async function apiGetNotificationDetails(accessToken, id) {
+    return ApiService.fetchDataWithAxios({
+        url: `/v1/space/uniformAdmin/admin-notification/${id}/`,
+        method: 'get',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    })
+}

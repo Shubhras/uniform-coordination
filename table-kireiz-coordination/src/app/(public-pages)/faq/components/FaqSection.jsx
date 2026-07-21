@@ -2,13 +2,14 @@
 
 import Container from "@/components/shared/Container";
 import { useEffect, useState } from "react";
-import { FiPlus, FiMinus, FiSearch } from "react-icons/fi";
+import { FiPlus, FiMinus, FiSearch, FiX } from "react-icons/fi";
 import { apiGetFaq } from "@/services/FaqService";
 
 const FaqSection = () => {
     const [faqs, setFaqs] = useState([]);
     const [activeIndex, setActiveIndex] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const toggleFAQ = (index) => {
         setActiveIndex(activeIndex === index ? null : index);
@@ -41,6 +42,11 @@ const FaqSection = () => {
         fetchFaqs();
     }, []);
 
+    const filteredFaqs = faqs.filter(faq =>
+        faq.question?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        faq.answer?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <section className="relative pt-8 pb-20 bg-[#FAF6F4] px-5">
             <Container>
@@ -55,8 +61,19 @@ const FaqSection = () => {
                             <input
                                 type="text"
                                 placeholder="Search"
-                                className="w-full h-11 pl-11 pr-4 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#005CA7]/30 text-sm"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full h-11 pl-11 pr-10 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#005CA7]/30 text-sm"
                             />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery("")}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                    aria-label="Clear search"
+                                >
+                                    <FiX size={18} />
+                                </button>
+                            )}
                         </div>
                     </div>
                     <p className="text-[#1C2C56] md:text-2xl text-xl">
@@ -67,13 +84,19 @@ const FaqSection = () => {
                 {/* FAQ List */}
                 <div className="max-w-5xl mx-auto space-y-6">
                     {loading && (
+                        <div className="flex justify-center items-center py-10">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
+                        </div>
+                    )}
+
+                    {!loading && filteredFaqs.length === 0 && (
                         <p className="text-center text-gray-500 text-sm">
-                            Loading FAQs...
+                            No FAQs found.
                         </p>
                     )}
 
                     {!loading &&
-                        faqs.map((faq, index) => {
+                        filteredFaqs.map((faq, index) => {
                             const isOpen = activeIndex === index;
 
                             return (

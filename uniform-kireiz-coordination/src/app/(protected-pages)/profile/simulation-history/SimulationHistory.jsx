@@ -23,7 +23,7 @@ const CustomOption = (props) => {
     const { innerProps, label, isSelected, isDisabled } = props
     return (
         <div
-            className={`flex items-center justify-between px-3 py-2 cursor-pointer ${
+            className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${
                 isSelected ? 'text-[#1C4FA8] bg-[#F2F7FF]' : 'text-[#1C2C56] hover:bg-gray-100'
             } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             {...innerProps}
@@ -166,7 +166,7 @@ const SimulationHistory = () => {
             <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 mb-8">
 
                 {/* LEFT */}
-                <div className="flex gap-2 w-full sm:w-auto z-[60]">
+                <div className="flex gap-2 w-full sm:w-auto relative z-10">
                     <Select
                         options={[{ value: '', label: 'All Industry' }, ...categories.map(cat => ({ value: cat.slug, label: cat.categoryName }))]}
                         value={[{ value: '', label: 'All Industry' }, ...categories.map(cat => ({ value: cat.slug, label: cat.categoryName }))].find(o => o.value === filters.category) || { value: '', label: 'All Industry' }}
@@ -185,9 +185,24 @@ const SimulationHistory = () => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                padding: '4px 8px',
+                                padding: '2px 4px',
                                 cursor: 'pointer'
                             }),
+                            menu: (base) => ({
+                                ...base,
+                                marginTop: '4px',
+                                borderRadius: '14px',
+                                padding: '6px',
+                                overflow: 'hidden',
+                            }),
+                            menuList: (base) => ({
+                                ...base,
+                                paddingTop: 0,
+                                paddingBottom: 0,
+                                maxHeight: '220px',
+                                overflowY: 'auto',
+                            }),
+ 
                             singleValue: () => ({ color: '#1C2C56', fontWeight: 500, fontSize: '14px' }),
                             placeholder: () => ({ color: '#1C2C56', fontWeight: 500, fontSize: '14px' })
                         }}
@@ -195,7 +210,7 @@ const SimulationHistory = () => {
                 </div>
 
                 {/* RIGHT */}
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-3 sm:mt-0 z-[50]">
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-3 sm:mt-0 relative z-10">
                     <Select
                         options={sortOptions}
                         value={sortOptions.find((o) => o.value === filters.sort) || sortOptions[0]}
@@ -214,9 +229,24 @@ const SimulationHistory = () => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                padding: '4px 8px',
+                                padding: '2px 4px',
                                 cursor: 'pointer'
                             }),
+                            menu: (base) => ({
+                                ...base,
+                                marginTop: '4px',
+                                borderRadius: '14px',
+                                padding: '6px',
+                                overflow: 'hidden',
+                            }),
+                            menuList: (base) => ({
+                                ...base,
+                                paddingTop: 0,
+                                paddingBottom: 0,
+                                maxHeight: '220px',
+                                overflowY: 'auto',
+                            }),
+ 
                             singleValue: () => ({ color: '#1C2C56', fontWeight: 500, fontSize: '14px' })
                         }}
                     />

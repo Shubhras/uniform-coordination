@@ -132,6 +132,10 @@ const Promotions = () => {
     });
   }, [promotions, searchQuery, type, status]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, type, status]);
+
   return (
     <div className="mt-5">
       <div className="flex flex-col gap-3 lg:flex-row">
