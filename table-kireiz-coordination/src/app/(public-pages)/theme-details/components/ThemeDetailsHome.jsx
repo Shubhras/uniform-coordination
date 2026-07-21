@@ -20,7 +20,7 @@ const ThemeDetailsHome = () => {
     return (
         <main className="text-base bg-white dark:bg-gray-900">
             <HaederPage toggleMode={toggleMode} mode={mode} />
-           <ThemeDetails/>
+            <ThemeDetails />
             <FooterPage mode={mode} />
         </main>
     )

@@ -6,6 +6,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { AiOutlineExpand } from 'react-icons/ai'
 import { CiCircleInfo } from 'react-icons/ci'
 import { FiBox, FiChevronDown, FiChevronLeft } from 'react-icons/fi'
+import { apiGetSindleThemeDetails } from '@/services/HomeService'
+
 const themeCatalog = [
     {
         id: 1,
@@ -316,6 +318,18 @@ const ThemeDetails = () => {
             selectedThemeId,
         })
         console.log('Theme details matched theme:', theme)
+
+        if (selectedThemeId) {
+            const fetchSingleTheme = async () => {
+                try {
+                    const response = await apiGetSindleThemeDetails(selectedThemeId);
+                    console.log("apiGetSindleThemeDetails response:", response);
+                } catch (error) {
+                    console.error("Error fetching single theme details:", error);
+                }
+            };
+            fetchSingleTheme();
+        }
     }, [idParam, themeIdParam, selectedThemeId, theme])
 
     const totalItems = theme.items.reduce(
@@ -446,9 +460,8 @@ const ThemeDetails = () => {
                                     type="button"
                                     key={`${image}-dot`}
                                     onClick={() => scrollToIndex(index)}
-                                    className={`w-3 h-3 sm:w-2 sm:h-2 rounded-full transition ${
-                                        activeIndex === index ? 'bg-white' : 'bg-white/50'
-                                    }`}
+                                    className={`w-3 h-3 sm:w-2 sm:h-2 rounded-full transition ${activeIndex === index ? 'bg-white' : 'bg-white/50'
+                                        }`}
                                     aria-label={`Show preview ${index + 1}`}
                                 />
                             ))}
@@ -502,16 +515,14 @@ const ThemeDetails = () => {
 
                                             <FiChevronDown
                                                 size={18}
-                                                className={`text-[#7B3C1D] transition-transform duration-300 ${
-                                                    isOpen ? 'rotate-180' : ''
-                                                }`}
+                                                className={`text-[#7B3C1D] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''
+                                                    }`}
                                             />
                                         </button>
 
                                         <div
-                                            className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                                                isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-                                            }`}
+                                            className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+                                                }`}
                                         >
                                             <div className="px-4 sm:px-5 py-4 sm:py-5 bg-white">
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

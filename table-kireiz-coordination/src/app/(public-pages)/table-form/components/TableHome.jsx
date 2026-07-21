@@ -60,13 +60,13 @@ const TableHome = () => {
                 ></div>
                 <HeroContent mode={mode} />
             </div> */}
-            <UniformBusinessEnquiry categories={homeData?.categories}/>
+            <UniformBusinessEnquiry tableThemes={homeData?.table_themes} />
             {/* <Demos mode={mode} /> */}
             {/*  How it works */}
             <TechStack />
             {/* <PlaceholderSection /> */}
-            <UniformLatestBlogPosts   blogs={homeData?.blogs} loading={loading}/>
-            <UniformLatestFAQPosts  faqs={homeData?.faqs} loading={loading}/>
+            <UniformLatestBlogPosts blogs={homeData?.blogs} loading={loading} />
+            <UniformLatestFAQPosts faqs={homeData?.faqs} loading={loading} />
             {/* <TableAbouUsPage /> */}
             {/* <OtherFeatures /> */}
             {/* <Components /> */}
