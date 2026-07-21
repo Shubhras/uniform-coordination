@@ -350,7 +350,7 @@ const MyQuotations = () => {
     return (
         <div className="w-full rounded-2xl bg-white px-4 py-6 shadow-sm md:px-6">
             <div className="mb-6">
-                <h2 className="text-[30px] font-semibold text-[#003560]">My Quotations</h2>
+                <h2 className="text-[30px] font-semibold text-[#003560]">My Quotations121</h2>
             </div>
 
             <div className="relative mb-6 w-full max-w-[360px]">
