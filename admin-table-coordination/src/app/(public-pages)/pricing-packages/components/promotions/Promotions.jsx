@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Select from "react-select";
 import {
@@ -144,6 +144,8 @@ const Promotions = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [type, setType] = useState(typeOptions[0]);
   const [status, setStatus] = useState(statusOptions[0]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filteredPromotions = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -158,6 +160,56 @@ const Promotions = () => {
       return matchesSearch && matchesType && matchesStatus;
     });
   }, [searchQuery, status, type]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, type, status]);
+
+  const totalPages = Math.ceil(filteredPromotions.length / itemsPerPage) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const paginatedPromotions = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredPromotions.slice(start, start + itemsPerPage);
+  }, [filteredPromotions, currentPage]);
+
+  const startItem =
+    filteredPromotions.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const endItem = Math.min(currentPage * itemsPerPage, filteredPromotions.length);
+
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible + 2) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+      return pages;
+    }
+
+    pages.push(1);
+    let start = Math.max(2, currentPage - 1);
+    let end = Math.min(totalPages - 1, currentPage + 1);
+
+    if (currentPage <= 3) end = 4;
+    if (currentPage >= totalPages - 2) start = totalPages - 3;
+
+    if (start > 2) pages.push("...");
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (end < totalPages - 1) pages.push("...");
+
+    pages.push(totalPages);
+    return pages;
+  };
 
   return (
     <div className="mt-5">
@@ -211,7 +263,7 @@ const Promotions = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredPromotions.map((promotion) => {
+            {paginatedPromotions.map((promotion) => {
               const isActive = promotion.status === "Active";
               return (
                 <tr
@@ -275,21 +327,56 @@ const Promotions = () => {
         </table>
       </div>
 
+      {filteredPromotions.length === 0 && (
+        <div className="mt-4 rounded-md border border-dashed border-[#E6D6CD] bg-white px-4 py-10 text-center text-[11px] text-[#8B6A55]">
+          No promotions found for the selected search and filters.
+        </div>
+      )}
+
       <div className="mt-5 flex flex-col gap-3 text-[11px] text-[#9A8C82] sm:flex-row sm:items-center sm:justify-between">
-        <p>Showing 1-10</p>
+        <p>
+          {filteredPromotions.length === 0
+            ? "No results"
+            : `Showing ${startItem}-${endItem} of ${filteredPromotions.length}`}
+        </p>
 
         <div className="flex items-center gap-2">
-          <button type="button" className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#C9B2A3]">
+          <button
+            type="button"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#C9B2A3] disabled:opacity-40 disabled:cursor-not-allowed"
+          >
             <TbChevronLeft size={14} />
           </button>
-          <button type="button" className="flex h-8 min-w-[30px] items-center justify-center rounded bg-[#D88957] px-2 text-white">
-            1
-          </button>
-          <button type="button" className="text-[#8C7C73]">2</button>
-          <button type="button" className="text-[#8C7C73]">3</button>
-          <span className="text-[#8C7C73]">...</span>
-          <button type="button" className="text-[#8C7C73]">10</button>
-          <button type="button" className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#8C7C73]">
+
+          {getPageNumbers().map((page, idx) =>
+            page === "..." ? (
+              <span key={`dots-${idx}`} className="text-[#8C7C73] px-1">
+                ...
+              </span>
+            ) : (
+              <button
+                key={page}
+                type="button"
+                onClick={() => goToPage(page)}
+                className={`flex h-8 min-w-[30px] items-center justify-center rounded px-2 ${
+                  currentPage === page
+                    ? "bg-[#D88957] text-white"
+                    : "text-[#8C7C73] hover:bg-[#FCF4EF]"
+                }`}
+              >
+                {page}
+              </button>
+            )
+          )}
+
+          <button
+            type="button"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#8C7C73] disabled:opacity-40 disabled:cursor-not-allowed"
+          >
             <TbChevronRight size={14} />
           </button>
         </div>
