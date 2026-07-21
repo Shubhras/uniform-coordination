@@ -153,17 +153,17 @@ const MyProfile = () => {
                     <div className="flex flex-wrap gap-2">
                         <Button
                             onClick={() => router.push('/profile/personal-information')}
-                            size="sm" className="flex items-center gap-2 border border-[#515254] text-[#515254]">
+                            size="sm" className="flex items-center gap-2 border border-[#7D7D7D] text-[#515254]">
                             <FiEdit2 /> Edit Profile
                         </Button>
                         <Button
                             onClick={() => router.push('/profile/change-password')}
-                            size="sm" className="flex items-center gap-2 border border-[#515254] text-[#515254]">
+                            size="sm" className="flex items-center gap-2 border border-[#7D7D7D] text-[#515254]">
                             <FiLock /> Change Password
                         </Button>
-                        <Button size="sm" className="flex items-center gap-2 border border-[#515254] text-[#515254]">
+                        {/* <Button size="sm" className="flex items-center gap-2 border border-[#7D7D7D] text-[#515254]">
                             <FiMail /> Verify Email
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
 
@@ -389,8 +389,6 @@ const MyProfile = () => {
                 </div>
 
             </div>
-
-
         </div>
 
 
