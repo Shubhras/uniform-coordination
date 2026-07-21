@@ -70,7 +70,7 @@ const MyProfile = () => {
                                 className="shadow-md object-cover"
                             />
                         </div>
-
+        
                         {/* Hidden File Input */}
                         <input
                             type="file"

@@ -2,9 +2,12 @@
 
 import React, { useEffect, useState } from 'react'
 import Spinner from '@/components/ui/Spinner'
+import Select from '@/components/ui/Select'
+import Button from '@/components/ui/Button'
 import { useSession } from 'next-auth/react'
 import { FiArrowLeft, FiDownload, FiEye, FiFileText, FiSearch } from 'react-icons/fi'
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5'
+import { HiCheck } from 'react-icons/hi'
 import { apiGetQuotation } from '@/services/AuthProfileService'
 import { formatDate } from '@/utils/dateFormater'
 
@@ -31,6 +34,30 @@ const statusStyles = {
         bg: '#1C4FA80F',
         label: 'Received',
     },
+}
+
+// status filter dropdown options
+const statusFilterOptions = [
+    { value: '', label: 'All Status' },
+    { value: 'accepted', label: 'Accepted' },
+    { value: 'declined', label: 'Declined' },
+    { value: 'submitted', label: 'Submitted' },
+    { value: 'received', label: 'Received' },
+]
+
+// custom option renderer for status dropdown
+const CustomStatusOption = (props) => {
+    const { innerProps, label, isSelected, isDisabled } = props
+    return (
+        <div
+            className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${isSelected ? 'text-[#003560] bg-[#F2F7FF]' : 'text-[#1C2C56] hover:bg-gray-100'
+                } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            {...innerProps}
+        >
+            <span className="ml-2 text-sm font-medium">{label}</span>
+            {isSelected && <HiCheck className="text-lg" />}
+        </div>
+    )
 }
 
 const fallbackItems = []
@@ -285,6 +312,7 @@ const MyQuotations = () => {
     const { data: session } = useSession()
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
+    const [statusFilter, setStatusFilter] = useState('')
     const [quotations, setQuotations] = useState([])
     const [selectedQuotation, setSelectedQuotation] = useState(null)
     const [currentPage, setCurrentPage] = useState(1)
@@ -309,6 +337,7 @@ const MyQuotations = () => {
             try {
                 const res = await apiGetQuotation(session.accessToken, {
                     search: debouncedSearchTerm,
+                    status: statusFilter,
                     page: currentPage,
                     page_size: ITEMS_PER_PAGE,
                 })
@@ -330,11 +359,17 @@ const MyQuotations = () => {
         }
 
         fetchQuotations()
-    }, [session?.accessToken, debouncedSearchTerm, currentPage])
+    }, [session?.accessToken, debouncedSearchTerm, statusFilter, currentPage])
 
     useEffect(() => {
         setCurrentPage(1)
-    }, [debouncedSearchTerm])
+    }, [debouncedSearchTerm, statusFilter])
+
+    const handleResetFilters = () => {
+        setSearchTerm('')
+        setStatusFilter('')
+        setCurrentPage(1)
+    }
 
     const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE))
 
@@ -350,21 +385,81 @@ const MyQuotations = () => {
     return (
         <div className="w-full rounded-2xl bg-white px-4 py-6 shadow-sm md:px-6">
             <div className="mb-6">
-                <h2 className="text-[30px] font-semibold text-[#003560]">My Quotations121</h2>
+                <h2 className="text-[30px] font-semibold text-[#003560]">My Quotations</h2>
             </div>
 
-            <div className="relative mb-6 w-full max-w-[360px]">
-                <FiSearch
-                    size={16}
-                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]"
-                />
-                <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search by request id..."
-                    className="h-11 w-full rounded-lg border border-[#003560] bg-white pl-10 pr-4 text-sm text-[#111827] outline-none placeholder:text-[#94A3B8]"
-                />
+            <div className="flex flex-col lg:flex-row lg:justify-between gap-3 mb-6">
+                <div className="relative w-full max-w-[360px]">
+                    <FiSearch
+                        size={16}
+                        className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]"
+                    />
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search by request id..."
+                        className="h-11 w-full rounded-lg border border-[#003560] bg-white pl-10 pr-4 text-sm text-[#111827] outline-none placeholder:text-[#94A3B8]"
+                    />
+                </div>
+
+                <div className="flex gap-3 lg:w-auto">
+                    <Select
+                        options={statusFilterOptions}
+                        value={statusFilterOptions.find((o) => o.value === statusFilter) || statusFilterOptions[0]}
+                        onChange={(selected) => setStatusFilter(selected?.value || '')}
+                        isSearchable={false}
+                        className="min-w-[180px]"
+                        components={{ Option: CustomStatusOption }}
+                        styles={{
+                            control: (base) => {
+                                const activeColor = statusStyles[statusFilter]?.text || '#003560'
+                                return {
+                                    ...base,
+                                    borderRadius: '10px',
+                                    borderColor: activeColor,
+                                    borderStyle: 'solid',
+                                    borderWidth: '1px',
+                                    backgroundColor: statusFilter ? statusStyles[statusFilter]?.bg || 'white' : 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '2px 4px',
+                                    cursor: 'pointer',
+                                    boxShadow: 'none',
+                                    '&:hover': { borderColor: activeColor },
+                                }
+                            },
+                            menu: (base) => ({
+                                ...base,
+                                marginTop: '4px',
+                                borderRadius: '14px',
+                                padding: '6px',
+                                overflow: 'hidden',
+                            }),
+                            menuList: (base) => ({
+                                ...base,
+                                paddingTop: 0,
+                                paddingBottom: 0,
+                                maxHeight: '220px',
+                                overflowY: 'auto',
+                            }),
+                            singleValue: () => ({
+                                color: statusStyles[statusFilter]?.text || '#003560',
+                                fontWeight: 500,
+                                fontSize: '14px',
+                            }),
+                        }}
+                        maxMenuHeight={220}
+                    />
+                    <Button
+                        type="button"
+                        onClick={handleResetFilters}
+                        className="bg-[#003560] hover:bg-[#00284A] text-white px-5"
+                    >
+                        Reset
+                    </Button>
+                </div>
             </div>
 
             {errorMessage ? (
