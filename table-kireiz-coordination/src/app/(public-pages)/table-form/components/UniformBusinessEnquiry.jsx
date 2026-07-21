@@ -51,18 +51,18 @@ const bottomCards = [
 
 ];
 
-const UniformBusinessEnquiry = ({ categories = [] }) => {
+const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
   const [cardsPerView, setCardsPerView] = useState(3);
   const router = useRouter();
   const [index, setIndex] = useState(0);
 
   const cards = useMemo(() => {
-    return categories.map((item) => ({
-      img: item.categoryImage,
-      title: item.categoryName,
+    return tableThemes.map((item) => ({
+      img: item.image,
+      title: item.title,
       desc: item.description,
     }));
-  }, [categories]);
+  }, [tableThemes]);
 
   useEffect(() => {
     const handleResize = () => {

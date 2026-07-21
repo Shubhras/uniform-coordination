@@ -540,8 +540,8 @@ const MyQuotations = () => {
                                 type="button"
                                 onClick={() => goToPage(page)}
                                 className={`flex h-8 min-w-[30px] items-center justify-center rounded px-2 ${currentPage === page
-                                        ? 'bg-[#D88957] text-white'
-                                        : 'text-[#8C7C73] hover:bg-[#FCF4EF]'
+                                    ? 'bg-[#D88957] text-white'
+                                    : 'text-[#8C7C73] hover:bg-[#FCF4EF]'
                                     }`}
                             >
                                 {page}
