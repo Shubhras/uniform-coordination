@@ -39,9 +39,14 @@ const StepIcon = ({ state }) => {
 const ContractAcceptedDetail = () => {
     const params = useParams()
     const router = useRouter()
+    const quotationId = params?.id
 
     const handleBack = () => {
         router.push('/profile/my-quotations')
+    }
+
+    const handleGoToContractInbox = () => {
+        router.push(`/profile/my-quotations/contract-inbox/${quotationId}`)
     }
 
     const handleHistory = () => {
@@ -135,6 +140,7 @@ const ContractAcceptedDetail = () => {
                     <div className="mt-8 flex flex-wrap justify-center gap-3">
                         <button
                             type="button"
+                            onClick={handleGoToContractInbox}
                             className="rounded-md bg-[#A95A2C] px-5 py-2.5 text-sm font-semibold text-white"
                         >
                             Go To Contract Inbox
