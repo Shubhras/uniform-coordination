@@ -11,9 +11,14 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 import Select from "react-select";
+import Spinner from "@/components/ui/Spinner";
+import Pagination from "@/components/ui/Pagination";
 import { useRouter } from "next/navigation";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import NewDeleteModal from "@/components/shared/NewDeleteModal";
-import { apiGetThemeList } from "@/services/ThemeManagement";
+import { apiGetThemeList, apiDeleteTheme } from "@/services/ThemeManagement";
+import { apiGetCategoryList } from "@/services/CategoryService";
 
 const ThemePage = () => {
   const router = useRouter();
@@ -21,6 +26,21 @@ const ThemePage = () => {
   const [view, setView] = useState("list");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [themeToDelete, setThemeToDelete] = useState(null);
+  const [categoryList, setCategoryList] = useState([]);
+  const [category, setCategory] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  const [totalItems, setTotalItems] = useState(0);
+
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -28,16 +48,28 @@ const ThemePage = () => {
   const [themes, setThemes] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const getThemeList = async () => {
+  const getThemeList = async (
+    search = "",
+    categoryId = "",
+    page = currentPage,
+  ) => {
     try {
       setLoading(true);
 
-      const res = await apiGetThemeList(accessToken);
-      console.log("API Response:", res);
-      console.log("API Data:", res?.data?.data);
+      const res = await apiGetThemeList(accessToken, {
+        search,
+        categoryId,
+        ordering: "newest",
+        page,
+        pageSize,
+      });
 
-      if (res?.status) {
-        setThemes(res.data || []);
+      if (res?.results?.status) {
+        setThemes(res.results.data || []);
+        setTotalItems(res.results.pagination?.total || 0);
+      } else {
+        setThemes([]);
+        setTotalItems(0);
       }
     } catch (error) {
       console.log(error);
@@ -46,38 +78,81 @@ const ThemePage = () => {
     }
   };
 
-  console.log("accessToken", accessToken);
   useEffect(() => {
-    console.log("useEffect", accessToken);
-    if (accessToken) {
-      getThemeList();
-    }
-  }, [accessToken]);
+    if (!accessToken) return;
+
+    getThemeList(
+      debouncedSearch,
+      category?.value === "all" ? "" : category?.value,
+      currentPage,
+    );
+  }, [accessToken, debouncedSearch, category, currentPage]);
+
+  const handleView = (theme) => {
+    sessionStorage.setItem("selectedThemeId", theme.id);
+    router.push("/theme-management/view");
+  };
 
   const categoryOptions = [
     { value: "all", label: "All Categories" },
-    { value: "Corporate", label: "Corporate" },
-    { value: "Medical", label: "Medical" },
-    { value: "Hotel", label: "Hotel" },
-    { value: "Industrial", label: "Industrial" },
+    ...categoryList.map((item) => ({
+      value: item.id,
+      label: item.categoryName,
+    })),
   ];
 
-  const [category, setCategory] = useState(categoryOptions[0]);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await apiGetCategoryList(accessToken, 1, 100);
+
+        if (res?.status) {
+          setCategoryList(res.data || []);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (accessToken) {
+      fetchCategories();
+    }
+  }, [accessToken]);
 
   const handleDeleteClick = (item) => {
-    // setFabricToDelete(item);
+    setThemeToDelete(item);
     setDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
-    setDeleteLoading(true);
+    if (!themeToDelete) return;
 
-    // API yaha call hogi
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      setDeleteLoading(true);
 
-    setDeleteLoading(false);
-    setDeleteDialogOpen(false);
-    // setFabricToDelete(null);
+      const res = await apiDeleteTheme(accessToken, themeToDelete.id);
+      toast.push(
+        <Notification title="Success" type="success">
+          {res.message}
+        </Notification>,
+      );
+
+      if (res?.status) {
+        setThemes((prev) =>
+          prev.filter((item) => item.id !== themeToDelete.id),
+        );
+
+        setDeleteDialogOpen(false);
+        setThemeToDelete(null);
+
+        // ya agar latest list chahiye to
+        // await getThemeList();
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   const selectStyles = {
@@ -87,7 +162,7 @@ const ThemePage = () => {
       borderColor: "#D1D5DB",
       boxShadow: "none",
       "&:hover": {
-        borderColor: "#1C4FA8",
+        borderColor: "#A0522D",
       },
     }),
 
@@ -194,133 +269,223 @@ const ThemePage = () => {
           </div>
         </div>
 
-        {view === "list" && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-[#F1F5F9] text-[#486284]">
-                <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                  <th className="text-left px-4 py-3 font-medium">Theme</th>
-                  <th className="text-left px-4 py-3 font-medium">Theme</th>
-                  <th className="text-left px-4 py-3 font-medium">Category</th>
-                  <th className="text-center px-4 py-3 font-medium">
-                    Items Included
-                  </th>
-                  <th className="text-center px-4 py-3 font-medium">Usage</th>
-                  <th className="text-center px-4 py-3 font-medium">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {themes.map((theme) => {
-                  const totalItems =
-                    (theme.theme_items?.table_setup?.length || 0) +
-                    (theme.theme_items?.floral_decor?.length || 0) +
-                    (theme.theme_items?.seating?.length || 0) +
-                    (theme.theme_items?.additional_elements?.length || 0);
-
-                  return (
-                    <tr
-                      key={theme.id}
-                      className="odd:bg-white even:bg-[#FBF8F6] hover:bg-[#F6F0EB]"
-                    >
-                      <td className="px-4 py-3">
-                        <img
-                          src={theme.image}
-                          alt={theme.title}
-                          className="w-[58px] h-[40px] rounded object-cover"
-                        />
-                      </td>
-
-                      <td className="px-4 py-3 font-medium">{theme.title}</td>
-
-                      <td className="px-4 py-3">{theme.category}</td>
-
-                      <td className="px-4 py-3 text-center">{totalItems}</td>
-
-                      <td className="px-4 py-3 text-center">-</td>
-
-                      <td className="px-4 py-3">
-                        <div className="flex justify-center gap-3">
-                          <button
-                            onClick={() =>
-                              router.push(`/theme-management/view/${theme.id}`)
-                            }
-                          >
-                            <FiEye />
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              router.push(`/theme-management/edit/${theme.id}`)
-                            }
-                          >
-                            <FiEdit2 />
-                          </button>
-
-                          <button onClick={() => handleDeleteClick(theme)}>
-                            <FiTrash2 />
-                          </button>
-                        </div>
-                      </td>
+        {loading ? (
+          <div className="flex justify-center items-center h-[400px]">
+            <Spinner size={40} />
+          </div>
+        ) : (
+          <>
+            {view === "list" && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-[#F1F5F9] text-[#486284]">
+                    <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
+                      <th className="text-left px-4 py-3 font-medium">Theme</th>
+                      <th className="text-left px-4 py-3 font-medium">Theme</th>
+                      <th className="text-left px-4 py-3 font-medium">
+                        Category
+                      </th>
+                      <th className="text-center px-4 py-3 font-medium">
+                        Items Included
+                      </th>
+                      <th className="text-center px-4 py-3 font-medium">
+                        Usage
+                      </th>
+                      <th className="text-center px-4 py-3 font-medium">
+                        Actions
+                      </th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                  </thead>
 
-        {view === "grid" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {themes.map((theme) => {
-              const totalItems =
-                (theme.theme_items?.table_setup?.length || 0) +
-                (theme.theme_items?.floral_decor?.length || 0) +
-                (theme.theme_items?.seating?.length || 0) +
-                (theme.theme_items?.additional_elements?.length || 0);
+                  <tbody>
+                    {themes.length > 0 ? (
+                      themes.map((theme) => {
+                        const totalItems =
+                          (theme.theme_items?.table_setup?.length || 0) +
+                          (theme.theme_items?.floral_decor?.length || 0) +
+                          (theme.theme_items?.seating?.length || 0) +
+                          (theme.theme_items?.additional_elements?.length || 0);
 
-              return (
-                <div
-                  key={theme.id}
-                  className="bg-white rounded-2xl border border-[#E8E2DC] overflow-hidden"
-                >
-                  <div className="h-40 overflow-hidden">
-                    <img
-                      src={theme.image}
-                      alt={theme.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                        return (
+                          <tr
+                            key={theme.id}
+                            className="odd:bg-white even:bg-[#FBF8F6]"
+                          >
+                            <td className="px-4 py-3">
+                              <img
+                                src={theme.image}
+                                alt={theme.title}
+                                className="w-[58px] h-[40px] rounded object-cover"
+                              />
+                            </td>
 
-                  <div className="p-4">
-                    <div className="flex justify-between">
-                      <h3 className="font-semibold">{theme.title}</h3>
+                            <td className="px-4 py-3 font-medium">
+                              {theme.title}
+                            </td>
 
-                      <span className="text-xs bg-[#FFF3EC] px-2 py-1 rounded">
-                        {theme.category}
-                      </span>
-                    </div>
+                            <td className="px-4 py-3">{theme.category_name}</td>
 
-                    <p className="text-sm mt-2 text-gray-500">
-                      {theme.description}
-                    </p>
+                            <td className="px-4 py-3 text-center">
+                              {totalItems}
+                            </td>
 
-                    <p className="mt-3 text-sm">Items: {totalItems}</p>
-                  </div>
+                            <td className="px-4 py-3 text-center">-</td>
+
+                            <td className="px-4 py-3">
+                              <div className="flex justify-center gap-0">
+                                <button
+                                  onClick={() =>
+                                    router.push(
+                                      `/theme-management/view/${theme.id}`,
+                                    )
+                                  }
+                                  className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+                                >
+                                  <FiEye size={15} />
+                                </button>
+
+                                <button
+                                  onClick={() =>
+                                    router.push(
+                                      `/theme-management/edit/${theme.id}`,
+                                    )
+                                  }
+                                  className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+                                >
+                                  <FiEdit2 size={15} />
+                                </button>
+
+                                <button
+                                  onClick={() => handleDeleteClick(theme)}
+                                  className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+                                >
+                                  <FiTrash2 size={15} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={6}
+                          className="py-10 text-center text-gray-500"
+                        >
+                          No Theme Found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {view === "grid" &&
+              (themes.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {themes.map((theme) => {
+                    const totalItems =
+                      (theme.theme_items?.table_setup?.length || 0) +
+                      (theme.theme_items?.floral_decor?.length || 0) +
+                      (theme.theme_items?.seating?.length || 0) +
+                      (theme.theme_items?.additional_elements?.length || 0);
+
+                    return (
+                      <div
+                        key={theme.id}
+                        className="bg-white rounded-2xl border border-[#ECE7E3] overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+                      >
+                        {/* Image */}
+                        <div className="relative h-48 overflow-hidden">
+                          <img
+                            src={theme.image}
+                            alt={theme.title}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-4">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-semibold text-[17px] text-[#2B2B2B] line-clamp-1">
+                              {theme.title}
+                            </h3>
+
+                            <span className="shrink-0 rounded-full bg-[#FDF0E8] text-[#B56A42] text-[11px] font-medium px-3 py-1">
+                              {theme.category_name}
+                            </span>
+                          </div>
+
+                          <p className="mt-2 text-[13px] leading-5 text-[#8B8B8B] line-clamp-2 min-h-[40px]">
+                            {theme.description || "No description available"}
+                          </p>
+
+                          {/* Footer Buttons */}
+                          <div className="mt-2 flex items-center justify-between border-t border-[#F3F3F3] pt-4">
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() =>
+                                  router.push(
+                                    `/theme-management/view/${theme.id}`,
+                                  )
+                                }
+                                className="flex items-center gap-2 bg-[#A0522D] text-white text-xs px-4 py-2 rounded-full hover:bg-[#8b4322]"
+                              >
+                                <FiEye size={13} />
+                                Preview
+                              </button>
+
+                              <button
+                                onClick={() =>
+                                  router.push(
+                                    `/theme-management/edit/${theme.id}`,
+                                  )
+                                }
+                                className="flex items-center gap-2 border border-[#D8D8D8] text-[#444] text-xs px-4 py-2 rounded-full hover:bg-[#F8F8F8]"
+                              >
+                                <FiEdit2 size={13} />
+                                Edit
+                              </button>
+                            </div>
+
+                            <button
+                              onClick={() => handleDeleteClick(theme)}
+                              className="w-9 h-9 rounded-full border border-[#E5E5E5] flex items-center justify-center hover:bg-red-50 hover:text-red-500"
+                            >
+                              <FiTrash2 size={15} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
+              ) : (
+                <div className="py-16 text-center text-gray-500 text-lg">
+                  No Theme Found
+                </div>
+              ))}
+          </>
         )}
       </div>
+
+      <div className="flex justify-end mt-3" style={{marginRight:'6px',marginLeft:'6px'}}>
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={totalItems || themes.length}
+          onChange={(page) => setCurrentPage(page)}
+        />
+      </div>
+
       <NewDeleteModal
         isOpen={deleteDialogOpen}
         onClose={() => {
           setDeleteDialogOpen(false);
-          // setFabricToDelete(null);
+          setThemeToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Product"
+        title="Delete Theme"
         message="Deleting this theme will remove it from all over the platform. This action cannot be undone."
         // itemName={fabricToDelete?.productName}
         loading={deleteLoading}

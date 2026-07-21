@@ -42,7 +42,7 @@ const PricingPackages = () => {
                 : "/pricing-packages/create-promotion"
             )
           }
-          className="inline-flex h-[34px] items-center rounded-[8px] bg-[#B56735] px-4 text-[11px] font-medium text-white"
+          className="inline-flex h-[34px] items-center rounded-[8px] bg-[#B56735] px-4 text-[14px] font-medium text-white"
         >
           {activeTab === "Pricing Rules" ? "Edit Pricing Rules" : "+ Create Promotion"}
         </button>

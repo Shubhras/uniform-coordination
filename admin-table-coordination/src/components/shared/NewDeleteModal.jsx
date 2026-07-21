@@ -62,7 +62,7 @@ const NewDeleteModal = ({
             disabled={loading}
             className="h-10 rounded-md bg-[#EF4444] px-5 text-sm font-medium text-white transition hover:bg-[#DC2626] disabled:opacity-60"
           >
-            {loading ? "Deleting..." : "Delete Product"}
+            {loading ? "Deleting..." : "Delete"}
           </button>
         </div>
       </div>

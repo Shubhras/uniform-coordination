@@ -14,8 +14,13 @@ import {
 } from "react-icons/fi";
 import { LuGripVertical } from "react-icons/lu";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import Button from "@/components/ui/Button";
+import { apiUpdateTheme, apiGetThemeDetails } from "@/services/ThemeManagement";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import Notification from "@/components/ui/Notification";
+import toast from "@/components/ui/toast";
 
 const categoryOptions = [
   { value: "Wedding", label: "Wedding" },
@@ -23,15 +28,85 @@ const categoryOptions = [
   { value: "Birthday", label: "Birthday" },
 ];
 
-const galleryImages = [
-  "https://images.unsplash.com/photo-1519741497674-611481863552?w=300",
-  "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300",
-  "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=300",
-  "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=300",
-];
-
 const Edit = () => {
   const router = useRouter();
+  const { id } = useParams();
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+  const [saving, setSaving] = useState(false);
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [thumbnail, setThumbnail] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState("");
+
+  const [coverImages, setCoverImages] = useState([]);
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!title.trim()) {
+      newErrors.title = "Theme name is required";
+    }
+
+    if (!category) {
+      newErrors.category = "Category is required";
+    }
+
+    if (!description.trim()) {
+      newErrors.description = "Description is required";
+    }
+
+    if (!thumbnailPreview && !thumbnail) {
+      newErrors.thumbnail = "Thumbnail is required";
+    }
+
+    const hasItem = sections.some(
+      (section) => section.items && section.items.length > 0,
+    );
+
+    if (!hasItem) {
+      newErrors.sections =
+        "At least one product must be added in any one section.";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleUpdateTheme = async () => {
+    if (!validateForm()) return;
+    try {
+      setSaving(true);
+      const formData = new FormData();
+
+      formData.append("title", title);
+      formData.append("category_id", category.value);
+      formData.append("description", description);
+
+      if (thumbnail) {
+        formData.append("image", thumbnail);
+      }
+
+      const res = await apiUpdateTheme(accessToken, id, formData);
+
+      if (res?.status) {
+        toast.push(
+          <Notification title="Success" type="success">
+            {res.message}
+          </Notification>,
+        );
+
+        router.push("/theme-management");
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const [category, setCategory] = useState(categoryOptions[0]);
 
@@ -56,26 +131,30 @@ const Edit = () => {
     {
       id: 1,
       title: "Table Setup",
-      count: 3,
+      count: 0,
       open: false,
+      items: [],
     },
     {
       id: 2,
       title: "Floral & Decor",
-      count: 1,
+      count: 0,
       open: false,
+      items: [],
     },
     {
       id: 3,
       title: "Seating",
       count: 0,
       open: false,
+      items: [],
     },
     {
       id: 4,
       title: "Additional Elements",
       count: 0,
       open: false,
+      items: [],
     },
   ]);
 
@@ -86,6 +165,67 @@ const Edit = () => {
       ),
     );
   };
+
+  useEffect(() => {
+    const fetchThemeDetails = async () => {
+      try {
+        const res = await apiGetThemeDetails(accessToken, id);
+
+        if (res?.status) {
+          const data = res.data;
+
+          setTitle(data.title);
+          setDescription(data.description);
+
+          setCategory({
+            value: data.category,
+            label: data.category_name,
+          });
+
+          setThumbnailPreview(data.image);
+          setCoverImages(data.cover_images || []);
+          const items = data.theme_items || {};
+
+          setSections([
+            {
+              id: 1,
+              title: "Table Setup",
+              count: items.table_setup?.length || 0,
+              open: false,
+              items: items.table_setup || [],
+            },
+            {
+              id: 2,
+              title: "Floral & Decor",
+              count: items.floral_decor?.length || 0,
+              open: false,
+              items: items.floral_decor || [],
+            },
+            {
+              id: 3,
+              title: "Seating",
+              count: items.seating?.length || 0,
+              open: false,
+              items: items.seating || [],
+            },
+            {
+              id: 4,
+              title: "Additional Elements",
+              count: items.additional_elements?.length || 0,
+              open: false,
+              items: items.additional_elements || [],
+            },
+          ]);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (accessToken && id) {
+      fetchThemeDetails();
+    }
+  }, [accessToken, id]);
 
   return (
     <div className="bg-[#FAF8F6] min-h-screen p-6">
@@ -121,12 +261,23 @@ const Edit = () => {
             <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
               Theme Name
             </label>
-
             <input
               type="text"
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  title: "",
+                }));
+              }}
               placeholder="Enter theme name"
               className="w-full h-12 rounded-xl border border-[#E7D9CF] px-4 outline-none focus:border-[#A0522D]"
             />
+            {errors.title && (
+              <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+            )}
           </div>
 
           <div>
@@ -137,9 +288,19 @@ const Edit = () => {
             <Select
               options={categoryOptions}
               value={category}
-              onChange={setCategory}
+              onChange={(value) => {
+                setCategory(value);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  category: "",
+                }));
+              }}
               styles={selectStyles}
             />
+            {errors.category && (
+              <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+            )}
           </div>
         </div>
 
@@ -151,9 +312,21 @@ const Edit = () => {
 
           <textarea
             rows={4}
+            value={description}
+            onChange={(e) => {
+              setDescription(e.target.value);
+
+              setErrors((prev) => ({
+                ...prev,
+                description: "",
+              }));
+            }}
             placeholder="Write short description..."
             className="w-full rounded-xl border border-[#E7D9CF] p-4 resize-none outline-none focus:border-[#A0522D]"
           />
+          {errors.description && (
+            <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+          )}
         </div>
       </div>
 
@@ -176,12 +349,15 @@ const Edit = () => {
 
           <div className="overflow-hidden rounded-xl border border-[#EFE5DD] h-[230px]">
             <img
-              src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1400"
+              src={thumbnailPreview || "/placeholder.png"}
               alt=""
               className="w-full h-full object-cover"
             />
           </div>
         </div>
+        {errors.thumbnail && (
+          <p className="text-red-500 text-sm mt-2">{errors.thumbnail}</p>
+        )}
 
         {/* Gallery */}
         <div className="mt-6">
@@ -190,12 +366,16 @@ const Edit = () => {
           </label>
 
           <div className="flex gap-4 flex-wrap">
-            {galleryImages.map((img, index) => (
+            {coverImages.map((img) => (
               <div
-                key={index}
+                key={img.id}
                 className="relative w-[105px] h-[105px] rounded-xl overflow-hidden border border-[#EFE5DD]"
               >
-                <img src={img} alt="" className="w-full h-full object-cover" />
+                <img
+                  src={img.image}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
 
                 <button className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white flex items-center justify-center shadow">
                   <FiX size={10} />
@@ -291,29 +471,7 @@ const Edit = () => {
                   {/* Items */}
 
                   <div className="px-5 pb-5 space-y-3">
-                    {[
-                      {
-                        name: "Gold Charger Plate",
-                        category: "Tableware",
-                        material: "Metal",
-                        color: "Gold",
-                        image: "https://picsum.photos/60?1",
-                      },
-                      {
-                        name: "Ivory Tablecloth",
-                        category: "Linens",
-                        material: "Satin",
-                        color: "Ivory",
-                        image: "https://picsum.photos/60?2",
-                      },
-                      {
-                        name: "Round Table",
-                        category: "Tables",
-                        material: "Wood",
-                        color: "Natural Oak",
-                        image: "https://picsum.photos/60?3",
-                      },
-                    ].map((item, index) => (
+                    {section.items.map((item) => (
                       <div
                         key={index}
                         className="flex items-center justify-between rounded-xl border border-[#EFE5DD] px-5 py-4"
@@ -326,7 +484,7 @@ const Edit = () => {
                           </div>
 
                           <img
-                            src={item.image}
+                            src={item.product_details?.ProductImage}
                             className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                             alt=""
                           />
@@ -334,33 +492,12 @@ const Edit = () => {
                           {/* Fixed width */}
                           <div className="w-64">
                             <h4 className="font-semibold text-[#A08070] text-sm break-words">
-                              {item.name}
+                              {item.product_details?.productName}
                             </h4>
 
                             <p className="text-xs text-[#8C6E5D]">
-                              {item.category}
+                              ₹ {item.product_details?.price}
                             </p>
-                          </div>
-
-                          {/* Material & Color */}
-                          <div className="hidden md:flex gap-12">
-                            <div>
-                              <p className="text-[10px] uppercase text-[#A79A8F]">
-                                Material
-                              </p>
-                              <p className="text-sm text-[#3B3028]">
-                                {item.material}
-                              </p>
-                            </div>
-
-                            <div>
-                              <p className="text-[10px] uppercase text-[#A79A8F]">
-                                Color
-                              </p>
-                              <p className="text-sm text-[#3B3028]">
-                                {item.color}
-                              </p>
-                            </div>
                           </div>
                         </div>
                         {/* Right */}
@@ -384,6 +521,23 @@ const Edit = () => {
             </div>
           ))}
         </div>
+      </div>
+      <div className="flex justify-between mt-10">
+        <button
+          // onClick={onBack}
+          className="px-8 py-2.5 rounded-xl border border-[#E5D5C8] text-[#8C6E5D] font-medium hover:bg-[#FAF5F2]"
+        >
+          Back
+        </button>
+
+        <Button
+          onClick={handleUpdateTheme}
+          loading={saving}
+          disabled={saving}
+          className="px-6 py-1 rounded-xl bg-[#A85A32] text-white font-semibold hover:bg-[#8E4727]"
+        >
+          Update Theme
+        </Button>
       </div>
     </div>
   );

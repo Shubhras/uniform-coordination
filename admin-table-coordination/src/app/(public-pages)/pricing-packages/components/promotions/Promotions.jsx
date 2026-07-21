@@ -1,99 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { useRouter } from "next/navigation";
+import Pagination from "@/components/ui/Pagination";
+import Spinner from "@/components/ui/Spinner";
 import Select from "react-select";
 import {
-  TbBan,
-  TbChevronLeft,
-  TbChevronRight,
-  TbEye,
-  TbPencil,
-  TbSearch,
-} from "react-icons/tb";
-
-const promotions = [
-  {
-    id: "summer-celebration-sale-1",
-    name: "Summer Celebration Sale",
-    type: "Percentage",
-    typeColor: "text-[#A85A32]",
-    value: "15%",
-    validityTop: "6-12 July 26",
-    validityBottom: "",
-    status: "Active",
-  },
-  {
-    id: "new-client-welcome",
-    name: "New Client Welcome",
-    type: "First Purchase",
-    typeColor: "text-[#007A55]",
-    value: "¥200",
-    validityTop: "2025-06-01",
-    validityBottom: "No end",
-    status: "Active",
-  },
-  {
-    id: "loyal-partner-reward",
-    name: "Loyal Partner Reward",
-    type: "Repeat Customer",
-    typeColor: "text-[#432DD7]",
-    value: "10%",
-    validityTop: "2025-06-01",
-    validityBottom: "2025-08-31",
-    status: "Active",
-  },
-  {
-    id: "spring-floral-flash",
-    name: "Spring Floral Flash",
-    type: "Limited Time",
-    typeColor: "text-[#8D54FF]",
-    value: "20%",
-    validityTop: "2025-06-01",
-    validityBottom: "2025-06-30",
-    status: "Expired",
-  },
-  {
-    id: "venue-partner-promo",
-    name: "Venue Partner Promo",
-    type: "Fixed Amount",
-    typeColor: "text-[#5C85EE]",
-    value: "15%",
-    validityTop: "2025-06-01",
-    validityBottom: "2025-08-31",
-    status: "Active",
-  },
-  {
-    id: "holiday-spectacular",
-    name: "Holiday Spectacular",
-    type: "Limited Time",
-    typeColor: "text-[#8D54FF]",
-    value: "15%",
-    validityTop: "2025-06-01",
-    validityBottom: "2025-08-31",
-    status: "Scheduled",
-  },
-  {
-    id: "summer-celebration-sale-2",
-    name: "Summer Celebration Sale",
-    type: "Percentage",
-    typeColor: "text-[#A85A32]",
-    value: "15%",
-    validityTop: "2025-06-01",
-    validityBottom: "2025-08-31",
-    status: "Active",
-  },
-  {
-    id: "summer-celebration-sale-3",
-    name: "Summer Celebration Sale",
-    type: "Percentage",
-    typeColor: "text-[#A85A32]",
-    value: "15%",
-    validityTop: "2025-06-01",
-    validityBottom: "2025-08-31",
-    status: "Active",
-  },
-];
+  FiSearch,
+  FiPlus,
+  FiX,
+  FiEye,
+  FiEdit2,
+  FiTrash2,
+} from "react-icons/fi";
+import { apiGetPromoCodeList } from "@/services/PricingPackages";
 
 const typeOptions = [
   { value: "all", label: "All Types" },
@@ -121,14 +42,26 @@ const selectStyles = {
     fontSize: "11px",
     "&:hover": { borderColor: "#E2CFC2" },
   }),
-  valueContainer: (base) => ({ ...base, paddingLeft: "8px", paddingRight: "8px" }),
+  valueContainer: (base) => ({
+    ...base,
+    paddingLeft: "8px",
+    paddingRight: "8px",
+  }),
   indicatorSeparator: () => ({ display: "none" }),
-  dropdownIndicator: (base) => ({ ...base, color: "#B7774D", padding: "0 8px 0 0" }),
+  dropdownIndicator: (base) => ({
+    ...base,
+    color: "#B7774D",
+    padding: "0 8px 0 0",
+  }),
   menu: (base) => ({ ...base, zIndex: 30 }),
   option: (base, state) => ({
     ...base,
     fontSize: "11px",
-    backgroundColor: state.isSelected ? "#B56735" : state.isFocused ? "#FCF4EF" : "#FFFFFF",
+    backgroundColor: state.isSelected
+      ? "#B56735"
+      : state.isFocused
+        ? "#FCF4EF"
+        : "#FFFFFF",
     color: state.isSelected ? "#FFFFFF" : "#6F625B",
   }),
 };
@@ -144,41 +77,96 @@ const Promotions = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [type, setType] = useState(typeOptions[0]);
   const [status, setStatus] = useState(statusOptions[0]);
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
+  const [promotions, setPromotions] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  const [totalItems, setTotalItems] = useState(0);
+
+  const getPromotionList = async () => {
+    try {
+      setLoading(true);
+
+      const res = await apiGetPromoCodeList(accessToken, currentPage, pageSize);
+
+      if (res?.status) {
+        setPromotions(res.data || []);
+        setTotalItems(res.pagination?.total_items || 0);
+      } else {
+        setPromotions([]);
+        setTotalItems(0);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (accessToken) {
+      getPromotionList();
+    }
+  }, [accessToken, currentPage]);
 
   const filteredPromotions = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
     return promotions.filter((promotion) => {
-      const matchesSearch = !query || promotion.name.toLowerCase().includes(query);
+      const matchesSearch =
+        !query || promotion.promocodeName?.toLowerCase().includes(query);
+
       const matchesType =
-        type.value === "all" || promotion.type.toLowerCase() === type.value;
+        type.value === "all" || promotion.promocodeType === type.value;
+
+      const promotionStatus = promotion.isActive ? "active" : "inactive";
+
       const matchesStatus =
-        status.value === "all" || promotion.status.toLowerCase() === status.value;
+        status.value === "all" || promotionStatus === status.value;
 
       return matchesSearch && matchesType && matchesStatus;
     });
-  }, [searchQuery, status, type]);
+  }, [promotions, searchQuery, type, status]);
 
   return (
     <div className="mt-5">
       <div className="flex flex-col gap-3 lg:flex-row">
-        <div className="relative flex-1">
-          <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#D1A48A]" size={13} />
+        <div className="relative w-full md:w-72">
+          <FiSearch
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
+            size={16}
+          />
+
           <input
             type="text"
-            placeholder="Search promotions..."
+            placeholder="Search Theme..."
             value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            className="h-[34px] w-full rounded-md border border-[#F3E7DE] bg-white pl-8 pr-3 text-[11px] text-[#6F625B] outline-none placeholder:text-[#C28E73] focus:border-[#D7B7A3]"
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-11 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#1C4FA8]"
           />
+
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2"
+            >
+              <FiX className="text-gray-500" />
+            </button>
+          )}
         </div>
 
-        <div className="w-full lg:w-[112px]">
+        {/* <div className="w-full lg:w-[112px]">
           <Select
             instanceId="pricing-packages-type-filter"
             inputId="pricing-packages-type-filter"
             value={type}
-            onChange={(selectedOption) => setType(selectedOption ?? typeOptions[0])}
+            onChange={(selectedOption) =>
+              setType(selectedOption ?? typeOptions[0])
+            }
             options={typeOptions}
             isSearchable={false}
             styles={selectStyles}
@@ -190,109 +178,110 @@ const Promotions = () => {
             instanceId="pricing-packages-status-filter"
             inputId="pricing-packages-status-filter"
             value={status}
-            onChange={(selectedOption) => setStatus(selectedOption ?? statusOptions[0])}
+            onChange={(selectedOption) =>
+              setStatus(selectedOption ?? statusOptions[0])
+            }
             options={statusOptions}
             isSearchable={false}
             styles={selectStyles}
           />
-        </div>
+        </div> */}
       </div>
 
-      <div className="mt-4 overflow-x-auto rounded-md border border-[#F4E9E1]">
-        <table className="min-w-[980px] w-full">
-          <thead>
-            <tr className="bg-[#FBF5F0] text-left text-[11px] font-medium text-[#8F7B6E]">
-              <th className="px-4 py-3">Promotion Name</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Value</th>
-              <th className="px-4 py-3">Validity</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Actions</th>
+      <div className="overflow-x-auto mt-3">
+        <table className="w-full text-sm">
+          <thead className="bg-[#F1F5F9] text-[#486284]">
+            <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
+              <th className="text-left px-4 py-3">Promotion Name</th>
+              <th className="text-left px-4 py-3">Type</th>
+              <th className=" text-left px-4 py-3">Value</th>
+              <th className="text-left px-4 py-3">Validity</th>
+              <th className="text-left px-4 py-3">Status</th>
+              <th className="text-left px-4 py-3">Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            {filteredPromotions.map((promotion) => {
-              const isActive = promotion.status === "Active";
-              return (
+            {loading ? (
+              <tr>
+                <div className="flex justify-center items-center h-[400px]">
+                  <Spinner size={40} />
+                </div>
+              </tr>
+            ) : filteredPromotions.length ? (
+              filteredPromotions.map((promotion) => (
                 <tr
                   key={promotion.id}
-                  className="border-t border-[#F8EEE8] bg-white text-[11px] text-[#5F534C]"
+                  className="odd:bg-white even:bg-[#FBF8F6]"
                 >
-                  <td className="px-4 py-3 font-semibold text-[#4A3D36]">
-                    {promotion.name}
-                  </td>
-                  <td className={`px-4 py-3 font-medium ${promotion.typeColor}`}>
-                    {promotion.type}
-                  </td>
-                  <td className="px-4 py-3 font-medium text-[#4A3D36]">{promotion.value}</td>
+                  <td className="px-4 py-3">{promotion.promocodeName}</td>
+
                   <td className="px-4 py-3">
-                    <p className="text-[#4A3D36]">{promotion.validityTop}</p>
-                    {promotion.validityBottom ? (
-                      <p className="mt-1 text-[#B29D8C]">{promotion.validityBottom}</p>
-                    ) : null}
+                    {promotion.promocodeType.replace("_", " ")}
                   </td>
+
+                  <td className="px-4 py-3">₹ {promotion.amount}</td>
+
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${getStatusClasses(promotion.status)}`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${promotion.status === "Active" ? "bg-[#007A55]" : promotion.status === "Expired" ? "bg-[#F04444]" : "bg-[#E6A11E]"}`} />
-                      {promotion.status}
+                    <div>
+                      {new Date(promotion.started_at).toLocaleDateString()}
+                    </div>
+
+                    <div className="text-gray-400">
+                      {new Date(promotion.ended_at).toLocaleDateString()}
+                    </div>
+                  </td>
+
+                  <td className="px-4 py-3">
+                    <span
+                      className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
+                        promotion.isActive
+                          ? "bg-[#E8FAF2] text-[#007A55]"
+                          : "bg-[#FFE9E8] text-[#F04444]"
+                      }`}
+                    >
+                      {promotion.isActive ? "Active" : "Inactive"}
                     </span>
                   </td>
+
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3 text-[#7D6C63]">
-                      <button
-                        type="button"
-                        disabled={!isActive}
-                        onClick={() => {
-                          if (isActive) {
-                            router.push(`/pricing-packages/${promotion.id}`);
-                          }
-                        }}
-                        className={isActive ? "" : "cursor-default opacity-50"}
-                      >
-                        <TbEye size={13} />
+                    <div className="flex items-center gap-3">
+                      <button>
+                        <FiEye size={14} />
                       </button>
-                      <button
-                        type="button"
-                        disabled={!isActive}
-                        onClick={() => {
-                          if (isActive) {
-                            router.push(`/pricing-packages/${promotion.id}/edit`);
-                          }
-                        }}
-                        className={isActive ? "" : "cursor-default opacity-50"}
-                      >
-                        <TbPencil size={13} />
+
+                      <button>
+                        <FiEdit2 size={14} />
                       </button>
-                      <button type="button" className="cursor-default">
-                        <TbBan size={13} />
+
+                      <button>
+                        <FiTrash2 size={14} />
                       </button>
                     </div>
                   </td>
                 </tr>
-              );
-            })}
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="py-8 text-center">
+                  No Promotions Found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
-      <div className="mt-5 flex flex-col gap-3 text-[11px] text-[#9A8C82] sm:flex-row sm:items-center sm:justify-between">
-        <p>Showing 1-10</p>
-
-        <div className="flex items-center gap-2">
-          <button type="button" className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#C9B2A3]">
-            <TbChevronLeft size={14} />
-          </button>
-          <button type="button" className="flex h-8 min-w-[30px] items-center justify-center rounded bg-[#D88957] px-2 text-white">
-            1
-          </button>
-          <button type="button" className="text-[#8C7C73]">2</button>
-          <button type="button" className="text-[#8C7C73]">3</button>
-          <span className="text-[#8C7C73]">...</span>
-          <button type="button" className="text-[#8C7C73]">10</button>
-          <button type="button" className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#8C7C73]">
-            <TbChevronRight size={14} />
-          </button>
-        </div>
+      <div
+        className="flex justify-end mt-3"
+        style={{ marginRight: "6px", marginLeft: "6px" }}
+      >
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={totalItems || promotions.length}
+          onChange={(page) => setCurrentPage(page)}
+        />
       </div>
     </div>
   );
