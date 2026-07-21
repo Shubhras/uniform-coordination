@@ -168,6 +168,7 @@ const SimulationHistory = () => {
                 {/* LEFT */}
                 <div className="flex gap-2 w-full sm:w-auto relative z-10">
                     <Select
+                    instanceId="simulation-sort-select"
                         options={[{ value: '', label: 'All Industry' }, ...categories.map(cat => ({ value: cat.slug, label: cat.categoryName }))]}
                         value={[{ value: '', label: 'All Industry' }, ...categories.map(cat => ({ value: cat.slug, label: cat.categoryName }))].find(o => o.value === filters.category) || { value: '', label: 'All Industry' }}
                         onChange={(selected) =>
@@ -212,6 +213,7 @@ const SimulationHistory = () => {
                 {/* RIGHT */}
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-3 sm:mt-0 relative z-10">
                     <Select
+                    instanceId="simulation-range-select"
                         options={sortOptions}
                         value={sortOptions.find((o) => o.value === filters.sort) || sortOptions[0]}
                         onChange={(selected) =>
@@ -252,6 +254,7 @@ const SimulationHistory = () => {
                     />
 
                     <Select
+                      instanceId="simulation-category-select"
                         options={rangeOptions}
                         value={rangeOptions.find((o) => o.value === filters.range) || rangeOptions[0]}
                         onChange={(selected) =>
