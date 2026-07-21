@@ -12,8 +12,10 @@ import {
 } from 'react-icons/fi'
 import { GoArrowRight } from 'react-icons/go'
 import { apiGetProfile } from '@/services/AuthProfileService'
+import { useRouter } from 'next/navigation'
 
 const MyProfile = () => {
+    const router = useRouter()
     const fileRef = useRef(null)
     const { data: session } = useSession()
     const [profile, setProfile] = useState(null)
@@ -151,10 +153,14 @@ const MyProfile = () => {
 
                     {/* Actions */}
                     <div className="flex flex-wrap gap-2">
-                        <Button size="sm" className="flex items-center gap-2 border border-[#A0522D] text-[#A0522D]">
+                        <Button
+                            onClick={() => router.push('/profile/personal-information')}
+                            size="sm" className="flex items-center gap-2 border border-[#A0522D] text-[#A0522D]">
                             <FiEdit2 /> Edit Profile
                         </Button>
-                        <Button size="sm" className="flex items-center gap-2 border border-[#A0522D] text-[#A0522D]">
+                        <Button
+                            onClick={() => router.push('/profile/change-password')}
+                            size="sm" className="flex items-center gap-2 border border-[#A0522D] text-[#A0522D]">
                             <FiLock /> Change Password
                         </Button>
                         <Button size="sm" className="flex items-center gap-2 border border-[#A0522D] text-[#A0522D]">
@@ -222,7 +228,9 @@ const MyProfile = () => {
                         <h4 className="text-sm font-semibold flex items-center gap-2 text-[#5A3E2B]">
                             <FiBox /> Recent Orders
                         </h4>
-                        <button className="text-xs text-[#A0522D] font-medium flex items-center gap-1">
+                        <button
+                            onClick={() => router.push('/profile/my-order-rentals/active-orders')}
+                            className="text-xs text-[#A0522D] font-medium flex items-center gap-1">
                             View All <GoArrowRight />
                         </button>
                     </div>
@@ -322,7 +330,11 @@ const MyProfile = () => {
                             <FiFileText size={16} />
                             Recent Simulations
                         </h4>
-                        <button className="text-xs text-[#A0522D] font-medium flex items-center gap-1">
+                        <button
+                            type="button"
+                            onClick={() => router.push('/profile/simulation-history')}
+                            className="text-xs text-[#A0522D] font-medium flex items-center gap-1 hover:underline"
+                        >
                             View All <GoArrowRight />
                         </button>
                     </div>

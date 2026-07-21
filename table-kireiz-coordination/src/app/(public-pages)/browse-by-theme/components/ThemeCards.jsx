@@ -14,10 +14,12 @@ const ThemeCards = () => {
     const [themeCards, setThemeCards] = useState([])
     const [categoryData, setCategoryData] = useState([])
     const [selectedCategoryId, setSelectedCategoryId] = useState('all')
+    const [loading, setLoading] = useState(true)
     const router = useRouter()
 
     useEffect(() => {
         const fetchThemes = async () => {
+            setLoading(true);
             try {
                 const response = await apiGetBrowseByThemeData({
                     search: "",
@@ -34,6 +36,8 @@ const ThemeCards = () => {
             } catch (error) {
                 console.error("Error fetching themes:", error);
                 setThemeCards([]);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -118,8 +122,15 @@ const ThemeCards = () => {
 
             {/* ================= CARDS ================= */}
             <div className="overflow-hidden pb-12">
-                <div className="grid gap-6 transition-transform duration-500 ease-in-out grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {filteredCards.map((item) => (
+                {loading ? (
+                    <section className="relative w-full bg-[#FBF8F6] mx-auto px-5 md:px-8 lg:px-12 mt-10">
+                        <div className="flex justify-center items-center py-20">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
+                        </div>
+                    </section>
+                ) : (
+                    <div className="grid gap-6 transition-transform duration-500 ease-in-out grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {filteredCards.map((item) => (
                         <div
                             key={item.id}
                             className="
@@ -189,6 +200,7 @@ const ThemeCards = () => {
                         </div>
                     ))}
                 </div>
+                )}
             </div>
 
         </section>

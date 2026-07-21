@@ -1,8 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
-import { FiCalendar, FiMapPin, FiSearch } from 'react-icons/fi'
+import { FiCalendar, FiMapPin, FiSearch, FiX } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
+import Input from '@/components/ui/Input'
+import Select from '@/components/ui/Select'
+import { HiCheck } from 'react-icons/hi'
 
 const activeOrders = [
     {
@@ -71,6 +75,30 @@ const OrderImage = () => (
 
 const OrdersList = ({ activeTab }) => {
     const router = useRouter()
+    const [searchTerm, setSearchTerm] = useState('')
+    const [statusFilter, setStatusFilter] = useState('')
+
+    const statusOptions = [
+        { value: '', label: 'All Status' },
+        { value: 'active', label: 'Active' },
+        { value: 'completed', label: 'Completed' },
+        { value: 'cancelled', label: 'Cancelled' },
+    ]
+
+    const CustomOption = (props) => {
+        const { innerProps, label, isSelected, isDisabled } = props
+        return (
+            <div
+                className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${isSelected ? 'text-[#A0522D] bg-[#F2F7FF]' : 'text-[#1C2C56] hover:bg-gray-100'
+                    } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                {...innerProps}
+            >
+                <span className="ml-2 text-sm font-medium">{label}</span>
+                {isSelected && <HiCheck className="text-lg" />}
+            </div>
+        )
+    }
+
     const orders = activeTab === 'completed-orders' ? completedOrders : activeOrders
 
     const handleTabChange = (tab) => {
@@ -100,11 +128,10 @@ const OrdersList = ({ activeTab }) => {
                         <button
                             type="button"
                             onClick={() => handleTabChange('active-orders')}
-                            className={`relative pb-3 text-sm font-medium ${
-                                activeTab === 'active-orders'
-                                    ? 'text-[#2C1810]'
-                                    : 'text-[#8D7769]'
-                            }`}
+                            className={`relative pb-3 text-sm font-medium ${activeTab === 'active-orders'
+                                ? 'text-[#2C1810]'
+                                : 'text-[#8D7769]'
+                                }`}
                         >
                             Active Orders
                             <span className="ml-1 text-[11px] text-[#B66636]">4</span>
@@ -115,11 +142,10 @@ const OrdersList = ({ activeTab }) => {
                         <button
                             type="button"
                             onClick={() => handleTabChange('completed-orders')}
-                            className={`relative pb-3 text-sm font-medium ${
-                                activeTab === 'completed-orders'
-                                    ? 'text-[#2C1810]'
-                                    : 'text-[#8D7769]'
-                            }`}
+                            className={`relative pb-3 text-sm font-medium ${activeTab === 'completed-orders'
+                                ? 'text-[#2C1810]'
+                                : 'text-[#8D7769]'
+                                }`}
                         >
                             Completed Orders
                             <span className="ml-1 text-[11px] text-[#8D7769]">1</span>
@@ -132,21 +158,67 @@ const OrdersList = ({ activeTab }) => {
 
                 <div className="mt-5 flex flex-col gap-3 md:flex-row">
                     <div className="relative flex-1">
-                        <FiSearch
-                            size={14}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C69A84]"
-                        />
-                        <input
-                            type="text"
-                            readOnly
-                            value=""
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C08A72]">
+                            <FiSearch size={16} />
+                        </span>
+                        <Input
+                            value={searchTerm}
+                            onChange={(event) => setSearchTerm(event.target.value)}
                             placeholder="Search by Order ID ..."
-                            className="w-full rounded-md border border-[#EFE1D8] bg-white py-2.5 pl-9 pr-4 text-sm text-[#5E463B] outline-none"
+                            className="pl-10 pr-10 border-[#E7D8D0] bg-white w-full focus:!border-[#A0522D] focus:!ring-[#A0522D] focus:!ring-1"
                         />
+                        {searchTerm && (
+                            <button
+                                type="button"
+                                onClick={() => setSearchTerm('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 focus:outline-none"
+                            >
+                                <FiX size={16} />
+                            </button>
+                        )}
                     </div>
-                    <select className="rounded-md border border-[#EFE1D8] bg-white px-3 py-2.5 text-sm text-[#9C7F6D] outline-none md:w-[120px]">
-                        <option>Status</option>
-                    </select>
+                    <Select
+                        instanceId="active-orders-status-select"
+                        options={statusOptions}
+                        value={statusOptions.find((o) => o.value === statusFilter) || statusOptions[0]}
+                        onChange={(selected) => setStatusFilter(selected?.value || '')}
+                        isSearchable={false}
+                        className="md:w-[160px] relative z-10"
+                        components={{ Option: CustomOption }}
+                        styles={{
+                            control: (base) => ({
+                                ...base,
+                                borderRadius: '8px',
+                                borderColor: '#EFE1D8',
+                                borderStyle: 'solid',
+                                borderWidth: '1px',
+                                backgroundColor: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '1px 4px',
+                                cursor: 'pointer',
+                                boxShadow: 'none',
+                                '&:hover': { borderColor: '#D7B7A3' },
+                            }),
+                            menu: (base) => ({
+                                ...base,
+                                marginTop: '4px',
+                                borderRadius: '14px',
+                                padding: '6px',
+                                overflow: 'hidden',
+                            }),
+                            menuList: (base) => ({
+                                ...base,
+                                paddingTop: 0,
+                                paddingBottom: 0,
+                                maxHeight: '220px',
+                                overflowY: 'auto',
+                            }),
+                            singleValue: () => ({ color: '#9C7F6D', fontWeight: 500, fontSize: '14px' })
+                        }}
+                        maxMenuHeight={220}
+                    />
                 </div>
 
                 <div className="mt-5 space-y-3">
