@@ -21,9 +21,8 @@ const CustomOption = (props) => {
     const { innerProps, label, isSelected, isDisabled } = props
     return (
         <div
-            className={`flex items-center justify-between px-3 py-2 cursor-pointer ${
-                isSelected ? 'text-[#1C4FA8] bg-[#F2F7FF]' : 'text-[#1C2C56] hover:bg-gray-100'
-            } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${isSelected ? 'text-[#A0522D] bg-[#F2F7FF]' : 'text-[#1C2C56] hover:bg-gray-100'
+                } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             {...innerProps}
         >
             <span className="ml-2 text-sm font-medium">{label}</span>
@@ -163,8 +162,9 @@ const SimulationHistory = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div className="flex gap-2 w-full sm:w-auto z-[60]">
+                <div className="flex gap-2 w-full sm:w-auto relative z-10">
                     <Select
+                        instanceId="simulation-category-select"
                         options={[
                             { value: '', label: 'All Industry' },
                             ...categories.map((cat) => ({
@@ -190,34 +190,44 @@ const SimulationHistory = () => {
                         className="w-full min-w-[180px]"
                         components={{ Option: CustomOption }}
                         styles={{
-                            control: () => ({
+                            control: (base) => ({
+                                ...base,
                                 borderRadius: '10px',
-                                borderColor: '#B2C7E3',
+                                borderColor: '#E7D8D0',
                                 borderStyle: 'solid',
                                 borderWidth: '1px',
                                 backgroundColor: 'white',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                padding: '4px 8px',
+                                padding: '2px 4px',
                                 cursor: 'pointer',
+                                boxShadow: 'none',
+                                '&:hover': { borderColor: '#D7B7A3' },
                             }),
-                            singleValue: () => ({
-                                color: '#1C2C56',
-                                fontWeight: 500,
-                                fontSize: '14px',
+                            menu: (base) => ({
+                                ...base,
+                                marginTop: '4px',
+                                borderRadius: '14px',
+                                padding: '6px',
+                                overflow: 'hidden',
                             }),
-                            placeholder: () => ({
-                                color: '#1C2C56',
-                                fontWeight: 500,
-                                fontSize: '14px',
+                            menuList: (base) => ({
+                                ...base,
+                                paddingTop: 0,
+                                paddingBottom: 0,
+                                maxHeight: '220px',
+                                overflowY: 'auto',
                             }),
+                            singleValue: () => ({ color: '#A0522D', fontWeight: 500, fontSize: '14px' })
                         }}
+                        maxMenuHeight={220}
                     />
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end z-[50]">
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end relative z-10 ">
                     <Select
+                        instanceId="simulation-sort-select"
                         options={sortOptions}
                         value={sortOptions.find((o) => o.value === filters.sort) || sortOptions[0]}
                         onChange={(selected) =>
@@ -226,52 +236,81 @@ const SimulationHistory = () => {
                         className="w-full min-w-[180px]"
                         components={{ Option: CustomOption }}
                         styles={{
-                            control: () => ({
+                            control: (base) => ({
+                                ...base,
                                 borderRadius: '10px',
-                                borderColor: '#B2C7E3',
+                                borderColor: '#E7D8D0',
                                 borderStyle: 'solid',
                                 borderWidth: '1px',
                                 backgroundColor: 'white',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                padding: '4px 8px',
+                                padding: '2px 4px',
                                 cursor: 'pointer',
+                                boxShadow: 'none',
+                                '&:hover': { borderColor: '#D7B7A3' },
                             }),
-                            singleValue: () => ({
-                                color: '#1C2C56',
-                                fontWeight: 500,
-                                fontSize: '14px',
+                            menu: (base) => ({
+                                ...base,
+                                marginTop: '4px',
+                                borderRadius: '14px',
+                                padding: '6px',
+                                overflow: 'hidden',
                             }),
+                            menuList: (base) => ({
+                                ...base,
+                                paddingTop: 0,
+                                paddingBottom: 0,
+                                maxHeight: '220px',
+                                overflowY: 'auto',
+                            }),
+                            singleValue: () => ({ color: '#A0522D', fontWeight: 500, fontSize: '14px' })
                         }}
+                        maxMenuHeight={220}
                     />
                     <Select
+                        instanceId="simulation-range-select"
                         options={rangeOptions}
                         value={rangeOptions.find((o) => o.value === filters.range) || rangeOptions[0]}
                         onChange={(selected) =>
                             setFilters({ ...filters, range: selected?.value || '' })
                         }
-                        className="w-full min-w-[160px]"
+                        className="w-full min-w-[180px]"
                         components={{ Option: CustomOption }}
                         styles={{
-                            control: () => ({
+                            control: (base) => ({
+                                ...base,
                                 borderRadius: '10px',
-                                borderColor: '#B2C7E3',
+                                borderColor: '#E7D8D0',
                                 borderStyle: 'solid',
                                 borderWidth: '1px',
                                 backgroundColor: 'white',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                padding: '4px 8px',
+                                padding: '2px 4px',
                                 cursor: 'pointer',
+                                boxShadow: 'none',
+                                '&:hover': { borderColor: '#D7B7A3' },
                             }),
-                            singleValue: () => ({
-                                color: '#1C2C56',
-                                fontWeight: 500,
-                                fontSize: '14px',
+                            menu: (base) => ({
+                                ...base,
+                                marginTop: '4px',
+                                borderRadius: '14px',
+                                padding: '6px',
+                                overflow: 'hidden',
                             }),
+                            menuList: (base) => ({
+                                ...base,
+                                paddingTop: 0,
+                                paddingBottom: 0,
+                                maxHeight: '220px',
+                                overflowY: 'auto',
+                            }),
+                            singleValue: () => ({ color: '#A0522D', fontWeight: 500, fontSize: '14px' })
                         }}
+                        maxMenuHeight={220}
                     />
                 </div>
             </div>

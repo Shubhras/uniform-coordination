@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from 'react'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
-import { FiChevronLeft, FiChevronRight, FiEye, FiFileText, FiSearch } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiEye, FiFileText, FiSearch, FiX } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
 // import { useSettingsStore } from '../_store/settingsStore'
 import { HiCheck } from 'react-icons/hi'
@@ -407,19 +407,31 @@ const MyQuotations = () => {
 
             <div className="flex flex-col lg:flex-row gap-3 mb-6">
                 <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C08A72]">
-                        <FiSearch size={16} />
-                    </span>
-                    <Input
-                        value={searchTerm}
-                        onChange={(event) => setSearchTerm(event.target.value)}
-                        placeholder="Search by Quote ID ..."
-                        className="pl-10 border-[#E7D8D0] bg-white w-1/2"
-                    />
+                    <div className="relative w-full lg:w-1/2">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C08A72]">
+                            <FiSearch size={16} />
+                        </span>
+                        <Input
+                            value={searchTerm}
+                            onChange={(event) => setSearchTerm(event.target.value)}
+                            placeholder="Search by Quote ID ..."
+                            className="pl-10 pr-10 border-[#E7D8D0] bg-white w-full focus:!border-[#A0522D] focus:!ring-[#A0522D] focus:ring-1"
+                        />
+                        {searchTerm && (
+                            <button
+                                type="button"
+                                onClick={() => setSearchTerm('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 focus:outline-none"
+                            >
+                                <FiX size={16} />
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex gap-3 lg:w-auto">
                     <Select
+                        instanceId="quotation-status-select"
                         options={quotationStatusOptions}
                         value={quotationStatusOptions.find((o) => o.value === statusFilter) || quotationStatusOptions[0]}
                         onChange={(selected) => setStatusFilter(selected?.value || 'All Status')}
