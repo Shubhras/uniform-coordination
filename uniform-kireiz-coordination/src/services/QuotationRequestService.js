@@ -23,3 +23,24 @@ export async function apiExportQuotationPdf(id, token) {
         responseType: "json",
     });
 }
+
+export async function apiGetUserQuotationDetail(id, token, absoluteUrl) {
+    return ApiService.fetchDataWithAxios({
+        url: absoluteUrl || `/v1/userhub/quotations/${id}/`,
+        method: "get",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+}
+
+export async function apiDownloadUserQuotationPdf(id, token, absoluteUrl) {
+    return ApiService.fetchDataWithAxios({
+        url: absoluteUrl || `/v1/userhub/quotations/${id}/pdf/`,
+        method: "get",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        responseType: "blob",
+    });
+}

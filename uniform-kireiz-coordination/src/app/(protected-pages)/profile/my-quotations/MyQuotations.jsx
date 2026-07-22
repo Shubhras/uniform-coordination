@@ -9,9 +9,14 @@ import { FiArrowLeft, FiDownload, FiEye, FiFileText, FiSearch } from 'react-icon
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5'
 import { HiCheck } from 'react-icons/hi'
 import { apiGetQuotation } from '@/services/AuthProfileService'
+import { apiDownloadUserQuotationPdf } from '@/services/QuotationRequestService'
 import { formatDate } from '@/utils/dateFormater'
 
 const ITEMS_PER_PAGE = 6
+const DEFAULT_QUOTATION_PREVIEW_URL =
+    'https://teams.live.com/l/message/19:uni01_yn4qiw6x475mpv4ofcszosarv6enhv27npc6zgznlqf5lbnxzvfa@thread.v2/1784698820259?context=%7B%22contextType%22%3A%22chat%22%7D'
+const DEFAULT_QUOTATION_DOWNLOAD_URL =
+    'https://t8sjq87n-8001.inc1.devtunnels.ms/api/v1/userhub/quotations/91b153f4-a5cc-42dd-a9ae-9709f3b14afa/pdf/'
 
 const statusStyles = {
     accepted: {
@@ -87,6 +92,54 @@ const getPdfUrl = (quotation) =>
     quotation?.export_pdf_url ||
     ''
 
+const getPreviewUrl = (quotation) =>
+    quotation?.preview_url ||
+    quotation?.previewUrl ||
+    quotation?.pdf_preview_url ||
+    quotation?.view_pdf_url ||
+    quotation?.quotation_preview_url ||
+    getPdfUrl(quotation) ||
+    DEFAULT_QUOTATION_PREVIEW_URL
+
+const getDownloadUrl = (quotation) =>
+    quotation?.download_url ||
+    quotation?.downloadUrl ||
+    quotation?.pdf_download_url ||
+    quotation?.quotation_download_url ||
+    DEFAULT_QUOTATION_DOWNLOAD_URL
+
+const normalizePdfUrl = (rawUrl) => {
+    if (!rawUrl || typeof rawUrl !== 'string') {
+        return ''
+    }
+
+    const preferredBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+    if (!preferredBaseUrl) {
+        return rawUrl
+    }
+
+    try {
+        const preferredOrigin = new URL(preferredBaseUrl).origin
+
+        if (rawUrl.startsWith('/')) {
+            return new URL(rawUrl, preferredOrigin).toString()
+        }
+
+        const parsedUrl = new URL(rawUrl)
+        if (parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1') {
+            return new URL(
+                `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`,
+                preferredOrigin,
+            ).toString()
+        }
+
+        return parsedUrl.toString()
+    } catch (error) {
+        console.error('Failed to normalize PDF URL:', error)
+        return rawUrl
+    }
+}
+
 const getRequestedItems = (quotation) => {
     const source =
         quotation?.requested_items ||
@@ -111,6 +164,12 @@ const normalizeQuotation = (quotation, index) => {
 
     return {
         id: quotation?.id || quotation?.quotation_id || quotation?.quotationNo || `RQ-2025-019${index + 1}`,
+        quotationId:
+            quotation?.uuid ||
+            quotation?.quotation_uuid ||
+            quotation?.quotation_id ||
+            quotation?.id ||
+            '',
         requestId: quotation?.quotationNo || quotation?.quotation_id || `RQ-2025-019${index + 1}`,
         productName: quotation?.product_name || quotation?.item_type || quotation?.title || 'Corporate Shirt',
         quantity:
@@ -129,7 +188,9 @@ const normalizeQuotation = (quotation, index) => {
         phoneNumber: quotation?.phone_number || quotation?.phone || '-',
         tier: quotation?.tier || '-',
         requestedDate: quotation?.requested_date || quotation?.created_at || '',
-        pdfUrl: getPdfUrl(quotation),
+        pdfUrl: normalizePdfUrl(getPdfUrl(quotation)),
+        previewUrl: normalizePdfUrl(getPreviewUrl(quotation)),
+        downloadUrl: normalizePdfUrl(getDownloadUrl(quotation)),
         items: getRequestedItems(quotation),
     }
 }
@@ -175,9 +236,16 @@ const StatusBadge = ({ statusKey, statusLabel }) => {
     )
 }
 
-const QuotationDetailView = ({ quotation, onBack }) => {
+const QuotationDetailView = ({
+    quotation,
+    onBack,
+    onDownload,
+    downloadLoading,
+}) => {
     const isAccepted = quotation.statusKey === 'accepted'
     const isReceived = quotation.statusKey === 'received'
+    const showPreview = Boolean(quotation.previewUrl)
+    const showDownload = Boolean(quotation.quotationId || quotation.downloadUrl)
 
     return (
         <div className="w-full rounded-2xl bg-white">
@@ -245,27 +313,74 @@ const QuotationDetailView = ({ quotation, onBack }) => {
                         </div>
 
                         {isAccepted || isReceived ? (
-                            <button
-                                type="button"
-                                className="inline-flex h-[42px] items-center justify-center gap-2 rounded-[10px] border border-[#B7C9E2] bg-white px-6 text-[14px] font-semibold text-[#2B436F] shadow-none transition-colors hover:bg-[#F8FBFF]"
-                                onClick={() => {
-                                    if (quotation.pdfUrl) {
-                                        window.open(quotation.pdfUrl, '_blank', 'noopener,noreferrer')
-                                    }
-                                }}
-                            >
-                                {isAccepted ? (
-                                    <>
-                                        <FiDownload size={16} />
-                                        <span>Download Quotation PDF</span>
-                                    </>
-                                ) : (
-                                    <span>Preview Quotation PDF</span>
-                                )}
-                            </button>
+                            <div className="flex flex-wrap gap-3">
+                                {showPreview ? (
+                                    <button
+                                        type="button"
+                                        className="inline-flex h-[42px] items-center justify-center gap-2 rounded-[10px] border border-[#B7C9E2] bg-white px-6 text-[14px] font-semibold text-[#2B436F] shadow-none transition-colors hover:bg-[#F8FBFF]"
+                                        onClick={() => {
+                                            window.open(quotation.previewUrl, '_blank', 'noopener,noreferrer')
+                                        }}
+                                    >
+                                        <FiEye size={16} />
+                                        <span>Open Preview</span>
+                                    </button>
+                                ) : null}
+
+                                {showDownload ? (
+                                    <button
+                                        type="button"
+                                        className="inline-flex h-[42px] items-center justify-center gap-2 rounded-[10px] border border-[#B7C9E2] bg-white px-6 text-[14px] font-semibold text-[#2B436F] shadow-none transition-colors hover:bg-[#F8FBFF] disabled:cursor-not-allowed disabled:opacity-70"
+                                        onClick={onDownload}
+                                        disabled={downloadLoading}
+                                    >
+                                        {downloadLoading ? <Spinner size={18} /> : <FiDownload size={16} />}
+                                        <span>{downloadLoading ? 'Downloading...' : 'Download Quotation PDF'}</span>
+                                    </button>
+                                ) : null}
+                            </div>
                         ) : null}
                     </div>
                 </section>
+
+                {showPreview ? (
+                    <section className="overflow-hidden rounded-2xl border border-[#D7E3F4] bg-[#1F2937]">
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#314156] px-4 py-3">
+                            <span className="rounded-lg bg-[#44546A] px-3 py-1 text-xs font-medium text-white">
+                                {quotation.requestId}
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    className="inline-flex items-center rounded-md bg-[#44546A] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#52647D]"
+                                    onClick={() => {
+                                        window.open(quotation.previewUrl, '_blank', 'noopener,noreferrer')
+                                    }}
+                                >
+                                    <FiEye size={14} />
+                                </button>
+                                {showDownload ? (
+                                    <button
+                                        type="button"
+                                        className="inline-flex items-center rounded-md bg-[#44546A] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#52647D] disabled:cursor-not-allowed disabled:opacity-70"
+                                        onClick={onDownload}
+                                        disabled={downloadLoading}
+                                    >
+                                        {downloadLoading ? <Spinner size={16} /> : <FiDownload size={14} />}
+                                    </button>
+                                ) : null}
+                            </div>
+                        </div>
+
+                        <div className="bg-[#F8FAFC] p-4">
+                            <iframe
+                                src={quotation.previewUrl}
+                                title="Quotation PDF preview"
+                                className="h-[780px] w-full rounded-xl border border-[#CBD5E1] bg-white"
+                            />
+                        </div>
+                    </section>
+                ) : null}
 
                 <section className="overflow-hidden rounded-2xl border border-[#EDF2F7] bg-white">
                     <div className="border-b border-[#EDF2F7] px-4 py-4">
@@ -319,6 +434,7 @@ const MyQuotations = () => {
     const [errorMessage, setErrorMessage] = useState('')
     const [totalCount, setTotalCount] = useState(0)
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+    const [downloadLoadingId, setDownloadLoadingId] = useState('')
 
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
@@ -371,6 +487,37 @@ const MyQuotations = () => {
         setCurrentPage(1)
     }
 
+    const handleDownloadQuotationPdf = async (quotation) => {
+        if (!session?.accessToken || !quotation) return
+
+        try {
+            setDownloadLoadingId(quotation.id)
+            const pdfBlob = await apiDownloadUserQuotationPdf(
+                quotation.quotationId,
+                session.accessToken,
+                quotation.downloadUrl,
+            )
+
+            const blobUrl = window.URL.createObjectURL(pdfBlob)
+            const link = document.createElement('a')
+            link.href = blobUrl
+            link.download = `${quotation.requestId || 'quotation'}.pdf`
+            document.body.appendChild(link)
+            link.click()
+            link.remove()
+            window.URL.revokeObjectURL(blobUrl)
+        } catch (error) {
+            console.error('Quotation PDF download error:', error)
+            setErrorMessage(
+                error?.response?.data?.message ||
+                error?.message ||
+                'Unable to download quotation PDF right now.',
+            )
+        } finally {
+            setDownloadLoadingId('')
+        }
+    }
+
     const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE))
 
     if (selectedQuotation) {
@@ -378,6 +525,8 @@ const MyQuotations = () => {
             <QuotationDetailView
                 quotation={selectedQuotation}
                 onBack={() => setSelectedQuotation(null)}
+                onDownload={() => handleDownloadQuotationPdf(selectedQuotation)}
+                downloadLoading={downloadLoadingId === selectedQuotation.id}
             />
         )
     }
