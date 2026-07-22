@@ -45,25 +45,25 @@ const CreatePromotion = () => {
     const newErrors = {};
 
     if (!form.promocodeName.trim()) {
-      newErrors.promocodeName = "Promotion name is required";
+      newErrors.promocodeName = "Promotion name is required*";
     }
 
     if (!form.promocodeType) {
-      newErrors.promocodeType = "Promotion type is required";
+      newErrors.promocodeType = "Promotion type is required*";
     }
 
     if (!form.amount) {
-      newErrors.amount = "Discount value is required";
+      newErrors.amount = "Discount value is required*";
     } else if (Number(form.amount) <= 0) {
       newErrors.amount = "Discount value must be greater than 0";
     }
 
     if (!form.started_at) {
-      newErrors.started_at = "Start date is required";
+      newErrors.started_at = "Start date is required*";
     }
 
     if (!form.ended_at) {
-      newErrors.ended_at = "End date is required";
+      newErrors.ended_at = "End date is required*";
     }
 
     if (
@@ -75,7 +75,7 @@ const CreatePromotion = () => {
     }
 
     if (!form.description.trim()) {
-      newErrors.description = "Description is required";
+      newErrors.description = "Description is required*";
     }
 
     setErrors(newErrors);

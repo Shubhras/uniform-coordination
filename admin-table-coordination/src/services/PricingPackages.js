@@ -26,6 +26,16 @@ export async function apiGetPromoCodeList(
   });
 }
 
+export async function apiDeletePromoCode(accessToken, id) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/promocode/delete/${id}/`,
+    method: "delete",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+
 export async function apiPromoCodeDetails(accessToken, id) {
   return ApiService.fetchDataWithAxios({
     url: `/v1/space/uniformAdmin/promocode/detail/${id}/`,
@@ -38,18 +48,30 @@ export async function apiPromoCodeDetails(accessToken, id) {
 
 export async function apiUpdatePromotion(accessToken, id, payload) {
   return ApiService.fetchDataWithAxios({
-    url: `/v1/space/uniformAdmin/promocode/${id}/update/`,
-    method: "patch",
+    url: `/v1/space/uniformAdmin/promocode/update/${id}/`,
+    method: "put",
     data: payload,
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
 }
+
 export async function apiGetPricingList(accessToken) {
   return ApiService.fetchDataWithAxios({
-    url: `/v1/space/uniformAdmin/pricing-rules/`,
+    url: `/v1/space/uniformAdmin/settings/rental-policy/`,
     method: "get",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+
+export async function apiUpdatePricingList(accessToken, payload) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/space/uniformAdmin/settings/rental-policy/update/",
+    method: "put",
+    data: payload,
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

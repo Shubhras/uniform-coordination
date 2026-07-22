@@ -204,7 +204,7 @@ const FabricsTab = () => {
                 Price per Unit
               </th>
               <th className="text-left px-5 py-4 font-medium">Status</th>
-              <th className="text-right px-5 py-4 font-medium">Actions</th>
+              <th className="text-left px-5 py-4 font-medium">Actions</th>
             </tr>
           </thead>
 
@@ -269,10 +269,10 @@ const FabricsTab = () => {
                     </span>
                   </td>
 
-                  <td className="px-5 py-4">
-                    <div className="flex justify-end gap-3">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
                       <button
-                        className="p-2 rounded-md bg-[#EEF2FF] text-[#1C2C56] hover:bg-[#E0E7FF] transition-colors"
+                        className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                         onClick={() => {
                           setEditFabric(fabric);
                           setOpenAdd(true);
@@ -281,7 +281,7 @@ const FabricsTab = () => {
                         <FiEdit2 size={14} />
                       </button>
                       <button
-                        className="p-2 rounded-md bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
+                        className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                         onClick={() => {
                           setFabricToDelete(fabric);
                           setDeleteDialogOpen(true);

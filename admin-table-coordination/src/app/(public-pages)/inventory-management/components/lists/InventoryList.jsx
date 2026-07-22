@@ -5,6 +5,9 @@ import Select from "react-select";
 import { useRouter } from "next/navigation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import Spinner from "@/components/ui/Spinner";
+import Pagination from "@/components/ui/Pagination";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { FiSearch, FiEye, FiEdit2, FiTrash2, FiX } from "react-icons/fi";
 import NewDeleteModal from "@/components/shared/NewDeleteModal";
 import { apiGetProductList, apiDeleteProduct } from "@/services/ProductService";
@@ -22,6 +25,9 @@ const InventoryList = () => {
   const [categoryList, setCategoryList] = useState([]);
   const [fabricList, setFabricList] = useState([]);
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
 
   const [category, setCategory] = useState({
     value: "all",
@@ -60,19 +66,21 @@ const InventoryList = () => {
         params += `&fabric_id=${material.value}`;
       }
 
-      if (searchQuery.trim()) {
+      if (debouncedSearch.trim()) {
         params += `&search=${encodeURIComponent(debouncedSearch.trim())}`;
       }
+
       const response = await apiGetProductList(
         accessToken,
-        1,
-        10,
+        currentPage,
+        pageSize,
         "table",
         params,
       );
 
-      if (response?.status && response?.data) {
-        setInventoryData(response.data);
+      if (response?.status) {
+        setInventoryData(response.data || []);
+        setTotalItems(response.count || 0); // API count
       }
     } catch (err) {
       console.error(err);
@@ -80,12 +88,15 @@ const InventoryList = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (accessToken) {
       fetchProducts();
     }
-  }, [accessToken, category, material, debouncedSearch]);
+  }, [accessToken, category, material, debouncedSearch, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, category, material]);
 
   const categoryOptions = [
     { value: "all", label: "All Categories" },
@@ -116,6 +127,11 @@ const InventoryList = () => {
 
     try {
       const res = await apiDeleteProduct(accessToken, fabricToDelete.id);
+      toast.push(
+        <Notification title="Success" type="success">
+          {res.message}
+        </Notification>,
+      );
 
       if (res?.status) {
         await fetchProducts();
@@ -276,15 +292,19 @@ const InventoryList = () => {
           <table className="w-full text-sm">
             <thead className="bg-[#F1F5F9] text-[#486284]">
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                <th className="px-5 py-3 font-normal">Product Name</th>
-                <th className="px-5 py-3 font-normal">Category</th>
-                <th className="px-5 py-3 font-normal">Fabric</th>
-                <th className="px-5 py-3 font-normal">Total</th>
-                <th className="px-5 py-3 font-normal">Available</th>
-                <th className="px-5 py-3 font-normal">On Rent</th>
-                <th className="px-5 py-3 font-normal ">Cleaning</th>
-                <th className="px-5 py-3 font-normal">Inspect</th>
-                <th className="px-5 py-3 font-normal text-center">Actions</th>
+                <th className="text-left  px-4 py-3 font-normal">
+                  Product Name
+                </th>
+                <th className="text-left  px-4 py-3 font-normal">Category</th>
+                <th className="text-left  px-4 py-3 font-normal">Fabric</th>
+                <th className="text-left  px-4 py-3 font-normal">Total</th>
+                <th className="text-left  px-4 py-3 font-normal">Available</th>
+                <th className="text-left  px-4 py-3 font-normal">On Rent</th>
+                <th className="text-left  px-4 py-3 font-normal ">Cleaning</th>
+                <th className="text-left  px-4 py-3 font-normal">Inspect</th>
+                <th className="text-left  px-4 py-3 font-normal text-center">
+                  Actions
+                </th>
               </tr>
             </thead>
 
@@ -303,31 +323,31 @@ const InventoryList = () => {
                     key={item.id}
                     className={`${index % 2 === 0 ? "bg-white" : "bg-[#FBF7F3]"}`}
                   >
-                    <td className="px-3 py-3">{item.productName}</td>
+                    <td className="px-4 py-3">{item.productName}</td>
 
-                    <td className="px-3 py-3">{item.category?.categoryName}</td>
+                    <td className="px-4 py-3">{item.category?.categoryName}</td>
 
-                    <td className="px-3 py-3">{item.fabric}</td>
+                    <td className="px-4 py-3">{item.fabric}</td>
 
-                    <td className="px-3 py-3">{item.total_quantity}</td>
+                    <td className="px-4 py-3">{item.total_quantity}</td>
 
-                    <td className="px-3 py-3">{item.available_quantity}</td>
+                    <td className="px-4 py-3">{item.available_quantity}</td>
 
-                    <td className="px-3 py-3">{item.on_rent_quantity ?? 0}</td>
+                    <td className="px-4 py-3">{item.on_rent_quantity ?? 0}</td>
 
-                    <td className="px-3 py-3">{item.cleaning_quantity ?? 0}</td>
+                    <td className="px-4 py-3">{item.cleaning_quantity ?? 0}</td>
 
-                    <td className="px-3 py-3">{item.inspect_quantity ?? 0}</td>
+                    <td className="px-4 py-3">{item.inspect_quantity ?? 0}</td>
 
-                    <td className="px-3 py-3">
-                      <div className="flex justify-center items-center gap-1">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={() =>
                             router.push(
                               `/inventory-management/inventory-list/view?id=${item.id}`,
                             )
                           }
-                          className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+                          className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                         >
                           <FiEye size={16} />
                         </button>
@@ -338,14 +358,14 @@ const InventoryList = () => {
                               `/inventory-management/add?mode=edit&id=${item.id}`,
                             )
                           }
-                          className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+                          className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                         >
                           <FiEdit2 size={15} />
                         </button>
 
                         <button
                           onClick={() => handleDeleteClick(item)}
-                          className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+                          className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                         >
                           <FiTrash2 size={15} />
                         </button>
@@ -364,6 +384,18 @@ const InventoryList = () => {
           </table>
         </div>
       </div>
+      <div
+        className="flex justify-end mt-3"
+        style={{ marginRight: "6px", marginLeft: "6px" }}
+      >
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={totalItems}
+          onChange={(page) => setCurrentPage(page)}
+        />
+      </div>
+
       <NewDeleteModal
         isOpen={deleteDialogOpen}
         onClose={() => {

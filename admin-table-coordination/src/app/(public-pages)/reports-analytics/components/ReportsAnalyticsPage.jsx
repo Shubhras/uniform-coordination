@@ -1,30 +1,9 @@
 "use client";
 
-const summaryCards = [
-  { label: "TOTAL REVENUE", value: "¥2,450,000" },
-  { label: "TOTAL ORDERS", value: "124" },
-  { label: "ACTIVE RENTALS", value: "45" },
-  { label: "INVENTORY ITEMS", value: "85,000" },
-  { label: "LATE RETURNS", value: "3", valueClass: "text-[#E4574E]" },
-  { label: "CUSTOMERS", value: "1,200" },
-];
-
-const growthPoints = [
-  { month: "Jan", value: 700 },
-  { month: "Feb", value: 760 },
-  { month: "Mar", value: 820 },
-  { month: "Apr", value: 870 },
-  { month: "May", value: 920 },
-  { month: "Jun", value: 980 },
-];
-
-const categoryBars = [
-  { label: "Table Cloth", value: 90 },
-  { label: "Napkins", value: 140 },
-  { label: "Chair Covers", value: 230 },
-  { label: "Centre Pieces", value: 260 },
-  { label: "Additional Decor", value: 350 },
-];
+import { useEffect, useState } from "react";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { apiGetReportAnalytics } from "@/services//ReportAnalytics";
+import { FiDownload } from "react-icons/fi";
 
 const inventoryLegend = [
   { label: "Available", color: "#B56735" },
@@ -112,53 +91,125 @@ function DonutChart({
             >
               {arc.percent}%
             </text>
-          ) : null
+          ) : null,
         )}
     </svg>
   );
 }
 
 const ReportsAnalyticsPage = () => {
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
+  const [loading, setLoading] = useState(false);
+  const [reportData, setReportData] = useState(null);
+
   const chartWidth = 340;
   const chartLeftPad = 34;
   const chartRightPad = 16;
   const plotWidth = chartWidth - chartLeftPad - chartRightPad;
-  const stepX = plotWidth / (growthPoints.length - 1);
 
-  const maxValue = 1000;
+  const summaryCards = [
+    {
+      label: "TOTAL REVENUE",
+      value: `¥${reportData?.kpi?.total_revenue ?? 0}`,
+    },
+    {
+      label: "TOTAL ORDERS",
+      value: reportData?.kpi?.total_orders ?? 0,
+    },
+    {
+      label: "ACTIVE RENTALS",
+      value: reportData?.kpi?.active_rentals ?? 0,
+    },
+    {
+      label: "INVENTORY ITEMS",
+      value: reportData?.kpi?.inventory_items ?? 0,
+    },
+    {
+      label: "LATE RETURNS",
+      value: reportData?.kpi?.late_returns ?? 0,
+      valueClass: "text-[#E4574E]",
+    },
+    {
+      label: "CUSTOMERS",
+      value: reportData?.kpi?.total_customers ?? 0,
+    },
+  ];
+
+  const categoryBars =
+    reportData?.top_rented_categories?.map((item) => ({
+      label: item.label,
+      value: item.count,
+    })) || [];
+
+  const growthPoints =
+    reportData?.customer_growth?.map((item) => ({
+      month: item.label,
+      value: item.value,
+    })) || [];
+
+  const maxValue =
+    Math.max(...growthPoints.map((item) => item.value), 100) || 100;
   const chartTop = 24;
   const chartBottom = 165;
   const plotHeight = chartBottom - chartTop;
 
-  const yForValue = (value) =>
-    chartBottom - (value / maxValue) * plotHeight;
+  const yForValue = (value) => chartBottom - (value / maxValue) * plotHeight;
+  const maxBarValue =
+    Math.max(...categoryBars.map((item) => item.value), 100) || 100;
+
+  const stepX =
+    growthPoints.length > 1 ? plotWidth / (growthPoints.length - 1) : plotWidth;
 
   const polylinePoints = growthPoints
-    .map((point, index) => `${chartLeftPad + index * stepX},${yForValue(point.value)}`)
+    .map(
+      (point, index) =>
+        `${chartLeftPad + index * stepX},${yForValue(point.value)}`,
+    )
     .join(" ");
 
-  const maxBarValue = 400;
-  const barMaxWidthPx = 190; // matches the plotted track width below
+  const getReportAnalytics = async () => {
+    try {
+      setLoading(true);
+
+      const res = await apiGetReportAnalytics(accessToken, "table");
+
+      console.log("Report API", res);
+
+      if (res?.status) {
+        setReportData(res.data);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (accessToken) {
+      getReportAnalytics();
+    }
+  }, [accessToken]);
 
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-[32px] font-semibold leading-tight text-[#2A211D]">
+          <h1 className="text-[28px] font-semibold leading-tight text-[#2A211D]">
             Reports &amp; Analytics
           </h1>
-          <p className="mt-1 text-[13px] text-[#B29D8C]">
+          <p className="text-[13px] text-[#B29D8C]">
             Track inventory, stock status, and product availability.
           </p>
         </div>
 
         <button
           type="button"
-          className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-[#B56735] px-4 text-[13px] font-medium text-white"
+          className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-[#A0522D] px-4 text-[13px] font-medium text-white"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-          </svg>
+          <FiDownload size={14}/>
           Export Data
         </button>
       </div>
@@ -169,10 +220,12 @@ const ReportsAnalyticsPage = () => {
             key={card.label}
             className="rounded-[10px] border border-[#F0E4DB] bg-white px-4 py-4"
           >
-            <p className="text-[10px] font-semibold tracking-[0.12em] text-[#B3A096]">
+            <p className="text-[12px] font-semibold tracking-[0.12em] text-[#757575]">
               {card.label}
             </p>
-            <p className={`mt-2 text-[22px] font-semibold text-[#2F241F] ${card.valueClass ?? ""}`}>
+            <p
+              className={`mt-2 text-[22px] font-semibold text-[#2F241F] ${card.valueClass ?? ""}`}
+            >
               {card.value}
             </p>
           </div>
@@ -182,7 +235,7 @@ const ReportsAnalyticsPage = () => {
       <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)]">
         <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
           <div className="flex items-start justify-between">
-            <h2 className="text-[13px] font-semibold text-[#3C302B]">
+            <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
               Customer Growth (Last 6 Months)
             </h2>
             <p className="text-[11px] text-[#C0ADA0]">+12% avg growth</p>
@@ -190,7 +243,10 @@ const ReportsAnalyticsPage = () => {
 
           <div className="mt-5 overflow-x-auto">
             <div className="min-w-[520px]">
-              <svg viewBox={`0 0 ${chartWidth} 190`} className="h-[190px] w-full">
+              <svg
+                viewBox={`0 0 ${chartWidth} 190`}
+                className="h-[190px] w-full"
+              >
                 {[0, 200, 400, 600, 800, 1000].map((value) => (
                   <line
                     key={value}
@@ -207,7 +263,12 @@ const ReportsAnalyticsPage = () => {
                   fillOpacity="0.08"
                   points={`${chartLeftPad},${chartBottom} ${polylinePoints} ${chartLeftPad + (growthPoints.length - 1) * stepX},${chartBottom}`}
                 />
-                <polyline fill="none" stroke="#B56735" strokeWidth="2" points={polylinePoints} />
+                <polyline
+                  fill="none"
+                  stroke="#B56735"
+                  strokeWidth="2"
+                  points={polylinePoints}
+                />
                 {growthPoints.map((point, index) => (
                   <g key={point.month}>
                     <circle
@@ -245,7 +306,9 @@ const ReportsAnalyticsPage = () => {
         </div>
 
         <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
-          <h2 className="text-[13px] font-semibold text-[#3C302B]">Customer Segments</h2>
+          <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
+            Customer Segments
+          </h2>
 
           <div className="mt-6 flex justify-center">
             <DonutChart
@@ -253,8 +316,20 @@ const ReportsAnalyticsPage = () => {
               thickness={34}
               showLabels
               segments={[
-                { value: 87.5, color: "#B56735" },
-                { value: 12.5, color: "#7FCCF9" },
+                {
+                  value:
+                    reportData?.customer_segments?.find(
+                      (x) => x.label === "B2B",
+                    )?.percentage || 0,
+                  color: "#B56735",
+                },
+                {
+                  value:
+                    reportData?.customer_segments?.find(
+                      (x) => x.label === "B2C",
+                    )?.percentage || 0,
+                  color: "#7FCCF9",
+                },
               ]}
             />
           </div>
@@ -274,11 +349,16 @@ const ReportsAnalyticsPage = () => {
 
       <div className="mt-4 grid gap-4 xl:grid-cols-2">
         <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
-          <h2 className="text-[13px] font-semibold text-[#3C302B]">Top Rented Categories</h2>
+          <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
+            Top Rented Categories
+          </h2>
 
           <div className="mt-6 space-y-4">
             {categoryBars.map((item) => (
-              <div key={item.label} className="grid grid-cols-[110px_minmax(0,1fr)] items-center gap-4">
+              <div
+                key={item.label}
+                className="grid grid-cols-[110px_minmax(0,1fr)] items-center gap-4"
+              >
                 <p className="text-[11px] text-[#9F8D81]">{item.label}</p>
                 <div className="h-5 w-full rounded-[3px] bg-[#F4EAE3]">
                   <div
@@ -300,17 +380,43 @@ const ReportsAnalyticsPage = () => {
         </div>
 
         <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
-          <h2 className="text-[13px] font-semibold text-[#3C302B]">Inventory Status</h2>
+          <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
+            Inventory Status
+          </h2>
 
           <div className="mt-6 flex justify-center">
             <DonutChart
               size={170}
               thickness={34}
               segments={[
-                { value: 90, color: "#B56735" },
-                { value: 5, color: "#D9A79E" },
-                { value: 2, color: "#F5EDE6" },
-                { value: 3, color: "#2A211D" },
+                {
+                  value:
+                    reportData?.inventory_status?.find(
+                      (x) => x.label === "Available",
+                    )?.percentage || 0,
+                  color: "#B56735",
+                },
+                {
+                  value:
+                    reportData?.inventory_status?.find(
+                      (x) => x.label === "Rented",
+                    )?.percentage || 0,
+                  color: "#D9A79E",
+                },
+                {
+                  value:
+                    reportData?.inventory_status?.find(
+                      (x) => x.label === "Maintenance",
+                    )?.percentage || 0,
+                  color: "#F5EDE6",
+                },
+                {
+                  value:
+                    reportData?.inventory_status?.find(
+                      (x) => x.label === "Damaged",
+                    )?.percentage || 0,
+                  color: "#2A211D",
+                },
               ]}
             />
           </div>

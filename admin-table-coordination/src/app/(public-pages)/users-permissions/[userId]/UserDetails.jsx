@@ -185,9 +185,9 @@ const UserDetails = ({ userId }) => {
         <button
           type="button"
           onClick={() => router.back()}
-          className="flex h-7 w-7 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058]"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058]"
         >
-          <FiArrowLeft size={12} />
+          <FiArrowLeft size={18} className="text-[#1A1410]" />
         </button>
 
         <h1 className="text-[30px] font-semibold leading-tight text-[#2A211D]">
@@ -208,19 +208,19 @@ const UserDetails = ({ userId }) => {
         ) : user ? (
           <div className="grid gap-6 md:grid-cols-4">
             <div>
-              <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#B7A39A]">
-                Full Name
+              <p className="text-[13px] font-semibold text-[#B7A39A]">
+                FULL NAME
               </p>
-              <p className="mt-2 text-[13px] font-medium text-[#3C302B]">
-                {user.fullName}
+              <p className="mt-1 text-[13px] font-medium text-[#3C302B]">
+                {user.firstName} {user.lastName}
               </p>
             </div>
 
             <div>
-              <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#B7A39A]">
-                User Type
+              <p className="text-[13px] font-semibold text-[#B7A39A]">
+                USER TYPE
               </p>
-              <div className="mt-2">
+              <div className="mt-1">
                 <span
                   className={`rounded px-2 py-0.5 text-[9px] font-medium ${
                     user.userType === "B2C"
@@ -234,10 +234,8 @@ const UserDetails = ({ userId }) => {
             </div>
 
             <div>
-              <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#B7A39A]">
-                Email
-              </p>
-              <p className="mt-2 text-[13px] font-medium text-[#3C302B]">
+              <p className="text-[13px] font-semibold text-[#B7A39A]">EMAIL</p>
+              <p className="mt-1 text-[13px] font-medium text-[#3C302B]">
                 {user.email}
               </p>
             </div>
@@ -255,19 +253,19 @@ const UserDetails = ({ userId }) => {
             </div>
 
             <div>
-              <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#B7A39A]">
-                Phone Number
+              <p className="text-[13px] font-semibold text-[#B7A39A]">
+                PHONE NUMBER
               </p>
-              <p className="mt-2 text-[13px] font-medium text-[#3C302B]">
+              <p className="mt-1 text-[13px] font-medium text-[#3C302B]">
                 {user.phoneNumber}
               </p>
             </div>
 
             <div>
-              <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#B7A39A]">
-                Registration Date
+              <p className="text-[13px] font-semibold text-[#B7A39A]">
+                REGISTRATION DATE
               </p>
-              <p className="mt-2 text-[13px] font-medium text-[#3C302B]">
+              <p className="mt-1 text-[13px] font-medium text-[#3C302B]">
                 {user.registrationDate}
               </p>
             </div>

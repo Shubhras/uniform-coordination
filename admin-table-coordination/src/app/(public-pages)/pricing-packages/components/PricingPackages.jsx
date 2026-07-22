@@ -28,7 +28,7 @@ const PricingPackages = () => {
           <h1 className="text-[32px] font-semibold leading-tight text-[#2A211D]">
             Pricing &amp; Packages
           </h1>
-          <p className="mt-1 text-[12px] text-[#B29D8C]">
+          <p className="mt-1 text-[13px] text-[#B29D8C]">
             Manage rental rates, late fees, shipping charges, and promotional discounts.
           </p>
         </div>
