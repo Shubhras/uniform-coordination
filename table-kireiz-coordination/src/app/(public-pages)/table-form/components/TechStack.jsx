@@ -99,21 +99,21 @@ const stackList = [
   {
     id: "location",
     icon: PiMapPinFill,
-    title: "Design Uniform/Table",
+    title: "Choose Theme",
     description:
       "Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices, orci vitae convallis mattis.",
   },
   {
     id: "quote",
     icon: PiToteFill,
-    title: "Request for Quotation",
+    title: "Customize",
     description:
       "Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices, orci vitae convallis mattis.",
   },
   {
     id: "order",
     icon: PiPoliceCarFill,
-    title: "Order Custom Uniform",
+    title: "Order Setup",
     description:
       "Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices, orci vitae convallis mattis.",
   },
@@ -130,8 +130,7 @@ const TechStack = () => {
             How it works
           </h2>
           <p className="mt-3 max-w-[650px] mx-auto text-[#402936] text-sm md:text-base">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
           </p>
         </div>
 
