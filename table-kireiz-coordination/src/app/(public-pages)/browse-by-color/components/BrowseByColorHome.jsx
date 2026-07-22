@@ -3,7 +3,7 @@
 import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import BrowseByColorHero from './BrowseByColorHero'
-import Cards from './Cards'
+import BrowseCards from './BrowseCards'
 import HaederPage from '../../header/HaederPage'
 import FooterPage from '../../footer/FooterPage'
 
@@ -11,8 +11,8 @@ import FooterPage from '../../footer/FooterPage'
 const BrowseByColorHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
-    const schema = useTheme((state) => state.themeSchema)
-    const setSchema = useTheme((state) => state.setSchema)
+    // const schema = useTheme((state) => state.themeSchema)
+    // const setSchema = useTheme((state) => state.setSchema)
 
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
@@ -22,7 +22,7 @@ const BrowseByColorHome = () => {
         <main className="text-base bg-white dark:bg-gray-900">
             <HaederPage toggleMode={toggleMode} mode={mode} />
             <BrowseByColorHero />
-            <Cards />
+            <BrowseCards />
             <FooterPage mode={mode} />
         </main>
     )

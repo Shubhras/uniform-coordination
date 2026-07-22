@@ -11,8 +11,8 @@ import HaederPage from '../../header/HaederPage'
 const BrowseByThemeHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
-    const schema = useTheme((state) => state.themeSchema)
-    const setSchema = useTheme((state) => state.setSchema)
+    // const schema = useTheme((state) => state.themeSchema)
+    // const setSchema = useTheme((state) => state.setSchema)
 
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
