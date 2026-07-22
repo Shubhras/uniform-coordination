@@ -209,7 +209,7 @@ const Promotions = () => {
             {loading ? (
               <tr>
                 <div className="flex justify-center items-center h-[400px]">
-                  <Spinner size={40} />
+                  <Spinner size={40} customColorClass="text-[#A0522D]" />
                 </div>
               </tr>
             ) : filteredPromotions.length ? (
@@ -251,11 +251,25 @@ const Promotions = () => {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <button>
-                        <FiEye size={14} />
+                        <FiEye
+                          size={14}
+                          onClick={() =>
+                            router.push(
+                              `/pricing-packages/view/${promotion.id}`,
+                            )
+                          }
+                        />
                       </button>
 
                       <button>
-                        <FiEdit2 size={14} />
+                        <FiEdit2
+                          size={14}
+                          onClick={() =>
+                            router.push(
+                              `/pricing-packages/create-promotion/${promotion.id}`,
+                            )
+                          }
+                        />
                       </button>
 
                       <button>

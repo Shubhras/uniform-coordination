@@ -271,7 +271,7 @@ const ThemePage = () => {
 
         {loading ? (
           <div className="flex justify-center items-center h-[400px]">
-            <Spinner size={40} />
+            <Spinner size={40} customColorClass="text-[#A0522D]" />
           </div>
         ) : (
           <>
@@ -469,7 +469,10 @@ const ThemePage = () => {
         )}
       </div>
 
-      <div className="flex justify-end mt-3" style={{marginRight:'6px',marginLeft:'6px'}}>
+      <div
+        className="flex justify-end mt-3"
+        style={{ marginRight: "6px", marginLeft: "6px" }}
+      >
         <Pagination
           currentPage={currentPage}
           pageSize={pageSize}
