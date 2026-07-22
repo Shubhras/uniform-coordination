@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
+import Dialog from "@/components/ui/Dialog";
 import Spinner from "@/components/ui/Spinner";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -12,11 +13,12 @@ import {
     FiCheckCircle,
     FiChevronLeft,
     FiChevronRight,
+    FiClock,
     FiDownload,
     FiEdit2,
     FiEdit3,
     FiFileText,
-    FiList,
+    FiList, 
     FiLock,
     FiMaximize2,
     FiMinus,
@@ -33,6 +35,7 @@ import {
     apiSimulationHistory,
 } from "@/services/AuthProfileService";
 import {
+    apiCancelQuotation,
     apiDownloadUserQuotationPdf,
     apiGetUserQuotationDetail,
 } from "@/services/QuotationRequestService";
@@ -85,11 +88,12 @@ const getQuotationStatusMeta = (status) => {
     }
 
     if (
+        normalizedStatus.includes("cancel") ||
         normalizedStatus.includes("declin") ||
         normalizedStatus.includes("reject")
     ) {
         return {
-            label: "Declined",
+            label: normalizedStatus.includes("cancel") ? "Cancelled" : "Declined",
             badgeClass: "bg-[#FEF2F2] text-[#DC2626]",
         };
     }
@@ -660,6 +664,10 @@ const MyProfile = () => {
     const [simulationLoading, setSimulationLoading] = useState(true);
     const [pdfLoadingId, setPdfLoadingId] = useState(null);
     const [quotationDetailLoadingId, setQuotationDetailLoadingId] = useState(null);
+    const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+    const [cancelReason, setCancelReason] = useState("");
+    const [cancelSubmitting, setCancelSubmitting] = useState(false);
+    const [cancelError, setCancelError] = useState("");
     const activeQuotation = selectedQuotation || quotationData?.[0] || null;
     const sizeRange = Array.isArray(activeQuotation?.size_range) && activeQuotation.size_range.length
         ? activeQuotation.size_range
@@ -765,6 +773,13 @@ const MyProfile = () => {
         setImage(URL.createObjectURL(file));
     };
 
+    const handleRemoveImage = () => {
+        setImage(null);
+        if (fileRef.current) {
+            fileRef.current.value = "";
+        }
+    };
+
     const handleSimulationRedirect = (id) => {
         if (!id) return;
         router.push(`/dashboards/design-result/${id}`);
@@ -821,6 +836,94 @@ const MyProfile = () => {
         }
     };
 
+    const handleOpenCancelDialog = () => {
+        setCancelError("");
+        setCancelReason("");
+        setCancelDialogOpen(true);
+    };
+
+    const handleCloseCancelDialog = () => {
+        if (cancelSubmitting) return;
+        setCancelDialogOpen(false);
+        setCancelError("");
+        setCancelReason("");
+    };
+
+    const handleResetCancelReason = () => {
+        setCancelReason("");
+        setCancelError("");
+    };
+
+    const handleCancelQuotation = async () => {
+        const quotationId =
+            selectedQuotation?.uuids ||
+            selectedQuotation?.uuid ||
+            selectedQuotation?.id ||
+            selectedQuotation?.quotation_id;
+
+        if (!session?.accessToken || !quotationId) {
+            setCancelError("Quotation not found.");
+            return;
+        }
+
+        if (!cancelReason.trim()) {
+            setCancelError("Please enter a reason.");
+            return;
+        }
+
+        try {
+            setCancelSubmitting(true);
+            setCancelError("");
+
+            const res = await apiCancelQuotation(
+                quotationId,
+                { cancel_reason: cancelReason.trim() },
+                session.accessToken,
+            );
+
+            if (res?.success || res?.status) {
+                const updatedQuotation = {
+                    ...selectedQuotation,
+                    status_label: "Cancelled",
+                    quotation_status: "cancelled",
+                    status: "cancelled",
+                    cancel_reason: cancelReason.trim(),
+                };
+
+                setSelectedQuotation(updatedQuotation);
+                setQuotationData((prev) =>
+                    prev.map((item) => {
+                        const itemId =
+                            item?.uuids || item?.uuid || item?.id || item?.quotation_id;
+
+                        return itemId === quotationId
+                            ? {
+                                  ...item,
+                                  status_label: "Cancelled",
+                                  quotation_status: "cancelled",
+                                  status: "cancelled",
+                                  cancel_reason: cancelReason.trim(),
+                              }
+                            : item;
+                    }),
+                );
+                handleCloseCancelDialog();
+                return;
+            }
+
+            setCancelError(res?.message || "Unable to cancel quotation.");
+        } catch (error) {
+            console.error("Cancel quotation error:", error);
+            setCancelError(
+                error?.response?.data?.message ||
+                    error?.response?.data?.detail ||
+                    "Unable to cancel quotation.",
+            );
+        } finally {
+            setCancelSubmitting(false);
+        }
+    };
+
     if (profileLoading) {
         return (
             <section className="relative mt-15 mx-auto w-full bg-white px-5 md:px-8 lg:px-12">
@@ -834,10 +937,13 @@ const MyProfile = () => {
     const selectedStatusMeta = getQuotationStatusMeta(
         selectedQuotation?.quotation_status || selectedQuotation?.status_label,
     );
+    const canCancelQuotation =
+        selectedStatusMeta.label.toLowerCase() === "pending";
 
     if (selectedQuotation) {
         return (
-            <div className="mx-auto max-w-7xl rounded-[20px] bg-white p-4 md:p-8">
+            <>
+                <div className="mx-auto max-w-7xl rounded-[20px] bg-white p-4 md:p-8">
                 <div className="mb-4">
                     <button
                         type="button"
@@ -916,10 +1022,14 @@ const MyProfile = () => {
                         </div>
 
                         <div className="space-y-3">
-                            <Button className="h-12 w-full rounded-lg bg-[#003560] text-white hover:bg-[#002a49] flex items-center justify-center gap-2">
-                                {/* <FiCheckCircle size={18} /> */}
-                                Cancel
-                            </Button>
+                            {canCancelQuotation && (
+                                <Button
+                                    className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#003560] text-white hover:bg-[#002a49]"
+                                    onClick={handleOpenCancelDialog}
+                                >
+                                    Cancel
+                                </Button>
+                            )}
                             {/* <Button
                                 variant="default"
                                 className="h-12 w-full rounded-lg border border-[#D7E3F4] bg-white text-[#111827] flex items-center justify-center gap-2"
@@ -939,32 +1049,103 @@ const MyProfile = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+                </div>
+
+                <Dialog
+                    isOpen={cancelDialogOpen}
+                    onClose={handleCloseCancelDialog}
+                    onRequestClose={handleCloseCancelDialog}
+                    width={520}
+                    contentClassName="p-0"
+                >
+                    <div className="rounded-[20px] bg-white p-6">
+                        <div className="mb-5">
+                            <h3 className="text-xl font-semibold text-[#111827]">
+                                Cancel Quotation
+                            </h3>
+                            <p className="mt-2 text-sm text-[#6B7280]">
+                                Please enter the reason for cancellation.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="cancel-reason"
+                                className="mb-2 block text-sm font-medium text-[#374151]"
+                            >
+                                Reason
+                            </label>
+                            <textarea
+                                id="cancel-reason"
+                                value={cancelReason}
+                                onChange={(event) => setCancelReason(event.target.value)}
+                                placeholder="Enter cancellation reason"
+                                className="min-h-[140px] w-full resize-none rounded-xl border border-[#D7E3F4] px-4 py-3 text-sm text-[#111827] outline-none transition-colors focus:border-[#1C4FA8]"
+                            />
+                            {cancelError && (
+                                <p className="mt-2 text-sm text-[#DC2626]">{cancelError}</p>
+                            )}
+                        </div>
+
+                        <div className="mt-6 flex items-center justify-end gap-3">
+                            <Button
+                                variant="default"
+                                className="h-11 rounded-lg border border-[#D7E3F4] bg-white px-5 text-[#475569]"
+                                onClick={handleResetCancelReason}
+                                disabled={cancelSubmitting}
+                            >
+                                Reset
+                            </Button>
+                            <Button
+                                className="h-11 rounded-lg bg-[#003560] px-5 text-white hover:bg-[#002a49]"
+                                onClick={handleCancelQuotation}
+                                loading={cancelSubmitting}
+                            >
+                                Send
+                            </Button>
+                        </div>
+                    </div>
+                </Dialog>
+            </>
         );
     }
 
     return (
         <div className="mx-auto max-w-7xl space-y-6 bg-[#F9FAFB]">
-            <div className="rounded-[14px] border border-[#D7E3F4] bg-white p-4 md:p-5">
-                <div className="flex flex-col gap-4 lg:flex-row">
-                    <div className="w-full max-w-[128px] rounded-[14px] border border-[#D7E3F4] bg-[#F7FBFF] p-3">
-                        <div className="mx-auto w-fit rounded-full border border-[#D7E3F4] bg-white p-1">
+            <div className="rounded-[12px] border border-[#E2E8F0] bg-[#F6FAFF] p-4 md:px-5 md:py-4">
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-4">
+                    <div className="w-full max-w-[102px] rounded-[16px] border border-[#B7D2F5] bg-[#F6FAFF] p-3">
+                        <div className="mx-auto flex w-fit items-center justify-center rounded-[18px] border border-[#B7D2F5] bg-white p-1.5">
                             <Avatar
-                                size={68}
+                                size={56}
                                 icon={<CiUser />}
-                                src={image}
-                                className="object-cover shadow-sm"
+                                src={
+                                    image ||
+                                    profile?.profileImage ||
+                                    profile?.profile_image ||
+                                    profile?.avatar ||
+                                    profile?.image ||
+                                    ""
+                                }
+                                className="object-cover"
                             />
                         </div>
 
-                        <div className="mt-3 flex justify-center gap-2 text-[10px]">
+                        <div className="mt-3 flex items-center justify-center gap-2 text-[9px] font-medium">
                             <button
-                                className="text-[#60A5FA]"
+                                type="button"
+                                className="text-[#4F8FEF]"
                                 onClick={() => fileRef.current?.click()}
                             >
-                                upload
+                                Upload
                             </button>
-                            <button className="text-[#EF4444]">Preview</button>
+                            <button
+                                type="button"
+                                className="text-[#EF4444]"
+                                onClick={handleRemoveImage}
+                            >
+                                Remove
+                            </button>
                         </div>
 
                         <input
@@ -976,67 +1157,73 @@ const MyProfile = () => {
                         />
                     </div>
 
-                    <div className="flex-1 rounded-[14px] border border-[#D7E3F4] bg-[#FBFDFF] p-4">
-                        <div className="mb-4 flex items-start justify-between gap-4">
-                            <h4 className="text-sm font-semibold text-[#111827]">
-                                Personal Details
-                            </h4>
-                            <span className="flex items-center gap-1 rounded-full bg-[#E8FAF1] px-2 py-1 text-[10px] text-[#22C55E]">
-                                <HiCheckCircle size={12} />
-                                Verified Account
-                            </span>
-                        </div>
+                    <div className="relative flex-1 pr-0 md:pr-[110px]">
+                        <span className="mb-2 inline-flex w-fit items-center gap-1 rounded-full bg-[#ECFDF3] px-2.5 py-1 text-[10px] font-medium text-[#22C55E] md:absolute md:right-3 md:-top-2 md:mb-0 md:shadow-[0_0_0_6px_#F6FAFF]">
+                            <HiCheckCircle size={12} />
+                            Verified Account
+                        </span>
 
-                        <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-                            <div>
-                                <p className="text-[10px] text-[#9CA3AF]">First Name</p>
-                                <p className="mt-1 text-xs font-medium text-[#111827]">
-                                    {profile?.firstName || "John"}
-                                </p>
+                        <div className="rounded-[16px] border border-[#B7D2F5] bg-[#F6FAFF] p-4 md:w-[762px] md:min-h-[132px] md:px-5 md:py-4">
+                            <div className="mb-5">
+                                <h4 className="text-sm font-semibold text-[#1F2937]">
+                                    Personal Details
+                                </h4>
                             </div>
-                            <div>
-                                <p className="text-[10px] text-[#9CA3AF]">Last Name</p>
-                                <p className="mt-1 text-xs font-medium text-[#111827]">
-                                    {profile?.lastName || "Doe"}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-[10px] text-[#9CA3AF]">Email Address</p>
-                                <p className="mt-1 text-xs font-medium text-[#111827]">
-                                    {profile?.email || "john@company.com"}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-[10px] text-[#9CA3AF]">Phone Number</p>
-                                <p className="mt-1 text-xs font-medium text-[#111827]">
-                                    {profile?.phone || "+91 90-1234-5678"}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-[10px] text-[#9CA3AF]">Position</p>
-                                <p className="mt-1 text-xs font-medium text-[#111827]">
-                                    {profile?.roleName || "Manager"}
-                                </p>
+
+                            <div className="grid grid-cols-1 gap-x-12 gap-y-4 sm:grid-cols-2">
+                                <div>
+                                    <p className="text-[10px] text-[#94A3B8]">First Name</p>
+                                    <p className="mt-1 text-xs font-medium text-[#1F2937]">
+                                        {profile?.firstName || "John"}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-[#94A3B8]">Last Name</p>
+                                    <p className="mt-1 text-xs font-medium text-[#1F2937]">
+                                        {profile?.lastName || "Doe"}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-[#94A3B8]">Email Address</p>
+                                    <div className="mt-1 flex items-center gap-1">
+                                        <p className="text-xs font-medium text-[#1F2937] break-all">
+                                            {profile?.email || "john@company.com"}
+                                        </p>
+                                        <HiCheckCircle size={12} className="shrink-0 text-[#22C55E]" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-[#94A3B8]">Phone Number</p>
+                                    <p className="mt-1 text-xs font-medium text-[#1F2937]">
+                                        {profile?.phone || "+81 90-234-5678"}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-[#94A3B8]">Position</p>
+                                    <p className="mt-1 text-xs font-medium text-[#1F2937]">
+                                        {profile?.roleName || "Manager"}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap gap-2 pl-0 md:pl-[142px]">
                     <Button
                         size="sm"
-                        className="border border-[#D7E3F4] bg-white text-[#4B5563]"
+                        icon={<FiEdit2 size={12} />}
+                        className="h-7 whitespace-nowrap rounded-md border border-[#B7D2F5] px-3 text-[11px] font-medium leading-none text-[#475569]"
                         onClick={() => router.push("/profile/personal-information")}
                     >
-                        <FiEdit2 className="mr-2" />
                         Edit Profile
                     </Button>
                     <Button
                         size="sm"
-                        className="border border-[#D7E3F4] bg-white text-[#4B5563]"
+                        icon={<FiLock size={12} />}
+                        className="h-7 whitespace-nowrap rounded-md border border-[#B7D2F5]  px-3 text-[11px] font-medium leading-none text-[#475569]"
                         onClick={() => router.push("/profile/change-password")}
                     >
-                        <FiLock className="mr-2" />
                         Change Password
                     </Button>
                 </div>
@@ -1196,44 +1383,50 @@ const MyProfile = () => {
                     </div>
                 </div>
 
-                <div className="overflow-hidden rounded-[10px] border border-[#E5EDF7] bg-white">
-                    <div className="flex items-center justify-between px-4 py-3">
-                        <h4 className="flex items-center gap-2 text-sm font-semibold text-[#111827]">
+                <div className="overflow-hidden rounded-[14px] border border-[#E5EDF7] bg-white">
+                    <div className="flex items-center justify-between border-b border-[#EEF2F7] px-5 py-4">
+                        <h4 className="flex items-center gap-2 text-[15px] font-semibold text-[#1F2A44]">
                             <FiFileText size={14} />
                             Recent Simulations
                         </h4>
                         <button
-                            className="flex items-center gap-1 text-[11px] text-[#60A5FA]"
+                            className="flex items-center gap-1 text-[12px] font-medium text-[#2D6CDF]"
                             onClick={() => router.push("/profile/simulation-history")}
                         >
                             View All <GoArrowRight size={12} />
                         </button>
                     </div>
 
-                    <div className="px-4 pb-4">
+                    <div className="px-5 pb-5 pt-4">
                         {simulationLoading ? (
                             <div className="flex items-center justify-center py-8">
                                 <Spinner size={24} />
                             </div>
                         ) : recentSimulations.length > 0 ? (
-                            <div className="space-y-4">
-                                {recentSimulations.slice(0, 3).map((item) => (
+                            <div className="space-y-5">
+                                {recentSimulations.slice(0, 3).map((item, index) => (
                                     <div
                                         key={item.id}
-                                        className="flex items-start justify-between gap-4"
+                                        className="relative flex items-start justify-between gap-4"
                                     >
                                         <div className="flex gap-3">
-                                            <span className="mt-1 h-2.5 w-2.5 rounded-full border border-[#60A5FA]" />
-                                            <div>
-                                                <p className="text-[11px] font-medium text-[#111827]">
+                                            <div className="relative flex w-5 justify-center">
+                                                <span className="mt-1.5 h-3.5 w-3.5 rounded-full border border-[#2D6CDF] bg-white" />
+                                                {index !== recentSimulations.slice(0, 3).length - 1 && (
+                                                    <span className="absolute top-5 h-[74px] w-px bg-[#D7E3F4]" />
+                                                )}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="text-[12px] font-semibold text-[#1F2A44]">
                                                     {item?.productName || "Untitled Simulation"}
                                                 </p>
-                                                <p className="mt-1 text-[10px] text-[#9CA3AF]">
-                                                    {formatSimulationDate(item?.created_at)}
-                                                </p>
+                                                <div className="mt-1 flex items-center gap-1 text-[10px] text-[#9CA3AF]">
+                                                    <FiClock size={10} />
+                                                    <span>{formatDisplayDate(item?.created_at)}</span>
+                                                </div>
                                                 <button
                                                     type="button"
-                                                    className="mt-2 flex items-center gap-1 text-[10px] text-[#60A5FA]"
+                                                    className="mt-3 flex items-center gap-1 text-[11px] font-medium text-[#2D6CDF]"
                                                     onClick={() => handleSimulationPdfDownload(item?.id)}
                                                     disabled={pdfLoadingId === item?.id}
                                                 >
@@ -1245,19 +1438,19 @@ const MyProfile = () => {
                                             </div>
                                         </div>
 
-                                        <div className="text-right">
+                                        <div className="pt-0.5 text-right">
                                             <span
-                                                className={`rounded px-2 py-1 text-[10px] ${item?.isActive
-                                                    ? "bg-[#DBEAFE] text-[#60A5FA]"
-                                                    : "bg-[#F3F4F6] text-[#9CA3AF]"
+                                                className={`inline-flex rounded-[4px] px-2 py-1 text-[9px] font-semibold ${item?.isActive
+                                                    ? "bg-[#E7F0FF] text-[#2D6CDF]"
+                                                    : "bg-[#F1F5F9] text-[#94A3B8]"
                                                     }`}
                                             >
                                                 {item?.isActive ? "OPEN" : "CLOSED"}
                                             </span>
-                                            <div className="mt-3">
+                                            <div className="mt-4">
                                                 <button
                                                     type="button"
-                                                    className="text-[10px] text-[#9CA3AF] hover:text-[#1C4FA8]"
+                                                    className="text-[11px] text-[#7C8AA5] hover:text-[#1C4FA8]"
                                                     onClick={() => handleSimulationRedirect(item?.id)}
                                                 >
                                                     View Details
@@ -1273,10 +1466,10 @@ const MyProfile = () => {
                             </div>
                         )}
 
-                        <div className="mt-6">
+                        <div className="mt-6 border-t border-[#D7E3F4] pt-6">
                             <Button
                                 variant="default"
-                                className="w-full border border-[#D7E3F4] bg-[#F9FAFB] text-[#4B5563]"
+                                className="h-10 w-full rounded-[8px] border border-[#7FAAE6] bg-[#F6FAFF] text-[13px] font-medium text-[#1F3F75]"
                                 onClick={() => router.push("/dashboards")}
                             >
                                 <FiPlus className="mr-2" />

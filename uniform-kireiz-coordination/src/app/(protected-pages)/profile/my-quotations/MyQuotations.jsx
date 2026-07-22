@@ -9,14 +9,13 @@ import { FiArrowLeft, FiDownload, FiEye, FiFileText, FiSearch } from 'react-icon
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5'
 import { HiCheck } from 'react-icons/hi'
 import { apiGetQuotation } from '@/services/AuthProfileService'
-import { apiDownloadUserQuotationPdf } from '@/services/QuotationRequestService'
+import {
+    apiDownloadUserQuotationPdf,
+    apiGetQuotationRequestDetail,
+} from '@/services/QuotationRequestService'
 import { formatDate } from '@/utils/dateFormater'
 
 const ITEMS_PER_PAGE = 6
-const DEFAULT_QUOTATION_PREVIEW_URL =
-    'https://teams.live.com/l/message/19:uni01_yn4qiw6x475mpv4ofcszosarv6enhv27npc6zgznlqf5lbnxzvfa@thread.v2/1784698820259?context=%7B%22contextType%22%3A%22chat%22%7D'
-const DEFAULT_QUOTATION_DOWNLOAD_URL =
-    'https://t8sjq87n-8001.inc1.devtunnels.ms/api/v1/userhub/quotations/91b153f4-a5cc-42dd-a9ae-9709f3b14afa/pdf/'
 
 const statusStyles = {
     accepted: {
@@ -99,14 +98,14 @@ const getPreviewUrl = (quotation) =>
     quotation?.view_pdf_url ||
     quotation?.quotation_preview_url ||
     getPdfUrl(quotation) ||
-    DEFAULT_QUOTATION_PREVIEW_URL
+    ''
 
 const getDownloadUrl = (quotation) =>
     quotation?.download_url ||
     quotation?.downloadUrl ||
     quotation?.pdf_download_url ||
     quotation?.quotation_download_url ||
-    DEFAULT_QUOTATION_DOWNLOAD_URL
+    ''
 
 const normalizePdfUrl = (rawUrl) => {
     if (!rawUrl || typeof rawUrl !== 'string') {
@@ -210,6 +209,12 @@ const extractQuotationCount = (payload, fallbackLength) => {
     return Number.isFinite(count) ? count : fallbackLength
 }
 
+const extractQuotationDetailRecord = (payload) =>
+    payload?.data?.data ||
+    payload?.data ||
+    payload?.result ||
+    payload
+
 const buildDisplayQuotations = (rawData) => {
     const source = Array.isArray(rawData) ? rawData : []
 
@@ -242,10 +247,9 @@ const QuotationDetailView = ({
     onDownload,
     downloadLoading,
 }) => {
-    const isAccepted = quotation.statusKey === 'accepted'
-    const isReceived = quotation.statusKey === 'received'
-    const showPreview = Boolean(quotation.previewUrl)
-    const showDownload = Boolean(quotation.quotationId || quotation.downloadUrl)
+    const showDownload =
+        ['accepted', 'received'].includes(quotation.statusKey) &&
+        Boolean(quotation.quotationId || quotation.downloadUrl || quotation.pdfUrl)
 
     return (
         <div className="w-full rounded-2xl bg-white">
@@ -264,13 +268,13 @@ const QuotationDetailView = ({
             </div>
 
             <div className="space-y-4">
-                <section className="rounded-2xl border border-[#EDF2F7] bg-white p-4">
+                <section className="rounded-2xl border border-[#EDF2F7] bg-white p-4 md:p-5">
                     <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.03em] text-[#003560]">
                         <FiFileText size={12} />
                         Company Information
                     </div>
 
-                    <div className="grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
                         <div>
                             <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Company Name</p>
                             <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.companyName}</p>
@@ -294,97 +298,38 @@ const QuotationDetailView = ({
                     </div>
                 </section>
 
-                <section className="rounded-2xl border border-[#EDF2F7] bg-white p-4">
+                <section className="rounded-2xl border border-[#EDF2F7] bg-white p-4 md:p-5">
                     <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.03em] text-[#003560]">
                         <FiFileText size={12} />
                         Quotation Information
                     </div>
 
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="grid flex-1 grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2">
-                            <div>
-                                <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Request ID</p>
-                                <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.requestId}</p>
-                            </div>
-                            <div>
-                                <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Requested Date</p>
-                                <p className="mt-1 text-sm font-medium text-[#111827]">{formatDate(quotation.requestedDate)}</p>
-                            </div>
+                    <div className="grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Request ID</p>
+                            <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.requestId}</p>
                         </div>
-
-                        {isAccepted || isReceived ? (
-                            <div className="flex flex-wrap gap-3">
-                                {showPreview ? (
-                                    <button
-                                        type="button"
-                                        className="inline-flex h-[42px] items-center justify-center gap-2 rounded-[10px] border border-[#B7C9E2] bg-white px-6 text-[14px] font-semibold text-[#2B436F] shadow-none transition-colors hover:bg-[#F8FBFF]"
-                                        onClick={() => {
-                                            window.open(quotation.previewUrl, '_blank', 'noopener,noreferrer')
-                                        }}
-                                    >
-                                        <FiEye size={16} />
-                                        <span>Open Preview</span>
-                                    </button>
-                                ) : null}
-
-                                {showDownload ? (
-                                    <button
-                                        type="button"
-                                        className="inline-flex h-[42px] items-center justify-center gap-2 rounded-[10px] border border-[#B7C9E2] bg-white px-6 text-[14px] font-semibold text-[#2B436F] shadow-none transition-colors hover:bg-[#F8FBFF] disabled:cursor-not-allowed disabled:opacity-70"
-                                        onClick={onDownload}
-                                        disabled={downloadLoading}
-                                    >
-                                        {downloadLoading ? <Spinner size={18} /> : <FiDownload size={16} />}
-                                        <span>{downloadLoading ? 'Downloading...' : 'Download Quotation PDF'}</span>
-                                    </button>
-                                ) : null}
-                            </div>
-                        ) : null}
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Requested Date</p>
+                            <p className="mt-1 text-sm font-medium text-[#111827]">{formatDate(quotation.requestedDate)}</p>
+                        </div>
                     </div>
                 </section>
 
-                {showPreview ? (
-                    <section className="overflow-hidden rounded-2xl border border-[#D7E3F4] bg-[#1F2937]">
-                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#314156] px-4 py-3">
-                            <span className="rounded-lg bg-[#44546A] px-3 py-1 text-xs font-medium text-white">
-                                {quotation.requestId}
-                            </span>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    className="inline-flex items-center rounded-md bg-[#44546A] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#52647D]"
-                                    onClick={() => {
-                                        window.open(quotation.previewUrl, '_blank', 'noopener,noreferrer')
-                                    }}
-                                >
-                                    <FiEye size={14} />
-                                </button>
-                                {showDownload ? (
-                                    <button
-                                        type="button"
-                                        className="inline-flex items-center rounded-md bg-[#44546A] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#52647D] disabled:cursor-not-allowed disabled:opacity-70"
-                                        onClick={onDownload}
-                                        disabled={downloadLoading}
-                                    >
-                                        {downloadLoading ? <Spinner size={16} /> : <FiDownload size={14} />}
-                                    </button>
-                                ) : null}
-                            </div>
-                        </div>
-
-                        <div className="bg-[#F8FAFC] p-4">
-                            <iframe
-                                src={quotation.previewUrl}
-                                title="Quotation PDF preview"
-                                className="h-[780px] w-full rounded-xl border border-[#CBD5E1] bg-white"
-                            />
-                        </div>
-                    </section>
-                ) : null}
-
                 <section className="overflow-hidden rounded-2xl border border-[#EDF2F7] bg-white">
-                    <div className="border-b border-[#EDF2F7] px-4 py-4">
+                    <div className="flex items-center justify-between border-b border-[#EDF2F7] px-4 py-4 md:px-5">
                         <h3 className="text-base font-semibold text-[#111827]">Requested Items</h3>
+                        {showDownload ? (
+                            <button
+                                type="button"
+                                className="inline-flex items-center gap-2 text-sm font-medium text-[#2B436F] disabled:cursor-not-allowed disabled:opacity-70"
+                                onClick={onDownload}
+                                disabled={downloadLoading}
+                            >
+                                {downloadLoading ? <Spinner size={16} /> : <FiDownload size={16} />}
+                                <span>{downloadLoading ? 'Downloading...' : 'Download PDF'}</span>
+                            </button>
+                        ) : null}
                     </div>
 
                     <div className="overflow-x-auto">
@@ -435,6 +380,7 @@ const MyQuotations = () => {
     const [totalCount, setTotalCount] = useState(0)
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
     const [downloadLoadingId, setDownloadLoadingId] = useState('')
+    const [detailLoadingId, setDetailLoadingId] = useState('')
 
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
@@ -515,6 +461,45 @@ const MyQuotations = () => {
             )
         } finally {
             setDownloadLoadingId('')
+        }
+    }
+
+    const handleViewQuotationDetails = async (quotation, index) => {
+        if (!session?.accessToken || !quotation) return
+
+        const quotationId = quotation.quotationId || quotation.id
+        if (!quotationId) {
+            setSelectedQuotation(quotation)
+            return
+        }
+
+        try {
+            setDetailLoadingId(quotation.id)
+            setErrorMessage('')
+
+            const res = await apiGetQuotationRequestDetail(
+                quotationId,
+                session.accessToken,
+            )
+
+            const detailRecord = extractQuotationDetailRecord(res)
+
+            if (detailRecord) {
+                setSelectedQuotation(normalizeQuotation(detailRecord, index))
+                return
+            }
+
+            setSelectedQuotation(quotation)
+        } catch (error) {
+            console.error('Quotation detail API error:', error)
+            setErrorMessage(
+                error?.response?.data?.message ||
+                error?.message ||
+                'Unable to load quotation details right now.',
+            )
+            setSelectedQuotation(quotation)
+        } finally {
+            setDetailLoadingId('')
         }
     }
 
@@ -654,11 +639,12 @@ const MyQuotations = () => {
                                             <td className="px-4 py-4">
                                                 <button
                                                     type="button"
-                                                    onClick={() => setSelectedQuotation(item)}
+                                                    onClick={() => handleViewQuotationDetails(item, index)}
                                                     className="inline-flex items-center gap-2 rounded-lg border border-[#003560] px-3 py-1.5 text-xs font-medium text-[#003560]"
+                                                    disabled={detailLoadingId === item.id}
                                                 >
                                                     <FiEye size={13} />
-                                                    View
+                                                    {detailLoadingId === item.id ? 'Loading...' : 'View'}
                                                 </button>
                                             </td>
                                         </tr>

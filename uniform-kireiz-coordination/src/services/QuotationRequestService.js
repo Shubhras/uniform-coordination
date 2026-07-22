@@ -34,6 +34,16 @@ export async function apiGetUserQuotationDetail(id, token, absoluteUrl) {
     });
 }
 
+export async function apiGetQuotationRequestDetail(id, token) {
+    return ApiService.fetchDataWithAxios({
+        url: `/v1/userhub/quotationrequest/${id}/get/`,
+        method: "get",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+}
+
 export async function apiDownloadUserQuotationPdf(id, token, absoluteUrl) {
     return ApiService.fetchDataWithAxios({
         url: absoluteUrl || `/v1/userhub/quotations/${id}/pdf/`,
@@ -42,5 +52,17 @@ export async function apiDownloadUserQuotationPdf(id, token, absoluteUrl) {
             Authorization: `Bearer ${token}`,
         },
         responseType: "blob",
+    });
+}
+
+export async function apiCancelQuotation(id, data, token) {
+    return ApiService.fetchDataWithAxios({
+        url: `/v1/userhub/quotation/cancel/${id}/`,
+        method: "patch",
+        data,
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
     });
 }
