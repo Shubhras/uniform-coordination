@@ -66,7 +66,7 @@ const UniformSingle = () => {
                     <button onClick={() => router.back()} className="text-[#1C2C56] hover:text-[#1C4FA8] transition-colors" title="Go Back">
                         <FiArrowLeft size={20} />
                     </button>
-                    <p className='text-sm text-[#486284]'>
+                    <p className='text-sm text-[#7B3C1D]'>
                         <Link href="/kireiz-form" className="hover:underline hover:text-[#1C4FA8] cursor-pointer">My dashboard</Link>
                         {' '} / {' '}
                         <Link href={`/medical-form/${product?.category?.id}`} className="hover:underline hover:text-[#1C4FA8] cursor-pointer">{product?.category?.categoryName}</Link>
@@ -124,23 +124,23 @@ const UniformSingle = () => {
                 {/* HEADER */}
                 <div className='bg-[#F5F8FF] rounded-xl  md:p-8 p-5'>
                     <div className="text-center mb-12 ">
-                        <h2 className="text-[#1C2C56] text-3xl font-semibold">
+                        <h2 className="text-[#7B3C1D] text-3xl font-semibold">
                             Placeholder Text
                         </h2>
-                        <div className="w-20 h-1 bg-[#1C2C56] mx-auto mt-2 rounded-full" />
-                        <p className="text-[#6B7280] mt-3 text-sm">
+                        <div className="w-20 h-1 bg-[#7B3C1D] mx-auto mt-2 rounded-full" />
+                        <p className="text-[#8B5A3C] mt-3 text-sm">
                             Comfortable, functional scrubs for healthcare professionals
                         </p>
                     </div>
                     {/* MAIN CONTENT */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start ">
                         {/* LEFT INFO CARD */}
-                        <div className="order-2 lg:order-1 bg-white border border-[#1C2C56] rounded-[20px] md:p-8 p-5 flex flex-col h-full">
+                        <div className="order-2 lg:order-1 bg-white border border-[#E8E0D9] rounded-[20px] md:p-8 p-5 flex flex-col h-full">
 
                             {/* LOADING */}
                             {loading && (
                                 <div className="flex justify-center items-center py-20">
-                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FBF8F6]"></div>
                                 </div>
                             )}
 
@@ -162,7 +162,7 @@ const UniformSingle = () => {
                             {!loading && !error && product && (
                                 <>
                                     <div className="flex flex-col gap-5">
-                                        <h3 className="text-[#1C2C56] text-2xl font-semibold capitalize">
+                                        <h3 className="text-[#2C1810] text-2xl font-semibold capitalize">
                                             {product.productName}
                                         </h3>
 
@@ -180,14 +180,14 @@ const UniformSingle = () => {
                                     </div>
 
                                     <button
-                                        className="w-full bg-[#1C4FA8] text-white py-3 rounded-md text-sm font-medium mt-6"
+                                        className="w-full bg-[#8B4513] text-white py-3 rounded-md text-sm font-medium mt-6"
                                         onClick={handleUniformDesigning}
                                     >
                                         Customize
                                     </button>
 
                                     <div className="pt-4 space-y-3 flex-1">
-                                        <h4 className="text-[#1C2C56] font-semibold">
+                                        <h4 className="text-[#2C1810] font-semibold">
                                             Description
                                         </h4>
 
@@ -210,7 +210,7 @@ const UniformSingle = () => {
 
                         {/* RIGHT IMAGE WITH BLUE CIRCLE */}
                         <div className="order-1 lg:order-2 relative flex justify-center">
-                            <div className="absolute right-0 top-10 flex flex-col items-center gap-3 z-20">
+                            {/* <div className="absolute right-0 top-10 flex flex-col items-center gap-3 z-20">
                                 {colors.map((color) => (
                                     <button
                                         key={color}
@@ -223,26 +223,27 @@ const UniformSingle = () => {
                                 <button className="mt-2 text-[8px] w-8 h-10 p-1 border border-gray-300 rounded text-gray-600 bg-white">
                                     View All
                                 </button>
-                            </div>
+                            </div> */}
                             <div
                                 className="absolute md:w-[380px] md:h-[380px] w-[300px] h-[300px] rounded-full transition-colors duration-300"
-                                style={{ backgroundColor: circleColor }}
+                            // style={{ backgroundColor: circleColor }}
                             />
                             <div className="relative z-10">
                                 <Image
-                                    src="/img/uniform/uniform.png"
-                                    // src={product?.ProductImage || '/img/uniform/uniform.png'}
+                                    //src="/img/uniform/uniform.png"
+                                    src={product?.ProductImage || '/img/uniform/uniform.png'}
                                     alt="Uniform"
                                     width={450}
                                     height={800}
                                     className="object-contain"
                                     priority
+                                    unoptimized
                                 />
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className='md:p-10 p-5 border-x-2 border-t-2 rounded-xl border-[#87CEEB]'>
+                {/* <div className='md:p-10 p-5 border-x-2 border-t-2 rounded-xl border-[#87CEEB]'>
                     <h1 className='text-4xl font-semibold mb-2'>Size Guide</h1>
                     <div className='flex items-center justify-center'>
                         <Image
@@ -254,7 +255,7 @@ const UniformSingle = () => {
                             priority
                         />
                     </div>
-                </div>
+                </div> */}
             </div>
         </section>
     )

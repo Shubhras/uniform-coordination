@@ -16,6 +16,15 @@ export async function apiGetProduct({ id, ...params }) {
   })
 }
 
+export async function apiGetBrowseByColorProductData(params = {}) {
+
+  return ApiService.fetchDataWithAxios({
+    url: '/v1/space/uniformAdmin/product/list/?productType=table',
+    method: 'get',
+    params,
+  })
+}
+
 export async function apiGetProductById(params) {
   return ApiService.fetchDataWithAxios({
     url: `/v1/space/uniformAdmin/product/list/`,

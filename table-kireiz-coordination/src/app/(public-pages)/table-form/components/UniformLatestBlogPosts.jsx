@@ -11,7 +11,10 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
   const handleAllBlogsPage = () => {
     router.push("/blog");
   };
-
+  const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toISOString().split("T")[0];
+  };
   const handleSingleBlogPage = (id) => {
     router.push(`/single-blog/${id}`);
   };
@@ -52,25 +55,14 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
                   unoptimized
                 />
               </div>
-              {/* <div className=" text-[#4A5E6F]">
-                  <p className="text-base my-3">
-                    {post.date} &nbsp;&nbsp; {post.category}
-                  </p>
-                  <h3 className="font-medium  text-xl mb-2 leading-snug text-[#00213E]">
-                    {post.title}
-                  </h3>
-                  <p className="text-sm  leading-relaxed text-[#8E8E93]">
-                    {post.description}
-                  </p>
-                </div> */}
-              <div className="p-2">
+              <div className="p-2 mt-2">
                 <p className="text-xs text-gray-500 mb-2">
-                  {post.category}
+                  {formatDate(post.created_at)}&nbsp;&nbsp;  {post.category}
                 </p>
-                <h3 className="font-semibold text-[#1C2C56]">
+                <h3 className="font-semibold text-[#1C2C56] mt-8">
                   {trimText(post.title, 10)}
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 mt-2">
                   {trimText(post.description, 18)}
                 </p>
               </div>
