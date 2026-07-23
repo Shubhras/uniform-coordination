@@ -52,39 +52,39 @@ const AddProduct = () => {
     const newErrors = {};
 
     if (!formData.productName.trim()) {
-      newErrors.productName = "Product name is required";
+      newErrors.productName = "Product name is required*";
     }
 
     if (!category) {
-      newErrors.category = "Category is required";
+      newErrors.category = "Category is required*";
     }
 
     if (!formData.description.trim()) {
-      newErrors.description = "Description is required";
+      newErrors.description = "Description is required*";
     }
 
     if (!fabric) {
-      newErrors.fabric = "Fabric is required";
+      newErrors.fabric = "Fabric is required*";
     }
 
     if (!color) {
-      newErrors.color = "Color is required";
+      newErrors.color = "Color is required*";
     }
 
     if (!formData.size.trim()) {
-      newErrors.size = "Table size is required";
+      newErrors.size = "Table size is required*";
     }
 
     if (!formData.rentalPricePerDay) {
-      newErrors.rentalPricePerDay = "Rental price is required";
+      newErrors.rentalPricePerDay = "Rental price is required*";
     }
 
     if (!formData.total_quantity) {
-      newErrors.total_quantity = "Stock quantity is required";
+      newErrors.total_quantity = "Stock quantity is required*";
     }
 
     if (!formData.productImage && !previewImage) {
-      newErrors.productImage = "Product image is required";
+      newErrors.productImage = "Product image is required*";
     }
 
     setErrors(newErrors);
@@ -354,9 +354,9 @@ const AddProduct = () => {
       <div className="flex items-center gap-4 mb-5">
         <button
           onClick={() => router.back()}
-          className="w-10 h-10 rounded-full border border-[#E9DDD3] bg-white flex items-center justify-center hover:bg-[#F8F3EF] transition"
+          className="w-9 h-9 rounded-full border border-[#E7D9CF] bg-white flex items-center justify-center hover:bg-[#F8F4F1]"
         >
-          <FiArrowLeft className="text-[#4B3A2F]" size={18} />
+          <FiArrowLeft size={18} className="text-[#1A1410]" />
         </button>
 
         <h1 className="text-[32px] font-semibold text-[#1A1410]">

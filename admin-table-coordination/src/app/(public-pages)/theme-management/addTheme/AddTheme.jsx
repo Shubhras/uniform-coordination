@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { FiArrowLeft, FiLayers, FiPlus, FiX } from "react-icons/fi";
 import Select from "react-select";
-import { FiBarChart2 } from "react-icons/fi";
+import { FiBarChart2 ,FiImage} from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import ThemeBuilder from "./components/ThemeBuilder";
 import PreviewTheme from "./components/PreviewTheme";
@@ -28,19 +28,19 @@ const AddTheme = () => {
     const newErrors = {};
 
     if (!themeData.title.trim()) {
-      newErrors.title = "Theme name is required";
+      newErrors.title = "Theme name is required*";
     }
 
     if (!themeData.category) {
-      newErrors.category = "Category is required";
+      newErrors.category = "Category is required*";
     }
 
     if (!themeData.description.trim()) {
-      newErrors.description = "Description is required";
+      newErrors.description = "Description is required*";
     }
 
     if (!themeData.image) {
-      newErrors.image = "Thumbnail is required";
+      newErrors.image = "Thumbnail is required*";
     }
 
     setErrors(newErrors);
@@ -233,21 +233,24 @@ const AddTheme = () => {
                 Thumbnail
               </label>
 
-              <div className="overflow-hidden rounded-xl border border-[#EFE5DD] h-[230px]">
-                {themeData.image ? (
-                  <img
-                    src={URL.createObjectURL(themeData.image)}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <label className="w-full h-full flex items-center justify-center cursor-pointer bg-[#FAF8F6]">
+              {themeData.image ? (
+                <div>
+                  <div className="overflow-hidden rounded-2xl border border-[#E7D6C9]">
+                    <img
+                      src={URL.createObjectURL(themeData.image)}
+                      alt="Thumbnail"
+                      className="w-full h-[220px] object-cover"
+                    />
+                  </div>
+
+                  <label className="mt-5 inline-block cursor-pointer">
                     <input
                       type="file"
                       accept="image/*"
                       hidden
                       onChange={(e) => {
                         const file = e.target.files?.[0];
+
                         if (file) {
                           setThemeData((prev) => ({
                             ...prev,
@@ -262,15 +265,57 @@ const AddTheme = () => {
                       }}
                     />
 
-                    <div className="text-center">
-                      <FiPlus className="mx-auto text-[#A0522D]" size={26} />
-                      <p className="mt-2 text-sm text-[#8C6E5D]">
-                        Upload Thumbnail
-                      </p>
-                    </div>
+                    <span className="px-5 py-2 border border-[#D7A07B] rounded-full text-[#A85A32] text-sm font-medium hover:bg-[#FFF4ED] transition">
+                      Change Image
+                    </span>
                   </label>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="border border-dashed border-[#E7D6C9] rounded-2xl bg-[#FCFAF8] h-[220px] flex flex-col items-center justify-center">
+                  {/* Icon */}
+                  <div className="w-12 h-12 rounded-full bg-[#FDF4EE] flex items-center justify-center mb-4">
+                    <div className="w-8 h-8 rounded-full bg-[#FEF3EC] flex items-center justify-center">
+                      <FiImage size={18} className="text-[#A0522D]" />
+                    </div>
+                  </div>
+
+                  <h3 className="text-[16px] font-medium text-[#1A1410]">
+                    Upload image
+                  </h3>
+
+                  <p className="text-[13px] text-[#9E8D80] mt-1">
+                    PNG or JPG up to 5 MB
+                  </p>
+
+                  <label className="mt-5 cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+
+                        if (file) {
+                          setThemeData((prev) => ({
+                            ...prev,
+                            image: file,
+                          }));
+
+                          setErrors((prev) => ({
+                            ...prev,
+                            image: "",
+                          }));
+                        }
+                      }}
+                    />
+
+                    <span className="px-5 py-2 border border-[#D7A07B] rounded-full text-[#A85A32] text-sm font-medium hover:bg-[#FFF4ED] transition">
+                      Browse Files
+                    </span>
+                  </label>
+                </div>
+              )}
+
               {errors.image && (
                 <p className="text-red-500 text-sm mt-2">{errors.image}</p>
               )}

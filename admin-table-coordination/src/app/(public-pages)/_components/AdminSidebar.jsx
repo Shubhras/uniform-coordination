@@ -16,6 +16,8 @@ import {
   FiChevronLeft,
   FiClipboard,
   FiShoppingCart,
+  FiBox,
+  FiImage,
 } from "react-icons/fi";
 import { IoColorPaletteOutline } from "react-icons/io5";
 
@@ -28,13 +30,13 @@ const sidebarMenu = [
   },
   {
     label: "Product & Specification",
-    icon: IoColorPaletteOutline,
+    icon: FiBox,
     path: "/products",
     slug: "product_specification",
   },
   {
     label: "Content & Media",
-    icon: IoColorPaletteOutline,
+    icon: FiImage,
     path: "/contents",
     slug: "product_specification",
   },

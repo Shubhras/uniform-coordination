@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiGetReportAnalytics } from "@/services//ReportAnalytics";
+// import { apiGetReportAnalytics } from "@/services//ReportAnalytics";
 import { FiDownload } from "react-icons/fi";
 
 const inventoryLegend = [
@@ -97,6 +97,79 @@ function DonutChart({
   );
 }
 
+const reportData = {
+  kpi: {
+    total_revenue: "245,600",
+    total_orders: 1248,
+    active_rentals: 286,
+    inventory_items: 1890,
+    late_returns: 18,
+    total_customers: 965,
+  },
+
+  customer_growth: [
+    { label: "Jan", value: 220 },
+    { label: "Feb", value: 350 },
+    { label: "Mar", value: 430 },
+    { label: "Apr", value: 590 },
+    { label: "May", value: 720 },
+    { label: "Jun", value: 890 },
+  ],
+
+  customer_segments: [
+    {
+      label: "B2B",
+      percentage: 65,
+    },
+    {
+      label: "B2C",
+      percentage: 35,
+    },
+  ],
+
+  top_rented_categories: [
+    {
+      label: "Wedding",
+      count: 390,
+    },
+    {
+      label: "Corporate",
+      count: 310,
+    },
+    {
+      label: "Birthday",
+      count: 270,
+    },
+    {
+      label: "Outdoor",
+      count: 210,
+    },
+    {
+      label: "Luxury",
+      count: 165,
+    },
+  ],
+
+  inventory_status: [
+    {
+      label: "Available",
+      percentage: 45,
+    },
+    {
+      label: "Rented",
+      percentage: 30,
+    },
+    {
+      label: "Maintenance",
+      percentage: 15,
+    },
+    {
+      label: "Damaged",
+      percentage: 10,
+    },
+  ],
+};
+
 const ReportsAnalyticsPage = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -169,29 +242,29 @@ const ReportsAnalyticsPage = () => {
     )
     .join(" ");
 
-  const getReportAnalytics = async () => {
-    try {
-      setLoading(true);
+//   const getReportAnalytics = async () => {
+//     try {
+//       setLoading(true);
 
-      const res = await apiGetReportAnalytics(accessToken, "table");
+//       const res = await apiGetReportAnalytics(accessToken, "table");
 
-      console.log("Report API", res);
+//       console.log("Report API", res);
 
-      if (res?.status) {
-        setReportData(res.data);
-      }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+//       if (res?.status) {
+//         setReportData(res.data);
+//       }
+//     } catch (err) {
+//       console.log(err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  useEffect(() => {
-    if (accessToken) {
-      getReportAnalytics();
-    }
-  }, [accessToken]);
+//   useEffect(() => {
+//     if (accessToken) {
+//       getReportAnalytics();
+//     }
+//   }, [accessToken]);
 
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
@@ -207,9 +280,9 @@ const ReportsAnalyticsPage = () => {
 
         <button
           type="button"
-          className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-[#A0522D] px-4 text-[13px] font-medium text-white"
+          className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-[#1C4FA8] px-4 text-[13px] font-medium text-white"
         >
-          <FiDownload size={14}/>
+          <FiDownload size={14} />
           Export Data
         </button>
       </div>

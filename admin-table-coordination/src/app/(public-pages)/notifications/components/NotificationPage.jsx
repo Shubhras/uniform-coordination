@@ -294,7 +294,7 @@ const NotificationPage = () => {
         <h1 className="text-[24px] font-semibold leading-tight text-[#241915] sm:text-[28px]">
           Notifications
         </h1>
-        <p className="mt-1 text-[11px] text-[#94867C] sm:text-xs">
+        <p className="mt-1 text-[12px] text-[#94867C] sm:text-xs">
           All transactional notifications sent by KIREIZ SPACE
         </p>
       </div>
@@ -457,7 +457,7 @@ const NotificationPage = () => {
       <div className="mt-5 flex flex-col gap-3 text-[11px] text-[#9A8C82] sm:flex-row sm:items-center sm:justify-between">
         <p>
           {filteredNotifications.length === 0
-            ? "No results"
+            ? "Showing 0 of 0"
             : `Showing ${startItem}-${endItem} of ${filteredNotifications.length}`}
         </p>
 

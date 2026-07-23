@@ -158,12 +158,23 @@ const ThemePage = () => {
   const selectStyles = {
     control: (base) => ({
       ...base,
-      minHeight: "42px",
-      borderColor: "#D1D5DB",
+      minHeight: "44px",
+      borderColor: "#EFE5DD",
       boxShadow: "none",
+      borderRadius: "8px",
       "&:hover": {
-        borderColor: "#A0522D",
+        borderColor: "#C08457",
       },
+    }),
+
+    singleValue: (base) => ({
+      ...base,
+      color: "#A85A32B2",
+    }),
+
+    placeholder: (base) => ({
+      ...base,
+      color: "#A85A32B2",
     }),
 
     menu: (base) => ({
@@ -176,9 +187,9 @@ const ThemePage = () => {
       backgroundColor: state.isSelected
         ? "#A0522D"
         : state.isFocused
-          ? "#EEF4FF"
+          ? "#F8F2ED"
           : "#fff",
-      color: state.isSelected ? "#fff" : "#1F2937",
+      color: state.isSelected ? "#fff" : "#444",
     }),
   };
 
@@ -285,13 +296,11 @@ const ThemePage = () => {
                       <th className="text-left px-4 py-3 font-medium">
                         Category
                       </th>
-                      <th className="text-center px-4 py-3 font-medium">
+                      <th className="text-left px-4 py-3 font-medium">
                         Items Included
                       </th>
-                      <th className="text-center px-4 py-3 font-medium">
-                        Usage
-                      </th>
-                      <th className="text-center px-4 py-3 font-medium">
+                      <th className="text-left px-4 py-3 font-medium">Usage</th>
+                      <th className="text-left px-4 py-3 font-medium">
                         Actions
                       </th>
                     </tr>
@@ -325,21 +334,19 @@ const ThemePage = () => {
 
                             <td className="px-4 py-3">{theme.category_name}</td>
 
-                            <td className="px-4 py-3 text-center">
-                              {totalItems}
-                            </td>
+                            <td className="px-4 py-3">{totalItems}</td>
 
-                            <td className="px-4 py-3 text-center">-</td>
+                            <td className="px-4 py-3"> {theme.usage || "-"}</td>
 
                             <td className="px-4 py-3">
-                              <div className="flex justify-center gap-0">
+                              <div className="flex items-center gap-3">
                                 <button
                                   onClick={() =>
                                     router.push(
                                       `/theme-management/view/${theme.id}`,
                                     )
                                   }
-                                  className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+                                  className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                                 >
                                   <FiEye size={15} />
                                 </button>
@@ -350,14 +357,14 @@ const ThemePage = () => {
                                       `/theme-management/edit/${theme.id}`,
                                     )
                                   }
-                                  className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+                                  className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                                 >
                                   <FiEdit2 size={15} />
                                 </button>
 
                                 <button
                                   onClick={() => handleDeleteClick(theme)}
-                                  className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+                                  className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                                 >
                                   <FiTrash2 size={15} />
                                 </button>

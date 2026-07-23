@@ -116,7 +116,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
             className={`flex items-center gap-1.5 px-2 py-2 rounded-lg transition-colors
             ${languageOpen
                 ? "bg-[#F1F5F9] text-[#4A3A3A]"
-                : "text-[#64748B] hover:text-[#4A3A3A] hover:bg-[#F1F5F9]"
+                : "text-[#64748B] hover:text-[#4A3A3A] hover:bg-[#DFA296]"
               }`}
           >
             <FiGlobe size={18} className="text-[#4A3A3A]"/>
@@ -206,7 +206,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
               setDropdownOpen(!dropdownOpen);
               setNotifOpen(false);
             }}
-            className="flex items-center gap-2 md:gap-3 hover:bg-[#F8FAFC] rounded-lg px-2 py-1.5 transition-colors"
+            className="flex items-center gap-2 md:gap-3 hover:bg-[#DFA296] rounded-lg px-2 py-1.5 transition-colors"
           >
             {/* Avatar */}
             <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center overflow-hidden">

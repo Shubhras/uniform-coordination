@@ -132,7 +132,7 @@ const PreviewTheme = () => {
             onClick={() => router.back()}
             className="w-9 h-9 rounded-full border border-[#E7D9CF] bg-white flex items-center justify-center hover:bg-[#F8F4F1]"
           >
-            <FiArrowLeft />
+            <FiArrowLeft size={18} className="text-[#1A1410]" />
           </button>
 
           <h1 className="text-[30px] font-bold text-[#24160E]">
@@ -198,7 +198,7 @@ const PreviewTheme = () => {
           {sections.map((section) => (
             <div
               key={section.id}
-              className="rounded-2xl border border-[#EFE5DD] bg-[#f6f6f6] overflow-hidden"
+              className="rounded-2xl border border-[#EFE5DD] bg-white overflow-hidden"
             >
               <button
                 onClick={() => toggleSection(section.id)}
@@ -211,9 +211,9 @@ const PreviewTheme = () => {
 
                   <div>
                     <p className="text-[15px] text-[#2C1810]">
-                      {section.title}  : {section.itemsCount} 
+                      {section.title} : {section.itemsCount}
                     </p>
-{/* 
+                    {/* 
                     <p className="text-xs text-gray-500">
                       {section.itemsCount} Items
                     </p> */}

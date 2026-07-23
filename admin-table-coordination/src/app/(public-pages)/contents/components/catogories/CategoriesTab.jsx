@@ -453,7 +453,7 @@ const CategoriesTab = () => {
                                   setEditCategory(cat);
                                   setOpenModal(true);
                                 }}
-                                className="text-[#1C2C56] hover:text-[#0F172A] p-1 rounded hover:bg-[#EEF2FF]"
+                                className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                               >
                                 <FiEdit2 size={18} />
                               </button>
@@ -467,7 +467,7 @@ const CategoriesTab = () => {
                                   });
                                   setDeleteDialogOpen(true);
                                 }}
-                                className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
+                                className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                               >
                                 <FiTrash2 size={18} />
                               </button>

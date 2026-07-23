@@ -11,34 +11,11 @@ import { useEffect, useState } from "react";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetPricingList } from "@/services/PricingPackages";
 
-const iconMap = {
-  rental_pricing_rule: {
-    icon: TbPercentage,
-    iconClass: "bg-[#FFF2EA] text-[#C87B49]",
-  },
-  late_fee_rule: {
-    icon: TbAlertTriangle,
-    iconClass: "bg-[#FFF1EF] text-[#F05C57]",
-  },
-  grace_period: {
-    icon: TbCalendarTime,
-    iconClass: "bg-[#FFF6E9] text-[#E39A29]",
-  },
-  shipping_fee: {
-    icon: TbTruckDelivery,
-    iconClass: "bg-[#EEF4FF] text-[#5C85EE]",
-  },
-  consumption_tax: {
-    icon: TbReceiptTax,
-    iconClass: "bg-[#FFF3EB] text-[#D19060]",
-  },
-};
-
 const PricingRules = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
-  const [pricingRules, setPricingRules] = useState([]);
+  const [pricingRules, setPricingRules] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -48,8 +25,8 @@ const PricingRules = () => {
 
         const res = await apiGetPricingList(accessToken);
 
-        if (res?.status) {
-          setPricingRules(res?.data || []);
+        if (res?.success) {
+          setPricingRules(res.data);
         }
       } catch (error) {
         console.log("Pricing Rules Error", error);
@@ -65,20 +42,20 @@ const PricingRules = () => {
 
   return (
     <div className="mt-5 space-y-4">
-      {pricingRules.length > 0 &&
+      {pricingRules &&
         (() => {
-          const rule = pricingRules[0];
+          const rule = pricingRules;
 
           const cards = [
             {
               icon: TbPercentage,
               iconClass: "bg-[#FFF2EA] text-[#C87B49]",
-              title: "Base Rental Price",
-              description: "Base rental amount used for pricing calculations",
+              title: "Rental Pricing Formula",
+              description: "Formula used for rental price calculation",
               content: (
-                <div className="mt-4 rounded-[12px] bg-[#FCF7F3] px-5 py-4">
-                  <p className="text-[24px] font-semibold text-[#2F241F]">
-                    ¥{rule.base_price}
+                <div className="mt-4 rounded-[12px] bg-[#FCF7F3] px-5 py-3">
+                  <p className="text-[17px] font-semibold text-[#2F241F]">
+                    {rule.rental_pricing_formula_label}
                   </p>
                 </div>
               ),
@@ -86,52 +63,72 @@ const PricingRules = () => {
             {
               icon: TbAlertTriangle,
               iconClass: "bg-[#FFF1EF] text-[#F05C57]",
-              title: "Rush Order Multiplier",
-              description: "Multiplier applied for rush orders",
+              title: "Late Fee Formula",
+              description: "Formula used to calculate late fee",
               content: (
-                <div className="mt-4 rounded-[12px] bg-[#FCF7F3] px-5 py-4">
-                  <p className="text-[24px] font-semibold text-[#2F241F]">
-                    {rule.rush_order_multiplier}×
-                  </p>
+                <div className="mt-4 space-y-3">
+                  <div className="rounded-[12px] bg-[#FCF7F3] px-5 py-3">
+                    <p className="text-[15px] font-medium text-[#2F241F]">
+                      {rule.late_fee_formula_label}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[12px] bg-[#FCF7F3] px-5 py-3">
+                    <p className="text-[20px] font-semibold text-[#2F241F]">
+                      {rule.late_fee_rate}%
+                    </p>
+                  </div>
                 </div>
               ),
             },
             {
               icon: TbCalendarTime,
               iconClass: "bg-[#FFF6E9] text-[#E39A29]",
-              title: "Tiered Pricing",
-              description: "Enable or disable tiered pricing",
+              title: "Grace Period",
+              description: "Days allowed before charging late fee",
               content: (
-                <div className="mt-4 rounded-[12px] bg-[#FCF7F3] px-5 py-4">
-                  <span
-                    className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
-                      rule.tiered_pricing_enabled
-                        ? "bg-[#E8FAF2] text-[#007A55]"
-                        : "bg-[#FDECEC] text-[#D14343]"
-                    }`}
-                  >
-                    {rule.tiered_pricing_enabled ? "Enabled" : "Disabled"}
-                  </span>
+                <div className="mt-4 rounded-[12px] bg-[#FCF7F3] px-5 py-3">
+                  <p className="text-[20px] font-semibold text-[#2F241F]">
+                    {rule.grace_period_days} Days
+                  </p>
+                </div>
+              ),
+            },
+            {
+              icon: TbTruckDelivery,
+              iconClass: "bg-[#EEF4FF] text-[#5C85EE]",
+              title: "Flat Shipping Fee",
+              description: "Shipping charge per order",
+              content: (
+                <div className="mt-4 rounded-[12px] bg-[#FCF7F3] px-5 py-3">
+                  <p className="text-[20px] font-semibold text-[#2F241F]">
+                    ₹{rule.flat_shipping_fee}
+                  </p>
                 </div>
               ),
             },
             {
               icon: TbReceiptTax,
               iconClass: "bg-[#FFF3EB] text-[#D19060]",
-              title: "Tax",
-              description: "Applied tax settings",
+              title: "Consumption Tax",
+              description: "Tax applied to rental orders",
               content: (
                 <div className="mt-4 flex gap-3">
-                  <div className="rounded-[12px] bg-[#FCF7F3] px-5 py-4">
-                    <p className="text-[22px] font-semibold text-[#2F241F]">
-                      {rule.tax_rate}%
+                  <div className="rounded-[12px] bg-[#FCF7F3] px-5 py-3">
+                    <p className="text-[20px] font-semibold text-[#2F241F]">
+                      {rule.tax_percentage}%
                     </p>
                   </div>
-
-                  <div className="rounded-[12px] bg-[#FCF7F3] px-5 py-4">
-                    <p className="text-[14px] text-[#5F534C] capitalize">
-                      {rule.tax_type}
-                    </p>
+                  <div className="rounded-[12px] px-5 py-4">
+                    <span
+                      className={`inline-flex rounded-full px-3 py-2 text-xs font-medium ${
+                        rule.enable_consumption_tax
+                          ? "bg-[#E8FAF2] text-[#007A55]"
+                          : "bg-[#FDECEC] text-[#D14343]"
+                      }`}
+                    >
+                      {rule.enable_consumption_tax ? "Enabled" : "Disabled"}
+                    </span>
                   </div>
                 </div>
               ),
@@ -154,11 +151,11 @@ const PricingRules = () => {
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <h2 className="text-[14px] font-semibold text-[#2F241F]">
+                    <h2 className="text-[16px] font-semibold text-[#2F241F]">
                       {card.title}
                     </h2>
 
-                    <p className="mt-1 text-[11px] text-[#B29D8C]">
+                    <p className="mt-1 text-[13px] text-[#B29D8C]">
                       {card.description}
                     </p>
 

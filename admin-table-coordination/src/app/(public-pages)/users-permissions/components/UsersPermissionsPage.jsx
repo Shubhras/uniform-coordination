@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Pagination from "@/components/ui/Pagination";
 import Select from "react-select";
 import {
   FiChevronLeft,
@@ -10,6 +11,7 @@ import {
   FiRotateCcw,
   FiSearch,
   FiSlash,
+  FiX,
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetUsersList } from "@/services/UserPermissionService";
@@ -161,37 +163,40 @@ const matchesStatus = (user, selectedStatus) => {
 const selectStyles = {
   control: (base) => ({
     ...base,
-    minHeight: "34px",
-    borderColor: "#F2E5DD",
-    borderRadius: "6px",
+    minHeight: "44px",
+    borderColor: "#EFE5DD",
     boxShadow: "none",
-    fontSize: "11px",
-    "&:hover": { borderColor: "#E2CFC2" },
+    borderRadius: "8px",
+    "&:hover": {
+      borderColor: "#C08457",
+    },
   }),
-  valueContainer: (base) => ({
+
+  singleValue: (base) => ({
     ...base,
-    paddingLeft: "8px",
-    paddingRight: "8px",
+    color: "#A85A32B2",
   }),
-  indicatorSeparator: () => ({ display: "none" }),
-  dropdownIndicator: (base) => ({
+
+  placeholder: (base) => ({
     ...base,
-    color: "#B7774D",
-    padding: "0 8px 0 0",
+    color: "#A85A32B2",
   }),
-  menu: (base) => ({ ...base, zIndex: 30 }),
+
+  menu: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+
   option: (base, state) => ({
     ...base,
-    fontSize: "11px",
     backgroundColor: state.isSelected
-      ? "#B56735"
+      ? "#A0522D"
       : state.isFocused
-        ? "#FCF4EF"
-        : "#FFFFFF",
-    color: state.isSelected ? "#FFFFFF" : "#6F625B",
+        ? "#F8F2ED"
+        : "#fff",
+    color: state.isSelected ? "#fff" : "#444",
   }),
 };
-
 const UsersPermissionsPage = () => {
   const router = useRouter();
   const { session } = useCurrentSession();
@@ -352,49 +357,6 @@ const UsersPermissionsPage = () => {
     return () => clearTimeout(timeoutId);
   }, [fetchUsers]);
 
-  const totalPages = pagination.total_pages || 1;
-  const startItem =
-    pagination.total_items === 0
-      ? 0
-      : (currentPage - 1) * pagination.page_size + 1;
-  const endItem = Math.min(
-    currentPage * pagination.page_size,
-    pagination.total_items,
-  );
-
-  const goToPage = (page) => {
-    if (page < 1 || page > totalPages) return;
-    setCurrentPage(page);
-  };
-
-  const pageNumbers = useMemo(() => {
-    const pages = [];
-    const maxVisible = 5;
-
-    if (totalPages <= maxVisible + 2) {
-      for (let i = 1; i <= totalPages; i += 1) {
-        pages.push(i);
-      }
-      return pages;
-    }
-
-    pages.push(1);
-    let start = Math.max(2, currentPage - 1);
-    let end = Math.min(totalPages - 1, currentPage + 1);
-
-    if (currentPage <= 3) end = 4;
-    if (currentPage >= totalPages - 2) start = totalPages - 3;
-
-    if (start > 2) pages.push("...");
-    for (let i = start; i <= end; i += 1) {
-      pages.push(i);
-    }
-    if (end < totalPages - 1) pages.push("...");
-
-    pages.push(totalPages);
-    return pages;
-  }, [currentPage, totalPages]);
-
   const handleReset = () => {
     setSearchQuery("");
     setUserType(typeOptions[0]);
@@ -407,7 +369,7 @@ const UsersPermissionsPage = () => {
       <h1 className="text-[30px] font-semibold leading-tight text-[#2A211D]">
         Users &amp; Permissions
       </h1>
-      <p className="mt-1 text-[12px] text-[#B29D8C]">
+      <p className="mt-1 text-[13px] text-[#B29D8C]">
         Manage user accounts, roles, permissions, and access across the
         platform.
       </p>
@@ -418,10 +380,10 @@ const UsersPermissionsPage = () => {
             key={tab}
             type="button"
             onClick={() => setActiveTab(tab)}
-            className={`border-b pb-3 text-[12px] ${
+            className={`pb-2 text-base font-medium whitespace-nowrap ${
               activeTab === tab
-                ? "border-[#B56735] text-[#2B211C]"
-                : "border-transparent text-[#7F756E]"
+                ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
+                : "text-[#525252] text-[16px]"
             }`}
           >
             {tab}
@@ -431,69 +393,76 @@ const UsersPermissionsPage = () => {
 
       {activeTab === "Users" ? (
         <>
-          <div className="mt-5 flex flex-col gap-3 lg:flex-row">
-            <div className="relative flex-1">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mt-5">
+            <div className="relative w-full lg:max-w-xl">
               <FiSearch
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#D1A48A]"
-                size={13}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
+                size={16}
               />
+
               <input
                 type="text"
-                placeholder="Search by user name..."
+                placeholder="Search Theme..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-[34px] w-full rounded-md border border-[#F3E7DE] bg-white pl-8 pr-3 text-[11px] text-[#6F625B] outline-none placeholder:text-[#C28E73] focus:border-[#D7B7A3]"
+                className="w-full h-11 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#1C4FA8]"
               />
+
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                >
+                  <FiX className="text-gray-500" />
+                </button>
+              )}
             </div>
 
-            <div className="w-full lg:w-[112px]">
-              <Select
-                instanceId="users-type-filter"
-                inputId="users-type-filter"
-                value={userType}
-                onChange={(selectedOption) =>
-                  setUserType(selectedOption ?? typeOptions[0])
-                }
-                options={typeOptions}
-                isSearchable={false}
-                styles={selectStyles}
-              />
-            </div>
-
-            <div className="w-full lg:w-[96px]">
-              <Select
-                instanceId="users-status-filter"
-                inputId="users-status-filter"
-                value={status}
-                onChange={(selectedOption) =>
-                  setStatus(selectedOption ?? statusOptions[0])
-                }
-                options={statusOptions}
-                isSearchable={false}
-                styles={selectStyles}
-              />
-            </div>
-
-            <button
+            {/* <button
               type="button"
               onClick={handleReset}
               className="flex h-[34px] w-full items-center justify-center gap-1 rounded-md border border-[#F2E5DD] bg-white px-3 text-[11px] font-medium text-[#B7774D] transition hover:bg-[#FCF4EF] lg:w-auto"
             >
               <FiRotateCcw size={12} />
               Reset
-            </button>
+            </button> */}
+
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              {/* Filters */}
+              <div className="flex gap-3">
+                <div className="w-52">
+                  <Select
+                    value={status}
+                    onChange={setStatus}
+                    options={statusOptions}
+                    styles={selectStyles}
+                    isSearchable={false}
+                  />
+                </div>
+
+                <div className="w-52">
+                  <Select
+                    value={userType}
+                    onChange={setUserType}
+                    options={typeOptions}
+                    styles={selectStyles}
+                    isSearchable={false}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="mt-4 overflow-x-auto rounded-md border border-[#F4E9E1]">
-            <table className="min-w-[980px] w-full">
-              <thead>
-                <tr className="bg-[#FBF5F0] text-left text-[11px] font-medium text-[#8F7B6E]">
-                  <th className="px-4 py-3">Full Name</th>
-                  <th className="px-4 py-3">User Type</th>
-                  <th className="px-4 py-3">Email</th>
-                  <th className="px-4 py-3">Registration Date</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Actions</th>
+          <div className=" mt-3 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-[#F1F5F9] text-[#486284]">
+                <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
+                  <th className="text-left px-4 py-3">Full Name</th>
+                  <th className="text-left px-4 py-3">User Type</th>
+                  <th className="text-left px-4 py-3">Email</th>
+                  <th className="text-left px-4 py-3">Registration Date</th>
+                  <th className="text-left px-4 py-3">Status</th>
+                  <th className="text-left px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -530,10 +499,10 @@ const UsersPermissionsPage = () => {
                       return (
                         <tr
                           key={user.id}
-                          className="border-t border-[#F8EEE8] bg-white text-[11px] text-[#5F534C]"
+                          className="odd:bg-white even:bg-[#FBF8F6]"
                         >
                           <td className="px-4 py-3 font-semibold text-[#4A3D36]">
-                            {user.fullName}
+                            {user.firstName} {user.lastName}
                           </td>
                           <td className="px-4 py-3">
                             <span
@@ -580,13 +549,14 @@ const UsersPermissionsPage = () => {
                                     );
                                   }
                                 }}
-                                className={
-                                  canViewUser ? "" : "cursor-default opacity-60"
-                                }
+                                className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                               >
                                 <FiEye size={13} />
                               </button>
-                              <button type="button" className="cursor-default">
+                              <button
+                                type="button"
+                                className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                              >
                                 <FiSlash size={13} />
                               </button>
                             </div>
@@ -600,57 +570,20 @@ const UsersPermissionsPage = () => {
 
           {!loading && users.length === 0 && (
             <div className="mt-4 rounded-md border border-dashed border-[#E6D6CD] bg-white px-4 py-10 text-center text-[11px] text-[#8B6A55]">
-              No users found for the selected search and filters.
+              No users found.
             </div>
           )}
 
-          <div className="mt-5 flex flex-col gap-3 text-[11px] text-[#9A8C82] sm:flex-row sm:items-center sm:justify-between">
-            <p>
-              {pagination.total_items === 0
-                ? "No results"
-                : `Showing ${startItem}-${endItem} of ${pagination.total_items}`}
-            </p>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#C9B2A3] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <FiChevronLeft size={14} />
-              </button>
-
-              {pageNumbers.map((page, idx) =>
-                page === "..." ? (
-                  <span key={`dots-${idx}`} className="px-1 text-[#8C7C73]">
-                    ...
-                  </span>
-                ) : (
-                  <button
-                    key={page}
-                    type="button"
-                    onClick={() => goToPage(page)}
-                    className={`flex h-8 min-w-[30px] items-center justify-center rounded px-2 ${
-                      currentPage === page
-                        ? "bg-[#D88957] text-white"
-                        : "text-[#8C7C73] hover:bg-[#FCF4EF]"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ),
-              )}
-
-              <button
-                type="button"
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#8C7C73] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <FiChevronRight size={14} />
-              </button>
-            </div>
+          <div
+            className="flex justify-end mt-3"
+            style={{ marginRight: "6px", marginLeft: "6px" }}
+          >
+            <Pagination
+              currentPage={currentPage}
+              pageSize={itemsPerPage}
+              total={pagination.total_items}
+              onChange={(page) => setCurrentPage(page)}
+            />
           </div>
         </>
       ) : null}
