@@ -49,3 +49,39 @@ export async function apiDeleteB2BAccount(accessToken, id) {
     },
   });
 }
+
+export async function apiGetQUotationList(
+  accessToken,
+  page = 1,
+  pageSize = 10,
+  search = "",
+) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/quotationrequest/get/?page=${page}&page_size=${pageSize}&search=${encodeURIComponent(search)}`,
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+
+export async function apiQuotationDetails(accessToken, id) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/quotation-request/${id}/`,
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+
+export async function apiUpdateQuotation(accessToken, id, payload) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/quotation-request/${id}/update/`,
+    method: "put",
+    data: payload,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
