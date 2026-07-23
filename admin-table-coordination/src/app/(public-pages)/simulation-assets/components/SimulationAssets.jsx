@@ -24,10 +24,10 @@ const SimulationAssets = () => {
 
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
-      <h1 className="text-[32px] font-semibold leading-tight text-[#2A211D]">
+      <h1 className="text-[28px] font-semibold leading-tight text-[#2A211D]">
         Simulation Assets
       </h1>
-      <p className="mt-1 text-[12px] text-[#B29D8C]">
+      <p className="mt-1 text-[13px] text-[#B29D8C]">
         Track inventory, stock status, and product availability.
       </p>
 
