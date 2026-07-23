@@ -676,6 +676,7 @@ const MyProfile = () => {
         ? selectedQuotation.terms
         : defaultTerms;
     const recentSimulations = simulationData;
+    const visibleRecentSimulations = recentSimulations.slice(0, 3);
 
     const fetchProfile = async () => {
         try {
@@ -1403,34 +1404,34 @@ const MyProfile = () => {
                                 <Spinner size={24} />
                             </div>
                         ) : recentSimulations.length > 0 ? (
-                            <div className="space-y-5">
-                                {recentSimulations.slice(0, 3).map((item, index) => (
+                            <div className="space-y-0">
+                                {visibleRecentSimulations.map((item, index) => (
                                     <div
                                         key={item.id}
-                                        className="relative flex items-start justify-between gap-4"
+                                        className="relative flex items-start justify-between gap-4 py-5"
                                     >
-                                        <div className="flex gap-3">
-                                            <div className="relative flex w-5 justify-center">
-                                                <span className="mt-1.5 h-3.5 w-3.5 rounded-full border border-[#2D6CDF] bg-white" />
-                                                {index !== recentSimulations.slice(0, 3).length - 1 && (
-                                                    <span className="absolute top-5 h-[74px] w-px bg-[#D7E3F4]" />
+                                        <div className="flex min-w-0 gap-3">
+                                            <div className="relative flex w-4 shrink-0 justify-center">
+                                                <span className="mt-1.5 h-3 w-3 rounded-full border border-[#3B82F6] bg-white" />
+                                                {index !== visibleRecentSimulations.length - 1 && (
+                                                    <span className="absolute top-5 h-[82px] w-px bg-[#DCE7F5]" />
                                                 )}
                                             </div>
-                                            <div className="min-w-0">
-                                                <p className="text-[12px] font-semibold text-[#1F2A44]">
+                                            <div className="min-w-0 space-y-2">
+                                                <p className="truncate text-[12px] font-semibold leading-[18px] text-[#1F2A44]">
                                                     {item?.productName || "Untitled Simulation"}
                                                 </p>
-                                                <div className="mt-1 flex items-center gap-1 text-[10px] text-[#9CA3AF]">
-                                                    <FiClock size={10} />
+                                                <div className="flex items-center gap-1 text-[10px] font-normal text-[#9CA3AF]">
+                                                    <FiClock size={10} className="shrink-0" />
                                                     <span>{formatDisplayDate(item?.created_at)}</span>
                                                 </div>
                                                 <button
                                                     type="button"
-                                                    className="mt-3 flex items-center gap-1 text-[11px] font-medium text-[#2D6CDF]"
+                                                    className="flex items-center gap-1 text-[11px] font-medium text-[#2D6CDF] transition-colors hover:text-[#1C4FA8] disabled:cursor-not-allowed disabled:opacity-70"
                                                     onClick={() => handleSimulationPdfDownload(item?.id)}
                                                     disabled={pdfLoadingId === item?.id}
                                                 >
-                                                    <FiDownload size={12} />
+                                                    <FiDownload size={12} className="shrink-0" />
                                                     {pdfLoadingId === item?.id
                                                         ? "Downloading..."
                                                         : "PDF Download"}
@@ -1438,24 +1439,22 @@ const MyProfile = () => {
                                             </div>
                                         </div>
 
-                                        <div className="pt-0.5 text-right">
+                                        <div className="flex shrink-0 flex-col items-end gap-5 pt-0.5 text-right">
                                             <span
-                                                className={`inline-flex rounded-[4px] px-2 py-1 text-[9px] font-semibold ${item?.isActive
-                                                    ? "bg-[#E7F0FF] text-[#2D6CDF]"
+                                                className={`inline-flex min-w-[52px] justify-center rounded-[4px] px-2 py-1 text-[9px] font-semibold leading-none ${item?.isActive
+                                                    ? "bg-[#E9F1FF] text-[#2D6CDF]"
                                                     : "bg-[#F1F5F9] text-[#94A3B8]"
                                                     }`}
                                             >
                                                 {item?.isActive ? "OPEN" : "CLOSED"}
                                             </span>
-                                            <div className="mt-4">
-                                                <button
-                                                    type="button"
-                                                    className="text-[11px] text-[#7C8AA5] hover:text-[#1C4FA8]"
-                                                    onClick={() => handleSimulationRedirect(item?.id)}
-                                                >
-                                                    View Details
-                                                </button>
-                                            </div>
+                                            <button
+                                                type="button"
+                                                className="text-[11px] font-medium text-[#7C8AA5] transition-colors hover:text-[#1C4FA8]"
+                                                onClick={() => handleSimulationRedirect(item?.id)}
+                                            >
+                                                View Details
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
@@ -1469,10 +1468,9 @@ const MyProfile = () => {
                         <div className="mt-6 border-t border-[#D7E3F4] pt-6">
                             <Button
                                 variant="default"
-                                className="h-10 w-full rounded-[8px] border border-[#7FAAE6] bg-[#F6FAFF] text-[13px] font-medium text-[#1F3F75]"
+                                className="h-10 w-full justify-center rounded-[10px] border border-[#6D95D8] bg-[#F8FBFF] px-4 text-[13px] font-medium text-[#1F3F75] hover:bg-[#F3F8FF]"
                                 onClick={() => router.push("/dashboards")}
                             >
-                                <FiPlus className="mr-2" />
                                 Create New Simulation
                             </Button>
                         </div>
