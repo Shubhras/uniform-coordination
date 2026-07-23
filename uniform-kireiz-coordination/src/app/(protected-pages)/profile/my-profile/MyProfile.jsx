@@ -177,15 +177,15 @@ const parseSizeRange = (sizeQuantity) => {
 
 const formatCreatedLabel = (value) => {
     if (!value) {
-        return "Created 2 days ago";
+        return "Created recently";
     }
 
     const createdAt = new Date(value);
     if (Number.isNaN(createdAt.getTime())) {
-        return "Created 2 days ago";
+        return "Created recently";
     }
 
-    const now = new Date("2026-07-20T00:00:00");
+    const now = new Date();
     const diff = Math.max(
         0,
         Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)),
