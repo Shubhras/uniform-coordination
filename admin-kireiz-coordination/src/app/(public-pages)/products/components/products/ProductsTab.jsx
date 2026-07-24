@@ -16,6 +16,7 @@ import { apiGetProductList, apiDeleteProduct } from "@/services/ProductService";
 import { apiFabricCategoryList } from "@/services/FabricService";
 import AddEditProductModal from "./AddEditProductModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import Pagination from "@/components/ui/Pagination";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
@@ -81,6 +82,7 @@ const ProductsTab = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,7 +102,7 @@ const ProductsTab = () => {
         setLoading(true);
         const response = await apiGetProductList(accessToken, {
           page,
-          pageSize: 10,
+          pageSize,
           productType: "uniform",
           search: debouncedSearch,
           categoryId: selectedCategory?.value,
@@ -127,12 +129,12 @@ const ProductsTab = () => {
         setLoading(false);
       }
     },
-    [accessToken, debouncedSearch, selectedCategory],
+    [accessToken, debouncedSearch, selectedCategory, pageSize],
   );
 
   useEffect(() => {
     fetchProducts(currentPage);
-  }, [fetchProducts, currentPage]);
+  }, [fetchProducts, currentPage, pageSize]);
 
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
@@ -140,8 +142,8 @@ const ProductsTab = () => {
 
     try {
       setDeleteLoading(true);
-     const response= await apiDeleteProduct(accessToken, productToDelete.id);
-       toast.push(
+      const response = await apiDeleteProduct(accessToken, productToDelete.id);
+      toast.push(
         <Notification title="Success" type="success">
           {response?.message}
         </Notification>,
@@ -372,33 +374,18 @@ const ProductsTab = () => {
         </div>
       )}
 
-      {/* Pagination */}
-      {!loading && pagination.total_pages > 1 && (
-        <div className="flex items-center justify-between mt-6 px-2">
-          <p className="text-sm text-[#64748B]">
-            Page {pagination.page} of {pagination.total_pages} (
-            {pagination.total_items} items)
-          </p>
-
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-            >
-              <FiChevronLeft size={16} />
-            </button>
-
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === pagination.total_pages}
-              className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-            >
-              <FiChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-      )}
+      <div className="mt-5">
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={pagination.total_items}
+          onChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
 
       {/* Modals */}
       <AddEditProductModal

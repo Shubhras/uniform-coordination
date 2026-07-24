@@ -762,7 +762,12 @@ const AddEditProductModal = ({
               name="price"
               control={control}
               render={({ field }) => (
-                <Input {...field} type="number" placeholder="Enter price" />
+                <Input
+                  {...field}
+                  type="number"
+                  min={0}
+                  placeholder="Enter price"
+                />
               )}
             />
           </FormItem>

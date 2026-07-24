@@ -55,9 +55,10 @@ export async function apiGetQUotationList(
   page = 1,
   pageSize = 10,
   search = "",
+  status = "",
 ) {
   return ApiService.fetchDataWithAxios({
-    url: `/v1/uniformAdmin/quotationrequest/get/?page=${page}&page_size=${pageSize}&search=${encodeURIComponent(search)}`,
+    url: `/v1/uniformAdmin/quotationrequest/get/?page=${page}&page_size=${pageSize}&search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}`,
     method: "get",
     headers: {
       Authorization: `Bearer ${accessToken}`,

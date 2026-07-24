@@ -15,6 +15,7 @@ import Notification from "@/components/ui/Notification";
 import { apiGetFabricList, apiDeleteFabric } from "@/services/FabricService";
 import AddEditFabricModal from "./AddEditFabricModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import Pagination from "@/components/ui/Pagination";
 
 const FabricsTab = () => {
   const { session } = useCurrentSession();
@@ -26,6 +27,7 @@ const FabricsTab = () => {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [pagination, setPagination] = useState({
     page: 1,
     page_size: 10,
@@ -49,7 +51,7 @@ const FabricsTab = () => {
 
       try {
         setLoading(true);
-        const response = await apiGetFabricList(accessToken, page);
+        const response = await apiGetFabricList(accessToken, page, pageSize);
 
         if (response?.status && response?.data) {
           setFabrics(response.data);
@@ -68,7 +70,7 @@ const FabricsTab = () => {
 
   useEffect(() => {
     fetchFabrics(currentPage);
-  }, [fetchFabrics, currentPage]);
+  }, [fetchFabrics, currentPage, pageSize]);
 
   // Delete fabric
   const handleDeleteConfirm = async () => {
@@ -298,7 +300,7 @@ const FabricsTab = () => {
       </div>
 
       {/* Pagination */}
-      {!loading && pagination.total_pages > 1 && (
+      {/* {!loading && pagination.total_pages > 1 && (
         <div className="flex items-center justify-between mt-6 px-2">
           <p className="text-sm text-[#64748B]">
             Showing page {pagination.page} of {pagination.total_pages} (
@@ -340,7 +342,19 @@ const FabricsTab = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
+      <div className="mt-5">
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={pagination.total_items}
+          onChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
 
       {/* Add/Edit Modal */}
       <AddEditFabricModal

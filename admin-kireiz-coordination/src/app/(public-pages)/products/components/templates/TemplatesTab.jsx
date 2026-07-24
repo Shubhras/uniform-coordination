@@ -21,6 +21,7 @@ import Notification from "@/components/ui/Notification";
 import AddEditTemplateModal from "./AddEditTemplateModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import PreviewTemplateModal from "./PreviewTemplateModal";
+import Pagination from "@/components/ui/Pagination";
 
 const TemplatesTab = () => {
   const { session } = useCurrentSession();
@@ -42,6 +43,7 @@ const TemplatesTab = () => {
   const [previewTemplate, setPreviewTemplate] = useState(null);
 
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -120,7 +122,7 @@ const TemplatesTab = () => {
         setLoading(true);
         const response = await apiGetTemplatesList(accessToken, {
           page,
-          pageSize: 10,
+          pageSize,
           search: debouncedSearch,
           categoryId: selectedCategory?.value,
         });
@@ -135,12 +137,12 @@ const TemplatesTab = () => {
         setLoading(false);
       }
     },
-    [accessToken, debouncedSearch, selectedCategory],
+    [accessToken, debouncedSearch, selectedCategory, pageSize],
   );
 
   useEffect(() => {
     fetchTemplates(currentPage);
-  }, [fetchTemplates, currentPage]);
+  }, [fetchTemplates, currentPage, pageSize]);
 
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
@@ -407,32 +409,18 @@ const TemplatesTab = () => {
         )}
 
         {/* Pagination */}
-        {!loading && pagination.total_pages > 1 && (
-          <div className="flex items-center justify-between mt-6 px-2">
-            <p className="text-sm text-[#64748B]">
-              Page {pagination.page} of {pagination.total_pages} (
-              {pagination.total_items} items)
-            </p>
-
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-              >
-                <FiChevronLeft size={16} />
-              </button>
-
-              <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === pagination.total_pages}
-                className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-              >
-                <FiChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-        )}
+        <div className="mt-5">
+          <Pagination
+            currentPage={currentPage}
+            pageSize={pageSize}
+            total={pagination.total_items}
+            onChange={(page) => setCurrentPage(page)}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
       </div>
 
       {/* Modals */}

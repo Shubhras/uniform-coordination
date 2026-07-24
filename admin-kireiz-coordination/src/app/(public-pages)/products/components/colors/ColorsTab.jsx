@@ -18,6 +18,7 @@ import AddEditColorModal from "./AddEditColorModal";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import Pagination from "@/components/ui/Pagination";
 
 const INVISIBLE_DUPLICATE_CHAR = "\u200B";
 const INVISIBLE_TEXT_REGEX = /[\u200B-\u200D\uFEFF]/g;
@@ -39,6 +40,7 @@ const ColorsTab = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [colorToDelete, setColorToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
   const [duplicatingId, setDuplicatingId] = useState(null);
 
   // Pagination
@@ -57,7 +59,7 @@ const ColorsTab = () => {
 
       try {
         setLoading(true);
-        const response = await apiGetColorsList(accessToken, page);
+        const response = await apiGetColorsList(accessToken, page, pageSize);
 
         if (response?.status && response?.data) {
           setColors(response.data);
@@ -76,7 +78,7 @@ const ColorsTab = () => {
 
   useEffect(() => {
     fetchColors(currentPage);
-  }, [fetchColors, currentPage]);
+  }, [fetchColors, currentPage, pageSize]);
 
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
@@ -374,33 +376,18 @@ const ColorsTab = () => {
           </div>
         )}
 
-        {/* Pagination */}
-        {!loading && pagination.total_pages > 1 && (
-          <div className="flex items-center justify-between mt-6 px-2">
-            <p className="text-sm text-[#64748B]">
-              Page {pagination.page} of {pagination.total_pages} (
-              {pagination.total_items} items)
-            </p>
-
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-              >
-                <FiChevronLeft size={16} />
-              </button>
-
-              <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === pagination.total_pages}
-                className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-              >
-                <FiChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-        )}
+        <div className="mt-5">
+          <Pagination
+            currentPage={currentPage}
+            pageSize={pageSize}
+            total={pagination.total_items}
+            onChange={(page) => setCurrentPage(page)}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
       </div>
 
       {/* Modals */}
