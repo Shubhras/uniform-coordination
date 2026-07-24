@@ -1,5 +1,8 @@
+"use client";
+
 import { useMemo, useState, useEffect } from "react";
 import { FiSearch, FiEye, FiDownload, FiX, FiEdit2 } from "react-icons/fi";
+import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetQUotationList } from "@/services/B2BAccountService";
 import { useRouter } from "next/navigation";
@@ -16,6 +19,16 @@ const QuotationHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const statusOptions = [
+    { value: "", label: "All Status" },
+    { value: "Pending", label: "Pending" },
+    { value: "Approved", label: "Approved" },
+    { value: "Sent", label: "Sent" },
+    { value: "Cancelled", label: "Cancelled" },
+  ];
+
+  const [selectedCategory, setSelectedCategory] = useState(statusOptions[0]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -37,6 +50,7 @@ const QuotationHistory = () => {
         currentPage,
         pageSize,
         debouncedSearch,
+        selectedCategory.value,
       );
       if (res?.status) {
         setQuotes(res.data || []);
@@ -53,7 +67,85 @@ const QuotationHistory = () => {
     if (accessToken) {
       getQuotationList();
     }
-  }, [accessToken, currentPage, pageSize, debouncedSearch]);
+  }, [accessToken, currentPage, pageSize, debouncedSearch, selectedCategory]);
+
+  const selectStyles = {
+    control: (base) => ({
+      ...base,
+      minHeight: "40px",
+      borderRadius: "6px",
+      borderColor: "#E2E8F0",
+      boxShadow: "none",
+      "&:hover": {
+        borderColor: "#1C2C56",
+      },
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#1C4FA8"
+        : state.isFocused
+          ? "#EEF2FF"
+          : "white",
+      color: state.isSelected ? "white" : "#1E293B",
+      fontSize: "14px",
+    }),
+    menuPortal: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+  };
+
+  /* ---------- SKELETON ---------- */
+  const TableSkeleton = () => (
+    <div className="overflow-hidden bg-white rounded-lg border border-[#E2E8F0]">
+      <table className="w-full text-sm text-left">
+        <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
+          <tr>
+            <th className="px-5 py-3 font-medium">Quote ID</th>
+            <th className="px-5 py-3 font-medium">Company</th>
+            <th className="px-5 py-3 font-medium">Contact Person</th>
+            <th className="px-5 py-3 font-medium">Item Type</th>
+            <th className="px-5 py-3 font-medium">Status</th>
+            <th className="px-5 py-3 font-medium">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <tr key={i} className="border-b border-[#E2E8F0]">
+              <td className="px-5 py-4">
+                <div className="h-4 w-20 rounded bg-gray-200 animate-pulse" />
+              </td>
+
+              <td className="px-5 py-4">
+                <div className="h-4 w-32 rounded bg-gray-200 animate-pulse" />
+              </td>
+
+              <td className="px-5 py-4">
+                <div className="h-4 w-28 rounded bg-gray-200 animate-pulse" />
+              </td>
+
+              <td className="px-5 py-4">
+                <div className="h-4 w-24 rounded bg-gray-200 animate-pulse" />
+              </td>
+
+              <td className="px-5 py-4">
+                <div className="h-6 w-20 rounded-full bg-gray-200 animate-pulse" />
+              </td>
+
+              <td className="px-5 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-4 w-4 rounded bg-gray-200 animate-pulse" />
+                  <div className="h-4 w-4 rounded bg-gray-200 animate-pulse" />
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
     <>
@@ -76,70 +168,95 @@ const QuotationHistory = () => {
         </div>
 
         {/* Search */}
-        <div className="relative w-72 mb-4">
-          <FiSearch className="absolute left-3 top-2.5 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 border border-[#00345F] rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-300"
+        <div className="flex flex-wrap gap-4 items-center mb-6">
+          <div className="relative w-full md:w-72">
+            <FiSearch className="absolute left-3 top-2.5 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 border border-[#00345F] rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-300"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
+              >
+                <FiX size={16} />
+              </button>
+            )}
+          </div>
+          <Select
+            options={statusOptions}
+            value={selectedCategory}
+            onChange={(option) => {
+              setSelectedCategory(option);
+              setCurrentPage(1);
+            }}
+            styles={selectStyles}
+            menuPortalTarget={
+              typeof document !== "undefined" ? document.body : null
+            }
+            menuPosition="fixed"
+            className="w-60 text-sm"
           />
-          {search && (
-            <button
-              type="button"
-              onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
-            >
-              <FiX size={16} />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => {
+              setSearch("");
+              setDebouncedSearch("");
+              setSelectedCategory(statusOptions[0]);
+              setCurrentPage(1);
+            }}
+            className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-white bg-[#1C4FA8] hover:bg-[#163F86] transition-colors"
+          >
+            Reset
+          </button>
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden border border-gray-200 rounded-lg">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
-              <tr>
-                <th className="px-5 py-3">Quote ID</th>
-                <th className="px-5 py-3">Company</th>
-                <th className="px-5 py-3">Contact Person</th>
-                <th className="px-5 py-3">Item Type</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3">Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {loading ? (
+        {loading ? (
+          <TableSkeleton />
+        ) : (
+          <div className="overflow-hidden border border-gray-200 rounded-lg">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
                 <tr>
-                  <td colSpan={6} className="text-center py-8">
-                    Loading...
-                  </td>
+                  <th className="px-5 py-3">Quote ID</th>
+                  <th className="px-5 py-3">Company</th>
+                  <th className="px-5 py-3">Contact Person</th>
+                  <th className="px-5 py-3">Item Type</th>
+                  <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3">Actions</th>
                 </tr>
-              ) : quotes.length > 0 ? (
-                quotes.map((q, i) => (
-                  <tr
-                    key={q.uuids || i}
-                    className="border-b last:border-none border-[#E2E8F0] hover:bg-gray-50 transition"
-                  >
-                    <td className="px-5 py-3 font-medium text-[#1C2C56]">
-                      {q.quotation_id}
-                    </td>
+              </thead>
 
-                    <td className="px-5 py-3 text-[#486284]">
-                      {q.company_name}
-                    </td>
+              <tbody>
+                {quotes.length > 0 ? (
+                  quotes.map((q, i) => (
+                    <tr
+                      key={q.uuids || i}
+                      className="border-b last:border-none border-[#E2E8F0] hover:bg-gray-50 transition"
+                    >
+                      <td className="px-5 py-3 font-medium text-[#1C2C56]">
+                        {q.quotation_id}
+                      </td>
 
-                    <td className="px-5 py-3 text-[#486284]">
-                      {q.contact_person}
-                    </td>
+                      <td className="px-5 py-3 text-[#486284]">
+                        {q.company_name}
+                      </td>
 
-                    <td className="px-5 py-3">{q.item_type}</td>
+                      <td className="px-5 py-3 text-[#486284]">
+                        {q.contact_person}
+                      </td>
 
-                    <td className="px-5 py-3">
-                      <span
-                        className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold capitalize
+                      <td className="px-5 py-3">{q.item_type}</td>
+
+                      <td className="px-5 py-3">
+                        <span
+                          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold capitalize
       ${
         q.quotation_status === "approved"
           ? "bg-green-100 text-green-700"
@@ -151,43 +268,44 @@ const QuotationHistory = () => {
                 ? "bg-red-100 text-red-700"
                 : "bg-gray-100 text-gray-700"
       }`}
-                      >
-                        {q.quotation_status}
-                      </span>
-                    </td>
+                        >
+                          {q.quotation_status}
+                        </span>
+                      </td>
 
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() =>
-                            router.push(`/customer/edit/${q.uuids}`)
-                          }
-                          className="text-gray-500 hover:text-[#1C2C56]"
-                        >
-                          <FiEdit2 size={16} />
-                        </button>
-                        <button
-                          onClick={() =>
-                            router.push(`/customer/view/${q.uuids}`)
-                          }
-                          className="text-gray-500 hover:text-[#1C2C56]"
-                        >
-                          <FiEye size={16} />
-                        </button>
-                      </div>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() =>
+                              router.push(`/customer/edit/${q.uuids}`)
+                            }
+                            className="text-gray-500 hover:text-[#1C2C56]"
+                          >
+                            <FiEdit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() =>
+                              router.push(`/customer/view/${q.uuids}`)
+                            }
+                            className="text-gray-500 hover:text-[#1C2C56]"
+                          >
+                            <FiEye size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="text-center py-8 text-gray-500">
+                      No quotations found
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="text-center py-8 text-gray-500">
-                    No quotations found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
       <div className="mt-5">
         <Pagination

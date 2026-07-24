@@ -393,7 +393,12 @@ const AddEditTemplateModal = ({
                   name="partUsageCount"
                   control={control}
                   render={({ field }) => (
-                    <Input type="number" placeholder="e.g. 5" {...field} />
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="e.g. 5"
+                      {...field}
+                    />
                   )}
                 />
               </FormItem>

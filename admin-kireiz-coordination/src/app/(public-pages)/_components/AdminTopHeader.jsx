@@ -68,7 +68,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
         session?.user?.accessToken,
       );
 
-      await signOut();
+      // await signOut();
     } catch (error) {
       console.error("Logout failed:", error);
 

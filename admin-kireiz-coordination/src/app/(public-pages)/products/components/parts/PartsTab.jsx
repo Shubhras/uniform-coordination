@@ -19,6 +19,7 @@ import { apiGetPartsList, apiDeletePart } from "@/services/PartsService";
 import { apiFabricCategoryList } from "@/services/FabricService";
 import AddEditPartModal from "./AddEditPartModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import Pagination from "@/components/ui/Pagination";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
@@ -41,6 +42,7 @@ const PartsTab = () => {
 
   // View toggle
   const [view, setView] = useState("grid");
+  const [pageSize, setPageSize] = useState(10);
 
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -103,7 +105,7 @@ const PartsTab = () => {
         const response = await apiGetPartsList(
           accessToken,
           page,
-          10,
+          pageSize,
           debouncedSearch,
           category?.value,
         );
@@ -120,12 +122,12 @@ const PartsTab = () => {
         setLoading(false);
       }
     },
-    [accessToken, debouncedSearch, category],
+    [accessToken, debouncedSearch, category, pageSize],
   );
 
   useEffect(() => {
     fetchParts(currentPage);
-  }, [fetchParts, currentPage]);
+  }, [fetchParts, currentPage, pageSize]);
 
   const fetchCategories = useCallback(async () => {
     if (!accessToken) return;
@@ -496,32 +498,18 @@ const PartsTab = () => {
       )}
 
       {/* ===== PAGINATION ===== */}
-      {!loading && pagination.total_pages > 1 && (
-        <div className="flex items-center justify-between mt-6 px-2">
-          <p className="text-sm text-[#64748B]">
-            Page {pagination.page} of {pagination.total_pages} (
-            {pagination.total_items} items)
-          </p>
-
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-            >
-              <FiChevronLeft size={16} />
-            </button>
-
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === pagination.total_pages}
-              className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-            >
-              <FiChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-      )}
+      <div className="mt-5">
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={pagination.total_items}
+          onChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
 
       {/* ===== MODALS ===== */}
       <AddEditPartModal

@@ -14,6 +14,8 @@ import {
   FiChevronLeft,
   FiBarChart2,
   FiSliders,
+  FiClipboard,
+  FiImage,
 } from "react-icons/fi";
 
 const sidebarMenu = [
@@ -31,7 +33,7 @@ const sidebarMenu = [
   },
   {
     label: "Content & Media",
-    icon: FiFileText,
+    icon: FiImage,
     path: "/contents",
     slug: "content_media",
   },
@@ -63,6 +65,12 @@ const sidebarMenu = [
     label: "System Settings",
     icon: FiSliders,
     path: "/system-settings",
+    slug: "product_specification",
+  },
+  {
+    label: "Quotation Requests",
+    icon: FiFileText,
+    path: "/quotation-requests",
     slug: "product_specification",
   },
 ];

@@ -20,6 +20,7 @@ import {
 } from "@/services/CatalogService";
 import AddEditCatalogModal from "./AddEditCatalogModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import Pagination from "@/components/ui/Pagination";
 
 const CatelogImagesTab = () => {
   const { session } = useCurrentSession();
@@ -37,6 +38,7 @@ const CatelogImagesTab = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,7 +56,11 @@ const CatelogImagesTab = () => {
 
       try {
         setLoading(true);
-        const response = await apiGetCatalogImageList(accessToken, page);
+        const response = await apiGetCatalogImageList(
+          accessToken,
+          page,
+          pageSize,
+        );
 
         if (response?.status && response?.data) {
           console.log("afsgvegf", response.data);
@@ -83,7 +89,7 @@ const CatelogImagesTab = () => {
 
   useEffect(() => {
     fetchImages(currentPage);
-  }, [fetchImages, currentPage]);
+  }, [fetchImages, currentPage, pageSize]);
 
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
@@ -315,6 +321,19 @@ const CatelogImagesTab = () => {
             </div>
           </div>
         )}
+      </div>
+
+      <div className="mt-5">
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={pagination.total_items}
+          onChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
       </div>
 
       {/* Modals */}
