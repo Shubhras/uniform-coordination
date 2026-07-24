@@ -15,7 +15,7 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import {
-  apiGetB2BAccountList,
+  apiGetCustomersList,
   apiDeleteB2BAccount,
 } from "@/services/B2BAccountService";
 // import AddEditB2BAccountModal from "./AddEditB2BAccountModal";
@@ -54,7 +54,7 @@ const B2BAccounts = () => {
 
     try {
       setLoading(true);
-      const response = await apiGetB2BAccountList(accessToken);
+      const response = await apiGetCustomersList(accessToken);
 
       if (response?.results) {
         setAccounts(response.results);
@@ -116,9 +116,9 @@ const B2BAccounts = () => {
     if (!term) return accounts;
     return accounts.filter(
       (acc) =>
-        acc.name?.toLowerCase().includes(term) ||
-        acc.company_name?.toLowerCase().includes(term) ||
-        acc.email?.toLowerCase().includes(term),
+        acc.full_name?.toLowerCase().includes(term) ||
+        acc.email?.toLowerCase().includes(term) ||
+        acc.phone?.includes(term),
     );
   }, [accounts, search]);
 
@@ -128,10 +128,10 @@ const B2BAccounts = () => {
       <table className="min-w-[800px] w-full text-sm text-left">
         <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
           <tr>
-            <th className="px-5 py-3 font-medium">Company</th>
-            <th className="px-5 py-3 font-medium">Contact Person</th>
+            <th className="px-5 py-3 font-medium">User Name</th>
+            <th className="px-5 py-3 font-medium">User Type</th>
             <th className="px-5 py-3 font-medium">Contact Info</th>
-            <th className="px-5 py-3 font-medium">Tier</th>
+            <th className="px-5 py-3 font-medium">Status</th>
             <th className="px-5 py-3 font-medium text-right">Actions</th>
           </tr>
         </thead>
@@ -222,10 +222,10 @@ const B2BAccounts = () => {
             <table className="min-w-[800px] w-full text-sm text-left">
               <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
                 <tr>
-                  <th className="px-5 py-3 font-medium">Company</th>
-                  <th className="px-5 py-3 font-medium">Contact Person</th>
+                  <th className="px-5 py-3 font-medium">User Name</th>
+                  <th className="px-5 py-3 font-medium">User Type</th>
                   <th className="px-5 py-3 font-medium">Contact Info</th>
-                  <th className="px-5 py-3 font-medium">Tier</th>
+                  <th className="px-5 py-3 font-medium">Status</th>
                   <th className="px-5 py-3 font-medium text-right">Actions</th>
                 </tr>
               </thead>
@@ -233,6 +233,7 @@ const B2BAccounts = () => {
               <tbody>
                 {filteredAccounts.map((acc) => {
                   const tierKey = acc.tier?.toLowerCase();
+
                   const tierStyle =
                     tierColors[tierKey] ||
                     "bg-gray-50 text-gray-600 border border-gray-200";
@@ -243,10 +244,12 @@ const B2BAccounts = () => {
                       className="border-b last:border-none border-[#E2E8F0] hover:bg-gray-50 transition"
                     >
                       <td className="px-5 py-4 font-medium text-[#1C2C56]">
-                        {acc.company_name}
+                        {acc.firstName} {acc.lastName}
                       </td>
 
-                      <td className="px-5 py-4 text-gray-600">{acc.name}</td>
+                      <td className="px-5 py-4 text-gray-600">
+                        {acc.userType}
+                      </td>
 
                       <td className="px-5 py-4 text-gray-600">
                         <div className="flex flex-col gap-1 text-xs">
@@ -256,16 +259,20 @@ const B2BAccounts = () => {
                           </div>
                           <div className="flex items-center gap-2">
                             <FiPhone className="text-[#1C2C56]" size={14} />
-                            <span>{acc.mobile}</span>
+                            <span>{acc.phone}</span>
                           </div>
                         </div>
                       </td>
 
                       <td className="px-5 py-4">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${tierStyle}`}
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            acc.isActive
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
                         >
-                          {acc.tier}
+                          {acc.isActive ? "Active" : "Inactive"}
                         </span>
                       </td>
 
@@ -273,10 +280,9 @@ const B2BAccounts = () => {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             className="text-[#1C4FA8] hover:bg-[#EEF4FF] p-1.5 rounded"
-                            onClick={() => {
-                              setSelectedAccount(acc);
-                              setViewModalOpen(true);
-                            }}
+                            onClick={() =>
+                              router.push(`/customer/customer-details/${q.uuids}`)
+                            }
                           >
                             <FiEye size={17} />
                           </button>
@@ -289,7 +295,7 @@ const B2BAccounts = () => {
                           >
                             <FiEdit2 size={16} />
                           </button>
-                          <button
+                          {/* <button
                             className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50"
                             onClick={() => {
                               setAccountToDelete(acc);
@@ -297,7 +303,7 @@ const B2BAccounts = () => {
                             }}
                           >
                             <FiTrash2 size={16} />
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>
@@ -337,7 +343,7 @@ const B2BAccounts = () => {
         onConfirm={handleDeleteConfirm}
         title="Delete Account"
         message="Are you sure you want to delete this B2B account? This action cannot be undone."
-        itemName={accountToDelete?.company_name}
+        itemName={accountToDelete?.full_name}
         loading={deleteLoading}
       />
     </>
