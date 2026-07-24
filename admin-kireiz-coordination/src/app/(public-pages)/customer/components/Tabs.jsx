@@ -4,6 +4,7 @@ import { FiUsers, FiClock, FiBriefcase, FiCheckSquare } from "react-icons/fi";
 
 const tabs = [
   { label: "B2B Accounts", icon: FiUsers },
+  { label: "Customers", icon: FiUsers },
   { label: "Quotation History", icon: FiClock },
   { label: "Sales Representation", icon: FiBriefcase },
   { label: "Assignments", icon: FiCheckSquare },
