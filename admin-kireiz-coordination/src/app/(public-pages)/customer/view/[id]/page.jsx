@@ -87,7 +87,7 @@ const ViewQuotation = () => {
               <div>
                 <p className="text-[14px] text-[#374151]">Company</p>
 
-                <h4 className="font-semibold text-[#1C2C56] mt-1">
+                <h4 className="font-semibold mt-1">
                   {quotation?.company_name || "-"}
                 </h4>
               </div>
@@ -96,9 +96,7 @@ const ViewQuotation = () => {
             <div className="mt-6">
               <p className="text-[14px] text-[#374151]">Phone Number</p>
 
-              <p className="mt-1 text-[#334155]">
-                {quotation?.phone_number || "-"}
-              </p>
+              <p className="mt-1">{quotation?.phone_number || "-"}</p>
             </div>
           </div>
 
@@ -108,7 +106,7 @@ const ViewQuotation = () => {
             <div>
               <p className="text-[14px] text-[#374151]">Contact Person</p>
 
-              <h4 className="font-semibold text-[#1C2C56] mt-1">
+              <h4 className="font-semibold mt-1">
                 {quotation?.contact_person || "-"}
               </h4>
             </div>
@@ -116,7 +114,7 @@ const ViewQuotation = () => {
             <div className="mt-6">
               <p className="text-[14px] text-[#374151]">Company Address</p>
 
-              <p className="mt-1 text-[#334155] leading-6">
+              <p className="mt-1 leading-6">
                 Sakura Grand Hotel Co.
                 <br />
                 Chiyoda-ku
@@ -134,7 +132,29 @@ const ViewQuotation = () => {
             <div>
               <p className="text-[14px] text-[#374151]">Business Email</p>
 
-              <p className="mt-1 text-[#334155]">{quotation?.email || "-"}</p>
+              <p className="mt-1">{quotation?.email || "-"}</p>
+            </div>
+            <div className="mt-6">
+              <p className="text-[14px] text-[#374151] mb-2">
+                Quotation Status
+              </p>
+
+              <span
+                className={`inline-flex items-center rounded-full px-4 py-1.5 text-sm font-semibold capitalize
+      ${
+        quotation?.quotation_status === "approved"
+          ? "bg-green-100 text-green-700"
+          : quotation?.quotation_status === "pending"
+            ? "bg-yellow-100 text-yellow-700"
+            : quotation?.quotation_status === "sent"
+              ? "bg-blue-100 text-blue-700"
+              : quotation?.quotation_status === "cancelled"
+                ? "bg-red-100 text-red-700"
+                : "bg-gray-100 text-gray-700"
+      }`}
+              >
+                {quotation?.quotation_status || "-"}
+              </span>
             </div>
           </div>
         </div>
@@ -149,9 +169,7 @@ const ViewQuotation = () => {
         <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
           <div>
             <p className="text-[14px] text-[#374151]">Quotation ID</p>
-            <p className="mt-1 font-medium text-[#1C2C56]">
-              {quotation?.quotation_id || "-"}
-            </p>
+            <p className="mt-1 font-medium">{quotation?.quotation_id || "-"}</p>
           </div>
 
           <div>
@@ -225,7 +243,6 @@ const ViewQuotation = () => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };

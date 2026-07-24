@@ -4,14 +4,6 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetQUotationList } from "@/services/B2BAccountService";
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/ui/Pagination";
-import { debounce } from "lodash";
-// import { pages } from "next/dist/build/templates/app-page";
-
-const statusColors = {
-  Approved: "bg-green-100 text-green-700",
-  Pending: "bg-yellow-100 text-yellow-700",
-  Rejected: "bg-red-100 text-red-700",
-};
 
 const QuotationHistory = () => {
   const { session } = useCurrentSession();
@@ -113,7 +105,7 @@ const QuotationHistory = () => {
                 <th className="px-5 py-3">Company</th>
                 <th className="px-5 py-3">Contact Person</th>
                 <th className="px-5 py-3">Item Type</th>
-                <th className="px-5 py-3">Delivery Date</th>
+                <th className="px-5 py-3">Status</th>
                 <th className="px-5 py-3">Actions</th>
               </tr>
             </thead>
@@ -145,8 +137,23 @@ const QuotationHistory = () => {
 
                     <td className="px-5 py-3">{q.item_type}</td>
 
-                    <td className="px-5 py-3 text-[#486284]">
-                      {q.delivery_date}
+                    <td className="px-5 py-3">
+                      <span
+                        className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold capitalize
+      ${
+        q.quotation_status === "approved"
+          ? "bg-green-100 text-green-700"
+          : q.quotation_status === "pending"
+            ? "bg-yellow-100 text-yellow-700"
+            : q.quotation_status === "sent"
+              ? "bg-blue-100 text-blue-700"
+              : q.quotation_status === "cancelled"
+                ? "bg-red-100 text-red-700"
+                : "bg-gray-100 text-gray-700"
+      }`}
+                      >
+                        {q.quotation_status}
+                      </span>
                     </td>
 
                     <td className="px-4 py-3">
