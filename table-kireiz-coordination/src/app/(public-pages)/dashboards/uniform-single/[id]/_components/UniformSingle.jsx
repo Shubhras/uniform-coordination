@@ -122,25 +122,27 @@ const UniformSingle = () => {
                     </div>
                 </div> */}
                 {/* HEADER */}
-                <div className='bg-[#F5F8FF] rounded-xl  md:p-8 p-5'>
-                    <div className="text-center mb-12 ">
-                        <h2 className="text-[#7B3C1D] text-3xl font-semibold">
-                            Placeholder Text
+                <div className='bg-[#F5F8FF] rounded-xl md:p-8 p-5'>
+                    <div className="text-center mb-8">
+                        <h2 className="text-[#7B3C1D] text-3xl font-semibold capitalize">
+                            {product?.productName || 'Product Details'}
                         </h2>
                         <div className="w-20 h-1 bg-[#7B3C1D] mx-auto mt-2 rounded-full" />
-                        <p className="text-[#8B5A3C] mt-3 text-sm">
-                            Comfortable, functional scrubs for healthcare professionals
-                        </p>
+                        {product?.category?.categoryName && (
+                            <p className="text-[#8B5A3C] mt-2 text-sm font-medium">
+                                Category: {product.category.categoryName} {product.subcategory?.name ? `| ${product.subcategory.name}` : ''}
+                            </p>
+                        )}
                     </div>
                     {/* MAIN CONTENT */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start ">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                         {/* LEFT INFO CARD */}
-                        <div className="order-2 lg:order-1 bg-white border border-[#E8E0D9] rounded-[20px] md:p-8 p-5 flex flex-col h-full">
+                        <div className="order-2 lg:order-1 bg-white border border-[#E8E0D9] rounded-[20px] md:p-8 p-5 flex flex-col h-full shadow-sm">
 
                             {/* LOADING */}
                             {loading && (
                                 <div className="flex justify-center items-center py-20">
-                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FBF8F6]"></div>
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7B3C1D]"></div>
                                 </div>
                             )}
 
@@ -161,18 +163,26 @@ const UniformSingle = () => {
                             {/* DATA */}
                             {!loading && !error && product && (
                                 <>
-                                    <div className="flex flex-col gap-5">
-                                        <h3 className="text-[#2C1810] text-2xl font-semibold capitalize">
-                                            {product.productName}
-                                        </h3>
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex justify-between items-start">
+                                            <h3 className="text-[#2C1810] text-2xl font-semibold capitalize">
+                                                {product.productName}
+                                            </h3>
+                                        </div>
 
-                                        <div className="flex justify-between items-center text-xs">
-                                            <p className="text-[#6B7280]">
-                                                Category: {product.subcategory?.name || 'N/A'}
-                                            </p>
-
+                                        <div className="flex flex-wrap items-center gap-4 text-sm mt-1">
+                                            <div>
+                                                <span className="text-[#6B7280]">Price: </span>
+                                                <span className="text-[#7B3C1D] font-bold text-lg">₹{product.price}</span>
+                                            </div>
+                                            {product.rental_price_per_day && (
+                                                <div className="border-l border-gray-300 pl-4">
+                                                    <span className="text-[#6B7280]">Rental: </span>
+                                                    <span className="text-[#1C2C56] font-semibold">₹{product.rental_price_per_day} <span className="text-xs font-normal text-gray-500">/ day</span></span>
+                                                </div>
+                                            )}
                                             {product.discount > 0 && (
-                                                <span className="text-green-600 text-sm font-medium">
+                                                <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-md font-medium">
                                                     Save {product.discount}%
                                                 </span>
                                             )}
@@ -180,28 +190,67 @@ const UniformSingle = () => {
                                     </div>
 
                                     <button
-                                        className="w-full bg-[#8B4513] text-white py-3 rounded-md text-sm font-medium mt-6"
+                                        className="w-full bg-[#8B4513] hover:bg-[#71370F] transition-colors text-white py-3 rounded-md text-sm font-medium mt-6 shadow-sm"
                                         onClick={handleUniformDesigning}
                                     >
                                         Customize
                                     </button>
 
-                                    <div className="pt-4 space-y-3 flex-1">
-                                        <h4 className="text-[#2C1810] font-semibold">
-                                            Description
-                                        </h4>
+                                    <div className="pt-6 space-y-5 flex-1">
+                                        {/* Description */}
+                                        <div>
+                                            <h4 className="text-[#2C1810] font-semibold mb-1">
+                                                Description
+                                            </h4>
+                                            <p className="text-[#6B7280] text-sm leading-relaxed">
+                                                {product.description || 'No description available'}
+                                            </p>
+                                        </div>
 
-                                        <p className="text-[#6B7280] text-sm leading-relaxed">
-                                            {product.description || 'No description available'}
-                                        </p>
-
-                                        <p className="text-[#6B7280] text-sm leading-relaxed">
-                                            Price: ₹{product.price}
-                                        </p>
-
-                                        <p className="text-[#6B7280] text-sm leading-relaxed">
-                                            Available Quantity: {product.available_quantity}
-                                        </p>
+                                        {/* Specifications */}
+                                        <div className="border-t border-[#E8E0D9] pt-4">
+                                            <h4 className="text-[#2C1810] font-semibold mb-3">
+                                                Product Specifications
+                                            </h4>
+                                            <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs sm:text-sm">
+                                                {product.fabric_details?.name && (
+                                                    <div>
+                                                        <span className="text-gray-500">Fabric: </span>
+                                                        <span className="font-medium text-gray-800">{product.fabric_details.name}</span>
+                                                    </div>
+                                                )}
+                                                {product.color_details?.name && (
+                                                    <div>
+                                                        <span className="text-gray-500">Color: </span>
+                                                        <span className="font-medium text-gray-800">{product.color_details.name}</span>
+                                                    </div>
+                                                )}
+                                                {product.size && (
+                                                    <div>
+                                                        <span className="text-gray-500">Size: </span>
+                                                        <span className="font-medium text-gray-800">{product.size}</span>
+                                                    </div>
+                                                )}
+                                                {product.style && (
+                                                    <div>
+                                                        <span className="text-gray-500">Style: </span>
+                                                        <span className="font-medium text-gray-800 capitalize">{product.style}</span>
+                                                    </div>
+                                                )}
+                                                {product.table_shape && (
+                                                    <div>
+                                                        <span className="text-gray-500">Shape: </span>
+                                                        <span className="font-medium text-gray-800 capitalize">{product.table_shape}</span>
+                                                    </div>
+                                                )}
+                                                {product.productType && (
+                                                    <div>
+                                                        <span className="text-gray-500">Type: </span>
+                                                        <span className="font-medium text-gray-800 capitalize">{product.productType}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </>
                             )}

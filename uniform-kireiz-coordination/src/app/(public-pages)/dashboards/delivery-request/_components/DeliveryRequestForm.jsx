@@ -80,7 +80,7 @@ const DeliveryRequestForm = () => {
             delivery_date: values.delivery_date
                 ? values.delivery_date.toISOString().split('T')[0]
                 : "",
-            customupdatemodel: id,
+            customupdatemodel_id: id,
         }
 
         try {

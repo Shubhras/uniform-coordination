@@ -327,6 +327,7 @@ const Uniform3DmoduleDegisn = () => {
 
 
   const [showDropdown, setShowDropdown] = useState(false);
+  
   const handleUniformDesignResult = async () => {
     console.log("FINAL DESIGN JSON:", designJSON);
 
@@ -375,7 +376,7 @@ const Uniform3DmoduleDegisn = () => {
     if (!session?.accessToken) {
       toast.push(
         <Notification title="Login Required" type="warning">
-          Pehle login ho, uske baad is page par aaye (Please login first)
+          Please sign in first to continue.
         </Notification>
       );
       return;

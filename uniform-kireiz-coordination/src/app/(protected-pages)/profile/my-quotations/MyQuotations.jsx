@@ -9,20 +9,34 @@ import { FiArrowLeft, FiDownload, FiEye, FiFileText, FiSearch } from 'react-icon
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5'
 import { HiCheck } from 'react-icons/hi'
 import { apiGetQuotation } from '@/services/AuthProfileService'
+import {
+    apiDownloadUserQuotationPdf,
+    apiGetQuotationRequestDetail,
+} from '@/services/QuotationRequestService'
 import { formatDate } from '@/utils/dateFormater'
 
 const ITEMS_PER_PAGE = 6
 
 const statusStyles = {
-    accepted: {
+    approved: {
         text: '#34C759',
         bg: '#1C4FA80F',
-        label: 'Accepted',
+        label: 'Approved',
+    },
+    cancelled: {
+        text: '#C10007',
+        bg: '#1C4FA80F',
+        label: 'Cancelled',
     },
     declined: {
         text: '#C10007',
         bg: '#1C4FA80F',
         label: 'Declined',
+    },
+    pending: {
+        text: '#4580ED',
+        bg: '#1C4FA80F',
+        label: 'Pending',
     },
     submitted: {
         text: '#4580ED',
@@ -39,10 +53,12 @@ const statusStyles = {
 // status filter dropdown options
 const statusFilterOptions = [
     { value: '', label: 'All Status' },
-    { value: 'accepted', label: 'Accepted' },
-    { value: 'declined', label: 'Declined' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'pending', label: 'Pending' },
     { value: 'submitted', label: 'Submitted' },
     { value: 'received', label: 'Received' },
+    { value: 'cancelled', label: 'Cancelled' },
+    { value: 'declined', label: 'Declined' },
 ]
 
 // custom option renderer for status dropdown
@@ -71,12 +87,14 @@ const getNormalizedStatus = (quotation) => {
         'submitted',
     ).toLowerCase()
 
-    if (rawStatus.includes('accept')) return 'accepted'
+    if (rawStatus.includes('approv') || rawStatus.includes('accept')) return 'approved'
+    if (rawStatus.includes('cancel')) return 'cancelled'
     if (rawStatus.includes('declin') || rawStatus.includes('reject')) return 'declined'
+    if (rawStatus.includes('pend')) return 'pending'
     if (rawStatus.includes('submit')) return 'submitted'
     if (rawStatus.includes('receiv') || rawStatus.includes('review')) return 'received'
 
-    return 'submitted'
+    return 'pending'
 }
 
 const getPdfUrl = (quotation) =>
@@ -86,6 +104,54 @@ const getPdfUrl = (quotation) =>
     quotation?.quotationPdf ||
     quotation?.export_pdf_url ||
     ''
+
+const getPreviewUrl = (quotation) =>
+    quotation?.preview_url ||
+    quotation?.previewUrl ||
+    quotation?.pdf_preview_url ||
+    quotation?.view_pdf_url ||
+    quotation?.quotation_preview_url ||
+    getPdfUrl(quotation) ||
+    ''
+
+const getDownloadUrl = (quotation) =>
+    quotation?.download_url ||
+    quotation?.downloadUrl ||
+    quotation?.pdf_download_url ||
+    quotation?.quotation_download_url ||
+    ''
+
+const normalizePdfUrl = (rawUrl) => {
+    if (!rawUrl || typeof rawUrl !== 'string') {
+        return ''
+    }
+
+    const preferredBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+    if (!preferredBaseUrl) {
+        return rawUrl
+    }
+
+    try {
+        const preferredOrigin = new URL(preferredBaseUrl).origin
+
+        if (rawUrl.startsWith('/')) {
+            return new URL(rawUrl, preferredOrigin).toString()
+        }
+
+        const parsedUrl = new URL(rawUrl)
+        if (parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1') {
+            return new URL(
+                `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`,
+                preferredOrigin,
+            ).toString()
+        }
+
+        return parsedUrl.toString()
+    } catch (error) {
+        console.error('Failed to normalize PDF URL:', error)
+        return rawUrl
+    }
+}
 
 const getRequestedItems = (quotation) => {
     const source =
@@ -103,6 +169,33 @@ const getRequestedItems = (quotation) => {
         }))
     }
 
+    if (
+        quotation?.product_name ||
+        quotation?.item_type ||
+        quotation?.product_category_name ||
+        quotation?.size_quantity
+    ) {
+        return [
+            {
+                id: quotation?.product_id || quotation?.uuids || quotation?.quotation_id || 'item-0',
+                uniform_name:
+                    quotation?.product_name ||
+                    quotation?.item_type ||
+                    'Medical Scrub Set',
+                category:
+                    quotation?.product_category_name ||
+                    quotation?.product_subcategory_name ||
+                    quotation?.material ||
+                    'Medical',
+                quantity:
+                    quotation?.size_quantity ||
+                    quotation?.quantity ||
+                    quotation?.qty ||
+                    '-',
+            },
+        ]
+    }
+
     return fallbackItems
 }
 
@@ -111,6 +204,12 @@ const normalizeQuotation = (quotation, index) => {
 
     return {
         id: quotation?.id || quotation?.quotation_id || quotation?.quotationNo || `RQ-2025-019${index + 1}`,
+        quotationId:
+            quotation?.uuid ||
+            quotation?.quotation_uuid ||
+            quotation?.quotation_id ||
+            quotation?.id ||
+            '',
         requestId: quotation?.quotationNo || quotation?.quotation_id || `RQ-2025-019${index + 1}`,
         productName: quotation?.product_name || quotation?.item_type || quotation?.title || 'Corporate Shirt',
         quantity:
@@ -129,7 +228,9 @@ const normalizeQuotation = (quotation, index) => {
         phoneNumber: quotation?.phone_number || quotation?.phone || '-',
         tier: quotation?.tier || '-',
         requestedDate: quotation?.requested_date || quotation?.created_at || '',
-        pdfUrl: getPdfUrl(quotation),
+        pdfUrl: normalizePdfUrl(getPdfUrl(quotation)),
+        previewUrl: normalizePdfUrl(getPreviewUrl(quotation)),
+        downloadUrl: normalizePdfUrl(getDownloadUrl(quotation)),
         items: getRequestedItems(quotation),
     }
 }
@@ -149,6 +250,12 @@ const extractQuotationCount = (payload, fallbackLength) => {
     return Number.isFinite(count) ? count : fallbackLength
 }
 
+const extractQuotationDetailRecord = (payload) =>
+    payload?.data?.data ||
+    payload?.data ||
+    payload?.result ||
+    payload
+
 const buildDisplayQuotations = (rawData) => {
     const source = Array.isArray(rawData) ? rawData : []
 
@@ -160,7 +267,7 @@ const buildDisplayQuotations = (rawData) => {
 }
 
 const StatusBadge = ({ statusKey, statusLabel }) => {
-    const style = statusStyles[statusKey] || statusStyles.submitted
+    const style = statusStyles[statusKey] || statusStyles.pending
 
     return (
         <span
@@ -175,9 +282,15 @@ const StatusBadge = ({ statusKey, statusLabel }) => {
     )
 }
 
-const QuotationDetailView = ({ quotation, onBack }) => {
-    const isAccepted = quotation.statusKey === 'accepted'
-    const isReceived = quotation.statusKey === 'received'
+const QuotationDetailView = ({
+    quotation,
+    onBack,
+    onDownload,
+    downloadLoading,
+}) => {
+    const showDownload =
+        ['approved', 'received'].includes(quotation.statusKey) &&
+        Boolean(quotation.quotationId || quotation.downloadUrl || quotation.pdfUrl)
 
     return (
         <div className="w-full rounded-2xl bg-white">
@@ -196,13 +309,13 @@ const QuotationDetailView = ({ quotation, onBack }) => {
             </div>
 
             <div className="space-y-4">
-                <section className="rounded-2xl border border-[#EDF2F7] bg-white p-4">
+                <section className="rounded-2xl border border-[#EDF2F7] bg-white p-4 md:p-5">
                     <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.03em] text-[#003560]">
                         <FiFileText size={12} />
                         Company Information
                     </div>
 
-                    <div className="grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
                         <div>
                             <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Company Name</p>
                             <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.companyName}</p>
@@ -226,50 +339,38 @@ const QuotationDetailView = ({ quotation, onBack }) => {
                     </div>
                 </section>
 
-                <section className="rounded-2xl border border-[#EDF2F7] bg-white p-4">
+                <section className="rounded-2xl border border-[#EDF2F7] bg-white p-4 md:p-5">
                     <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.03em] text-[#003560]">
                         <FiFileText size={12} />
                         Quotation Information
                     </div>
 
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="grid flex-1 grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2">
-                            <div>
-                                <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Request ID</p>
-                                <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.requestId}</p>
-                            </div>
-                            <div>
-                                <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Requested Date</p>
-                                <p className="mt-1 text-sm font-medium text-[#111827]">{formatDate(quotation.requestedDate)}</p>
-                            </div>
+                    <div className="grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Request ID</p>
+                            <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.requestId}</p>
                         </div>
-
-                        {isAccepted || isReceived ? (
-                            <button
-                                type="button"
-                                className="inline-flex h-[42px] items-center justify-center gap-2 rounded-[10px] border border-[#B7C9E2] bg-white px-6 text-[14px] font-semibold text-[#2B436F] shadow-none transition-colors hover:bg-[#F8FBFF]"
-                                onClick={() => {
-                                    if (quotation.pdfUrl) {
-                                        window.open(quotation.pdfUrl, '_blank', 'noopener,noreferrer')
-                                    }
-                                }}
-                            >
-                                {isAccepted ? (
-                                    <>
-                                        <FiDownload size={16} />
-                                        <span>Download Quotation PDF</span>
-                                    </>
-                                ) : (
-                                    <span>Preview Quotation PDF</span>
-                                )}
-                            </button>
-                        ) : null}
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Requested Date</p>
+                            <p className="mt-1 text-sm font-medium text-[#111827]">{formatDate(quotation.requestedDate)}</p>
+                        </div>
                     </div>
                 </section>
 
                 <section className="overflow-hidden rounded-2xl border border-[#EDF2F7] bg-white">
-                    <div className="border-b border-[#EDF2F7] px-4 py-4">
+                    <div className="flex items-center justify-between border-b border-[#EDF2F7] px-4 py-4 md:px-5">
                         <h3 className="text-base font-semibold text-[#111827]">Requested Items</h3>
+                        {showDownload ? (
+                            <button
+                                type="button"
+                                className="inline-flex items-center gap-2 text-sm font-medium text-[#2B436F] disabled:cursor-not-allowed disabled:opacity-70"
+                                onClick={onDownload}
+                                disabled={downloadLoading}
+                            >
+                                {downloadLoading ? <Spinner size={16} /> : <FiDownload size={16} />}
+                                <span>{downloadLoading ? 'Downloading...' : 'Download PDF'}</span>
+                            </button>
+                        ) : null}
                     </div>
 
                     <div className="overflow-x-auto">
@@ -319,6 +420,8 @@ const MyQuotations = () => {
     const [errorMessage, setErrorMessage] = useState('')
     const [totalCount, setTotalCount] = useState(0)
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+    const [downloadLoadingId, setDownloadLoadingId] = useState('')
+    const [detailLoadingId, setDetailLoadingId] = useState('')
 
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
@@ -337,7 +440,7 @@ const MyQuotations = () => {
             try {
                 const res = await apiGetQuotation(session.accessToken, {
                     search: debouncedSearchTerm,
-                    status: statusFilter,
+                    quotation_status: statusFilter,
                     page: currentPage,
                     page_size: ITEMS_PER_PAGE,
                 })
@@ -371,13 +474,89 @@ const MyQuotations = () => {
         setCurrentPage(1)
     }
 
-    const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE))
+    const handleDownloadQuotationPdf = async (quotation) => {
+        if (!session?.accessToken || !quotation) return
+
+        try {
+            setDownloadLoadingId(quotation.id)
+            const pdfBlob = await apiDownloadUserQuotationPdf(
+                quotation.quotationId,
+                session.accessToken,
+                quotation.downloadUrl,
+            )
+
+            const blobUrl = window.URL.createObjectURL(pdfBlob)
+            const link = document.createElement('a')
+            link.href = blobUrl
+            link.download = `${quotation.requestId || 'quotation'}.pdf`
+            document.body.appendChild(link)
+            link.click()
+            link.remove()
+            window.URL.revokeObjectURL(blobUrl)
+        } catch (error) {
+            console.error('Quotation PDF download error:', error)
+            setErrorMessage(
+                error?.response?.data?.message ||
+                error?.message ||
+                'Unable to download quotation PDF right now.',
+            )
+        } finally {
+            setDownloadLoadingId('')
+        }
+    }
+
+    const handleViewQuotationDetails = async (quotation, index) => {
+        if (!session?.accessToken || !quotation) return
+
+        const quotationId = quotation.quotationId || quotation.id
+        if (!quotationId) {
+            setSelectedQuotation(quotation)
+            return
+        }
+
+        try {
+            setDetailLoadingId(quotation.id)
+            setErrorMessage('')
+
+            const res = await apiGetQuotationRequestDetail(
+                quotationId,
+                session.accessToken,
+            )
+
+            const detailRecord = extractQuotationDetailRecord(res)
+
+            if (detailRecord) {
+                setSelectedQuotation(normalizeQuotation(detailRecord, index))
+                return
+            }
+
+            setSelectedQuotation(quotation)
+        } catch (error) {
+            console.error('Quotation detail API error:', error)
+            setErrorMessage(
+                error?.response?.data?.message ||
+                error?.message ||
+                'Unable to load quotation details right now.',
+            )
+            setSelectedQuotation(quotation)
+        } finally {
+            setDetailLoadingId('')
+        }
+    }
+
+    const filteredQuotations = statusFilter
+        ? quotations.filter((item) => item.statusKey === statusFilter)
+        : quotations
+    const visibleTotalCount = statusFilter ? filteredQuotations.length : totalCount
+    const totalPages = Math.max(1, Math.ceil(visibleTotalCount / ITEMS_PER_PAGE))
 
     if (selectedQuotation) {
         return (
             <QuotationDetailView
                 quotation={selectedQuotation}
                 onBack={() => setSelectedQuotation(null)}
+                onDownload={() => handleDownloadQuotationPdf(selectedQuotation)}
+                downloadLoading={downloadLoadingId === selectedQuotation.id}
             />
         )
     }
@@ -487,8 +666,8 @@ const MyQuotations = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {quotations.length ? (
-                                    quotations.map((item, index) => (
+                                {filteredQuotations.length ? (
+                                    filteredQuotations.map((item, index) => (
                                         <tr
                                             key={`${item.id}-${index}`}
                                             className={`${index % 2 === 0 ? 'bg-white' : 'bg-[#F7F9FC]'} border-b border-[#EEF2F7] last:border-b-0`}
@@ -497,7 +676,7 @@ const MyQuotations = () => {
                                             <td className="px-4 py-4 text-sm text-[#003560]">{item.productName}</td>
                                             <td className="px-4 py-4 text-sm text-[#003560]">{item.quantity}</td>
                                             <td className="px-4 py-4 text-sm">
-                                                <span style={{ color: statusStyles[item.statusKey].text }}>
+                                                <span style={{ color: (statusStyles[item.statusKey] || statusStyles.pending).text }}>
                                                     {item.statusLabel}
                                                 </span>
                                             </td>
@@ -505,11 +684,12 @@ const MyQuotations = () => {
                                             <td className="px-4 py-4">
                                                 <button
                                                     type="button"
-                                                    onClick={() => setSelectedQuotation(item)}
+                                                    onClick={() => handleViewQuotationDetails(item, index)}
                                                     className="inline-flex items-center gap-2 rounded-lg border border-[#003560] px-3 py-1.5 text-xs font-medium text-[#003560]"
+                                                    disabled={detailLoadingId === item.id}
                                                 >
                                                     <FiEye size={13} />
-                                                    View
+                                                    {detailLoadingId === item.id ? 'Loading...' : 'View'}
                                                 </button>
                                             </td>
                                         </tr>
@@ -517,7 +697,7 @@ const MyQuotations = () => {
                                 ) : (
                                     <tr>
                                         <td colSpan={6} className="px-4 py-10 text-center text-sm text-[#6B7280]">
-                                            {errorMessage ? 'Quotation data could not be loaded.' : 'No quotations found.'}
+                                            {errorMessage ? 'Quotation data could not be loaded.' : 'No quotations found for the selected status.'}
                                         </td>
                                     </tr>
                                 )}
@@ -527,7 +707,7 @@ const MyQuotations = () => {
                 </div>
             )}
 
-            {!loading && totalCount > 0 && (
+            {!loading && visibleTotalCount > 0 && (
                 <div className="mt-8 flex items-center justify-between text-sm text-[#64748B]">
                     <span>
                         Page {currentPage} of {totalPages}
