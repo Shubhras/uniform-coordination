@@ -23,11 +23,11 @@ const SystemSettings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
-      <h1 className="text-[32px] font-semibold leading-tight text-[#2A211D]">
+    <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-6">
+      <h1 className="text-[28px] font-semibold leading-tight text-[#2A211D]">
         System Settings
       </h1>
-      <p className="mt-1 text-[12px] text-[#B29D8C]">
+      <p className="mt-1 text-[13px] text-[#B29D8C]">
         Manage your company identity, regional preferences, and default configurations.
       </p>
 

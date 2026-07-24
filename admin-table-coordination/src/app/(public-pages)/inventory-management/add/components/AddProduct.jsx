@@ -560,7 +560,7 @@ const AddProduct = () => {
 
             <div className="relative">
               <input
-                type="text"
+                type="number"
                 value={formData.size}
                 onChange={(e) => {
                   handleChange("size", e.target.value);

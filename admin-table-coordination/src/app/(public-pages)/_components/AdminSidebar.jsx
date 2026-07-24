@@ -17,7 +17,7 @@ import {
   FiClipboard,
   FiShoppingCart,
   FiBox,
-  FiImage,
+  FiImage,FiLayers
 } from "react-icons/fi";
 import { IoColorPaletteOutline } from "react-icons/io5";
 
@@ -91,7 +91,7 @@ const sidebarMenu = [
   },
   {
     label: "Simulation Assets",
-    icon: FiSettings,
+    icon: FiLayers,
     path: "/simulation-assets",
     slug: "product_specification",
   },
