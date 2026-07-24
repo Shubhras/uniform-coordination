@@ -18,7 +18,12 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
   const handleSingleBlogPage = (id) => {
     router.push(`/single-blog/${id}`);
   };
-  if (loading) return <p className="text-center">Loading blogs...</p>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
+      </div>
+    );
   return (
     <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12">
       <div className="py-10 md:py-16 ">
@@ -59,7 +64,7 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
                 <p className="text-xs text-gray-500 mb-2">
                   {formatDate(post.created_at)}&nbsp;&nbsp;  {post.category}
                 </p>
-                <h3 className="font-semibold text-[#1C2C56] mt-8">
+                <h3 className="font-semibold text-[#1C2C56] text-base  mt-8">
                   {trimText(post.title, 10)}
                 </h3>
                 <p className="text-sm text-gray-600 mt-2">
@@ -68,6 +73,11 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
               </div>
             </div>
           ))}
+          {blogs.length === 0 && (
+            <div className="col-span-full text-center py-10">
+              <p className="text-gray-500">No blog posts found</p>
+            </div>
+          )}
         </div>
       </div>
     </section>

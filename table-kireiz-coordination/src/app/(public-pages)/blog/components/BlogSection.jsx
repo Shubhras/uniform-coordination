@@ -96,11 +96,11 @@ const BlogSection = () => {
                                 />
                             </div>
                             <div className="px-5 pb-6 flex flex-col gap-3">
-                                <p className="text-xs text-gray-500 mb-2">
+                                <p className="text-xs text-gray-500">
                                     {post.date} &nbsp;&nbsp; {post.category}
                                 </p>
 
-                                <h3 className="font-semibold text-[#1C2C56] text-base mb-2 leading-snug">
+                                <h3 className="font-semibold text-[#1C2C56] text-base mt-8 leading-snug">
                                     {trimText(post.title, 10)}
                                 </h3>
 
