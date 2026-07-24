@@ -18,10 +18,10 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
         <div className="mx-4">
           <div className="mb-4">
             <h2 className="font-[Plus Jakarta Sans]  font-medium text-[24px] tracking-[0.18px] text-[#1C2C56] mb-1">
-              Join KIREIZ Today!
+              Join KIREIZ Space Today!
             </h2>
             <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
-              Design Professional Uniforms & Beautiful Events
+              Elegant Table Styling & Rental Solutions
             </p>
           </div>
           {message && (
@@ -75,7 +75,7 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
               className="heading-text  text-[#8B4513]"
               themeColor={false}
             >
-              Sign in Instead
+              Sign in instead
             </ActionLink>
           </div>
           {/* <div className="mt-4">
