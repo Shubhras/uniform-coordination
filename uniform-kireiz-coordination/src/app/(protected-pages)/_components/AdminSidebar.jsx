@@ -1,11 +1,9 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import useTheme from '@/utils/hooks/useTheme'
 import {
-    FiGrid,
     FiUser,
     FiInfo,
     FiLock,
@@ -15,6 +13,7 @@ import {
     FiFileText,
     FiChevronRight,
     FiChevronLeft,
+    FiX,
 } from 'react-icons/fi'
 
 const sidebarMenu = [
@@ -62,11 +61,15 @@ const sidebarMenu = [
     },
 ]
 
-const AdminSidebar = ({ collapsed: propCollapsed, onToggle, isFixed = false }) => {
+const AdminSidebar = ({
+    collapsed: propCollapsed,
+    onToggle,
+    isFixed = false,
+    isMobileOpen = false,
+    onCloseMobile,
+}) => {
     const pathname = usePathname()
     const router = useRouter()
-    const { data: session } = useSession()
-    const userPermissions = session?.user?.permissions || []
 
     const themeSideNavCollapse = useTheme((state) => state.layout.sideNavCollapse)
     const setSideNavCollapse = useTheme((state) => state.setSideNavCollapse)
@@ -81,6 +84,13 @@ const AdminSidebar = ({ collapsed: propCollapsed, onToggle, isFixed = false }) =
         }
     }
 
+    const handleNavigate = (path) => {
+        router.push(path)
+        if (isMobileOpen && onCloseMobile) {
+            onCloseMobile()
+        }
+    }
+
     const isActive = (path) => {
         if (path === '/admin-form') {
             return pathname === '/admin-form' || pathname === '/kireiz-form'
@@ -92,7 +102,7 @@ const AdminSidebar = ({ collapsed: propCollapsed, onToggle, isFixed = false }) =
         <aside
             className={`
                 ${isFixed ? 'fixed top-0 left-0 z-40 h-screen' : 'relative h-auto min-h-screen z-20 flex-shrink-0'}
-                bg-white border-r border-[#E2E8F0]
+                bg-white ${isMobileOpen ? 'border-r-0' : 'border-r border-[#E2E8F0]'}
                 flex flex-col
                 transition-all duration-300 ease-in-out
                 ${collapsed ? 'w-[72px]' : 'w-[250px]'}
@@ -100,7 +110,7 @@ const AdminSidebar = ({ collapsed: propCollapsed, onToggle, isFixed = false }) =
         >
             {/* Logo + Collapse Toggle */}
             <div className="flex items-center justify-between h-14 px-4 border-b border-[#E2E8F0]">
-                {!collapsed && (
+                {!collapsed && !isMobileOpen && (
                     <div
                         className="flex items-center gap-2 cursor-pointer"
                         onClick={() => router.push('/admin-form')}
@@ -115,7 +125,7 @@ const AdminSidebar = ({ collapsed: propCollapsed, onToggle, isFixed = false }) =
                         />
                     </div>
                 )}
-                {collapsed && (
+                {collapsed && !isMobileOpen && (
                     <div
                         className="flex items-center justify-center w-full cursor-pointer"
                         onClick={() => router.push('/admin-form')}
@@ -130,20 +140,31 @@ const AdminSidebar = ({ collapsed: propCollapsed, onToggle, isFixed = false }) =
                         />
                     </div>
                 )}
-                <button
-                    onClick={handleToggle}
-                    className={`
-                        flex items-center justify-center
-                        w-7 h-7 rounded-full
-                        bg-[#F1F5F9] hover:bg-[#E2E8F0]
-                        text-[#64748B] hover:text-[#1C2C56]
-                        transition-colors duration-200
-                        ${collapsed ? 'absolute -right-3.5 top-5 bg-white border border-[#E2E8F0] shadow-sm' : ''}
-                    `}
-                    aria-label="Toggle sidebar"
-                >
-                    {collapsed ? <FiChevronRight size={14} /> : <FiChevronLeft size={14} />}
-                </button>
+                {isMobileOpen ? (
+                    <button
+                        type="button"
+                        onClick={onCloseMobile}
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F1F5F9] text-[#64748B] transition-colors duration-200 hover:bg-[#E2E8F0] hover:text-[#1C2C56] lg:hidden"
+                        aria-label="Close sidebar"
+                    >
+                        <FiX size={18} />
+                    </button>
+                ) : (
+                    <button
+                        onClick={handleToggle}
+                        className={`
+                            hidden lg:flex items-center justify-center
+                            w-7 h-7 rounded-full
+                            bg-[#F1F5F9] hover:bg-[#E2E8F0]
+                            text-[#64748B] hover:text-[#1C2C56]
+                            transition-colors duration-200
+                            ${collapsed ? 'absolute -right-3.5 top-5 bg-white border border-[#E2E8F0] shadow-sm' : ''}
+                        `}
+                        aria-label="Toggle sidebar"
+                    >
+                        {collapsed ? <FiChevronRight size={14} /> : <FiChevronLeft size={14} />}
+                    </button>
+                )}
             </div>
 
             {/* Navigation Menu */}
@@ -158,7 +179,7 @@ const AdminSidebar = ({ collapsed: propCollapsed, onToggle, isFixed = false }) =
                         return (
                             <li key={item.path}>
                                 <button
-                                    onClick={() => router.push(item.path)}
+                                    onClick={() => handleNavigate(item.path)}
                                     title={collapsed ? item.label : undefined}
                                     className={`
                                         group relative flex items-center gap-3 w-full
