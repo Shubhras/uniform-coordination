@@ -18,15 +18,25 @@ import { formatDate } from '@/utils/dateFormater'
 const ITEMS_PER_PAGE = 6
 
 const statusStyles = {
-    accepted: {
+    approved: {
         text: '#34C759',
         bg: '#1C4FA80F',
-        label: 'Accepted',
+        label: 'Approved',
+    },
+    cancelled: {
+        text: '#C10007',
+        bg: '#1C4FA80F',
+        label: 'Cancelled',
     },
     declined: {
         text: '#C10007',
         bg: '#1C4FA80F',
         label: 'Declined',
+    },
+    pending: {
+        text: '#4580ED',
+        bg: '#1C4FA80F',
+        label: 'Pending',
     },
     submitted: {
         text: '#4580ED',
@@ -43,10 +53,12 @@ const statusStyles = {
 // status filter dropdown options
 const statusFilterOptions = [
     { value: '', label: 'All Status' },
-    { value: 'accepted', label: 'Accepted' },
-    { value: 'declined', label: 'Declined' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'pending', label: 'Pending' },
     { value: 'submitted', label: 'Submitted' },
     { value: 'received', label: 'Received' },
+    { value: 'cancelled', label: 'Cancelled' },
+    { value: 'declined', label: 'Declined' },
 ]
 
 // custom option renderer for status dropdown
@@ -75,12 +87,14 @@ const getNormalizedStatus = (quotation) => {
         'submitted',
     ).toLowerCase()
 
-    if (rawStatus.includes('accept')) return 'accepted'
+    if (rawStatus.includes('approv') || rawStatus.includes('accept')) return 'approved'
+    if (rawStatus.includes('cancel')) return 'cancelled'
     if (rawStatus.includes('declin') || rawStatus.includes('reject')) return 'declined'
+    if (rawStatus.includes('pend')) return 'pending'
     if (rawStatus.includes('submit')) return 'submitted'
     if (rawStatus.includes('receiv') || rawStatus.includes('review')) return 'received'
 
-    return 'submitted'
+    return 'pending'
 }
 
 const getPdfUrl = (quotation) =>
@@ -155,6 +169,33 @@ const getRequestedItems = (quotation) => {
         }))
     }
 
+    if (
+        quotation?.product_name ||
+        quotation?.item_type ||
+        quotation?.product_category_name ||
+        quotation?.size_quantity
+    ) {
+        return [
+            {
+                id: quotation?.product_id || quotation?.uuids || quotation?.quotation_id || 'item-0',
+                uniform_name:
+                    quotation?.product_name ||
+                    quotation?.item_type ||
+                    'Medical Scrub Set',
+                category:
+                    quotation?.product_category_name ||
+                    quotation?.product_subcategory_name ||
+                    quotation?.material ||
+                    'Medical',
+                quantity:
+                    quotation?.size_quantity ||
+                    quotation?.quantity ||
+                    quotation?.qty ||
+                    '-',
+            },
+        ]
+    }
+
     return fallbackItems
 }
 
@@ -226,7 +267,7 @@ const buildDisplayQuotations = (rawData) => {
 }
 
 const StatusBadge = ({ statusKey, statusLabel }) => {
-    const style = statusStyles[statusKey] || statusStyles.submitted
+    const style = statusStyles[statusKey] || statusStyles.pending
 
     return (
         <span
@@ -248,7 +289,7 @@ const QuotationDetailView = ({
     downloadLoading,
 }) => {
     const showDownload =
-        ['accepted', 'received'].includes(quotation.statusKey) &&
+        ['approved', 'received'].includes(quotation.statusKey) &&
         Boolean(quotation.quotationId || quotation.downloadUrl || quotation.pdfUrl)
 
     return (
@@ -399,7 +440,7 @@ const MyQuotations = () => {
             try {
                 const res = await apiGetQuotation(session.accessToken, {
                     search: debouncedSearchTerm,
-                    status: statusFilter,
+                    quotation_status: statusFilter,
                     page: currentPage,
                     page_size: ITEMS_PER_PAGE,
                 })
@@ -503,7 +544,11 @@ const MyQuotations = () => {
         }
     }
 
-    const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE))
+    const filteredQuotations = statusFilter
+        ? quotations.filter((item) => item.statusKey === statusFilter)
+        : quotations
+    const visibleTotalCount = statusFilter ? filteredQuotations.length : totalCount
+    const totalPages = Math.max(1, Math.ceil(visibleTotalCount / ITEMS_PER_PAGE))
 
     if (selectedQuotation) {
         return (
@@ -621,8 +666,8 @@ const MyQuotations = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {quotations.length ? (
-                                    quotations.map((item, index) => (
+                                {filteredQuotations.length ? (
+                                    filteredQuotations.map((item, index) => (
                                         <tr
                                             key={`${item.id}-${index}`}
                                             className={`${index % 2 === 0 ? 'bg-white' : 'bg-[#F7F9FC]'} border-b border-[#EEF2F7] last:border-b-0`}
@@ -631,7 +676,7 @@ const MyQuotations = () => {
                                             <td className="px-4 py-4 text-sm text-[#003560]">{item.productName}</td>
                                             <td className="px-4 py-4 text-sm text-[#003560]">{item.quantity}</td>
                                             <td className="px-4 py-4 text-sm">
-                                                <span style={{ color: statusStyles[item.statusKey].text }}>
+                                                <span style={{ color: (statusStyles[item.statusKey] || statusStyles.pending).text }}>
                                                     {item.statusLabel}
                                                 </span>
                                             </td>
@@ -652,7 +697,7 @@ const MyQuotations = () => {
                                 ) : (
                                     <tr>
                                         <td colSpan={6} className="px-4 py-10 text-center text-sm text-[#6B7280]">
-                                            {errorMessage ? 'Quotation data could not be loaded.' : 'No quotations found.'}
+                                            {errorMessage ? 'Quotation data could not be loaded.' : 'No quotations found for the selected status.'}
                                         </td>
                                     </tr>
                                 )}
@@ -662,7 +707,7 @@ const MyQuotations = () => {
                 </div>
             )}
 
-            {!loading && totalCount > 0 && (
+            {!loading && visibleTotalCount > 0 && (
                 <div className="mt-8 flex items-center justify-between text-sm text-[#64748B]">
                     <span>
                         Page {currentPage} of {totalPages}

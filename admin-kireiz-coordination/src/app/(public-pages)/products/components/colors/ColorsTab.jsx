@@ -4,17 +4,23 @@ import { useState, useEffect, useCallback } from "react";
 import {
   FiSearch,
   FiPlus,
-  FiTrash2,
   FiChevronLeft,
   FiChevronRight,
   FiX,
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiGetColorsList, apiDeleteColor } from "@/services/ColorsService";
+import {
+  apiGetColorsList,
+  apiDeleteColor,
+  apiCreateColor,
+} from "@/services/ColorsService";
 import AddEditColorModal from "./AddEditColorModal";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+
+const INVISIBLE_DUPLICATE_CHAR = "\u200B";
+const INVISIBLE_TEXT_REGEX = /[\u200B-\u200D\uFEFF]/g;
 
 const ColorsTab = () => {
   const { session } = useCurrentSession();
@@ -33,6 +39,7 @@ const ColorsTab = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [colorToDelete, setColorToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [duplicatingId, setDuplicatingId] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -118,6 +125,78 @@ const ColorsTab = () => {
     fetchColors(currentPage);
   };
 
+  const getVisibleColorName = (name = "") =>
+    String(name).replace(INVISIBLE_TEXT_REGEX, "");
+
+  const getDuplicateColorName = (name = "") => {
+    const baseName = String(name);
+    const existingNames = new Set(colors.map((item) => item.colorName).filter(Boolean));
+
+    if (!existingNames.has(baseName)) {
+      return baseName;
+    }
+
+    let duplicateName = `${baseName}${INVISIBLE_DUPLICATE_CHAR}`;
+    while (existingNames.has(duplicateName)) {
+      duplicateName += INVISIBLE_DUPLICATE_CHAR;
+    }
+
+    return duplicateName;
+  };
+
+  const handleDuplicateColor = async (color) => {
+    if (!accessToken || !color) return;
+
+    const payload = {
+      colorName: getDuplicateColorName(color.colorName),
+      colorCode: color.colorCode,
+      compatibleFabric: color.compatibleFabric || [],
+    };
+
+    try {
+      setDuplicatingId(color.id);
+      const response = await apiCreateColor(accessToken, payload);
+
+      if (!response?.status) {
+        const message =
+          typeof response?.message === "string"
+            ? response.message
+            : response?.message?.colorName?.[0] ||
+              "Failed to duplicate color. Please try again.";
+
+        toast.push(
+          <Notification title="Error" type="danger">
+            {message}
+          </Notification>,
+        );
+        return;
+      }
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message || "Color duplicated successfully."}
+        </Notification>,
+      );
+
+      fetchColors(currentPage);
+    } catch (error) {
+      console.error("Failed to duplicate color:", error);
+      const message =
+        typeof error?.response?.data?.message === "string"
+          ? error.response.data.message
+          : error?.response?.data?.message?.colorName?.[0] ||
+            "Failed to duplicate color. Please try again.";
+
+      toast.push(
+        <Notification title="Error" type="danger">
+          {message}
+        </Notification>,
+      );
+    } finally {
+      setDuplicatingId(null);
+    }
+  };
+
   /* ---------- HELPERS ---------- */
   const hexToRgb = (hex) => {
     if (!hex) return "";
@@ -133,7 +212,7 @@ const ColorsTab = () => {
   const filteredColors = colors.filter((c) => {
     const q = searchQuery.toLowerCase();
     return (
-      c.colorName?.toLowerCase().includes(q) ||
+      getVisibleColorName(c.colorName).toLowerCase().includes(q) ||
       c.colorCode?.toLowerCase().includes(q)
     );
   });
@@ -236,7 +315,7 @@ const ColorsTab = () => {
 
                 <div className="p-4">
                   <h3 className="text-sm font-semibold text-[#1C2C56]">
-                    {color.colorName}
+                    {getVisibleColorName(color.colorName)}
                   </h3>
 
                   <p className="text-xs text-[#486284] mt-1">
@@ -282,10 +361,11 @@ const ColorsTab = () => {
                       Delete
                     </button>
                     <button
-                      // onClick={() => handleEditColor(color)}
-                      className="flex-1 border border-gray-300 text-[#91A1B6] text-xs py-1.5 rounded-md"
+                      onClick={() => handleDuplicateColor(color)}
+                      disabled={duplicatingId === color.id}
+                      className="flex-1 border border-gray-300 text-[#91A1B6] text-xs py-1.5 rounded-md disabled:opacity-60"
                     >
-                      Duplicate
+                      {duplicatingId === color.id ? "Duplicating..." : "Duplicate"}
                     </button>
                   </div>
                 </div>
@@ -341,7 +421,7 @@ const ColorsTab = () => {
         onConfirm={handleDeleteConfirm}
         title="Delete Color"
         message="Are you sure you want to delete this color? This action cannot be undone."
-        itemName={colorToDelete?.colorName}
+        itemName={getVisibleColorName(colorToDelete?.colorName)}
         loading={deleteLoading}
       />
     </>
