@@ -11,7 +11,7 @@ import {
 
 const actions = [
   { label: "Upload New Fabric", icon: FiBox, route: "/products?tab=Fabrics" },
-  { label: "View Orders", icon: FiBarChart2,route: "/products?tab=Fabrics"  },
+  { label: "View Quotations", icon: FiBarChart2,route: "/products?tab=Fabrics"  },
   { label: "Manage B2B account", icon: FiUsers, route: "/customer?tab=B2B Accounts"  },
   { label: "Themes & Templates", icon: FiGrid ,route: "/products?tab=Template" },
   { label: "Generate Report", icon: FiFileText ,route: "/products?tab=Fabrics" },
