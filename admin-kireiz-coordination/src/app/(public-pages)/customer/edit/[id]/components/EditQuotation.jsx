@@ -20,6 +20,51 @@ const EditQuotation = () => {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.company_name.trim()) {
+      newErrors.company_name = "Company name is required*";
+    }
+
+    if (!formData.contact_person.trim()) {
+      newErrors.contact_person = "Contact person is required*";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required*";
+    }
+
+    if (!formData.phone_number.trim()) {
+      newErrors.phone_number = "Phone number is required*";
+    }
+
+    if (!formData.item_type.trim()) {
+      newErrors.item_type = "Item type is required*";
+    }
+
+    if (!formData.material.trim()) {
+      newErrors.material = "Material is required*";
+    }
+
+    if (!formData.size_quantity.trim()) {
+      newErrors.size_quantity = "Size & Quantity is required*";
+    }
+
+    if (!formData.delivery_date) {
+      newErrors.delivery_date = "Delivery date is required*";
+    }
+
+    if (!formData.quotation_status) {
+      newErrors.quotation_status = "Quotation status is required*";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
 
   const [formData, setFormData] = useState({
     company_name: "",
@@ -81,8 +126,14 @@ const EditQuotation = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   };
   const handleSubmit = async () => {
+    if (!validateForm()) return;
     try {
       setSaving(true);
 
@@ -169,6 +220,9 @@ const EditQuotation = () => {
               onChange={handleChange}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
             />
+            {errors.company_name && (
+              <p className="text-red-500 text-sm mt-1">{errors.company_name}</p>
+            )}
           </div>
 
           {/* Contact */}
@@ -185,6 +239,11 @@ const EditQuotation = () => {
               onChange={handleChange}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
             />
+            {errors.contact_person && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.contact_person}
+              </p>
+            )}
           </div>
 
           {/* Email */}
@@ -201,6 +260,9 @@ const EditQuotation = () => {
               onChange={handleChange}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
           </div>
 
           {/* Phone */}
@@ -217,6 +279,9 @@ const EditQuotation = () => {
               onChange={handleChange}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
             />
+            {errors.phone_number && (
+              <p className="text-red-500 text-sm mt-1">{errors.phone_number}</p>
+            )}
           </div>
         </div>
       </div>
@@ -243,6 +308,9 @@ const EditQuotation = () => {
               onChange={handleChange}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
             />
+            {errors.item_type && (
+              <p className="text-red-500 text-sm mt-1">{errors.item_type}</p>
+            )}
           </div>
 
           {/* Material */}
@@ -259,6 +327,9 @@ const EditQuotation = () => {
               onChange={handleChange}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
             />
+            {errors.material && (
+              <p className="text-red-500 text-sm mt-1">{errors.material}</p>
+            )}
           </div>
 
           {/* Size Quantity */}
@@ -275,6 +346,11 @@ const EditQuotation = () => {
               onChange={handleChange}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
             />
+            {errors.size_quantity && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.size_quantity}
+              </p>
+            )}
           </div>
 
           {/* Delivery Date */}
@@ -291,6 +367,11 @@ const EditQuotation = () => {
               onChange={handleChange}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
             />
+            {errors.delivery_date && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.delivery_date}
+              </p>
+            )}
           </div>
 
           {/* Quotation Status */}
@@ -311,7 +392,14 @@ const EditQuotation = () => {
               <option value="sent">Sent</option>
               <option value="approved">Approved</option>
               <option value="cancelled">Cancelled</option>
+              <option value="cancelled">Accepted</option>
+              <option value="cancelled">Received</option>
             </select>
+            {errors.quotation_status && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.quotation_status}
+              </p>
+            )}
           </div>
 
           {/* Workflow Status */}
