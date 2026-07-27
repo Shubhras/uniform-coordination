@@ -11,9 +11,12 @@ import {
   FiX,
   FiEye,
 } from "react-icons/fi";
+import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
+import { useRouter } from "next/navigation";
+import Pagination from "@/components/ui/Pagination";
 import {
   apiGetCustomersList,
   apiDeleteB2BAccount,
@@ -27,18 +30,61 @@ const tierColors = {
   silver: "bg-slate-50 text-slate-700 border border-slate-200",
   bronze: "bg-orange-50 text-orange-700 border border-orange-200",
 };
+const selectStyles = {
+  control: (base) => ({
+    ...base,
+    minHeight: "40px",
+    borderRadius: "6px",
+    borderColor: "#E2E8F0",
+    boxShadow: "none",
+    "&:hover": {
+      borderColor: "#1C2C56",
+    },
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? "#1C4FA8"
+      : state.isFocused
+        ? "#EEF2FF"
+        : "white",
+    color: state.isSelected ? "white" : "#1E293B",
+    fontSize: "14px",
+  }),
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+};
 
 const B2BAccounts = () => {
+  const router = useRouter();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [status, setStatus] = useState("");
+  const [userType] = useState("uniform");
+  const [isVerify] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   // Modal
   const [openModal, setOpenModal] = useState(false);
   const [editData, setEditData] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
 
   // Delete
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -48,25 +94,49 @@ const B2BAccounts = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
 
+  const statusOptions = [
+    { value: "", label: "All Status" },
+    { value: "true", label: "Active" },
+    { value: "false", label: "Inactive" },
+  ];
+
+  const [selectedStatus, setSelectedStatus] = useState(statusOptions[0]);
+
   /* ---------- FETCH ---------- */
   const fetchAccounts = useCallback(async () => {
     if (!accessToken) return;
 
     try {
       setLoading(true);
-      const response = await apiGetCustomersList(accessToken);
+      const response = await apiGetCustomersList(
+        accessToken,
+        currentPage,
+        pageSize,
+        debouncedSearch,
+        userType,
+        selectedStatus.value,
+      );
 
       if (response?.results) {
         setAccounts(response.results);
+        setTotalItems(response.count || 0);
       } else if (response?.status && response?.data) {
         setAccounts(response.data);
+        setTotalItems(response.count || response.pagination?.total_items || 0);
       }
     } catch (error) {
       console.error("Failed to fetch B2B accounts:", error);
     } finally {
       setLoading(false);
     }
-  }, [accessToken]);
+  }, [
+    accessToken,
+    currentPage,
+    pageSize,
+    debouncedSearch,
+    selectedStatus,
+    userType,
+  ]);
 
   useEffect(() => {
     fetchAccounts();
@@ -109,18 +179,6 @@ const B2BAccounts = () => {
     handleCloseModal();
     fetchAccounts();
   };
-
-  /* ---------- FILTER ---------- */
-  const filteredAccounts = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return accounts;
-    return accounts.filter(
-      (acc) =>
-        acc.full_name?.toLowerCase().includes(term) ||
-        acc.email?.toLowerCase().includes(term) ||
-        acc.phone?.includes(term),
-    );
-  }, [accounts, search]);
 
   /* ---------- SKELETON ---------- */
   const TableSkeleton = () => (
@@ -173,49 +231,65 @@ const B2BAccounts = () => {
               Manage discount tiers and corporate rules
             </p>
           </div>
-
-          <button
-            className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
-            onClick={() => {
-              setEditData(null);
-              setOpenModal(true);
-            }}
-          >
-            <FiPlus size={16} />
-            Add Account
-          </button>
         </div>
 
         {/* Search */}
-        <div className="relative w-full md:w-80 mb-6">
-          <FiSearch
-            className="absolute left-3 top-2.5 text-[#64748B]"
-            size={16}
-          />
-          <input
-            type="text"
-            placeholder="Search..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none"
-          />
-          {search && (
-            <button
-              type="button"
-              onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
-            >
-              <FiX size={16} />
-            </button>
-          )}
-        </div>
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          <div className="relative w-80">
+            <FiSearch className="absolute left-3 top-2.5 text-[#64748B]" />
 
+            <input
+              type="text"
+              placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
+              >
+                <FiX size={16} />
+              </button>
+            )}
+          </div>
+
+          <Select
+            options={statusOptions}
+            value={selectedStatus}
+            onChange={(option) => {
+              setSelectedStatus(option);
+              setCurrentPage(1);
+            }}
+            styles={selectStyles}
+            menuPortalTarget={
+              typeof document !== "undefined" ? document.body : null
+            }
+            menuPosition="fixed"
+            className="w-60 text-sm"
+          />
+
+          <button
+            type="button"
+            onClick={() => {
+              setSearch("");
+              setDebouncedSearch("");
+              setSelectedStatus(statusOptions[0]);
+              setCurrentPage(1);
+            }}
+            className="border border-[#CBD5E1] px-4 py-2 rounded-md text-white bg-[#1C4FA8] hover:bg-[#1C4FA8] transition-colors"
+          >
+            Reset
+          </button>
+        </div>
         {/* Table */}
         {loading ? (
           <TableSkeleton />
-        ) : filteredAccounts.length === 0 ? (
+        ) : accounts.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
-            No accounts found
+            No Customers found
           </div>
         ) : (
           <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-[#E2E8F0]">
@@ -231,7 +305,7 @@ const B2BAccounts = () => {
               </thead>
 
               <tbody>
-                {filteredAccounts.map((acc) => {
+                {accounts.map((acc) => {
                   const tierKey = acc.tier?.toLowerCase();
 
                   const tierStyle =
@@ -281,17 +355,22 @@ const B2BAccounts = () => {
                           <button
                             className="text-[#1C4FA8] hover:bg-[#EEF4FF] p-1.5 rounded"
                             onClick={() =>
-                              router.push(`/customer/customer-details/${q.uuids}`)
+                              router.push(
+                                `/customer/customer-details/${acc.id}`,
+                              )
                             }
                           >
                             <FiEye size={17} />
                           </button>
                           <button
                             className="text-[#1C2C56] hover:text-[#0F172A] p-1.5 rounded hover:bg-[#EEF2FF]"
-                            onClick={() => {
-                              setEditData(acc);
-                              setOpenModal(true);
-                            }}
+                            // onClick={() => {
+                            //   setEditData(acc);
+                            //   setOpenModal(true);
+                            // }}
+                            onClick={() =>
+                              router.push(`/customer/customer-edit/${acc.id}`)
+                            }
                           >
                             <FiEdit2 size={16} />
                           </button>
@@ -315,6 +394,18 @@ const B2BAccounts = () => {
         )}
       </div>
 
+      <div className="mt-5">
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={totalItems}
+          onChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
       {/* Modals */}
 
       {/* <ViewB2BModal
