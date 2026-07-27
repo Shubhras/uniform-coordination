@@ -86,3 +86,17 @@ export async function apiUpdateQuotation(accessToken, id, payload) {
     },
   });
 }
+
+export async function apiGetCustomersList(
+  accessToken,
+  page = 1,
+  pageSize = 100,
+) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/customers/list/?page=${page}&page_size=${pageSize}`,
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
