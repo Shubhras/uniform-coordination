@@ -405,6 +405,7 @@ const PersonalInformation = () => {
                             <Controller
                                 name="position"
                                 control={control}
+                                disabled
                                 render={({ field }) => (
                                     <Input placeholder="Position" {...field} />
                                 )}
