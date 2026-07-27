@@ -14,9 +14,14 @@ import { IoIosArrowForward } from 'react-icons/io'
 import { FiMinus, FiPlus } from "react-icons/fi";
 import { apiModelInfoCreate, apiSaveDesign } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
+import { apiGetProductDetailsById } from '@/services/ProductService'
 const Uniform3DmoduleDegisn = () => {
   // product id
   const { id } = useParams();
+  const [loading, setLoading] = useState(false)
+  const [singleProductData, setSingleProductData] = useState(null)
   const [shapeOpen, setShapeOpen] = useState(false)
   const [sittingOpen, setSittingOpen] = useState(false)
   const { data: session } = useSession();
@@ -104,7 +109,6 @@ const Uniform3DmoduleDegisn = () => {
     color: "Beige"
   });
 
-
   function onIconClick(key) {
     setActive(prev => {
       if (prev === key) {
@@ -114,8 +118,41 @@ const Uniform3DmoduleDegisn = () => {
       return key
     })
   }
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      try {
+        setLoading(true)
+        setSingleProductData(null)
+
+        const res = await apiGetProductDetailsById(id)
+
+        if (res?.status && res?.data) {
+          setSingleProductData(res.data)
+          //console.log('ggggggggggggggggggggg', res.data);
+        } else {
+          toast.push(
+            <Notification title="Error!" type="danger">
+              {res?.message || 'Product not found'}
+            </Notification>
+          )
+        }
+      } catch (err) {
+        toast.push(
+          <Notification title="Error!" type="danger">
+            Failed to load product detail
+          </Notification>
+        )
+        console.error("Failed to load product detail", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (id) fetchProductDetails()
+  }, [id])
 
   const handleUniformDesignResult = async () => {
+
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append("product", id || "");
@@ -149,6 +186,7 @@ const Uniform3DmoduleDegisn = () => {
   };
 
   const handleSaveDesign = async (modelId) => {
+
     if (!session?.accessToken) {
       toast.push(
         <Notification title="Login Required" type="warning">
@@ -165,12 +203,22 @@ const Uniform3DmoduleDegisn = () => {
       "config_json": {
         "color": "grey",
         "size": "M",
-        "material": "cotton"
+        "material": "cotton",
+
       },
       "design_specifications": {
         "logo_position": "front",
         "print_type": "embroidery",
-        "text": "My Brand"
+        "text": "My Brand",
+        "size": singleProductData?.size,
+        // "productType": singleProductData?.product_type,
+        "table_shape": singleProductData?.table_shape,
+        "style": singleProductData?.style,
+        "fabric_details": singleProductData?.fabric_details,
+        "color_details": singleProductData?.color_details,
+        "category": singleProductData?.category,
+        "subcategory": singleProductData?.subcategory,
+        "parts": singleProductData?.parts,
       },
       "json_file_path": "uploads/configs/user6_model3.json",
       "isActive": true

@@ -17,16 +17,16 @@ const UniformSingle = () => {
     const [loading, setLoading] = useState(false)
 
     const router = useRouter()
-    const [circleColor, setCircleColor] = useState('#BFE3F9')
+    // const [circleColor, setCircleColor] = useState('#BFE3F9')
     const [singleProductData, setSingleProductData] = useState(null)
 
-    const colors = [
-        '#1C2C56',
-        '#000000',
-        '#BFE3F9',
-        '#A7F3D0',
-        '#FEF08A'
-    ]
+    // const colors = [
+    //     '#1C2C56',
+    //     '#000000',
+    //     '#BFE3F9',
+    //     '#A7F3D0',
+    //     '#FEF08A'
+    // ]
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
@@ -67,8 +67,7 @@ const UniformSingle = () => {
     return (
         <section className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10 mt-15 ">
             <div className="w-full mx-auto">
-                {/* <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p> */}
-                <div className="flex items-center gap-2 py-5">
+                <div className="flex items-center gap-2 py-5 md:pt-1">
                     <button onClick={() => router.back()} className="text-[#1C2C56] hover:text-[#1C4FA8] transition-colors" title="Go Back">
                         <FiArrowLeft size={20} />
                     </button>
@@ -233,7 +232,7 @@ const UniformSingle = () => {
                             <div className="relative z-10">
                                 <Image
                                     //src="/img/uniform/uniform.png"
-                                    src={singleProductData?.ProductImage || '/img/uniform/uniform.png'}
+                                    src={singleProductData?.ProductImage || '/img/table-form/3d-table.png'}
                                     alt="Uniform"
                                     width={450}
                                     height={800}

@@ -14,8 +14,8 @@ export async function apiCreateOrder(token, data) {
 
 export async function apiApplyPromocode(token, data) {
   return ApiService.fetchDataWithAxios({
-    url: "/v1/uniformAdmin/promocode/list/",
-    method: "post",
+    url: "/v1/space/uniformAdmin/promocode/list/",
+    method: "get",
     headers: {
       Authorization: `Bearer ${token}`,
     },
