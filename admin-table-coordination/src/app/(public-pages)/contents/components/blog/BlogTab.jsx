@@ -173,7 +173,7 @@ const BlogTab = () => {
 
   return (
     <>
-      <div className="bg-[#F4F7FC] rounded-xl shadow md:p-6 p-3">
+      <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">Blog</h2>
@@ -232,7 +232,7 @@ const BlogTab = () => {
             {filteredPosts.map((post) => (
               <div
                 key={post.id}
-                className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
+                className="bg-[#A85A320A] rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
               >
                 <div className="p-3">
                   <img

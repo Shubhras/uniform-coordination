@@ -340,7 +340,7 @@ const CategoriesTab = () => {
 
   return (
     <>
-      <div className="bg-[#F4F7FC] rounded-xl shadow md:p-6 p-3">
+      <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
@@ -424,7 +424,7 @@ const CategoriesTab = () => {
                             //     openCategory === cat.id ? null : cat.id,
                             //   )
                             // }
-                            className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-[#E2E8F0] px-5 py-5 hover:shadow-md transition"
+                            className="flex items-center justify-between bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow-sm px-5 py-3 hover:shadow-md transition"
                           >
                             <div className="flex items-center gap-4">
                               <span

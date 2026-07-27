@@ -106,7 +106,7 @@ const FaqTab = () => {
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow md:p-6 p-3">
+      <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">FAQ's</h2>
@@ -146,8 +146,8 @@ const FaqTab = () => {
               return (
                 <div
                   key={faq.id}
-                  className={`rounded-xl px-6 py-5 transition-all duration-300 ${
-                    isOpen ? "bg-white shadow-md" : "bg-[#F5F7FB]"
+                  className={`rounded-xl px-6 py-3 transition-all duration-300 ${
+                    isOpen ? "bg-white shadow-md" : "bg-[#FFFDFC] border border-[#E8DDD4]"
                   }`}
                 >
                   <div className="w-full flex items-center justify-between text-left gap-4">
