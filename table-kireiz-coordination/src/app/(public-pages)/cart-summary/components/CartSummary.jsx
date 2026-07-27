@@ -63,11 +63,10 @@ const CartSummary = () => {
     const updateItemQuantity = async (itemId, qty) => {
         try {
             setUpdatingItemId(itemId)
-            if (qty == -1 || qty == 1) {
+            if (qty === -1 || qty === 1) {
                 console.log("itemId", itemId, qty)
-
-                //await apiUpdateItemQuantity(session.accessToken, itemId, qty)
-                //toast.push(<Notification title="Success!" type="success">Quantity updated successfully</Notification>);
+                await apiUpdateItemQuantity(session.accessToken, itemId, qty)
+                toast.push(<Notification title="Success!" type="success">Quantity updated successfully</Notification>);
             } else {
                 await apiDeleteItem(session.accessToken, itemId)
                 toast.push(<Notification title="Success!" type="success">Item removed from cart</Notification>);
@@ -97,10 +96,13 @@ const CartSummary = () => {
         const item = cartItems[index]
         if (!item || updatingItemId === item.id) return;
 
-        // const newQty = item.quantity - 1
-        // updateItemQuantity(item.id, newQty)
-
-        updateItemQuantity(item.id, -1)
+        if (item.quantity <= 1) {
+            // Send 0 to trigger the delete (else block)
+            updateItemQuantity(item.id, 0)
+        } else {
+            // Send -1 to decrease
+            updateItemQuantity(item.id, -1)
+        }
     }
 
     /* ---------------- EFFECT ---------------- */
