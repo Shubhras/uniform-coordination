@@ -12,6 +12,7 @@ import {
   FiEye,
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import Select from "react-select";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import {
@@ -21,11 +22,39 @@ import {
 import AddEditB2BAccountModal from "./AddEditB2BAccountModal";
 import ViewB2BModal from "./ViewB2BModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import Pagination from "@/components/ui/Pagination";
 
 const tierColors = {
   gold: "bg-yellow-50 text-yellow-700 border border-yellow-200",
   silver: "bg-slate-50 text-slate-700 border border-slate-200",
   bronze: "bg-orange-50 text-orange-700 border border-orange-200",
+};
+
+const selectStyles = {
+  control: (base) => ({
+    ...base,
+    minHeight: "40px",
+    borderRadius: "6px",
+    borderColor: "#E2E8F0",
+    boxShadow: "none",
+    "&:hover": {
+      borderColor: "#1C2C56",
+    },
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? "#1C4FA8"
+      : state.isFocused
+        ? "#EEF2FF"
+        : "white",
+    color: state.isSelected ? "white" : "#1E293B",
+    fontSize: "14px",
+  }),
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
 };
 
 const B2BAccounts = () => {
@@ -47,6 +76,26 @@ const B2BAccounts = () => {
 
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+
+  const statusOptions = [
+    { value: "", label: "All Status" },
+    { value: "true", label: "Active" },
+    { value: "false", label: "Inactive" },
+  ];
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState(statusOptions[0]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   /* ---------- FETCH ---------- */
   const fetchAccounts = useCallback(async () => {
@@ -54,19 +103,32 @@ const B2BAccounts = () => {
 
     try {
       setLoading(true);
-      const response = await apiGetB2BAccountList(accessToken);
+      const response = await apiGetB2BAccountList(
+        accessToken,
+        currentPage,
+        pageSize,
+        debouncedSearch,
+        selectedStatus.value,
+      );
 
       if (response?.results) {
         setAccounts(response.results);
+        setTotalItems(response.count || 0);
       } else if (response?.status && response?.data) {
         setAccounts(response.data);
+        setTotalItems(
+          response.count ||
+            response.pagination?.total_items ||
+            response.pagination?.count ||
+            0,
+        );
       }
     } catch (error) {
       console.error("Failed to fetch B2B accounts:", error);
     } finally {
       setLoading(false);
     }
-  }, [accessToken]);
+  }, [accessToken, currentPage, pageSize, debouncedSearch, selectedStatus]);
 
   useEffect(() => {
     fetchAccounts();
@@ -110,18 +172,6 @@ const B2BAccounts = () => {
     fetchAccounts();
   };
 
-  /* ---------- FILTER ---------- */
-  const filteredAccounts = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return accounts;
-    return accounts.filter(
-      (acc) =>
-        acc.name?.toLowerCase().includes(term) ||
-        acc.company_name?.toLowerCase().includes(term) ||
-        acc.email?.toLowerCase().includes(term),
-    );
-  }, [accounts, search]);
-
   /* ---------- SKELETON ---------- */
   const TableSkeleton = () => (
     <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-[#E2E8F0]">
@@ -132,6 +182,7 @@ const B2BAccounts = () => {
             <th className="px-5 py-3 font-medium">Contact Person</th>
             <th className="px-5 py-3 font-medium">Contact Info</th>
             <th className="px-5 py-3 font-medium">Tier</th>
+            <th className="px-5 py-3 font-medium">Status</th>
             <th className="px-5 py-3 font-medium text-right">Actions</th>
           </tr>
         </thead>
@@ -146,6 +197,9 @@ const B2BAccounts = () => {
               </td>
               <td className="px-5 py-4">
                 <div className="h-4 bg-gray-200 rounded w-36 animate-pulse" />
+              </td>
+              <td className="px-5 py-4">
+                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse" />
               </td>
               <td className="px-5 py-4">
                 <div className="h-4 bg-gray-200 rounded w-16 animate-pulse" />
@@ -187,33 +241,61 @@ const B2BAccounts = () => {
         </div>
 
         {/* Search */}
-        <div className="relative w-full md:w-80 mb-6">
-          <FiSearch
-            className="absolute left-3 top-2.5 text-[#64748B]"
-            size={16}
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          <div className="relative w-80">
+            <FiSearch className="absolute left-3 top-2.5 text-[#64748B]" />
+
+            <input
+              type="text"
+              placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
+              >
+                <FiX size={16} />
+              </button>
+            )}
+          </div>
+
+          <Select
+            options={statusOptions}
+            value={selectedStatus}
+            onChange={(option) => {
+              setSelectedStatus(option);
+              setCurrentPage(1);
+            }}
+            styles={selectStyles}
+            menuPortalTarget={
+              typeof document !== "undefined" ? document.body : null
+            }
+            menuPosition="fixed"
+            className="w-60 text-sm"
           />
-          <input
-            type="text"
-            placeholder="Search..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none"
-          />
-          {search && (
-            <button
-              type="button"
-              onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
-            >
-              <FiX size={16} />
-            </button>
-          )}
+
+          <button
+            type="button"
+            onClick={() => {
+              setSearch("");
+              setDebouncedSearch("");
+              setSelectedStatus(statusOptions[0]);
+              setCurrentPage(1);
+            }}
+            className="border border-[#CBD5E1] px-4 py-2 rounded-md text-white bg-[#1C4FA8] hover:bg-[#1C4FA8] transition-colors"
+          >
+            Reset
+          </button>
         </div>
 
         {/* Table */}
         {loading ? (
           <TableSkeleton />
-        ) : filteredAccounts.length === 0 ? (
+        ) : accounts.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
             No accounts found
           </div>
@@ -226,12 +308,13 @@ const B2BAccounts = () => {
                   <th className="px-5 py-3 font-medium">Contact Person</th>
                   <th className="px-5 py-3 font-medium">Contact Info</th>
                   <th className="px-5 py-3 font-medium">Tier</th>
+                  <th className="px-5 py-3 font-medium">Status</th>
                   <th className="px-5 py-3 font-medium text-right">Actions</th>
                 </tr>
               </thead>
 
               <tbody>
-                {filteredAccounts.map((acc) => {
+                {accounts.map((acc) => {
                   const tierKey = acc.tier?.toLowerCase();
                   const tierStyle =
                     tierColors[tierKey] ||
@@ -266,6 +349,17 @@ const B2BAccounts = () => {
                           className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${tierStyle}`}
                         >
                           {acc.tier}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            acc.is_active
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {acc.is_active ? "Active" : "Inactive"}
                         </span>
                       </td>
 
@@ -310,6 +404,18 @@ const B2BAccounts = () => {
       </div>
 
       {/* Modals */}
+      <div className="mt-5">
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={totalItems}
+          onChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
 
       <ViewB2BModal
         isOpen={viewModalOpen}

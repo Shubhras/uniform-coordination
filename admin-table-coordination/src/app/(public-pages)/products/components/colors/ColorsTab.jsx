@@ -172,7 +172,7 @@ const ColorsTab = () => {
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow md:p-6 p-3">
+      <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">

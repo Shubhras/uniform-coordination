@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import { HiSparkles } from "react-icons/hi2";
+import { apiProductSearch } from "@/services/AiAutomation";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
 
 const productSearchChips = [
   "White tablecloth for 8-seat round table",
@@ -15,7 +17,7 @@ const productResults = [
   {
     id: "result-1",
     title: "Premium Round Tablecloth — Ivory",
-    subtitle: "Round · Cotton · 120\" dia.",
+    subtitle: 'Round · Cotton · 120" dia.',
     price: "¥4,800/day",
     badge: "Best Match",
     badgeClass: "bg-[#E7FAF1] text-[#1CA174]",
@@ -26,7 +28,7 @@ const productResults = [
   {
     id: "result-2",
     title: "Classic Round Tablecloth — White",
-    subtitle: "Round · Cotton · 120\" dia.",
+    subtitle: 'Round · Cotton · 120" dia.',
     price: "¥4,800/day",
     badge: "Available",
     badgeClass: "bg-[#EEF5FF] text-[#5A87D9]",
@@ -37,7 +39,7 @@ const productResults = [
   {
     id: "result-3",
     title: "Premium Round Tablecloth — Ivory",
-    subtitle: "Round · Cotton · 120\" dia.",
+    subtitle: 'Round · Cotton · 120" dia.',
     price: "¥4,800/day",
     badge: "Best Match",
     badgeClass: "bg-[#E7FAF1] text-[#1CA174]",
@@ -48,7 +50,7 @@ const productResults = [
   {
     id: "result-4",
     title: "Round Tablecloth — Champagne",
-    subtitle: "Round · Cotton · 120\" dia.",
+    subtitle: 'Round · Cotton · 120" dia.',
     price: "¥4,600/day",
     badge: "Limited",
     badgeClass: "bg-[#FFF2D9] text-[#C58B1E]",
@@ -59,7 +61,7 @@ const productResults = [
   {
     id: "result-5",
     title: "Premium Round Tablecloth — Ivory",
-    subtitle: "Round · Cotton · 120\" dia.",
+    subtitle: 'Round · Cotton · 120" dia.',
     price: "¥4,800/day",
     badge: "Best Match",
     badgeClass: "bg-[#E7FAF1] text-[#1CA174]",
@@ -70,7 +72,7 @@ const productResults = [
   {
     id: "result-6",
     title: "Premium Round Tablecloth — Ivory",
-    subtitle: "Round · Cotton · 120\" dia.",
+    subtitle: 'Round · Cotton · 120" dia.',
     price: "¥4,800/day",
     badge: "Best Match",
     badgeClass: "bg-[#E7FAF1] text-[#1CA174]",
@@ -81,6 +83,46 @@ const productResults = [
 ];
 
 const ProductSearch = () => {
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [apiMessage, setApiMessage] = useState("");
+  const [interpretedQuery, setInterpretedQuery] = useState([]);
+
+  const handleProductSearch = async () => {
+    if (!productSearchQuery.trim()) return;
+
+    try {
+      setLoading(true);
+      setApiMessage("");
+      setProducts([]);
+
+      const res = await apiProductSearch(
+        accessToken,
+        productSearchQuery.trim(),
+      );
+
+      console.log("Product Search", res);
+
+      if (res?.success) {
+        setProducts(res?.data?.products || []);
+        setInterpretedQuery(res?.data?.filters || []);
+        setHasProductSearchResults(true);
+      } else {
+        setApiMessage(res?.message || "No products found.");
+        setHasProductSearchResults(false);
+      }
+    } catch (err) {
+      console.error(err);
+      setApiMessage("Something went wrong.");
+      setHasProductSearchResults(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const [productSearchQuery, setProductSearchQuery] = useState(
     "White tablecloth for 8-seat round table",
   );
@@ -88,7 +130,7 @@ const ProductSearch = () => {
 
   return (
     <div className="mt-6">
-      <h2 className="text-[29px] font-semibold leading-tight text-[#2A211D] sm:text-[30px]">
+      <h2 className="text-[24px] font-semibold leading-tight text-[#2A1A0E] sm:text-[24px]">
         Natural Language Product Search
       </h2>
       <p className="mt-1 text-[12px] text-[#B29D8C]">
@@ -97,7 +139,7 @@ const ProductSearch = () => {
 
       <div className="mt-5 rounded-2xl border border-[#F1E5DC] bg-white p-4 sm:p-5">
         <div className="flex flex-col gap-3 md:flex-row">
-          <div className="flex flex-1 items-center rounded-xl border border-[#EFE3DA] bg-[#FFFCFA] px-4 py-4">
+          <div className="flex flex-1 items-center rounded-xl border border-[#EFE3DA] bg-[#FFFCFA] px-4 py-2">
             <FiSearch size={13} className="mr-2 text-[#D7BDAA]" />
             <input
               type="text"
@@ -109,13 +151,16 @@ const ProductSearch = () => {
           </div>
           <button
             type="button"
-            onClick={() => setHasProductSearchResults(true)}
-            className={`flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-6 py-4 text-[12px] font-medium text-white md:w-[140px] ${
-              hasProductSearchResults ? "bg-[#B76836]" : "bg-[#E4C4AE]"
+            onClick={handleProductSearch}
+            disabled={loading || !productSearchQuery.trim()}
+            className={`flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-1 text-[13px] font-medium text-white ${
+              productSearchQuery.trim() && !loading
+                ? "bg-[#A85A32]"
+                : "bg-[#E4C4AE] cursor-not-allowed"
             }`}
           >
-            <HiSparkles size={14} className="shrink-0" />
-            AI Search
+            <HiSparkles size={16} className="shrink-0" />
+            {loading ? "Searching..." : "AI Search"}
           </button>
         </div>
 
@@ -126,7 +171,6 @@ const ProductSearch = () => {
               type="button"
               onClick={() => {
                 setProductSearchQuery(chip);
-                setHasProductSearchResults(true);
               }}
               className="rounded-full border border-[#E8D9CD] bg-white px-4 py-1.5 text-[11px] text-[#6C615A]"
             >
@@ -144,7 +188,7 @@ const ProductSearch = () => {
           <h3 className="mt-6 text-[20px] font-semibold text-[#3A2F2A]">
             Start with a natural language query
           </h3>
-          <p className="mx-auto mt-2 max-w-[420px] text-[12px] leading-6 text-[#B29D8C]">
+          <p className="mx-auto mt-2 max-w-[420px] text-[14px] leading-6 text-[#8B7355]">
             Describe the product you need — size, color, occasion, quantity —
             and our AI will handle the rest.
           </p>

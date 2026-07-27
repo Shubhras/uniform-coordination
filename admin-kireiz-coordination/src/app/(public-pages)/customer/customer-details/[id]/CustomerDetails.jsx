@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { FiArrowLeft } from "react-icons/fi";
 import { useRouter, useParams } from "next/navigation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiQuotationDetails } from "@/services/B2BAccountService";
+import { apiGetCustomersDetails } from "@/services/B2BAccountService";
 
 const CustomerDetails = () => {
   const router = useRouter();
   const { id } = useParams();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
+  const [customer, setCustomer] = useState(null);
 
   const [quotation, setQuotation] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -19,12 +20,12 @@ const CustomerDetails = () => {
     try {
       setLoading(true);
 
-      const res = await apiQuotationDetails(accessToken, id);
+      const res = await apiGetCustomersDetails(accessToken, id);
 
       console.log("Quotation Details", res);
 
       if (res?.status) {
-        setQuotation(res.data);
+        setCustomer(res.data);
       }
     } catch (err) {
       console.log(err);
@@ -55,17 +56,23 @@ const CustomerDetails = () => {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-semibold text-[#1C2C56]">
-                Quotation Details
+                Customer Details
               </h1>
 
-              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
-                NEW
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  customer?.isActive
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+              >
+                {customer?.isActive ? "Active" : "Inactive"}
               </span>
             </div>
 
-            <p className="text-sm text-gray-500 mt-1">
-              Quotation UUID : {quotation?.quotation_id || id}
-            </p>
+            {/* <p className="text-sm text-gray-500 mt-1">
+              Customer ID : {customer?.id || id}
+            </p> */}
           </div>
         </div>
       </div>
@@ -73,22 +80,22 @@ const CustomerDetails = () => {
       {/* ================= COMPANY INFO ================= */}
 
       <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
-        <h3 className="text-[16px] font-semibold mb-5">Company Information</h3>
+        <h3 className="text-[16px] font-semibold mb-5">Customer Information</h3>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Company */}
+          {/* Customer */}
 
           <div>
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-xl bg-[#F5F7FA] flex items-center justify-center text-xl font-bold text-[#B46B36]">
-                A
+              <div className="h-14 w-14 rounded-xl bg-[#F5F7FA] flex items-center justify-center text-xl font-bold text-[#1C4FA8]">
+                {customer?.firstName?.charAt(0) || "-"}
               </div>
 
               <div>
-                <p className="text-[14px] text-[#374151]">Company</p>
+                <p className="text-[14px] text-[#374151]">Customer Name</p>
 
                 <h4 className="font-semibold mt-1">
-                  {quotation?.company_name || "-"}
+                  {customer?.full_name || "-"}
                 </h4>
               </div>
             </div>
@@ -96,7 +103,7 @@ const CustomerDetails = () => {
             <div className="mt-6">
               <p className="text-[14px] text-[#374151]">Phone Number</p>
 
-              <p className="mt-1">{quotation?.phone_number || "-"}</p>
+              <p className="mt-1">{customer?.phone || "-"}</p>
             </div>
           </div>
 
@@ -104,56 +111,34 @@ const CustomerDetails = () => {
 
           <div>
             <div>
-              <p className="text-[14px] text-[#374151]">Contact Person</p>
+              <p className="text-[14px] text-[#374151]">First Name</p>
 
               <h4 className="font-semibold mt-1">
-                {quotation?.contact_person || "-"}
+                {customer?.firstName || "-"}
               </h4>
             </div>
 
             <div className="mt-6">
-              <p className="text-[14px] text-[#374151]">Company Address</p>
+              <p className="text-[14px] text-[#374151]">Last Name</p>
 
-              <p className="mt-1 leading-6">
-                Sakura Grand Hotel Co.
-                <br />
-                Chiyoda-ku
-                <br />
-                Tokyo 100-0005
-                <br />
-                Japan
-              </p>
+              <p className="mt-1">{customer?.lastName || "-"}</p>
             </div>
           </div>
 
-          {/* Business */}
+          {/* Right */}
 
           <div>
             <div>
-              <p className="text-[14px] text-[#374151]">Business Email</p>
+              <p className="text-[14px] text-[#374151]">Email</p>
 
-              <p className="mt-1">{quotation?.email || "-"}</p>
+              <p className="mt-1">{customer?.email || "-"}</p>
             </div>
-            <div className="mt-6">
-              <p className="text-[14px] text-[#374151] mb-2">
-                Quotation Status
-              </p>
 
-              <span
-                className={`inline-flex items-center rounded-full px-4 py-1.5 text-sm font-semibold capitalize
-      ${
-        quotation?.quotation_status === "approved"
-          ? "bg-green-100 text-green-700"
-          : quotation?.quotation_status === "pending"
-            ? "bg-yellow-100 text-yellow-700"
-            : quotation?.quotation_status === "sent"
-              ? "bg-blue-100 text-blue-700"
-              : quotation?.quotation_status === "cancelled"
-                ? "bg-red-100 text-red-700"
-                : "bg-gray-100 text-gray-700"
-      }`}
-              >
-                {quotation?.quotation_status || "-"}
+            <div className="mt-6">
+              <p className="text-[14px] text-[#374151]">User Type</p>
+
+              <span className="inline-flex items-center rounded-full px-4 py-1.5 text-sm font-semibold bg-blue-100 text-blue-700 capitalize">
+                {customer?.userType || "-"}
               </span>
             </div>
           </div>
@@ -162,82 +147,116 @@ const CustomerDetails = () => {
       {/* ================= QUOTATION INFORMATION ================= */}
 
       <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
-        <h3 className="text-[16px] font-semibold mb-5">
-          Quotation Information
-        </h3>
+        <h3 className="text-[16px] font-semibold mb-5">Account Information</h3>
 
         <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
           <div>
-            <p className="text-[14px] text-[#374151]">Quotation ID</p>
-            <p className="mt-1 font-medium">{quotation?.quotation_id || "-"}</p>
+            <p className="text-[14px] text-[#374151]">Customer ID</p>
+            <p className="mt-1 font-medium">{customer?.id}</p>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Item Type</p>
-            <p className="mt-1">{quotation?.item_type || "-"}</p>
+            <p className="text-[14px] text-[#374151]">Username</p>
+            <p className="mt-1">{customer?.userName || "-"}</p>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Material</p>
-            <p className="mt-1">{quotation?.material || "-"}</p>
+            <p className="text-[14px] text-[#374151]">Role</p>
+            <p className="mt-1 capitalize">{customer?.role_name || "-"}</p>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Size & Quantity</p>
-            <p className="mt-1">{quotation?.size_quantity || "-"}</p>
+            <p className="text-[14px] text-[#374151]">Language</p>
+            <p className="mt-1 capitalize">{customer?.language || "-"}</p>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Delivery Date</p>
+            <p className="text-[14px] text-[#374151]">Login Type</p>
+            <p className="mt-1 capitalize">{customer?.loginType || "-"}</p>
+          </div>
+
+          <div>
+            <p className="text-[14px] text-[#374151]">Email Verified</p>
+
+            <span
+              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
+                customer?.is_verify
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {customer?.is_verify ? "Verified" : "Not Verified"}
+            </span>
+          </div>
+
+          <div>
+            <p className="text-[14px] text-[#374151]">Email Notifications</p>
+
+            <span
+              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
+                customer?.email_notifications
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {customer?.email_notifications ? "Enabled" : "Disabled"}
+            </span>
+          </div>
+
+          <div>
+            <p className="text-[14px] text-[#374151]">Push Notifications</p>
+
+            <span
+              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
+                customer?.push_notifications
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {customer?.push_notifications ? "Enabled" : "Disabled"}
+            </span>
+          </div>
+
+          <div>
+            <p className="text-[14px] text-[#374151]">Account Status</p>
+
+            <span
+              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
+                customer?.isActive
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {customer?.isActive ? "Active" : "Inactive"}
+            </span>
+          </div>
+
+          <div>
+            <p className="text-[14px] text-[#374151]">Last Login</p>
+
             <p className="mt-1">
-              {quotation?.delivery_date
-                ? new Date(quotation.delivery_date).toLocaleDateString()
+              {customer?.lastLogin
+                ? new Date(customer.lastLogin).toLocaleString()
                 : "-"}
             </p>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Status</p>
-
-            <span
-              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
-                quotation?.isActive
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {quotation?.isActive ? "Active" : "Inactive"}
-            </span>
-          </div>
-
-          <div>
-            <p className="text-[14px] text-[#374151]">Terms Accepted</p>
-
-            <span
-              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
-                quotation?.agreed_to_terms
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {quotation?.agreed_to_terms ? "Yes" : "No"}
-            </span>
-          </div>
-
-          <div>
             <p className="text-[14px] text-[#374151]">Created On</p>
+
             <p className="mt-1">
-              {quotation?.created_at
-                ? new Date(quotation.created_at).toLocaleString()
+              {customer?.createdAt
+                ? new Date(customer.createdAt).toLocaleString()
                 : "-"}
             </p>
           </div>
 
           <div>
             <p className="text-[14px] text-[#374151]">Updated On</p>
+
             <p className="mt-1">
-              {quotation?.updated_at
-                ? new Date(quotation.updated_at).toLocaleString()
+              {customer?.updatedAt
+                ? new Date(customer.updatedAt).toLocaleString()
                 : "-"}
             </p>
           </div>

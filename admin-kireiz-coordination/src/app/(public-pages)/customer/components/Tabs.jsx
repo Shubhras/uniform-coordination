@@ -1,10 +1,16 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { FiUsers, FiClock, FiBriefcase, FiCheckSquare } from "react-icons/fi";
+import {
+  FiUsers,
+  FiClock,
+  FiBriefcase,
+  FiCheckSquare,
+  FiUser,
+} from "react-icons/fi";
 
 const tabs = [
   { label: "B2B Accounts", icon: FiUsers },
-  { label: "Customers", icon: FiUsers },
+  { label: "Customers", icon: FiUser },
   { label: "Quotation History", icon: FiClock },
   { label: "Sales Representation", icon: FiBriefcase },
   { label: "Assignments", icon: FiCheckSquare },

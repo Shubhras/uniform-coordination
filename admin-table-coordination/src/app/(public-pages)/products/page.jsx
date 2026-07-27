@@ -40,10 +40,10 @@ const ProductSpecificationPage = () => {
   return (
     <div className="px-5 md:px-8 lg:px-12 py-8 bg-white min-h-screen">
       {/* Page Header */}
-      <p className="text-sm text-[#486284] mb-2">
+      {/* <p className="text-sm text-[#486284] mb-2">
         Admin Dashboard /{" "}
         <span className="text-[#1C2C56]">Product & Specification</span>
-      </p>
+      </p> */}
 
       <h1 className="text-2xl font-semibold text-[#1C2C56]">
         Product & Specification Management

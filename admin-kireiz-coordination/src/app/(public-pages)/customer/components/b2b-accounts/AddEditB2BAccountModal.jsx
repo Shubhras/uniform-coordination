@@ -47,7 +47,11 @@ const getValidationSchema = (mode) =>
         .min(1, "Email is required")
         .email("Invalid email address"),
 
-      mobile: z.string().optional(),
+      mobile: z
+        .string()
+        .trim()
+        .min(1, "Mobile number is required")
+        .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
 
       tier: z.any().nullable().optional(),
 
@@ -317,7 +321,7 @@ const AddEditB2BAccountModal = ({
 
             <div>
               <label className="text-[#1C2C56] text-sm font-medium">
-                Mobile
+                Mobile<span className="text-red-500">*</span>
               </label>
               <FormItem
                 invalid={Boolean(errors.mobile)}
