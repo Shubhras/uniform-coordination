@@ -37,6 +37,7 @@ import {
 import {
     apiCancelQuotation,
     apiDownloadUserQuotationPdf,
+    apiGetQuotationRequestDetail,
     apiGetUserQuotationDetail,
 } from "@/services/QuotationRequestService";
 import { jsPDF } from "jspdf";
@@ -69,12 +70,6 @@ const defaultTerms = [
     "Standard shipping via FedEx Ground (3-5 business days).",
     "50% deposit required upon acceptance to begin production.",
     "Returns only accepted for manufacturing defects.",
-];
-
-const recentLinkedItems = [
-    { id: "#FORM-3024-TPRO", sub: "Medical Scrubs Bulk" },
-    { id: "#FORM-4024-SFDB", sub: "Corporate Shirts" },
-    { id: "Corporate Girl", sub: "Custom Uniform Set" },
 ];
 
 const getQuotationStatusMeta = (status) => {
@@ -659,24 +654,31 @@ const MyProfile = () => {
     const [image, setImage] = useState(null);
     const [profileLoading, setProfileLoading] = useState(true);
     const [quotationLoading, setQuotationLoading] = useState(true);
-    const [selectedQuotation, setSelectedQuotation] = useState(null);
     const [simulationData, setSimulationData] = useState([]);
     const [simulationLoading, setSimulationLoading] = useState(true);
     const [pdfLoadingId, setPdfLoadingId] = useState(null);
     const [quotationDetailLoadingId, setQuotationDetailLoadingId] = useState(null);
-    const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-    const [cancelReason, setCancelReason] = useState("");
-    const [cancelSubmitting, setCancelSubmitting] = useState(false);
-    const [cancelError, setCancelError] = useState("");
-    const activeQuotation = selectedQuotation || quotationData?.[0] || null;
-    const sizeRange = Array.isArray(activeQuotation?.size_range) && activeQuotation.size_range.length
-        ? activeQuotation.size_range
-        : parseSizeRange(activeQuotation?.size_quantity);
-    const terms = Array.isArray(selectedQuotation?.terms) && selectedQuotation.terms.length
-        ? selectedQuotation.terms
-        : defaultTerms;
+    const activeQuotation = quotationData?.[0] || null;
     const recentSimulations = simulationData;
     const visibleRecentSimulations = recentSimulations.slice(0, 3);
+
+    const handleRecentQuotationClick = (quotation) => {
+        const quotationId =
+            quotation?.quotationNo ||
+            quotation?.quotation_id ||
+            quotation?.request_id ||
+            quotation?.uuids ||
+            quotation?.uuid ||
+            quotation?.id ||
+            "";
+
+        if (!quotationId) {
+            router.push("/profile/my-quotations");
+            return;
+        }
+
+        router.push(`/profile/my-quotations/${quotationId}`);
+    };
 
     const fetchProfile = async () => {
         try {
@@ -804,124 +806,27 @@ const MyProfile = () => {
     };
 
     const handleQuotationPreview = async (quotation) => {
-        if (!session?.accessToken || !quotation) return;
+        if (!quotation) return;
 
-        const quotationUuid =
-            quotation?.uuids || quotation?.uuid || quotation?.id || quotation?.quotation_id;
+        const quotationId =
+            quotation?.quotationNo ||
+            quotation?.quotation_id ||
+            quotation?.request_id ||
+            quotation?.uuids ||
+            quotation?.uuid ||
+            quotation?.id;
 
-        if (!quotationUuid) {
-            setSelectedQuotation(normalizeQuotationRecord(quotation));
+        if (!quotationId) {
             return;
         }
 
         try {
-            setQuotationDetailLoadingId(quotationUuid);
-            const res = await apiGetUserQuotationDetail(
-                quotationUuid,
-                session.accessToken,
-            );
-
-            if (res?.success || res?.status) {
-                setSelectedQuotation(
-                    normalizeQuotationRecord(res?.data || res),
-                );
-                return;
-            }
-
-            setSelectedQuotation(normalizeQuotationRecord(quotation));
+            setQuotationDetailLoadingId(quotationId);
+            router.push(`/profile/my-profile/${quotationId}`);
         } catch (error) {
             console.error("Quotation detail API error:", error);
-            setSelectedQuotation(normalizeQuotationRecord(quotation));
         } finally {
             setQuotationDetailLoadingId(null);
-        }
-    };
-
-    const handleOpenCancelDialog = () => {
-        setCancelError("");
-        setCancelReason("");
-        setCancelDialogOpen(true);
-    };
-
-    const handleCloseCancelDialog = () => {
-        if (cancelSubmitting) return;
-        setCancelDialogOpen(false);
-        setCancelError("");
-        setCancelReason("");
-    };
-
-    const handleResetCancelReason = () => {
-        setCancelReason("");
-        setCancelError("");
-    };
-
-    const handleCancelQuotation = async () => {
-        const quotationId =
-            selectedQuotation?.uuids ||
-            selectedQuotation?.uuid ||
-            selectedQuotation?.id ||
-            selectedQuotation?.quotation_id;
-
-        if (!session?.accessToken || !quotationId) {
-            setCancelError("Quotation not found.");
-            return;
-        }
-
-        if (!cancelReason.trim()) {
-            setCancelError("Please enter a reason.");
-            return;
-        }
-
-        try {
-            setCancelSubmitting(true);
-            setCancelError("");
-
-            const res = await apiCancelQuotation(
-                quotationId,
-                { cancel_reason: cancelReason.trim() },
-                session.accessToken,
-            );
-
-            if (res?.success || res?.status) {
-                const updatedQuotation = {
-                    ...selectedQuotation,
-                    status_label: "Cancelled",
-                    quotation_status: "cancelled",
-                    status: "cancelled",
-                    cancel_reason: cancelReason.trim(),
-                };
-
-                setSelectedQuotation(updatedQuotation);
-                setQuotationData((prev) =>
-                    prev.map((item) => {
-                        const itemId =
-                            item?.uuids || item?.uuid || item?.id || item?.quotation_id;
-
-                        return itemId === quotationId
-                            ? {
-                                  ...item,
-                                  status_label: "Cancelled",
-                                  quotation_status: "cancelled",
-                                  status: "cancelled",
-                                  cancel_reason: cancelReason.trim(),
-                              }
-                            : item;
-                    }),
-                );
-                handleCloseCancelDialog();
-                return;
-            }
-
-            setCancelError(res?.message || "Unable to cancel quotation.");
-        } catch (error) {
-            console.error("Cancel quotation error:", error);
-            setCancelError(
-                error?.response?.data?.message ||
-                    error?.response?.data?.detail ||
-                    "Unable to cancel quotation.",
-            );
-        } finally {
-            setCancelSubmitting(false);
         }
     };
 
@@ -932,182 +837,6 @@ const MyProfile = () => {
                     <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#1C4FA8]" />
                 </div>
             </section>
-        );
-    }
-
-    const selectedStatusMeta = getQuotationStatusMeta(
-        selectedQuotation?.quotation_status || selectedQuotation?.status_label,
-    );
-    const canCancelQuotation =
-        selectedStatusMeta.label.toLowerCase() === "pending";
-
-    if (selectedQuotation) {
-        return (
-            <>
-                <div className="mx-auto max-w-7xl rounded-[20px] bg-white p-4 md:p-8">
-                <div className="mb-4">
-                    <button
-                        type="button"
-                        onClick={() => setSelectedQuotation(null)}
-                        className="inline-flex items-center gap-2 text-sm font-medium text-[#003560]"
-                    >
-                        <FiArrowLeft size={16} />
-                        Back to Profile
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-1 gap-8 items-start xl:grid-cols-[minmax(0,1.4fr)_320px]">
-                    <QuotationPreviewCard
-                        quotation={selectedQuotation}
-                        accessToken={session?.accessToken}
-                    />
-
-                    <div className="space-y-5">
-                        <div className="flex items-center justify-between">
-                            <span className={`rounded-full px-3 py-1 text-[10px] font-semibold ${selectedStatusMeta.badgeClass}`}>
-                                {selectedQuotation?.status_label || selectedStatusMeta.label}
-                            </span>
-                            <span className="text-[11px] text-[#9CA3AF]">
-                                {formatCreatedLabel(selectedQuotation?.created_at)}
-                            </span>
-                        </div>
-
-                        <div>
-                            <h2 className="text-[38px] font-semibold leading-[1.02] text-[#111827]">
-                                Quotation Summary
-                            </h2>
-                            <p className="mt-2 text-sm text-[#6B7280]">
-                                Review the key details before accepting.
-                            </p>
-                        </div>
-
-                        <div className="rounded-[18px] border border-[#F3F4F6] bg-[#F8FAFC] p-4">
-                            <p className="text-[11px] text-[#9CA3AF]">Total Amount (USD)</p>
-                            <p className="mt-2 text-xl font-semibold text-[#003560]">
-                                {selectedQuotation?.amount ||
-                                    selectedQuotation?.total_amount ||
-                                    "0.00"}
-                            </p>
-                        </div>
-                        <div className="rounded-[18px] bg-[#F7FBFF] p-4">
-                            <p className="mb-3 flex items-center gap-1.5 text-[11px] text-[#9CA3AF]">
-                               <FiMaximize2 size={11} />
-                                Size Range
-                            </p>
-                            <div className="space-y-2">
-                                {sizeRange.map((item) => (
-                                    <SummarySizeRow
-                                        key={item.label}
-                                        label={item.label}
-                                        value={item.value}
-                                    />
-                                ))} 
-                            </div>
-                        </div>
-
-                        <div className="rounded-[18px] bg-[#DBEAFE] p-4">
-                            <div className="mb-3 flex items-center gap-2">
-                                <FiList className="text-[#003560]" size={14} />
-                                <p className="text-sm font-semibold text-[#111827]">
-                                    Notes & Terms
-                                </p>
-                            </div>
-                            <div className="space-y-3">
-                                {terms.map((term) => (
-                                    <div key={term} className="flex gap-3 text-sm text-[#4B5563]">
-                                        <span className="mt-[7px] h-1.5 w-1.5 rounded-full bg-[#36A9F8]" />
-                                        <p>{term}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="space-y-3">
-                            {canCancelQuotation && (
-                                <Button
-                                    className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#003560] text-white hover:bg-[#002a49]"
-                                    onClick={handleOpenCancelDialog}
-                                >
-                                    Cancel
-                                </Button>
-                            )}
-                            {/* <Button
-                                variant="default"
-                                className="h-12 w-full rounded-lg border border-[#D7E3F4] bg-white text-[#111827] flex items-center justify-center gap-2"
-                            >
-                                <span className="relative inline-flex h-[18px] w-[18px] items-center justify-center text-[#111827]">
-                                    <FiFileText size={17} />
-                                    <FiEdit2
-                                        size={9}
-                                        className="absolute -bottom-[1px] -right-[3px] rounded-full bg-white"
-                                    />
-                                </span>
-                                Request Changes
-                            </Button>
-                            <button className="w-full text-center text-xs text-[#9CA3AF]">
-                                Decline Quote
-                            </button> */}
-                        </div>
-                    </div>
-                </div>
-                </div>
-
-                <Dialog
-                    isOpen={cancelDialogOpen}
-                    onClose={handleCloseCancelDialog}
-                    onRequestClose={handleCloseCancelDialog}
-                    width={520}
-                    contentClassName="p-0"
-                >
-                    <div className="rounded-[20px] bg-white p-6">
-                        <div className="mb-5">
-                            <h3 className="text-xl font-semibold text-[#111827]">
-                                Cancel Quotation
-                            </h3>
-                            <p className="mt-2 text-sm text-[#6B7280]">
-                                Please enter the reason for cancellation.
-                            </p>
-                        </div>
-
-                        <div>
-                            <label
-                                htmlFor="cancel-reason"
-                                className="mb-2 block text-sm font-medium text-[#374151]"
-                            >
-                                Reason
-                            </label>
-                            <textarea
-                                id="cancel-reason"
-                                value={cancelReason}
-                                onChange={(event) => setCancelReason(event.target.value)}
-                                placeholder="Enter cancellation reason"
-                                className="min-h-[140px] w-full resize-none rounded-xl border border-[#D7E3F4] px-4 py-3 text-sm text-[#111827] outline-none transition-colors focus:border-[#1C4FA8]"
-                            />
-                            {cancelError && (
-                                <p className="mt-2 text-sm text-[#DC2626]">{cancelError}</p>
-                            )}
-                        </div>
-
-                        <div className="mt-6 flex items-center justify-end gap-3">
-                            <Button
-                                variant="default"
-                                className="h-11 rounded-lg border border-[#D7E3F4] bg-white px-5 text-[#475569]"
-                                onClick={handleResetCancelReason}
-                                disabled={cancelSubmitting}
-                            >
-                                Reset
-                            </Button>
-                            <Button
-                                className="h-11 rounded-lg bg-[#003560] px-5 text-white hover:bg-[#002a49]"
-                                onClick={handleCancelQuotation}
-                                loading={cancelSubmitting}
-                            >
-                                Send
-                            </Button>
-                        </div>
-                    </div>
-                </Dialog>
-            </>
         );
     }
 
@@ -1292,93 +1021,56 @@ const MyProfile = () => {
                     <div className="flex items-center justify-between px-4 py-3">
                         <h4 className="flex items-center gap-2 text-sm font-semibold text-[#111827]">
                             <FiBox size={14} />
-                            Recent Orders
+                            Recent Quotation
                         </h4>
                         <button
                             className="flex items-center gap-1 text-[11px] text-[#60A5FA]"
-                            onClick={() => router.push("/profile/order-history")}
+                            onClick={() => router.push("/profile/my-quotations")}
                         >
                             View All <GoArrowRight size={12} />
                         </button>
                     </div>
 
                     <div className="px-4 pb-4">
-
-                        <div className="rounded-[10px] border border-[#EEF2F7] p-3">
-                            <div className="mb-3 flex items-center justify-between">
-                                <div>
-                                    <p className="text-[10px] text-[#9CA3AF]">ORDER NUMBER</p>
-                                    <p className="mt-1 text-xs font-semibold text-[#003560]">
-                                        #ORD-10234
-                                    </p>
-                                </div>
-                                <span className="rounded-full bg-[#DCFCE7] px-2 py-1 text-[10px] text-[#22C55E]">
-                                    Completed
-                                </span>
-                            </div>
-
-                            <div className="mb-3 grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-[10px] text-[#9CA3AF]">Date</p>
-                                    <p className="mt-1 text-[11px] text-[#111827]">
-                                        December 2025
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] text-[#9CA3AF]">Total Amount</p>
-                                    <p className="mt-1 text-[11px] text-[#111827]">¥454.00</p>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2">
-                                <Button
-                                    size="sm"
-                                    className="bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]"
-                                >
-                                    View Details
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="default"
-                                    className="border border-[#D7E3F4] bg-white text-[#111827]"
-                                >
-                                    Track
-                                </Button>
-                            </div>
-                        </div>
-
                         <div className="mt-4">
-                            <p className="mb-2 text-[11px] font-semibold text-[#4B5563]">
-                                Linked Quotes & Orders
-                            </p>
+                       
                             <div className="space-y-2">
-                                {recentLinkedItems.map((item) => (
-                                    <div
-                                        key={item.id}
-                                        className="flex items-center justify-between rounded-[10px] border border-[#EEF2F7] px-3 py-3"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className="rounded bg-[#F9FAFB] p-2">
-                                                <FiFileText className="text-[#94A3B8]" size={14} />
+                                {quotationData.length ? (
+                                    quotationData.slice(0, 3).map((quotation, index) => (
+                                        <div
+                                            key={quotation?.quotation_id || quotation?.quotationNo || index}
+                                            className="flex cursor-pointer items-center justify-between rounded-[10px] border border-[#EEF2F7] px-3 py-3"
+                                            onClick={() => handleRecentQuotationClick(quotation)}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="rounded bg-[#F9FAFB] p-2">
+                                                    <FiFileText className="text-[#94A3B8]" size={14} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[11px] font-medium text-[#111827]">
+                                                        {quotation?.company_name || quotation?.companyName || "Quotation"}
+                                                    </p>
+                                                    <p className="text-[10px] text-[#9CA3AF]">
+                                                        {quotation?.quotationNo || quotation?.quotation_id || "-"}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-[11px] font-medium text-[#111827]">
-                                                    {item.id}
-                                                </p>
-                                                <p className="text-[10px] text-[#9CA3AF]">{item.sub}</p>
-                                            </div>
+                                            <FiChevronRight className="text-[#94A3B8]" size={14} />
                                         </div>
-                                        <FiChevronRight className="text-[#94A3B8]" size={14} />
+                                    ))
+                                ) : (
+                                    <div className="rounded-lg bg-[#F8FBFF] px-4 py-6 text-center text-sm text-[#6B7280]">
+                                        No quotations found
                                     </div>
-                                ))}
+                                )}
                             </div>
 
-                            <p
+                            {/* <p
                                 className="mt-4 cursor-pointer text-center text-[11px] text-[#4B5563]"
-                                onClick={() => router.push("/profile/order-history")}
+                                onClick={() => router.push("/profile/my-quotations")}
                             >
-                                View All Linked Orders
-                            </p>
+                                View All Quotations
+                            </p> */}
                         </div>
                        
                     </div>
