@@ -273,7 +273,7 @@ const CartSummary = () => {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
                         <button
                             className="px-8 py-3 rounded-md bg-[#8B4513] text-white"
-                            onClick={() => router.back()}
+                            onClick={() => router.push("/table-form")}
                         >
                             Continue Shopping
                         </button>

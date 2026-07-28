@@ -1,322 +1,12 @@
-// 'use client'
-// import React, { useEffect, useState } from 'react'
-// import { useRouter, useSearchParams } from 'next/navigation'
-// import { useSession } from 'next-auth/react'
-// import { apiGetOverviewSummary } from '@/services/createOrder'
-
-// const Overview = () => {
-//     const { data: session } = useSession()
-//     const router = useRouter()
-//     const searchParams = useSearchParams()
-//     const orderId = searchParams.get('orderId')
-
-//     /* ---------------- CART LIST ---------------- */
-//     const [cartItems, setCartItems] = useState([])
-//     const [cartLoading, setCartLoading] = useState(false)
-//     const [cartError, setCartError] = useState(null)
-
-
-//     /* ---------------- CART SUMMARY ---------------- */
-//     const [cartSummary, setCartSummary] = useState(null)
-//     const [summaryLoading, setSummaryLoading] = useState(false)
-//     const [summaryError, setSummaryError] = useState(null)
-
-//     const [overviewData, setOverviewData] = useState(null)
-//     const [overviewLoading, setOverviewLoading] = useState(false)
-//     const [overviewError, setOverviewError] = useState(null)
-
-//     const fetchOverviewSummary = async () => {
-//         try {
-//             if (!session?.accessToken || !orderId) return
-
-//             setOverviewLoading(true)
-//             setCartLoading(true)
-//             setSummaryLoading(true)
-
-//             setOverviewError(null)
-//             setCartError(null)
-//             setSummaryError(null)
-
-//             const res = await apiGetOverviewSummary(
-//                 session.accessToken,
-//                 { order_id: orderId }
-//             )
-
-//             const data = res?.data?.data || null
-
-//             setOverviewData(data)
-//             setCartItems(Array.isArray(data?.order_items) ? data.order_items : [])
-//             setCartSummary(data?.order_summary || null)
-
-//         } catch {
-//             setOverviewError('Failed to load order details')
-//             setCartError('Failed to load cart items')
-//             setSummaryError('Failed to load order summary')
-
-//             setOverviewData(null)
-//             setCartItems([])
-//             setCartSummary(null)
-//         } finally {
-//             setOverviewLoading(false)
-//             setCartLoading(false)
-//             setSummaryLoading(false)
-//         }
-//     }
-
-
-//     const handleProceedToPayment = () => {
-//         router.push(`/payment?orderId=${orderId}`)
-//     }
-
-//     useEffect(() => {
-//         if (session?.accessToken) {
-//             fetchOverviewSummary()
-//         }
-//     }, [session?.accessToken, orderId])
-
-
-//     return (
-//         <>
-//             <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 mt-14">
-//                 <div className="py-10">
-//                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-//                         {/* LEFT — ORDER REVIEW */}
-//                         <div className="bg-white rounded-xl p-6 shadow-xl space-y-6">
-//                             <h3 className="text-[#8B4513] font-medium">
-//                                 Order Review
-//                             </h3>
-
-//                             {overviewLoading && (
-//                                 <p className="text-sm text-gray-500">Loading order details...</p>
-//                             )}
-
-//                             {!overviewLoading && overviewError && (
-//                                 <p className="text-sm text-red-500">{overviewError}</p>
-//                             )}
-
-//                             {!overviewLoading && overviewData && (
-//                                 <>
-//                                     {/* Contact Information */}
-//                                     <div className="space-y-1">
-//                                         <p className=" text-[#111827] text-lg font-semibold">
-//                                             Contact Information:
-//                                         </p>
-//                                         <p className="text-base text-[#3F3F3F] font-medium">
-//                                             {overviewData?.contact_information?.name || '—'}
-//                                         </p>
-//                                         <p className="text-base text-[#3F3F3F] font-medium">
-//                                             {overviewData?.contact_information?.email || '—'}
-//                                         </p>
-//                                     </div>
-
-//                                     <hr />
-
-//                                     {/* Delivery Address */}
-//                                     <div className="space-y-1">
-//                                         <p className="text-[#111827] text-lg font-semibold">
-//                                             Delivery Address
-//                                         </p>
-//                                         <p className="text-base text-[#3F3F3F] font-medium">
-//                                             {overviewData?.delivery_address?.address || '—'}
-//                                         </p>
-//                                         <p className="text-base text-[#3F3F3F] font-medium">
-//                                             {overviewData?.delivery_address
-//                                                 ? `${overviewData.delivery_address.city} ${overviewData.delivery_address.postal_code}`
-//                                                 : '—'}
-//                                         </p>
-//                                         <p className="text-base text-[#3F3F3F] font-medium">
-//                                             {overviewData?.delivery_address?.country || '—'}
-//                                         </p>
-//                                     </div>
-
-//                                     <hr />
-
-//                                     {/* Rental Period */}
-//                                     <div className="space-y-1">
-//                                         <p className="text-[#111827] text-lg font-semibold">
-//                                             Rental Period
-//                                         </p>
-//                                         <p className="text-base text-[#3F3F3F] font-medium">
-//                                             Start: {overviewData?.rental_period?.start || '—'}
-//                                         </p>
-//                                         <p className="text-base text-[#3F3F3F] font-medium">
-//                                             Return: {overviewData?.rental_period?.return || '—'}
-//                                         </p>
-//                                         <p className="text-base text-[#3F3F3F] font-medium">
-//                                             Duration: {overviewData?.rental_period?.duration || '—'}
-//                                         </p>
-//                                     </div>
-
-//                                     <hr />
-//                                 </>
-//                             )}
-
-//                             {!overviewLoading && !overviewError && !overviewData && (
-//                                 <p className="text-sm text-gray-500">
-//                                     No order details available
-//                                 </p>
-//                             )}
-//                         </div>
-
-
-//                         {/* RIGHT — ORDER ITEMS */}
-//                         <div className="bg-white rounded-xl p-6 shadow-xl space-y-6">
-//                             <h3 className="text-[#111827] text-lg font-semibold">
-//                                 Order Items
-//                             </h3>
-
-//                             {/* LOADING */}
-//                             {cartLoading && (
-//                                 <p className="text-sm text-gray-500">
-//                                     Loading cart items...
-//                                 </p>
-//                             )}
-
-//                             {/* ERROR */}
-//                             {!cartLoading && cartError && (
-//                                 <p className="text-sm text-red-500">
-//                                     {cartError}
-//                                 </p>
-//                             )}
-
-//                             {/* EMPTY */}
-//                             {!cartLoading && !cartError && cartItems.length === 0 && (
-//                                 <p className="text-sm text-gray-500">
-//                                     No items in your cart
-//                                 </p>
-//                             )}
-
-//                             {/* ITEMS */}
-//                             {!cartLoading && !cartError &&
-//                                 cartItems.map((item, index) => (
-//                                     <div key={index} className="flex justify-between items-center border-b border-[#CFCFCFAD] pb-4">
-//                                         <div>
-//                                             <p className="text-base text-[#3F3F3F] font-medium capitalize">
-//                                                 {item.name} ({item.quantity})
-//                                             </p>
-//                                             <p className="text-base text-[#3F3F3F] font-medium">
-//                                                 ¥{Number(item.total_price).toLocaleString()}
-//                                             </p>
-//                                         </div>
-
-//                                         <img
-//                                             src={`http://54.81.43.26${item.thumbnail}`}
-//                                             alt={item.name}
-//                                             className="w-15 h-15 rounded-sm object-cover"
-//                                         />
-//                                     </div>
-//                                 ))
-//                             }
-
-//                             {/* SUMMARY */}
-//                             {summaryLoading && (
-//                                 <p className="text-sm text-gray-500">
-//                                     Loading order summary...
-//                                 </p>
-//                             )}
-
-//                             {!summaryLoading && summaryError && (
-//                                 <p className="text-sm text-red-500">
-//                                     {summaryError}
-//                                 </p>
-//                             )}
-
-//                             {!summaryLoading && cartSummary && (
-//                                 <div className="space-y-2 py-4 border-b border-[#CFCFCFAD]">
-//                                     <h4 className="text-[#3F3F3F] text-lg font-semibold">
-//                                         Order Summary
-//                                     </h4>
-
-//                                     <div className="flex justify-between text-base">
-//                                         <span>Subtotal:</span>
-//                                         <span>
-//                                             ¥{cartSummary?.subtotal?.toLocaleString()}
-//                                         </span>
-//                                     </div>
-
-//                                     {/* <div className="flex justify-between text-base">
-//                                         <span>Shipping:</span>
-//                                         <span>
-//                                             {cartSummary.shipping
-//                                                 ? `¥${cartSummary.shipping}`
-//                                                 : '—'}
-//                                         </span>
-//                                     </div>
-
-//                                     <div className="flex justify-between text-base">
-//                                         <span>Tax:</span>
-//                                         <span>
-//                                             {cartSummary.tax
-//                                                 ? `¥${cartSummary.tax}`
-//                                                 : '—'}
-//                                         </span>
-//                                     </div> */}
-//                                     <div className="flex justify-between text-base">
-//                                         <span>Tax:</span>
-//                                         <span>
-//                                             ¥{cartSummary?.discount?.toLocaleString()}
-//                                         </span>
-//                                     </div>
-
-//                                     <div className="flex justify-between text-base font-semibold pt-2">
-//                                         <span>Total:</span>
-//                                         <span>
-//                                             ¥{cartSummary?.total?.toLocaleString()}
-//                                         </span>
-//                                     </div>
-//                                 </div>
-//                             )}
-
-//                             {/* TERMS */}
-//                             <label className="flex items-center gap-2 text-base text-[#374151] pt-4">
-//                                 <input type="checkbox" />
-//                                 <span>
-//                                     I Agree to privacy{' '}
-//                                     <span className="text-[#8B4513] underline">
-//                                         policy & terms
-//                                     </span>
-//                                 </span>
-//                             </label>
-//                         </div>
-//                     </div>
-
-//                     <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-4">
-//                         <div></div>
-//                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-10 w-full">
-//                             <button
-//                                 className="w-full px-6 py-3 bg-[#8B4513] text-white rounded-md"
-//                                 onClick={() => router.back()}
-//                             >
-//                                 Edit Delivery
-//                             </button>
-//                             <button
-//                                 className="w-full px-6 py-3 bg-[#8B4513] text-white rounded-md"
-//                                 onClick={handleProceedToPayment}
-//                             >
-//                                 Proceed to Payment
-//                             </button>
-//                             {/* <button
-//                                 className="w-full px-6 py-3 bg-[#8B4513] text-white rounded-md"
-//                                 onClick={() => setDialogCancelPopupOpen(true)}
-//                             >
-//                                 Payment Cancel
-//                             </button> */}
-//                         </div>
-//                     </div>
-//                 </div>
-//             </section>
-//         </>
-//     )
-// }
-
-// export default Overview
-
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { apiGetOverviewSummary } from '@/services/createOrder'
+import { apiGetOverviewSummary } from '@/services/OrderService'
+import Notification from '@/components/ui/Notification'
+import toast from '@/components/ui/toast'
+import Spinner from '@/components/ui/Spinner'
+import { FiUser, FiMapPin, FiCalendar } from 'react-icons/fi'
 
 const Overview = () => {
     const { data: session } = useSession()
@@ -324,272 +14,335 @@ const Overview = () => {
     const searchParams = useSearchParams()
     const orderId = searchParams.get('orderId')
 
-    /* ---------------- CART LIST ---------------- */
-    const [cartItems, setCartItems] = useState([])
-    const [cartLoading, setCartLoading] = useState(false)
-    const [cartError, setCartError] = useState(null)
-
-    /* ---------------- CART SUMMARY ---------------- */
-    const [cartSummary, setCartSummary] = useState(null)
-    const [summaryLoading, setSummaryLoading] = useState(false)
-    const [summaryError, setSummaryError] = useState(null)
-
-    /* ---------------- OVERVIEW ---------------- */
     const [overviewData, setOverviewData] = useState(null)
-    const [overviewLoading, setOverviewLoading] = useState(false)
-    const [overviewError, setOverviewError] = useState(null)
-
-    const fetchOverviewSummary = async () => {
-        try {
-            if (!session?.accessToken || !orderId) return
-
-            setOverviewLoading(true)
-            setCartLoading(true)
-            setSummaryLoading(true)
-
-            setOverviewError(null)
-            setCartError(null)
-            setSummaryError(null)
-
-            const res = await apiGetOverviewSummary(
-                session.accessToken,
-                { order_id: orderId }
-            )
-
-            const data = res?.data || null
-
-            setOverviewData(data)
-            setCartItems(Array.isArray(data?.order_items) ? data.order_items : [])
-            setCartSummary(data?.order_summary || null)
-
-        } catch (err) {
-            setOverviewError('Failed to load order details')
-            setCartError('Failed to load cart items')
-            setSummaryError('Failed to load order summary')
-
-            setOverviewData(null)
-            setCartItems([])
-            setCartSummary(null)
-        } finally {
-            setOverviewLoading(false)
-            setCartLoading(false)
-            setSummaryLoading(false)
-        }
-    }
-
-    const handleProceedToPayment = () => {
-        router.push(`/payment?orderId=${orderId}`)
-    }
+    const [cartItems, setCartItems] = useState([])
+    const [cartSummary, setCartSummary] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const [agreedToTerms, setAgreedToTerms] = useState(false)
+    const [navigatingToPayment, setNavigatingToPayment] = useState(false)
 
     useEffect(() => {
         if (session?.accessToken && orderId) {
             fetchOverviewSummary()
+        } else if (!orderId) {
+            setLoading(false)
+            setError('No Order ID found in request.')
         }
     }, [session?.accessToken, orderId])
 
+    const fetchOverviewSummary = async () => {
+        try {
+            if (!session?.accessToken || !orderId) return
+            setLoading(true)
+            setError(null)
+
+            const res = await apiGetOverviewSummary(session.accessToken, { order_id: orderId })
+
+            const data = res?.data || res?.order_details || res || null
+
+            if (data) {
+                setOverviewData(data)
+                setCartItems(Array.isArray(data?.order_items) ? data.order_items : (Array.isArray(data?.items) ? data.items : []))
+                setCartSummary(data?.order_summary || data?.summary || null)
+            } else {
+                setError('Failed to load order details.')
+            }
+        } catch (err) {
+            console.error('Fetch overview error:', err)
+            setError('Failed to load order details. Please try again.')
+            toast.push(
+                <Notification title="Error!" type="danger">
+                    Failed to load order overview
+                </Notification>
+            )
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleProceedToPayment = () => {
+        if (!agreedToTerms) {
+            toast.push(
+                <Notification title="Warning!" type="warning">
+                    Please agree to the privacy policy & terms to proceed.
+                </Notification>
+            )
+            return
+        }
+
+        setNavigatingToPayment(true)
+        router.push(`/payment?orderId=${orderId}`)
+    }
+
+    const getImageUrl = (path) => {
+        if (!path) return 'https://via.placeholder.com/64?text=Item'
+        let url = path
+        if (url.includes('localhost:8002')) {
+            url = url.replace('localhost:8002', '54.81.43.26')
+        } else if (url.includes('localhost')) {
+            url = url.replace(/localhost:\d+/, '54.81.43.26')
+        }
+        if (url.startsWith('http://') || url.startsWith('https://')) return url
+        const cleanPath = url.startsWith('/') ? url : `/${url}`
+        return `http://54.81.43.26${cleanPath}`
+    }
+
+    const contactInfo = overviewData?.contact_information || {
+        name: overviewData?.customer ? `${overviewData.customer.first_name || ''} ${overviewData.customer.last_name || ''}`.trim() : null,
+        email: overviewData?.customer?.email || null,
+        phone: overviewData?.customer?.phone || null,
+    }
+
+    const deliveryAddr = overviewData?.delivery_address || {
+        address_line_1: overviewData?.delivery_address?.address || null,
+        address_line_2: null,
+        city: null,
+        postal_code: null,
+        country: 'India',
+    }
+
+    const rentalInfo = overviewData?.rental_period || {
+        start: overviewData?.rental_start_date || null,
+        end: overviewData?.rental_end_date || null,
+        duration: overviewData?.rental_days ? `${overviewData.rental_days} day(s)` : null,
+    }
+
     return (
-        <>
-            <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 mt-14">
-                <div className="py-10">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 mt-14">
+            <div className="py-10">
+                {loading ? (
+                    <div className="flex flex-col justify-center items-center py-20 gap-3">
+                        <Spinner size={40} customColorClass="text-[#8B4513]" />
+                    </div>
+                ) : error ? (
+                    <div className="flex flex-col items-center justify-center py-20 bg-red-50 rounded-xl p-8 max-w-lg mx-auto border border-red-200">
+                        <p className="text-red-600 font-medium mb-4">{error}</p>
+                        <button
+                            onClick={fetchOverviewSummary}
+                            className="px-6 py-2 bg-[#8B4513] text-white rounded-md hover:bg-[#71370F] transition"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-6">
 
-                        {/* LEFT — ORDER REVIEW */}
-                        <div className="bg-white rounded-xl p-6 shadow-xl space-y-6">
-                            <h3 className="text-[#8B4513] font-medium">
-                                Order Review
-                            </h3>
+                            {/* LEFT — ORDER REVIEW */}
+                            <div className="bg-white rounded-xl p-6 shadow-xl space-y-6 border border-gray-100">
+                                <h3 className="text-xl font-semibold text-[#8B4513] border-b border-gray-100 pb-3">
+                                    Order Review
+                                </h3>
 
-                            {overviewLoading && (
-                                <p className="text-sm text-gray-500">
-                                    Loading order details...
-                                </p>
-                            )}
-
-                            {!overviewLoading && overviewError && (
-                                <p className="text-sm text-red-500">
-                                    {overviewError}
-                                </p>
-                            )}
-
-                            {!overviewLoading && overviewData && (
-                                <>
-                                    {/* Contact Information */}
-                                    <div className="space-y-1">
-                                        <p className="text-[#111827] text-lg font-semibold">
-                                            Contact Information:
-                                        </p>
-                                        <p className="text-base text-[#3F3F3F] font-medium">
-                                            {overviewData?.contact_information?.name || '—'}
-                                        </p>
-                                        <p className="text-base text-[#3F3F3F] font-medium">
-                                            {overviewData?.contact_information?.email || '—'}
-                                        </p>
+                                {/* Contact Information */}
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2 text-[#111827] text-lg font-semibold">
+                                        <FiUser className="text-[#8B4513]" />
+                                        <span>Contact Information:</span>
                                     </div>
-
-                                    <hr />
-
-                                    {/* Delivery Address */}
-                                    <div className="space-y-1">
-                                        <p className="text-[#111827] text-lg font-semibold">
-                                            Delivery Address
+                                    <div className="pl-6 space-y-1">
+                                        <p className="text-base text-[#3F3F3F] font-medium">
+                                            {contactInfo?.name || '—'}
                                         </p>
                                         <p className="text-base text-[#3F3F3F] font-medium">
-                                            {overviewData?.delivery_address?.address || '—'}
+                                            {contactInfo?.email || '—'}
                                         </p>
-                                    </div>
-
-                                    <hr />
-
-                                    {/* Rental Period */}
-                                    <div className="space-y-1">
-                                        <p className="text-[#111827] text-lg font-semibold">
-                                            Rental Period
-                                        </p>
-                                        <p className="text-base text-[#3F3F3F] font-medium">
-                                            Start: {overviewData?.rental_period?.start || '—'}
-                                        </p>
-                                        <p className="text-base text-[#3F3F3F] font-medium">
-                                            Return: {overviewData?.rental_period?.return || '—'}
-                                        </p>
-                                        <p className="text-base text-[#3F3F3F] font-medium">
-                                            Duration: {overviewData?.rental_period?.duration || '—'}
-                                        </p>
-                                    </div>
-
-                                    <hr />
-                                </>
-                            )}
-
-                            {!overviewLoading && !overviewError && !overviewData && (
-                                <p className="text-sm text-gray-500">
-                                    No order details available
-                                </p>
-                            )}
-                        </div>
-
-                        {/* RIGHT — ORDER ITEMS */}
-                        <div className="bg-white rounded-xl p-6 shadow-xl space-y-6">
-                            <h3 className="text-[#111827] text-lg font-semibold">
-                                Order Items
-                            </h3>
-
-                            {cartLoading && (
-                                <p className="text-sm text-gray-500">
-                                    Loading cart items...
-                                </p>
-                            )}
-
-                            {!cartLoading && cartError && (
-                                <p className="text-sm text-red-500">
-                                    {cartError}
-                                </p>
-                            )}
-
-                            {!cartLoading && !cartError && overviewData && cartItems.length === 0 && (
-                                <p className="text-sm text-gray-500">
-                                    No items in your cart
-                                </p>
-                            )}
-
-                            {!cartLoading && !cartError &&
-                                cartItems.map((item, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex justify-between items-center border-b border-[#CFCFCFAD] pb-4"
-                                    >
-                                        <div>
-                                            <p className="text-base text-[#3F3F3F] font-medium capitalize">
-                                                {item.name} ({item.quantity})
-                                            </p>
+                                        {contactInfo?.phone && (
                                             <p className="text-base text-[#3F3F3F] font-medium">
-                                                ¥{Number(item.total_price).toLocaleString()}
+                                                {contactInfo.phone}
                                             </p>
-                                        </div>
-
-                                        <img
-                                            src={`http://54.81.43.26${item.thumbnail}`}
-                                            alt={item.name}
-                                            className="w-15 h-15 rounded-sm object-cover"
-                                        />
-                                    </div>
-                                ))
-                            }
-
-                            {summaryLoading && (
-                                <p className="text-sm text-gray-500">
-                                    Loading order summary...
-                                </p>
-                            )}
-
-                            {!summaryLoading && summaryError && (
-                                <p className="text-sm text-red-500">
-                                    {summaryError}
-                                </p>
-                            )}
-
-                            {!summaryLoading && cartSummary && (
-                                <div className="space-y-2 py-4 border-b border-[#CFCFCFAD]">
-                                    <h4 className="text-[#3F3F3F] text-lg font-semibold">
-                                        Order Summary
-                                    </h4>
-
-                                    <div className="flex justify-between text-base">
-                                        <span>Subtotal:</span>
-                                        <span>
-                                            ¥{cartSummary.subtotal?.toLocaleString()}
-                                        </span>
-                                    </div>
-
-                                    <div className="flex justify-between text-base">
-                                        <span>Tax:</span>
-                                        <span>
-                                            ¥{cartSummary.discount?.toLocaleString()}
-                                        </span>
-                                    </div>
-
-                                    <div className="flex justify-between text-base font-semibold pt-2">
-                                        <span>Total:</span>
-                                        <span>
-                                            ¥{cartSummary.total?.toLocaleString()}
-                                        </span>
+                                        )}
                                     </div>
                                 </div>
-                            )}
 
-                            <label className="flex items-center gap-2 text-base text-[#374151] pt-4">
-                                <input type="checkbox" />
-                                <span>
-                                    I Agree to privacy{' '}
-                                    <span className="text-[#8B4513] underline">
-                                        policy & terms
-                                    </span>
-                                </span>
-                            </label>
-                        </div>
-                    </div>
+                                <hr className="border-gray-200" />
 
-                    <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-4">
-                        <div></div>
-                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-10 w-full">
-                            <button
-                                className="w-full px-6 py-3 bg-[#8B4513] text-white rounded-md"
-                                onClick={() => router.back()}
-                            >
-                                Edit Delivery
-                            </button>
-                            <button
-                                className="w-full px-6 py-3 bg-[#8B4513] text-white rounded-md"
-                                onClick={handleProceedToPayment}
-                            >
-                                Proceed to Payment
-                            </button>
+                                {/* Delivery Address */}
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2 text-[#111827] text-lg font-semibold">
+                                        <FiMapPin className="text-[#8B4513]" />
+                                        <span>Delivery Address</span>
+                                    </div>
+                                    <div className="pl-6 space-y-1">
+                                        <p className="text-base text-[#3F3F3F] font-medium">
+                                            {deliveryAddr?.address_line_1 || deliveryAddr?.address || '—'}
+                                        </p>
+                                        {deliveryAddr?.address_line_2 && (
+                                            <p className="text-base text-[#3F3F3F] font-medium">
+                                                {deliveryAddr.address_line_2}
+                                            </p>
+                                        )}
+                                        <p className="text-base text-[#3F3F3F] font-medium">
+                                            {deliveryAddr?.city ? `${deliveryAddr.city}${deliveryAddr?.postal_code ? ` ${deliveryAddr.postal_code}` : ''}` : '—'}
+                                        </p>
+                                        <p className="text-base text-[#3F3F3F] font-medium">
+                                            {deliveryAddr?.country || '—'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <hr className="border-gray-200" />
+
+                                {/* Rental Period */}
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2 text-[#111827] text-lg font-semibold">
+                                        <FiCalendar className="text-[#8B4513]" />
+                                        <span>Rental Period</span>
+                                    </div>
+                                    <div className="pl-6 space-y-1">
+                                        <p className="text-base text-[#3F3F3F] font-medium">
+                                            Start: {rentalInfo?.start || '—'}
+                                        </p>
+                                        <p className="text-base text-[#3F3F3F] font-medium">
+                                            Return: {rentalInfo?.end || rentalInfo?.return || '—'}
+                                        </p>
+                                        <p className="text-base text-[#3F3F3F] font-medium">
+                                            Duration: {rentalInfo?.duration || '—'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* RIGHT — ORDER ITEMS & SUMMARY (DESIGN MATCHED TO FIGMA) */}
+                            <div className="bg-white rounded-xl p-6 shadow-xl space-y-6 border border-gray-100">
+                                <h3 className="text-xl font-semibold text-[#111827]">
+                                    Order Items
+                                </h3>
+
+                                {/* ITEMS LIST */}
+                                {cartItems.length === 0 ? (
+                                    <p className="text-sm text-gray-500 py-4">No items found in this order</p>
+                                ) : (
+                                    <div className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
+                                        {cartItems.map((item, index) => {
+                                            const itemName = item?.name || item?.product_name || `Item ${index + 1}`
+                                            const itemQty = item?.quantity || 1
+                                            const itemPrice = item?.total_price || item?.price || 0
+                                            const itemThumb = item?.product_image || item?.thumbnail || item?.image
+
+                                            return (
+                                                <div
+                                                    key={item.id || index}
+                                                    className="flex justify-between items-center border-b border-gray-200 pb-4"
+                                                >
+                                                    {/* LEFT: Name + Qty and Price */}
+                                                    <div className="space-y-1 pr-4">
+                                                        <p className="text-base text-[#1E293B] font-medium capitalize">
+                                                            {itemName} ({itemQty})
+                                                        </p>
+                                                        <p className="text-base font-semibold text-[#1E293B]">
+                                                            ¥{Number(itemPrice).toLocaleString()}
+                                                        </p>
+                                                    </div>
+
+                                                    {/* RIGHT: Thumbnail Image */}
+                                                    <div className="w-[68px] h-[68px] rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
+                                                        <img
+                                                            src={getImageUrl(itemThumb)}
+                                                            alt={itemName}
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                e.target.onerror = null
+                                                                e.target.src = 'https://via.placeholder.com/68?text=Item'
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+
+                                {/* ORDER SUMMARY */}
+                                {cartSummary && (
+                                    <div className="space-y-3 pt-4 border-t border-gray-200">
+                                        <h4 className="text-[#111827] text-xl font-semibold mb-4">
+                                            Order Summary
+                                        </h4>
+
+                                        {cartSummary?.subtotal !== undefined && cartSummary?.subtotal !== null && (
+                                            <div className="flex justify-between text-base text-[#374151] font-medium">
+                                                <span>Subtotal:</span>
+                                                <span>¥{Number(cartSummary.subtotal).toLocaleString()}</span>
+                                            </div>
+                                        )}
+
+                                        {cartSummary?.shipping !== undefined && cartSummary?.shipping !== null && (
+                                            <div className="flex justify-between text-base text-[#374151] font-medium">
+                                                <span>Shipping:</span>
+                                                <span>¥{Number(cartSummary.shipping).toLocaleString()}</span>
+                                            </div>
+                                        )}
+
+                                        {cartSummary?.discount !== undefined && cartSummary?.discount !== null && Number(cartSummary.discount) > 0 && (
+                                            <div className="flex justify-between text-base text-green-600 font-medium">
+                                                <span>Discount:</span>
+                                                <span>-¥{Number(cartSummary.discount).toLocaleString()}</span>
+                                            </div>
+                                        )}
+
+                                        {cartSummary?.tax !== undefined && cartSummary?.tax !== null && (
+                                            <div className="flex justify-between text-base text-[#374151] font-medium">
+                                                <span>Tax:</span>
+                                                <span>¥{Number(cartSummary.tax).toLocaleString()}</span>
+                                            </div>
+                                        )}
+
+                                        {(cartSummary?.total !== undefined || cartSummary?.grand_total !== undefined) && (
+                                            <div className="flex justify-between text-lg font-semibold text-[#111827] pt-2 border-t border-gray-100">
+                                                <span>Total:</span>
+                                                <span>¥{Number(cartSummary?.total ?? cartSummary?.grand_total ?? 0).toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* TERMS CHECKBOX */}
+                                <div className="pt-2">
+                                    <label className="flex items-center gap-2 text-base text-[#374151] cursor-pointer select-none">
+                                        <input
+                                            type="checkbox"
+                                            checked={agreedToTerms}
+                                            onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                            className="w-4 h-4 accent-[#8B4513] cursor-pointer rounded"
+                                        />
+                                        <span>
+                                            I Agree to privacy{' '}
+                                            <span className="text-[#3B82F6] underline font-medium">
+                                                policy & terms
+                                            </span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </section>
-        </>
+
+                        {/* FOOTER BUTTONS */}
+                        <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-6 mt-8">
+                            <div></div>
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 w-full">
+                                <button
+                                    className="w-full px-6 py-3 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md transition font-medium"
+                                    onClick={() => router.push('/delivery-information')}
+                                >
+                                    Edit Delivery
+                                </button>
+                                <button
+                                    className="w-full px-6 py-3 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md flex items-center justify-center gap-2 transition font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                                    onClick={handleProceedToPayment}
+                                    disabled={navigatingToPayment}
+                                >
+                                    {navigatingToPayment ? <Spinner size={18} customColorClass="text-white" /> : null}
+                                    {navigatingToPayment ? 'Redirecting...' : 'Proceed to Payment'}
+                                </button>
+                            </div>
+                        </div>
+                    </>
+                )}
+            </div>
+        </section>
     )
 }
 
 export default Overview
-

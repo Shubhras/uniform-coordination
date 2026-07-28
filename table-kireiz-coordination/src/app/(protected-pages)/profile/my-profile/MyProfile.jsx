@@ -47,12 +47,12 @@ const MyProfile = () => {
         setImage(previewUrl)
     }
 
-    const handleRemoveImage = () => {
-        setImage(null)
-        if (fileRef.current) {
-            fileRef.current.value = ''
-        }
-    }
+    // const handleRemoveImage = () => {
+    //     setImage(null)
+    //     if (fileRef.current) {
+    //         fileRef.current.value = ''
+    //     }
+    // }
     return (
         <div className="max-w-7xl mx-auto space-y-6">
             {/* ================= Profile Card ================= */}
@@ -70,7 +70,7 @@ const MyProfile = () => {
                                 className="shadow-md object-cover"
                             />
                         </div>
-        
+
                         {/* Hidden File Input */}
                         <input
                             type="file"
@@ -177,7 +177,7 @@ const MyProfile = () => {
             </div>
 
             {/* ================= Middle Section ================= */}
-            <div className="bg-[#F5F0EE30] rounded-2xl border border-[#D6B8A6] overflow-hidden">
+            {/* <div className="bg-[#F5F0EE30] rounded-2xl border border-[#D6B8A6] overflow-hidden">
 
                 <div className="flex justify-between items-center px-6 py-4 border-b border-[#D6B8A6]">
                     <div>
@@ -214,7 +214,7 @@ const MyProfile = () => {
                         </div>
                     ))}
                 </div>
-            </div>
+            </div> */}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 

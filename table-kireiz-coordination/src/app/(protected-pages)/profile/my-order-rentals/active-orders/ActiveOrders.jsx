@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { apiUserOrderList } from '@/services/OrderService'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import { FiCalendar, FiMapPin, FiSearch, FiX } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
@@ -75,8 +77,23 @@ const OrderImage = () => (
 
 const OrdersList = ({ activeTab }) => {
     const router = useRouter()
+    const { data: session } = useSession()
     const [searchTerm, setSearchTerm] = useState('')
     const [statusFilter, setStatusFilter] = useState('')
+
+    useEffect(() => {
+        const fetchOrderList = async () => {
+            try {
+                if (session?.accessToken) {
+                    const response = await apiUserOrderList(session.accessToken)
+                    console.log('=== apiUserOrderList Response ===', response)
+                }
+            } catch (err) {
+                console.error('Error fetching user order list:', err)
+            }
+        }
+        fetchOrderList()
+    }, [session?.accessToken])
 
     const statusOptions = [
         { value: '', label: 'All Status' },
