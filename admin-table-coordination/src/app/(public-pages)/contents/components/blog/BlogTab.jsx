@@ -17,6 +17,7 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetBlogList, apiDeleteBlog } from "@/services/BlogService";
 import AddEditBlogModal from "./AddEditBlogModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import Pagination from "@/components/ui/Pagination";
 
 const trimText = (text, wordLimit = 10) => {
   if (!text) return "";
@@ -43,10 +44,20 @@ const BlogTab = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   // Modal
   const [openModal, setOpenModal] = useState(false);
   const [editPost, setEditPost] = useState(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   // Delete
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -61,15 +72,21 @@ const BlogTab = () => {
     total_pages: 1,
     total_items: 0,
   });
+  const [pageSize, setPageSize] = useState(10);
 
   /* ---------- FETCH ---------- */
   const fetchBlogs = useCallback(
-    async (page = 1) => {
+    async (page = 1, search = "") => {
       if (!accessToken) return;
 
       try {
         setLoading(true);
-        const response = await apiGetBlogList(accessToken, page);
+        const response = await apiGetBlogList(
+          accessToken,
+          page,
+          pageSize,
+          search,
+        );
 
         if (response?.status && response?.data) {
           setPosts(response.data);
@@ -91,12 +108,12 @@ const BlogTab = () => {
         setLoading(false);
       }
     },
-    [accessToken],
+    [accessToken, pageSize],
   );
 
   useEffect(() => {
-    fetchBlogs(currentPage);
-  }, [fetchBlogs, currentPage]);
+    fetchBlogs(currentPage, debouncedSearch);
+  }, [fetchBlogs, currentPage, pageSize, debouncedSearch]);
 
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
@@ -131,17 +148,6 @@ const BlogTab = () => {
     handleCloseModal();
     fetchBlogs(currentPage);
   };
-
-  /* ---------- FILTER ---------- */
-  const filteredPosts = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return posts;
-    return posts.filter(
-      (post) =>
-        post.title?.toLowerCase().includes(term) ||
-        post.categoryName?.toLowerCase().includes(term),
-    );
-  }, [posts, search]);
 
   /* ---------- PAGINATION ---------- */
   const goToPage = (page) => {
@@ -223,13 +229,13 @@ const BlogTab = () => {
 
         {loading ? (
           <CardSkeleton />
-        ) : filteredPosts.length === 0 ? (
+        ) : posts.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
             No blog posts found
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredPosts.map((post) => (
+            {posts.map((post) => (
               <div
                 key={post.id}
                 className="bg-[#A85A320A] rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
@@ -283,34 +289,22 @@ const BlogTab = () => {
             ))}
           </div>
         )}
+      </div>
 
-        {/* Pagination */}
-        {!loading && pagination.total_pages > 1 && (
-          <div className="flex items-center justify-between mt-6 px-2">
-            <p className="text-sm text-[#64748B]">
-              Page {pagination.page} of {pagination.total_pages} (
-              {pagination.total_items || posts.length} items)
-            </p>
-
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-              >
-                <FiChevronLeft size={16} />
-              </button>
-
-              <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === pagination.total_pages}
-                className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-              >
-                <FiChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-        )}
+      <div
+        className="flex justify-end mt-3"
+        style={{ marginRight: "6px", marginLeft: "6px" }}
+      >
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={pagination.total_items}
+          onChange={(page) => setCurrentPage(page)}
+          // onPageSizeChange={(size) => {
+          //   setPageSize(size);
+          //   setCurrentPage(1);
+          // }}
+        />
       </div>
 
       {/* Modals */}

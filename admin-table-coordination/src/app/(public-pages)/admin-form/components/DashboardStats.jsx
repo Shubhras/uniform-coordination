@@ -11,8 +11,9 @@ const DashboardStats = ({ data }) => {
     count,
   }));
 
-  const pendingQuotes = data?.available_inventory?.total ?? 0;
-  const quoteChange = data?.Pending_quotes?.pending_quation ?? 0;
+  const availableInventory = data?.Available_Inventory ?? 0;
+  const pendingQuotations = data?.Pending_Orders ?? 0;
+  const activeRentals = data?.Active_Rentals ?? 0;
 
   const templates = data?.Templates?.total ?? 0;
 
@@ -27,7 +28,7 @@ const DashboardStats = ({ data }) => {
             <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
               AVAILABLE INVENTORY
             </p>
-            <h2 className="text-[30px] font-bold mt-2">{pendingQuotes}</h2>
+            <h2 className="text-[30px] font-bold mt-2">{availableInventory}</h2>
           </div>
 
           {/* <div className="mt-4 flex items-center gap-2 text-sm">
@@ -55,7 +56,7 @@ const DashboardStats = ({ data }) => {
             <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
               ACTIVE RENTALS
             </p>
-            <h2 className="text-[30px] font-bold mt-2">ACTIVE RENTALS</h2>
+            <h2 className="text-[30px] font-bold mt-2">{activeRentals}</h2>
           </div>
         </div>
 
@@ -63,9 +64,12 @@ const DashboardStats = ({ data }) => {
         <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
             <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
-              PENDING QUOTATIONS
+              PENDING ORDERS
             </p>
-            <h2 className="text-[30px] font-bold mt-2"> {quoteChange} </h2>
+            <h2 className="text-[30px] font-bold mt-2">
+              {" "}
+              {pendingQuotations}{" "}
+            </h2>
           </div>
 
           {/* {b2bChange !== 0 && (

@@ -15,6 +15,7 @@ import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import AddEditFabricModal from "./AddEditFabricModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import Pagination from "@/components/ui/Pagination";
 
 const FabricsTab = () => {
   const { session } = useCurrentSession();
@@ -34,6 +35,16 @@ const FabricsTab = () => {
     total_pages: 1,
     total_items: 0,
   });
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Modal states
   const [openAdd, setOpenAdd] = useState(false);
@@ -43,6 +54,7 @@ const FabricsTab = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fabricToDelete, setFabricToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
 
   // Fetch fabrics
   const fetchFabrics = useCallback(
@@ -51,7 +63,12 @@ const FabricsTab = () => {
 
       try {
         setLoading(true);
-        const response = await apiGetFabricList(accessToken, page);
+        const response = await apiGetFabricList(
+          accessToken,
+          page,
+          pageSize,
+          debouncedSearch,
+        );
 
         if (response?.status && response?.data) {
           setFabrics(response.data);
@@ -65,12 +82,12 @@ const FabricsTab = () => {
         setLoading(false);
       }
     },
-    [accessToken],
+    [accessToken, pageSize, debouncedSearch],
   );
 
   useEffect(() => {
     fetchFabrics(currentPage);
-  }, [fetchFabrics, currentPage]);
+  }, [fetchFabrics, currentPage, pageSize]);
 
   // Delete fabric
   const handleDeleteConfirm = async () => {
@@ -101,14 +118,6 @@ const FabricsTab = () => {
     setEditFabric(null);
     fetchFabrics(currentPage);
   };
-
-  // Filter by search
-  const filteredFabrics = fabrics.filter(
-    (f) =>
-      f.fabricName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.color?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.materialType?.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
 
   // Page navigation
   const goToPage = (page) => {
@@ -223,17 +232,17 @@ const FabricsTab = () => {
                   ))}
                 </tr>
               ))
-            ) : filteredFabrics.length === 0 ? (
+            ) : fabrics.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-10 text-[#64748B]">
                   No fabrics found
                 </td>
               </tr>
             ) : (
-              filteredFabrics.map((fabric, index) => (
+              fabrics.map((fabric, index) => (
                 <tr
                   key={fabric.id}
-                  className={`text-base ${index % 2 === 0 ? "bg-white" : "bg-[#1C4FA80F]"}`}
+                  className="text-base odd:bg-white even:bg-[#FBF8F6]"
                 >
                   <td className="px-5 py-4 text-[#1C2C56] font-medium">
                     {fabric.fabricName}
@@ -270,24 +279,26 @@ const FabricsTab = () => {
                   </td>
 
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-0">
                       <button
-                        className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                        className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                        // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                         onClick={() => {
                           setEditFabric(fabric);
                           setOpenAdd(true);
                         }}
                       >
-                        <FiEdit2 size={14} />
+                        <FiEdit2 size={17} />
                       </button>
                       <button
-                        className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                        className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                        // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                         onClick={() => {
                           setFabricToDelete(fabric);
                           setDeleteDialogOpen(true);
                         }}
                       >
-                        <FiTrash2 size={14} />
+                        <FiTrash2 size={17} />
                       </button>
                     </div>
                   </td>
@@ -298,50 +309,18 @@ const FabricsTab = () => {
         </table>
       </div>
 
-      {/* Pagination */}
-      {!loading && pagination.total_pages > 1 && (
-        <div className="flex items-center justify-between mt-6 px-2">
-          <p className="text-sm text-[#64748B]">
-            Showing page {pagination.page} of {pagination.total_pages} (
-            {pagination.total_items} items)
-          </p>
-
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-            >
-              <FiChevronLeft size={16} />
-            </button>
-
-            {getPageNumbers().map((page, idx) => (
-              <button
-                key={idx}
-                onClick={() => typeof page === "number" && goToPage(page)}
-                disabled={page === "..."}
-                className={`w-9 h-9 rounded-md text-sm font-medium transition-colors ${
-                  page === currentPage
-                    ? "bg-[#1C2C56] text-white"
-                    : page === "..."
-                      ? "cursor-default text-[#64748B]"
-                      : "border border-[#E2E8F0] text-[#1E293B] hover:bg-[#F1F5F9]"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === pagination.total_pages}
-              className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-            >
-              <FiChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-      )}
+      <div className="mt-5">
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={pagination.total_items}
+          onChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
 
       {/* Add/Edit Modal */}
       <AddEditFabricModal

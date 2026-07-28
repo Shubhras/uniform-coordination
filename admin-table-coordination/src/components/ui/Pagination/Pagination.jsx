@@ -14,6 +14,7 @@ const Pagination = (props) => {
     currentPage = 1,
     displayTotal = false,
     onChange,
+    onPageSizeChange,
     pageSize = 1,
     total = 5,
   } = props;
@@ -98,7 +99,8 @@ const Pagination = (props) => {
   const pagerClass = {
     default:
       "w-9 h-9 flex items-center justify-center rounded-md cursor-pointer transition-all duration-200",
-    inactive: "text-[#6B7280] hover:bg-[#F5F5F5]",
+    inactive:
+      "border border-[#E5E7EB] bg-white text-[#6B7280] hover:bg-[#F5F5F5]",
     active: "bg-[#DE8053] text-white",
     disabled: "border border-[#E5E7EB] text-[#D1D5DB] cursor-not-allowed",
   };
@@ -108,6 +110,14 @@ const Pagination = (props) => {
     "flex items-center justify-end gap-2 mt-6",
     className,
   );
+  const handlePageSizeChange = (e) => {
+  const size = Number(e.target.value);
+
+  setInternalPageSize(size);
+  setInternalCurrentPage(1);
+
+  onPageSizeChange?.(size);
+};
 
   //   return (
   //     <div className={paginationClass}>

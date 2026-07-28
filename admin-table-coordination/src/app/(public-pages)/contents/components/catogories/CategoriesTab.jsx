@@ -26,6 +26,7 @@ import {
 import AddEditCategoryModal from "./AddEditCategoryModal";
 import AddEditSubcategoryModal from "./AddEditSubcategoryModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import Pagination from "@/components/ui/Pagination";
 
 /* ---------- SUBCATEGORY DROPDOWN CONTENT ---------- */
 const SubcategoryList = ({
@@ -172,7 +173,17 @@ const CategoriesTab = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [openCategory, setOpenCategory] = useState(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   // Category modal
   const [openModal, setOpenModal] = useState(false);
@@ -188,27 +199,51 @@ const CategoriesTab = () => {
   const [deleteTarget, setDeleteTarget] = useState(null); // { type: 'category' | 'subcategory', item }
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const [pagination, setPagination] = useState({
+    page: 1,
+    page_size: 10,
+    total_pages: 1,
+    total_items: 0,
+  });
+
   /* ---------- FETCH CATEGORIES ---------- */
-  const fetchCategories = useCallback(async () => {
-    if (!accessToken) return;
+  const fetchCategories = useCallback(
+    async (page = 1, search = "") => {
+      if (!accessToken) return;
 
-    try {
-      setLoading(true);
-      const response = await apiGetCategoryList(accessToken, 1, 100);
+      try {
+        setLoading(true);
+        const response = await apiGetCategoryList(
+          accessToken,
+          page,
+          pageSize,
+          search,
+        );
 
-      if (response?.status && response?.data) {
-        setCategories(response.data);
+        if (response?.status && response?.data) {
+          setCategories(response.data);
+          setPagination({
+            page: response.page,
+            page_size: response.page_size,
+            total_pages: response.total_pages,
+            total_items: response.total_items,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to fetch categories:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [accessToken]);
+    },
+    [accessToken, pageSize],
+  );
 
   useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+    fetchCategories(currentPage, debouncedSearch);
+  }, [fetchCategories, currentPage, debouncedSearch]);
 
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
@@ -227,7 +262,7 @@ const CategoriesTab = () => {
             {response.message}
           </Notification>,
         );
-        fetchCategories();
+        fetchCategories(currentPage);
       } else {
         await apiDeleteSubcategory(accessToken, deleteTarget.item.id);
         // Force subcategory list to refetch by toggling the open state
@@ -301,7 +336,6 @@ const CategoriesTab = () => {
 
   const handleSubSaveSuccess = () => {
     handleCloseSubModal();
-    // Force subcategory list to refetch
     const catId = openCategory;
     setOpenCategory(null);
     setTimeout(() => setOpenCategory(catId), 100);
@@ -311,15 +345,6 @@ const CategoriesTab = () => {
     setDeleteTarget({ type: "subcategory", item: sub });
     setDeleteDialogOpen(true);
   };
-
-  /* ---------- FILTER ---------- */
-  const filteredCategories = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return categories;
-    return categories.filter((cat) =>
-      cat.categoryName?.toLowerCase().includes(term),
-    );
-  }, [categories, search]);
 
   /* ---------- SKELETON ---------- */
   const ListSkeleton = () => (
@@ -394,7 +419,7 @@ const CategoriesTab = () => {
 
         {loading ? (
           <ListSkeleton />
-        ) : filteredCategories.length === 0 ? (
+        ) : categories.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
             No categories found
           </div>
@@ -407,7 +432,7 @@ const CategoriesTab = () => {
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
-                  {filteredCategories.map((cat, index) => (
+                  {categories.map((cat, index) => (
                     <Draggable
                       key={cat.id}
                       draggableId={String(cat.id)}
@@ -439,7 +464,7 @@ const CategoriesTab = () => {
                               </p>
                             </div>
 
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
                               {/* <FiChevronDown
                                 size={18}
                                 className={`text-[#1C2C56] transition-transform ${
@@ -453,9 +478,10 @@ const CategoriesTab = () => {
                                   setEditCategory(cat);
                                   setOpenModal(true);
                                 }}
-                                className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                                // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                                className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                               >
-                                <FiEdit2 size={18} />
+                                <FiEdit2 size={17} />
                               </button>
 
                               <button
@@ -467,9 +493,11 @@ const CategoriesTab = () => {
                                   });
                                   setDeleteDialogOpen(true);
                                 }}
-                                className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                                className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+
+                                // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                               >
-                                <FiTrash2 size={18} />
+                                <FiTrash2 size={17} />
                               </button>
                             </div>
                           </div>
@@ -504,6 +532,22 @@ const CategoriesTab = () => {
             </Droppable>
           </DragDropContext>
         )}
+      </div>
+
+      <div
+        className="flex justify-end mt-3"
+        style={{ marginRight: "6px", marginLeft: "6px" }}
+      >
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={pagination.total_items}
+          onChange={(page) => setCurrentPage(page)}
+          // onPageSizeChange={(size) => {
+          //   setPageSize(size);
+          //   setCurrentPage(1);
+          // }}
+        />
       </div>
 
       {/* Category Modal */}

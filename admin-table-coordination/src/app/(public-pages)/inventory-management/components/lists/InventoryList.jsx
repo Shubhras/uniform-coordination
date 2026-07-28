@@ -340,16 +340,17 @@ const InventoryList = () => {
                     <td className="px-4 py-3">{item.inspect_quantity ?? 0}</td>
 
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-0">
                         <button
                           onClick={() =>
                             router.push(
                               `/inventory-management/inventory-list/view?id=${item.id}`,
                             )
                           }
-                          className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                          // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                          className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                         >
-                          <FiEye size={16} />
+                          <FiEye size={17} />
                         </button>
 
                         <button
@@ -358,16 +359,19 @@ const InventoryList = () => {
                               `/inventory-management/add?mode=edit&id=${item.id}`,
                             )
                           }
-                          className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                          className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+
+                          // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                         >
-                          <FiEdit2 size={15} />
+                          <FiEdit2 size={17} />
                         </button>
 
                         <button
                           onClick={() => handleDeleteClick(item)}
-                          className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                          // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                          className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                         >
-                          <FiTrash2 size={15} />
+                          <FiTrash2 size={17} />
                         </button>
                       </div>
                     </td>

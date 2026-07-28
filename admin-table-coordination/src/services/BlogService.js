@@ -1,55 +1,73 @@
-import ApiService from './ApiService'
+import ApiService from "./ApiService";
 
-export async function apiGetBlogList(accessToken, page = 1, pageSize = 10) {
-    return ApiService.fetchDataWithAxios({
-        url: `/v1/space/uniformAdmin/blogs/list/?page=${page}&page_size=${pageSize}`,
-        method: 'get',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
-    })
+export async function apiGetBlogList(
+  accessToken,
+  page = 1,
+  pageSize = 10,
+  search = "",
+) {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    page_size: pageSize.toString(),
+  });
+
+  if (search.trim()) {
+    params.append("search", search.trim());
+  }
+
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/blogs/list/?${params.toString()}`,
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 }
 
 export async function apiDeleteBlog(accessToken, id) {
-    return ApiService.fetchDataWithAxios({
-        url: `/v1/space/uniformAdmin/blogs/delete/${id}/`,
-        method: 'delete',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
-    })
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/blogs/delete/${id}/`,
+    method: "delete",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 }
 
 export async function apiCreateBlog(accessToken, formData) {
-    return ApiService.fetchDataWithAxios({
-        url: `/v1/space/uniformAdmin/blogs/create/`,
-        method: 'post',
-        data: formData,
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data',
-        },
-    })
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/blogs/create/`,
+    method: "post",
+    data: formData,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
 }
 
 export async function apiUpdateBlog(accessToken, id, formData) {
-    return ApiService.fetchDataWithAxios({
-        url: `/v1/space/uniformAdmin/blogs/update/${id}/`,
-        method: 'put',
-        data: formData,
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data',
-        },
-    })
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/blogs/update/${id}/`,
+    method: "put",
+    data: formData,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
 }
 
-export async function apiGetBlogCategoryList(accessToken, page = 1, pageSize = 100) {
-    return ApiService.fetchDataWithAxios({
-        url: `/v1/space/uniformAdmin/categories/list/?page=${page}&page_size=${pageSize}`,
-        method: 'get',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
-    })
+export async function apiGetBlogCategoryList(
+  accessToken,
+  page = 1,
+  pageSize = 100,
+) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/categories/list/?page=${page}&page_size=${pageSize}`,
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 }

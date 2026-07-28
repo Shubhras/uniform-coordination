@@ -22,8 +22,8 @@ const Tabs = ({ activeTab, setActiveTab }) => {
         <button
           key={label}
           onClick={() => setActiveTab(label)}
-          className={`pb-3 text-base font-medium flex items-center gap-2 whitespace-nowrap ${activeTab === label
-            ? "text-[#1C2C56] border-b-4 border-[#1C2C56]"
+          className={`pb-1 text-base font-medium flex items-center gap-2 whitespace-nowrap ${activeTab === label
+            ? "text-[#1C2C56] border-b-3 border-[#1C2C56]"
             : "text-[#64748B]"
             }`}
         >

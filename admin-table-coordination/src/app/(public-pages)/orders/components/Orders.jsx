@@ -1,57 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { apiOrderRentalLists } from "@/services/OrderRentals";
 import Select from "react-select";
 import { FiSearch, FiEye, FiX } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import Spinner from "@/components/ui/Spinner";
+import Pagination from "@/components/ui/Pagination";
 
-const ordersData = [
-  {
-    id: 1,
-    orderId: "ORD-2024-0091",
-    customer: "Maison Dorval",
-    type: "B2B",
-    period: "12 Jun – 26 Jun 2024",
-    amount: "₹4,850.00",
-    status: "Delivered",
-  },
-  {
-    id: 2,
-    orderId: "ORD-2024-0092",
-    customer: "Robert Fox",
-    type: "B2C",
-    period: "12 Jun – 26 Jun 2024",
-    amount: "₹4,850.00",
-    status: "Delivered",
-  },
-  {
-    id: 3,
-    orderId: "ORD-2024-0093",
-    customer: "Cody Fisher",
-    type: "B2B",
-    period: "12 Jun – 26 Jun 2024",
-    amount: "₹4,850.00",
-    status: "Returned",
-  },
-  {
-    id: 4,
-    orderId: "ORD-2024-0291",
-    customer: "Sophie Laurent",
-    type: "B2C",
-    period: "8 Jun – 10 Jun 2024",
-    amount: "₹620.00",
-    status: "Returned",
-  },
-  {
-    id: 5,
-    orderId: "ORD-2024-0097",
-    customer: "Wade Warren",
-    type: "B2B",
-    period: "12 Jun – 26 Jun 2024",
-    amount: "₹4,850.00",
-    status: "Shipped",
-  },
-];
+const selectStyles = {
+  control: (base) => ({
+    ...base,
+    minHeight: "44px",
+    borderColor: "#EFE5DD",
+    boxShadow: "none",
+    borderRadius: "8px",
+    "&:hover": {
+      borderColor: "#C08457",
+    },
+  }),
+
+  singleValue: (base) => ({
+    ...base,
+    color: "#A85A32B2",
+  }),
+
+  placeholder: (base) => ({
+    ...base,
+    color: "#A85A32B2",
+  }),
+
+  menu: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? "#A0522D"
+      : state.isFocused
+        ? "#F8F2ED"
+        : "#fff",
+    color: state.isSelected ? "#fff" : "#444",
+  }),
+};
 
 const customerOptions = [
   { value: "all", label: "All Customers" },
@@ -69,64 +63,80 @@ const statusOptions = [
 ];
 
 export default function Orders() {
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
+  const [ordersData, setOrdersData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [customer, setCustomer] = useState(customerOptions[0]);
   const [status, setStatus] = useState(statusOptions[0]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const selectStyles = {
-    control: (base) => ({
-      ...base,
-      minHeight: "44px",
-      borderColor: "#EFE5DD",
-      boxShadow: "none",
-      borderRadius: "8px",
-      "&:hover": {
-        borderColor: "#C08457",
-      },
-    }),
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-    singleValue: (base) => ({
-      ...base,
-      color: "#A85A32B2",
-    }),
+  const [pagination, setPagination] = useState({
+    total_items: 0,
+    total_pages: 1,
+  });
 
-    placeholder: (base) => ({
-      ...base,
-      color: "#A85A32B2",
-    }),
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    menu: (base) => ({
-      ...base,
-      zIndex: 9999,
-    }),
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
 
-    option: (base, state) => ({
-      ...base,
-      backgroundColor: state.isSelected
-        ? "#A0522D"
-        : state.isFocused
-          ? "#F8F2ED"
-          : "#fff",
-      color: state.isSelected ? "#fff" : "#444",
-    }),
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const fetchOrders = async () => {
+    if (!accessToken) return;
+
+    try {
+      setLoading(true);
+
+      const res = await apiOrderRentalLists(
+        accessToken,
+        currentPage,
+        pageSize,
+        debouncedSearch,
+      );
+
+      if (res?.status) {
+        setOrdersData(res.data || []);
+        setPagination(res.pagination);
+      }
+    } catch (err) {
+      console.error("Order List Error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <div className="min-h-screen bg-[#FAF8F6] px-4 py-5">
-      {/* Heading */}
-      <div className="mb-6">
-        <h1 className="text-[28px] font-bold text-[#1A1410]">
-          Order & Rentals
-        </h1>
+  useEffect(() => {
+    fetchOrders();
+  }, [accessToken, currentPage, pageSize, debouncedSearch]);
 
-        <p className="text-[15px] text-[#757575] mt-1">
-          Manage rental orders, deliveries and returns.
-        </p>
-      </div>
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
-        {/* <div className="relative w-full lg:max-w-xl">
+  return (
+    <>
+      <div className="min-h-screen bg-white px-4 py-5">
+        {/* Heading */}
+        <div className="mb-6">
+          <h1 className="text-[28px] font-bold text-[#1A1410]">
+            Order & Rentals
+          </h1>
+
+          <p className="text-[16px] text-[#757575] mt-1">
+            Manage rental orders, deliveries and returns.
+          </p>
+        </div>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
+          {/* <div className="relative w-full lg:max-w-xl">
           <FiSearch className="absolute left-4  top-1/2 -translate-y-1/2 text-[#C08457] text-sm" />
 
           <input
@@ -135,155 +145,206 @@ export default function Orders() {
             className="w-full h-11 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
           />
         </div> */}
-        <div className="relative w-full lg:max-w-xl">
-          <FiSearch className="absolute left-4  top-1/2 -translate-y-1/2 text-[#C08457] text-sm" />
+          <div className="relative w-full lg:max-w-xl">
+            <FiSearch
+              onClick={() => {
+                setSearchQuery("");
+                setCurrentPage(1);
+              }}
+              className="absolute left-4  top-1/2 -translate-y-1/2 text-[#C08457] text-sm"
+            />
 
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-11 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2"
-            >
-              <FiX className="text-gray-500" />
-            </button>
-          )}
-        </div>
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-11 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2"
+              >
+                <FiX className="text-gray-500" />
+              </button>
+            )}
+          </div>
 
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          {/* Filters */}
-          <div className="flex gap-3">
-            <div className="w-52">
-              <Select
-                value={customer}
-                onChange={setCustomer}
-                options={customerOptions}
-                styles={selectStyles}
-                isSearchable={false}
-              />
-            </div>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            {/* Filters */}
+            <div className="flex gap-3">
+              <div className="w-52">
+                <Select
+                  value={customer}
+                  onChange={setCustomer}
+                  options={customerOptions}
+                  styles={selectStyles}
+                  isSearchable={false}
+                />
+              </div>
 
-            <div className="w-52">
-              <Select
-                value={status}
-                onChange={setSearch}
-                options={statusOptions}
-                styles={selectStyles}
-                isSearchable={false}
-              />
+              <div className="w-52">
+                <Select
+                  value={status}
+                  onChange={setSearch}
+                  options={statusOptions}
+                  styles={selectStyles}
+                  isSearchable={false}
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      {/* Table Part will come in Part 2 */}
-      <div className="overflow-x-auto rounded-l border border-[#EFE5DD] bg-white">
-        <table className="min-w-full">
-          <thead className="bg-[#F8F3EE]">
-            <tr className="text-left text-[15px] font-medium text-[#5F6368]">
-              <th className="px-5 py-4 font-medium">Order ID</th>
-              <th className="px-5 py-4 font-medium">Customer</th>
-              <th className="px-5 py-4 font-medium">Type</th>
-              <th className="px-5 py-4 font-medium">Rental Period</th>
-              <th className="px-5 py-4 font-medium">Amount</th>
-              <th className="px-5 py-4 font-medium">Status</th>
-              <th className="px-5 py-4 font-medium text-center">Action</th>
-            </tr>
-          </thead>
+        {/* Table Part will come in Part 2 */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-[#F1F5F9] text-[#486284]">
+              <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
+                <th className="text-left px-4 py-3 font-medium">Name</th>
+                <th className="text-left px-4 py-3 font-medium">Email</th>
+                <th className="text-left px-4 py-3 font-medium">Role</th>
+                <th className="text-left px-4 py-3 font-medium">Address</th>
+                <th className="text-left px-4 py-3 font-medium">
+                  Payment Status
+                </th>
+                <th className="text-left px-4 py-3 font-medium">Status</th>
+                <th className="text-left px-4 py-3 font-medium">Order Type</th>
+                <th className="text-left px-4 py-3 font-medium">Action</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {ordersData.map((order, index) => (
-              <tr
-                key={order.id}
-                className={`border-t border-[#F3ECE7] text-[14px] ${
-                  index % 2 === 0 ? "bg-white" : "bg-[#FCF9F6]"
-                }`}
-              >
-                {/* Order ID */}
-
-                <td className="px-5 py-5 font-semibold text-[#2C1A0E] whitespace-nowrap">
-                  {order.orderId}
-                </td>
-
-                {/* Customer */}
-
-                <td className="px-5 py-5 text-[#2C1A0E] font-medium whitespace-nowrap">
-                  {order.customer}
-                </td>
-
-                {/* Type */}
-
-                <td className="px-5 py-5">
-                  <span
-                    className={`inline-flex items-center rounded-md px-2.5 py-1 text-[11px] font-medium ${
-                      order.type === "B2B"
-                        ? "bg-[#FDF2EC] text-[#C96B39] border border-[#F3D4C2]"
-                        : "bg-[#EAF5FF] text-[#2485D3] border border-[#CFE6FA]"
+            <tbody>
+              {ordersData.length > 0 ? (
+                ordersData.map((order, index) => (
+                  <tr
+                    key={order.id}
+                    className={`border-t border-[#F3ECE7] text-[14px] ${
+                      index % 2 === 0 ? "bg-white" : "bg-[#FCF9F6]"
                     }`}
                   >
-                    {order.type}
-                  </span>
-                </td>
+                    {/* Name */}
+                    <td className="px-5 py-5 font-medium text-[#2C1A0E]">
+                      {order.customer?.full_name || "-"}
+                    </td>
 
-                {/* Rental Period */}
+                    {/* Email */}
+                    <td className="px-5 py-5 text-[#2C1A0E]">
+                      {order.customer?.email || "-"}
+                    </td>
+                    <td className="px-5 py-5">
+                      <span
+                        className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase border ${
+                          order.customer?.role === "b2b"
+                            ? "bg-[#EEF4FF] text-[#2563EB] border-[#C8DAFF]"
+                            : order.customer?.role === "b2c"
+                              ? "bg-[#F4EAFF] text-[#9333EA] border-[#E3CCFF]"
+                              : "bg-[#F3F4F6] text-[#4B5563] border-[#D1D5DB]"
+                        }`}
+                      >
+                        {order.customer?.role || "-"}
+                      </span>
+                    </td>
 
-                <td className="px-5 py-5 text-[#2C1A0E] whitespace-nowrap">
-                  {order.period}
-                </td>
+                    {/* Address */}
+                    <td className="px-5 py-5 text-[#2C1A0E]">
+                      {[
+                        order.customer?.address?.address_line_1,
+                        order.customer?.address?.country,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </td>
 
-                {/* Amount */}
+                    {/* Payment Status */}
+                    <td className="px-5 py-5">
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-[11px] font-medium capitalize ${
+                          order.payment?.payment_status === "success"
+                            ? "bg-[#E8FFF5] text-[#0E9F6E] border border-[#B6E7D2]"
+                            : "bg-[#FFF4E5] text-[#D97706] border border-[#FCD34D]"
+                        }`}
+                      >
+                        {order.payment?.payment_status || "Pending"}
+                      </span>
+                    </td>
 
-                <td className="px-5 py-5 font-semibold text-[#2C1A0E] whitespace-nowrap">
-                  {order.amount}
-                </td>
+                    {/* Order Status */}
+                    <td className="px-4 py-5">
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-[11px] font-medium capitalize ${
+                          order.status === "pending"
+                            ? "bg-[#FFF4E5] text-[#D97706] border border-[#FCD34D]"
+                            : order.status === "delivered"
+                              ? "bg-[#E8FFF5] text-[#0E9F6E] border border-[#B6E7D2]"
+                              : order.status === "returned"
+                                ? "bg-[#F4EAFF] text-[#9333EA] border border-[#E3CCFF]"
+                                : "bg-[#EEF4FF] text-[#2563EB] border border-[#C8DAFF]"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </td>
 
-                {/* Status */}
+                    {/* Order Type */}
+                    <td className="px-5 py-5">
+                      <span className="inline-flex rounded-md border border-[#F3D4C2] bg-[#FDF2EC] px-2.5 py-1 text-[11px] font-medium text-[#C96B39] capitalize">
+                        {order.order_type}
+                      </span>
+                    </td>
 
-                <td className="px-5 py-5">
-                  {order.status === "Delivered" && (
-                    <span className="inline-flex rounded-full border border-[#B6E7D2] bg-[#E8FFF5] px-3 py-1 text-[11px] font-medium text-[#0E9F6E]">
-                      Delivered
-                    </span>
-                  )}
-
-                  {order.status === "Returned" && (
-                    <span className="inline-flex rounded-full border border-[#E3CCFF] bg-[#F4EAFF] px-3 py-1 text-[11px] font-medium text-[#9333EA]">
-                      Returned
-                    </span>
-                  )}
-
-                  {order.status === "Shipped" && (
-                    <span className="inline-flex rounded-full border border-[#C8DAFF] bg-[#EEF4FF] px-3 py-1 text-[11px] font-medium text-[#2563EB]">
-                      Shipped
-                    </span>
-                  )}
-                </td>
-
-                {/* Action */}
-
-                <td className="px-5 py-5">
-                  <div className="flex justify-center">
-                    <button
-                      onClick={() => router.push(`/orders/${order.id}`)}
-                      className="inline-flex items-center gap-2 rounded-md border border-[#E6CDBB] bg-white px-4 py-1.5 text-[13px] font-medium text-[#A85A32] transition hover:bg-[#FFF7F2]"
-                    >
-                      <FiEye size={14} />
-                      View
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    {/* Action */}
+                    <td className="px-5 py-5">
+                      <div className="flex">
+                        <button
+                          onClick={() =>
+                            router.push(`/orders/${order.order_id}`)
+                          }
+                          className="inline-flex items-center gap-2 rounded-md border border-[#E6CDBB] bg-white px-4 py-1.5 text-[13px] font-medium text-[#A85A32] hover:bg-[#FFF7F2]"
+                        >
+                          <FiEye size={14} />
+                          View
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="py-10">
+                    {loading ? (
+                      <div className="flex justify-center">
+                        <Spinner size={40} customColorClass="text-[#A0522D]" />
+                      </div>
+                    ) : (
+                      <div className="text-center text-gray-500">
+                        No Orders Found
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div
+          className="flex justify-end mt-3"
+          style={{ marginRight: "6px", marginLeft: "6px" }}
+        >
+          <Pagination
+            currentPage={currentPage}
+            pageSize={pageSize}
+            total={pagination.total_items}
+            onChange={(page) => setCurrentPage(page)}
+            // onPageSizeChange={(size) => {
+            //   setPageSize(size);
+            //   setCurrentPage(1);
+            // }}
+          />
+        </div>
       </div>
-      ;
-    </div>
+    </>
   );
 }
 
