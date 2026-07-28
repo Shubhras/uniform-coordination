@@ -44,22 +44,25 @@ export async function apiGetOverviewSummary(token, data) {
   });
 }
 
-export async function apiUserOrderList(token, userId) {
+export async function apiUserOrderList(token, params) {
   return ApiService.fetchDataWithAxios({
     url: "/v1/space/userhub/user/order/list/",
     method: "get",
     headers: {
       Authorization: `Bearer ${token}`,
-    }
+    },
+    params: params,
   });
 }
 
 export async function apiSindleOrderDetials(token, id) {
+  const data = { "order_id": id }
   return ApiService.fetchDataWithAxios({
-    url: "/v1/space/userhub/user/order/get/",
-    method: "get",
+    url: `/v1/space/userhub/order/${id}/get/`,
+    method: "post",
     headers: {
       Authorization: `Bearer ${token}`,
-    }
+    },
+    data: data,
   });
 }

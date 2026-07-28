@@ -10,7 +10,7 @@ const ThankyouPopup = ({ isOpen, onClose, orderData }) => {
         if (onClose) {
             onClose()
         }
-        router.push('/profile/my-order-rentals/active-orders')
+        router.push('/profile/my-order-rentals')
     }
 
     const customer = orderData?.customer

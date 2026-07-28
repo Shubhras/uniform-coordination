@@ -13,6 +13,7 @@ import {
 import { GoArrowRight } from 'react-icons/go'
 import { apiGetProfile } from '@/services/AuthProfileService'
 import { useRouter } from 'next/navigation'
+import { apiUserOrderList } from '@/services/OrderService'
 
 const MyProfile = () => {
     const router = useRouter()
@@ -21,6 +22,7 @@ const MyProfile = () => {
     const [profile, setProfile] = useState(null)
     const [image, setImage] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [ordersList, setOrdersList] = useState([])
     useEffect(() => {
         if (!session?.accessToken) return
         const fetchProfile = async () => {
@@ -38,7 +40,35 @@ const MyProfile = () => {
 
         fetchProfile()
     }, [session?.accessToken])
-    //console.log('11',session.accessToken)
+    useEffect(() => {
+        const fetchActiveOrders = async () => {
+            if (!session?.accessToken) return
+            try {
+                setLoading(true)
+                const params = {
+                    page: 1,
+                    page_size: 3,
+                }
+
+                const response = await apiUserOrderList(session.accessToken, params)
+                //console.log('=== apiUserOrderList Active Orders Response ===', response)
+                if (response?.status && Array.isArray(response?.data)) {
+                    setOrdersList(response.data)
+                } else {
+                    setOrdersList([])
+                }
+
+            } catch (err) {
+                console.error('Error fetching active orders:', err)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchActiveOrders()
+    }, [session?.accessToken])
+
+
     const handleSelectImage = (e) => {
         const file = e.target.files[0]
         if (!file) return
@@ -53,6 +83,9 @@ const MyProfile = () => {
     //         fileRef.current.value = ''
     //     }
     // }
+    const handleViewDetails = (orderId) => {
+        router.push(`/profile/my-order-rentals/${orderId}`)
+    }
     return (
         <div className="max-w-7xl mx-auto space-y-6">
             {/* ================= Profile Card ================= */}
@@ -227,7 +260,7 @@ const MyProfile = () => {
                             <FiBox /> Recent Orders
                         </h4>
                         <button
-                            onClick={() => router.push('/profile/my-order-rentals/active-orders')}
+                            onClick={() => router.push('/profile/my-order-rentals')}
                             className="text-xs text-[#A0522D] font-medium flex items-center gap-1">
                             View All <GoArrowRight />
                         </button>
@@ -239,11 +272,11 @@ const MyProfile = () => {
                             <div>
                                 <p className="text-xs text-[#8B6A55]">Order Number</p>
                                 <p className="text-sm font-semibold text-[#A0522D]">
-                                    #ORD-10234
+                                    {ordersList[0]?.order_id}
                                 </p>
                             </div>
                             <span className="text-[11px] bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                                Completed
+                                {ordersList[0]?.status}
                             </span>
                         </div>
 
@@ -251,13 +284,13 @@ const MyProfile = () => {
                             <div>
                                 <p className="text-xs text-[#8B6A55]">Date</p>
                                 <p className="text-sm font-medium text-[#5A3E2B]">
-                                    December 2025
+                                    {ordersList[0]?.created_at}
                                 </p>
                             </div>
                             <div>
                                 <p className="text-xs text-[#8B6A55]">Total Amount</p>
                                 <p className="text-sm font-medium text-[#5A3E2B]">
-                                    ¥454.00
+                                    ¥{ordersList[0]?.total_amount}
                                 </p>
                             </div>
                         </div>
@@ -266,6 +299,7 @@ const MyProfile = () => {
                             <Button
                                 size="sm"
                                 className="bg-[#A0522D] hover:bg-[#8B4513] text-white w-full"
+                                onClick={() => handleViewDetails(ordersList[0]?.order_id)}
                             >
                                 View Details
                             </Button>
@@ -286,14 +320,11 @@ const MyProfile = () => {
                         </p>
 
                         <div className="space-y-2">
-                            {[
-                                { id: '#FORM-2024-TPRO', sub: 'Medical Scrubs Bulk' },
-                                { id: '#FORM-2024-SFDB', sub: 'Corporate Shirts' },
-                                { id: 'Corporate Girl', sub: 'Custom Uniform Set' },
-                            ].map((item, i) => (
+                            {ordersList.map((item, i) => (
                                 <div
                                     key={i}
                                     className="flex justify-between items-center bg-[#E0D1C7DB] rounded-lg px-4 py-3 cursor-pointer"
+                                    onClick={() => handleViewDetails(item.order_id)}
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 bg-white rounded-md">
@@ -301,10 +332,10 @@ const MyProfile = () => {
                                         </div>
                                         <div>
                                             <p className="text-xs font-medium text-[#5A3E2B]">
-                                                {item.id}
+                                                {item.order_id}
                                             </p>
                                             <p className="text-[11px] text-[#8B6A55]">
-                                                {item.sub}
+                                                {item.item_name}
                                             </p>
                                         </div>
                                     </div>
@@ -313,7 +344,9 @@ const MyProfile = () => {
                             ))}
                         </div>
 
-                        <p className="text-xs text-center mt-4 text-[#A0522D] cursor-pointer">
+                        <p className="text-xs text-center mt-4 text-[#A0522D] cursor-pointer"
+                            onClick={() => router.push('/profile/my-order-rentals')}
+                        >
                             View All Linked Orders
                         </p>
                     </div>
