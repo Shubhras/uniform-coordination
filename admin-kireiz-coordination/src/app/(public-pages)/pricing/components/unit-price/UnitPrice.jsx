@@ -25,11 +25,11 @@ const UnitPrice = () => {
 
     /* ---------- FETCH ---------- */
     const fetchUnitPrices = useCallback(async () => {
-        if (!accessToken) return;
+        // if (!accessToken) return;
 
         try {
             setLoading(true);
-            const response = await apiGetUnitPriceList(accessToken);
+            const response = await apiGetUnitPriceList();
 
             if (response?.status && response?.data) {
                 setData(response.data);
@@ -39,7 +39,7 @@ const UnitPrice = () => {
         } finally {
             setLoading(false);
         }
-    }, [accessToken]);
+    }, []);
 
     useEffect(() => {
         fetchUnitPrices();

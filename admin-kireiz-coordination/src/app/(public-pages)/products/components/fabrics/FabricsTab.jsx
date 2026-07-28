@@ -28,6 +28,17 @@ const FabricsTab = () => {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const [pagination, setPagination] = useState({
     page: 1,
     page_size: 10,
@@ -47,11 +58,15 @@ const FabricsTab = () => {
   // Fetch fabrics
   const fetchFabrics = useCallback(
     async (page = 1) => {
-      if (!accessToken) return;
+      // if (!accessToken) return;
 
       try {
         setLoading(true);
-        const response = await apiGetFabricList(accessToken, page, pageSize);
+        const response = await apiGetFabricList(
+          page,
+          pageSize,
+          debouncedSearch,
+        );
 
         if (response?.status && response?.data) {
           setFabrics(response.data);
@@ -65,7 +80,7 @@ const FabricsTab = () => {
         setLoading(false);
       }
     },
-    [accessToken],
+    [debouncedSearch, pageSize],
   );
 
   useEffect(() => {
