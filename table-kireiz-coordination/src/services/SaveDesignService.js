@@ -48,7 +48,7 @@ export async function apiExportDesignPdf(id, token) {
 }
 
 
-export async function apiGetModalInfo(id, token) {
+export async function apiGetModalInfoDesignById(id, token) {
   return ApiService.fetchDataWithAxios({
     url: `/v1/space/userhub/customupdatemodels/${id}/get/`,
     responseType: "json",

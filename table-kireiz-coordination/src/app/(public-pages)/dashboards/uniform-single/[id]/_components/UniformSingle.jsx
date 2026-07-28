@@ -6,44 +6,50 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FiChevronDown, FiArrowLeft } from 'react-icons/fi'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
 const filters = ['All', 'Scrub', 'Lab Coats', 'Patient Care', 'Administrative']
 const sortOptions = ['Popular', 'Newest', 'Price: Low to High', 'Price: High to Low']
 
 const UniformSingle = () => {
     const { id } = useParams()
 
-    const [activeFilter, setActiveFilter] = useState('All')
-    const [sortBy, setSortBy] = useState('Popular')
-    const [openSort, setOpenSort] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(null)
-    const router = useRouter()
-    const [circleColor, setCircleColor] = useState('#BFE3F9')
-    const [product, setProduct] = useState(null)
 
-    const colors = [
-        '#1C2C56',
-        '#000000',
-        '#BFE3F9',
-        '#A7F3D0',
-        '#FEF08A'
-    ]
+    const router = useRouter()
+    // const [circleColor, setCircleColor] = useState('#BFE3F9')
+    const [singleProductData, setSingleProductData] = useState(null)
+
+    // const colors = [
+    //     '#1C2C56',
+    //     '#000000',
+    //     '#BFE3F9',
+    //     '#A7F3D0',
+    //     '#FEF08A'
+    // ]
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
                 setLoading(true)
-                setError(null)
-                setProduct(null)
+                setSingleProductData(null)
 
                 const res = await apiGetProductDetailsById(id)
 
                 if (res?.status && res?.data) {
-                    setProduct(res.data)
+                    setSingleProductData(res.data)
                 } else {
-                    setError('Product not found')
+                    toast.push(
+                        <Notification title="Error!" type="danger">
+                            {res?.message || 'Product not found'}
+                        </Notification>
+                    )
                 }
             } catch (err) {
-                setError('Something went wrong while loading product details')
+                toast.push(
+                    <Notification title="Error!" type="danger">
+                        Failed to load product detail
+                    </Notification>
+                )
                 console.error("Failed to load product detail", err)
             } finally {
                 setLoading(false)
@@ -61,76 +67,29 @@ const UniformSingle = () => {
     return (
         <section className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10 mt-15 ">
             <div className="w-full mx-auto">
-                {/* <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p> */}
-                <div className="flex items-center gap-2 py-5">
+                <div className="flex items-center gap-2 py-5 md:pt-1">
                     <button onClick={() => router.back()} className="text-[#1C2C56] hover:text-[#1C4FA8] transition-colors" title="Go Back">
                         <FiArrowLeft size={20} />
                     </button>
                     <p className='text-sm text-[#7B3C1D]'>
                         <Link href="/kireiz-form" className="hover:underline hover:text-[#1C4FA8] cursor-pointer">My dashboard</Link>
                         {' '} / {' '}
-                        <Link href={`/medical-form/${product?.category?.id}`} className="hover:underline hover:text-[#1C4FA8] cursor-pointer">{product?.category?.categoryName}</Link>
+                        <Link href={`/medical-form/${singleProductData?.category?.id}`} className="hover:underline hover:text-[#1C4FA8] cursor-pointer">{singleProductData?.category?.categoryName}</Link>
                         {' '} / {' '}
-                        {product?.subcategory?.name}
+                        {singleProductData?.subcategory?.name}
                     </p>
                 </div>
-                {/* FILTER + SORT */}
-                {/* <div className="flex flex-col lg:flex-row justify-between gap-4 mb-5">
-                   
-                    <div className="flex flex-wrap items-center gap-2 border border-[#1C2C56] bg-[#F5F8FF] rounded-lg px-3 py-2">
-                        <span className="text-sm font-medium text-[#1C2C56] mr-1">Filters :</span>
-                        {filters.map(item => (
-                            <button
-                                key={item}
-                                onClick={() => setActiveFilter(item)}
-                                className={`text-sm px-3 py-1 rounded-md transition
-                  ${activeFilter === item
-                                        ? 'bg-[#1C2C56] text-white'
-                                        : 'text-[#1C2C56] hover:bg-[#1C2C5615]'
-                                    }`}
-                            >
-                                {item}
-                            </button>
-                        ))}
-                    </div>
-                    <div className="relative">
-                        <button
-                            onClick={() => setOpenSort(!openSort)}
-                            className="flex items-center justify-between gap-2 border border-[#1C2C56] bg-[#F5F8FF]
-              px-4 py-3 rounded-lg text-sm min-w-[190px]"
-                        >
-                            <span>Sort By : <b>{sortBy}</b></span>
-                            <FiChevronDown />
-                        </button>
 
-                        {openSort && (
-                            <div className="absolute right-0 mt-2 w-full bg-white border rounded-lg shadow-md z-20">
-                                {sortOptions.map(option => (
-                                    <button
-                                        key={option}
-                                        onClick={() => {
-                                            setSortBy(option)
-                                            setOpenSort(false)
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm hover:bg-[#F5F8FF]"
-                                    >
-                                        {option}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div> */}
                 {/* HEADER */}
                 <div className='bg-[#F5F8FF] rounded-xl md:p-8 p-5'>
                     <div className="text-center mb-8">
                         <h2 className="text-[#7B3C1D] text-3xl font-semibold capitalize">
-                            {product?.productName || 'Product Details'}
+                            {singleProductData?.productName || 'Product Details'}
                         </h2>
                         <div className="w-20 h-1 bg-[#7B3C1D] mx-auto mt-2 rounded-full" />
-                        {product?.category?.categoryName && (
+                        {singleProductData?.category?.categoryName && (
                             <p className="text-[#8B5A3C] mt-2 text-sm font-medium">
-                                Category: {product.category.categoryName} {product.subcategory?.name ? `| ${product.subcategory.name}` : ''}
+                                Category: {singleProductData.category.categoryName} {singleProductData.subcategory?.name ? `| ${singleProductData.subcategory.name}` : ''}
                             </p>
                         )}
                     </div>
@@ -146,44 +105,37 @@ const UniformSingle = () => {
                                 </div>
                             )}
 
-                            {/* ERROR */}
-                            {!loading && error && (
-                                <p className="text-center text-sm text-red-600">
-                                    {error}
-                                </p>
-                            )}
-
                             {/* EMPTY */}
-                            {!loading && !error && !product && (
+                            {!loading && !singleProductData && (
                                 <p className="text-center text-sm text-[#6B7280]">
                                     No product data available
                                 </p>
                             )}
 
                             {/* DATA */}
-                            {!loading && !error && product && (
+                            {!loading && singleProductData && (
                                 <>
                                     <div className="flex flex-col gap-3">
                                         <div className="flex justify-between items-start">
                                             <h3 className="text-[#2C1810] text-2xl font-semibold capitalize">
-                                                {product.productName}
+                                                {singleProductData.productName}
                                             </h3>
                                         </div>
 
                                         <div className="flex flex-wrap items-center gap-4 text-sm mt-1">
                                             <div>
                                                 <span className="text-[#6B7280]">Price: </span>
-                                                <span className="text-[#7B3C1D] font-bold text-lg">₹{product.price}</span>
+                                                <span className="text-[#7B3C1D] font-bold text-lg">₹{singleProductData.price}</span>
                                             </div>
-                                            {product.rental_price_per_day && (
+                                            {singleProductData.rental_price_per_day && (
                                                 <div className="border-l border-gray-300 pl-4">
                                                     <span className="text-[#6B7280]">Rental: </span>
-                                                    <span className="text-[#1C2C56] font-semibold">₹{product.rental_price_per_day} <span className="text-xs font-normal text-gray-500">/ day</span></span>
+                                                    <span className="text-[#1C2C56] font-semibold">₹{singleProductData.rental_price_per_day} <span className="text-xs font-normal text-gray-500">/ day</span></span>
                                                 </div>
                                             )}
-                                            {product.discount > 0 && (
+                                            {singleProductData.discount > 0 && (
                                                 <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-md font-medium">
-                                                    Save {product.discount}%
+                                                    Save {singleProductData.discount}%
                                                 </span>
                                             )}
                                         </div>
@@ -203,7 +155,7 @@ const UniformSingle = () => {
                                                 Description
                                             </h4>
                                             <p className="text-[#6B7280] text-sm leading-relaxed">
-                                                {product.description || 'No description available'}
+                                                {singleProductData.description || 'No description available'}
                                             </p>
                                         </div>
 
@@ -213,40 +165,40 @@ const UniformSingle = () => {
                                                 Product Specifications
                                             </h4>
                                             <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs sm:text-sm">
-                                                {product.fabric_details?.name && (
+                                                {singleProductData.fabric_details?.name && (
                                                     <div>
                                                         <span className="text-gray-500">Fabric: </span>
-                                                        <span className="font-medium text-gray-800">{product.fabric_details.name}</span>
+                                                        <span className="font-medium text-gray-800">{singleProductData.fabric_details.name}</span>
                                                     </div>
                                                 )}
-                                                {product.color_details?.name && (
+                                                {singleProductData.color_details?.name && (
                                                     <div>
                                                         <span className="text-gray-500">Color: </span>
-                                                        <span className="font-medium text-gray-800">{product.color_details.name}</span>
+                                                        <span className="font-medium text-gray-800">{singleProductData.color_details.name}</span>
                                                     </div>
                                                 )}
-                                                {product.size && (
+                                                {singleProductData.size && (
                                                     <div>
                                                         <span className="text-gray-500">Size: </span>
-                                                        <span className="font-medium text-gray-800">{product.size}</span>
+                                                        <span className="font-medium text-gray-800">{singleProductData.size}</span>
                                                     </div>
                                                 )}
-                                                {product.style && (
+                                                {singleProductData.style && (
                                                     <div>
                                                         <span className="text-gray-500">Style: </span>
-                                                        <span className="font-medium text-gray-800 capitalize">{product.style}</span>
+                                                        <span className="font-medium text-gray-800 capitalize">{singleProductData.style}</span>
                                                     </div>
                                                 )}
-                                                {product.table_shape && (
+                                                {singleProductData.table_shape && (
                                                     <div>
                                                         <span className="text-gray-500">Shape: </span>
-                                                        <span className="font-medium text-gray-800 capitalize">{product.table_shape}</span>
+                                                        <span className="font-medium text-gray-800 capitalize">{singleProductData.table_shape}</span>
                                                     </div>
                                                 )}
-                                                {product.productType && (
+                                                {singleProductData.productType && (
                                                     <div>
                                                         <span className="text-gray-500">Type: </span>
-                                                        <span className="font-medium text-gray-800 capitalize">{product.productType}</span>
+                                                        <span className="font-medium text-gray-800 capitalize">{singleProductData.productType}</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -280,7 +232,7 @@ const UniformSingle = () => {
                             <div className="relative z-10">
                                 <Image
                                     //src="/img/uniform/uniform.png"
-                                    src={product?.ProductImage || '/img/uniform/uniform.png'}
+                                    src={singleProductData?.ProductImage || '/img/table-form/3d-table.png'}
                                     alt="Uniform"
                                     width={450}
                                     height={800}

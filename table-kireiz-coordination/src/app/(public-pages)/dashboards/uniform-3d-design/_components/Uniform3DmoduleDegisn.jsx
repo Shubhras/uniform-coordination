@@ -4,7 +4,7 @@ import '@google/model-viewer'
 import { useEffect, useRef, useState } from 'react'
 import ColorPickerPopup from './ColorPickerPopup'
 // const SAMPLE_MODEL = '/img/3dmodels/Astronaut.glb'
-const SAMPLE_MODEL = '/img/3dmodels/doctor_uniform.glb'
+// const SAMPLE_MODEL = '/img/3dmodels/doctor_uniform.glb'
 const FALLBACK_MODEL = '' //'https://modelviewer.dev/shared-assets/models/Astronaut.glb'
 import Button from '@/components/ui/Button';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
@@ -14,9 +14,14 @@ import { IoIosArrowForward } from 'react-icons/io'
 import { FiMinus, FiPlus } from "react-icons/fi";
 import { apiModelInfoCreate, apiSaveDesign } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
+import { apiGetProductDetailsById } from '@/services/ProductService'
 const Uniform3DmoduleDegisn = () => {
   // product id
   const { id } = useParams();
+  const [loading, setLoading] = useState(false)
+  const [singleProductData, setSingleProductData] = useState(null)
   const [shapeOpen, setShapeOpen] = useState(false)
   const [sittingOpen, setSittingOpen] = useState(false)
   const { data: session } = useSession();
@@ -37,7 +42,7 @@ const Uniform3DmoduleDegisn = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const mvRef = useRef(null)
-  const [modelSrc, setModelSrc] = useState(SAMPLE_MODEL)
+  // const [modelSrc, setModelSrc] = useState(SAMPLE_MODEL)
   const [active, setActive] = useState('tableShape')
   const [autoRotate, setAutoRotate] = useState(true)
   const [color, setColor] = useState('#7fc7ff')
@@ -54,10 +59,11 @@ const Uniform3DmoduleDegisn = () => {
   const [selectedTheme, setSelectedTheme] = useState({
     title: 'Loading Theme...',
     description: 'Please wait while we load the theme details.',
-    gallery: ['/img/placeholder.png'],
+    gallery: ['/img/table-form/full-venue.png'],
     packageLabel: 'Items Included',
     packageValueLabel: 'Estimated Package Value',
     priceLabel: 'Price TBD',
+    cardImage: '/img/table-form/full-venue.png',
     items: [
       { title: 'Table Setup', items: [] },
       { title: 'Floral & Decor', items: [] },
@@ -103,10 +109,6 @@ const Uniform3DmoduleDegisn = () => {
     color: "Beige"
   });
 
-
-  // const handleUniformDesignResult = () => {
-  //   router.push("/cart-summary");
-  // };
   function onIconClick(key) {
     setActive(prev => {
       if (prev === key) {
@@ -116,11 +118,42 @@ const Uniform3DmoduleDegisn = () => {
       return key
     })
   }
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      try {
+        setLoading(true)
+        setSingleProductData(null)
+
+        const res = await apiGetProductDetailsById(id)
+
+        if (res?.status && res?.data) {
+          setSingleProductData(res.data)
+          //console.log('ggggggggggggggggggggg', res.data);
+        } else {
+          toast.push(
+            <Notification title="Error!" type="danger">
+              {res?.message || 'Product not found'}
+            </Notification>
+          )
+        }
+      } catch (err) {
+        toast.push(
+          <Notification title="Error!" type="danger">
+            Failed to load product detail
+          </Notification>
+        )
+        console.error("Failed to load product detail", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (id) fetchProductDetails()
+  }, [id])
 
   const handleUniformDesignResult = async () => {
 
     setIsSubmitting(true);
-
     const formData = new FormData();
     formData.append("product", id || "");
     formData.append("model_file", ""); // Send empty or file object
@@ -131,11 +164,6 @@ const Uniform3DmoduleDegisn = () => {
       // console.log("Design create Successfully:", response);
 
       if (response?.status) {
-        // toast.push(
-        //   <Notification title="Success!" type="success">
-        //     {response.message || "3D model information created successfully"}
-        //   </Notification>
-        // );
         handleSaveDesign(response.data?.id);
       } else {
         toast.push(
@@ -155,12 +183,10 @@ const Uniform3DmoduleDegisn = () => {
     } finally {
       setIsSubmitting(false);
     }
-
   };
 
-
-
   const handleSaveDesign = async (modelId) => {
+
     if (!session?.accessToken) {
       toast.push(
         <Notification title="Login Required" type="warning">
@@ -177,12 +203,22 @@ const Uniform3DmoduleDegisn = () => {
       "config_json": {
         "color": "grey",
         "size": "M",
-        "material": "cotton"
+        "material": "cotton",
+
       },
       "design_specifications": {
         "logo_position": "front",
         "print_type": "embroidery",
-        "text": "My Brand"
+        "text": "My Brand",
+        "size": singleProductData?.size,
+        // "productType": singleProductData?.product_type,
+        "table_shape": singleProductData?.table_shape,
+        "style": singleProductData?.style,
+        "fabric_details": singleProductData?.fabric_details,
+        "color_details": singleProductData?.color_details,
+        "category": singleProductData?.category,
+        "subcategory": singleProductData?.subcategory,
+        "parts": singleProductData?.parts,
       },
       "json_file_path": "uploads/configs/user6_model3.json",
       "isActive": true
@@ -199,8 +235,8 @@ const Uniform3DmoduleDegisn = () => {
 
       const id = response?.data?.id;  // custom update model id
       // Redirect to result page
-      // router.push(`/dashboards/design-result/${id}`);
-      router.push("/cart-summary");
+      router.push(`/dashboards/design-result/${id}`);
+      // router.push("/cart-summary");
 
     } catch (error) {
       console.error("Save Design Error:", error);
@@ -239,8 +275,6 @@ const Uniform3DmoduleDegisn = () => {
             </button>
           ))}
         </div>
-
-
         <div className="max-w-sm py-4">
           {active === "tableShape" && (
             <div
@@ -248,7 +282,6 @@ const Uniform3DmoduleDegisn = () => {
               className="w-full h-full  bg-[#FFF5F1] border border-[#F3D3C8]
                        rounded-2xl p-5 shadow-lg"
             >
-
               {/* TABLE SHAPE */}
               <div className='mb-6'>
                 <p className="text-sm text-[#1C2C56] block mb-1">
@@ -293,15 +326,11 @@ const Uniform3DmoduleDegisn = () => {
                   ))}
                 </div>
               </div>
-
-
-
               {/* TABLE SCALE */}
               <div className="mb-6">
                 <label className="text-sm text-[#1C2C56] block mb-1">
                   Table Scale
                 </label>
-
                 <div className="relative">
                   <input
                     type="range"
@@ -987,7 +1016,6 @@ const Uniform3DmoduleDegisn = () => {
             </div>
           )}
         </div>
-
 
         {/* CENTER MODEL VIEWER */}
         <div className=" border-l pl-10 border-[#A0522D33] relative flex-1 flex flex-col gap-5 items-center justify-between mt-6">

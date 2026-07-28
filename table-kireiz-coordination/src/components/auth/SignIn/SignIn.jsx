@@ -23,10 +23,10 @@ const SignIn = ({
                 <div className='mx-4'>
                     <div className="mb-6">
                         <h2 className="font-[Plus Jakarta Sans]  font-medium text-[28px] tracking-[0.18px] text-[#1C2C56] mb-2">
-                            Welcome to KIREIZ!
+                            Welcome to KIREIZ space!
                         </h2>
                         <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
-                            Professional Uniforms & Event Styling
+                            Elegant Table Styling & Rental Solutions
                         </p>
                     </div>
                     {message && (

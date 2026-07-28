@@ -32,8 +32,12 @@ const UniformLatestFAQPosts = ({ faqs = [], loading }) => {
   const toggleFAQ = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
-  if (loading) return <p className="text-center">Loading FAQs...</p>;
-
+  if (loading)
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
+      </div>
+    );
   return (
     <section className="relative md:py-20 py-10 bg-[#FAF6F4]">
       <div className="text-center mb-14">
