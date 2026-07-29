@@ -89,11 +89,20 @@ const Pagination = (props) => {
     onChange?.(getValidCurrentPage(newPage));
   };
 
+  // const pagerClass = {
+  //   default: "pagination-pager",
+  //   inactive: "pagination-pager-inactive",
+  //   active: `text-primary dark:bg-primary dark:text-neutral`,
+  //   disabled: "pagination-pager-disabled",
+  // };
+
   const pagerClass = {
-    default: "pagination-pager",
-    inactive: "pagination-pager-inactive",
-    active: `text-primary dark:bg-primary dark:text-neutral`,
-    disabled: "pagination-pager-disabled",
+    default:
+      "pagination-pager flex items-center justify-center w-9 h-9 rounded-md transition-colors",
+    inactive:
+      "pagination-pager-inactive bg-white text-[#64748B] border border-[#E5E7EB] hover:bg-gray-100",
+    active: "bg-[#1C4FA8] text-white border border-[#1C4FA8]",
+    disabled: "pagination-pager-disabled opacity-50 cursor-not-allowed",
   };
 
   const paginationClass = classNames("pagination", className);
