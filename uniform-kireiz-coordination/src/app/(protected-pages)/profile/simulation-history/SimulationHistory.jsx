@@ -19,6 +19,7 @@ import Spinner from "@/components/ui/Spinner";
 import Select from "@/components/ui/Select";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { HiCheck } from "react-icons/hi";
+import Pagination from "@/components/ui/Pagination";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -97,12 +98,9 @@ const SimulationHistory = () => {
   const [pdfError, setPdfError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(simulationData.length / ITEMS_PER_PAGE) || 1;
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentSimulations = simulationData.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE,
-  );
+  const [pageSize, setPageSize] = useState(ITEMS_PER_PAGE);
+  const [totalCount, setTotalCount] = useState(0);
+
   const [filters, setFilters] = useState({
     category: "",
     sort: "new",
@@ -162,10 +160,18 @@ const SimulationHistory = () => {
       if (filters.sort) params.sort = filters.sort;
       if (filters.range) params.range = filters.range;
 
-      const res = await apiSimulationHistory(session.accessToken, params);
+      const res = await apiSimulationHistory(
+        session.accessToken,
+        currentPage,
+        pageSize,
+        params,
+      );
       console.log(res);
       if (res?.status) {
         setSimulationData(res.data || []);
+        setTotalCount(
+          res.count || res.total || res.pagination?.total_items || 0,
+        );
       }
     } catch (err) {
       console.error("Failed to load Simulation History", err);
@@ -180,7 +186,7 @@ const SimulationHistory = () => {
 
   useEffect(() => {
     fetchSimulationHistory();
-  }, [session?.accessToken, filters]);
+  }, [session?.accessToken, filters, currentPage, pageSize]);
 
   return (
     <div className="w-full bg-[#E8EEF842] md:p-8 p-4 rounded-2xl max-w-7xl mx-auto shadow-md">
@@ -375,15 +381,15 @@ const SimulationHistory = () => {
       )}
 
       {/* CARDS */}
-      {!loading && currentSimulations.length > 0 && (
+      {!loading && simulationData.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-          {currentSimulations.map((item, i) => {
+          {simulationData.map((item, i) => {
             const product = item.product_details?.[0];
 
             return (
               <div
                 key={item.id || i}
-                className="bg-white border border-[#CBD5E1] rounded-2xl p-6"
+                className="bg-white border border-[#CBD5E1] rounded-2xl p-6 flex flex-col h-full"
               >
                 <div className="flex justify-center mb-6">
                   <div className="w-[240px] h-[240px] rounded-full flex items-center justify-center overflow-hidden bg-gray-100">
@@ -406,7 +412,7 @@ const SimulationHistory = () => {
                   {formatDate(item.created_at)}
                 </p>
 
-                <div className="mt-6 flex gap-3">
+                <div className="mt-auto pt-6 flex gap-3">
                   <Button
                     className="flex-[2] bg-[#1C4FA8] hover:bg-[#1C4FA8] text-white py-2 rounded-md"
                     size="sm"
@@ -440,39 +446,24 @@ const SimulationHistory = () => {
       )}
 
       {/* Pagination */}
-      {!loading && totalPages > 1 && (
-        <div className="flex items-center justify-between mt-8 text-sm text-[#64748B]">
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className={`h-9 w-9 flex items-center justify-center rounded-md border transition-colors ${
-                currentPage === 1
-                  ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                  : "border-[#1C4FA8] bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]"
-              }`}
-            >
-              <IoChevronBack size={16} />
-            </button>
-
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className={`h-9 w-9 flex items-center justify-center rounded-md border transition-colors ${
-                currentPage === totalPages
-                  ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                  : "border-[#1C4FA8] bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]"
-              }`}
-            >
-              <IoChevronForward size={16} />
-            </button>
-          </div>
-        </div>
-      )}
+      {/* <Pagination
+        currentPage={currentPage}
+        pageSize={ITEMS_PER_PAGE}
+        total={simulationData.length}
+        onChange={(page) => setCurrentPage(page)}
+      /> */}
+      <div className="mt-5">
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={totalCount}
+          onChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
     </div>
   );
 };
