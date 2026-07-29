@@ -42,24 +42,24 @@ const sidebarMenu = [
         path: '/profile/simulation-history',
         slug: "profile",
     },
-    {
-        label: 'Order History',
-        icon: FiBox,
-        path: '/profile/order-history',
-        slug: "profile",
-    },
+    // {
+    //     label: 'Order History',
+    //     icon: FiBox,
+    //     path: '/profile/order-history',
+    //     slug: "profile",
+    // },
     {
         label: 'Notifications',
         icon: FiBell,
         path: '/profile/notifications',
         slug: "profile",
     },
-    {
-        label: 'My Quotations',
-        icon: FiFileText,
-        path: '/profile/my-quotations',
-        slug: "profile",
-    },
+    // {
+    //     label: 'My Quotations',
+    //     icon: FiFileText,
+    //     path: '/profile/my-quotations',
+    //     slug: "profile",
+    // },
     {
         label: 'My Order & Rentals',
         icon: FiFileText,

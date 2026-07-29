@@ -9,7 +9,7 @@ import {
     PiUserDuotone,
     PiGearDuotone,
     PiPulseDuotone,
-    PiSignOutDuotone, 
+    PiSignOutDuotone,
     PiShoppingCartThin
 } from 'react-icons/pi'
 import { IoIosLogOut } from "react-icons/io";
@@ -94,7 +94,7 @@ const _UserDropdown = () => {
     const handleProfile = () => {
         router.push("/profile/my-profile");
     };
-       const handleCartSummary = () => {
+    const handleCartSummary = () => {
         router.push("/cart-summary");
     };
     return (

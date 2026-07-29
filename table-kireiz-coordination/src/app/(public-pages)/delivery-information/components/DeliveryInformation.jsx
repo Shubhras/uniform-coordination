@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { apiApplyPromocode, apiCreateOrder } from '@/services/createOrder'
+import { apiApplyPromocode, apiCreateOrder } from '@/services/OrderService'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import Spinner from '@/components/ui/Spinner'
@@ -120,7 +120,9 @@ const DeliveryInformation = () => {
 
         try {
             const res = await apiCreateOrder(session.accessToken, payload);
+            console.log(res, 'rrrrrrrrrrrrrrrrrrrr')
             if (res?.status) {
+
                 const createdOrderId = res?.data?.order_id
                 toast.push(<Notification title="Success!" type="success">Order created successfully</Notification>);
                 router.push(`/overview?orderId=${createdOrderId}`)
@@ -446,7 +448,7 @@ const DeliveryInformation = () => {
                                 Payment Method <span className="text-red-500">*</span>
                             </h3>
                             <div className="space-y-3">
-                                <label className="flex items-center gap-3 border rounded-md p-3 cursor-pointer">
+                                <label className={`flex items-center gap-3 border rounded-xl p-4 cursor-pointer transition ${payment_method === 'card' ? 'border-[#8B4513] bg-[#FAF6F4]/60' : 'border-gray-200 hover:border-gray-300'}`}>
                                     <Controller
                                         name="payment_method"
                                         control={control}
@@ -456,12 +458,13 @@ const DeliveryInformation = () => {
                                                 value="card"
                                                 checked={field.value === "card"}
                                                 onChange={field.onChange}
+                                                className="w-5 h-5 accent-[#8B4513] cursor-pointer"
                                             />
                                         )}
                                     />
-                                    <span>Credit Card (ending in 4242)</span>
+                                    <span className="text-base font-medium text-[#374151]">Credit Card (ending in 4242)</span>
                                 </label>
-                                <label className="flex items-center gap-3 border rounded-md p-3 cursor-pointer">
+                                <label className={`flex items-center gap-3 border rounded-xl p-4 cursor-pointer transition ${payment_method === 'paypal' ? 'border-[#8B4513] bg-[#FAF6F4]/60' : 'border-gray-200 hover:border-gray-300'}`}>
                                     <Controller
                                         name="payment_method"
                                         control={control}
@@ -471,12 +474,13 @@ const DeliveryInformation = () => {
                                                 value="paypal"
                                                 checked={field.value === "paypal"}
                                                 onChange={field.onChange}
+                                                className="w-5 h-5 accent-[#8B4513] cursor-pointer"
                                             />
                                         )}
                                     />
-                                    <span>PayPal</span>
+                                    <span className="text-base font-medium text-[#374151]">PayPal</span>
                                 </label>
-                                <label className="flex items-center gap-3 border rounded-md p-3 cursor-pointer">
+                                <label className={`flex items-center gap-3 border rounded-xl p-4 cursor-pointer transition ${payment_method === 'other' ? 'border-[#8B4513] bg-[#FAF6F4]/60' : 'border-gray-200 hover:border-gray-300'}`}>
                                     <Controller
                                         name="payment_method"
                                         control={control}
@@ -486,10 +490,11 @@ const DeliveryInformation = () => {
                                                 value="other"
                                                 checked={field.value === "other"}
                                                 onChange={field.onChange}
+                                                className="w-5 h-5 accent-[#8B4513] cursor-pointer"
                                             />
                                         )}
                                     />
-                                    <span>Choose another payment method</span>
+                                    <span className="text-base font-medium text-[#374151]">Choose another payment method</span>
                                 </label>
                             </div>
                         </div>

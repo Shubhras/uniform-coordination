@@ -12,6 +12,7 @@ import {
     useElements,
 } from '@stripe/react-stripe-js'
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
+import { FiLock } from 'react-icons/fi'
 import ThankyouPopup from '../../thankyou-popup/ThankyouPopup'
 import PaymentFailedPopup from '../../payment-failed-popup/PaymentFailedPopup'
 
@@ -24,56 +25,87 @@ const PaymentHero = () => {
 
     const [dialogThankyouPopupOpen, setDialogThankyouPopupOpen] = useState(false)
     const [dialogCancelPopupOpen, setDialogCancelPopupOpen] = useState(false)
+    const [orderData, setOrderData] = useState(null)
 
     const [paymentMethod, setPaymentMethod] = useState('card')
+    const [cardholderName, setCardholderName] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
-    const [success, setSuccess] = useState(false)
 
-    /* ---------------- CREATE PAYMENT METHOD ---------------- */
-    const createPaymentMethod = async () => {
-        if (!stripe || !elements) {
-            throw new Error('Stripe not loaded')
+    /* ---------------- HANDLE STRIPE CARD CHANGE ---------------- */
+    const handleElementChange = (event) => {
+        if (event.error) {
+            setError(event.error.message)
+        } else {
+            setError(null)
         }
-
-        const { error, paymentMethod } = await stripe.createPaymentMethod({
-            type: 'card',
-            card: elements.getElement(CardNumberElement),
-        })
-
-        if (error) {
-            throw new Error(error.message)
-        }
-
-        return paymentMethod.id
     }
 
     /* ---------------- HANDLE PAYMENT ---------------- */
     const handlePayment = async () => {
         try {
-            setLoading(true)
             setError(null)
 
-            const paymentMethodId = await createPaymentMethod()
-
-            const payload = {
-                order_id: orderId,
-                payment_method: 'stripe',
-                payment_method_id: paymentMethodId,
-                currency: 'usd',
+            if (!session?.accessToken) {
+                setError('Session expired or user not logged in.')
+                return
             }
 
-            const res = await apiOrderPayment(session?.accessToken, payload)
+            if (!orderId) {
+                setError('Invalid Order ID.')
+                return
+            }
 
-            if (res?.status) {
-                setSuccess(true)
-                setDialogThankyouPopupOpen(true)
+            if (paymentMethod === 'card') {
+                if (!stripe || !elements) {
+                    setError('Stripe payment system is loading. Please try again.')
+                    return
+                }
+
+                const cardNumberElement = elements.getElement(CardNumberElement)
+                if (!cardNumberElement) {
+                    setError('Card details field missing.')
+                    return
+                }
+
+                setLoading(true)
+
+                // Validate and create payment method with Stripe
+                const { error: stripeError, paymentMethod: stripeMethod } = await stripe.createPaymentMethod({
+                    type: 'card',
+                    card: cardNumberElement,
+                })
+
+                if (stripeError) {
+                    setError(stripeError.message || 'Please complete all required card fields.')
+                    setLoading(false)
+                    return
+                }
+
+                const payload = {
+                    order_id: orderId,
+                    payment_method: 'stripe',
+                    payment_method_id: stripeMethod.id,
+                    currency: 'usd',
+                }
+
+                const res = await apiOrderPayment(session.accessToken, payload)
+
+                if (res?.status) {
+                    setOrderData(res?.data || null)
+                    setDialogThankyouPopupOpen(true)
+                } else {
+                    setError(res?.message || 'Payment processing failed. Please try again.')
+                    setDialogCancelPopupOpen(true)
+                }
+            } else if (paymentMethod === 'paypal') {
+                setError('Please click the PayPal button above to complete your payment.')
             } else {
-                throw new Error('Payment failed')
+                setError('Selected payment method is currently unavailable. Please select Credit Card or PayPal.')
             }
         } catch (err) {
-            setError(err.message || 'Payment failed')
-            setDialogCancelPopupOpen(true)
+            console.error('Payment error:', err)
+            setError(err?.message || 'Payment failed. Please try again.')
         } finally {
             setLoading(false)
         }
@@ -84,19 +116,20 @@ const PaymentHero = () => {
             const payload = {
                 order_id: orderId,
                 payment_method: 'paypal',
-                payment_method_id: details.id, // PayPal Order ID
+                payment_method_id: details.id,
                 currency: 'usd',
             }
 
             const res = await apiOrderPayment(session?.accessToken, payload)
 
             if (res?.status) {
+                setOrderData(res?.data || null)
                 setDialogThankyouPopupOpen(true)
             } else {
                 throw new Error('PayPal payment failed')
             }
         } catch (err) {
-            setError(err.message)
+            setError(err.message || 'PayPal payment failed')
             setDialogCancelPopupOpen(true)
         }
     }
@@ -106,58 +139,93 @@ const PaymentHero = () => {
             <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 mt-14">
                 <div className="py-10 max-w-4xl mx-auto">
                     <div className="border rounded-xl p-8 space-y-6">
-                        <h2 className="text-xl font-semibold">Payment Information</h2>
+                        <h2 className="text-xl font-semibold text-[#8B4513]">Payment Method</h2>
 
                         {/* PAYMENT METHODS */}
-                        <div className="flex flex-wrap gap-6">
+                        <div className="flex flex-wrap items-center gap-4">
                             {[
                                 { id: 'card', label: 'Credit Card' },
                                 { id: 'paypal', label: 'PayPal' },
                                 { id: 'bank', label: 'Bank Transfer' },
                                 { id: 'apple', label: 'Apple Pay' },
                             ].map((method) => (
-                                <label key={method.id} className="flex items-center gap-2">
+                                <label
+                                    key={method.id}
+                                    className={`flex items-center gap-2.5 border rounded-xl px-4 py-3 cursor-pointer transition ${paymentMethod === method.id
+                                        ? 'border-[#8B4513] bg-[#FAF6F4]/60'
+                                        : 'border-gray-200 hover:border-gray-300'
+                                        }`}
+                                >
                                     <input
                                         type="radio"
+                                        name="payment_method"
                                         checked={paymentMethod === method.id}
-                                        onChange={() => setPaymentMethod(method.id)}
+                                        onChange={() => {
+                                            setPaymentMethod(method.id)
+                                            setError(null)
+                                        }}
+                                        className="w-4 h-4 accent-[#8B4513] cursor-pointer"
                                     />
-                                    <span>{method.label}</span>
+                                    <span className="text-base font-medium text-[#374151] whitespace-nowrap">
+                                        {method.label}
+                                    </span>
                                 </label>
                             ))}
                         </div>
 
                         {/* STRIPE CARD UI */}
                         {paymentMethod === 'card' && (
-                            <div className="space-y-4">
+                            <div className="space-y-4 pt-2">
                                 <div>
-                                    <label className="text-sm mb-1 block">Card Number</label>
-                                    <div className="border rounded-md px-4 py-3">
-                                        <CardNumberElement />
+                                    <label className="text-sm font-medium mb-1 block text-gray-700">
+                                        Card Number <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className={`border rounded-md px-4 py-3 transition ${error ? 'border-red-400 bg-red-50/20' : 'border-gray-300 focus-within:border-[#8B4513]'}`}>
+                                        <CardNumberElement onChange={handleElementChange} />
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="text-sm mb-1 block">Expiry Date</label>
-                                        <div className="border rounded-md px-4 py-3">
-                                            <CardExpiryElement />
+                                        <label className="text-sm font-medium mb-1 block text-gray-700">
+                                            Expiry Date <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className={`border rounded-md px-4 py-3 transition ${error ? 'border-red-400 bg-red-50/20' : 'border-gray-300 focus-within:border-[#8B4513]'}`}>
+                                            <CardExpiryElement onChange={handleElementChange} />
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="text-sm mb-1 block">CVV</label>
-                                        <div className="border rounded-md px-4 py-3">
-                                            <CardCvcElement />
+                                        <label className="text-sm font-medium mb-1 block text-gray-700">
+                                            CVV <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className={`border rounded-md px-4 py-3 transition ${error ? 'border-red-400 bg-red-50/20' : 'border-gray-300 focus-within:border-[#8B4513]'}`}>
+                                            <CardCvcElement onChange={handleElementChange} />
                                         </div>
                                     </div>
                                 </div>
 
-                                <p className="text-sm text-gray-500">🔒 Secure payment by Stripe</p>
+                                <div>
+                                    <label className="text-sm font-medium mb-1 block text-gray-700">
+                                        Cardholder Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={cardholderName}
+                                        onChange={(e) => setCardholderName(e.target.value)}
+                                        placeholder="e.g. Sarah Johnson"
+                                        className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-[#8B4513] transition"
+                                    />
+                                </div>
+
+                                <div className="flex items-center gap-2 text-base text-gray-600 pt-2">
+                                    <FiLock className="w-5 h-5 text-gray-600" />
+                                    <span>Secure payment by Stripe</span>
+                                </div>
                             </div>
                         )}
 
-                         {/* PAYPAL */}
+                        {/* PAYPAL */}
                         {paymentMethod === 'paypal' && (
                             <PayPalScriptProvider
                                 options={{
@@ -187,15 +255,19 @@ const PaymentHero = () => {
                             </PayPalScriptProvider>
                         )}
 
-                        {/* ERROR */}
-                        {error && <p className="text-red-500 text-sm">{error}</p>}
+                        {/* ERROR MESSAGE */}
+                        {error && (
+                            <div className="bg-red-50 border border-red-200 text-red-600 rounded-md p-3 text-sm font-medium">
+                                {error}
+                            </div>
+                        )}
 
                         {/* ACTION */}
                         <div className="flex justify-end pt-6">
                             <button
                                 disabled={loading || !stripe}
                                 onClick={handlePayment}
-                                className="px-10 py-3 bg-[#8B4513] text-white rounded-md disabled:opacity-50"
+                                className="px-10 py-3 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md transition font-medium disabled:opacity-50"
                             >
                                 {loading ? 'Processing...' : 'Continue'}
                             </button>
@@ -207,6 +279,7 @@ const PaymentHero = () => {
             <ThankyouPopup
                 isOpen={dialogThankyouPopupOpen}
                 onClose={() => setDialogThankyouPopupOpen(false)}
+                orderData={orderData}
             />
 
             <PaymentFailedPopup

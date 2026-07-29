@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation'
+import OrdersList from './_components/OrdersList'
 
 const MyOrderRentalsPage = () => {
-    redirect('/profile/my-order-rentals/active-orders')
+    return <OrdersList />
 }
 
 export default MyOrderRentalsPage
