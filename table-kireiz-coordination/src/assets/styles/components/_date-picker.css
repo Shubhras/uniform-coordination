@@ -92,7 +92,7 @@
   }
 
   .date-picker-cell-selected {
-    @apply text-gray-100;
+    @apply !bg-[#8B4513] !text-white;
   }
 
   .date-picker-cell-selected-start {

@@ -1,12 +1,13 @@
 import ApiService from "./ApiService";
 
-export async function apiGetCartList(token) {
+export async function apiGetCartList(token, params = {}) {
   return ApiService.fetchDataWithAxios({
     url: `/v1/space/userhub/cart/list/`,
     method: "get",
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    params,
   });
 }
 

@@ -33,7 +33,7 @@ const DateTable = (props) => {
     const nextMonth = dayjs(month).add(dateViewCount, 'months').toDate()
     const previousMonth = dayjs(month).subtract(1, 'months').toDate()
 
-    const pickerHeaderLabelClass = 'picker-header-label hover:text-primary'
+    const pickerHeaderLabelClass = 'picker-header-label hover:text-[#8B4513]'
 
     const months = Array(dateViewCount)
         .fill(0)

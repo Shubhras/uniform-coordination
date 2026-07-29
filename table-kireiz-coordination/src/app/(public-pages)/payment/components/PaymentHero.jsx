@@ -25,7 +25,7 @@ const PaymentHero = () => {
 
     const [dialogThankyouPopupOpen, setDialogThankyouPopupOpen] = useState(false)
     const [dialogCancelPopupOpen, setDialogCancelPopupOpen] = useState(false)
-    const [orderData, setOrderData] = useState(null)
+    const [paymentId, setPaymentId] = useState(null)
 
     const [paymentMethod, setPaymentMethod] = useState('card')
     const [cardholderName, setCardholderName] = useState('')
@@ -92,7 +92,7 @@ const PaymentHero = () => {
                 const res = await apiOrderPayment(session.accessToken, payload)
 
                 if (res?.status) {
-                    setOrderData(res?.data || null)
+                    setPaymentId(res?.payment_id || null)
                     setDialogThankyouPopupOpen(true)
                 } else {
                     setError(res?.message || 'Payment processing failed. Please try again.')
@@ -121,9 +121,9 @@ const PaymentHero = () => {
             }
 
             const res = await apiOrderPayment(session?.accessToken, payload)
-
+            console.log('ssssssssssssssssss apiOrderPayment', res)
             if (res?.status) {
-                setOrderData(res?.data || null)
+                setPaymentId(res?.payment_id || null)
                 setDialogThankyouPopupOpen(true)
             } else {
                 throw new Error('PayPal payment failed')
@@ -279,7 +279,7 @@ const PaymentHero = () => {
             <ThankyouPopup
                 isOpen={dialogThankyouPopupOpen}
                 onClose={() => setDialogThankyouPopupOpen(false)}
-                orderData={orderData}
+                orderData={paymentId}
             />
 
             <PaymentFailedPopup

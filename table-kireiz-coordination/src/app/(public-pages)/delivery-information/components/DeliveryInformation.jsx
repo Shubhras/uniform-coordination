@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { apiApplyPromocode, apiCreateOrder } from '@/services/OrderService'
 import Notification from '@/components/ui/Notification'
@@ -11,7 +11,8 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormItem } from '@/components/ui/Form'
 import Input from '@/components/ui/Input'
-
+import dayjs from 'dayjs'
+import DatePicker from '@/components/ui/DatePicker'
 
 const deliveryValidationSchema = z.object({
     first_name: z.string().min(1, { message: 'First name is required' }),
@@ -31,6 +32,9 @@ const deliveryValidationSchema = z.object({
 const DeliveryInformation = () => {
     const router = useRouter()
     const { data: session } = useSession();
+    const params = useParams();
+    const searchParams = useSearchParams();
+    const cartId = params?.id || searchParams?.get('id');
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -90,7 +94,7 @@ const DeliveryInformation = () => {
         setError("");
 
         const payload = {
-            cart_id: 1,
+            cart_id: cartId,
             customer: {
                 first_name: data.first_name,
                 last_name: data.last_name,
@@ -116,7 +120,9 @@ const DeliveryInformation = () => {
             promocode: couponCode ? { code: couponCode } : {},
         };
         console.log(payload)
-        setLoading(false);
+
+
+        //setLoading(false);
 
         try {
             const res = await apiCreateOrder(session.accessToken, payload);
@@ -378,10 +384,11 @@ const DeliveryInformation = () => {
                                         name="start_date"
                                         control={control}
                                         render={({ field }) => (
-                                            <Input
-                                                type="date"
-                                                min={today}
-                                                {...field}
+                                            <DatePicker
+                                                value={field.value ? new Date(field.value) : null}
+                                                onChange={(date) => field.onChange(date ? dayjs(date).format('YYYY-MM-DD') : '')}
+                                                placeholder="Start Date"
+                                                minDate={new Date()}
                                             />
                                         )}
                                     />
@@ -395,10 +402,11 @@ const DeliveryInformation = () => {
                                         name="return_date"
                                         control={control}
                                         render={({ field }) => (
-                                            <Input
-                                                type="date"
-                                                min={start_date || today}
-                                                {...field}
+                                            <DatePicker
+                                                value={field.value ? new Date(field.value) : null}
+                                                onChange={(date) => field.onChange(date ? dayjs(date).format('YYYY-MM-DD') : '')}
+                                                placeholder="Return Date"
+                                                minDate={start_date ? new Date(start_date) : new Date()}
                                             />
                                         )}
                                     />
