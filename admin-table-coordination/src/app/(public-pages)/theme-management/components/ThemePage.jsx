@@ -66,7 +66,7 @@ const ThemePage = () => {
 
       if (res?.results?.status) {
         setThemes(res.results.data || []);
-        setTotalItems(res.results.pagination?.total || 0);
+        setTotalItems(res.count || 0);
       } else {
         setThemes([]);
         setTotalItems(0);
@@ -210,7 +210,7 @@ const ThemePage = () => {
 
           <button
             onClick={() => router.push("/theme-management/addTheme")}
-            className="bg-[#A0522D] transition text-white px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium"
+            className="bg-[#A0522D] transition text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium"
           >
             <FiPlus />
             Add New Theme
@@ -292,7 +292,7 @@ const ThemePage = () => {
                   <thead className="bg-[#F1F5F9] text-[#486284]">
                     <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
                       <th className="text-left px-4 py-3 font-medium">Theme</th>
-                      <th className="text-left px-4 py-3 font-medium">Theme</th>
+                      <th className="text-left px-4 py-3 font-medium">Name</th>
                       <th className="text-left px-4 py-3 font-medium">
                         Category
                       </th>
@@ -339,16 +339,18 @@ const ThemePage = () => {
                             <td className="px-4 py-3"> {theme.usage || "-"}</td>
 
                             <td className="px-4 py-3">
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-0">
                                 <button
                                   onClick={() =>
                                     router.push(
                                       `/theme-management/view/${theme.id}`,
                                     )
                                   }
-                                  className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                                  className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+
+                                  // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                                 >
-                                  <FiEye size={15} />
+                                  <FiEye size={17} />
                                 </button>
 
                                 <button
@@ -357,16 +359,19 @@ const ThemePage = () => {
                                       `/theme-management/edit/${theme.id}`,
                                     )
                                   }
-                                  className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                                  className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+
+                                  // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                                 >
-                                  <FiEdit2 size={15} />
+                                  <FiEdit2 size={17} />
                                 </button>
 
                                 <button
                                   onClick={() => handleDeleteClick(theme)}
-                                  className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                                  // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                                  className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                                 >
-                                  <FiTrash2 size={15} />
+                                  <FiTrash2 size={17} />
                                 </button>
                               </div>
                             </td>

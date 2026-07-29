@@ -34,7 +34,7 @@ export async function apiUpdateSpecialCondition(accessToken, id, payload) {
 
 export async function apiDeleteSpecialCondition(accessToken, id) {
   return ApiService.fetchDataWithAxios({
-    url: `/v1/uniformAdmin/specialcondition/delete/?id=${id}`,
+    url: `/v1/uniformAdmin/specialcondition/delete/${id}/`,
     method: "delete",
     headers: {
       Authorization: `Bearer ${accessToken}`,

@@ -15,6 +15,7 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetColorsList, apiDeleteColor } from "@/services/ColorsService";
 import AddEditColorModal from "./AddEditColorModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import Pagination from "@/components/ui/Pagination";
 
 const ColorsTab = () => {
   const { session } = useCurrentSession();
@@ -23,6 +24,15 @@ const ColorsTab = () => {
   const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,15 +52,21 @@ const ColorsTab = () => {
     total_pages: 1,
     total_items: 0,
   });
+  const [pageSize, setPageSize] = useState(10);
 
   /* ---------- FETCH COLORS ---------- */
   const fetchColors = useCallback(
-    async (page = 1) => {
+    async (page = 1, search = "") => {
       if (!accessToken) return;
 
       try {
         setLoading(true);
-        const response = await apiGetColorsList(accessToken, page);
+        const response = await apiGetColorsList(
+          accessToken,
+          page,
+          pageSize,
+          search,
+        );
 
         if (response?.status && response?.data) {
           setColors(response.data);
@@ -64,12 +80,12 @@ const ColorsTab = () => {
         setLoading(false);
       }
     },
-    [accessToken],
+    [accessToken, pageSize],
   );
 
   useEffect(() => {
-    fetchColors(currentPage);
-  }, [fetchColors, currentPage]);
+    fetchColors(currentPage,debouncedSearch);
+  }, [fetchColors, currentPage, pageSize, debouncedSearch]);
 
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
@@ -127,15 +143,6 @@ const ColorsTab = () => {
     const b = bigint & 255;
     return `rgb(${r}, ${g}, ${b})`;
   };
-
-  /* ---------- FILTERING ---------- */
-  const filteredColors = colors.filter((c) => {
-    const q = searchQuery.toLowerCase();
-    return (
-      c.colorName?.toLowerCase().includes(q) ||
-      c.colorCode?.toLowerCase().includes(q)
-    );
-  });
 
   /* ---------- PAGINATION ---------- */
   const goToPage = (page) => {
@@ -217,13 +224,13 @@ const ColorsTab = () => {
 
         {loading ? (
           <CardSkeleton />
-        ) : filteredColors.length === 0 ? (
+        ) : colors.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
             No colors found
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredColors.map((color) => (
+            {colors.map((color) => (
               <div
                 key={color.id}
                 className="border border-[#1C2C5633] rounded-xl overflow-hidden bg-white hover:shadow-md transition"
@@ -320,6 +327,19 @@ const ColorsTab = () => {
             </div>
           </div>
         )}
+      </div>
+
+      <div className="mt-5">
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={pagination.total_items}
+          onChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
       </div>
 
       {/* Modals */}

@@ -17,7 +17,8 @@ import {
   FiClipboard,
   FiShoppingCart,
   FiBox,
-  FiImage,FiLayers
+  FiImage,
+  FiLayers,
 } from "react-icons/fi";
 import { IoColorPaletteOutline } from "react-icons/io5";
 
@@ -38,74 +39,74 @@ const sidebarMenu = [
     label: "Content & Media",
     icon: FiImage,
     path: "/contents",
-    slug: "product_specification",
+    slug: "content_media",
   },
   {
     label: "Theme Management",
     icon: IoColorPaletteOutline,
     path: "/theme-management",
-    slug: "product_specification",
+    slug: "theme_management",
   },
 
   {
     label: "Inventory Management",
     icon: FiClipboard,
     path: "/inventory-management",
-    slug: "content_media",
+    slug: "inventory_management",
   },
   {
     label: "Orders & Rentals",
     icon: FiShoppingCart,
     path: "/orders",
-    slug: "order_manage", // Assigned 'order_manage' here based on API
+    slug: "order_rentals", // Assigned 'order_manage' here based on API
   },
   {
     label: "Pricing & Packages",
     icon: FiDollarSign,
     path: "/pricing-packages",
-    slug: "product_specification",
+    slug: "pricing_packages",
   },
   {
     label: "Contracts & Policies",
     icon: FiFileText,
     path: "/contracts-policies",
-    slug: "product_specification",
+    slug: "contracts_policies",
   },
   {
     label: "Notifications",
     icon: FiBell,
     path: "/notifications",
-    slug: "product_specification",
+    slug: "notifications",
   },
   {
     label: "AI & Automation",
     icon: FiCpu,
     path: "/ai-automation",
-    slug: "product_specification",
+    slug: "ai_automation",
   },
   {
     label: "Users & Permissions",
     icon: FiUsers,
     path: "/users-permissions",
-    slug: "product_specification",
+    slug: "user_permission",
   },
   {
     label: "Simulation Assets",
     icon: FiLayers,
     path: "/simulation-assets",
-    slug: "product_specification",
+    slug: "simulation_assets",
   },
   {
     label: "Reports & Analytics",
     icon: FiBarChart2,
     path: "/reports-analytics",
-    slug: "product_specification",
+    slug: "reports_analytics",
   },
   {
     label: "System Settings",
     icon: FiSettings,
     path: "/system-settings",
-    slug: "product_specification",
+    slug: "system_settings",
   },
   // {
   //     label: 'Content & Media',

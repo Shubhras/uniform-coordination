@@ -8,7 +8,7 @@ const Tabs = ({ activeTab, setActiveTab }) => {
           key={tab}
           type="button"
           onClick={() => setActiveTab(tab)}
-          className={`pb-2 text-base font-medium whitespace-nowrap ${
+          className={`pb-1 text-base font-medium whitespace-nowrap ${
             activeTab === tab
               ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
               : "text-[#525252] text-[16px]"

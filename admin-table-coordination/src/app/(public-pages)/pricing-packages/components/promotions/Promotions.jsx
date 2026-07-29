@@ -301,10 +301,10 @@ const Promotions = () => {
                     </td>
 
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <button className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]">
+                      <div className="flex items-center gap-0">
+                        <button className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]">
                           <FiEye
-                            size={15}
+                            size={17}
                             onClick={() =>
                               router.push(
                                 `/pricing-packages/view/${promotion.id}`,
@@ -313,9 +313,9 @@ const Promotions = () => {
                           />
                         </button>
 
-                        <button className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]">
+                        <button className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]">
                           <FiEdit2
-                            size={15}
+                            size={17}
                             onClick={() =>
                               router.push(
                                 `/pricing-packages/create-promotion/${promotion.id}`,
@@ -325,13 +325,13 @@ const Promotions = () => {
                         </button>
 
                         <button
-                          className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                          className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                           onClick={() => {
                             setPromotionToDelete(promotion);
                             setDeleteDialogOpen(true);
                           }}
                         >
-                          <FiTrash2 size={15} />
+                          <FiTrash2 size={17} />
                         </button>
                       </div>
                     </td>

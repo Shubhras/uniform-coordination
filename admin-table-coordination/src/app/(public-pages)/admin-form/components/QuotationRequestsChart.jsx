@@ -2,25 +2,19 @@
 
 import Chart from "react-apexcharts";
 
-const QuotationRequestsChart = () => {
-  const categories = [
-    "jan",
-    "Feb",
-    "March",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-  ];
+const QuotationRequestsChart = ({ chartData = [] }) => {
+  const categories = chartData.map((item) => item.label);
 
+  // Graph values
   const series = [
     {
       name: "Quotation Requests",
-      data: [52, 58, 32, 72, 78, 92, 48, 95, 75],
+      data: chartData.map((item) => item.value),
     },
   ];
+
+  // Dynamic max value for Y-axis
+  const maxValue = Math.max(...series[0].data, 10);
 
   const options = {
     chart: {
@@ -90,9 +84,8 @@ const QuotationRequestsChart = () => {
 
     yaxis: {
       min: 0,
-      max: 100,
+      max: maxValue,
       tickAmount: 4,
-
       labels: {
         style: {
           colors: "#777777",
@@ -104,7 +97,7 @@ const QuotationRequestsChart = () => {
     tooltip: {
       theme: "light",
       y: {
-        formatter: (val) => `${val}%`,
+        formatter: (val) => `${val}`,
       },
     },
   };
@@ -117,12 +110,7 @@ const QuotationRequestsChart = () => {
 
       <div className="border-b border-[#D9D9D9] mt-6 mb-8" />
 
-      <Chart
-        options={options}
-        series={series}
-        type="area"
-        height={300}
-      />
+      <Chart options={options} series={series} type="area" height={300} />
     </div>
   );
 };

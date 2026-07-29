@@ -1,8 +1,22 @@
 import ApiService from "./ApiService";
 
-export async function apiGetFabricList(accessToken, page = 1, pageSize = 10) {
+export async function apiGetFabricList(
+  accessToken,
+  page = 1,
+  pageSize = 10,
+  search = "",
+) {
+  const params = new URLSearchParams({
+    page,
+    page_size: pageSize,
+  });
+
+  if (search) {
+    params.append("search", search);
+  }
+
   return ApiService.fetchDataWithAxios({
-    url: `/v1/space/uniformAdmin/fabric/list/?page=${page}&page_size=${pageSize}`,
+    url: `/v1/space/uniformAdmin/fabric/list/?${params.toString()}`,
     method: "get",
     headers: {
       Authorization: `Bearer ${accessToken}`,

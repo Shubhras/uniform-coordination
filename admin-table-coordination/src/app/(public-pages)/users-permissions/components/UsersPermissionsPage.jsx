@@ -380,7 +380,7 @@ const UsersPermissionsPage = () => {
             key={tab}
             type="button"
             onClick={() => setActiveTab(tab)}
-            className={`pb-2 text-base font-medium whitespace-nowrap ${
+            className={`pb-1 text-base font-medium whitespace-nowrap ${
               activeTab === tab
                 ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
                 : "text-[#525252] text-[16px]"
@@ -538,7 +538,7 @@ const UsersPermissionsPage = () => {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex items-center gap-3 text-[#7D6C63]">
+                            <div className="flex items-center gap-0 text-[#7D6C63]">
                               <button
                                 type="button"
                                 disabled={!canViewUser}
@@ -549,15 +549,19 @@ const UsersPermissionsPage = () => {
                                     );
                                   }
                                 }}
-                                className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                                className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+
+                                // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                               >
-                                <FiEye size={13} />
+                                <FiEye size={17} />
                               </button>
                               <button
                                 type="button"
-                                className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                                className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+
+                                // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                               >
-                                <FiSlash size={13} />
+                                <FiSlash size={17} />
                               </button>
                             </div>
                           </td>
