@@ -69,14 +69,23 @@ export async function apiUpdatePassword(token, payload) {
     },
   });
 }
-export async function apiSimulationHistory(token, params = {}) {
+export async function apiSimulationHistory(
+  token,
+  page = 1,
+  pageSize = 8,
+  params = {},
+) {
   return ApiService.fetchDataWithAxios({
     url: "/v1/userhub/customupdateuser/get-list/",
     method: "get",
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    params,
+    params: {
+      page,
+      page_size: pageSize,
+      ...params,
+    },
   });
 }
 
@@ -111,7 +120,6 @@ export async function apiSimulationExportPdf(token, id) {
     },
   });
 }
-
 
 export async function apiGetQuotation(token, params = {}) {
   return ApiService.fetchDataWithAxios({
