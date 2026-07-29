@@ -15,6 +15,8 @@ import {
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetUsersList } from "@/services/UserPermissionService";
+import PermissionPage from "./PermissionPage";
+import Spinner from "@/components/ui/Spinner";
 
 const typeOptions = [
   { value: "all", label: "All Types" },
@@ -391,7 +393,7 @@ const UsersPermissionsPage = () => {
         ))}
       </div>
 
-      {activeTab === "Users" ? (
+      {activeTab === "Users" && (
         <>
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mt-5">
             <div className="relative w-full lg:max-w-xl">
@@ -466,108 +468,90 @@ const UsersPermissionsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {loading
-                  ? Array.from({ length: itemsPerPage }).map((_, index) => (
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="py-16">
+                      <div className="flex justify-center items-center h-[400px]">
+                        <Spinner size={40} customColorClass="text-[#A0522D]" />
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  users.map((user) => {
+                    const isActive = user.isActive;
+                    const canViewUser = Boolean(user.id);
+
+                    return (
                       <tr
-                        key={`loading-${index}`}
-                        className="border-t border-[#F8EEE8] bg-white text-[11px] text-[#5F534C]"
+                        key={user.id}
+                        className="odd:bg-white even:bg-[#FBF8F6]"
                       >
-                        <td className="px-4 py-3">
-                          <div className="h-4 w-28 animate-pulse rounded bg-[#F5ECE6]" />
+                        <td className="px-4 py-3 font-semibold text-[#4A3D36]">
+                          {user.firstName} {user.lastName}
                         </td>
                         <td className="px-4 py-3">
-                          <div className="h-4 w-12 animate-pulse rounded bg-[#F5ECE6]" />
+                          <span
+                            className={`rounded px-2 py-0.5 text-[9px] font-medium ${
+                              user.userType === "B2C"
+                                ? "bg-[#EAF4FF] text-[#4B93D4]"
+                                : "bg-[#FFF0E8] text-[#C58A62]"
+                            }`}
+                          >
+                            {user.userType}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-[#4A3D36]">
+                          {user.email}
+                        </td>
+                        <td className="px-4 py-3 font-semibold text-[#4A3D36]">
+                          {user.registrationDate}
                         </td>
                         <td className="px-4 py-3">
-                          <div className="h-4 w-40 animate-pulse rounded bg-[#F5ECE6]" />
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${
+                              isActive
+                                ? "bg-[#E8FAF2] text-[#007A55]"
+                                : "bg-[#FFE9E8] text-[#F04444]"
+                            }`}
+                          >
+                            <span
+                              className={`h-1.5 w-1.5 rounded-full ${
+                                isActive ? "bg-[#007A55]" : "bg-[#F04444]"
+                              }`}
+                            />
+                            {user.statusLabel}
+                          </span>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="h-4 w-20 animate-pulse rounded bg-[#F5ECE6]" />
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="h-6 w-16 animate-pulse rounded-full bg-[#F5ECE6]" />
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="h-4 w-10 animate-pulse rounded bg-[#F5ECE6]" />
+                          <div className="flex items-center gap-0 text-[#7D6C63]">
+                            <button
+                              type="button"
+                              disabled={!canViewUser}
+                              onClick={() => {
+                                if (canViewUser) {
+                                  router.push(`/users-permissions/${user.id}`);
+                                }
+                              }}
+                              className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+
+                              // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                            >
+                              <FiEye size={17} />
+                            </button>
+                            <button
+                              type="button"
+                              className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+
+                              // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                            >
+                              <FiSlash size={17} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
-                    ))
-                  : users.map((user) => {
-                      const isActive = user.isActive;
-                      const canViewUser = Boolean(user.id);
-
-                      return (
-                        <tr
-                          key={user.id}
-                          className="odd:bg-white even:bg-[#FBF8F6]"
-                        >
-                          <td className="px-4 py-3 font-semibold text-[#4A3D36]">
-                            {user.firstName} {user.lastName}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span
-                              className={`rounded px-2 py-0.5 text-[9px] font-medium ${
-                                user.userType === "B2C"
-                                  ? "bg-[#EAF4FF] text-[#4B93D4]"
-                                  : "bg-[#FFF0E8] text-[#C58A62]"
-                              }`}
-                            >
-                              {user.userType}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-[#4A3D36]">
-                            {user.email}
-                          </td>
-                          <td className="px-4 py-3 font-semibold text-[#4A3D36]">
-                            {user.registrationDate}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span
-                              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${
-                                isActive
-                                  ? "bg-[#E8FAF2] text-[#007A55]"
-                                  : "bg-[#FFE9E8] text-[#F04444]"
-                              }`}
-                            >
-                              <span
-                                className={`h-1.5 w-1.5 rounded-full ${
-                                  isActive ? "bg-[#007A55]" : "bg-[#F04444]"
-                                }`}
-                              />
-                              {user.statusLabel}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-0 text-[#7D6C63]">
-                              <button
-                                type="button"
-                                disabled={!canViewUser}
-                                onClick={() => {
-                                  if (canViewUser) {
-                                    router.push(
-                                      `/users-permissions/${user.id}`,
-                                    );
-                                  }
-                                }}
-                                className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
-
-                                // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
-                              >
-                                <FiEye size={17} />
-                              </button>
-                              <button
-                                type="button"
-                                className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
-
-                                // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
-                              >
-                                <FiSlash size={17} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -590,7 +574,8 @@ const UsersPermissionsPage = () => {
             />
           </div>
         </>
-      ) : null}
+      )}
+      {activeTab === "Permissions" && <PermissionPage />}
     </div>
   );
 };
