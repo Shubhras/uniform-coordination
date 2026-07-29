@@ -1,27 +1,27 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import classNames from 'classnames'
+import { useState, useEffect, useCallback, useMemo } from "react";
+import classNames from "classnames";
 import {
     HiOutlineChevronDoubleLeft,
     HiOutlineDotsHorizontal,
     HiChevronDoubleRight,
-} from 'react-icons/hi'
+} from "react-icons/hi";
 
-const PAGER_COUNT = 7
+const PAGER_COUNT = 7;
 
 const NextMore = ({ className, onArrow }) => {
-    const [quickNextArrowIcon, setQuickNextArrowIcon] = useState(false)
+    const [quickNextArrowIcon, setQuickNextArrowIcon] = useState(false);
 
     return (
         <li
             className={className}
             role="presentation"
             onMouseEnter={() => {
-                setQuickNextArrowIcon(true)
+                setQuickNextArrowIcon(true);
             }}
             onMouseLeave={() => {
-                setQuickNextArrowIcon(false)
+                setQuickNextArrowIcon(false);
             }}
-            onClick={() => onArrow('nextMore')}
+            onClick={() => onArrow("nextMore")}
         >
             {quickNextArrowIcon ? (
                 <HiChevronDoubleRight />
@@ -29,23 +29,23 @@ const NextMore = ({ className, onArrow }) => {
                 <HiOutlineDotsHorizontal />
             )}
         </li>
-    )
-}
+    );
+};
 
 const PrevMore = ({ className, onArrow }) => {
-    const [quickPrevArrowIcon, setQuickPrevArrowIcon] = useState(false)
+    const [quickPrevArrowIcon, setQuickPrevArrowIcon] = useState(false);
 
     return (
         <li
             className={className}
             role="presentation"
             onMouseEnter={() => {
-                setQuickPrevArrowIcon(true)
+                setQuickPrevArrowIcon(true);
             }}
             onMouseLeave={() => {
-                setQuickPrevArrowIcon(false)
+                setQuickPrevArrowIcon(false);
             }}
-            onClick={() => onArrow('prevMore')}
+            onClick={() => onArrow("prevMore")}
         >
             {quickPrevArrowIcon ? (
                 <HiOutlineChevronDoubleLeft />
@@ -53,108 +53,108 @@ const PrevMore = ({ className, onArrow }) => {
                 <HiOutlineDotsHorizontal />
             )}
         </li>
-    )
-}
+    );
+};
 
 const Pagers = (props) => {
-    const { pageCount, currentPage, onChange, pagerClass } = props
+    const { pageCount, currentPage, onChange, pagerClass } = props;
 
-    const [showPrevMore, setShowPrevMore] = useState(false)
-    const [showNextMore, setShowNextMore] = useState(false)
+    const [showPrevMore, setShowPrevMore] = useState(false);
+    const [showNextMore, setShowNextMore] = useState(false);
 
     useEffect(() => {
         if (pageCount > PAGER_COUNT) {
             if (currentPage > PAGER_COUNT - 2) {
-                setShowPrevMore(true)
+                setShowPrevMore(true);
             }
             if (currentPage < pageCount - 2) {
-                setShowNextMore(true)
+                setShowNextMore(true);
             }
             if (currentPage >= pageCount - 3 && currentPage <= pageCount) {
-                setShowNextMore(false)
+                setShowNextMore(false);
             }
             if (currentPage >= 1 && currentPage <= 4) {
-                setShowPrevMore(false)
+                setShowPrevMore(false);
             }
         } else {
-            setShowPrevMore(false)
-            setShowNextMore(false)
+            setShowPrevMore(false);
+            setShowNextMore(false);
         }
-    }, [currentPage, pageCount])
+    }, [currentPage, pageCount]);
 
     const onPagerClick = (value, e) => {
-        e.preventDefault()
-        let newPage = value
+        e.preventDefault();
+        let newPage = value;
 
         if (newPage < 1) {
-            newPage = 1
+            newPage = 1;
         }
         if (newPage > pageCount) {
-            newPage = pageCount
+            newPage = pageCount;
         }
 
         if (newPage !== currentPage) {
-            onChange(newPage)
+            onChange(newPage);
         }
-    }
+    };
 
     const onArrowClick = useCallback(
         (e) => {
-            let newPage = currentPage
-            if (e === 'nextMore') {
-                newPage = currentPage + 5
+            let newPage = currentPage;
+            if (e === "nextMore") {
+                newPage = currentPage + 5;
             }
-            if (e === 'prevMore') {
-                newPage = currentPage - 5
+            if (e === "prevMore") {
+                newPage = currentPage - 5;
             }
-            onChange(newPage)
+            onChange(newPage);
         },
         [currentPage, onChange],
-    )
+    );
 
     const getPages = useMemo(() => {
-        const pagerArray = []
+        const pagerArray = [];
         if (showPrevMore && !showNextMore) {
-            const startPage = pageCount - (PAGER_COUNT - 2)
+            const startPage = pageCount - (PAGER_COUNT - 2);
             for (let i = startPage; i < pageCount; i++) {
-                pagerArray.push(i)
+                pagerArray.push(i);
             }
         } else if (!showPrevMore && showNextMore) {
             for (let i = 2; i < PAGER_COUNT; i++) {
-                pagerArray.push(i)
+                pagerArray.push(i);
             }
         } else if (showPrevMore && showNextMore) {
-            const offset = Math.floor(PAGER_COUNT / 2) - 1
-            const maxRange =
-                currentPage >= pageCount - 2 && currentPage <= pageCount
+            const offset = Math.floor(PAGER_COUNT / 2) - 1;
+            const maxRange = currentPage >= pageCount - 2 && currentPage <= pageCount;
             for (
                 let i = currentPage - offset;
                 i <= currentPage + (maxRange ? 0 : offset);
                 i++
             ) {
-                pagerArray.push(i)
+                pagerArray.push(i);
             }
         } else {
             for (let i = 2; i < pageCount; i++) {
-                pagerArray.push(i)
+                pagerArray.push(i);
             }
         }
         if (pagerArray.length > PAGER_COUNT) {
-            return []
+            return [];
         }
 
-        return pagerArray
-    }, [showPrevMore, showNextMore, currentPage, pageCount])
+        return pagerArray;
+    }, [showPrevMore, showNextMore, currentPage, pageCount]);
 
     const getPagerClass = (index) => {
         return classNames(
             pagerClass.default,
+            "list-none",
             currentPage === index ? pagerClass.active : pagerClass.inactive,
-        )
-    }
+        );
+    };
 
     return (
-        <ul>
+        <ul className="flex items-center gap-2 list-none p-0 m-0">
             {pageCount > 0 && (
                 <li
                     className={getPagerClass(1)}
@@ -166,10 +166,7 @@ const Pagers = (props) => {
             )}
             {showPrevMore && (
                 <PrevMore
-                    className={classNames(
-                        pagerClass.default,
-                        pagerClass.inactive,
-                    )}
+                    className={classNames(pagerClass.default, pagerClass.inactive)}
                     onArrow={(arrow) => onArrowClick(arrow)}
                 />
             )}
@@ -183,14 +180,11 @@ const Pagers = (props) => {
                     >
                         {pager}
                     </li>
-                )
+                );
             })}
             {showNextMore && (
                 <NextMore
-                    className={classNames(
-                        pagerClass.default,
-                        pagerClass.inactive,
-                    )}
+                    className={classNames(pagerClass.default, pagerClass.inactive)}
                     onArrow={(arrow) => onArrowClick(arrow)}
                 />
             )}
@@ -204,7 +198,7 @@ const Pagers = (props) => {
                 </li>
             )}
         </ul>
-    )
-}
+    );
+};
 
-export default Pagers
+export default Pagers;

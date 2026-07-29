@@ -116,7 +116,7 @@ const DeliveryInformation = () => {
             promocode: couponCode ? { code: couponCode } : {},
         };
         console.log(payload)
-        setLoading(false);
+        //setLoading(false);
 
         try {
             const res = await apiCreateOrder(session.accessToken, payload);

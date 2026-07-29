@@ -7,7 +7,7 @@ import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import Spinner from '@/components/ui/Spinner'
 import { FiUser, FiMapPin, FiCalendar } from 'react-icons/fi'
-
+import Image from 'next/image'
 const Overview = () => {
     const { data: session } = useSession()
     const router = useRouter()
@@ -112,8 +112,8 @@ const Overview = () => {
         <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 mt-14">
             <div className="py-10">
                 {loading ? (
-                    <div className="flex flex-col justify-center items-center py-20 gap-3">
-                        <Spinner size={40} customColorClass="text-[#8B4513]" />
+                    <div className="flex justify-center items-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B4513]"></div>
                     </div>
                 ) : error ? (
                     <div className="flex flex-col items-center justify-center py-20 bg-red-50 rounded-xl p-8 max-w-lg mx-auto border border-red-200">
@@ -247,6 +247,13 @@ const Overview = () => {
                                                                 e.target.src = 'https://via.placeholder.com/68?text=Item'
                                                             }}
                                                         />
+                                                        {/* <Image
+                                                            src={itemThumb || '/img/table-form/3d-table.png'}
+                                                            alt={itemName}
+                                                            className="w-full h-full object-cover"
+
+                                                            unoptimized
+                                                        /> */}
                                                     </div>
                                                 </div>
                                             )
@@ -309,7 +316,7 @@ const Overview = () => {
                                         />
                                         <span>
                                             I Agree to privacy{' '}
-                                            <span className="text-[#3B82F6] underline font-medium">
+                                            <span className="text-[#8B4513] underline font-medium">
                                                 policy & terms
                                             </span>
                                         </span>

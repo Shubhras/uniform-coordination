@@ -23,7 +23,7 @@ const PaymentHero = () => {
     const searchParams = useSearchParams()
     const orderId = searchParams.get('orderId')
 
-    const [dialogThankyouPopupOpen, setDialogThankyouPopupOpen] = useState(false)
+    const [dialogThankyouPopupOpen, setDialogThankyouPopupOpen] = useState(true)
     const [dialogCancelPopupOpen, setDialogCancelPopupOpen] = useState(false)
     const [orderData, setOrderData] = useState(null)
 

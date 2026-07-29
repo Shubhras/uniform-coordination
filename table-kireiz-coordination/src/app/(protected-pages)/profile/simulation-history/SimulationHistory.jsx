@@ -336,28 +336,31 @@ const SimulationHistory = () => {
                         {simulationData.map((item) => (
                             <div
                                 key={item?.id}
-                                className="bg-[#F5F0EE] border border-[#D0BEB6] rounded-2xl overflow-hidden"
+                                className="bg-[#F5F0EE] border border-[#D0BEB6] rounded-2xl overflow-hidden flex flex-col justify-between"
                             >
-                                <div className="flex justify-center mb-3 px-3 pt-3">
-                                    <Image
-                                        src={item?.ProductImage || '/img/no-image.png'}
-                                        alt={item?.productName || 'Simulation'}
-                                        width={240}
-                                        height={240}
-                                        className="w-full h-auto object-cover rounded-lg"
-                                        unoptimized
-                                    />
+                                <div>
+                                    <div className="relative w-full h-[220px] p-3">
+                                        <Image
+                                            src={item?.ProductImage || '/img/no-image.png'}
+                                            alt={item?.productName || 'Simulation'}
+                                            fill
+                                            className="object-cover rounded-xl p-3"
+                                            unoptimized
+                                        />
+                                    </div>
+
+                                    <div className="px-3 sm:px-4 pb-0 mt-4">
+                                        <h4 className="text-sm sm:text-[16px] font-semibold line-clamp-1 text-[#3E3E3E]">
+                                            {item?.productName}
+                                        </h4>
+                                        <p className="text-xs sm:text-[13px] mt-1 text-[#6B7280]">
+                                            {formatDate(item?.created_at)}
+                                        </p>
+                                    </div>
                                 </div>
 
-                                <div className="p-3 sm:p-4">
-                                    <h4 className="text-sm sm:text-[16px] font-semibold">
-                                        {item?.productName}
-                                    </h4>
-                                    <p className="text-xs sm:text-[13px] mt-1 text-[#6B7280]">
-                                        {formatDate(item?.created_at)}
-                                    </p>
-
-                                    <div className="mt-5 flex gap-3">
+                                <div className="p-3 sm:p-4 pt-1">
+                                    <div className="flex gap-3">
                                         <Button
                                             className="flex-[2] bg-[#A0522D] hover:bg-[#A0522D] text-white py-2 rounded-md text-xs sm:text-sm"
                                             size="sm"

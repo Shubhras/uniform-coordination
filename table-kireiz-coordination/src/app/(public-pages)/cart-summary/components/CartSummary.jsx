@@ -16,7 +16,8 @@ import toast from '@/components/ui/toast'
 const CartSummary = () => {
     const { data: session } = useSession()
     const router = useRouter()
-
+    const [currentPage, setCurrentPage] = useState(1)
+    const [pageSize, setPageSize] = useState(100)
     /* ---------------- CART LIST ---------------- */
     const [cartItems, setCartItems] = useState([])
     const [cartLoading, setCartLoading] = useState(false)
@@ -36,8 +37,12 @@ const CartSummary = () => {
         try {
             if (!session?.accessToken) return
             setCartLoading(true)
-            const res = await apiGetCartList(session.accessToken)
-            setCartItems(Array.isArray(res?.data) ? res.data : [])
+            const params = {
+                page: currentPage,
+                page_size: pageSize,
+            }
+            const res = await apiGetCartList(session.accessToken, params)
+            setCartItems(Array.isArray(res?.results) ? res.results : [])
         } catch {
             setCartError("Failed to load cart items")
         } finally {
@@ -46,23 +51,23 @@ const CartSummary = () => {
     }
 
     /* ---------------- FETCH CART SUMMARY ---------------- */
-    const fetchCartSummary = async () => {
+    const fetchCartSummary = async (isSilent = false) => {
         try {
             if (!session?.accessToken) return
-            setSummaryLoading(true)
+            if (!isSilent) setSummaryLoading(true)
             const res = await apiGetCartSummary(session.accessToken)
             setCartSummary(res?.items_count > 0 ? res : null)
         } catch {
             setSummaryError("Failed to load order summary")
         } finally {
-            setSummaryLoading(false)
+            if (!isSilent) setSummaryLoading(false)
         }
     }
 
     /* ---------------- API HANDLER ---------------- */
     const updateItemQuantity = async (itemId, qty) => {
         try {
-            setUpdatingItemId(itemId)
+            setUpdatingItemId(String(itemId))
             if (qty === -1 || qty === 1) {
                 console.log("itemId", itemId, qty)
                 await apiUpdateItemQuantity(session.accessToken, itemId, qty)
@@ -72,7 +77,7 @@ const CartSummary = () => {
                 toast.push(<Notification title="Success!" type="success">Item removed from cart</Notification>);
             }
             await fetchCartList()
-            await fetchCartSummary()
+            await fetchCartSummary(true)
         } catch (error) {
             console.error("Failed to update item quantity", error)
             toast.push(<Notification title="Error!" type="danger">Failed to update cart</Notification>);
@@ -81,20 +86,16 @@ const CartSummary = () => {
         }
     }
 
-    /* ---------------- UI HANDLERS ---------------- */
     const increaseQty = (index) => {
         const item = cartItems[index]
-        if (!item || updatingItemId === item.id) return;
-
-        // const newQty = item.quantity + 1
-        // updateItemQuantity(item.id, newQty)
+        if (!item || updatingItemId || summaryLoading) return;
 
         updateItemQuantity(item.id, 1)
     }
 
     const decreaseQty = (index) => {
         const item = cartItems[index]
-        if (!item || updatingItemId === item.id) return;
+        if (!item || updatingItemId || summaryLoading) return;
 
         if (item.quantity <= 1) {
             // Send 0 to trigger the delete (else block)
@@ -119,108 +120,134 @@ const CartSummary = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-6">
 
                     {/* LEFT CART */}
-                    <div className="bg-[#FBF4F3] rounded-xl p-5 min-h-[300px]">
-                        <h2 className="text-xl font-medium mb-6">
-                            Items in your Cart ({cartItems.length})
-                        </h2>
+                    <div className="bg-[#FBF4F3] rounded-xl p-5 min-h-[300px] flex flex-col justify-between">
+                        <div>
+                            <h2 className="text-xl font-medium mb-6">
+                                Items in your Cart ({cartItems.length})
+                            </h2>
 
-                        {cartLoading ? (
-                            <div className="flex justify-center items-center py-20">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
-                            </div>
-                        ) : cartItems.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-20">
-                                <FiShoppingCart size={64} className="text-gray-400 mb-4" />
-                                <p className="text-gray-600">Your cart is empty</p>
-                            </div>
-                        ) : (
-                            cartItems.map((item, i) => (
-                                <div key={item.id} className="flex gap-4 bg-white rounded-lg p-4 mb-4">
-                                    <div className="relative w-40 h-28 rounded-md overflow-hidden">
-                                        <Image
-                                            src={item?.product_image}
-                                            alt={item?.product_name}
-                                            fill
-                                            className="object-cover"
-                                            unoptimized
-                                        />
-                                    </div>
-
-                                    <div className="flex-1 flex flex-col justify-center py-1">
-                                        <h4 className="text-[17px] font-semibold text-gray-800 capitalize mb-1">
-                                            {item?.product_name}
-                                        </h4>
-                                        <p className="text-sm text-gray-500 mb-2 line-clamp-1">
-                                            Descriptio: {item?.product_description || "-"}
-                                        </p>
-
-                                        <div className="space-y-1 mt-1">
-                                            <p className="text-sm text-gray-600">
-                                                Quantity: {item?.quantity}
-                                            </p>
-                                            <p className="text-sm font-medium">
-                                                <span className="text-green-600">
-                                                    Price: ¥{item?.price} × {item?.quantity} = ¥{item?.total_price}
-                                                </span>
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center">
-                                        <div className="flex items-center justify-between border rounded-full px-3 py-1 w-24">
-                                            {item.quantity > 1 ? (
-                                                <FaMinus
-                                                    size={16}
-                                                    className="cursor-pointer"
-                                                    onClick={() => decreaseQty(i)}
-                                                />
-                                            ) : (
-                                                <FiTrash2
-                                                    size={16}
-                                                    className="cursor-pointer text-red-500"
-                                                    onClick={() => decreaseQty(i)}
-                                                />
-                                            )}
-
-                                            {updatingItemId === item.id ? (
-                                                <span
-                                                    className="inline-block rounded-full border-2 border-gray-300 border-t-[#8B4513] animate-spin"
-                                                    style={{ width: 16, height: 16 }}
-                                                />) : (
-                                                <span>{item.quantity}</span>
-                                            )}
-
-                                            <FaPlus
-                                                size={16}
-                                                className="cursor-pointer"
-                                                onClick={() => increaseQty(i)}
+                            {cartLoading ? (
+                                <div className="flex justify-center items-center py-20">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B4513]"></div>
+                                </div>
+                            ) : cartItems.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-20">
+                                    <FiShoppingCart size={64} className="text-gray-400 mb-4" />
+                                    <p className="text-gray-600">Your cart is empty</p>
+                                </div>
+                            ) : (
+                                cartItems.map((item, i) => (
+                                    <div key={item.id} className="flex gap-4 bg-white rounded-lg p-4 mb-4">
+                                        <div className="relative w-40 h-28 rounded-md overflow-hidden shrink-0">
+                                            <Image
+                                                src={item?.product_image}
+                                                alt={item?.product_name}
+                                                fill
+                                                className="object-cover"
+                                                unoptimized
                                             />
                                         </div>
+
+                                        <div className="flex-1 flex flex-col justify-center py-1">
+                                            <h4 className="text-[17px] font-semibold text-gray-800 capitalize mb-1">
+                                                {item?.product_name}
+                                            </h4>
+                                            <p className="text-sm text-gray-500 mb-2 line-clamp-1">
+                                                Descriptio: {item?.product_description || "-"}
+                                            </p>
+
+                                            <div className="space-y-1 mt-1">
+                                                <p className="text-sm text-gray-600">
+                                                    Quantity: {item?.quantity}
+                                                </p>
+                                                <p className="text-sm font-medium">
+                                                    <span className="text-green-600">
+                                                        Price: ¥{item?.price} × {item?.quantity} = ¥{item?.total_price}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center">
+                                            <div className="flex items-center justify-between border rounded-full px-3 py-1 w-24">
+                                                {item.quantity > 1 ? (
+                                                    <FaMinus
+                                                        size={16}
+                                                        className={`cursor-pointer ${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : ''}`}
+                                                        onClick={() => decreaseQty(i)}
+                                                    />
+                                                ) : (
+                                                    <FiTrash2
+                                                        size={16}
+                                                        className={`cursor-pointer text-[#B05B3B] ${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : ''}`}
+                                                        onClick={() => decreaseQty(i)}
+                                                    />
+                                                )}
+
+                                                {updatingItemId && String(updatingItemId) === String(item.id) ? (
+                                                    <span
+                                                        className="inline-block rounded-full border-2 border-gray-300 border-t-[#8B4513] animate-spin"
+                                                        style={{ width: 20, height: 20, margin: "2px" }}
+                                                    />
+                                                ) : (
+                                                    <span>{item.quantity}</span>
+                                                )}
+
+                                                <FaPlus
+                                                    size={16}
+                                                    className={`cursor-pointer ${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : ''}`}
+                                                    onClick={() => increaseQty(i)}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            ))
-                        )}
+                                ))
+                            )}
+                        </div>
+
+                        {/* ACTION BUTTONS */}
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                            <button
+                                type="button"
+                                className="px-8 py-3 rounded-md bg-[#8B4513] text-white"
+                                onClick={() => router.push("/table-form")}
+                            >
+                                Continue Shopping
+                            </button>
+
+                            {cartItems.length > 0 && (
+                                <button
+                                    type="button"
+                                    className="px-12 py-3 rounded-md bg-[#8B4513] text-white"
+                                    onClick={() => router.push("/delivery-information")}
+                                >
+                                    Proceed
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     {/* RIGHT SUMMARY */}
-                    {!summaryLoading && !cartSummary && (
-                        <div className="bg-white rounded-xl p-6 text-center text-gray-500">
-                            Order summary is empty
-                        </div>
-                    )}
+                    <div className="bg-white rounded-xl p-6 h-fit shadow-sm border border-gray-100">
+                        <h3 className="text-[22px] font-medium border-b border-[#E9E9E9] pb-4 mb-4">
+                            Order Summary
+                        </h3>
 
-                    {cartSummary && (
-                        <div className="bg-white rounded-xl p-6 h-fit shadow-sm border border-gray-100">
-                            <h3 className="text-[22px] font-medium border-b border-gray-100 pb-4 mb-4">
-                                Order Summary
-                            </h3>
-
+                        {summaryLoading && !cartSummary ? (
+                            <div className="flex justify-center items-center py-16">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B4513]"></div>
+                            </div>
+                        ) : !cartSummary ? (
+                            <div className="text-center text-gray-500 py-8">
+                                Order summary is empty
+                            </div>
+                        ) : (
                             <div className="space-y-4 text-[15px]">
                                 <p className="text-[#B05B3B] font-medium">
                                     Items ({cartSummary?.items_count}):
                                 </p>
 
-                                <div className="space-y-4">
+                                <div className="space-y-4 max-h-[250px] overflow-y-auto pr-1">
                                     {cartSummary.items.map((item, i) => (
                                         <div key={i} className="flex justify-between items-start">
                                             <div>
@@ -234,7 +261,7 @@ const CartSummary = () => {
                                     ))}
                                 </div>
 
-                                <hr className="border-gray-100 my-4" />
+                                <hr className="border-[#E9E9E9]-100 my-4" />
 
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-gray-700">
@@ -259,32 +286,13 @@ const CartSummary = () => {
                                     </div>
                                 </div>
 
-                                <div className="border-t border-gray-100 mt-4 pt-4">
+                                <div className="border-t border-[#E9E9E9] mt-4 pt-4">
                                     <div className="flex justify-between items-center text-[17px]">
                                         <span className="text-[#B05B3B]">Order Total:</span>
                                         <span className="font-semibold text-gray-900">¥{cartSummary?.summary?.grand_total}</span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
-
-                    {/* ACTION BUTTONS */}
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                        <button
-                            className="px-8 py-3 rounded-md bg-[#8B4513] text-white"
-                            onClick={() => router.push("/table-form")}
-                        >
-                            Continue Shopping
-                        </button>
-
-                        {cartItems.length > 0 && (
-                            <button
-                                className="px-12 py-3 rounded-md bg-[#8B4513] text-white"
-                                onClick={() => router.push("/delivery-information")}
-                            >
-                                Proceed
-                            </button>
                         )}
                     </div>
                 </div>
