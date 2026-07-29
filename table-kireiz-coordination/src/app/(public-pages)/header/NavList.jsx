@@ -16,7 +16,7 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick, variant = 'header' 
     <div className={variant === 'drawer' ? 'flex flex-col gap-2' : 'flex'}>
       {propTabs.map((tab) => {
         const isActive = pathname === tab.url || pathname.startsWith(`${tab.url}/`)
-        
+
         return (
           <button
             key={tab.title}
@@ -33,7 +33,7 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick, variant = 'header' 
               <motion.div
                 layoutId="clickedbutton"
                 transition={{ type: 'spring', bounce: 0.3, duration: 0.6 }}
-                className="absolute inset-0 rounded-xl bg-white/10"
+                className="absolute bottom-0 left-2 right-2 h-[2.9px] bg-[#A0522D] rounded-full"
               />
             )}
 
@@ -74,7 +74,7 @@ export default NavList
 //     }
 //     return (
 //         <>
-            {/* {propTabs.map((tab, idx) => (
+{/* {propTabs.map((tab, idx) => (
                 <button
                     key={tab.title}
                     className={classNames(

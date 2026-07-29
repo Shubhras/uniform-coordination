@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { apiPaymentDetail } from '@/services/paymentService'
 import { formatDate } from '@/utils/formatDate'
 
-const ThankyouPopup = ({ isOpen, onClose, orderData }) => {
+const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
     const router = useRouter()
     const { data: session } = useSession()
     const [orderPaymentDetail, setOrderPaymentDetail] = useState(null)
@@ -15,7 +15,7 @@ const ThankyouPopup = ({ isOpen, onClose, orderData }) => {
 
     useEffect(() => {
         const fetchPaymentDetail = async () => {
-            const paymentId = orderData?.payment_id;
+            // const paymentId = paymentId;
             if (!isOpen || !session?.accessToken || !paymentId) return
 
             setLoading(true)
@@ -35,7 +35,7 @@ const ThankyouPopup = ({ isOpen, onClose, orderData }) => {
         }
 
         fetchPaymentDetail()
-    }, [isOpen, session?.accessToken, orderData])
+    }, [isOpen, session?.accessToken, paymentId])
 
     const handleClose = () => {
         if (onClose) {
@@ -44,11 +44,11 @@ const ThankyouPopup = ({ isOpen, onClose, orderData }) => {
         router.push('/profile/my-order-rentals')
     }
 
-    const order = orderPaymentDetail?.order || orderData
-    const deliveryAddress = order?.delivery_address || orderData?.delivery_address
-    const customer = order?.customer || orderData?.customer
+    const order = orderPaymentDetail?.order
+    const deliveryAddress = order?.delivery_address
+    const customer = order?.customer
 
-    const orderId = order?.order_id || orderData?.order_id || orderData?.id
+    const orderId = order?.order_id
 
     const customerName = deliveryAddress?.name || customer?.name || `${customer?.first_name || ''} ${customer?.last_name || ''}`.trim()
     const customerEmail = deliveryAddress?.email || customer?.email
@@ -66,21 +66,17 @@ const ThankyouPopup = ({ isOpen, onClose, orderData }) => {
         orderItems = order.order_items
     } else if (Array.isArray(order?.items)) {
         orderItems = order.items
-    } else if (Array.isArray(orderData?.order_items)) {
-        orderItems = orderData.order_items
-    } else if (Array.isArray(orderData?.items)) {
-        orderItems = orderData.items
     }
 
-    const startDate = order?.rental_start_date ? formatDate(order.rental_start_date) : (orderData?.rental_period?.start_date || '—')
-    const endDate = order?.rental_end_date ? formatDate(order.rental_end_date) : (orderData?.rental_period?.end_date || '—')
-    const duration = order?.rental_days ? `${order.rental_days} days` : (orderData?.rental_period?.duration || '—')
+    const startDate = order?.rental_start_date ? formatDate(order.rental_start_date) : '—'
+    const endDate = order?.rental_end_date ? formatDate(order.rental_end_date) : '—'
+    const duration = order?.rental_days ? `${order.rental_days} days` : '—'
 
-    const subtotal = order?.subtotal ?? orderData?.summary?.subtotal
-    const shipping = order?.shipping_charge ?? orderData?.summary?.shipping
-    const discount = orderData?.summary?.discount
-    const tax = order?.tax ?? orderData?.summary?.tax
-    const totalAmount = order?.total_amount ?? orderPaymentDetail?.amount ?? orderData?.summary?.total
+    const subtotal = order?.subtotal
+    const shipping = order?.shipping_charge
+    const discount = order?.discount
+    const tax = order?.tax
+    const totalAmount = order?.total_amount ?? orderPaymentDetail?.amount
 
     return (
         <Dialog

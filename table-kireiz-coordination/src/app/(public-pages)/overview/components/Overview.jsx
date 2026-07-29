@@ -75,19 +75,6 @@ const Overview = () => {
         router.push(`/payment?orderId=${orderId}`)
     }
 
-    const getImageUrl = (path) => {
-        if (!path) return 'https://via.placeholder.com/64?text=Item'
-        let url = path
-        if (url.includes('localhost:8002')) {
-            url = url.replace('localhost:8002', '54.81.43.26')
-        } else if (url.includes('localhost')) {
-            url = url.replace(/localhost:\d+/, '54.81.43.26')
-        }
-        if (url.startsWith('http://') || url.startsWith('https://')) return url
-        const cleanPath = url.startsWith('/') ? url : `/${url}`
-        return `http://54.81.43.26${cleanPath}`
-    }
-
     const contactInfo = overviewData?.contact_information || {
         name: overviewData?.customer ? `${overviewData.customer.first_name || ''} ${overviewData.customer.last_name || ''}`.trim() : null,
         email: overviewData?.customer?.email || null,
@@ -238,22 +225,14 @@ const Overview = () => {
 
                                                     {/* RIGHT: Thumbnail Image */}
                                                     <div className="w-[68px] h-[68px] rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
-                                                        <img
-                                                            src={getImageUrl(itemThumb)}
-                                                            alt={itemName}
-                                                            className="w-full h-full object-cover"
-                                                            onError={(e) => {
-                                                                e.target.onerror = null
-                                                                e.target.src = 'https://via.placeholder.com/68?text=Item'
-                                                            }}
-                                                        />
-                                                        {/* <Image
+                                                        <Image
                                                             src={itemThumb || '/img/table-form/3d-table.png'}
                                                             alt={itemName}
+                                                            fill
                                                             className="w-full h-full object-cover"
 
                                                             unoptimized
-                                                        /> */}
+                                                        />
                                                     </div>
                                                 </div>
                                             )
@@ -331,7 +310,8 @@ const Overview = () => {
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 w-full">
                                 <button
                                     className="w-full px-6 py-3 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md transition font-medium"
-                                    onClick={() => router.push('/delivery-information')}
+                                    onClick={() => router.push(`/delivery-information/${overviewData?.cart_id || overviewData?.cart || 1}`)}
+                                    disabled={navigatingToPayment}
                                 >
                                     Edit Delivery
                                 </button>

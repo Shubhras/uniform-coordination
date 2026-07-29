@@ -51,7 +51,7 @@ const Day = (props) => {
             className={classNames(
                 'date-picker-cell-content',
                 disabled && 'date-picker-cell-disabled',
-                isToday && `ring-1 ring-inset ring-primary`,
+                isToday && `ring-1 ring-inset !ring-[#8B4513]`,
                 weekend && !disabled && 'date-picker-cell-weekend',
                 outOfMonth && !disabled && 'date-picker-other-month',
                 outOfMonth && hideOutOfMonthDates && 'd-none',
@@ -65,7 +65,7 @@ const Day = (props) => {
                     'date-picker-cell-hoverable',
                 selected &&
                     !disabled &&
-                    'date-picker-cell-selected bg-primary text-neutral',
+                    'date-picker-cell-selected !bg-[#8B4513] !text-white',
                 inRange &&
                     !disabled &&
                     !firstInRange &&

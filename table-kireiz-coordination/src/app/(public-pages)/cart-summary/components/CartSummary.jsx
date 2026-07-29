@@ -27,7 +27,7 @@ const CartSummary = () => {
     const [cartSummary, setCartSummary] = useState(null)
     const [summaryLoading, setSummaryLoading] = useState(false)
     const [summaryError, setSummaryError] = useState(null)
-
+    const [cartId, setCartId] = useState(null)
     /* ---------------- UPDATE STATES ---------------- */
     const [updatingItemId, setUpdatingItemId] = useState(null)
     const debounceTimers = useRef({})
@@ -43,6 +43,10 @@ const CartSummary = () => {
             }
             const res = await apiGetCartList(session.accessToken, params)
             setCartItems(Array.isArray(res?.results) ? res.results : [])
+            if (res?.results?.length > 0) {
+                setCartId(res.results[0]?.cart?.id)
+            }
+
         } catch {
             setCartError("Failed to load cart items")
         } finally {
@@ -104,6 +108,12 @@ const CartSummary = () => {
             // Send -1 to decrease
             updateItemQuantity(item.id, -1)
         }
+    }
+
+    const handleProceed = () => {
+        const targetCartId = cartId
+        //console.log("targetCartId", targetCartId)
+        router.push(`/delivery-information/${targetCartId}`)
     }
 
     /* ---------------- EFFECT ---------------- */
@@ -219,7 +229,7 @@ const CartSummary = () => {
                                 <button
                                     type="button"
                                     className="px-12 py-3 rounded-md bg-[#8B4513] text-white"
-                                    onClick={() => router.push("/delivery-information")}
+                                    onClick={handleProceed}
                                 >
                                     Proceed
                                 </button>

@@ -30,7 +30,7 @@ const YearTable = (props) => {
                 className={classNames(
                     'year-picker-cell',
                     active && !disabled
-                        ? 'year-picker-cell-active bg-primary'
+                        ? 'year-picker-cell-active !bg-[#8B4513] !text-white'
                         : 'text-gray-800 dark:text-gray-100',
                     !active && !disabled && 'hover:bg-gray-100',
                     disabled && 'year-picker-cell-disabled',

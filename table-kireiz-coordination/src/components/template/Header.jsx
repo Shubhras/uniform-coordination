@@ -66,7 +66,7 @@ const Header = ({ toggleMode, mode }) => {
     const { session } = useCurrentSession();
     const [isOpen, setIsOpen] = useState(false);
     const [activeLoginUser, setActiveLoginUser] = useState("");
-    const router= useRouter();
+    const router = useRouter();
     return (
         <header className="fixed inset-x-0 top-0 z-50 bg-[#E8B4A9]">
             <div className="mx-auto px-5 md:px-8 lg:px-12">
