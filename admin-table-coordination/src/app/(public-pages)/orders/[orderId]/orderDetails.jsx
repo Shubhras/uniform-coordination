@@ -45,8 +45,8 @@ export default function OrderDetails({ orderId }) {
   if (!order) return null;
 
   return order.customer?.role === "b2b" ? (
-    <B2BOrderDetails orderId={orderId} order={order} />
+    <B2BOrderDetails orderId={orderId} order={order} fetchOrder={fetchOrder} />
   ) : (
-    <B2COrderDetails orderId={orderId} order={order} />
+    <B2COrderDetails orderId={orderId} order={order} fetchOrder={fetchOrder} />
   );
 }

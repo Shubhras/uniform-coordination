@@ -9,6 +9,23 @@ import { useRouter } from "next/navigation";
 import Spinner from "@/components/ui/Spinner";
 import Pagination from "@/components/ui/Pagination";
 
+const formatRentalPeriod = (startDate, endDate) => {
+  if (!startDate || !endDate) return "-";
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  const startDay = start.getDate();
+  const endDay = end.getDate();
+
+  const startMonth = start.toLocaleString("en-US", { month: "short" });
+  const endMonth = end.toLocaleString("en-US", { month: "short" });
+
+  const year = end.getFullYear();
+
+  return `${startDay} ${startMonth} - ${endDay} ${endMonth} ${year}`;
+};
+
 const selectStyles = {
   control: (base) => ({
     ...base,
@@ -202,15 +219,21 @@ export default function Orders() {
           <table className="w-full text-sm">
             <thead className="bg-[#F1F5F9] text-[#486284]">
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                <th className="text-left px-4 py-3 font-medium">Name</th>
-                <th className="text-left px-4 py-3 font-medium">Email</th>
+                <th className="text-left px-4 py-3 font-medium">OrderId</th>
+
+                <th className="text-left px-4 py-3 font-medium">Customer Name</th>
+                {/* <th className="text-left px-4 py-3 font-medium">Email</th> */}
                 <th className="text-left px-4 py-3 font-medium">Role</th>
-                <th className="text-left px-4 py-3 font-medium">Address</th>
+                {/* <th className="text-left px-4 py-3 font-medium">Address</th> */}
                 <th className="text-left px-4 py-3 font-medium">
-                  Payment Status
+                  Rental Period
                 </th>
+                <th className="text-left px-4 py-3 font-medium">Amount</th>
+                {/* <th className="text-left px-4 py-3 font-medium">
+                  Payment Status
+                </th> */}
                 <th className="text-left px-4 py-3 font-medium">Status</th>
-                <th className="text-left px-4 py-3 font-medium">Order Type</th>
+                {/* <th className="text-left px-4 py-3 font-medium">Order Type</th> */}
                 <th className="text-left px-4 py-3 font-medium">Action</th>
               </tr>
             </thead>
@@ -224,41 +247,55 @@ export default function Orders() {
                       index % 2 === 0 ? "bg-white" : "bg-[#FCF9F6]"
                     }`}
                   >
+                    <td className="px-5 py-5 font-semibold text-[#2C1A0E]">
+                      {order.order_id}
+                    </td>
                     {/* Name */}
-                    <td className="px-5 py-5 font-medium text-[#2C1A0E]">
+                    <td className="px-5 py-5 font-semibold text-[#2C1A0E]">
                       {order.customer?.full_name || "-"}
                     </td>
 
                     {/* Email */}
-                    <td className="px-5 py-5 text-[#2C1A0E]">
+                    {/* <td className="px-5 py-5 font-semibold text-[#2C1A0E]">
                       {order.customer?.email || "-"}
-                    </td>
+                    </td> */}
                     <td className="px-5 py-5">
                       <span
-                        className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase border ${
+                        className={`inline-flex items-center rounded-l px-3 py-1 text-[11px] font-semibold uppercase border ${
                           order.customer?.role === "b2b"
                             ? "bg-[#EEF4FF] text-[#2563EB] border-[#C8DAFF]"
                             : order.customer?.role === "b2c"
-                              ? "bg-[#F4EAFF] text-[#9333EA] border-[#E3CCFF]"
+                              ? "bg-[#F0F9FF] text-[#0069A8] border-[#B8E6FE]"
                               : "bg-[#F3F4F6] text-[#4B5563] border-[#D1D5DB]"
                         }`}
                       >
                         {order.customer?.role || "-"}
                       </span>
                     </td>
+                    <td className="px-5 py-5 text-[#2C1A0E] font-semibold">
+                      {formatRentalPeriod(
+                        order.rental_start_date,
+                        order.rental_end_date,
+                      )}
+                    </td>
+                    <td className="px-5 py-5">
+                      <span className="text-[12px] text-[#2C1A0E] font-semibold">
+                        {order.currency || "N/A"} {order.total_amount || "-"}
+                      </span>
+                    </td>
 
                     {/* Address */}
-                    <td className="px-5 py-5 text-[#2C1A0E]">
+                    {/* <td className="px-5 py-5 text-[#2C1A0E]">
                       {[
                         order.customer?.address?.address_line_1,
                         order.customer?.address?.country,
                       ]
                         .filter(Boolean)
                         .join(", ")}
-                    </td>
+                    </td> */}
 
                     {/* Payment Status */}
-                    <td className="px-5 py-5">
+                    {/* <td className="px-5 py-5">
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-[11px] font-medium capitalize ${
                           order.payment?.payment_status === "success"
@@ -268,18 +305,18 @@ export default function Orders() {
                       >
                         {order.payment?.payment_status || "Pending"}
                       </span>
-                    </td>
+                    </td> */}
 
                     {/* Order Status */}
                     <td className="px-4 py-5">
                       <span
-                        className={`inline-flex rounded-full px-3 py-1 text-[11px] font-medium capitalize ${
+                        className={`inline-flex rounded-full px-3 py-1 text-[12px] font-semibold capitalize ${
                           order.status === "pending"
-                            ? "bg-[#FFF4E5] text-[#D97706] border border-[#FCD34D]"
+                            ? "bg-[#FFFBEB] text-[#BB4D00] border border-[#FEE685]"
                             : order.status === "delivered"
                               ? "bg-[#E8FFF5] text-[#0E9F6E] border border-[#B6E7D2]"
                               : order.status === "returned"
-                                ? "bg-[#F4EAFF] text-[#9333EA] border border-[#E3CCFF]"
+                                ? "bg-[#FAF5FF] text-[#9333EA] border border-[#E9D4FF]"
                                 : "bg-[#EEF4FF] text-[#2563EB] border border-[#C8DAFF]"
                         }`}
                       >
@@ -287,15 +324,14 @@ export default function Orders() {
                       </span>
                     </td>
 
-                    {/* Order Type */}
-                    <td className="px-5 py-5">
+                    {/* <td className="px-5 py-5">
                       <span className="inline-flex rounded-md border border-[#F3D4C2] bg-[#FDF2EC] px-2.5 py-1 text-[11px] font-medium text-[#C96B39] capitalize">
                         {order.order_type}
                       </span>
-                    </td>
+                    </td> */}
 
                     {/* Action */}
-                    <td className="px-5 py-5">
+                    <td className="px-5 py-4">
                       <div className="flex">
                         <button
                           onClick={() =>

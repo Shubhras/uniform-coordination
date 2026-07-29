@@ -65,7 +65,7 @@ const PreviewTheme = () => {
             onClick={() => router.back()}
             className="w-9 h-9 rounded-full border border-[#E7D9CF] bg-white flex items-center justify-center hover:bg-[#F8F4F1]"
           >
-            <FiArrowLeft />
+            <FiArrowLeft className="text-lg text-[#5B4434]" />
           </button>
 
           <h1 className="text-[30px] font-bold text-[#24160E]">View Theme</h1>
