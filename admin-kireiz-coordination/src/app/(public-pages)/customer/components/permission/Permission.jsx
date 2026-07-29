@@ -56,6 +56,12 @@ const Permission = () => {
   };
 
   const togglePermission = (roleId, menuId) => {
+    const role = roles.find((item) => item.role_id === roleId);
+
+    if (role?.role_name?.toLowerCase() === "admin") {
+      return;
+    }
+
     setSelectedRoleId(roleId);
 
     setRoles((prev) =>
@@ -187,6 +193,8 @@ const Permission = () => {
                     const permission = role.permissions.find(
                       (item) => item.menu_id === perm.id,
                     );
+                    const isAdminRole =
+                      role.role_name?.toLowerCase() === "admin";
 
                     return (
                       <td
@@ -195,6 +203,7 @@ const Permission = () => {
                       >
                         <ToggleSwitch
                           checked={permission?.can_view ?? false}
+                          disabled={isAdminRole}
                           onClick={() =>
                             togglePermission(role.role_id, perm.id)
                           }

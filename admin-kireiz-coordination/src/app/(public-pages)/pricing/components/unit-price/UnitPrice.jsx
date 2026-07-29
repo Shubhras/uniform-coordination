@@ -171,9 +171,9 @@ const UnitPrice = () => {
           </div>
 
           <div className="flex gap-3">
-            <button className="border border-[#CBD5E1] text-[#1C2C56] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
+            {/* <button className="border border-[#CBD5E1] text-[#1C2C56] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
               Reset Default
-            </button>
+            </button> */}
 
             {/* Export Dropdown */}
             <div className="relative" ref={dropdownRef}>
@@ -229,7 +229,7 @@ const UnitPrice = () => {
                   <th className="px-4 py-4 text-left font-medium">
                     Bulk (10+)
                   </th>
-                  <th className="px-4 py-4 text-left font-medium">Action</th>
+                  {/* <th className="px-4 py-4 text-left font-medium">Action</th> */}
                 </tr>
               </thead>
 
@@ -254,11 +254,11 @@ const UnitPrice = () => {
                     <td className="px-4 py-4 font-medium">₹{item.basePrice}</td>
 
                     <td className="px-4 py-4 font-medium">₹{item.bulk}</td>
-                    <td className="px-4 py-4">
+                    {/* <td className="px-4 py-4">
                       <button className="text-[#1C4FA8] hover:text-[#163E85] transition-colors">
                         <FiEdit2 size={18} />
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>

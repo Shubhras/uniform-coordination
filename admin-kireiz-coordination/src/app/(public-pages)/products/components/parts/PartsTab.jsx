@@ -15,14 +15,17 @@ import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
-import { apiGetPartsList, apiDeletePart } from "@/services/PartsService";
+import {
+  apiGetPartsList,
+  apiDeletePart,
+  apiCreatePart,
+} from "@/services/PartsService";
 import { apiFabricCategoryList } from "@/services/FabricService";
 import AddEditPartModal from "./AddEditPartModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-
 const PartsTab = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -39,6 +42,7 @@ const PartsTab = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [partToDelete, setPartToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [duplicatingId, setDuplicatingId] = useState(null);
 
   // View toggle
   const [view, setView] = useState("grid");
@@ -199,6 +203,103 @@ const PartsTab = () => {
   const handleSaveSuccess = () => {
     handleCloseModal();
     fetchParts(currentPage);
+  };
+
+  const getDuplicatePartName = (name = "") => {
+    const baseName = String(name).trim();
+    const existingNames = new Set(
+      parts.map((item) => item.partName?.trim()).filter(Boolean),
+    );
+
+    if (!existingNames.has(baseName)) {
+      return baseName;
+    }
+
+    let copyIndex = 1;
+    let duplicateName = `${baseName} Copy`;
+
+    while (existingNames.has(duplicateName)) {
+      copyIndex += 1;
+      duplicateName = `${baseName} Copy ${copyIndex}`;
+    }
+
+    return duplicateName;
+  };
+
+  const getPartImageFile = async (part) => {
+    if (!part?.partImage) return null;
+
+    const imageUrl = getImageUrl(part.partImage);
+    const response = await fetch(imageUrl);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch part image for duplication.");
+    }
+
+    const imageBlob = await response.blob();
+    const fileName =
+      part.partImage.split("/").pop() || `${part.partName || "part"}.jpg`;
+
+    return new File([imageBlob], fileName, {
+      type: imageBlob.type || "application/octet-stream",
+    });
+  };
+
+  const handleDuplicatePart = async (part) => {
+    if (!accessToken || !part) return;
+
+    try {
+      setDuplicatingId(part.id);
+
+      const formData = new FormData();
+      formData.append("partName", getDuplicatePartName(part.partName));
+
+      if (part.category?.id) {
+        formData.append("category", part.category.id);
+      }
+
+      if (part.fabric) {
+        formData.append("fabric", part.fabric);
+      }
+
+      if (part.subcategory?.id) {
+        formData.append("subcategory", part.subcategory.id);
+      }
+
+      if (part.zIndex !== undefined && part.zIndex !== null) {
+        formData.append("zIndex", String(part.zIndex));
+      }
+
+      const partImageFile = await getPartImageFile(part);
+      if (partImageFile) {
+        formData.append("partImage", partImageFile);
+      }
+
+      const response = await apiCreatePart(accessToken, formData);
+
+      if (!response?.status) {
+        throw new Error(response?.message || "Failed to duplicate part.");
+      }
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message || "Part duplicated successfully."}
+        </Notification>,
+      );
+
+      fetchParts(currentPage);
+    } catch (error) {
+      console.error("Failed to duplicate part:", error);
+      toast.push(
+        <Notification title="Error" type="danger">
+          {error?.response?.data?.message ||
+            error?.message ||
+            "Failed to duplicate part. Please try again."}
+        </Notification>,
+      );
+    } finally {
+      setDuplicatingId(null);
+    }
   };
 
   /* ---------- FILTERING ---------- */
@@ -382,6 +483,14 @@ const PartsTab = () => {
                       Edit
                     </button>
                     <button
+                      onClick={() => handleDuplicatePart(part)}
+                      disabled={duplicatingId === part.id}
+                      className="flex-1 border border-[#1C4FA8] text-[#1C4FA8] text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-[#EEF2FF] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                 
+                      {duplicatingId === part.id ? "Duplicating..." : "Duplicate"}
+                    </button>
+                    <button
                       onClick={() => {
                         setPartToDelete(part);
                         setDeleteDialogOpen(true);
@@ -476,6 +585,15 @@ const PartsTab = () => {
                           onClick={() => handleEdit(part)}
                         >
                           <FiEdit2 size={14} />
+                        </button>
+
+                        <button
+                          className="p-1.5 rounded hover:bg-[#EEF2FF] disabled:opacity-60 disabled:cursor-not-allowed"
+                          onClick={() => handleDuplicatePart(part)}
+                          disabled={duplicatingId === part.id}
+                          title="Duplicate"
+                        >
+                          <FiCopy size={14} />
                         </button>
 
                         <button
