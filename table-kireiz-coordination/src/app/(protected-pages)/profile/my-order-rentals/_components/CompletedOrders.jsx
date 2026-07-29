@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { apiUserOrderList } from '@/services/OrderService'
+import { formatDate } from '@/utils/formatDate'
 import { FiCalendar, FiClock, FiMapPin } from 'react-icons/fi'
 import Spinner from '@/components/ui/Spinner'
 import Pagination from '@/components/ui/Pagination'
@@ -82,20 +83,6 @@ const CompletedOrders = ({ onTotalCountChange }) => {
 
     const handleViewDetails = (orderId) => {
         router.push(`/profile/my-order-rentals/${orderId}`)
-    }
-
-    const formatDate = (dateStr) => {
-        if (!dateStr) return ''
-        try {
-            const date = new Date(dateStr)
-            return date.toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-            })
-        } catch {
-            return dateStr
-        }
     }
 
     const getStatusBadge = (status) => {

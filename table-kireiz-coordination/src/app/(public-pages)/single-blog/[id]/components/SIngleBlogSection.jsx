@@ -4,11 +4,9 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiGetBlogDetail } from "@/services/BlogService";
+import { formatISODate as formatDate } from "@/utils/formatDate";
 
-const formatDate = (date) => {
-  if (!date) return "";
-  return new Date(date).toISOString().split("T")[0];
-};
+
 
 const SingleBlogSection = () => {
   const { id } = useParams();

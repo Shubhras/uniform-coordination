@@ -14,6 +14,7 @@ import { GoArrowRight } from 'react-icons/go'
 import { apiGetProfile } from '@/services/AuthProfileService'
 import { useRouter } from 'next/navigation'
 import { apiUserOrderList } from '@/services/OrderService'
+import { formatDate } from '@/utils/formatDate'
 
 const MyProfile = () => {
     const router = useRouter()
@@ -284,7 +285,7 @@ const MyProfile = () => {
                             <div>
                                 <p className="text-xs text-[#8B6A55]">Date</p>
                                 <p className="text-sm font-medium text-[#5A3E2B]">
-                                    {ordersList[0]?.created_at}
+                                    {formatDate(ordersList[0]?.created_at)}
                                 </p>
                             </div>
                             <div>

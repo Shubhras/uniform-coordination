@@ -13,6 +13,7 @@ import { useSession } from 'next-auth/react'
 import { Alert } from '@/components/ui/Alert'
 import Select from '@/components/ui/Select'
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5'
+import { formatUSDate as formatDate } from '@/utils/formatDate'
 import { HiCheck } from 'react-icons/hi'
 
 const ITEMS_PER_PAGE = 8
@@ -43,16 +44,6 @@ const rangeOptions = [
     { value: '180', label: 'Last 6 Month' },
     { value: '365', label: 'Last 1 Year' },
 ]
-
-const formatDate = (date) => {
-    if (!date) return ''
-
-    return new Date(date).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    })
-}
 
 const SimulationHistory = () => {
     const { data: session } = useSession()
