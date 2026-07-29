@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { apiSindleOrderDetials } from '@/services/OrderService'
+import { formatDate } from '@/utils/formatDate'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import {
     FiArrowLeft,
@@ -64,19 +65,6 @@ const InfoRow = ({ label, value, valueClassName = 'text-[#2C1810]' }) => (
     </div>
 )
 
-const formatDate = (dateStr) => {
-    if (!dateStr) return ''
-    try {
-        const date = new Date(dateStr)
-        return date.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-        })
-    } catch {
-        return dateStr
-    }
-}
 const getPaymentStatusBadge = (status) => {
     const lower = status?.toLowerCase()
     if (lower === 'success' || lower === 'paid') {

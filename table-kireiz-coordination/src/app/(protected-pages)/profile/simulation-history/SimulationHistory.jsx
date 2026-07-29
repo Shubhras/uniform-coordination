@@ -12,10 +12,11 @@ import { apiGetHomeData } from '@/services/HomeService'
 import { useSession } from 'next-auth/react'
 import { Alert } from '@/components/ui/Alert'
 import Select from '@/components/ui/Select'
-import { IoChevronBack, IoChevronForward } from 'react-icons/io5'
+import Pagination from '@/components/ui/Pagination'
+import { formatUSDate as formatDate } from '@/utils/formatDate'
 import { HiCheck } from 'react-icons/hi'
 
-const ITEMS_PER_PAGE = 8
+// const ITEMS_PER_PAGE = 8
 
 const CustomOption = (props) => {
     const { innerProps, label, isSelected, isDisabled } = props
@@ -44,16 +45,6 @@ const rangeOptions = [
     { value: '365', label: 'Last 1 Year' },
 ]
 
-const formatDate = (date) => {
-    if (!date) return ''
-
-    return new Date(date).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    })
-}
-
 const SimulationHistory = () => {
     const { data: session } = useSession()
 
@@ -63,15 +54,13 @@ const SimulationHistory = () => {
     const [pdfLoadingId, setPdfLoadingId] = useState(null)
     const [pdfError, setPdfError] = useState('')
     const [currentPage, setCurrentPage] = useState(1)
+    const [pageSize, setPageSize] = useState(8)
+    const [totalCount, setTotalCount] = useState(0)
     const [filters, setFilters] = useState({
         category: '',
         sort: 'new',
         range: '30',
     })
-
-    const totalPages = Math.ceil(simulationData.length / ITEMS_PER_PAGE) || 1
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    const currentSimulations = simulationData.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
     const router = useRouter()
 
@@ -116,17 +105,33 @@ const SimulationHistory = () => {
         try {
             if (!session?.accessToken) return
             setLoading(true)
-            setCurrentPage(1)
-            const params = {}
+            const params = {
+                page: currentPage,
+                page_size: pageSize,
+            }
 
             if (filters.category) params.category = filters.category
             if (filters.sort) params.sort = filters.sort
             if (filters.range) params.range = filters.range
 
             const res = await apiSimulationHistory(session.accessToken, params)
-            if (res?.status) {
-                setSimulationData(res.data || [])
+
+            let list = []
+            let total = 0
+
+            if (res?.status && Array.isArray(res?.data)) {
+                list = res.data
+                total = res?.pagination?.total_records ?? res?.total ?? res?.count ?? res?.data?.length ?? 0
+            } else if (res?.results && Array.isArray(res?.results)) {
+                list = res.results
+                total = res?.pagination?.total_records ?? res?.count ?? res?.results?.length ?? 0
+            } else if (Array.isArray(res)) {
+                list = res
+                total = res.length
             }
+
+            setSimulationData(list)
+            setTotalCount(total)
         } catch (err) {
             console.error('Failed to load Simulation History', err)
         } finally {
@@ -139,8 +144,12 @@ const SimulationHistory = () => {
     }, [])
 
     useEffect(() => {
+        setCurrentPage(1)
+    }, [filters])
+
+    useEffect(() => {
         fetchSimulationHistory()
-    }, [session?.accessToken, filters])
+    }, [session?.accessToken, filters, currentPage])
 
     return (
         <div className="w-full bg-[#F5F0EE30] p-4 sm:p-5 md:p-8 rounded-2xl max-w-7xl mx-auto shadow-md">
@@ -318,30 +327,31 @@ const SimulationHistory = () => {
             {loading ? (
                 <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
                     <div className="flex justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
                     </div>
                 </section>
             ) : (
                 <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                        {currentSimulations.map((item) => (
+                        {simulationData.map((item) => (
                             <div
                                 key={item?.id}
                                 className="bg-[#F5F0EE] border border-[#D0BEB6] rounded-2xl overflow-hidden"
                             >
                                 <div className="flex justify-center mb-3 px-3 pt-3">
                                     <Image
-                                        src={item?.image || '/img/no-image.png'}
-                                        alt={item?.category_name || 'Simulation'}
+                                        src={item?.ProductImage || '/img/no-image.png'}
+                                        alt={item?.productName || 'Simulation'}
                                         width={240}
-                                        height={320}
+                                        height={240}
                                         className="w-full h-auto object-cover rounded-lg"
+                                        unoptimized
                                     />
                                 </div>
 
                                 <div className="p-3 sm:p-4">
                                     <h4 className="text-sm sm:text-[16px] font-semibold">
-                                        {item?.category_name}
+                                        {item?.productName}
                                     </h4>
                                     <p className="text-xs sm:text-[13px] mt-1 text-[#6B7280]">
                                         {formatDate(item?.created_at)}
@@ -373,35 +383,20 @@ const SimulationHistory = () => {
                         ))}
                     </div>
 
-                    {currentSimulations.length === 0 && (
+                    {simulationData.length === 0 && (
                         <div className="text-center py-12 text-[#6B7280]">
                             No simulation history found.
                         </div>
                     )}
 
-                    {simulationData.length > ITEMS_PER_PAGE && (
-                        <div className="flex items-center justify-center gap-3 mt-8">
-                            <button
-                                type="button"
-                                className="w-9 h-9 rounded-full border border-[#CBD5E1] flex items-center justify-center text-[#0F2A44] disabled:opacity-50"
-                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                            >
-                                <IoChevronBack />
-                            </button>
-                            <span className="text-sm text-[#0F2A44]">
-                                {currentPage} / {totalPages}
-                            </span>
-                            <button
-                                type="button"
-                                className="w-9 h-9 rounded-full border border-[#CBD5E1] flex items-center justify-center text-[#0F2A44] disabled:opacity-50"
-                                onClick={() =>
-                                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                                }
-                                disabled={currentPage === totalPages}
-                            >
-                                <IoChevronForward />
-                            </button>
+                    {totalCount > pageSize && (
+                        <div className="flex justify-end mt-8">
+                            <Pagination
+                                onChange={(page) => setCurrentPage(page)}
+                                currentPage={currentPage}
+                                total={totalCount}
+                                pageSize={pageSize}
+                            />
                         </div>
                     )}
                 </>

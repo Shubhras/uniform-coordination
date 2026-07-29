@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { formatISODate as formatDate } from "@/utils/formatDate";
 
 const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
   const router = useRouter();
@@ -10,10 +11,6 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
 
   const handleAllBlogsPage = () => {
     router.push("/blog");
-  };
-  const formatDate = (date) => {
-    if (!date) return "";
-    return new Date(date).toISOString().split("T")[0];
   };
   const handleSingleBlogPage = (id) => {
     router.push(`/single-blog/${id}`);

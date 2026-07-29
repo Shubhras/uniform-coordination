@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiGetBlogs } from "@/services/BlogService";
+import { formatISODate as formatDate } from "@/utils/formatDate";
 
 /* helpers (same usage as before) */
 const trimText = (text, wordLimit = 10) => {
@@ -12,11 +13,6 @@ const trimText = (text, wordLimit = 10) => {
     return words.length > wordLimit
         ? words.slice(0, wordLimit).join(" ") + "..."
         : text;
-};
-
-const formatDate = (date) => {
-    if (!date) return "";
-    return new Date(date).toISOString().split("T")[0];
 };
 
 const BlogSection = () => {

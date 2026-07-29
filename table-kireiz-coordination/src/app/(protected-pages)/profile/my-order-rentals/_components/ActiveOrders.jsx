@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { apiUserOrderList } from '@/services/OrderService'
+import { formatDate } from '@/utils/formatDate'
 import { FiCalendar, FiSearch, FiX, FiClock, FiRotateCcw, FiMapPin } from 'react-icons/fi'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
@@ -126,21 +127,6 @@ const ActiveOrders = ({ onTotalCountChange }) => {
 
     const handleViewDetails = (orderId) => {
         router.push(`/profile/my-order-rentals/${orderId}`)
-    }
-
-
-    const formatDate = (dateStr) => {
-        if (!dateStr) return ''
-        try {
-            const date = new Date(dateStr)
-            return date.toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-            })
-        } catch {
-            return dateStr
-        }
     }
 
     const getStatusBadge = (status) => {

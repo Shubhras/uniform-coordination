@@ -71,3 +71,31 @@ export async function apiUpdatePassword(token, payload) {
 }
 
 
+export async function apiSimulationHistory(token, params = {}) {
+    return ApiService.fetchDataWithAxios({
+        url: "/v1/space/userhub/customupdateuser/get-list/",
+        method: "get",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        params,
+    });
+}
+export async function apiSimulationExportPdf(token, id) {
+    return ApiService.fetchDataWithAxios({
+        url: `/v1/space/userhub/customupdatemodels/${id}/export/`,
+        method: "get",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+}
+// export async function apiGetNotifications(token) {
+//   return ApiService.fetchDataWithAxios({
+//     url: "/v1/uniformAdmin/notifications/get-list/",
+//     method: "get",
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//     },
+//   });
+// }
