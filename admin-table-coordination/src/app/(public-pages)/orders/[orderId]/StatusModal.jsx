@@ -1,14 +1,111 @@
 "use client";
 
+import { useState } from "react";
+import { apiOrderUpdate } from "@/services/OrderRentals";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { FiCheckCircle, FiX } from "react-icons/fi";
+import Spinner from "@/components/ui/Spinner";
 
-export default function StatusModal({ open, onClose, orderId = "ORD-7821" }) {
+export default function StatusModal({
+  open,
+  onClose,
+  orderId,
+  status,
+  accessToken,
+  fetchOrder,
+}) {
   if (!open) return null;
+
+  const [loading, setLoading] = useState(false);
+
+  const nextStatusMap = {
+    pending: "processing",
+    processing: "out_for_delivery",
+    out_for_delivery: "delivered",
+    delivered: "returned",
+  };
+
+  const handleUpdateStatus = async () => {
+    try {
+      setLoading(true);
+
+      const nextStatus = nextStatusMap[status];
+
+      if (!nextStatus) {
+        toast.error("Status cannot be updated.");
+        return;
+      }
+
+      const res = await apiOrderUpdate(accessToken, orderId, {
+        status: nextStatus,
+      });
+
+      if (res?.status) {
+        toast.push(
+          <Notification title="Success" type="success">
+            {res.message}
+          </Notification>,
+        );
+
+        onClose();
+
+        if (fetchOrder) {
+          await fetchOrder();
+        }
+      }
+    } catch (err) {
+      toast.error("Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const statusConfig = {
+    pending: {
+      title: "Mark as Shipped?",
+      button: "Mark Shipped",
+      description:
+        "You are about to mark order as shipped. The customer will be notified that the order has been shipped.",
+    },
+    processing: {
+      title: "Mark as Delivered?",
+      button: "Mark Delivered",
+      description:
+        "You are about to mark order as delivered. The customer will be notified that the order has been delivered.",
+    },
+
+    shipped: {
+      title: "Mark as Delivered?",
+      button: "Mark Delivered",
+      description:
+        "You are about to mark order as delivered. The customer will be notified that the order has been delivered.",
+    },
+
+    delivered: {
+      title: "Mark as Returned?",
+      button: "Mark Returned",
+      description:
+        "You are about to mark this order as returned. Inventory will be updated and the item(s) will be sent for quality inspection before restocking.",
+    },
+
+    returned: {
+      title: "Mark as Process Return?",
+      button: "Process Return",
+      description:
+        "You are about to move this returned order to the return processing stage.",
+    },
+  };
+
+  const current = statusConfig[status?.toLowerCase()] || {
+    title: "Update Status?",
+    button: "Update",
+    description: "Are you sure you want to update this order status?",
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 backdrop-blur-[2px] px-4">
       <div className="w-full max-w-[450px] rounded-[20px] bg-white shadow-2xl">
-
         {/* Close Button */}
         <div className="flex justify-end p-5 pb-0">
           <button
@@ -22,24 +119,26 @@ export default function StatusModal({ open, onClose, orderId = "ORD-7821" }) {
         <div className="px-8 pb-8 -mt-2">
           {/* Icon */}
           <div className="w-12 h-12 rounded-full bg-[#F7F1EC] flex items-center justify-center mb-7">
-            <FiCheckCircle
-              size={24}
-              className="text-[#A85A32]"
-            />
+            <FiCheckCircle size={24} className="text-[#A85A32]" />
           </div>
 
           {/* Heading */}
           <h2 className="text-[15px] leading-none font-bold text-[#1C1917] mb-2">
-            Mark as Returned?
+            {current.title}
           </h2>
 
           {/* Description */}
           <p className="text-[12px] leading-6 text-[#78716C]">
             You are about to mark order{" "}
-            <span className="font-medium text-[#8B8B8B]">{orderId}</span>{" "}
-            as returned. Inventory will be updated and the item(s) will be
-            sent for quality inspection before restocking.
+            <span className="font-medium text-[#8B8B8B]">{orderId}.</span>{" "}
+            Inventory will be updated and the item(s) will be sent for quality
+            inspection before restocking.
           </p>
+
+          {/* <p className="text-[12px] leading-6 text-[#78716C]">
+            {current.description}{" "}
+            <span className="font-medium text-[#8B8B8B]">{orderId}</span>
+          </p> */}
 
           {/* Buttons */}
           <div className="flex justify-end items-center gap-6 mt-12">
@@ -51,9 +150,11 @@ export default function StatusModal({ open, onClose, orderId = "ORD-7821" }) {
             </button>
 
             <button
-              className="bg-[#A85A32] hover:bg-[#944B25] text-white px-5 py-2 rounded-lg text-[14px] font-semibold shadow-md transition"
+              onClick={handleUpdateStatus}
+              disabled={loading}
+              className="bg-[#A85A32] hover:bg-[#944B25] disabled:opacity-60 text-white px-5 py-2 rounded-lg text-[14px] font-semibold shadow-md transition"
             >
-              Mark Returned
+              {loading ? "Updating..." : current.button}
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { FiArrowLeft } from "react-icons/fi";
+import { useEffect, useState } from "react";
 import {
   FiFileText,
   FiSend,
@@ -10,49 +11,92 @@ import {
   FiTruck,
   FiCheckCircle,
   FiRotateCcw,
+  FiInfo,
 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { apiOrderRentalDetails } from "@/services/OrderRentals";
+import Spinner from "@/components/ui/Spinner";
 
 export default function RentalTimeline({ orderId }) {
   const router = useRouter();
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (accessToken) {
+      fetchOrder();
+    }
+  }, [accessToken]);
+
+  const fetchOrder = async () => {
+    try {
+      setLoading(true);
+
+      const res = await apiOrderRentalDetails(accessToken, orderId);
+      console.log("RES =>", res);
+      console.log("RES.DATA =>", res.data);
+
+      if (res?.status) {
+        setOrder(res.data);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F8F7F5]">
+        <Spinner size={40} customColorClass="text-[#A0522D]" />
+      </div>
+    );
+  }
 
   const timeline = [
     {
+      key: "pending",
       title: "Order Confirmed",
-      desc: "Order ORD-2024-0789 created",
-      date: "12 Jun 2024, 10:32",
+      desc: "Order created",
       icon: <FiShoppingBag />,
-      completed: true,
     },
     {
+      key: "confirmed",
       title: "Payment Received",
-      desc: "Payment received via NP Kalebarai",
-      date: "12 Jun 2024, 18:45",
+      desc: "Payment received",
       icon: <FiCreditCard />,
-      completed: true,
     },
     {
+      key: "processing",
       title: "Shipped",
-      desc: "Dispatched via FedEx Priority.",
-      date: "12 Jun 2024, 14:00",
+      desc: "Dispatched",
       icon: <FiTruck />,
-      completed: true,
     },
     {
+      key: "delivered",
       title: "Delivered",
-      desc: "Items delivered successfully.",
-      date: "12 Jun 2024, 18:45",
+      desc: "Items delivered successfully",
       icon: <FiCheckCircle />,
-      completed: true,
     },
     {
+      key: "returned",
       title: "Returned",
-      desc: "Items received and logged for inspection.",
-      date: "Pending",
+      desc: "Items received and logged for inspection",
       icon: <FiRotateCcw />,
-      completed: false,
     },
   ];
+
+  const currentStep = timeline.findIndex(
+    (item) => item.key === order?.status?.toLowerCase(),
+  );
+
+  console.log("Current Step:", currentStep);
+  const totalSteps = timeline.length;
+  const completedSteps = currentStep >= 0 ? currentStep + 1 : 0;
+  const progressPercentage = (completedSteps / totalSteps) * 100;
 
   return (
     <div className="min-h-screen bg-[#FAF8F6] p-6">
@@ -74,118 +118,146 @@ export default function RentalTimeline({ orderId }) {
         {/* LEFT */}
         <div className="col-span-8 bg-white border border-[#EEE5DE] rounded-2xl p-8">
           <div className="relative">
-            {timeline.map((item, index) => (
-              <div
-                key={index}
-                className="relative flex justify-between pb-10 last:pb-0"
-              >
-                {/* Line */}
-                {index !== timeline.length - 1 && (
-                  <div className="absolute left-[17px] top-9 w-[2px] h-full bg-[#C96B34]" />
-                )}
+            {timeline.map((item, index) => {
+              const completed = index <= currentStep;
 
-                <div className="flex gap-4">
-                  {/* Icon */}
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm z-10 ${
-                      item.completed
-                        ? "bg-[#B8663A]"
-                        : "bg-white border border-[#D9D9D9] text-[#999]"
+              return (
+                <div
+                  key={item.key}
+                  className="relative flex justify-between pb-10 last:pb-0"
+                >
+                  {/* Line */}
+                  {index !== timeline.length - 1 && (
+                    <div
+                      className={`absolute left-[17px] top-9 w-[2px] h-full ${
+                        index < currentStep ? "bg-[#C96B34]" : "bg-[#E5E5E5]"
+                      }`}
+                    />
+                  )}
+
+                  <div className="flex gap-4">
+                    {/* Icon */}
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm z-10 ${
+                        completed
+                          ? "bg-[#B8663A]"
+                          : "bg-white border border-[#D9D9D9] text-[#999]"
+                      }`}
+                    >
+                      {item.icon}
+                    </div>
+
+                    {/* Text */}
+                    <div>
+                      <h3
+                        className={`font-semibold text-[14px] ${
+                          completed ? "text-[#2D241C]" : "text-[#B8B8B8]"
+                        }`}
+                      >
+                        {item.title}
+                      </h3>
+
+                      <p
+                        className={`text-xs mt-1 ${
+                          completed ? "text-[#8D857D]" : "text-[#C6C6C6]"
+                        }`}
+                      >
+                        {item.desc}
+                      </p>
+                    </div>
+                  </div>
+
+                  <span
+                    className={`text-xs ${
+                      completed ? "text-[#8B8B8B]" : "text-[#BEBEBE]"
                     }`}
                   >
-                    {item.icon}
-                  </div>
-
-                  {/* Text */}
-                  <div>
-                    <h3
-                      className={`font-semibold text-[14px] ${
-                        item.completed ? "text-[#2D241C]" : "text-[#B8B8B8]"
-                      }`}
-                    >
-                      {item.title}
-                    </h3>
-
-                    <p
-                      className={`text-xs mt-1 ${
-                        item.completed ? "text-[#8D857D]" : "text-[#C6C6C6]"
-                      }`}
-                    >
-                      {item.desc}
-                    </p>
-                  </div>
+                    {completed ? "Completed" : "Pending"}
+                  </span>
                 </div>
-
-                <span
-                  className={`text-xs ${
-                    item.completed ? "text-[#8B8B8B]" : "text-[#BEBEBE]"
-                  }`}
-                >
-                  {item.date}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         {/* RIGHT */}
         <div className="col-span-4 space-y-5">
           {/* Summary */}
-          <div className="bg-white border border-[#EEE5DE] rounded-2xl p-5">
-            <h3 className="text-[13px] font-semibold text-[#7A6E66] uppercase mb-5">
+          <div className="bg-white border border-[#EEE5DE] rounded-2xl p-4">
+            <h3 className="text-[13px] font-medium text-[#7A6E66] uppercase mb-5">
               Order Summary
             </h3>
 
-            <div className="space-y-4 text-sm">
+            <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-[#8C8177]">Order ID</span>
                 <span className="font-medium text-[12px] text-[#A85A32]">
-                  ORD-2024-0091
+                  {order?.order_id}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-[#8C8177]">Company</span>
                 <span className="font-semibold text-[#1A1714]">
-                  ABC Hotels Pvt Ltd.
+                  {order?.delivery_address?.name}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-[#8C8177]">Type</span>
 
-                <span className="px-2 py-1 rounded bg-[#FFF2E8] text-[#C96A34] text-xs font-semibold">
-                  B2B
+                <span className="px-2 py-1 rounded bg-[#F0F9FF] border border-[#B8E6FE] text-[#0069A8] text-xs font-semibold">
+                  B2C
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-[#8C8177]">Amount</span>
-                <span className="font-semibold text-[#A85A32]">₹4850.00</span>
+                <span className="font-semibold text-[#A85A32]">
+                  {order?.payment_summary?.currency || "₹"}{" "}
+                  {order?.total_amount}
+                </span>{" "}
               </div>
 
               <div className="flex justify-between">
                 <span className="text-[#8C8177]">Status</span>
 
-                <span className="px-2 py-1 rounded bg-[#EAF8F0] text-[#3E9C68] text-xs font-semibold">
-                  DELIVERED
+                <span
+                  className={`px-2 py-1 rounded border text-xs font-semibold capitalize
+      ${
+        order?.status === "returned"
+          ? "bg-[#FAF5FF] text-[#8200DB] border-[#E9D4FF]"
+          : order?.status === "delivered"
+            ? "bg-[#EAF8F0] text-[#3E9C68] border-[#86EFAC]"
+            : order?.status === "processing"
+              ? "bg-[#FFF4E5] text-[#D97706] border-[#FCD34D]"
+              : order?.status === "pending"
+                ? "bg-[#FFF4E5] text-[#BB4D00] border-[#BB4D00]"
+                : "bg-[#EFF6FF] text-[#1447E6] border-[#BEDBFF]"
+      }`}
+                >
+                  {order?.status}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Progress */}
-          <div className="bg-[#FFF8F3] border border-[#ECD8CB] rounded-2xl p-5">
-            <h3 className="text-[11px] uppercase text-[#C26C35] font-semibold mb-4">
+          <div className="bg-[#FFF8F3] border border-[#ECD8CB] rounded-2xl p-4">
+            <h3 className="flex items-center gap-2 text-[13px] uppercase text-[#C26C35] font-semibold mb-4">
+              <FiInfo size={17} />
               Progress
             </h3>
 
             <div className="w-full h-2 rounded-full bg-[#E8D7CA] overflow-hidden">
-              <div className="w-[88%] h-full bg-[#B8663A] rounded-full" />
+              <div
+                className="h-full bg-[#B8663A] rounded-full transition-all duration-500"
+                style={{ width: `${progressPercentage}%` }}
+              />
             </div>
 
-            <p className="mt-3 text-xs text-[#9C6645] font-medium">
-              8 of 9 steps completed
+            <p className="mt-3 text-xs text-[#A85A32] font-semibold">
+              {completedSteps} of {totalSteps} steps completed
             </p>
           </div>
         </div>

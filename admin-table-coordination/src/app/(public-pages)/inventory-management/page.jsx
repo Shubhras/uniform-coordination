@@ -17,8 +17,9 @@ const InventoryManagement = () => {
 
     if (tab) {
       setActiveTab(tab);
+      router.replace("/inventory-management");
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
   const [activeTab, setActiveTab] = useState("Inventory Lists");
 
   const renderTab = () => {

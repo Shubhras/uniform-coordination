@@ -12,10 +12,13 @@ import {
 } from "react-icons/fi";
 import Spinner from "@/components/ui/Spinner";
 import StatusModal from "./StatusModal";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
 
-export default function B2BOrderDetails({ orderId, order }) {
+export default function B2BOrderDetails({ orderId, order, fetchOrder }) {
   const router = useRouter();
   const [openReturnModal, setOpenReturnModal] = useState(false);
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
 
   const items = [
     {
@@ -48,6 +51,42 @@ export default function B2BOrderDetails({ orderId, order }) {
     },
   ];
 
+  const statusConfig = {
+    pending: {
+      action: "Mark as Shipped",
+    },
+    processing: {
+      action: "Mark as Delivered",
+    },
+
+    out_for_delivery: {
+      action: "Mark as Delivered",
+    },
+
+    shipped: {
+      action: "Mark as Delivered",
+    },
+    delivered: {
+      action: "Mark as Returned",
+    },
+    returned: {
+      action: "Process Return",
+    },
+  };
+
+  const currentAction = statusConfig[order?.status?.toLowerCase()] || {
+    action: "Update Status",
+  };
+
+  const handleAction = () => {
+    if (currentAction.action === "Process Return") {
+      router.push(`/orders/${orderId}/return`);
+      return;
+    }
+
+    setOpenReturnModal(true);
+  };
+
   if (!order) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F8F7F5]">
@@ -66,7 +105,7 @@ export default function B2BOrderDetails({ orderId, order }) {
               onClick={() => router.back()}
               className="w-9 h-9 rounded-full border border-[#E9DED4] bg-white flex items-center justify-center hover:bg-[#F8F3EE]"
             >
-              <FiArrowLeft />
+              <FiArrowLeft className="text-lg text-[#5B4434]" />
             </button>
 
             <div className="flex items-center gap-3">
@@ -75,13 +114,13 @@ export default function B2BOrderDetails({ orderId, order }) {
               </h1>
 
               <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold capitalize
+                className={`px-3 py-1 rounded-lg border text-xs font-semibold capitalize
     ${
       order?.status === "completed"
-        ? "bg-[#E9F9F0] text-[#22A06B]"
+        ? "bg-[#E9F9F0] text-[#22A06B] border-[#22A06B]"
         : order?.status === "pending"
-          ? "bg-[#FFF4E5] text-[#D97706]"
-          : "bg-[#FEE2E2] text-[#DC2626]"
+          ? "bg-[#FFF4E5] text-[#BB4D00] border-[#FEE685]"
+          : "bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]"
     }`}
               >
                 {order?.status}
@@ -90,10 +129,11 @@ export default function B2BOrderDetails({ orderId, order }) {
           </div>
 
           <button
-            onClick={() => setOpenReturnModal(true)}
+            // onClick={() => setOpenReturnModal(true)}
+            onClick={handleAction}
             className="bg-[#8C4A2F] text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-[#723A24]"
           >
-            Mark As Returned
+            {currentAction.action}
           </button>
         </div>
 
@@ -358,6 +398,10 @@ export default function B2BOrderDetails({ orderId, order }) {
       <StatusModal
         open={openReturnModal}
         onClose={() => setOpenReturnModal(false)}
+        orderId={order?.order_id}
+        status={order?.status}
+        accessToken={accessToken}
+        fetchOrder={fetchOrder}
       />
     </>
   );

@@ -39,8 +39,8 @@ const InspectionQueueList = () => {
         pageSize,
       );
 
-      if (res?.data?.status) {
-        setInspectionData(res.data.data || []);
+      if (res?.data) {
+        setInspectionData(res.data || []);
         setTotal(res.data.count || res.data.pagination?.total_items || 0);
       } else {
         setInspectionData([]);
@@ -135,35 +135,39 @@ const InspectionQueueList = () => {
                       index % 2 === 0 ? "bg-white" : "bg-[#FBF7F3]"
                     }`}
                   >
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-3">
                       <h3 className="text-[#2C1A0E] text-[14px] font-semibold">
-                        {item.product_name}
+                        Rental Item #{item.rental_item}
                       </h3>
 
-                      <p className="mt-1 text-[11px] text-[#B39A88]">
-                        {item.category_name}
-                      </p>
+                      {/* <p className="mt-1 text-[11px] text-[#B39A88]">
+                        Inspection #{item.id}
+                      </p> */}
                     </td>
 
-                    <td className="px-5 py-5 text-[#2C1A0E] font-semibold text-[14px]">
-                      {item.order_id}
+                    <td className="px-5 py-3 text-[#2C1A0E] font-semibold text-[14px]">
+                      #ORD-{item.order}
                     </td>
 
-                    <td className="px-5 py-4 text-[#2C1A0E] font-semibold text-[14px]">
-                      {item.returned_qty}
+                    <td className="px-5 py-3 text-[#2C1A0E] font-semibold text-[14px]">
+                      {item.returned_qty}{" "} Units
                     </td>
 
-                    <td className="px-5 py-4 text-[#2C1A0E] font-semibold text-[14px]">
-                      {item.return_date}
+                    <td className="px-5 py-3 text-[#2C1A0E] font-semibold text-[14px]">
+                      {new Date(item.inspected_at).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </td>
 
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-3">
                       <div className="flex justify-center gap-3">
-                        <button className="min-w-[68px] h-9 rounded-md border border-[#B8F1D4] bg-[#F2FFF7] text-[#0E9F6E] text-[13px] font-semibold">
+                        <button className="min-w-[68px] h-7 rounded-md border border-[#B8F1D4] bg-[#F2FFF7] text-[#0E9F6E] text-[13px] font-semibold">
                           Pass
                         </button>
 
-                        <button className="min-w-[68px] h-9 rounded-md border border-[#FFD0D7] bg-white text-[#E11D48] text-[13px] font-semibold">
+                        <button className="min-w-[68px] h-7 rounded-md border border-[#FFD0D7] bg-white text-[#E11D48] text-[13px] font-semibold">
                           Fail
                         </button>
                       </div>
