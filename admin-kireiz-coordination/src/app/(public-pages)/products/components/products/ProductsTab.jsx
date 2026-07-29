@@ -389,6 +389,7 @@ const ProductsTab = () => {
 
       {/* Modals */}
       <AddEditProductModal
+        key={selectedProduct?.id ?? "new-product"}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         initialData={selectedProduct}

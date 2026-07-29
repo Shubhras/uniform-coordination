@@ -189,9 +189,11 @@ const AddEditPartModal = ({
 
     const fetchFabrics = async () => {
       setLoadingFabrics(true);
-
+      const page= 1;
+      const pageSize= 100;
+      const search= "";
       try {
-        const response = await apiGetFabricList(accessToken, 1, 100);
+        const response = await apiGetFabricList( page);
 
         if (response?.status && response?.data) {
           const options = response.data

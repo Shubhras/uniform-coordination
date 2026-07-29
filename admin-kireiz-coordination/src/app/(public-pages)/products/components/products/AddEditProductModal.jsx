@@ -96,6 +96,16 @@ const validationSchema = z.object({
   image: z.any().optional(),
 });
 
+const EMPTY_PRODUCT_FORM_VALUES = {
+  productName: "",
+  description: "",
+  category: null,
+  subcategory: null,
+  price: "",
+  selectedParts: [],
+  image: null,
+};
+
 const AddEditProductModal = ({
   isOpen,
   onClose,
@@ -138,15 +148,7 @@ const AddEditProductModal = ({
     formState: { errors },
   } = useForm({
     resolver: zodResolver(validationSchema),
-    defaultValues: {
-      productName: "",
-      description: "",
-      category: null,
-      subcategory: null,
-      price: "",
-      selectedParts: [],
-      image: null,
-    },
+    defaultValues: EMPTY_PRODUCT_FORM_VALUES,
   });
   const selectedCategory = watch("category");
 
@@ -308,6 +310,7 @@ const AddEditProductModal = ({
     if (isEdit && initialData) {
       reset({
         productName: initialData.productName || "",
+        
         description: initialData.description || "",
         price: initialData.price?.toString() || "",
 
@@ -336,13 +339,18 @@ const AddEditProductModal = ({
       setImageFile(null);
       setImageValidated(false);
     } else {
-      reset();
+      reset(EMPTY_PRODUCT_FORM_VALUES);
       setPreview(null);
       setImageFile(null);
       setImageError("");
       setImageValidated(false);
+      setError("");
+
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
     }
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData, isEdit, reset]);
 
   // Resolve labels once options load (edit mode)
 
@@ -392,10 +400,13 @@ const AddEditProductModal = ({
   const handleSave = async (values) => {
     setError("");
     setSaving(true);
-
+  console.log("Product Type:", values);
+  
     try {
       const formData = new FormData();
       formData.append("productName", values.productName.trim());
+
+      console.log("Product Type:", values);
       formData.append("productType", "uniform");
 
       if (values.description.trim()) {

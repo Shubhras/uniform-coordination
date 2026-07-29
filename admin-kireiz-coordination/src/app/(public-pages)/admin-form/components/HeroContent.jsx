@@ -39,8 +39,9 @@ const HeroContent = ({ data }) => {
             Create Template
           </button>
 
-          <button className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium">
-            View Orders
+          <button className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
+            onClick={() => router.push("/quotation-requests")}>
+            View Quotation
           </button>
 
           <button

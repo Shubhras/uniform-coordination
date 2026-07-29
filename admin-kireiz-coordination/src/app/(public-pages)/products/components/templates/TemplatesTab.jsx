@@ -274,9 +274,9 @@ const TemplatesTab = () => {
           </div>
 
           <div className="flex gap-2">
-            <button className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-[#1C2C56]">
+            {/* <button className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-[#1C2C56]">
               Import Template
-            </button>
+            </button> */}
             <button
               onClick={handleAdd}
               className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm flex items-center gap-2"

@@ -3,27 +3,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
-import Dialog from "@/components/ui/Dialog";
 import Spinner from "@/components/ui/Spinner";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
-    FiArrowLeft,
     FiBox,
-    FiCheckCircle,
-    FiChevronLeft,
     FiChevronRight,
     FiClock,
     FiDownload,
     FiEdit2,
-    FiEdit3,
     FiFileText,
-    FiList, 
     FiLock,
-    FiMaximize2,
-    FiMinus,
-    FiPlus,
-    FiPrinter,
 } from "react-icons/fi";
 import { HiCheckCircle } from "react-icons/hi";
 import { CiUser } from "react-icons/ci";
@@ -35,76 +25,8 @@ import {
     apiSimulationHistory,
 } from "@/services/AuthProfileService";
 import {
-    apiCancelQuotation,
-    apiDownloadUserQuotationPdf,
-    apiGetQuotationRequestDetail,
     apiGetUserQuotationDetail,
 } from "@/services/QuotationRequestService";
-import { jsPDF } from "jspdf";
-
-// const defaultLineItems = [
-//     {
-//         name: "Chef Coat - Premium Cotton",
-//         meta: "White, Size M, Embroidered Logo",
-//         qty: 50,
-//         price: 45.0,
-//         total: 2250.0,
-//     },
-//     {
-//         name: "Apron - Heavy Duty",
-//         meta: "Black, Adjustable Strap",
-//         qty: 50,
-//         price: 25.0,
-//         total: 1250.0,
-//     },
-//     {
-//         name: "Setup Fee - Embroidery",
-//         meta: "One-time digitizing fee",
-//         qty: 1,
-//         price: 150.0,
-//         total: 150.0,
-//     },
-// ];
-const defaultTerms = [
-    "Price includes one-time embroidery setup fee of $150.",
-    "Standard shipping via FedEx Ground (3-5 business days).",
-    "50% deposit required upon acceptance to begin production.",
-    "Returns only accepted for manufacturing defects.",
-];
-
-const getQuotationStatusMeta = (status) => {
-    const normalizedStatus = String(status || "pending").toLowerCase();
-
-    if (normalizedStatus.includes("accept")) {
-        return {
-            label: "Accepted",
-            badgeClass: "bg-[#E8FAF1] text-[#22C55E]",
-        };
-    }
-
-    if (
-        normalizedStatus.includes("cancel") ||
-        normalizedStatus.includes("declin") ||
-        normalizedStatus.includes("reject")
-    ) {
-        return {
-            label: normalizedStatus.includes("cancel") ? "Cancelled" : "Declined",
-            badgeClass: "bg-[#FEF2F2] text-[#DC2626]",
-        };
-    }
-
-    if (normalizedStatus.includes("review") || normalizedStatus.includes("receiv")) {
-        return {
-            label: "In Review",
-            badgeClass: "bg-[#FFF7ED] text-[#EA580C]",
-        };
-    }
-
-    return {
-        label: "Pending",
-        badgeClass: "bg-[#E8F1FF] text-[#1C4FA8]",
-    };
-};
 
 const normalizePdfUrl = (rawUrl) => {
     if (!rawUrl || typeof rawUrl !== "string") {
@@ -149,72 +71,6 @@ const normalizePdfUrl = (rawUrl) => {
     }
 };
 
-const parseSizeRange = (sizeQuantity) => {
-    if (Array.isArray(sizeQuantity) && sizeQuantity.length) {
-        return sizeQuantity.slice(0, 3).map((item, index) => ({
-            label: item?.size || ["XS", "S", "M"][index] || `S${index + 1}`,
-            value: item?.quantity || 1,
-        }));
-    }
-
-    if (sizeQuantity && typeof sizeQuantity === "object") {
-        return Object.entries(sizeQuantity)
-            .slice(0, 3)
-            .map(([label, value]) => ({ label, value: value || 1 }));
-    }
-
-    return [
-        { label: "XS", value: 1 },
-        { label: "S", value: 1 },
-        { label: "M", value: 1 },
-    ];
-};
-
-const formatCreatedLabel = (value) => {
-    if (!value) {
-        return "Created recently";
-    }
-
-    const createdAt = new Date(value);
-    if (Number.isNaN(createdAt.getTime())) {
-        return "Created recently";
-    }
-
-    const now = new Date();
-    const diff = Math.max(
-        0,
-        Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)),
-    );
-
-    if (diff === 0) return "Created today";
-    if (diff === 1) return "Created 1 day ago";
-    return `Created ${diff} days ago`;
-};
-
-const formatSimulationDate = (value) => {
-    if (!value) return "-";
-
-    const createdAt = new Date(value);
-    if (Number.isNaN(createdAt.getTime())) return "-";
-
-    const now = new Date();
-    const diffMs = now.getTime() - createdAt.getTime();
-    const diffHours = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
-
-    const fullDate = createdAt.toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-    });
-
-    if (diffHours < 24) {
-        const hourLabel = diffHours <= 1 ? "1 hr" : `${diffHours} hr`;
-        return `${hourLabel}, ${fullDate}`;
-    }
-
-    return fullDate;
-};
-
 const formatDisplayDate = (value) => {
     if (!value) return "-";
 
@@ -228,39 +84,7 @@ const formatDisplayDate = (value) => {
     });
 };
 
-const normalizeSizeRange = (quotation) => {
-    if (Array.isArray(quotation?.size_range) && quotation.size_range.length) {
-        return quotation.size_range.map((item, index) => ({
-            label: item?.size || item?.label || `Size ${index + 1}`,
-            value: item?.quantity || item?.value || 0,
-        }));
-    }
-
-    return parseSizeRange(quotation?.size_quantity);
-};
-
-const normalizeQuotationItem = (item, index) => ({
-    id: item?.id || `line-item-${index}`,
-    name: item?.name || item?.description || item?.product_name || "Quotation Item",
-    meta: item?.meta || item?.detail || "",
-    qty: item?.qty || item?.quantity || 0,
-    price: item?.price || item?.unit_price || 0,
-    total: item?.total || 0,
-    uniform_name:
-        item?.uniform_name ||
-        item?.name ||
-        item?.description ||
-        item?.product_name ||
-        "Quotation Item",
-    category: item?.category || item?.item_type || "-",
-    quantity: item?.quantity || item?.qty || 0,
-});
-
 const normalizeQuotationRecord = (quotation) => {
-    const itemsSource = Array.isArray(quotation?.line_items)
-        ? quotation.line_items
-        : [];
-
     return {
         ...quotation,
         id:
@@ -277,24 +101,7 @@ const normalizeQuotationRecord = (quotation) => {
             quotation?.companyName ||
             quotation?.contact_person ||
             "Quotation",
-        amount: quotation?.amount || quotation?.total_amount || "0.00",
-        total_amount: quotation?.total_amount || quotation?.amount || "0.00",
-        terms:
-            quotation?.terms ||
-            quotation?.notes_terms ||
-            defaultTerms,
-        line_items: itemsSource.map(normalizeQuotationItem),
-        items: itemsSource.map(normalizeQuotationItem),
-        pdf_url: normalizePdfUrl(quotation?.pdf_url || quotation?.pdf || ""),
         created_at: quotation?.created_at || quotation?.submitted_at || "",
-        status_label:
-            quotation?.status_label ||
-            getQuotationStatusMeta(quotation?.quotation_status || quotation?.status).label,
-        size_quantity:
-            quotation?.size_quantity ||
-            quotation?.size_range ||
-            {},
-        size_range: normalizeSizeRange(quotation),
     };
 };
 
@@ -306,344 +113,6 @@ const extractQuotationCollection = (payload) => {
     if (payload?.data && typeof payload.data === "object") return [payload.data];
     return [];
 };
-
-const buildQuotationPdfBlobUrl = (quotation) => {
-    const doc = new jsPDF({ unit: "pt", format: "letter" });
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const marginX = 56;
-
-    const navy = [0, 53, 96];
-    const darkText = [17, 24, 39];
-    const grayText = [75, 85, 99];
-    const lightGray = [107, 114, 128];
-    const borderBlue = [215, 227, 244];
-    const rowBorder = [238, 242, 247];
-    const topBarBlue = [13, 77, 126];
-
-    doc.setFillColor(...topBarBlue);
-    doc.rect(0, 0, pageWidth, 8, "F");
-
-    const logoSize = 30;
-    const logoY = 40;
-    doc.setDrawColor(...borderBlue);
-    doc.rect(marginX, logoY, logoSize, logoSize);
-    doc.setTextColor(...navy);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("KF", marginX + logoSize / 2, logoY + logoSize / 2 + 3, {
-        align: "center",
-    });
-
-    doc.setTextColor(...darkText);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(26);
-    doc.text("QUOTATION", marginX, logoY + logoSize + 34);
-
-    doc.setTextColor(...grayText);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    const quotationNo =
-        quotation?.quotationNo || quotation?.quotation_id || "Q-2023-88";
-    doc.text(`#${quotationNo}`, marginX, logoY + logoSize + 50);
-
-    const companyName =
-        quotation?.company_name || quotation?.companyName || "UniformPro Inc.";
-    const rightX = pageWidth - marginX;
-    doc.setTextColor(...navy);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text(companyName, rightX, 46, { align: "right" });
-    doc.setTextColor(...grayText);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8.5);
-    doc.text("123 Fashion Blvd", rightX, 60, { align: "right" });
-    doc.text("New York, NY 10001", rightX, 73, { align: "right" });
-    doc.text("USA", rightX, 86, { align: "right" });
-
-    const tableTop = logoY + logoSize + 90;
-    const colDesc = marginX;
-    const colQty = marginX + 250;
-    const colPrice = marginX + 305;
-    const colTotal = marginX + 385;
-
-    doc.setTextColor(...grayText);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8.5);
-    doc.text("Description", colDesc, tableTop);
-    doc.text("Qty", colQty, tableTop);
-    doc.text("Unit Price", colPrice, tableTop);
-    doc.text("Total", colTotal, tableTop);
-
-    doc.setDrawColor(...borderBlue);
-    doc.line(marginX, tableTop + 8, rightX, tableTop + 8);
-
-    const items = quotation?.line_items?.length
-        ? quotation.line_items
-        : [];
-    let rowY = tableTop + 32;
-    const rowGap = 54;
-
-    items.forEach((item) => {
-        doc.setTextColor(...darkText);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(9.5);
-        doc.text(item.name, colDesc, rowY);
-
-        doc.setTextColor(...lightGray);
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(8);
-        doc.text(item.meta || "", colDesc, rowY + 12);
-
-        doc.setTextColor(...grayText);
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
-        doc.text(String(item.qty), colQty, rowY);
-        doc.text(`$${Number(item.price).toFixed(2)}`, colPrice, rowY);
-
-        doc.setTextColor(...darkText);
-        doc.setFont("helvetica", "bold");
-        doc.text(
-            `$${Number(item.total).toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
-            colTotal,
-            rowY,
-        );
-
-        doc.setDrawColor(...rowBorder);
-        doc.line(marginX, rowY + 20, rightX, rowY + 20);
-
-        rowY += rowGap;
-    });
-
-    const terms = Array.isArray(quotation?.terms) ? quotation.terms : [];
-    const footerY = doc.internal.pageSize.getHeight() - 70;
-    doc.setDrawColor(...rowBorder);
-    doc.line(marginX, footerY, rightX, footerY);
-    doc.setTextColor(...lightGray);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    terms.forEach((term, index) => {
-        doc.text(term, marginX, footerY + 16 + index * 12);
-    });
-
-    return { url: URL.createObjectURL(doc.output("blob")), doc };
-};
-
-const ZOOM_STEP = 10;
-
-const QuotationPreviewCard = ({ quotation, accessToken }) => {
-    const [pdfBaseUrl, setPdfBaseUrl] = useState("");
-    const [previewLoading, setPreviewLoading] = useState(true);
-    const [zoomLevel, setZoomLevel] = useState(100);
-    const docRef = useRef(null);
-
-    useEffect(() => {
-        let previewObjectUrl = "";
-        let generatedObjectUrl = "";
-        let isMounted = true;
-
-        const loadPreview = async () => {
-            setPreviewLoading(true);
-            setZoomLevel(100);
-
-            const existingUrl =
-                quotation?.pdf_url ||
-                quotation?.pdf ||
-                quotation?.quotation_pdf ||
-                quotation?.quotationPdf ||
-                quotation?.export_pdf_url;
-
-            const quotationUuid =
-                quotation?.uuids ||
-                quotation?.uuid ||
-                quotation?.id ||
-                quotation?.quotation_id;
-
-            if (existingUrl && accessToken && quotationUuid) {
-                try {
-                    const pdfBlob = await apiDownloadUserQuotationPdf(
-                        quotationUuid,
-                        accessToken,
-                        normalizePdfUrl(existingUrl),
-                    );
-
-                    if (!isMounted) return;
-
-                    previewObjectUrl = URL.createObjectURL(pdfBlob);
-                    docRef.current = null;
-                    setPdfBaseUrl(previewObjectUrl);
-                    setPreviewLoading(false);
-                    return;
-                } catch (error) {
-                    console.error("Quotation preview blob error:", error);
-                }
-            }
-
-            const { url, doc } = buildQuotationPdfBlobUrl(quotation);
-            if (!isMounted) {
-                URL.revokeObjectURL(url);
-                return;
-            }
-
-            generatedObjectUrl = url;
-            docRef.current = doc;
-            setPdfBaseUrl(url);
-            setPreviewLoading(false);
-        };
-
-        loadPreview();
-
-        return () => {
-            isMounted = false;
-            if (previewObjectUrl) {
-                URL.revokeObjectURL(previewObjectUrl);
-            }
-            if (generatedObjectUrl) {
-                URL.revokeObjectURL(generatedObjectUrl);
-            }
-        };
-    }, [quotation, accessToken]);
-
-    const quotationNo =
-        quotation?.quotationNo ||
-        quotation?.quotation_id ||
-        "Uniform_Quote_Q-2023-88";
-
-    const pdfFileName = `${quotationNo}.pdf`;
-
-    const pdfUrl = pdfBaseUrl
-        ? `${pdfBaseUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`
-        : "";
-    const zoomScale = zoomLevel / 100;
-
-    const handleZoomOut = () => {
-        setZoomLevel((prev) => Math.max(10, prev - ZOOM_STEP));
-    };
-
-    const handleZoomIn = () => {
-        setZoomLevel((prev) => prev + ZOOM_STEP);
-    };
-
-    const handleDownload = () => {
-        if (docRef.current) {
-            docRef.current.save(pdfFileName);
-        } else if (pdfBaseUrl) {
-            const link = document.createElement("a");
-            link.href = pdfBaseUrl;
-            link.download = pdfFileName;
-            link.click();
-        }
-    };
-
-    const handlePrint = () => {
-        if (!pdfBaseUrl) return;
-        const printWindow = window.open(pdfBaseUrl);
-        printWindow?.addEventListener("load", () => printWindow.print());
-    };
-
-    return (
-        <div className="relative h-fit rounded-[20px] bg-[#1F2937] p-4 shadow-[0_18px_40px_rgba(15,23,42,0.18)]">
-            <div className="mb-3 flex items-center justify-between gap-3 text-[11px] text-white/80">
-                <div className="flex items-center gap-3">
-                    <span className="max-w-[220px] truncate rounded-md bg-[#344054] px-3 py-2 text-[11px] text-white">
-                        {pdfFileName}
-                    </span>
-                    <span className="rounded-md bg-[#344054] px-3 py-2 text-[10px] text-white/90">
-                        Read Only
-                    </span>
-                </div>
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center rounded-md bg-[#1A2233] text-white">
-                        <button
-                            className="flex h-8 w-8 items-center justify-center rounded-l-md text-white transition-colors hover:bg-white/10"
-                            onClick={handleZoomOut}
-                        >
-                            <FiMinus size={14} />
-                        </button>
-                        <button
-                            className="min-w-[64px] text-center text-[12px] font-medium text-white"
-                            onClick={() => setZoomLevel(100)}
-                        >
-                            {zoomLevel}%
-                        </button>
-                        <button
-                            className="flex h-8 w-8 items-center justify-center rounded-r-md text-white transition-colors hover:bg-white/10"
-                            onClick={handleZoomIn}
-                        >
-                            <FiPlus size={14} />
-                        </button>
-                    </div>
-                    <span className="h-6 w-px bg-white/20" />
-                    <button
-                        className="rounded-md p-1.5 text-white transition-colors hover:bg-white/10"
-                        onClick={handleDownload}
-                    >
-                        <FiDownload size={14} />
-                    </button>
-                    <button
-                        className="rounded-md p-1.5 text-white transition-colors hover:bg-white/10"
-                        onClick={handlePrint}
-                    >
-                        <FiPrinter size={14} />
-                    </button>
-                </div>
-            </div>
-
-            <div className="relative h-[560px] overflow-auto rounded-[10px] bg-[#E5E7EB]">
-                {pdfUrl && !previewLoading ? (
-                    <div
-                        className={`relative flex min-h-[560px] ${
-                            zoomLevel <= 100 ? "items-start justify-center" : "items-start justify-start"
-                        }`}
-                        style={{
-                            width: zoomLevel > 100 ? `${zoomLevel}%` : "100%",
-                            height: zoomLevel > 100 ? `${560 * zoomScale}px` : "560px",
-                            minWidth: zoomLevel > 100 ? `${zoomLevel}%` : "100%",
-                        }}
-                    >
-                        <iframe
-                            key={pdfBaseUrl}
-                            src={pdfUrl}
-                            title="Quotation PDF preview"
-                            className="border-0 bg-white"
-                            style={{
-                                width: `${100 / zoomScale}%`,
-                                height: `${560 / zoomScale}px`,
-                                transform: `scale(${zoomScale})`,
-                                transformOrigin: zoomLevel <= 100 ? "top center" : "top left",
-                                flexShrink: 0,
-                            }}
-                        />
-                    </div>
-                ) : (
-                    <div className="flex h-[560px] items-center justify-center">
-                        <Spinner size={24} />
-                    </div>
-                )}
-
-                <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center">
-                    <div className="pointer-events-auto flex items-center gap-3 rounded-full bg-[#111827] px-3 py-1.5 text-[10px] text-white/85 shadow-md">
-                        <button className="text-white/60 hover:text-white">
-                            <FiChevronLeft size={14} />
-                        </button>
-                        <span>Page 1 / 1</span>
-                        <button className="text-white/60 hover:text-white">
-                            <FiChevronRight size={14} />
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-const SummarySizeRow = ({ label, value }) => (
-    <div className="flex items-center justify-between">
-        <span className="text-[10px] text-[#4B5563]">
-            {label}
-        </span>
-
-       
-    </div>
-);  
 
 const MyProfile = () => {
     const fileRef = useRef(null);
@@ -659,8 +128,7 @@ const MyProfile = () => {
     const [pdfLoadingId, setPdfLoadingId] = useState(null);
     const [quotationDetailLoadingId, setQuotationDetailLoadingId] = useState(null);
     const activeQuotation = quotationData?.[0] || null;
-    const recentSimulations = simulationData;
-    const visibleRecentSimulations = recentSimulations.slice(0, 3);
+    const visibleRecentSimulations = simulationData.slice(0, 3);
 
     const handleRecentQuotationClick = (quotation) => {
         const quotationId =
@@ -820,14 +288,8 @@ const MyProfile = () => {
             return;
         }
 
-        try {
-            setQuotationDetailLoadingId(quotationId);
-            router.push(`/profile/my-profile/${quotationId}`);
-        } catch (error) {
-            console.error("Quotation detail API error:", error);
-        } finally {
-            setQuotationDetailLoadingId(null);
-        }
+        setQuotationDetailLoadingId(quotationId);
+        router.push(`/profile/my-profile/${quotationId}`);
     };
 
     if (profileLoading) {
@@ -1095,7 +557,7 @@ const MyProfile = () => {
                             <div className="flex items-center justify-center py-8">
                                 <Spinner size={24} />
                             </div>
-                        ) : recentSimulations.length > 0 ? (
+                        ) : simulationData.length > 0 ? (
                             <div className="space-y-0">
                                 {visibleRecentSimulations.map((item, index) => (
                                     <div

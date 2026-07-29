@@ -11,11 +11,11 @@ import {
 
 const actions = [
   { label: "Upload New Fabric", icon: FiBox, route: "/products?tab=Fabrics" },
-  { label: "View Quotations", icon: FiBarChart2,route: "/products?tab=Fabrics"  },
+  { label: "View Quotations", icon: FiBarChart2,route: "/quotation-requests"  },
   { label: "Manage B2B account", icon: FiUsers, route: "/customer?tab=B2B Accounts"  },
   { label: "Themes & Templates", icon: FiGrid ,route: "/products?tab=Template" },
-  { label: "Generate Report", icon: FiFileText ,route: "/products?tab=Fabrics" },
-  { label: "System setting", icon: FiSettings ,route: "/products?tab=Fabrics" },
+  { label: "Generate Report", icon: FiFileText ,route: "/reports-analytics" },
+  { label: "System setting", icon: FiSettings ,route: "/system-settings" },
 ];
 
 const QuickActionsCard = () => {
