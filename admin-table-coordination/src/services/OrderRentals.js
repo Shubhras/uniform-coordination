@@ -33,3 +33,13 @@ export async function apiOrderRentalDetails(accessToken, orderId) {
     },
   });
 }
+
+export async function apiOrderUpdate(accessToken, orderId) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/order/update/${orderId}/`,
+    method: "patch",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
