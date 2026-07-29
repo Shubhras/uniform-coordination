@@ -7,7 +7,7 @@ export default function StatusModal({ open, onClose, orderId = "ORD-7821" }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 backdrop-blur-[2px] px-4">
-      <div className="w-full max-w-[500px] rounded-[22px] bg-white shadow-2xl">
+      <div className="w-full max-w-[450px] rounded-[20px] bg-white shadow-2xl">
 
         {/* Close Button */}
         <div className="flex justify-end p-5 pb-0">
@@ -29,12 +29,12 @@ export default function StatusModal({ open, onClose, orderId = "ORD-7821" }) {
           </div>
 
           {/* Heading */}
-          <h2 className="text-[25px] leading-none font-bold text-[#1C1917] mb-4">
+          <h2 className="text-[15px] leading-none font-bold text-[#1C1917] mb-2">
             Mark as Returned?
           </h2>
 
           {/* Description */}
-          <p className="text-[16px] leading-6 text-[#78716C]">
+          <p className="text-[12px] leading-6 text-[#78716C]">
             You are about to mark order{" "}
             <span className="font-medium text-[#8B8B8B]">{orderId}</span>{" "}
             as returned. Inventory will be updated and the item(s) will be
@@ -51,7 +51,7 @@ export default function StatusModal({ open, onClose, orderId = "ORD-7821" }) {
             </button>
 
             <button
-              className="bg-[#A85A32] hover:bg-[#944B25] text-white px-5 py-2 rounded-xl text-[14px] font-semibold shadow-md transition"
+              className="bg-[#A85A32] hover:bg-[#944B25] text-white px-5 py-2 rounded-lg text-[14px] font-semibold shadow-md transition"
             >
               Mark Returned
             </button>

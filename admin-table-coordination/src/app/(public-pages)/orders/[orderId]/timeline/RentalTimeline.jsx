@@ -18,35 +18,14 @@ export default function RentalTimeline({ orderId }) {
 
   const timeline = [
     {
-      title: "Quotation Requested",
-      desc: "Request sent by ABC Hotels Pvt Ltd.",
-      date: "15 May 2024, 10:15 AM",
-      icon: <FiFileText />,
-      completed: true,
-    },
-    {
-      title: "Quotation PDF Sent",
-      desc: "Quotation QT-2026-105 sent to customer.",
-      date: "16 May 2024, 10:15 AM",
-      icon: <FiSend />,
-      completed: true,
-    },
-    {
-      title: "Order Created",
+      title: "Order Confirmed",
       desc: "Order ORD-2024-0789 created",
       date: "12 Jun 2024, 10:32",
       icon: <FiShoppingBag />,
       completed: true,
     },
     {
-      title: "Contract Signed",
-      desc: "Contract CT-2026-021 signed via CloudSign",
-      date: "12 Jun 2024, 18:45",
-      icon: <FiEdit3 />,
-      completed: true,
-    },
-    {
-      title: "Payment Completed",
+      title: "Payment Received",
       desc: "Payment received via NP Kalebarai",
       date: "12 Jun 2024, 18:45",
       icon: <FiCreditCard />,
@@ -81,7 +60,7 @@ export default function RentalTimeline({ orderId }) {
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={() => router.back()}
-          className="w-11 h-11 rounded-full border border-[#E9DED4] bg-white flex items-center justify-center hover:bg-[#F8F3EE]"
+          className="w-9 h-9 rounded-full border border-[#E9DED4] bg-white flex items-center justify-center hover:bg-[#F8F3EE]"
         >
           <FiArrowLeft className="text-lg text-[#5A4332]" />
         </button>
