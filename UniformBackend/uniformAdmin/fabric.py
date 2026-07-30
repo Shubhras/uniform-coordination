@@ -114,7 +114,7 @@ class FabricCreateView(APIView):
     },
 )
 class FabricListView(APIView):
-    permission_classes = [AllowAny]
+    
 
     def get(self, request):
         try:
@@ -221,7 +221,7 @@ class FabricDetailView(APIView):
 )    
 class FabricUpdateView(APIView):
     permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
+    # authentication_classes = [JWTAuthentication]
 
 
     def put(self, request, pk):

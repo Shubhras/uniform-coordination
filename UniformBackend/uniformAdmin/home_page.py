@@ -183,6 +183,8 @@ class HomePageAPIView(APIView):
                 "image": image_url,
                 "category": b.category.categoryName if b.category else None,
                 "description": b.description,
+                "created_at":b.created_at,
+                "updated_at":b.updated_at,
                 "type": b.type
             })
 

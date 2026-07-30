@@ -25,6 +25,10 @@ from django.conf import settings
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 from .utils import send_b2b_welcome_email
 
+from userhub.models import Users
+
+from .serializers import CustomerListSerializer
+
 
 
 class IsAdminUserJWT(BaseAuthentication):
@@ -855,38 +859,38 @@ class AdminUserListAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
 
     @extend_schema(
-    tags=["Admin Users"],
-    summary="List Admin Users",
-    description="Get list of admin users with search and pagination support.",
-    parameters=[
-        OpenApiParameter(
-            name="search",
-            description="Search by name, email, company name, mobile or tier",
-            required=False,
-            type=str
-        ),
-        OpenApiParameter(
-            name="page",
-            description="Page number",
-            required=False,
-            type=int
-        ),
-        OpenApiParameter(
-            name="page_size",
-            description="Number of items per page",
-            required=False,
-            type=int
-        ),
-    ],
-    responses={
-        200: OpenApiResponse(description="User list fetched successfully"),
-        401: OpenApiResponse(description="Unauthorized"),
-        400: OpenApiResponse(description="Validation error"),
-    }
+        tags=["Admin Users"],
+        summary="List Admin Users",
+        description="Get list of admin users with search and pagination support.",
+        parameters=[
+            OpenApiParameter(
+                name="search",
+                description="Search by name, email, company name, mobile or tier",
+                required=False,
+                type=str
+            ),
+            OpenApiParameter(
+                name="page",
+                description="Page number",
+                required=False,
+                type=int
+            ),
+            OpenApiParameter(
+                name="page_size",
+                description="Number of items per page",
+                required=False,
+                type=int
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(description="User list fetched successfully"),
+            401: OpenApiResponse(description="Unauthorized"),
+            400: OpenApiResponse(description="Validation error"),
+        }
     )
     def get(self, request):
         try:
-            queryset = AdminUser.objects.all().order_by("-id")
+            queryset = AdminUser.objects.filter(is_staff=False).order_by("-id")
 
             # SEARCH
             search = request.query_params.get("search")
@@ -898,6 +902,13 @@ class AdminUserListAPIView(APIView):
                     Q(mobile__icontains=search) |
                     Q(tier__icontains=search)
                 )
+                
+            # Active Filter
+            is_active = request.query_params.get("isActive")
+            if is_active is not None:
+                queryset = queryset.filter(
+                    is_active=is_active.lower() == "true"
+                )    
 
             # PAGINATION
             paginator = CustomPagination()
@@ -905,14 +916,23 @@ class AdminUserListAPIView(APIView):
 
             serializer = AdminUserSerializer(page, many=True)
             return paginator.get_paginated_response(serializer.data)
-        
+
         except ValidationError as ve:
             return Response({
-                "statusCode":400,
-                "status":False,
-                "message":"Validation Error",
-                "error":str(ve)
-            },status=status.HTTP_400_BAD_REQUEST)
+                "statusCode": 400,
+                "status": False,
+                "message": "Validation Error",
+                "error": str(ve)
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({
+                "statusCode": 500,
+                "status": False,
+                "message": "Something went wrong.",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class AdminUserDetailAPIView(APIView):
     authentication_classes = [IsAdminUserJWT]
@@ -1147,3 +1167,274 @@ Delete admin users using one of the following:
                 "status": False,
                 "error": str(e)
             }, statuss=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            
+
+class CustomerListAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
+
+    @extend_schema(
+        tags=["Admin Customers"],
+        summary="Customer List",
+        description="""
+        Returns a paginated list of all customers.
+
+        Supports:
+        - Search
+        - Pagination
+        - User Type filter
+        - Active status filter
+        - Verification status filter
+        """,
+        parameters=[
+            OpenApiParameter(
+                name="search",
+                description="Search by username, first name, last name, email or phone.",
+                required=False,
+                type=str,
+            ),
+            OpenApiParameter(
+                name="userType",
+                description="Filter by user type (uniform/table).",
+                required=False,
+                type=str,
+            ),
+            OpenApiParameter(
+                name="isActive",
+                description="Filter active users (true/false).",
+                required=False,
+                type=bool,
+            ),
+            OpenApiParameter(
+                name="is_verify",
+                description="Filter verified users (true/false).",
+                required=False,
+                type=bool,
+            ),
+            OpenApiParameter(
+                name="page",
+                description="Page number.",
+                required=False,
+                type=int,
+            ),
+            OpenApiParameter(
+                name="page_size",
+                description="Items per page.",
+                required=False,
+                type=int,
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(description="Customer list fetched successfully."),
+            400: OpenApiResponse(description="Validation Error"),
+            401: OpenApiResponse(description="Unauthorized"),
+        },
+    )
+    def get(self, request):
+        try:
+            queryset = Users.objects.filter(
+                isDeleted=False
+            ).order_by("-id")
+
+            # Search
+            search = request.query_params.get("search")
+            if search:
+                queryset = queryset.filter(
+                    Q(userName__icontains=search)
+                    | Q(firstName__icontains=search)
+                    | Q(lastName__icontains=search)
+                    | Q(email__icontains=search)
+                    | Q(phone__icontains=search)
+                )
+
+            # User Type Filter
+            user_type = request.query_params.get("userType")
+            if user_type:
+                queryset = queryset.filter(userType__iexact=user_type)
+
+            # Active Filter
+            is_active = request.query_params.get("isActive")
+            if is_active is not None:
+                queryset = queryset.filter(
+                    isActive=is_active.lower() == "true"
+                )
+
+            # Verify Filter
+            is_verify = request.query_params.get("is_verify")
+            if is_verify is not None:
+                queryset = queryset.filter(
+                    is_verify=is_verify.lower() == "true"
+                )
+
+            paginator = CustomPagination()
+            page = paginator.paginate_queryset(queryset, request)
+
+            serializer = CustomerListSerializer(page, many=True)
+
+            return paginator.get_paginated_response(serializer.data)
+
+        except ValidationError as e:
+            return Response(
+                {
+                    "statusCode": 400,
+                    "status": False,
+                    "message": "Validation Error",
+                    "error": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        except Exception as e:
+            return Response(
+                {
+                    "statusCode": 500,
+                    "status": False,
+                    "message": "Something went wrong on server.",
+                    "error": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+                        
+class CustomerDetailAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
+
+    @extend_schema(
+        tags=["Admin Customers"],
+        summary="Customer Details",
+        description="Get complete details of a customer by ID.",
+        parameters=[
+            OpenApiParameter(
+                name="id",
+                location=OpenApiParameter.PATH,
+                description="Customer ID",
+                required=True,
+                type=int,
+            )
+        ],
+        responses={
+            200: OpenApiResponse(description="Customer details fetched successfully."),
+            404: OpenApiResponse(description="Customer not found."),
+            401: OpenApiResponse(description="Unauthorized"),
+        },
+    )
+    def get(self, request, id):
+        try:
+            customer = Users.objects.get(
+                id=id,
+                isDeleted=False
+            )
+
+            serializer = CustomerDetailSerializer(customer)
+
+            return Response(
+                {
+                    "statusCode": 200,
+                    "status": True,
+                    "message": "Customer details fetched successfully.",
+                    "data": serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except Users.DoesNotExist:
+            return Response(
+                {
+                    "statusCode": 404,
+                    "status": False,
+                    "message": "Customer not found.",
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        except Exception as e:
+            return Response(
+                {
+                    "statusCode": 500,
+                    "status": False,
+                    "message": "Something went wrong on server.",
+                    "error": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+            
+
+class CustomerUpdateAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
+
+    @extend_schema(
+        tags=["Admin Customers"],
+        summary="Update Customer",
+        description="Update customer details by ID.",
+        parameters=[
+            OpenApiParameter(
+                name="id",
+                location=OpenApiParameter.PATH,
+                required=True,
+                type=int,
+                description="Customer ID",
+            )
+        ],
+        request=CustomerUpdateSerializer,
+        responses={
+            200: OpenApiResponse(description="Customer updated successfully."),
+            400: OpenApiResponse(description="Validation Error"),
+            404: OpenApiResponse(description="Customer not found"),
+        },
+    )
+    def put(self, request, id):
+        try:
+            customer = Users.objects.get(
+                id=id,
+                isDeleted=False
+            )
+
+            serializer = CustomerUpdateSerializer(
+                customer,
+                data=request.data,
+                partial=True
+            )
+
+            if serializer.is_valid():
+                serializer.save()
+
+                return Response(
+                    {
+                        "statusCode": 200,
+                        "status": True,
+                        "message": "Customer updated successfully.",
+                        "data": serializer.data,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
+            return Response(
+                {
+                    "statusCode": 400,
+                    "status": False,
+                    "message": "Validation Error.",
+                    "errors": serializer.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        except Users.DoesNotExist:
+            return Response(
+                {
+                    "statusCode": 404,
+                    "status": False,
+                    "message": "Customer not found.",
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        except Exception as e:
+            return Response(
+                {
+                    "statusCode": 500,
+                    "status": False,
+                    "message": "Something went wrong on server.",
+                    "error": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+                        

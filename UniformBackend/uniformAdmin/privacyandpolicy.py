@@ -91,7 +91,10 @@ class PrivacyPolicyCreateAPIView(BaseAPIView):
     },
 )
 class PrivacyPolicyListAPIView(BaseAPIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
+    authentication_classes = []
+    permission_classes = []
+
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()

@@ -3,7 +3,7 @@ from .views import *
 from .threed import *
 from .payment import *
 from userhub import views
-
+from .pdf import *
 
 urlpatterns = [
     path('signup/', SignupAPIView.as_view(), name='user-signup'),
@@ -18,15 +18,6 @@ urlpatterns = [
     # path('favourite/toggle/', ToggleFavouriteAPIView.as_view(), name='toggle-favourite'),
 
 
-    # path("verify-email/<uid>/", VerifyEmailAPIView.as_view())
-    # path("reset-password-page/", ResetPasswordPageView.as_view(), name="reset-password-page"),
-    # path("simulations-history",name="simulations-history")
-    # path("notifications/create/", NotificationCreateAPIView.as_view()),
-    # path("notifications/", NotificationListAPIView.as_view()),
-    # path("notifications/<int:pk>/", NotificationDetailAPIView.as_view()),
-    # path("notifications/<int:pk>/update/", NotificationUpdateAPIView.as_view()),
-    # path("notifications/<int:pk>/delete/", NotificationDeleteAPIView.as_view()),
-    
     #<-------------------Model_Info------------------------------->
     path('modelinfo/create/',ModelInfoCreateAPIView.as_view(), name = 'model_info-create'),
     path('modelinfo/get-list/',ModelInfoListAPIView.as_view(), name = 'model_info-list'),
@@ -47,6 +38,11 @@ urlpatterns = [
     path('quotationrequest/<str:quotation_id>/get/',QuotationRequestDetailAPIView.as_view(), name = 'QuotationRequest-get'),
     path('quotationrequest/<str:quotation_id>/export/',QuotationRequestExportPDFAPIView.as_view(), name = 'QuotationRequest-export'),
     path('quotationrequest/get-list/',QuotationRequestsListAPIView.as_view(), name = 'get-list'),
+    
+    path("quotation/cancel/<uuid:quotation_id>/",CancelQuotationRequestAPIView.as_view(),name="cancel-quotation-request",),
+    
+    path('quotations/<str:pk>/', QuotationDetailView.as_view(), name='quotation-detail'),
+    path('quotations/<str:pk>/pdf/', QuotationPDFView.as_view(), name='quotation-pdf'),
     #<-------------------Card API------------------------------->
     
     path("cart/add/",AddToCartAPIView.as_view()),

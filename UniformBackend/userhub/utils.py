@@ -815,3 +815,33 @@ UserHub Team
         recipient_list=[user.email],   
         fail_silently=False,
     )
+    
+    
+
+# utils/quotation_helpers.py
+import re
+
+def parse_size_quantity(size_quantity_str):
+    """
+    'XS-1, S-1, M-1' -> [{"size": "XS", "qty": 1}, {"size": "S", "qty": 1}, {"size": "M", "qty": 1}]
+    """
+    result = []
+    if not size_quantity_str:
+        return result
+    for chunk in size_quantity_str.split(','):
+        chunk = chunk.strip()
+        match = re.match(r'([A-Za-z0-9]+)\s*[-:]\s*(\d+)', chunk)
+        if match:
+            result.append({"size": match.group(1).upper(), "qty": int(match.group(2))})
+    return result    
+        
+
+def build_media_url(request, file_field):
+    if not file_field:
+        return None
+
+    # Already an absolute URL (e.g. Unsplash)
+    if file_field.name.startswith(("http://", "https://")):
+        return file_field.name
+
+    return f"{settings.SITE_URL}{file_field.url}"        

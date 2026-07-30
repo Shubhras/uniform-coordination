@@ -84,7 +84,10 @@ class PromocodeCreateAPIView(BaseAPIView):
 
 
 class PromocodeListAPIView(BaseAPIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
+    authentication_classes = []
+    permission_classes = []
+
     
     @extend_schema(
         tags=["Promocode"],

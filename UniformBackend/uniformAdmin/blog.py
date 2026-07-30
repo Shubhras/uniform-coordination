@@ -111,7 +111,10 @@ class BlogCreateAPIView(APIView):
 )
 class BlogListAPIView(APIView):
     """List all blogs"""
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
+    authentication_classes = []
+    permission_classes = []
+
 
     def get(self, request):
         try:

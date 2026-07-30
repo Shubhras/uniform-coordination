@@ -406,7 +406,8 @@ class SaveUpdateRolePermissionView(APIView):
             },
             status=status.HTTP_200_OK
         )
-              
+            
+                   
 class UserMenuPermissionView(APIView):
     authentication_classes = [MultiRoleJWTAuth]
 
