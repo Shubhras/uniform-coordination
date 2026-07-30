@@ -33,11 +33,13 @@ const HeroContent = ({ data }) => {
 
           <button
             className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
+            onClick={() => router.push("/orders")}
           >
             View Orders
           </button>
 
-          <button className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium">
+          <button className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
+          onClick={() => router.push("/inventory-management/add")}>
             Add New Product
           </button>
 
