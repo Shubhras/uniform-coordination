@@ -440,10 +440,13 @@ class QuotationRequest(models.Model):
         ("sent", "Sent"),
         ("approved", "Approved"),
         ("cancelled", "Cancelled"),
+        ("accepted","Accepted"),
+        ("received","Received"),
+        
     )
 
     WORKFLOW_STATUS = (
-        ("REQUESTED", "Requested"),     # Initial request
+        ("REQUESTED", "Requested"),     # Initial request 
         ("AGREED", "Terms Agreed"),     # User agreed
         ("SENT", "Sent to Client"),     # Admin sent
         ("SIGNED", "Client Signed"),    # User signed

@@ -19,8 +19,7 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
 
 
 class UnitPriceListAPIView(APIView):
-    permission_classes = [AllowAny]
-    
+     
     
     @extend_schema(
         tags=["Unit Price"],

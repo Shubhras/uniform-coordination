@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; color: #222; }
+  .header { display: flex; justify-content: space-between; }
+  h1 { font-size: 22px; margin-bottom: 0; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th { text-align: left; border-bottom: 1px solid #333; padding: 6px 0; }
+  td { padding: 10px 0; vertical-align: top; }
+  .note { color: #888; font-size: 12px; }
+  .right { text-align: right; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>QUOTATION</h1>
+      <p>#{{ quotation.quotation_id }}</p>
+    </div>
+    <div class="right">
+      <strong>{{ quotation.company_name }}</strong><br>
+      {{ quotation.contact_person }}<br>
+      {{ quotation.email }}
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Description</th><th class="right">Qty</th><th class="right">Unit Price</th><th class="right">Total</th></tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td><strong>{{ item.description }}</strong><br><span class="note">{{ item.detail }}</span></td>
+        <td class="right">{{ item.quantity }}</td>
+        <td class="right">${{ item.unit_price }}</td>
+        <td class="right"><strong>${{ item.total }}</strong></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h3 class="right">Total: ${{ total_amount }}</h3>
+</body>
+</html>

@@ -99,6 +99,52 @@ class AdminUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+
+
+class SystemSettings(models.Model):
+    """
+    Global system settings, such as company profile and regional preferences.
+    Singleton — only one row should ever exist.
+    """
+    company_name = models.CharField(max_length=255, default="KIREIZ SPACE Co., Ltd.")
+    business_address = models.TextField(blank=True, null=True)
+    support_email = models.EmailField(blank=True, null=True)
+    contact_number = models.CharField(max_length=50, blank=True, null=True)
+    
+    default_language = models.CharField(max_length=50, default="Japanese")
+    default_currency = models.CharField(max_length=50, default="JPY (¥)")
+    time_zone = models.CharField(max_length=100, default="(GMT+09:00) Tokyo")
+    date_format = models.CharField(max_length=50, default="YYYY/MM/DD")
+    
+    logo = models.ImageField(upload_to="system/logos/", null=True, blank=True)
+
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "System Settings"
+        verbose_name_plural = "System Settings"
+
+    def save(self, *args, **kwargs):
+        # enforce singleton: always overwrite pk=1
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass  # prevent deletion of the singleton row
+
+    @classmethod
+    def load(cls):
+        """Fetch the single settings row, creating it with defaults if missing."""
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return self.company_name or "System Settings"
+
+
+
 class Fabric(models.Model):
     MATERIAL_CHOICES = [
         ("cotton", "Cotton"),
@@ -413,6 +459,7 @@ class Product(models.Model):
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    rfid_tracking_enabled = models.BooleanField(default=False)
     
     rental_price_per_day = models.DecimalField(
         max_digits=10,

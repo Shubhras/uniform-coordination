@@ -78,44 +78,6 @@ class AdminLoginSerializer(serializers.Serializer):
         return data
 
 
-# class AdminChangePasswordSerializer(serializers.Serializer):
-#     current_password = serializers.CharField(write_only=True)
-#     new_password = serializers.CharField(write_only=True)
-#     confirm_new_password = serializers.CharField(write_only=True)
-
-
-#     def validate_new_password(self, value):
-#         """
-#         Validate strong password rules:
-#         - Minimum 6 characters
-#         - At least one letter
-#         - At least one number
-#         - At least one special character (@,#,$, etc.)
-#         """
-#         if len(value) < 6:
-#             raise serializers.ValidationError("Password must be at least 6 characters long.")
-#         if not re.search(r"[A-Za-z]", value):
-#             raise serializers.ValidationError("Password must contain at least one letter.")
-#         if not re.search(r"[0-9]", value):
-#             raise serializers.ValidationError("Password must contain at least one number.")
-#         if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
-#             raise serializers.ValidationError("Password must contain at least one special character like @,#,$.")
-#         return value
-    
-
-#     def validate(self, data):
-#         user = self.context['request'].user
-
-#         # Check current password
-#         if not user.check_password(data.get('current_password')):
-#             raise serializers.ValidationError({"current_password": "Current password is incorrect"})
-
-#         # Check new password match
-#         if data.get('new_password') != data.get('confirm_new_password'):
-#             raise serializers.ValidationError({"confirm_new_password": "New passwords do not match"})
-
-#         return data
-
 class AdminChangePasswordSerializer(serializers.Serializer):
     current_password = serializers.CharField(write_only=True)
     new_password = serializers.CharField(write_only=True)
@@ -210,6 +172,19 @@ class SubCategoryMiniSerializer(serializers.ModelSerializer):
         model = SubCategory
         fields = ["id", "name", "slug"]
 
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = [
+            "id",
+            "role_name",
+            "slug",
+            "description",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "slug", "created_at", "updated_at"]
 
 class FabricSerializer(serializers.ModelSerializer):
     theme = serializers.PrimaryKeyRelatedField(
@@ -355,62 +330,125 @@ class FabricMiniSerializer(serializers.ModelSerializer):
         fields = ["id", "fabricName"]
 
 
-# class ColorsSerializer(serializers.ModelSerializer):
-#     # compatibleFabric_ids = serializers.ListField(
-#     #     child=serializers.IntegerField(),
-#     #     write_only=True,
-#     #     required=False
-#     # )
 
-#     compatibleFabric = serializers.ListField(
-#         compatibleFabric=serializers.ChoiceField(compatibleFabric=Colors.MATERIAL_CHOICES),  
-#         required=True,
-#     )
-#     class Meta:
-#         model = Colors
-#         fields = [
-#             "id",
-#             "colorName",
-#             "colorCode",
-#             "compatibleFabric",
-#             "isActive",
-#             "isDeleted",
-#             "created_at",
-#             "updated_at"
-#         ]
 
-#     def validate_compatibleFabric(self, value):
-#         if len(value) == 0:
-#             raise serializers.ValidationError("Please select at least one fabric.")
-#         return value
+class SystemSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SystemSettings
+        fields = [
+            'company_name',
+            'business_address',
+            'support_email',
+            'contact_number',
+            'default_language',
+            'default_currency',
+            'time_zone',
+            'date_format',
+            'logo',
+            'updated_at',
+        ]
+        read_only_fields = ['updated_at']
+        
+
+class CustomerListSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Users
+        fields = [
+            "id",
+            "userName",
+            "firstName",
+            "lastName",
+            "full_name",
+            "email",
+            "phone",
+            "userType",
+            "gender",
+            "loginType",
+            "is_verify",
+            "isActive",
+            "profileImage",
+            "createdAt",
+        ]
+
+    def get_full_name(self, obj):
+        return f"{obj.firstName or ''} {obj.lastName or ''}".strip()
     
-#     def validate_colorName(self, value):
-#         if Colors.objects.filter(colorName__iexact=value, isDeleted=False).exists():
-#             raise serializers.ValidationError("This color name already exists.")
-#         return value  
-   
-  
-
-#     # def create(self, validated_data):
-#     #     fabric_ids = validated_data.pop("compatibleFabric_ids", [])
-#     #     color = Colors.objects.create(**validated_data)
-#     #     if fabric_ids:
-#     #         color.compatibleFabric.set(fabric_ids)
-#     #     return color
-
-#     # def update(self, instance, validated_data):
-#     #     fabric_ids = validated_data.pop("compatibleFabric_ids", None)
-
-#     #     for attr, val in validated_data.items():
-#     #         setattr(instance, attr, val)
-#     #     instance.save()
-
-#     #     if fabric_ids is not None:
-#     #         instance.compatibleFabric.set(fabric_ids)
-
-#     #     return instance
 
 
+class CustomerDetailSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    role_name = serializers.CharField(source="role.role_name", read_only=True)
+
+    class Meta:
+        model = Users
+        fields = [
+            "id",
+            "userName",
+            "firstName",
+            "lastName",
+            "full_name",
+            "email",
+            "phone",
+            "userType",
+            "gender",
+            "language",
+            "profileImage",
+            "loginType",
+            "appleID",
+            "stripeOrderCustomerId",
+            "email_notifications",
+            "push_notifications",
+            "is_verify",
+            "isActive",
+            "is_currently_login",
+            "role_name",
+            "lastLogin",
+            "createdAt",
+            "updatedAt",
+        ]
+
+    def get_full_name(self, obj):
+        return f"{obj.firstName or ''} {obj.lastName or ''}".strip()    
+
+class CustomerUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Users
+        fields = [
+            "userName",
+            "firstName",
+            "lastName",
+            "email",
+            "phone",
+            "userType",
+            "gender",
+            "language",
+            "profileImage",
+            "is_verify",
+            "isActive",
+            "email_notifications",
+            "push_notifications",
+        ]
+
+    def validate_email(self, value):
+        if value:
+            qs = Users.objects.filter(email=value).exclude(id=self.instance.id)
+            if qs.exists():
+                raise serializers.ValidationError(
+                    "A user with this email already exists."
+                )
+        return value
+
+    def validate_phone(self, value):
+        if value:
+            qs = Users.objects.filter(phone=value).exclude(id=self.instance.id)
+            if qs.exists():
+                raise serializers.ValidationError(
+                    "A user with this phone number already exists."
+                )
+        return value
+    
 class ColorsSerializer(serializers.ModelSerializer):
     compatibleFabric = serializers.ListField(
         child=serializers.ChoiceField(choices=Colors.MATERIAL_CHOICES), 
@@ -1557,26 +1595,6 @@ class AdminSignupSerializer(serializers.ModelSerializer):
         return user
 
 
-   
-   
-# class AdminOrderUpdateSerializer(serializers.ModelSerializer):
-#     admin_cancel_reason = serializers.CharField(required=False, allow_blank=True)
-
-#     class Meta:
-#         model = Order
-#         fields = ['status', 'admin_cancel_reason']
-
-#     def validate(self, attrs):
-#         order = self.instance
-#         new_status = attrs.get('status', None)
-
-#         if order.status in ['completed', 'paid']:
-#             raise serializers.ValidationError("Cannot update order because it is already completed or paid.")
-
-#         if new_status == 'cancelled' and not attrs.get('admin_cancel_reason'):
-#             raise serializers.ValidationError("Admin cancel reason is required when cancelling an order.")
-        
-#         return attrs
 
 
 class AdminRefundSerializer(serializers.ModelSerializer):
@@ -1875,4 +1893,46 @@ class RolePermissionAssignSerializer(serializers.Serializer):
     )
     permissions = MenuPermissionAssignSerializer(many=True)
 
-  
+
+class QuotationRequestUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuotationRequest
+        fields = [
+            "company_name",
+            "contact_person",
+            "email",
+            "phone_number",
+            "item_type",
+            "material",
+            "size_quantity",
+            "delivery_date",
+            "additional_note",
+
+            "quotation_status",
+            "workflow_status",
+
+            "cancel_reason",
+            "cancelled_by",
+
+            "isActive",
+        ]
+
+    def validate(self, attrs):
+        quotation_status = attrs.get(
+            "quotation_status",
+            self.instance.quotation_status
+        )
+
+        cancel_reason = attrs.get(
+            "cancel_reason",
+            self.instance.cancel_reason
+        )
+
+        if quotation_status == "cancelled" and not cancel_reason:
+            raise serializers.ValidationError({
+                "cancel_reason": "Cancel reason is required when quotation is cancelled."
+            })
+
+        return attrs
+    
+    

@@ -21,7 +21,7 @@ from django.utils.dateparse import parse_date
 from .payment import CustomPagination
 from uniformAdmin.signal import *
 from uniformAdmin.models import *
-from rest_framework.permissions import AllowAny
+
 # from django.utils import timezone
 from django.db.models import Prefetch
 from rest_framework.authentication import BaseAuthentication
@@ -65,7 +65,7 @@ class SignupAPIView(APIView):
                  # EMAIL VERIFICATION 
                 uid = user.id  #urlsafe_base64_encode(force_bytes(user.id)) 
                 email = user.email               
-                verify_link = request.build_absolute_uri(f"http://localhost:7000/email-verification-page/?user_id={uid}&email={email}")
+                verify_link = request.build_absolute_uri(f"http://localhost:7000/account-verified-page?user_id={uid}&email={email}")
 
                 # EMAIL VERIFICATION
                 # uid = urlsafe_base64_encode(force_bytes(user.id))
@@ -280,7 +280,10 @@ class GetProfileAPIView(APIView):
                 "lastName": user.lastName,
                 "gender": user.gender,
                 "language": user.language,
-                "profileImage": request.build_absolute_uri(user.profileImage.url) if user.profileImage else None,
+                # "profileImage": request.build_absolute_uri(user.profileImage.url) if user.profileImage else None,   new_build_media_url
+                                 
+                    
+                "profileImage": build_media_url(request ,user.profileImage) if user.profileImage else None,
                 "role": user.role.id if user.role else None,
                 "roleName": user.role.role_name if user.role else None,
                 "isActive": user.isActive,
@@ -1292,25 +1295,90 @@ class UpdateCartItemAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
    
 # Delete
+# class RemoveCartItemAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     @extend_schema(
+#     summary="RemoveCartItem API",
+#     tags=["Payment Gateway"],
+#     request={
+#         "application/json": {
+#             "type": "object",
+#             "properties": {
+#                 "item_id": {"type": "integer"}
+#             },
+#             "required": ["item_id"]
+#         }
+#     },
+#     responses={
+#         200: OpenApiTypes.OBJECT,
+#         404: OpenApiTypes.OBJECT,
+#     },
+#     )
+#     def delete(self, request, id):
+#         try:
+#             if not id:
+#                 return Response({
+#                     "status": False,
+#                     "statusCode": 400,
+#                     "message": "Item ID is required"
+#                 }, status=status.HTTP_400_BAD_REQUEST)
+
+#             item = CartItem.objects.get(
+#                 id=id,
+#                 cart__user=request.user,
+#                 cart__is_active=True,
+#                 is_active=True  
+#             )
+
+#             product = item.product
+#             product.available_quantity += item.quantity
+#             product.save()
+
+#             item.is_active = False
+#             item.deleted_at = timezone.now()
+#             item.save()
+
+#             return Response({
+#                 "status": True,
+#                 "statusCode": 200,
+#                 "message": "Item removed from cart successfully"
+#             }, status=status.HTTP_200_OK)
+
+#         except CartItem.DoesNotExist:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 404,
+#                 "message": "Item not found"
+#             }, status=status.HTTP_404_NOT_FOUND)
+
+#         except Exception as e:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 500,
+#                 "error": "Something went wrong",
+#                 "details": str(e)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class RemoveCartItemAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-    summary="RemoveCartItem API",
-    tags=["Payment Gateway"],
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "item_id": {"type": "integer"}
-            },
-            "required": ["item_id"]
-        }
-    },
-    responses={
-        200: OpenApiTypes.OBJECT,
-        404: OpenApiTypes.OBJECT,
-    },
+        summary="Remove Cart Item API",
+        tags=["Payment Gateway"],
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "item_id": {"type": "integer"}
+                },
+                "required": ["item_id"]
+            }
+        },
+        responses={
+            200: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT,
+        },
     )
     def delete(self, request, id):
         try:
@@ -1324,17 +1392,16 @@ class RemoveCartItemAPIView(APIView):
             item = CartItem.objects.get(
                 id=id,
                 cart__user=request.user,
-                cart__is_active=True,
-                is_active=True  
+                cart__is_active=True
             )
 
+            # Restore product quantity
             product = item.product
             product.available_quantity += item.quantity
-            product.save()
+            product.save(update_fields=["available_quantity"])
 
-            item.is_active = False
-            item.deleted_at = timezone.now()
-            item.save()
+            # Hard delete
+            item.delete()
 
             return Response({
                 "status": True,
@@ -1356,7 +1423,6 @@ class RemoveCartItemAPIView(APIView):
                 "error": "Something went wrong",
                 "details": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class ClearCartAPIView(APIView):
     permission_classes = [IsAuthenticated]

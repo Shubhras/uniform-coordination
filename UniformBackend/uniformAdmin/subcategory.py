@@ -89,7 +89,10 @@ class SubCategoryCreateAPIView(APIView):
 
 
 class SubCategoryListAPIView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
+    authentication_classes = []
+    permission_classes = []
+
 
     @extend_schema(
         tags=["SubCategory"],

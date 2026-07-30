@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIREIZ SPACE - Business Flow Tracker & Simulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #070a13;
+            --bg-secondary: #0c1020;
+            --panel-bg: rgba(12, 16, 32, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-primary: #6366f1; /* Indigo */
+            --accent-secondary: #06b6d4; /* Cyan */
+            --accent-success: #10b981; /* Emerald */
+            --accent-warning: #f59e0b; /* Amber */
+            --accent-danger: #ef4444; /* Rose */
+            --gradient-accent: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Header styling */
+        header {
+            background: linear-gradient(to bottom, var(--bg-secondary) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title-container h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-title-container p {
+            color: var(--accent-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .logo-tag {
+            background: var(--gradient-accent);
+            padding: 0.4rem 1rem;
+            border-radius: 99px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Container & Tabs */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .tab-navigation {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .tab-btn.active {
+            color: var(--text-primary);
+            background: var(--gradient-accent);
+            border-color: transparent;
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Panel grid */
+        .tab-content {
+            display: none;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .tab-content.active {
+            display: grid;
+        }
+
+        @media (max-width: 968px) {
+            .tab-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card panels */
+        .panel-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .panel-card h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        /* Form elements */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-primary);
+        }
+
+        /* Interactive Flow visualizer */
+        .flowchart {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1rem 0;
+        }
+
+        .flow-step {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .flow-step.active {
+            border-color: var(--accent-primary);
+            background: rgba(99, 102, 241, 0.04);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .flow-step.success {
+            border-color: var(--accent-success);
+            background: rgba(16, 185, 129, 0.04);
+        }
+
+        .flow-step.warning {
+            border-color: var(--accent-warning);
+            background: rgba(245, 158, 11, 0.04);
+        }
+
+        .flow-step.danger {
+            border-color: var(--accent-danger);
+            background: rgba(239, 68, 68, 0.04);
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .active .step-icon {
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
+        .success .step-icon {
+            background: var(--accent-success);
+            color: white;
+        }
+
+        .warning .step-icon {
+            background: var(--accent-warning);
+            color: white;
+        }
+
+        .danger .step-icon {
+            background: var(--accent-danger);
+            color: white;
+        }
+
+        .step-details {
+            flex-grow: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Result display list */
+        .results-list {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.5rem;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-secondary);
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+        }
+
+        .result-val {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Webhook status simulation */
+        .webhook-status-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem 1.25rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .webhook-status-btn:hover {
+            background: var(--accent-primary);
+            border-color: transparent;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-pending { background: rgba(245, 158, 11, 0.15); color: var(--accent-warning); }
+        .badge-sent { background: rgba(6, 182, 212, 0.15); color: var(--accent-secondary); }
+        .badge-signed { background: rgba(16, 185, 129, 0.15); color: var(--accent-success); }
+        .badge-declined { background: rgba(239, 68, 68, 0.15); color: var(--accent-danger); }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--accent-danger);
+            color: #fca5a5;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--accent-success);
+            color: #a7f3d0;
+        }
+
+        /* Flow comparison tab styling */
+        .flow-comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            width: 100%;
+        }
+        @media (max-width: 1024px) {
+            .flow-comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .mockup-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(12px);
+        }
+        .mockup-container h3 {
+            font-size: 1.3rem;
+            color: var(--accent-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mockup-image {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+            cursor: zoom-in;
+        }
+        .mockup-image:hover {
+            transform: scale(1.015);
+        }
+        .flow-details-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .flow-details-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .flow-details-list li::before {
+            content: "✦";
+            position: absolute;
+            left: 0;
+            color: var(--accent-primary);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title-container">
+            <h1>KIREIZ SPACE</h1>
+            <p>Table Rental Platform &middot; Business Flow Visualizer</p>
+        </div>
+        <div class="logo-tag">Logic Sandbox</div>
+    </header>
+
+    <div class="container">
+        <!-- Tab Navigation -->
+        <nav class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab(this, 'checkout')">1. Checkout & Tax Flow</button>
+            <button class="tab-btn" onclick="switchTab(this, 'cancellation')">2. Cancellation Window</button>
+            <button class="tab-btn" onclick="switchTab(this, 'returns')">3. Returns & Overdue Fees</button>
+            <button class="tab-btn" onclick="switchTab(this, 'cloudsign')">4. CloudSign Webhook Simulator</button>
+            <button class="tab-btn" onclick="switchTab(this, 'adminflow')">5. Admin Operations Simulator</button>
+            <button class="tab-btn" onclick="switchTab(this, 'completeflow')">6. Complete Flow (User vs Admin)</button>
+        </nav>
+
+        <!-- Tab 1: Checkout -->
+        <div id="tab-checkout" class="tab-content active">
+            <!-- Inputs -->
+            <div class="panel-card">
+                <h2>1. Checkout Inputs</h2>
+                
+                <div class="form-group">
+                    <label for="checkout-user-role">User Corporate Role</label>
+                    <select id="checkout-user-role" class="form-control" onchange="calculateCheckout()">
+                        <option value="customer">Customer (B2C - Regular Price)</option>
+                        <option value="corporate">Corporate (B2B - 15% Automatic Discount)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="checkout-item-price">Product Rental Price per Day (JPY)</label>
+                    <input type="number" id="checkout-item-price" class="form-control" value="1000" min="0" oninput="calculateCheckout()">
+                </div>
+
+                <div class="form-group">
+                    <label for="checkout-item-qty">Quantity</label>
+                    <input type="number" id="checkout-item-qty" class="form-control" value="5" min="1" oninput="calculateCheckout()">
+                </div>
+
+                <div class="form-group">
+                    <label for="checkout-days">Rental Period (Days)</label>
+                    <input type="number" id="checkout-days" class="form-control" value="3" min="1" oninput="calculateCheckout()">
+                </div>
+            </div>
+
+            <!-- Visualization & Results -->
+            <div class="panel-card">
+                <h2>Checkout Processing Flow</h2>
+                
+                <div class="flowchart">
+                    <div id="chk-step-1" class="flow-step">
+                        <div class="step-icon">1</div>
+                        <div class="step-details">
+                            <div class="step-title">Calculate Subtotal</div>
+                            <div class="step-desc" id="chk-desc-1">Subtotal = Price x Qty x Days</div>
+                        </div>
+                    </div>
+                    
+                    <div id="chk-step-2" class="flow-step">
+                        <div class="step-icon">2</div>
+                        <div class="step-details">
+                            <div class="step-title">Apply B2B Special Condition</div>
+                            <div class="step-desc" id="chk-desc-2">B2B discount = 0%</div>
+                        </div>
+                    </div>
+
+                    <div id="chk-step-3" class="flow-step">
+                        <div class="step-icon">3</div>
+                        <div class="step-details">
+                            <div class="step-title">Add Flat Round-Trip Shipping Fee</div>
+                            <div class="step-desc">Applied constant shipping: 1,500 JPY</div>
+                        </div>
+                    </div>
+
+                    <div id="chk-step-4" class="flow-step">
+                        <div class="step-icon">4</div>
+                        <div class="step-details">
+                            <div class="step-title">Calculate Consumption Tax (10%)</div>
+                            <div class="step-desc" id="chk-desc-4">Tax = (Subtotal - Discount + Shipping) x 10%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-list">
+                    <div class="result-row">
+                        <span class="result-label">Base Subtotal:</span>
+                        <span class="result-val" id="chk-val-subtotal">¥0</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Corporate Discount:</span>
+                        <span class="result-val" id="chk-val-discount">-¥0</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Round-Trip Shipping:</span>
+                        <span class="result-val">¥1,500</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">10% Consumption Tax:</span>
+                        <span class="result-val" id="chk-val-tax">¥0</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Total Charge:</span>
+                        <span class="result-val" id="chk-val-total">¥0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Cancellation Cutoff -->
+        <div id="tab-cancellation" class="tab-content">
+            <!-- Inputs -->
+            <div class="panel-card">
+                <h2>2. Cancellation Inputs</h2>
+                
+                <div class="form-group">
+                    <label for="cancel-days">Days Until Rental Starts</label>
+                    <input type="number" id="cancel-days" class="form-control" value="6" min="0" oninput="calculateCancellation()">
+                </div>
+            </div>
+
+            <!-- Visualization & Results -->
+            <div class="panel-card">
+                <h2>Cancellation Flow</h2>
+                
+                <div class="flowchart">
+                    <div id="cancel-step-check" class="flow-step">
+                        <div class="step-icon">C</div>
+                        <div class="step-details">
+                            <div class="step-title">Check Date Difference</div>
+                            <div class="step-desc">Validates if rental start date is at least 5 days from today.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cancel-alert-box" class="alert">
+                    Warning message here
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Returns & Late returns -->
+        <div id="tab-returns" class="tab-content">
+            <!-- Inputs -->
+            <div class="panel-card">
+                <h2>3. Return Order Inputs</h2>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="return-is-napkin" onchange="calculateReturns()">
+                    <label for="return-is-napkin">Item is Napkin (Bypasses RFID Scan check)</label>
+                </div>
+
+                <div class="form-group">
+                    <label for="return-days-late">Days Overdue (Days after end_date)</label>
+                    <input type="number" id="return-days-late" class="form-control" value="4" min="0" oninput="calculateReturns()">
+                </div>
+
+                <div class="form-group">
+                    <label for="return-item-price">Item Daily Rental Price (JPY)</label>
+                    <input type="number" id="return-item-price" class="form-control" value="800" min="0" oninput="calculateReturns()">
+                </div>
+
+                <div class="form-group">
+                    <label for="return-qty">Quantity Returned</label>
+                    <input type="number" id="return-qty" class="form-control" value="10" min="1" oninput="calculateReturns()">
+                </div>
+            </div>
+
+            <!-- Visualization & Results -->
+            <div class="panel-card">
+                <h2>Return Validation Flow</h2>
+                
+                <div class="flowchart">
+                    <div id="ret-step-rfid" class="flow-step">
+                        <div class="step-icon">R</div>
+                        <div class="step-details">
+                            <div class="step-title">RFID Code Validation</div>
+                            <div class="step-desc" id="ret-desc-rfid">Validating tag values for returned items.</div>
+                        </div>
+                    </div>
+
+                    <div id="ret-step-grace" class="flow-step">
+                        <div class="step-icon">G</div>
+                        <div class="step-details">
+                            <div class="step-title">Apply 3-Day Grace Period</div>
+                            <div class="step-desc" id="ret-desc-grace">Check if days overdue is <= 3 days.</div>
+                        </div>
+                    </div>
+
+                    <div id="ret-step-fee" class="flow-step">
+                        <div class="step-icon">¥</div>
+                        <div class="step-details">
+                            <div class="step-title">Late Fee Assessment</div>
+                            <div class="step-desc" id="ret-desc-fee">Daily late fee calculations.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-list">
+                    <div class="result-row">
+                        <span class="result-label">Overdue Days:</span>
+                        <span class="result-val" id="ret-val-days-overdue">0 days</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Billable Late Days (after grace):</span>
+                        <span class="result-val" id="ret-val-billable-days">0 days</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Calculated Late Fee:</span>
+                        <span class="result-val" id="ret-val-fee" style="color: var(--accent-warning);">¥0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: CloudSign Webhook simulator -->
+        <div id="tab-cloudsign" class="tab-content">
+            <!-- Inputs -->
+            <div class="panel-card">
+                <h2>4. CloudSign Agreement Simulator</h2>
+                
+                <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+                    Simulate the receipt of asynchronous webhooks from CloudSign. This triggers order flow transitions on our backend.
+                </p>
+
+                <div class="form-group">
+                    <label>Simulate Webhook Action</label>
+                    <button class="webhook-status-btn" onclick="simulateWebhook('sent')">Send Webhook Event: "sent"</button>
+                    <button class="webhook-status-btn" onclick="simulateWebhook('completed')">Send Webhook Event: "completed"</button>
+                    <button class="webhook-status-btn" onclick="simulateWebhook('declined')">Send Webhook Event: "declined"</button>
+                </div>
+            </div>
+
+            <!-- Visualization & Results -->
+            <div class="panel-card">
+                <h2>Document Status Flow</h2>
+                
+                <div class="flowchart">
+                    <div id="cs-step-requested" class="flow-step">
+                        <div class="step-icon">1</div>
+                        <div class="step-details">
+                            <div class="step-title">Requested <span class="badge badge-pending" style="float: right;">Requested</span></div>
+                            <div class="step-desc">Agreement document generated on checkout.</div>
+                        </div>
+                    </div>
+
+                    <div id="cs-step-sent" class="flow-step">
+                        <div class="step-icon">2</div>
+                        <div class="step-details">
+                            <div class="step-title">Sent <span class="badge badge-sent" style="float: right;">Sent</span></div>
+                            <div class="step-desc">Agreement is dispatched to the client via CloudSign email.</div>
+                        </div>
+                    </div>
+
+                    <div id="cs-step-signed" class="flow-step">
+                        <div class="step-icon">3</div>
+                        <div class="step-details">
+                            <div class="step-title">Signed & Completed <span class="badge badge-signed" style="float: right;">Completed</span></div>
+                            <div class="step-desc">Signed PDF is fetched and downloaded to local storage, order is finalized.</div>
+                        </div>
+                    </div>
+
+                    <div id="cs-step-declined" class="flow-step">
+                        <div class="step-icon">X</div>
+                        <div class="step-details">
+                            <div class="step-title">Declined / Cancelled <span class="badge badge-declined" style="float: right;">Declined</span></div>
+                            <div class="step-desc">Client declined the terms or signature expired.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Admin Operations Simulator -->
+        <div id="tab-adminflow" class="tab-content">
+            <!-- Inputs & Admin controls -->
+            <div class="panel-card">
+                <h2>5. Administrative Actions Simulator</h2>
+                
+                <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+                    Simulate admin console controls, quotation status updates, order fulfillment, and RFID verification.
+                </p>
+
+                <!-- Part 1: Quotation Request Approval -->
+                <div class="form-group" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+                    <label for="admin-quote-status">Update B2B Quotation Status</label>
+                    <select id="admin-quote-status" class="form-control" onchange="runAdminSimulation()">
+                        <option value="draft">Draft (Quotation Created)</option>
+                        <option value="sent">Sent to Client (Awaiting Signature)</option>
+                        <option value="signed">Signed by Client (Pending Verification)</option>
+                        <option value="approved">Approved & Finalized by Admin</option>
+                        <option value="rejected">Rejected / Cancelled</option>
+                    </select>
+                </div>
+
+                <!-- Part 2: Order Fulfillment -->
+                <div class="form-group" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+                    <label for="admin-order-status">Order Lifecycle & Shipment</label>
+                    <select id="admin-order-status" class="form-control" onchange="runAdminSimulation()">
+                        <option value="placed">Order Placed (Awaiting Action)</option>
+                        <option value="preparing">Preparing & Packaging</option>
+                        <option value="shipped">Shipped (Out for Delivery)</option>
+                        <option value="delivered">Delivered to Client</option>
+                        <option value="returning">Returning (In Transit Back)</option>
+                        <option value="returned">Returned & Scanned</option>
+                    </select>
+                </div>
+
+                <!-- Part 3: Return & Inventory Validation -->
+                <div class="form-group">
+                    <label>Returns Validation & Processing</label>
+                    <div class="checkbox-group" style="margin-bottom: 0.75rem;">
+                        <input type="checkbox" id="admin-bypass-rfid" onchange="runAdminSimulation()">
+                        <label for="admin-bypass-rfid">Bypass RFID verification (e.g. Napkins manual count)</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="admin-overdue" onchange="runAdminSimulation()">
+                        <label for="admin-overdue">Mark as Overdue (Late Return)</label>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <button class="webhook-status-btn" onclick="triggerAdminLogReset()">Reset Logs & State</button>
+                </div>
+            </div>
+
+            <!-- Visualization & Log Output -->
+            <div class="panel-card">
+                <h2>Admin Console Flow</h2>
+                
+                <div class="flowchart">
+                    <div id="adm-step-quote" class="flow-step">
+                        <div class="step-icon">Q</div>
+                        <div class="step-details">
+                            <div class="step-title">Quotation Management <span id="adm-badge-quote" class="badge badge-pending" style="float: right;">Draft</span></div>
+                            <div class="step-desc" id="adm-desc-quote">Quotation review and discount calculation.</div>
+                        </div>
+                    </div>
+
+                    <div id="adm-step-fulfill" class="flow-step">
+                        <div class="step-icon">F</div>
+                        <div class="step-details">
+                            <div class="step-title">Fulfillment & Shipping <span id="adm-badge-fulfill" class="badge badge-pending" style="float: right;">Placed</span></div>
+                            <div class="step-desc" id="adm-desc-fulfill">Preparing and dispatching coordination items.</div>
+                        </div>
+                    </div>
+
+                    <div id="adm-step-inventory" class="flow-step">
+                        <div class="step-icon">I</div>
+                        <div class="step-details">
+                            <div class="step-title">Inventory & RFID Audit <span id="adm-badge-inventory" class="badge badge-pending" style="float: right;">Awaiting Return</span></div>
+                            <div class="step-desc" id="adm-desc-inventory">Verifying returned items' RFID serial numbers.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Admin Console Event Log</h3>
+                <div class="results-list" id="admin-event-logs" style="max-height: 200px; overflow-y: auto; font-size: 0.85rem; line-height: 1.5; padding: 1rem; border-color: var(--border-color); background: rgba(0, 0, 0, 0.4);">
+                    <div style="color: var(--text-muted);">[SYSTEM] Admin operations logger initialized.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 6: Complete Flow (User vs Admin) -->
+        <div id="tab-completeflow" class="tab-content">
+            <div class="flow-comparison-grid" style="grid-column: span 2;">
+                <!-- Full Flowchart Mockup -->
+                <div class="mockup-container" style="grid-column: span 2;">
+                    <h3>KIREIZ SPACE Platform Architecture & Operations Flowchart <span class="badge badge-signed">Full Flow</span></h3>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                        Complete end-to-end user actions and administrative backend processes mapped together.
+                    </p>
+                    <a href="./kireiz_full_flowchart_figma.png" target="_blank">
+                        <img class="mockup-image" src="./kireiz_full_flowchart_figma.png" alt="Kireiz Full Flowchart Figma Mockup">
+                    </a>
+                </div>
+
+                <!-- Left: User Flow -->
+                <div class="mockup-container">
+                    <h3>User Flow & Operations <span class="badge badge-sent">Client Side</span></h3>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                        End-user booking lifecycle, size/product configuration, and contract signing.
+                    </p>
+                    <a href="./kireiz_user_flow_figma.png" target="_blank">
+                        <img class="mockup-image" src="./kireiz_user_flow_figma.png" alt="User Flow Figma Mockup">
+                    </a>
+                    <ul class="flow-details-list">
+                        <li><strong>Browse & Select</strong>: Accesses tablecloths, napkins, and table coord sets categorized under <code>type="table"</code>.</li>
+                        <li><strong>Custom Configuration</strong>: Configures item sizes, fabric type, colors, and rent quantities.</li>
+                        <li><strong>Checkout Calculator</strong>: Subtotal calculated as <code>price * qty * days</code>. Automatically applies 15% corporate discount for B2B users. Flat ¥1,500 shipping added. 10% tax added on pre-tax totals.</li>
+                        <li><strong>Contract Agreement</strong>: Standard rental agreement created via CloudSign requiring a valid electronic signature.</li>
+                        <li><strong>Cancellation Window</strong>: Cancellation permitted only until 5 days before the rental starts (e.g. >= 5 days remains).</li>
+                    </ul>
+                </div>
+
+                <!-- Right: Admin Flow -->
+                <div class="mockup-container">
+                    <h3>Admin Console & Backend Operations <span class="badge badge-signed">Admin Side</span></h3>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                        System administration, inventory checks, custom B2B settings, and return/late-fee processing.
+                    </p>
+                    <a href="./kireiz_admin_flow_figma.png" target="_blank">
+                        <img class="mockup-image" src="./kireiz_admin_flow_figma.png" alt="Admin Flow Figma Mockup">
+                    </a>
+                    <ul class="flow-details-list">
+                        <li><strong>Product & Inventory Management</strong>: Admins upload table items, specify categories, and configure standard/corporate pricing tables.</li>
+                        <li><strong>B2B Special Conditions</strong>: Configure B2B discounts (15% by default) linked to active special conditions rules.</li>
+                        <li><strong>CloudSign Callback Webhook</strong>: Receives updates automatically from CloudSign. Triggers receipt status changes and initiates final order confirmation.</li>
+                        <li><strong>Returns Validation</strong>: Scanning returned items' RFID codes. Bypasses RFID scan for Napkins, enabling manual counts.</li>
+                        <li><strong>Late Returns & Grace Period Calculation</strong>: Overdue items calculated dynamically: First 3 days overdue are free (Grace Period). From day 4 overdue, late fee = <code>price/day * quantity * late days (overdue - 3)</code>.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(btn, tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            btn.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            if (tabName === 'checkout') calculateCheckout();
+            else if (tabName === 'cancellation') calculateCancellation();
+            else if (tabName === 'returns') calculateReturns();
+            else if (tabName === 'adminflow') runAdminSimulation();
+        }
+
+        // 1. Checkout calculations
+        function calculateCheckout() {
+            const role = document.getElementById('checkout-user-role').value;
+            const price = parseFloat(document.getElementById('checkout-item-price').value) || 0;
+            const qty = parseInt(document.getElementById('checkout-item-qty').value) || 0;
+            const days = parseInt(document.getElementById('checkout-days').value) || 0;
+
+            const subtotal = price * qty * days;
+            const discountPercentage = role === 'corporate' ? 0.15 : 0;
+            const discount = subtotal * discountPercentage;
+            const shipping = 1500;
+            const taxableAmount = subtotal - discount + shipping;
+            const tax = taxableAmount * 0.10;
+            const total = taxableAmount + tax;
+
+            // Update display fields
+            document.getElementById('chk-val-subtotal').innerText = '¥' + subtotal.toLocaleString();
+            document.getElementById('chk-val-discount').innerText = '-¥' + discount.toLocaleString();
+            document.getElementById('chk-val-tax').innerText = '¥' + tax.toLocaleString();
+            document.getElementById('chk-val-total').innerText = '¥' + total.toLocaleString();
+
+            document.getElementById('chk-desc-1').innerText = `Subtotal = ¥${price.toLocaleString()} x ${qty} items x ${days} days = ¥${subtotal.toLocaleString()}`;
+            document.getElementById('chk-desc-2').innerText = `B2B corporate discount = ${discountPercentage * 100}% (¥${discount.toLocaleString()})`;
+            document.getElementById('chk-desc-4').innerText = `Tax = (¥${subtotal.toLocaleString()} - ¥${discount.toLocaleString()} + ¥${shipping.toLocaleString()}) x 10% = ¥${tax.toLocaleString()}`;
+
+            // Update steps activation styling
+            document.getElementById('chk-step-1').className = 'flow-step success';
+            document.getElementById('chk-step-2').className = role === 'corporate' ? 'flow-step success' : 'flow-step';
+            document.getElementById('chk-step-3').className = 'flow-step success';
+            document.getElementById('chk-step-4').className = 'flow-step success';
+        }
+
+        // 2. Cancellation calculations
+        function calculateCancellation() {
+            const days = parseInt(document.getElementById('cancel-days').value) || 0;
+            const step = document.getElementById('cancel-step-check');
+            const alertBox = document.getElementById('cancel-alert-box');
+
+            if (days >= 5) {
+                step.className = 'flow-step success';
+                alertBox.className = 'alert alert-success';
+                alertBox.innerHTML = `<strong>Permitted:</strong> ${days} days remaining before start. You can cancel this order and receive a refund.`;
+            } else {
+                step.className = 'flow-step danger';
+                alertBox.className = 'alert';
+                alertBox.innerHTML = `<strong>Blocked (API 400 Bad Request):</strong> Only ${days} days remaining before start. Cancellations are restricted inside the 5-day window.`;
+            }
+        }
+
+        // 3. Returns & Overdue Calculations
+        function calculateReturns() {
+            const isNapkin = document.getElementById('return-is-napkin').checked;
+            const daysLate = parseInt(document.getElementById('return-days-late').value) || 0;
+            const itemPrice = parseFloat(document.getElementById('return-item-price').value) || 0;
+            const qty = parseInt(document.getElementById('return-qty').value) || 0;
+
+            const rfidStep = document.getElementById('ret-step-rfid');
+            const graceStep = document.getElementById('ret-step-grace');
+            const feeStep = document.getElementById('ret-step-fee');
+
+            // RFID tag check simulation
+            if (isNapkin) {
+                rfidStep.className = 'flow-step success';
+                document.getElementById('ret-desc-rfid').innerText = 'Napkin item detected. Bypassed RFID scan requirements.';
+            } else {
+                rfidStep.className = 'flow-step warning';
+                document.getElementById('ret-desc-rfid').innerText = 'RFID validation required and verified successfully.';
+            }
+
+            // Grace period check
+            let billableLateDays = 0;
+            if (daysLate <= 3) {
+                graceStep.className = 'flow-step success';
+                document.getElementById('ret-desc-grace').innerText = `Returned within 3 days. Under grace period limit.`;
+                feeStep.className = 'flow-step';
+                document.getElementById('ret-desc-fee').innerText = `No late fees applied.`;
+            } else {
+                billableLateDays = daysLate - 3;
+                graceStep.className = 'flow-step warning';
+                document.getElementById('ret-desc-grace').innerText = `Grace period exceeded (Over by ${daysLate - 3} days).`;
+                feeStep.className = 'flow-step danger';
+                
+                const lateFee = itemPrice * billableLateDays * qty;
+                document.getElementById('ret-desc-fee').innerText = `Fee = ¥${itemPrice.toLocaleString()} per item/day x ${billableLateDays} late days x ${qty} items = ¥${lateFee.toLocaleString()}`;
+            }
+
+            const finalFee = itemPrice * billableLateDays * qty;
+            document.getElementById('ret-val-days-overdue').innerText = daysLate + ' days';
+            document.getElementById('ret-val-billable-days').innerText = billableLateDays + ' days';
+            document.getElementById('ret-val-fee').innerText = '¥' + finalFee.toLocaleString();
+        }
+
+        // 4. CloudSign simulation
+        let csStatus = 'requested';
+        function simulateWebhook(action) {
+            csStatus = action;
+            
+            // reset statuses
+            document.getElementById('cs-step-requested').className = 'flow-step';
+            document.getElementById('cs-step-sent').className = 'flow-step';
+            document.getElementById('cs-step-signed').className = 'flow-step';
+            document.getElementById('cs-step-declined').className = 'flow-step';
+
+            document.getElementById('cs-step-requested').classList.add('success');
+
+            if (action === 'sent') {
+                document.getElementById('cs-step-sent').classList.add('active');
+            } else if (action === 'completed') {
+                document.getElementById('cs-step-sent').className = 'flow-step success';
+                document.getElementById('cs-step-signed').classList.add('success');
+            } else if (action === 'declined') {
+                document.getElementById('cs-step-declined').classList.add('danger');
+            }
+        }
+
+        // 5. Admin operations simulation
+        let adminLogs = ["[SYSTEM] Admin operations logger initialized."];
+
+        function addAdminLog(msg, type='info') {
+            const time = new Date().toLocaleTimeString();
+            let color = 'var(--text-secondary)';
+            if (type === 'success') color = 'var(--accent-success)';
+            if (type === 'warning') color = 'var(--accent-warning)';
+            if (type === 'error') color = 'var(--accent-danger)';
+            if (type === 'system') color = 'var(--accent-secondary)';
+
+            const logMsg = `[${time}] <span style="color: ${color}">${msg}</span>`;
+            adminLogs.unshift(logMsg); // prepend
+            
+            // Limit logs to last 15
+            if (adminLogs.length > 15) {
+                adminLogs.pop();
+            }
+
+            const logsDiv = document.getElementById('admin-event-logs');
+            if (logsDiv) {
+                logsDiv.innerHTML = adminLogs.map(l => `<div>${l}</div>`).join('');
+            }
+        }
+
+        function triggerAdminLogReset() {
+            adminLogs = ["[SYSTEM] Reset requested. Logger re-initialized."];
+            const logsDiv = document.getElementById('admin-event-logs');
+            if (logsDiv) {
+                logsDiv.innerHTML = adminLogs.map(l => `<div>${l}</div>`).join('');
+            }
+            document.getElementById('admin-quote-status').value = 'draft';
+            document.getElementById('admin-order-status').value = 'placed';
+            document.getElementById('admin-bypass-rfid').checked = false;
+            document.getElementById('admin-overdue').checked = false;
+            runAdminSimulation();
+        }
+
+        function runAdminSimulation() {
+            const quoteStatus = document.getElementById('admin-quote-status').value;
+            const orderStatus = document.getElementById('admin-order-status').value;
+            const bypassRfid = document.getElementById('admin-bypass-rfid').checked;
+            const overdue = document.getElementById('admin-overdue').checked;
+
+            const stepQuote = document.getElementById('adm-step-quote');
+            const stepFulfill = document.getElementById('adm-step-fulfill');
+            const stepInventory = document.getElementById('adm-step-inventory');
+
+            const badgeQuote = document.getElementById('adm-badge-quote');
+            const badgeFulfill = document.getElementById('adm-badge-fulfill');
+            const badgeInventory = document.getElementById('adm-badge-inventory');
+
+            // 1. Quotation management step
+            stepQuote.className = 'flow-step';
+            if (quoteStatus === 'draft') {
+                stepQuote.classList.add('active');
+                badgeQuote.innerText = 'Draft';
+                badgeQuote.className = 'badge badge-pending';
+                document.getElementById('adm-desc-quote').innerText = 'Quotation created. Draft B2B pricing model configured.';
+            } else if (quoteStatus === 'sent') {
+                stepQuote.classList.add('active');
+                badgeQuote.innerText = 'Sent';
+                badgeQuote.className = 'badge badge-sent';
+                document.getElementById('adm-desc-quote').innerText = 'Quotation sent via CloudSign. Awaiting client action.';
+            } else if (quoteStatus === 'signed') {
+                stepQuote.className = 'flow-step success';
+                badgeQuote.innerText = 'Signed';
+                badgeQuote.className = 'badge badge-signed';
+                document.getElementById('adm-desc-quote').innerText = 'CloudSign document completed. Verification succeeded.';
+            } else if (quoteStatus === 'approved') {
+                stepQuote.className = 'flow-step success';
+                badgeQuote.innerText = 'Approved';
+                badgeQuote.className = 'badge badge-signed';
+                document.getElementById('adm-desc-quote').innerText = 'Admin approved special conditions. Order confirmed.';
+            } else if (quoteStatus === 'rejected') {
+                stepQuote.className = 'flow-step danger';
+                badgeQuote.innerText = 'Declined';
+                badgeQuote.className = 'badge badge-declined';
+                document.getElementById('adm-desc-quote').innerText = 'Quotation declined or expired. Flow terminated.';
+            }
+
+            // 2. Fulfillment step
+            stepFulfill.className = 'flow-step';
+            if (orderStatus === 'placed') {
+                if (quoteStatus === 'approved' || quoteStatus === 'signed') {
+                    stepFulfill.classList.add('active');
+                }
+                badgeFulfill.innerText = 'Placed';
+                badgeFulfill.className = 'badge badge-pending';
+                document.getElementById('adm-desc-fulfill').innerText = 'Order placed. Awaiting dispatch process.';
+            } else if (orderStatus === 'preparing') {
+                stepFulfill.classList.add('active');
+                badgeFulfill.innerText = 'Preparing';
+                badgeFulfill.className = 'badge badge-pending';
+                document.getElementById('adm-desc-fulfill').innerText = 'Items are being gathered, folded and packed in warehouse.';
+            } else if (orderStatus === 'shipped') {
+                stepFulfill.className = 'flow-step success';
+                badgeFulfill.innerText = 'Shipped';
+                badgeFulfill.className = 'badge badge-sent';
+                document.getElementById('adm-desc-fulfill').innerText = 'Items handed to carrier. Tracking registered.';
+            } else if (orderStatus === 'delivered' || orderStatus === 'returning' || orderStatus === 'returned') {
+                stepFulfill.className = 'flow-step success';
+                badgeFulfill.innerText = 'Delivered';
+                badgeFulfill.className = 'badge badge-signed';
+                document.getElementById('adm-desc-fulfill').innerText = 'Delivery confirmed by logistics partner.';
+            }
+
+            // 3. Inventory & RFID check
+            stepInventory.className = 'flow-step';
+            if (orderStatus === 'returning') {
+                stepInventory.classList.add('active');
+                badgeInventory.innerText = 'Returning';
+                badgeInventory.className = 'badge badge-sent';
+                document.getElementById('adm-desc-inventory').innerText = 'Client dispatched returns. Inbound logistics active.';
+            } else if (orderStatus === 'returned') {
+                if (bypassRfid) {
+                    stepInventory.className = 'flow-step success';
+                    badgeInventory.innerText = 'Returned (Manual)';
+                    badgeInventory.className = 'badge badge-signed';
+                    document.getElementById('adm-desc-inventory').innerText = 'Bypassed RFID scan (Napkins). Count verified manually.';
+                } else {
+                    stepInventory.className = 'flow-step success';
+                    badgeInventory.innerText = 'Returned (RFID)';
+                    badgeInventory.className = 'badge badge-signed';
+                    document.getElementById('adm-desc-inventory').innerText = 'All items RFID scanned and cleared. Inventory updated.';
+                }
+            } else {
+                badgeInventory.innerText = 'Awaiting Return';
+                badgeInventory.className = 'badge badge-pending';
+                document.getElementById('adm-desc-inventory').innerText = 'Waiting for rental period completion and return.';
+            }
+
+            if (overdue) {
+                stepInventory.className = 'flow-step warning';
+                badgeInventory.innerText = 'Late / Overdue';
+                badgeInventory.className = 'badge badge-declined';
+                document.getElementById('adm-desc-inventory').innerText = 'Rental end-date passed. Late fee assessment active.';
+            }
+
+            // Logs output trigger
+            const logMsg = `Admin updated Quote: ${quoteStatus.toUpperCase()}, Order: ${orderStatus.toUpperCase()}` + 
+                           (bypassRfid ? ' [RFID BYPASS]' : '') + 
+                           (overdue ? ' [OVERDUE]' : '');
+            
+            addAdminLog(logMsg, overdue ? 'warning' : (quoteStatus === 'rejected' ? 'error' : 'info'));
+        }
+
+        // Initialize calculations
+        window.onload = function() {
+            calculateCheckout();
+        };
+    </script>
+</body>
+</html>

@@ -102,15 +102,23 @@ class PartsCreateView(APIView):
         500: OpenApiResponse(description="Internal server error"),
     },
 )
+
 class PartsListView(APIView):
-    permission_classes = [AllowAny]
+    authentication_classes = []
+    permission_classes = []
 
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()
+            category_id = request.query_params.get("category_id")
 
             parts = Parts.objects.filter(isDeleted=False)
 
+            # Filter by category
+            if category_id:
+                parts = parts.filter(category_id=category_id)
+
+            # Search
             if search_query:
                 parts = parts.filter(
                     Q(partName__icontains=search_query) |
@@ -123,7 +131,11 @@ class PartsListView(APIView):
 
             paginator = CustomPagination()
             page = paginator.paginate_queryset(parts, request)
-            serializer = PartsSerializer(page, many=True,context={'request': request})
+            serializer = PartsSerializer(
+                page,
+                many=True,
+                context={"request": request}
+            )
 
             response = {
                 "count": paginator.page.paginator.count,
@@ -149,7 +161,8 @@ class PartsListView(APIView):
                 "status": False,
                 "message": f"Internal server error: {str(e)}"
             }, status=500)
-
+            
+            
 
 @extend_schema(
     tags=["Parts"],
