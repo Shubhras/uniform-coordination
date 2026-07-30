@@ -56,7 +56,10 @@ class TemplateCreateView(APIView):
 
 
 class TemplateListView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
+    authentication_classes = []
+    permission_classes = []
+
 
     @extend_schema(
         tags=["Template"],

@@ -783,6 +783,9 @@ class AdminGetProductAPIView(APIView):
 
 # products/views/list_products.py
 class AdminListProductsAPIView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
 
     @extend_schema(
     tags=["Admin Product"],
@@ -958,6 +961,7 @@ class AdminDeleteProductAPIView(APIView):
 
 class SpecialConditionCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def post(self, request):
         try:
@@ -989,7 +993,8 @@ class SpecialConditionCreateAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 class  SpecialConditionListAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAdminUserJWT]
+    authentication_classes = [JWTAuthentication] 
 
     @extend_schema(
     tags=["Special Condition"],
@@ -1034,7 +1039,7 @@ class  SpecialConditionListAPIView(APIView):
         },status=status.HTTP_200_OK)
     
 class SpecialConditionDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication] 
 
     @extend_schema(
     tags=["Special Condition"],
@@ -1065,7 +1070,7 @@ class SpecialConditionDetailAPIView(APIView):
 
 class SpecialConditionUpdateAPIView(APIView):
     
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication] 
 
     @extend_schema(
     tags=["Special Condition"],
@@ -1105,7 +1110,7 @@ class SpecialConditionUpdateAPIView(APIView):
                 'error':serializer.errors
             },status=status.HTTP_400_BAD_REQUEST)
 class SpecialConditionDeleteAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication] 
 
     @extend_schema(
     tags=["Special Condition"],
@@ -1209,6 +1214,7 @@ class SpecialConditionDeleteAPIView(APIView):
 
 
 class QuotationRequestListAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -1297,85 +1303,196 @@ class QuotationRequestListAPIView(APIView):
 
 
         serializer = QuotationRequestSerializer(paginated_queryset, many=True)
-
+        
         return Response({
-            'statusCode':200,
+            "statusCode": 200,
             "status": True,
-            'message':'Quotation Request fetch data successfully.',
+            "message": "Quotation Request fetch data successfully.",
+
+            "page": int(request.query_params.get("page", 1)),
+            "page_size": int(request.query_params.get("page_size", paginator.page_size)),
+
             "count": queryset.count(),
             "data": serializer.data
-        },status=status.HTTP_200_OK)
+        }, status=status.HTTP_200_OK)
+
+        # return Response({
+        #     'statusCode':200,
+        #     "status": True,
+        #     'message':'Quotation Request fetch data successfully.',
+        #     "count": queryset.count(),
+        #     "data": serializer.data
+        # },status=status.HTTP_200_OK)
     
+    
+class QuotationRequestDetailAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["Quotation Request"],
+        summary="Quotation Request Details",
+        description="Fetch complete details of a quotation request by UUID.",
+        parameters=[
+            OpenApiParameter(
+                name="uuid",
+                type=OpenApiTypes.UUID,
+                location=OpenApiParameter.PATH,
+                required=True,
+                description="Quotation Request UUID",
+            )
+        ],
+        responses={
+            200: OpenApiResponse(
+                description="Quotation request fetched successfully"
+            ),
+            404: OpenApiResponse(
+                description="Quotation request not found"
+            ),
+            500: OpenApiResponse(
+                description="Server error"
+            ),
+        },
+    )
+    def get(self, request, uuid):
+        try:
+            quotation = QuotationRequest.objects.get(
+                uuids=uuid,
+                isDeleted=False
+            )
+
+            serializer = QuotationRequestSerializer(
+                quotation,
+                context={"request": request}
+            )
+
+            return Response(
+                {
+                    "statusCode": 200,
+                    "status": True,
+                    "message": "Quotation request fetched successfully.",
+                    "data": serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except QuotationRequest.DoesNotExist:
+            return Response(
+                {
+                    "statusCode": 404,
+                    "status": False,
+                    "message": "Quotation request not found.",
+                    "data": None,
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        except Exception as e:
+            return Response(
+                {
+                    "statusCode": 500,
+                    "status": False,
+                    "message": "Something went wrong on server.",
+                    "error": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+      
+class QuotationRequestUpdateAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["Quotation Request"],
+        summary="Update quotation request",
+        description=(
+            "Admin can update quotation details and quotation/workflow status."
+        ),
+        request=QuotationRequestUpdateSerializer,
+        parameters=[
+            OpenApiParameter(
+                name="uuid",
+                type=OpenApiTypes.UUID,
+                location=OpenApiParameter.PATH,
+                required=True,
+                description="Quotation Request UUID",
+            )
+        ],
+        responses={
+            200: OpenApiResponse(description="Quotation updated successfully"),
+            400: OpenApiResponse(description="Validation error"),
+            404: OpenApiResponse(description="Quotation not found"),
+            500: OpenApiResponse(description="Server error"),
+        },
+    )
+    def put(self, request, uuid):
+        try:
+            quotation = QuotationRequest.objects.get(
+                uuids=uuid,
+                isDeleted=False
+            )
+
+            serializer = QuotationRequestUpdateSerializer(
+                quotation,
+                data=request.data,
+                partial=True
+            )
+
+            if serializer.is_valid():
+                instance = serializer.save()
+                
+                if instance.quotation_status == "cancelled":
+                    instance.cancelled_by = "admin"
+                    instance.save(update_fields=["cancelled_by"])
+
+                return Response(
+                    {
+                        "statusCode": 200,
+                        "status": True,
+                        "message": "Quotation updated successfully.",
+                        "data": QuotationRequestSerializer(
+                            quotation,
+                            context={"request": request}
+                        ).data,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
+            return Response(
+                {
+                    "statusCode": 400,
+                    "status": False,
+                    "message": "Validation error.",
+                    "error": serializer.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        except QuotationRequest.DoesNotExist:
+            return Response(
+                {
+                    "statusCode": 404,
+                    "status": False,
+                    "message": "Quotation request not found.",
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        except Exception as e:
+            return Response(
+                {
+                    "statusCode": 500,
+                    "status": False,
+                    "message": "Something went wrong on server.",
+                    "error": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+                        
+                
 #<---------------------QuotationTemplate--------------------->
-
-
-# class QuotationTemplateCreateAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     @extend_schema(
-#     tags=["Quotation Template"],
-#     summary="Create Quotation Template API",
-#     description="Render a quotation using a selected quotation template.",
-#     request={
-#         "application/json": {
-#             "type": "object",
-#             "required": ["quotation_id", "template_slug"],
-#             "properties": {
-#                 "quotation_id": {
-#                     "type": "string",
-#                     "example": "QTN-1001"
-#                 },
-#                 "template_slug": {
-#                     "type": "string",
-#                     "example": "default-quotation-template"
-#                 }
-#             }
-#         }
-#     },
-#     responses={
-#         200: OpenApiResponse(description="Quotation rendered successfully"),
-#         400: OpenApiResponse(description="Missing required fields"),
-#         404: OpenApiResponse(description="Quotation or Template not found"),
-#     },
-#     )
-#     def post(self, request):
-#         quotation_id = request.data.get("quotation_id")
-#         template_slug = request.data.get("template_slug")
-
-#         if not quotation_id or not template_slug:
-#             return Response(
-#                 {"message": "quotation_id and template_slug are required"},
-#                 status=400
-#             )
-
-#         quotation = QuotationRequest.objects.filter(
-#             quotation_id=quotation_id,
-#             isDeleted=False
-#         ).first()
-
-#         template = QuotationTemplate.objects.filter(
-#             slug=template_slug,
-#             is_active=True,
-#             is_deleted=False
-#         ).first()
-
-#         if not quotation:
-#             return Response({"message": "Quotation not found"}, status=404)
-
-#         if not template:
-#             return Response({"message": "Template not found"}, status=404)
-
-#         rendered_text = render_quotation_template(
-#             template.content,
-#             quotation
-#         )
-
-#         return Response({
-#             "quotation_id": quotation.quotation_id,
-#             "rendered_content": rendered_text
-#         })
-
 class QuotationTemplateCreateAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -1457,6 +1574,7 @@ class QuotationTemplateListAPIView(APIView):
 
 
 class QuotationTemplateListAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -1523,6 +1641,7 @@ class QuotationTemplateListAPIView(APIView):
 
 
 class QuotationTemplateDetailAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -1584,6 +1703,7 @@ class QuotationTemplateDetailAPIView(APIView):
 
 
 class QuotationTemplateUpdateAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
     permission_classes = [IsAuthenticated]
     
     @extend_schema(
@@ -1627,6 +1747,7 @@ class QuotationTemplateUpdateAPIView(APIView):
         
 
 class QuotationTemplateDeleteAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
     permission_classes = [IsAuthenticated]
     
     @extend_schema(
@@ -1712,6 +1833,7 @@ class QuotationTemplateDeleteAPIView(APIView):
         }, status=status.HTTP_400_BAD_REQUEST)
     
 class QuotationTamplateExportAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, quotation_id):
@@ -1752,6 +1874,7 @@ class QuotationTamplateExportAPIView(APIView):
 #<------------------AdminNotification------------------>
 
 class AdminNotificationListAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -1870,7 +1993,9 @@ class AdminNotificationDeleteAPIView(APIView):
 
 class AdminDashAPIView(APIView):
     # permission_classes = [IsAdministrator]
-    permission_classes  =[IsAuthenticated]   #need to remove after take clone 
+    # permission_classes  =[IsAuthenticated]   #need to remove after take clone 
+    
+    authentication_classes = [IsAdminUserJWT]
     
     @extend_schema(
     tags=["Admin Dashboard"],

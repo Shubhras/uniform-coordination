@@ -358,11 +358,11 @@ class CustomUpdateModelsAdmin(admin.ModelAdmin):
         }),
         ("Customization JSON Data", {
             'fields': ('config_json', 'design_specifications'),
-            'description': "3D model ke user customization changes yahan JSON format me store hote hain"
+            'description': "3D model user customization changes  JSON format  store here"
         }),
         ("JSON File Path", {
             'fields': ('json_file_path',),
-            'description': "Stored JSON file ka path yahan dikhaye ga"
+            'description': "Stored JSON file path"
         }),
         ("Status", {
             'fields': ('isActive', 'isDeleted')

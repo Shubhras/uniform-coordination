@@ -90,7 +90,10 @@ class CategoryCreateAPIView(APIView):
     },
 )
 class CategoryListAPIView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
+    authentication_classes = []
+    permission_classes = []
+
 
     def get(self, request):
         try:

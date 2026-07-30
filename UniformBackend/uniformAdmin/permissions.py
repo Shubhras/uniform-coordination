@@ -77,80 +77,337 @@ class RolePermissionAssignView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+# class RolePermissionListView(APIView):
+#     authentication_classes = [IsAdminUserJWT]
+
+#     @extend_schema(
+#         tags=["Permissions Management"],
+#         summary="Get Permissions for a Role",
+#         parameters=[
+#             OpenApiParameter(name="role_id", description="Role ID to get permissions for", required=True, type=int)
+#         ],
+#         responses={200: OpenApiResponse(description="Permissions retrieved successfully")}
+#     )
+#     def get(self, request):
+#         role_id = request.query_params.get("role_id")
+#         if not role_id:
+#             return Response({
+#                 "statusCode": 400,
+#                 "status": False,
+#                 "message": "role_id query parameter is required."
+#             }, status=status.HTTP_400_BAD_REQUEST)
+
+#         role = get_object_or_404(Role, id=role_id)
+
+#         # Get all active menus and submenus to form the full permission structure
+#         menus = Menu.objects.filter(isDeleted=False).order_by("order")
+        
+#         # Fetch current saved permissions
+#         menu_perms = {
+#             perm.menu_id: perm 
+#             for perm in RoleMenuPermission.objects.filter(role=role)
+#         }
+#         submenu_perms = {
+#             perm.submenu_id: perm 
+#             for perm in RoleSubMenuPermission.objects.filter(role=role)
+#         }
+
+#         result = []
+#         for menu in menus:
+#             m_perm = menu_perms.get(menu.id)
+            
+#             # Submenus list
+#             submenus_list = []
+#             for sub in menu.submenus.filter(isDeleted=False).order_by("order"):
+#                 s_perm = submenu_perms.get(sub.id)
+#                 submenus_list.append({
+#                     "submenu_id": sub.id,
+#                     "submenu_name": sub.name,
+#                     "can_view": s_perm.can_view if s_perm else False,
+#                     "can_create": s_perm.can_create if s_perm else False,
+#                     "can_update": s_perm.can_update if s_perm else False,
+#                     "can_delete": s_perm.can_delete if s_perm else False,
+#                 })
+
+#             result.append({
+#                 "menu_id": menu.id,
+#                 "menu_name": menu.name,
+#                 "can_view": m_perm.can_view if m_perm else False,
+#                 "can_create": m_perm.can_create if m_perm else False,
+#                 "can_update": m_perm.can_update if m_perm else False,
+#                 "can_delete": m_perm.can_delete if m_perm else False,
+#                 "submenus": submenus_list
+#             })
+
+#         return Response({
+#             "statusCode": 200,
+#             "status": True,
+#             "message": "Permissions retrieved successfully",
+#             "data": {
+#                 "role_id": role.id,
+#                 "role_name": role.role_name,
+#                 "permissions": result
+#             }
+#         }, status=status.HTTP_200_OK)
+
 class RolePermissionListView(APIView):
     authentication_classes = [IsAdminUserJWT]
 
     @extend_schema(
         tags=["Permissions Management"],
-        summary="Get Permissions for a Role",
+        summary="Get Role Permissions",
         parameters=[
-            OpenApiParameter(name="role_id", description="Role ID to get permissions for", required=True, type=int)
+            OpenApiParameter(
+                name="role_id",
+                description="Optional Role ID. If omitted, returns all roles with permissions.",
+                required=False,
+                type=int,
+            )
         ],
-        responses={200: OpenApiResponse(description="Permissions retrieved successfully")}
+        responses={200: OpenApiResponse(description="Permissions retrieved successfully")},
     )
     def get(self, request):
         role_id = request.query_params.get("role_id")
-        if not role_id:
-            return Response({
-                "statusCode": 400,
-                "status": False,
-                "message": "role_id query parameter is required."
-            }, status=status.HTTP_400_BAD_REQUEST)
 
-        role = get_object_or_404(Role, id=role_id)
-
-        # Get all active menus and submenus to form the full permission structure
+        # Get all active menus
         menus = Menu.objects.filter(isDeleted=False).order_by("order")
-        
-        # Fetch current saved permissions
-        menu_perms = {
-            perm.menu_id: perm 
-            for perm in RoleMenuPermission.objects.filter(role=role)
-        }
-        submenu_perms = {
-            perm.submenu_id: perm 
-            for perm in RoleSubMenuPermission.objects.filter(role=role)
-        }
 
-        result = []
-        for menu in menus:
-            m_perm = menu_perms.get(menu.id)
-            
-            # Submenus list
-            submenus_list = []
-            for sub in menu.submenus.filter(isDeleted=False).order_by("order"):
-                s_perm = submenu_perms.get(sub.id)
-                submenus_list.append({
-                    "submenu_id": sub.id,
-                    "submenu_name": sub.name,
-                    "can_view": s_perm.can_view if s_perm else False,
-                    "can_create": s_perm.can_create if s_perm else False,
-                    "can_update": s_perm.can_update if s_perm else False,
-                    "can_delete": s_perm.can_delete if s_perm else False,
+        # -----------------------------
+        # Helper function
+        # -----------------------------
+        def build_permissions(role):
+            menu_perms = {
+                p.menu_id: p
+                for p in RoleMenuPermission.objects.filter(role=role)
+            }
+
+            submenu_perms = {
+                p.submenu_id: p
+                for p in RoleSubMenuPermission.objects.filter(role=role)
+            }
+
+            permissions = []
+
+            for menu in menus:
+                m_perm = menu_perms.get(menu.id)
+
+                submenus = []
+
+                for sub in menu.submenus.filter(isDeleted=False).order_by("order"):
+                    s_perm = submenu_perms.get(sub.id)
+
+                    submenus.append({
+                        "submenu_id": sub.id,
+                        "submenu_name": sub.name,
+                        "can_view": s_perm.can_view if s_perm else False,
+                        "can_create": s_perm.can_create if s_perm else False,
+                        "can_update": s_perm.can_update if s_perm else False,
+                        "can_delete": s_perm.can_delete if s_perm else False,
+                    })
+
+                permissions.append({
+                    "menu_id": menu.id,
+                    "menu_name": menu.name,
+                    "can_view": m_perm.can_view if m_perm else False,
+                    "can_create": m_perm.can_create if m_perm else False,
+                    "can_update": m_perm.can_update if m_perm else False,
+                    "can_delete": m_perm.can_delete if m_perm else False,
+                    "submenus": submenus,
                 })
 
-            result.append({
-                "menu_id": menu.id,
-                "menu_name": menu.name,
-                "can_view": m_perm.can_view if m_perm else False,
-                "can_create": m_perm.can_create if m_perm else False,
-                "can_update": m_perm.can_update if m_perm else False,
-                "can_delete": m_perm.can_delete if m_perm else False,
-                "submenus": submenus_list
+            return permissions
+
+        # =====================================================
+        # Single Role
+        # =====================================================
+        if role_id:
+            role = get_object_or_404(Role, id=role_id)
+
+            return Response({
+                "statusCode": 200,
+                "status": True,
+                "message": "Permissions retrieved successfully.",
+                "data": {
+                    "role_id": role.id,
+                    "role_name": role.role_name,
+                    "permissions": build_permissions(role)
+                }
+            }, status=status.HTTP_200_OK)
+
+        # =====================================================
+        # All Roles
+        # =====================================================
+        roles = Role.objects.all().order_by("id")
+
+        data = []
+
+        for role in roles:
+            data.append({
+                "role_id": role.id,
+                "role_name": role.role_name,
+                "permissions": build_permissions(role)
             })
 
         return Response({
             "statusCode": 200,
             "status": True,
-            "message": "Permissions retrieved successfully",
-            "data": {
-                "role_id": role.id,
-                "role_name": role.role_name,
-                "permissions": result
-            }
+            "message": "Role permissions retrieved successfully.",
+            "count": len(data),
+            "data": data
         }, status=status.HTTP_200_OK)
+   
 
 
+class SaveUpdateRolePermissionView(APIView):
+    authentication_classes = [IsAdminUserJWT]
+
+    @extend_schema(
+        tags=["Permissions Management"],
+        summary="Create/Update Role Permissions",
+        description="Create or update menu and submenu permissions for one or multiple roles in a single request.",
+        request={
+            "application/json": {
+                "example": {
+                    "roles": [
+                        {
+                            "role_id": 1,
+                            "permissions": [
+                                {
+                                    "menu_id": 1,
+                                    "can_view": True,
+                                    "can_create": True,
+                                    "can_update": False,
+                                    "can_delete": False,
+                                    "submenus": [
+                                        {
+                                            "submenu_id": 1,
+                                            "can_view": True,
+                                            "can_create": True,
+                                            "can_update": False,
+                                            "can_delete": False
+                                        },
+                                        {
+                                            "submenu_id": 2,
+                                            "can_view": True,
+                                            "can_create": False,
+                                            "can_update": False,
+                                            "can_delete": False
+                                        }
+                                    ]
+                                },
+                                {
+                                    "menu_id": 2,
+                                    "can_view": True,
+                                    "can_create": False,
+                                    "can_update": False,
+                                    "can_delete": False,
+                                    "submenus": []
+                                }
+                            ]
+                        },
+                        {
+                            "role_id": 2,
+                            "permissions": [
+                                {
+                                    "menu_id": 1,
+                                    "can_view": True,
+                                    "can_create": False,
+                                    "can_update": True,
+                                    "can_delete": False,
+                                    "submenus": [
+                                        {
+                                            "submenu_id": 1,
+                                            "can_view": True,
+                                            "can_create": False,
+                                            "can_update": True,
+                                            "can_delete": False
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        responses={
+            200: OpenApiResponse(description="Permissions saved successfully"),
+            400: OpenApiResponse(description="Validation error")
+        }
+    )
+    @transaction.atomic
+    def post(self, request):
+
+        roles = request.data.get("roles", [])
+
+        if not roles:
+            return Response(
+                {
+                    "statusCode": 400,
+                    "status": False,
+                    "message": "roles is required."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        for role_data in roles:
+
+            role_id = role_data.get("role_id")
+
+            if not role_id:
+                continue
+
+            role = get_object_or_404(Role, id=role_id)
+
+            permissions = role_data.get("permissions", [])
+
+            for menu_data in permissions:
+
+                menu = get_object_or_404(
+                    Menu,
+                    id=menu_data.get("menu_id")
+                )
+
+                RoleMenuPermission.objects.update_or_create(
+                    role=role,
+                    menu=menu,
+                    defaults={
+                        "can_view": menu_data.get("can_view", False),
+                        "can_create": menu_data.get("can_create", False),
+                        "can_update": menu_data.get("can_update", False),
+                        "can_delete": menu_data.get("can_delete", False),
+                    }
+                )
+
+                for submenu_data in menu_data.get("submenus", []):
+
+                    submenu = get_object_or_404(
+                        SubMenu,
+                        id=submenu_data.get("submenu_id"),
+                        menu=menu
+                    )
+
+                    RoleSubMenuPermission.objects.update_or_create(
+                        role=role,
+                        submenu=submenu,
+                        defaults={
+                            "can_view": submenu_data.get("can_view", False),
+                            "can_create": submenu_data.get("can_create", False),
+                            "can_update": submenu_data.get("can_update", False),
+                            "can_delete": submenu_data.get("can_delete", False),
+                        }
+                    )
+
+        return Response(
+            {
+                "statusCode": 200,
+                "status": True,
+                "message": "Role permissions saved successfully."
+            },
+            status=status.HTTP_200_OK
+        )
+            
+                   
 class UserMenuPermissionView(APIView):
     authentication_classes = [MultiRoleJWTAuth]
 

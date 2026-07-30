@@ -16,6 +16,7 @@ from .auth import *
 from .home_page import *
 from .menu import *
 from .permissions import *
+from .system_settings_views import *
 
 
 
@@ -33,6 +34,10 @@ urlpatterns = [
         ChangePasswordAPIView.as_view(),
         name="admin-change-password",
     ),
+    
+    #role 
+    path("roles/create/", CreateRoleAPIView.as_view(), name="create-role"),
+    path("roles/list/", RoleListAPIView.as_view(), name="role-list"),
 
     # Fabric URLs
     path('fabric/create/', FabricCreateView.as_view()),
@@ -132,10 +137,14 @@ urlpatterns = [
     path('specialcondition/get-list/',SpecialConditionListAPIView.as_view(), name = 'SpecialCondition-get-list'),
     path('specialcondition/<int:id>/get/',SpecialConditionDetailAPIView.as_view(), name = 'SpecialCondition-get-detail'),
     path('specialcondition/<int:id>/update/',SpecialConditionUpdateAPIView.as_view(), name = 'SpecialCondition-update'),
-    path('specialcondition/delete/',SpecialConditionDeleteAPIView.as_view(), name = 'SpecialCondition-delete'),
+    # path('specialcondition/delete/',SpecialConditionDeleteAPIView.as_view(), name = 'SpecialCondition-delete'),
+    path("specialcondition/delete/<str:id>/",SpecialConditionDeleteAPIView.as_view(),name="SpecialCondition-delete-by-id",),
     
     #<-------------------QuotationRequestList------------------->
     path('quotationrequest/get/',QuotationRequestListAPIView.as_view(), name = 'QuotationRequest-getlist'),
+    path("quotation-request/<uuid:uuid>/",QuotationRequestDetailAPIView.as_view(),name="quotation-request-detail",),
+    path("quotation-request/<uuid:uuid>/update/",QuotationRequestUpdateAPIView.as_view(),name="quotation-request-update",),
+        
 
     #<-------------------QuotationTamplate----------------------->
     path('quotationrequesttamplate/create/',QuotationTemplateCreateAPIView.as_view(), name='QuotationRequest-create'),
@@ -144,6 +153,7 @@ urlpatterns = [
     path('quotationrequesttamplate/<str:quotation_id>/update/',QuotationTemplateUpdateAPIView.as_view(), name='QuotationRequest-create'),
     path('quotationrequesttamplate/delete/',QuotationTemplateDeleteAPIView.as_view(), name='QuotationRequest-create'),
     path('quotationrequesttamplate/<str:quotation_id>/export/',QuotationTamplateExportAPIView.as_view(),name='get-export'),
+    
 
     #<---------------------AdminuserNotification------------------>
     path("notifications/get-list/", AdminNotificationListAPIView.as_view(),name='adminNotification-get_list'),
@@ -155,6 +165,11 @@ urlpatterns = [
     path('admin-user/<int:id>/get/',AdminUserDetailAPIView.as_view(), name = 'admin-user-detail-get'),
     path('admin-user/<int:id>/update/',AdminUserUpdateAPIView.as_view(), name = 'admin-user-update'),
     path('admin-user/delete/',AdminUserDeleteAPIView.as_view(), name = 'admin-user-delete'),
+    
+    # customer list-details 
+    path("customers/list/",CustomerListAPIView.as_view(),name="admin-customer-list",),
+    path("customers/<int:id>/",CustomerDetailAPIView.as_view(),name="admin-customer-detail",),
+    path("customers/<int:id>/update/",CustomerUpdateAPIView.as_view(),name="admin-customer-update",),
 
     #<----------------------Table_Theme ---------------------------->
     path('tabletheme/create/',TableThemeCreateAPIView.as_view(), name = 'Table_Theme-create'),
@@ -203,6 +218,13 @@ urlpatterns = [
 
     # Permission URLs
     path('role-permissions/assign/', RolePermissionAssignView.as_view(), name='role-permissions-assign'),
+    path('role-permissions/update/', SaveUpdateRolePermissionView.as_view(), name='role-permissions-update'),
     path('role-permissions/list/', RolePermissionListView.as_view(), name='role-permissions-list'),
     path('my-permissions/', UserMenuPermissionView.as_view(), name='my-permissions'),
+    
+    # ==========================================
+    # SYSTEM SETTINGS
+    # ==========================================
+    path('settings/system/', SystemSettingsRetrieveView.as_view(), name='system-settings-get'),
+    path('settings/system/update/', SystemSettingsUpdateView.as_view(), name='system-settings-update'),
 ]

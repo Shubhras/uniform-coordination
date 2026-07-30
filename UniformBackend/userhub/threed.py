@@ -25,7 +25,14 @@ from django.utils import timezone
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 from .docusign_service import send_contract
 
-
+from rest_framework.pagination import PageNumberPagination
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.http import Http404
+from django.db import transaction
+class CustomPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 #<-------------------ModelsInfo------------------->
 class ModelInfoCreateAPIView(APIView):
@@ -348,271 +355,6 @@ class QuotationRequestCreateAPIView(APIView):
             },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
  
 
-
-#<----------------------QuotationRequest------------------>
-           
-# class QuotationRequestCreateAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     @extend_schema(
-#     tags=["Quotation Request"],
-#     summary="Create quotation request and send DocuSign",
-#     description=(
-#         "Creates a quotation request"
-#         "sends DocuSign immediately, and updates workflow status."
-#     ),
-#     request={
-#         "application/json": {
-#             "type": "object",
-#             "properties": {
-#                 "template_slug": {
-#                     "type": "string",
-#                     "example": "quotation-default"
-#                 }
-#             },
-#             "required": ["template_slug"]
-#         }
-#     },
-#     responses={
-#         201: OpenApiResponse(
-#             description="Quotation created and DocuSign sent"
-#         ),
-#         400: OpenApiResponse(
-#             description="template_slug missing"
-#         ),
-#         404: OpenApiResponse(
-#             description="Template not found"
-#         ),
-#         500: OpenApiResponse(
-#             description="Server error"
-#         ),
-#     }
-# )
-#     def post(self, request):
-#         try:
-#             template_slug = request.data.get("template_slug")
-#             if not template_slug:
-#                 return Response({"message": "template_slug is required"}, status=400)
-
-#             template = QuotationTemplate.objects.filter(
-#                 slug=template_slug,
-#                 is_active=True,
-#                 is_deleted=False
-#             ).first()
-
-#             if not template:
-#                 return Response({"message": "Template not found"}, status=404)
-
-#             serializer = QuotationRequestSerializer(data=request.data)
-#             serializer.is_valid(raise_exception=True)
-
-#             quotation = serializer.save(
-#                 template=template,
-#                 workflow_status="REQUESTED",
-#                 quotation_status="pending"
-#             )
-
-#             # CREATE DOCUSIGN & SEND EMAIL IMMEDIATELY
-#             envelope_id = send_docusign_envelope(quotation)
-
-#             DocuSignEnvelope.objects.create(
-#                 quotation_request=quotation,
-#                 envelope_id=envelope_id,
-#                 status="sent",
-#                 agreement_status="sent_to_client"
-#             )
-
-#             quotation.workflow_status = "SENT"
-#             quotation.save()
-
-#             return Response({
-#                 "status": True,
-#                 "message": "Quotation created and DocuSign sent",
-#                 "quotation_id": quotation.quotation_id,
-#                 "workflow_status": quotation.workflow_status
-#             }, status=201)
-
-#         except Exception as e:
-#             return Response({
-#                 "status": False,
-#                 "message": "Failed to create quotation",
-#                 "error": str(e)
-#             }, status=500)
-
-
-# class QuotationRequestCreateAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     @extend_schema(
-#         tags=["Quotation Request"],
-#         summary="Create quotation request and send DocuSign",
-#         description=(
-#             "Creates a quotation request, "
-#             "sends DocuSign immediately, and updates workflow status."
-#         ),
-#         request={
-#             "application/json": {
-#                 "type": "object",
-#                 "properties": {
-#                     "company_name": {"type": "string"},
-#                     "contact_person": {"type": "string"},
-#                     "email": {"type": "string"},
-#                     "phone_number": {"type": "string"},
-#                     "item_type": {"type": "string"},
-#                     "material": {"type": "string"},
-#                     "size_quantity": {"type": "string"},
-#                     "delivery_date": {"type": "string", "format": "date"},
-#                     "additional_note": {"type": "string"},
-#                 },
-#                 "required": ["email", "delivery_date"]
-#             }
-#         },
-#         responses={
-#             201: OpenApiResponse(description="Quotation created and DocuSign sent"),
-#             400: OpenApiResponse(description="Validation error"),
-#             500: OpenApiResponse(description="Server error"),
-#         }
-#     )
-#     def post(self, request):
-#         try:
-#             serializer = QuotationRequestSerializer(data=request.data)
-#             serializer.is_valid(raise_exception=True)
-
-#             quotation = serializer.save(
-#                 workflow_status="REQUESTED",
-#                 quotation_status="pending"
-#             )
-
-#             # CREATE DOCUSIGN & SEND EMAIL IMMEDIATELY
-#             envelope_id = send_docusign_envelope(quotation)
-
-#             DocuSignEnvelope.objects.create(
-#                 quotation_request=quotation,
-#                 envelope_id=envelope_id,
-#                 status="sent",
-#                 agreement_status="sent_to_client"
-#             )
-
-#             quotation.workflow_status = "SENT"
-#             quotation.save()
-
-#             return Response(
-#                 {
-#                     "statusCode": 200,                    
-#                     "status": True,
-#                     "message": "Quotation created and DocuSign sent",
-#                     "quotation_id": quotation.quotation_id,
-#                     "workflow_status": quotation.workflow_status,
-#                 },
-#                 status=200
-#             )
-
-#         except Exception as e:
-#             return Response(
-#                 {
-#                     "statusCode": 400,                                        
-#                     "status": False,
-#                     "message": "Failed to create quotation",
-#                     "error": str(e),
-#                 },
-#                 status=500
-#             )
-
-
-
-# class QuotationRequestCreateAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     @extend_schema(
-#         tags=["Quotation Request"],
-#         summary="Create quotation request and send DocuSign",
-#         description=(
-#             "Creates a quotation request, "
-#             "sends DocuSign immediately, and updates workflow status."
-#         ),
-#         request={
-#             "application/json": {
-#                 "type": "object",
-#                 "properties": {
-#                     "company_name": {"type": "string"},
-#                     "contact_person": {"type": "string"},
-#                     "email": {"type": "string"},
-#                     "phone_number": {"type": "string"},
-#                     "item_type": {"type": "string"},
-#                     "material": {"type": "string"},
-#                     "size_quantity": {"type": "string"},
-#                     "delivery_date": {"type": "string", "format": "date"},
-#                     "additional_note": {"type": "string"},
-#                 },
-#                 "required": ["email", "delivery_date"]
-#             }
-#         },
-#         responses={
-#             201: OpenApiResponse(description="Quotation created and DocuSign sent"),
-#             400: OpenApiResponse(description="Validation error"),
-#             500: OpenApiResponse(description="Server error"),
-#         }
-#     )
-#     def post(self, request):
-#         try:
-#             serializer = QuotationRequestSerializer(data=request.data)
-#             serializer.is_valid(raise_exception=True)
-
-#             quotation = serializer.save(
-#                 workflow_status="REQUESTED",
-#                 quotation_status="pending"
-#             )
-
-#             # CREATE DOCUSIGN & SEND EMAIL IMMEDIATELY
-#             envelope_id = send_docusign_envelope(quotation)
-
-#             DocuSignEnvelope.objects.create(
-#                 quotation_request=quotation,
-#                 envelope_id=envelope_id,
-#                 status="sent",
-#                 agreement_status="sent_to_client"
-#             )
-
-#             quotation.workflow_status = "SENT"
-#             quotation.save()
-
-#             return Response(
-#                 {
-#                     "statusCode": 201,
-#                     "status": True,
-#                     "message": "Quotation created and DocuSign sent",
-#                     "quotation_id": quotation.quotation_id,
-#                     "workflow_status": quotation.workflow_status,
-#                 },
-#                 status=201
-#             )
-
-#         #  Proper validation error (serializer / bad payload)
-#         except serializers.ValidationError as e:
-#             return Response(
-#                 {
-#                     "statusCode": 400,
-#                     "status": False,
-#                     "message": "Validation error",
-#                     "error": e.detail,
-#                 },
-#                 status=400
-#             )
-
-#         #  Any unexpected server error
-#         except Exception as e:
-#             return Response(
-#                 {
-#                     "statusCode": 500,
-#                     "status": False,
-#                     "message": "Failed to create quotation",
-#                     "error": str(e),
-#                 },
-#                 status=500
-#             )
-
-
-           
 class QuotationRequestDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -694,20 +436,86 @@ class QuotationRequestExportPDFAPIView(APIView):
         })
             
 
+# class QuotationRequestsListAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         try:
+#             quotations = QuotationRequest.objects.filter(
+#                 customupdatemodel__user=request.user,
+#                 isDeleted=False
+#             )
+
+#             if not quotations.exists():
+#                 return Response(
+#                     {   
+#                         "statusCode":200,
+#                         "status": True,
+#                         "message": "You have not submitted any quotation requests yet.",
+#                         "data": []
+#                     },
+#                     status=status.HTTP_200_OK
+#                 )
+
+#             serializer = QuotationRequestSerializer(quotations, many=True)
+
+#             return Response(
+#                 {   
+#                     "statusCode":200,
+#                     "status": True,
+#                     "message": "Your quotation requests fetched successfully.",
+#                     "total": quotations.count(),
+#                     "data": serializer.data
+#                 },
+#                 status=status.HTTP_200_OK
+#             )
+
+#         except Exception as e:
+#             return Response(
+#                 {   "statusCode":500,
+#                     "status": False,
+#                     "message": "Something went wrong on server.",
+#                     "error": str(e)
+#                 },
+#                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
+#             )
+
+
 class QuotationRequestsListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
+            search = request.query_params.get("search", "").strip()
+
             quotations = QuotationRequest.objects.filter(
                 customupdatemodel__user=request.user,
                 isDeleted=False
-            )
+            ).order_by("-created_at")
+
+            # Search
+            if search:
+                quotations = quotations.filter(
+                    Q(quotation_id__icontains=search) |
+                    Q(company_name__icontains=search) |
+                    Q(contact_person__icontains=search) |
+                    Q(email__icontains=search) |
+                    Q(phone_number__icontains=search) |
+                    Q(item_type__icontains=search) |
+                    Q(material__icontains=search)
+                )
 
             if not quotations.exists():
                 return Response(
-                    {   
-                        "statusCode":200,
+                    {
+                        "count": 0,
+                        "next": None,
+                        "previous": None,
+                        "page": 1,
+                        "page_size": 0,
+                        "total_pages": 0,
+                        "total_items": 0,
+                        "statusCode": 200,
                         "status": True,
                         "message": "You have not submitted any quotation requests yet.",
                         "data": []
@@ -715,14 +523,26 @@ class QuotationRequestsListAPIView(APIView):
                     status=status.HTTP_200_OK
                 )
 
-            serializer = QuotationRequestSerializer(quotations, many=True)
+            paginator = CustomPagination()
+            page = paginator.paginate_queryset(quotations, request)
+
+            serializer = QuotationRequestSerializer(
+                page,
+                many=True
+            )
 
             return Response(
-                {   
-                    "statusCode":200,
+                {
+                    "count": paginator.page.paginator.count,
+                    "next": paginator.get_next_link(),
+                    "previous": paginator.get_previous_link(),
+                    "page": paginator.page.number,
+                    "page_size": paginator.get_page_size(request),
+                    "total_pages": paginator.page.paginator.num_pages,
+                    "total_items": paginator.page.paginator.count,
+                    "statusCode": 200,
                     "status": True,
                     "message": "Your quotation requests fetched successfully.",
-                    "total": quotations.count(),
                     "data": serializer.data
                 },
                 status=status.HTTP_200_OK
@@ -730,14 +550,15 @@ class QuotationRequestsListAPIView(APIView):
 
         except Exception as e:
             return Response(
-                {   "statusCode":500,
+                {
+                    "statusCode": 500,
                     "status": False,
                     "message": "Something went wrong on server.",
                     "error": str(e)
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
+            
 
 #------------------ CustomUpdate Model--------------------
 
@@ -944,27 +765,68 @@ class CustomUpdateModelsUpdateAPIView(APIView):
 
         return Response(serializer.errors, status=400)
 
-
-# class CustomUpdateModelsDeleteAPIView(APIView):
+# class CustomUpdateModelsUpdateAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
 
-#     def delete(self, request, id):
-#         obj = get_object_or_404(CustomUpdateModels, id=id)
+#     @extend_schema(
+#     tags=["CustomUpdate Model"],
+#     summary="Update custom update model",
+#     description=(
+#         "Update custom update model fields.\n\n"
+#         "⚠ `json_data` updates are NOT allowed in this API."
+#     ),
+#     parameters=[
+#         OpenApiParameter(
+#             name="id",
+#             type=OpenApiTypes.INT,
+#             location=OpenApiParameter.PATH,
+#             description="Custom update model ID",
+#             required=True
+#         )
+#     ],
+#     request=CustomUpdateModelsSerializer,
+#     responses={
+#         200: OpenApiResponse(
+#             description="Updated successfully",
+#             response=CustomUpdateModelsSerializer
+#         ),
+#         400: OpenApiResponse(description="Validation error"),
+#         404: OpenApiResponse(description="Custom update not found"),
+#     },
+#     )
+#     def put(self, request, id):
+#         obj = get_object_or_404(CustomUpdateModels, id=id, isDeleted=False)
 
-#         # file bhi delete karo
-#         if obj.json_file_path:
-#             file_path = os.path.join(settings.MEDIA_ROOT, obj.json_file_path)
-#             if os.path.exists(file_path):
-#                 os.remove(file_path)
+#         data = request.data.copy()
+#         data.pop("json_data", None)  # block large json
+#         data.pop("user", None)       # block user update
+#         data.pop("model_info", None) # block changing the model_info
 
-#         obj.delete()
+#         serializer = CustomUpdateModelsSerializer(
+#             obj,
+#             data=data,
+#             partial=True,
+#             context={"request": request}
+#         )
 
-#         return Response({
-#             "statusCode": 204,
-#             "status": True,
-#             "message": "Deleted successfully"
-#         }, status=status.HTTP_204_NO_CONTENT)
+#         if serializer.is_valid():
+#             try:
+#                 serializer.save()
+#                 return Response({
+#                     "statusCode": 200,
+#                     "status": True,
+#                     "message": "Updated successfully",
+#                     "data": serializer.data
+#                 })
+#             except IntegrityError as e:
+#                 return Response({
+#                     "statusCode": 400,
+#                     "status": False,
+#                     "message": "Unique constraint violated.",
+#                     "error": str(e)
+#                 }, status=status.HTTP_400_BAD_REQUEST)
 
+#         return Response(serializer.errors, status=400)
 
 class CustomUpdateModelsDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1138,42 +1000,40 @@ class CustomUpdateModelExportPDFAPIView(APIView):
             "message":"export pdf successfully. ",
             "pdf_url":pdf_url
         },status=status.HTTP_200_OK)
-# class CustomModelsUserAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
 
-#     def get(self, request):
-#         queryset = CustomUpdateModels.objects.filter(
-#             user__id=request.user.id,
-#             isDeleted=False
-#         )
-
-#         serializer = CustomUpdateModelsSerializer(
-#             queryset, many=True, context={"request": request}
-#         )
-
-#         return Response({
-#             "statusCode": 200,
-#             "status": True,
-#             "user_id": request.user.id,
-#             "data": serializer.data
-#         })
 
 class CustomModelsUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def get(self, request):
         user = request.user
 
-        category_slug = request.GET.get("category")   
-        sort = request.GET.get("sort", "new")        
-        range_days = request.GET.get("range")         
+        category_slug = request.GET.get("category")
+        sort = request.GET.get("sort", "new")
+        range_days = request.GET.get("range")
+        search = request.GET.get("search")
 
         queryset = CustomUpdateModels.objects.filter(
             user=user,
             isDeleted=False
+        ).select_related(
+            "model_info",
+            "model_info__product",
+            "model_info__product__category"
         )
 
-        #  Category / Industry Filter
+        # Search
+        if search:
+            queryset = queryset.filter(
+                Q(model_info__product__productName__icontains=search) |
+                Q(model_info__product__description__icontains=search) |
+                Q(model_info__product__category__categoryName__icontains=search) |
+                Q(model_info__product__productType__icontains=search) |
+                Q(model_info__product__type__icontains=search) |
+                Q(model_info__product__table_shape__icontains=search)
+            )
+
+        # Category Filter
         if category_slug:
             queryset = queryset.filter(
                 model_info__product__category__slug=category_slug
@@ -1185,7 +1045,7 @@ class CustomModelsUserAPIView(APIView):
                 days = int(range_days)
                 start_date = now() - timedelta(days=days)
                 queryset = queryset.filter(created_at__gte=start_date)
-            except:
+            except ValueError:
                 pass
 
         # Sorting
@@ -1194,18 +1054,31 @@ class CustomModelsUserAPIView(APIView):
         else:
             queryset = queryset.order_by("-created_at")
 
+        # Pagination
+        paginator = CustomPagination()
+        paginated_queryset = paginator.paginate_queryset(queryset, request)
+
         serializer = CustomUpdateModelsSerializer(
-            queryset, many=True, context={"request": request}
+            paginated_queryset,
+            many=True,
+            context={"request": request}
         )
 
         return Response({
             "statusCode": 200,
             "status": True,
             "user_id": user.id,
-            "message":"fetch data successfully ",
-            "data": serializer.data
-        },status=status.HTTP_200_OK)
+            "message": "fetch data successfully",
 
+            # Added pagination info
+            "page": int(request.query_params.get("page", 1)),
+            "page_size": int(request.query_params.get("page_size", paginator.page_size)),
+            "count": queryset.count(),
+
+            # Same key as before
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+  
 class OrderHistoryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1259,4 +1132,85 @@ class OrderHistoryAPIView(APIView):
             "filter": filter_type,
             "data": data
         })
-  
+ 
+ 
+ 
+class CancelQuotationRequestAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+   
+
+    @extend_schema(
+        tags=["Quotation Request"],
+        summary="Cancel Quotation Request",
+        description="Allows the logged-in user to cancel their own quotation request.",
+        request={
+            "application/json": {
+                "example": {
+                    "cancel_reason": "No longer required"
+                }
+            }
+        },
+        responses={
+            200: OpenApiResponse(description="Quotation cancelled successfully"),
+            400: OpenApiResponse(description="Validation error"),
+            404: OpenApiResponse(description="Quotation not found"),
+        },
+    )
+    @transaction.atomic
+    def patch(self, request, quotation_id):
+        try:
+            try:
+                quotation = QuotationRequest.objects.get(
+                    uuids=quotation_id,
+                    customupdatemodel__user=request.user,
+                    isDeleted=False
+                )
+            except QuotationRequest.DoesNotExist:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Quotation not found."
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            if quotation.quotation_status == "cancelled":
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Quotation is already cancelled."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if quotation.workflow_status in ["COMPLETED", "SIGNED"]:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": f"Quotation cannot be cancelled once it is {quotation.workflow_status.lower()}."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            quotation.quotation_status = "cancelled"
+            quotation.cancelled_by = "user"
+            quotation.cancel_reason = request.data.get("cancel_reason", "")
+            quotation.workflow_status = "REQUESTED"   # Optional: remove if you don't want to change it
+            quotation.save()
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Quotation cancelled successfully."
+            }, status=status.HTTP_200_OK)
+
+        except Http404:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "Quotation not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Something went wrong.",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+              

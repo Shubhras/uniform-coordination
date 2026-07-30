@@ -352,3 +352,13 @@ def new_build_media_url(file_field):
         return None
 
     return f"{settings.SITE_DOMAIN}{settings.MEDIA_URL}{file_field.name}"  
+
+def build_media_url(request, file_field):
+    if not file_field:
+        return None
+
+    # Already an absolute URL (e.g. Unsplash)
+    if file_field.name.startswith(("http://", "https://")):
+        return file_field.name
+
+    return f"{settings.SITE_URL}{file_field.url}"

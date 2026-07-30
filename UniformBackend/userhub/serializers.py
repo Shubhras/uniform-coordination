@@ -8,6 +8,9 @@ from datetime import timedelta
 from datetime import date
 # from userhub.models import Notifications
 from uniformAdmin.serializers import ProductSerializer
+
+from decimal import Decimal
+from .utils import parse_size_quantity
 # from unif .utils import build_media_url
 from uniformAdmin.utils import new_build_media_url
 class UserSignupSerializer(serializers.ModelSerializer):
@@ -503,17 +506,53 @@ class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
 
 class QuotationRequestSerializer(serializers.ModelSerializer):
     customupdatemodel = CustomUpdateModelQuotationSerializer(read_only=True)  
+    customupdatemodel_id = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUpdateModels.objects.filter(
+            isActive=True,
+            isDeleted=False
+        ),
+        source="customupdatemodel",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+    
+    # Product Details
+    product_id = serializers.SerializerMethodField()
+    product_name = serializers.SerializerMethodField()
+    product_image = serializers.SerializerMethodField()
+    product_type = serializers.SerializerMethodField()
+    
+    product_category_id = serializers.SerializerMethodField()
+    product_category_name = serializers.SerializerMethodField()
+
+    product_subcategory_id = serializers.SerializerMethodField()
+    product_subcategory_name = serializers.SerializerMethodField()
+
     class Meta:
         model = QuotationRequest
         fields = [
             "uuids",
             "quotation_id",
+            "quotation_status",
+            "workflow_status",
             "company_name",
             "contact_person",
             "email",
             "phone_number",
             "customupdatemodel",
+            "customupdatemodel_id",   # Request
             "item_type",
+            "product_id",
+            "product_name",
+            "product_image",
+            "product_type",
+
+            "product_category_id",
+            "product_category_name",
+
+            "product_subcategory_id",
+            "product_subcategory_name",
             "material",
             "size_quantity",
             "delivery_date",
@@ -536,37 +575,95 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
         if not validated_data.get("quotation_id"):
             validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
         return super().create(validated_data)
+    
+    
+    
+    def get_product_category_id(self, obj):
+        product = (
+            obj.customupdatemodel.model_info.product
+            if obj.customupdatemodel
+            and obj.customupdatemodel.model_info
+            and obj.customupdatemodel.model_info.product
+            else None
+        )
 
-# class CustomUpdateModelsSerializer(serializers.ModelSerializer):
-#     json_file_url = serializers.SerializerMethodField()
-#     class Meta:
-#         model = CustomUpdateModels
-#         fields = [
-#             "id",
-#             "user",
-#             "model_info",
-#             "design_specifications",
-#             "json_file_path",
-#             "json_file_url",
-#             "isActive",
-#             "isDeleted",
-#             "created_at"
-#         ]
-#         read_only_fields = ["user", "json_file_path"]
+        return product.category.id if product and product.category else None
 
-#     def get_json_file_url(self, obj):
-#         request = self.context.get("request")
 
-#         if not obj.json_file_path:
-#             return None
+    def get_product_category_name(self, obj):
+        product = (
+            obj.customupdatemodel.model_info.product
+            if obj.customupdatemodel
+            and obj.customupdatemodel.model_info
+            and obj.customupdatemodel.model_info.product
+            else None
+        )
 
-#         if request:
-#             return request.build_absolute_uri(
-#                 settings.MEDIA_URL + obj.json_file_path
-#             )
+        return product.category.categoryName if product and product.category else None
 
-#         # Agar request context na ho, relative URL return karega
-#         return settings.MEDIA_URL + obj.json_file_path
+
+    def get_product_subcategory_id(self, obj):
+        product = (
+            obj.customupdatemodel.model_info.product
+            if obj.customupdatemodel
+            and obj.customupdatemodel.model_info
+            and obj.customupdatemodel.model_info.product
+            else None
+        )
+
+        return product.subcategory.id if product and product.subcategory else None
+
+
+    def get_product_subcategory_name(self, obj):
+        product = (
+            obj.customupdatemodel.model_info.product
+            if obj.customupdatemodel
+            and obj.customupdatemodel.model_info
+            and obj.customupdatemodel.model_info.product
+            else None
+        )
+
+        return product.subcategory.name if product and product.subcategory else None
+    
+    
+    
+    def get_product_id(self, obj):
+        if (
+            obj.customupdatemodel
+            and obj.customupdatemodel.model_info
+            and obj.customupdatemodel.model_info.product
+        ):
+            return obj.customupdatemodel.model_info.product.id
+        return None
+
+    def get_product_name(self, obj):
+        if (
+            obj.customupdatemodel
+            and obj.customupdatemodel.model_info
+            and obj.customupdatemodel.model_info.product
+        ):
+            return obj.customupdatemodel.model_info.product.productName
+        return None
+
+    def get_product_image(self, obj):
+        if (
+            obj.customupdatemodel
+            and obj.customupdatemodel.model_info
+            and obj.customupdatemodel.model_info.product
+        ):
+            return new_build_media_url(
+                obj.customupdatemodel.model_info.product.ProductImage
+            )
+        return None
+
+    def get_product_type(self, obj):
+        if (
+            obj.customupdatemodel
+            and obj.customupdatemodel.model_info
+            and obj.customupdatemodel.model_info.product
+        ):
+            return obj.customupdatemodel.model_info.product.productType
+        return None
 
 
 # new 
@@ -616,3 +713,70 @@ class CustomUpdateModelsSerializer(serializers.ModelSerializer):
             f"{obj.json_file_path.lstrip('/')}"
         )    
     
+    
+class QuotationSummarySerializer(serializers.ModelSerializer):
+    total_amount = serializers.SerializerMethodField()
+    size_range = serializers.SerializerMethodField()
+    notes_terms = serializers.SerializerMethodField()
+    line_items = serializers.SerializerMethodField()
+    status_label = serializers.CharField(source='get_quotation_status_display')
+
+    class Meta:
+        model = QuotationRequest
+        fields = [
+            'uuids', 'quotation_id', 'quotation_status', 'status_label',
+            'created_at', 'total_amount', 'size_range', 'notes_terms', 'line_items',
+        ]
+
+    def _get_product(self, obj):
+        if obj.customupdatemodel and obj.customupdatemodel.model_info:
+            return obj.customupdatemodel.model_info.product
+        return None
+
+    def _get_config(self, obj):
+        return (obj.customupdatemodel.config_json or {}) if obj.customupdatemodel else {}
+
+    def get_line_items(self, obj):
+        product = self._get_product(obj)
+        sizes = parse_size_quantity(obj.size_quantity)
+        total_qty = sum(s['qty'] for s in sizes) or 1
+        unit_price = product.price if product else Decimal('0.00')
+
+        items = [{
+            "description": f"{product.productName if product else obj.item_type} - {obj.material or ''}".strip(' -'),
+            "detail": f"Sizes: {obj.size_quantity}" if obj.size_quantity else "",
+            "quantity": total_qty,
+            "unit_price": str(unit_price),
+            "total": str(unit_price * total_qty),
+        }]
+
+        config = self._get_config(obj)
+        setup_fee = config.get('setup_fee')  # e.g. embroidery digitizing fee
+        if setup_fee:
+            items.append({
+                "description": "Setup Fee - Embroidery",
+                "detail": "One-time digitizing fee",
+                "quantity": 1,
+                "unit_price": str(setup_fee),
+                "total": str(setup_fee),
+            })
+        return items
+
+    def get_total_amount(self, obj):
+        items = self.get_line_items(obj)
+        return str(sum(Decimal(i['total']) for i in items))
+
+    def get_size_range(self, obj):
+        return parse_size_quantity(obj.size_quantity)
+
+    def get_notes_terms(self, obj):
+        config = self._get_config(obj)
+        return config.get('terms', [
+            "Price includes one-time embroidery setup fee.",
+            "Standard shipping via FedEx Ground (3-5 business days).",
+            "50% deposit required upon acceptance to begin production.",
+            "Returns only accepted for manufacturing defects.",
+        ])      
+        
+        
+            
