@@ -1,0 +1,76 @@
+# Python bytecode
+*.pyc
+*.pyo
+__pycache__/
+
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+env/
+venv/
+ENV/
+env.bak/
+
+# Django
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
+media/
+staticfiles/
+static/
+
+# VSCode / IDE
+.vscode/
+.idea/
+*.swp
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.dll
+*.dylib
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+.coverage
+coverage.xml
+nosetests.xml
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Backup files
+*.bak
+*.tmp
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment & Settings
+.env
+*.env
+*.local
+
+
+# Node / Frontend (if present later)
+node_modules/
+
+# Django migrations
+*/migrations/
+!*/migrations/__init__.py
+
