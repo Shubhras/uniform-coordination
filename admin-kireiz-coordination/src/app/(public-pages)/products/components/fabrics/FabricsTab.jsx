@@ -314,50 +314,6 @@ const FabricsTab = () => {
         </table>
       </div>
 
-      {/* Pagination */}
-      {/* {!loading && pagination.total_pages > 1 && (
-        <div className="flex items-center justify-between mt-6 px-2">
-          <p className="text-sm text-[#64748B]">
-            Showing page {pagination.page} of {pagination.total_pages} (
-            {pagination.total_items} items)
-          </p>
-
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-            >
-              <FiChevronLeft size={16} />
-            </button>
-
-            {getPageNumbers().map((page, idx) => (
-              <button
-                key={idx}
-                onClick={() => typeof page === "number" && goToPage(page)}
-                disabled={page === "..."}
-                className={`w-9 h-9 rounded-md text-sm font-medium transition-colors ${
-                  page === currentPage
-                    ? "bg-[#1C2C56] text-white"
-                    : page === "..."
-                      ? "cursor-default text-[#64748B]"
-                      : "border border-[#E2E8F0] text-[#1E293B] hover:bg-[#F1F5F9]"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === pagination.total_pages}
-              className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-            >
-              <FiChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-      )} */}
       <div className="mt-5">
         <Pagination
           currentPage={currentPage}

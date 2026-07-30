@@ -42,6 +42,15 @@ const ColorsTab = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [duplicatingId, setDuplicatingId] = useState(null);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,32 +62,34 @@ const ColorsTab = () => {
   });
 
   /* ---------- FETCH COLORS ---------- */
-  const fetchColors = useCallback(
-    async (page = 1) => {
-      if (!accessToken) return;
+  const fetchColors = useCallback(async () => {
+    if (!accessToken) return;
 
-      try {
-        setLoading(true);
-        const response = await apiGetColorsList(accessToken, page, pageSize);
+    try {
+      setLoading(true);
+      const response = await apiGetColorsList(
+        accessToken,
+        currentPage,
+        pageSize,
+        debouncedSearch,
+      );
 
-        if (response?.status && response?.data) {
-          setColors(response.data);
-          if (response.pagination) {
-            setPagination(response.pagination);
-          }
+      if (response?.status && response?.data) {
+        setColors(response.data);
+        if (response.pagination) {
+          setPagination(response.pagination);
         }
-      } catch (error) {
-        console.error("Failed to fetch colors:", error);
-      } finally {
-        setLoading(false);
       }
-    },
-    [accessToken],
-  );
+    } catch (error) {
+      console.error("Failed to fetch colors:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [accessToken, currentPage, pageSize, debouncedSearch]);
 
   useEffect(() => {
     fetchColors(currentPage);
-  }, [fetchColors, currentPage, pageSize]);
+  }, [fetchColors]);
 
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
@@ -132,7 +143,9 @@ const ColorsTab = () => {
 
   const getDuplicateColorName = (name = "") => {
     const baseName = String(name);
-    const existingNames = new Set(colors.map((item) => item.colorName).filter(Boolean));
+    const existingNames = new Set(
+      colors.map((item) => item.colorName).filter(Boolean),
+    );
 
     if (!existingNames.has(baseName)) {
       return baseName;
@@ -209,15 +222,6 @@ const ColorsTab = () => {
     const b = bigint & 255;
     return `rgb(${r}, ${g}, ${b})`;
   };
-
-  /* ---------- FILTERING ---------- */
-  const filteredColors = colors.filter((c) => {
-    const q = searchQuery.toLowerCase();
-    return (
-      getVisibleColorName(c.colorName).toLowerCase().includes(q) ||
-      c.colorCode?.toLowerCase().includes(q)
-    );
-  });
 
   /* ---------- PAGINATION ---------- */
   const goToPage = (page) => {
@@ -299,13 +303,13 @@ const ColorsTab = () => {
 
         {loading ? (
           <CardSkeleton />
-        ) : filteredColors.length === 0 ? (
+        ) : colors.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
             No colors found
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredColors.map((color) => (
+            {colors.map((color) => (
               <div
                 key={color.id}
                 className="border border-[#1C2C5633] rounded-xl overflow-hidden bg-white hover:shadow-md transition"
@@ -367,7 +371,9 @@ const ColorsTab = () => {
                       disabled={duplicatingId === color.id}
                       className="flex-1 border border-gray-300 text-[#91A1B6] text-xs py-1.5 rounded-md disabled:opacity-60"
                     >
-                      {duplicatingId === color.id ? "Duplicating..." : "Duplicate"}
+                      {duplicatingId === color.id
+                        ? "Duplicating..."
+                        : "Duplicate"}
                     </button>
                   </div>
                 </div>
