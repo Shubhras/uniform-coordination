@@ -329,7 +329,7 @@ export default function ViewInventory() {
                 <div className="rounded-2xl border border-[#CBEFD8] bg-[#ECFDF5] p-5 text-center">
                   <h3 className="text-[30px] font-bold text-[#138A4B]">
                     {" "}
-                    {product?.available || 0}
+                    {product?.available_quantity || 0}
                   </h3>
                   <p className="mt-1 text-[11px] uppercase font-semibold text-[#138A4B]">
                     Available
@@ -339,7 +339,7 @@ export default function ViewInventory() {
                 <div className="rounded-2xl border border-[#D5E3FF] bg-[#EFF6FF] p-5 text-center">
                   <h3 className="text-[30px] font-bold text-[#2F6BFF]">
                     {" "}
-                    {product?.rent || 0}
+                    {product?.on_rent_quantity || 0}
                   </h3>
                   <p className="mt-1 text-[11px] uppercase font-semibold text-[#2F6BFF]">
                     On Rent
@@ -349,7 +349,7 @@ export default function ViewInventory() {
                 <div className="rounded-2xl border border-[#FFE2B6] bg-[#FFFBEB] p-5 text-center">
                   <h3 className="text-[30px] font-bold text-[#E48A00]">
                     {" "}
-                    {product?.cleaning || 0}
+                    {product?.cleaning_quantity || 0}
                   </h3>
                   <p className="mt-1 text-[11px] uppercase font-semibold text-[#E48A00]">
                     Cleaning
@@ -359,7 +359,7 @@ export default function ViewInventory() {
                 <div className="rounded-2xl border border-[#E8DDFF] bg-[#F5F3FF] p-5 text-center">
                   <h3 className="text-[30px] font-bold text-[#7B3EFF]">
                     {" "}
-                    {product?.inspection || 0}
+                    {product?.inspect_quantity || 0}
                   </h3>
                   <p className="mt-1 text-[11px] uppercase font-semibold text-[#7B3EFF]">
                     Inspection
@@ -369,7 +369,7 @@ export default function ViewInventory() {
                 <div className="rounded-2xl border border-[#FFD8D8] bg-[#FFF3F3] p-5 text-center col-span-2">
                   <h3 className="text-[30px] font-bold text-[#E53935]">
                     {" "}
-                    {product?.damaged || 0}
+                    {product?.damaged_quantity || 0}
                   </h3>
                   <p className="mt-1 text-[11px] uppercase font-semibold text-[#E53935]">
                     Damaged

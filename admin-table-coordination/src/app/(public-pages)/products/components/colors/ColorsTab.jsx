@@ -272,7 +272,7 @@ const ColorsTab = () => {
                   <div className="flex gap-2 mt-4">
                     <button
                       onClick={() => handleEditColor(color)}
-                      className="flex-1 bg-[#1C4FA8] text-white text-xs py-1.5 rounded-md"
+                      className="flex-1 bg-[#A0522D] text-white text-xs py-1.5 rounded-md"
                     >
                       Edit
                     </button>

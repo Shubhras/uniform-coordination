@@ -38,7 +38,7 @@ const ProductSpecificationPage = () => {
   };
 
   return (
-    <div className="px-5 md:px-8 lg:px-12 py-8 bg-white min-h-screen">
+    <div className="px-5 md:px-8 lg:px-8 py-6 bg-white min-h-screen">
       {/* Page Header */}
       {/* <p className="text-sm text-[#486284] mb-2">
         Admin Dashboard /{" "}

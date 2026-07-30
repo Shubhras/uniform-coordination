@@ -11,7 +11,7 @@ const HeroContent = ({ data }) => {
   const userName = session?.user?.name || session?.user?.email || "Admin";
 
   return (
-    <section className="relative w-full px-5 md:px-8 lg:px-12 py-10 overflow-hidden">
+    <section className="relative w-full px-5 md:px-8 lg:px-8 py-10 overflow-hidden">
       {/* OUTER BACKGROUND GRADIENT */}
       <div
         className="absolute inset-0"
@@ -60,7 +60,7 @@ const HeroContent = ({ data }) => {
             </h1>
 
             <p className="mt-2 text-sm text-[#64748B] max-w-md">
-              Manage inventory, rentals, quotations and event themes from one place.
+              Manage inventory, rentals and event themes from one place.
             </p>
           </div>
 

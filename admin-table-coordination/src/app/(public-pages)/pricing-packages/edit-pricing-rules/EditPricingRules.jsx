@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
-import { apiUpdatePricingList } from "@/services/PricingPackages";
+import {
+  apiUpdatePricingList,
+  apiGetPricingList,
+} from "@/services/PricingPackages";
 import { FiArrowLeft } from "react-icons/fi";
 import Button from "@/components/ui/Button";
 
@@ -17,13 +20,39 @@ export default function EditPricingRules() {
   const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
-    lateFeeFormula: "Rental Value × Late Fee % × Days Overdue",
-    lateFeeRate: 5,
-    gracePeriod: 3,
-    flatShippingFee: 150,
-    enableConsumptionTax: true,
-    taxPercentage: 10,
+    lateFeeFormula: "",
+    lateFeeRate: "",
+    gracePeriod: "",
+    flatShippingFee: "",
+    enableConsumptionTax: false,
+    taxPercentage: "",
   });
+  useEffect(() => {
+    const fetchPricingRules = async () => {
+      try {
+        const res = await apiGetPricingList(accessToken);
+
+        if (res?.success) {
+          const data = res.data;
+
+          setFormData({
+            lateFeeFormula: data.late_fee_formula_label || "",
+            lateFeeRate: data.late_fee_rate || "",
+            gracePeriod: data.grace_period_days || "",
+            flatShippingFee: data.flat_shipping_fee || "",
+            enableConsumptionTax: data.enable_consumption_tax,
+            taxPercentage: data.tax_percentage || "",
+          });
+        }
+      } catch (error) {
+        console.log("Pricing Rules Error", error);
+      }
+    };
+
+    if (accessToken) {
+      fetchPricingRules();
+    }
+  }, [accessToken]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

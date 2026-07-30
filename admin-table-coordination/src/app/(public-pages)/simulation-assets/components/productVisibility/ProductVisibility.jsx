@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Select from "react-select";
 import {
@@ -8,165 +8,298 @@ import {
   FiChevronRight,
   FiEye,
   FiSearch,
+  FiX,
+  FiRotateCcw,
 } from "react-icons/fi";
-
-const products = [
-  { id: "grand-tablecloth-1", name: "Grand Tablecloth", categoryFabric: "Linen", style: "Pleated", color: "White", show: true, category: "Tablecloth" },
-  { id: "ivory-cotton-classic", name: "Ivory Cotton Classic", categoryFabric: "Linen", style: "Pleated", color: "White", show: true, category: "Tablecloth" },
-  { id: "grand-tablecloth-2", name: "Grand Tablecloth", categoryFabric: "Cotton", style: "Pleated", color: "White", show: true, category: "Tablecloth" },
-  { id: "grand-tablecloth-3", name: "Grand Tablecloth", categoryFabric: "Linen", style: "Pleated", color: "White", show: false, category: "Tablecloth" },
-  { id: "gold-satin-royale", name: "Gold Satin Royale", categoryFabric: "Velvet", style: "Pleated", color: "White", show: true, category: "Tablecloth" },
-  { id: "grand-tablecloth-4", name: "Grand Tablecloth", categoryFabric: "Linen", style: "Pleated", color: "White", show: false, category: "Tablecloth" },
-  { id: "grand-tablecloth-5", name: "Grand Tablecloth", categoryFabric: "Linen", style: "Pleated", color: "White", show: true, category: "Tablecloth" },
-  { id: "grand-tablecloth-6", name: "Grand Tablecloth", categoryFabric: "Linen", style: "Pleated", color: "White", show: true, category: "Tablecloth" },
-  { id: "grand-tablecloth-7", name: "Grand Tablecloth", categoryFabric: "Linen", style: "Pleated", color: "White", show: true, category: "Tablecloth" },
-];
-
-const categoryOptions = [
-  { value: "tablecloth", label: "Tablecloth" },
-  { value: "napkin", label: "Napkin" },
-];
+import { apiGetProductList, apiDeleteProduct } from "@/services/ProductService";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import Spinner from "@/components/ui/Spinner";
+import Pagination from "@/components/ui/Pagination";
+import { apiGetCategoryList } from "@/services/CategoryService";
 
 const selectStyles = {
   control: (base) => ({
     ...base,
-    minHeight: "34px",
-    borderColor: "#F2E5DD",
-    borderRadius: "6px",
+    minHeight: "44px",
+    borderColor: "#EFE5DD",
     boxShadow: "none",
-    fontSize: "11px",
-    "&:hover": { borderColor: "#E2CFC2" },
+    borderRadius: "8px",
+    "&:hover": {
+      borderColor: "#C08457",
+    },
   }),
-  valueContainer: (base) => ({ ...base, paddingLeft: "8px", paddingRight: "8px" }),
-  indicatorSeparator: () => ({ display: "none" }),
-  dropdownIndicator: (base) => ({ ...base, color: "#B7774D", padding: "0 8px 0 0" }),
-  menu: (base) => ({ ...base, zIndex: 30 }),
+
+  singleValue: (base) => ({
+    ...base,
+    color: "#A85A32B2",
+  }),
+
+  placeholder: (base) => ({
+    ...base,
+    color: "#A85A32B2",
+  }),
+
+  menu: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+
   option: (base, state) => ({
     ...base,
-    fontSize: "11px",
-    backgroundColor: state.isSelected ? "#B56735" : state.isFocused ? "#FCF4EF" : "#FFFFFF",
-    color: state.isSelected ? "#FFFFFF" : "#6F625B",
+    backgroundColor: state.isSelected
+      ? "#A0522D"
+      : state.isFocused
+        ? "#F8F2ED"
+        : "#fff",
+    color: state.isSelected ? "#fff" : "#444",
   }),
 };
 
 const ProductVisibility = () => {
   const router = useRouter();
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryList, setCategoryList] = useState([]);
+
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [inventoryData, setInventoryData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const [material] = useState({ value: "all", label: "All" });
+
+  const categoryOptions = [
+    { value: "all", label: "All Categories" },
+    ...categoryList.map((item) => ({
+      value: item.id,
+      label: item.categoryName,
+    })),
+  ];
   const [category, setCategory] = useState(categoryOptions[0]);
 
-  const filteredProducts = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+  const fetchProducts = async () => {
+    setLoading(true);
 
-    return products.filter((product) => {
-      const matchesSearch =
-        !query || product.name.toLowerCase().includes(query);
-      const matchesCategory =
-        category.value === "tablecloth"
-          ? product.category === "Tablecloth"
-          : product.category === "Napkin";
+    try {
+      let params = "";
 
-      return matchesSearch && matchesCategory;
-    });
-  }, [category, searchQuery]);
+      if (category?.value !== "all") {
+        params += `&category_id=${category.value}`;
+      }
+
+      if (material?.value !== "all") {
+        params += `&fabric_id=${material.value}`;
+      }
+
+      if (debouncedSearch.trim()) {
+        params += `&search=${encodeURIComponent(debouncedSearch.trim())}`;
+      }
+
+      const response = await apiGetProductList(
+        accessToken,
+        currentPage,
+        pageSize,
+        "table",
+        params,
+      );
+
+      if (response?.status) {
+        setInventoryData(response.data || []);
+        setTotalItems(response.count || 0);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (accessToken) {
+      fetchProducts();
+    }
+  }, [accessToken, category, material, debouncedSearch, currentPage]);
+
+  const handleReset = () => {
+    setSearchQuery("");
+    setDebouncedSearch("");
+    setCategory(categoryOptions[0]);
+    setCurrentPage(1);
+  };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await apiGetCategoryList(accessToken, 1, 100);
+
+        if (response?.status && response?.data) {
+          setCategoryList(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (accessToken) {
+      fetchCategories();
+    }
+  }, [accessToken]);
 
   return (
-    <div className="mt-5">
-      <h2 className="text-[16px] font-semibold text-[#2A211D]">
-        Product Visibility
-      </h2>
-      <p className="mt-1 text-[12px] text-[#B29D8C]">
-        Choose which inventory items will be available in the simulation
-      </p>
+    <>
+      <div className="mt-5">
+        <h2 className="text-[24px] font-semibold text-[#2A1A0E]">
+          Product Visibility
+        </h2>
+        <p className="mt-1 text-[16px] text-[#8B7355]">
+          Choose which inventory items will be available in the simulation
+        </p>
 
-      <div className="mt-5 flex flex-col gap-3 lg:flex-row">
-        <div className="relative flex-1">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#D1A48A]" size={13} />
-          <input
-            type="text"
-            placeholder="Search by product name..."
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            className="h-[34px] w-full rounded-md border border-[#F3E7DE] bg-white pl-8 pr-3 text-[11px] text-[#6F625B] outline-none placeholder:text-[#C28E73] focus:border-[#D7B7A3]"
-          />
-        </div>
+        <div className="mt-5 mb-5 flex flex-col gap-3 lg:flex-row lg:items-center">
+          <div className="relative flex-1">
+            <FiSearch className="absolute left-4  top-1/2 -translate-y-1/2 text-[#C08457] text-sm" />
 
-        <div className="w-full lg:w-[120px]">
-          <Select
-            instanceId="simulation-assets-category-filter"
-            inputId="simulation-assets-category-filter"
-            value={category}
-            onChange={(selectedOption) => setCategory(selectedOption ?? categoryOptions[0])}
-            options={categoryOptions}
-            isSearchable={false}
-            styles={selectStyles}
-          />
-        </div>
-      </div>
-
-      <div className="mt-4 overflow-x-auto rounded-md border border-[#F4E9E1]">
-        <table className="min-w-[980px] w-full">
-          <thead>
-            <tr className="bg-[#FBF5F0] text-left text-[11px] font-medium text-[#8F7B6E]">
-              <th className="px-4 py-3">Product Name</th>
-              <th className="px-4 py-3">Category Fabric</th>
-              <th className="px-4 py-3">Style</th>
-              <th className="px-4 py-3">Color</th>
-              <th className="px-4 py-3">Show in Simulation</th>
-              <th className="px-4 py-3">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProducts.map((product) => (
-              <tr
-                key={product.id}
-                className="border-t border-[#F8EEE8] bg-white text-[11px] text-[#5F534C]"
+            <input
+              type="text"
+              placeholder="Search by product name..."
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              className="w-full h-11 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2"
               >
-                <td className="px-4 py-3 font-semibold text-[#4A3D36]">{product.name}</td>
-                <td className="px-4 py-3">{product.categoryFabric}</td>
-                <td className="px-4 py-3 font-semibold text-[#4A3D36]">{product.style}</td>
-                <td className="px-4 py-3 font-semibold text-[#4A3D36]">{product.color}</td>
-                <td className="px-4 py-3">
-                  <input
-                    type="checkbox"
-                    checked={product.show}
-                    readOnly
-                    className="h-4 w-4 rounded border-[#DFC8B7] text-[#B56735] accent-[#B56735]"
-                  />
-                </td>
-                <td className="px-4 py-3 text-[#7D6C63]">
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/simulation-assets/${product.id}`)}
-                  >
-                    <FiEye size={13} />
-                  </button>
-                </td>
+                <FiX className="text-gray-500" />
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="w-52">
+              <Select
+                value={category}
+                onChange={setCategory}
+                options={categoryOptions}
+                styles={selectStyles}
+                isSearchable={false}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleReset}
+              className="flex h-11 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
+            >
+              <FiRotateCcw size={14} />
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-[#F1F5F9] text-[#486284]">
+              <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
+                <th className="text-left  px-4 py-3 font-normal">
+                  Product Name
+                </th>
+                <th className="text-left  px-4 py-3 font-normal">
+                  Category Fabric
+                </th>
+                <th className="text-left  px-4 py-3 font-normal">Style</th>
+                <th className="text-left  px-4 py-3 font-normal">Color</th>
+                <th className="text-left  px-4 py-3 font-normal">
+                  Show in Simulation
+                </th>
+                <th className="text-left  px-4 py-3 font-normal">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="mt-5 flex flex-col gap-3 text-[11px] text-[#9A8C82] sm:flex-row sm:items-center sm:justify-between">
-        <p>Showing 1-10</p>
-
-        <div className="flex items-center gap-2">
-          <button type="button" className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#C9B2A3]">
-            <FiChevronLeft size={14} />
-          </button>
-          <button type="button" className="flex h-8 min-w-[30px] items-center justify-center rounded bg-[#D88957] px-2 text-white">
-            1
-          </button>
-          <button type="button" className="text-[#8C7C73]">2</button>
-          <button type="button" className="text-[#8C7C73]">3</button>
-          <span className="text-[#8C7C73]">...</span>
-          <button type="button" className="text-[#8C7C73]">10</button>
-          <button type="button" className="flex h-8 w-8 items-center justify-center rounded border border-[#E9DDD4] text-[#8C7C73]">
-            <FiChevronRight size={14} />
-          </button>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="py-16">
+                    <div className="flex justify-center items-center">
+                      <Spinner size={40} customColorClass="text-[#A0522D]" />
+                    </div>
+                  </td>
+                </tr>
+              ) : inventoryData.length > 0 ? (
+                inventoryData.map((product, index) => (
+                  <tr
+                    key={product.id}
+                    className={`${index % 2 === 0 ? "bg-white" : "bg-[#FBF7F3]"}`}
+                  >
+                    <td className="px-4 py-3 text-[#2C1A0E] font-semibold">
+                      {product.productName}
+                    </td>
+                    <td className="px-4 py-3 text-[#2C1A0E] font-semibold">
+                      {product.category?.categoryName}
+                    </td>
+                    <td className="px-4 py-3 text-[#2C1A0E] font-semibold">
+                      {product.style}
+                    </td>
+                    <td className="px-4 py-3 text-[#2C1A0E] font-semibold">
+                      {product.color_details?.name}
+                    </td>
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={product.show}
+                        readOnly
+                        className="h-4 w-4 rounded border-[#DFC8B7] text-[#B56735] accent-[#B56735]"
+                      />
+                    </td>
+                    <td className="px-4 py-2 text-[#7D6C63]">
+                      <button
+                        type="button"
+                        className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                        onClick={() =>
+                          router.push(
+                            `/inventory-management/inventory-list/view?id=${product.id}`,
+                          )
+                        }
+                      >
+                        <FiEye size={17} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={9} className="py-10 text-center text-gray-500">
+                    No products found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
-    </div>
+      <div
+        className="flex justify-end mt-3"
+        style={{ marginRight: "6px", marginLeft: "6px" }}
+      >
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={totalItems}
+          onChange={(page) => setCurrentPage(page)}
+        />
+      </div>
+    </>
   );
 };
 

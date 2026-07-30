@@ -66,16 +66,29 @@ const PricingRules = () => {
               title: "Late Fee Formula",
               description: "Formula used to calculate late fee",
               content: (
-                <div className="mt-4 space-y-3">
-                  <div className="rounded-[12px] bg-[#FCF7F3] px-5 py-3">
-                    <p className="text-[15px] font-medium text-[#2F241F]">
-                      {rule.late_fee_formula_label}
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  {/* Late Fee Rate */}
+                  <div className="rounded-2xl border border-[#F3E9E2] bg-[#FCF7F3] px-5 py-4">
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#A08D82]">
+                      LATE FEE RATE
                     </p>
+
+                    <div className="flex items-end gap-1">
+                      <span className="text-[24px] font-semibold leading-none text-[#2F241F]">
+                        {rule.late_fee_rate}%
+                      </span>
+                      <span className="text-[14px] text-[#8A7A71]">/ day</span>
+                    </div>
                   </div>
 
-                  <div className="rounded-[12px] bg-[#FCF7F3] px-5 py-3">
-                    <p className="text-[20px] font-semibold text-[#2F241F]">
-                      {rule.late_fee_rate}%
+                  {/* Formula */}
+                  <div className="rounded-2xl border border-[#F3E9E2] bg-[#FCF7F3] px-5 py-4">
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#A08D82]">
+                      FORMULA
+                    </p>
+
+                    <p className="text-[15px] font-medium leading-6 text-[#5A4C44]">
+                      {rule.late_fee_formula_label}
                     </p>
                   </div>
                 </div>
@@ -85,11 +98,27 @@ const PricingRules = () => {
               icon: TbCalendarTime,
               iconClass: "bg-[#FFF6E9] text-[#E39A29]",
               title: "Grace Period",
-              description: "Days allowed before charging late fee",
+              description:
+                "Days after the event before late fees begin to apply",
               content: (
-                <div className="mt-4 rounded-[12px] bg-[#FCF7F3] px-5 py-3">
-                  <p className="text-[20px] font-semibold text-[#2F241F]">
-                    {rule.grace_period_days} Days
+                <div className="mt-4 flex items-center gap-4">
+                  {/* Days Box */}
+                  <div className="flex min-w-[72px] items-end justify-center rounded-2xl border border-[#F3E9E2] bg-[#FCF7F3] px-4 py-3">
+                    <span className="text-[36px] font-semibold leading-none text-[#2F241F]">
+                      {rule.grace_period_days}
+                    </span>
+                    <span className="ml-2 text-[15px] text-[#8A7A71]">
+                      days
+                    </span>
+                  </div>
+
+                  {/* Description */}
+                  <p className="max-w-md text-[14px] leading-6 text-[#9B8B82]">
+                    Clients have{" "}
+                    <span className="font-medium">
+                      {rule.grace_period_days} days
+                    </span>{" "}
+                    post-event to return all rental items without penalty.
                   </p>
                 </div>
               ),
@@ -97,13 +126,20 @@ const PricingRules = () => {
             {
               icon: TbTruckDelivery,
               iconClass: "bg-[#EEF4FF] text-[#5C85EE]",
-              title: "Flat Shipping Fee",
-              description: "Shipping charge per order",
+              title: "Flat Round Trip Shipping Fee",
+              description:
+                "Fixed delivery and pickup charge applied once per event",
               content: (
-                <div className="mt-4 rounded-[12px] bg-[#FCF7F3] px-5 py-3">
-                  <p className="text-[20px] font-semibold text-[#2F241F]">
-                    ₹{rule.flat_shipping_fee}
-                  </p>
+                <div className="mt-4">
+                  <div className="inline-flex items-end rounded-2xl border border-[#F3E9E2] bg-[#FCF7F3] px-5 py-4">
+                    <span className="text-[37px] font-semibold leading-none text-[#2F241F]">
+                      ₹{rule.flat_shipping_fee}
+                    </span>
+
+                    <span className="ml-2 text-[17px] text-[#9C8476]">
+                      per event
+                    </span>
+                  </div>
                 </div>
               ),
             },
@@ -111,10 +147,10 @@ const PricingRules = () => {
               icon: TbReceiptTax,
               iconClass: "bg-[#FFF3EB] text-[#D19060]",
               title: "Consumption Tax",
-              description: "Tax applied to rental orders",
+              description: "Sales tax applied to all taxable rental transactions",
               content: (
                 <div className="mt-4 flex gap-3">
-                  <div className="rounded-[12px] bg-[#FCF7F3] px-5 py-3">
+                  <div className="mt-4 rounded-[12px] bg-[#FCF7F3] px-5 py-3">
                     <p className="text-[20px] font-semibold text-[#2F241F]">
                       {rule.tax_percentage}%
                     </p>

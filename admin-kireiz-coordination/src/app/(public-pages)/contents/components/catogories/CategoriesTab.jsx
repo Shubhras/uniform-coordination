@@ -14,6 +14,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import Pagination from "@/components/ui/Pagination";
 import {
   apiGetCategoryList,
   apiDeleteCategory,
@@ -188,23 +189,42 @@ const CategoriesTab = () => {
   const [deleteTarget, setDeleteTarget] = useState(null); // { type: 'category' | 'subcategory', item }
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
   /* ---------- FETCH CATEGORIES ---------- */
   const fetchCategories = useCallback(async () => {
     if (!accessToken) return;
 
     try {
       setLoading(true);
-      const response = await apiGetCategoryList(accessToken, 1, 100);
+      const response = await apiGetCategoryList(
+        accessToken,
+        currentPage,
+        pageSize,
+        debouncedSearch,
+      );
 
       if (response?.status && response?.data) {
         setCategories(response.data);
+        setTotal(response.count || response.pagination?.total_items || 0);
       }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
     } finally {
       setLoading(false);
     }
-  }, [accessToken]);
+  }, [accessToken, currentPage, pageSize, debouncedSearch]);
 
   useEffect(() => {
     fetchCategories();
@@ -217,7 +237,10 @@ const CategoriesTab = () => {
     try {
       setDeleteLoading(true);
       if (deleteTarget.type === "category") {
-      const response=  await apiDeleteCategory(accessToken, deleteTarget.item.id);
+        const response = await apiDeleteCategory(
+          accessToken,
+          deleteTarget.item.id,
+        );
         toast.push(
           <Notification title="Success" type="success">
             {response?.message}
@@ -308,15 +331,6 @@ const CategoriesTab = () => {
     setDeleteDialogOpen(true);
   };
 
-  /* ---------- FILTER ---------- */
-  const filteredCategories = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return categories;
-    return categories.filter((cat) =>
-      cat.categoryName?.toLowerCase().includes(term),
-    );
-  }, [categories, search]);
-
   /* ---------- SKELETON ---------- */
   const ListSkeleton = () => (
     <div className="space-y-4">
@@ -374,7 +388,10 @@ const CategoriesTab = () => {
             type="text"
             placeholder="Search Categories..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none"
           />
           {search && (
@@ -390,7 +407,7 @@ const CategoriesTab = () => {
 
         {loading ? (
           <ListSkeleton />
-        ) : filteredCategories.length === 0 ? (
+        ) : categories.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
             No categories found
           </div>
@@ -403,7 +420,7 @@ const CategoriesTab = () => {
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
-                  {filteredCategories.map((cat, index) => (
+                  {categories.map((cat, index) => (
                     <Draggable
                       key={cat.id}
                       draggableId={String(cat.id)}
@@ -500,6 +517,19 @@ const CategoriesTab = () => {
             </Droppable>
           </DragDropContext>
         )}
+      </div>
+
+      <div className="mt-5">
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={total}
+          onChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
       </div>
 
       {/* Category Modal */}

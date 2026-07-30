@@ -104,16 +104,15 @@ const InspectionQueueList = () => {
 
         {/* Table */}
         {/* Table */}
-        <div className="overflow-x-auto rounded-lg border border-[#EFE5DD] bg-white">
-          <table className="min-w-full">
-            {/* Header */}
-            <thead className="bg-[#A85A320F]">
-              <tr className="text-left text-[16px] text-[#5D5E5F]">
-                <th className="px-5 py-3 font-normal">Product Name</th>
-                <th className="px-5 py-3 font-normal">Order ID</th>
-                <th className="px-5 py-3 font-normal">Returned Qty</th>
-                <th className="px-5 py-3 font-normal">Return Date</th>
-                <th className="px-5 py-3 font-normal text-center">Action</th>
+   <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-[#F1F5F9] text-[#486284]">
+              <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
+                <th className="text-left  px-4 py-3 font-normal">Product Name</th>
+                <th className="text-left  px-4 py-3 font-normal">Order ID</th>
+                <th className="text-left  px-4 py-3 font-normal">Returned Qty</th>
+                <th className="text-left  px-4 py-3 font-normal">Return Date</th>
+                <th className="text-left  px-4 py-3 font-normal">Action</th>
               </tr>
             </thead>
 
@@ -146,7 +145,7 @@ const InspectionQueueList = () => {
                     </td>
 
                     <td className="px-5 py-3 text-[#2C1A0E] font-semibold text-[14px]">
-                      #ORD-{item.order}
+                      #ORD-{item.id}
                     </td>
 
                     <td className="px-5 py-3 text-[#2C1A0E] font-semibold text-[14px]">
@@ -162,7 +161,7 @@ const InspectionQueueList = () => {
                     </td>
 
                     <td className="px-5 py-3">
-                      <div className="flex justify-center gap-3">
+                      <div className="flex gap-3">
                         <button className="min-w-[68px] h-7 rounded-md border border-[#B8F1D4] bg-[#F2FFF7] text-[#0E9F6E] text-[13px] font-semibold">
                           Pass
                         </button>
