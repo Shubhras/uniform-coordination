@@ -18,8 +18,14 @@ import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import { apiGetProductDetailsById } from '@/services/ProductService'
 const Uniform3DmoduleDegisn = () => {
+  const searchParams = useSearchParams()
   // product id
   const { id } = useParams();
+  // theme id
+  const themeIdParam = searchParams.get('themeId')
+
+  console.log('ffffffffffffffffffffffffffffff======= id', id, '======= themeIdParam', themeIdParam);
+
   const [loading, setLoading] = useState(false)
   const [singleProductData, setSingleProductData] = useState(null)
   const [shapeOpen, setShapeOpen] = useState(false)
@@ -40,7 +46,7 @@ const Uniform3DmoduleDegisn = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter()
-  const searchParams = useSearchParams()
+
   const mvRef = useRef(null)
   // const [modelSrc, setModelSrc] = useState(SAMPLE_MODEL)
   const [active, setActive] = useState('tableShape')
@@ -54,8 +60,7 @@ const Uniform3DmoduleDegisn = () => {
   const [mounted, setMounted] = useState(false)
   const panelRef = useRef(null)
   const [fullView, setFullView] = useState(false);
-  const themeIdParam = searchParams.get('themeId')
-  const idParam = searchParams.get('id')
+
   const [selectedTheme, setSelectedTheme] = useState({
     title: 'Loading Theme...',
     description: 'Please wait while we load the theme details.',
@@ -129,6 +134,7 @@ const Uniform3DmoduleDegisn = () => {
         if (res?.status && res?.data) {
           setSingleProductData(res.data)
           //console.log('ggggggggggggggggggggg', res.data);
+          //setSelectedTheme(res?.data?.ProductImage)
         } else {
           toast.push(
             <Notification title="Error!" type="danger">
@@ -153,9 +159,29 @@ const Uniform3DmoduleDegisn = () => {
 
   const handleUniformDesignResult = async () => {
 
+    let productId = "";
+    if (id) {
+      productId = id;
+    } else {
+      productId = "";
+    }
+    let themeId = "";
+    if (themeIdParam) {
+      themeId = themeIdParam;
+    } else {
+      themeId = "";
+    }
+
+
+
+    console.log(productId, '=================', themeId);
+
+
     setIsSubmitting(true);
     const formData = new FormData();
-    formData.append("product", id || "");
+    formData.append("product", productId);
+    formData.append("theme_id", themeId);
+
     formData.append("model_file", ""); // Send empty or file object
     formData.append("description", "School uniform 3D model");
 

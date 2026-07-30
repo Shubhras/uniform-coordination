@@ -16,9 +16,9 @@ export const PRODUCT_TYPES = [
     { key: "runner", label: "Runner" },
     { key: "chair_cover", label: "Chair Cover" },
     { key: "background", label: "Background" },
-    { key: "top", label: "Top" },
-    { key: "bottom", label: "Bottom" },
-    { key: "set", label: "Set" },
+    // { key: "top", label: "Top" },
+    // { key: "bottom", label: "Bottom" },
+    // { key: "set", label: "Set" },
 ];
 const BrowseCards = () => {
     const [selectedColor, setSelectedColor] = useState(null)

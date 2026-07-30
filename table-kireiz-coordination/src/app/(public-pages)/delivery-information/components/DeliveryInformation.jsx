@@ -26,7 +26,8 @@ const deliveryValidationSchema = z.object({
     country: z.string().min(1, { message: 'Country is required' }),
     start_date: z.string().min(1, { message: 'Start date is required' }),
     return_date: z.string().min(1, { message: 'Return date is required' }),
-    payment_method: z.string().min(1, { message: 'Payment method is required' })
+    coupon_code: z.string().optional(),
+    //payment_method: z.string().min(1, { message: 'Payment method is required' })
 })
 
 const DeliveryInformation = () => {
@@ -39,7 +40,6 @@ const DeliveryInformation = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const [couponCode, setCouponCode] = useState("");
     const [couponLoading, setCouponLoading] = useState(false);
     const [couponError, setCouponError] = useState("");
     const [couponSuccess, setCouponSuccess] = useState("");
@@ -63,13 +63,15 @@ const DeliveryInformation = () => {
             country: "India",
             start_date: "",
             return_date: "",
-            payment_method: "card",
+            coupon_code: "",
+            payment_method: "",
         },
     });
 
     const start_date = watch("start_date");
     const return_date = watch("return_date");
-    const payment_method = watch("payment_method");
+    const couponCode = watch("coupon_code");
+    //const payment_method = watch("payment_method");
 
     const today = new Date().toISOString().split("T")[0];
 
@@ -109,7 +111,8 @@ const DeliveryInformation = () => {
                 country: data.country,
             },
             payment: {
-                payment_method: data.payment_method,
+                // payment_method: data.payment_method,
+                payment_method: '',
             },
             rental_start_date: data.start_date,
             rental_end_date: data.return_date,
@@ -119,10 +122,10 @@ const DeliveryInformation = () => {
             // },
             promocode: couponCode ? { code: couponCode } : {},
         };
-        console.log(payload)
+        console.log('aaaaaaaaaaaaaaaaaaaaaaaaaa', payload)
 
 
-        //setLoading(false);
+        setLoading(false);
 
         try {
             const res = await apiCreateOrder(session.accessToken, payload);
@@ -147,7 +150,7 @@ const DeliveryInformation = () => {
     const handleApplyCoupon = async () => {
         if (!session?.accessToken) return;
 
-        if (!couponCode.trim()) {
+        if (!couponCode || !couponCode.trim()) {
             setCouponError("Please enter a coupon code");
             setCouponSuccess("");
             return;
@@ -183,85 +186,90 @@ const DeliveryInformation = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-4">
                     {/* LEFT – CUSTOMER DETAILS */}
                     <div className="bg-white rounded-xl p-6 space-y-8 shadow-xl">
-                        {/* CUSTOMER DETAILS */}
-                        <div>
-                            <h3 className="text-lg font-medium text-[#8B4513] mb-4">
-                                Customer Details
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormItem
-                                    label="First Name *"
-                                    invalid={Boolean(errors.first_name)}
-                                    errorMessage={errors.first_name?.message}
-                                >
-                                    <Controller
-                                        name="first_name"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Input
-                                                type="text"
-                                                autoComplete="off"
-                                                placeholder="Enter first name"
-                                                {...field}
-                                            />
-                                        )}
-                                    />
-                                </FormItem>
-                                <FormItem
-                                    label="Last Name *"
-                                    invalid={Boolean(errors.last_name)}
-                                    errorMessage={errors.last_name?.message}
-                                >
-                                    <Controller
-                                        name="last_name"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Input
-                                                type="text"
-                                                autoComplete="off"
-                                                placeholder="Enter last name"
-                                                {...field}
-                                            />
-                                        )}
-                                    />
-                                </FormItem>
-                                <FormItem
-                                    label="Email *"
-                                    invalid={Boolean(errors.email)}
-                                    errorMessage={errors.email?.message}
-                                >
-                                    <Controller
-                                        name="email"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Input
-                                                type="text"
-                                                autoComplete="off"
-                                                placeholder="Enter email address"
-                                                {...field}
-                                            />
-                                        )}
-                                    />
-                                </FormItem>
-                                <FormItem
-                                    label="Phone *"
-                                    invalid={Boolean(errors.phone)}
-                                    errorMessage={errors.phone?.message}
-                                >
-                                    <Controller
-                                        name="phone"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Input
-                                                type="number"
-                                                autoComplete="off"
-                                                placeholder="Enter phone number"
-                                                {...field}
-                                            />
-                                        )}
-                                    />
-                                </FormItem>
-                            </div>
+                        <h3 className="text-lg font-medium text-[#8B4513] mb-4">
+                            Customer Details
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-0">
+                            <FormItem
+                                label="First Name *"
+                                labelClass="!text-sm"
+                                invalid={Boolean(errors.first_name)}
+                                errorMessage={errors.first_name?.message}
+                            >
+                                <Controller
+                                    name="first_name"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="text"
+                                            autoComplete="off"
+                                            placeholder="Enter first name"
+                                            className="mb-1"
+                                            {...field}
+                                        />
+                                    )}
+                                />
+                            </FormItem>
+                            <FormItem
+                                label="Last Name *"
+                                labelClass="!text-sm"
+                                invalid={Boolean(errors.last_name)}
+                                errorMessage={errors.last_name?.message}
+                            >
+                                <Controller
+                                    name="last_name"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="text"
+                                            autoComplete="off"
+                                            placeholder="Enter last name"
+                                            className="mb-1"
+                                            {...field}
+                                        />
+                                    )}
+                                />
+                            </FormItem>
+                            <FormItem
+                                label="Email *"
+                                labelClass="!text-sm"
+                                invalid={Boolean(errors.email)}
+                                errorMessage={errors.email?.message}
+                            >
+                                <Controller
+                                    name="email"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="text"
+                                            autoComplete="off"
+                                            placeholder="Enter email address"
+                                            className="mb-1"
+                                            {...field}
+                                        />
+                                    )}
+                                />
+                            </FormItem>
+                            <FormItem
+                                label="Phone *"
+                                labelClass="!text-sm"
+                                invalid={Boolean(errors.phone)}
+                                errorMessage={errors.phone?.message}
+                            >
+                                <Controller
+                                    name="phone"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="number"
+                                            autoComplete="off"
+                                            placeholder="Enter phone number"
+                                            className="mb-1"
+                                            {...field}
+                                        />
+                                    )}
+                                />
+                            </FormItem>
                         </div>
                         {/* DELIVERY ADDRESS */}
                         <div>
@@ -271,6 +279,7 @@ const DeliveryInformation = () => {
                             <div className="space-y-4">
                                 <FormItem
                                     label="Address line 1 *"
+                                    labelClass="!text-sm"
                                     invalid={Boolean(errors.address_line_1)}
                                     errorMessage={errors.address_line_1?.message}
                                 >
@@ -282,6 +291,7 @@ const DeliveryInformation = () => {
                                                 type="text"
                                                 autoComplete="off"
                                                 placeholder="Street address, P.O. box"
+                                                className="mb-1"
                                                 {...field}
                                             />
                                         )}
@@ -289,6 +299,7 @@ const DeliveryInformation = () => {
                                 </FormItem>
                                 <FormItem
                                     label="Address line 2"
+                                    labelClass="!text-sm"
                                     invalid={Boolean(errors.address_line_2)}
                                     errorMessage={errors.address_line_2?.message}
                                 >
@@ -300,14 +311,16 @@ const DeliveryInformation = () => {
                                                 type="text"
                                                 autoComplete="off"
                                                 placeholder="Apartment, suite, unit (optional)"
+                                                className="mb-1"
                                                 {...field}
                                             />
                                         )}
                                     />
                                 </FormItem>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-0">
                                     <FormItem
                                         label="City *"
+                                        labelClass="!text-sm"
                                         invalid={Boolean(errors.city)}
                                         errorMessage={errors.city?.message}
                                     >
@@ -319,6 +332,7 @@ const DeliveryInformation = () => {
                                                     type="text"
                                                     autoComplete="off"
                                                     placeholder="Enter city"
+                                                    className="mb-1"
                                                     {...field}
                                                 />
                                             )}
@@ -326,6 +340,7 @@ const DeliveryInformation = () => {
                                     </FormItem>
                                     <FormItem
                                         label="Postal *"
+                                        labelClass="!text-sm"
                                         invalid={Boolean(errors.postal_code)}
                                         errorMessage={errors.postal_code?.message}
                                     >
@@ -337,15 +352,17 @@ const DeliveryInformation = () => {
                                                     type="number"
                                                     autoComplete="off"
                                                     placeholder="Postal / ZIP code"
+                                                    className="mb-1"
                                                     {...field}
                                                 />
                                             )}
                                         />
                                     </FormItem>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 ">
                                     <FormItem
                                         label="Country *"
+                                        labelClass="!text-sm"
                                         invalid={Boolean(errors.country)}
                                         errorMessage={errors.country?.message}
                                     >
@@ -357,6 +374,7 @@ const DeliveryInformation = () => {
                                                     type="text"
                                                     autoComplete="off"
                                                     placeholder="Enter country"
+                                                    className="mb-1"
                                                     {...field}
                                                 />
                                             )}
@@ -377,6 +395,7 @@ const DeliveryInformation = () => {
 
                                 <FormItem
                                     label="Start Date *"
+                                    labelClass="!text-sm"
                                     invalid={Boolean(errors.start_date)}
                                     errorMessage={errors.start_date?.message}
                                 >
@@ -388,6 +407,7 @@ const DeliveryInformation = () => {
                                                 value={field.value ? new Date(field.value) : null}
                                                 onChange={(date) => field.onChange(date ? dayjs(date).format('YYYY-MM-DD') : '')}
                                                 placeholder="Start Date"
+                                                className="mb-1"
                                                 minDate={new Date()}
                                             />
                                         )}
@@ -395,6 +415,7 @@ const DeliveryInformation = () => {
                                 </FormItem>
                                 <FormItem
                                     label="Return Date *"
+                                    labelClass="!text-sm"
                                     invalid={Boolean(errors.return_date)}
                                     errorMessage={errors.return_date?.message}
                                 >
@@ -406,39 +427,49 @@ const DeliveryInformation = () => {
                                                 value={field.value ? new Date(field.value) : null}
                                                 onChange={(date) => field.onChange(date ? dayjs(date).format('YYYY-MM-DD') : '')}
                                                 placeholder="Return Date"
+                                                className="mb-1"
                                                 minDate={start_date ? new Date(start_date) : new Date()}
                                             />
                                         )}
                                     />
                                 </FormItem>
-                                <p className="text-sm text-gray-600">
-                                    Rental Duration: {rentalDays} day{rentalDays !== 1 ? "s" : ""}
-                                </p>
                             </div>
+                            <p className="text-sm text-gray-600">
+                                Rental Duration: {rentalDays} day{rentalDays !== 1 ? "s" : ""}
+                            </p>
                         </div>
 
                         {/* COUPON */}
                         <div>
-                            <label className="text-sm mb-1 block text-[#374151]">
-                                Coupon Code
-                            </label>
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="text"
-                                    value={couponCode}
-                                    onChange={(e) => setCouponCode(e.target.value)}
-                                    placeholder="Enter coupon code"
-                                    className="w-full border rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#8B4513] flex-1"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={handleApplyCoupon}
-                                    disabled={couponLoading}
-                                    className="px-4 py-2 bg-[#8B4513] text-white rounded-md disabled:opacity-60"
-                                >
-                                    {couponLoading ? "Applying..." : "Apply"}
-                                </button>
-                            </div>
+                            <FormItem
+                                label="Coupon Code"
+                                labelClass="!text-sm"
+                                invalid={Boolean(errors.coupon_code)}
+                                errorMessage={errors.coupon_code?.message}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Controller
+                                        name="coupon_code"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input
+                                                type="text"
+                                                autoComplete="off"
+                                                placeholder="Enter coupon code"
+                                                {...field}
+                                            />
+                                        )}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleApplyCoupon}
+                                        disabled={couponLoading}
+                                        className="px-4 py-2 bg-[#8B4513] text-white rounded-md disabled:opacity-60 shrink-0"
+                                    >
+                                        {couponLoading ? "Applying..." : "Apply"}
+                                    </button>
+                                </div>
+                            </FormItem>
                             {couponError && (
                                 <p className="text-red-600 text-sm mt-1">
                                     {couponError}
@@ -451,7 +482,7 @@ const DeliveryInformation = () => {
                             )}
                         </div>
                         {/* PAYMENT METHOD */}
-                        <div>
+                        {/* <div>
                             <h3 className="text-lg font-medium text-[#8B4513] mb-3">
                                 Payment Method <span className="text-red-500">*</span>
                             </h3>
@@ -505,7 +536,7 @@ const DeliveryInformation = () => {
                                     <span className="text-base font-medium text-[#374151]">Choose another payment method</span>
                                 </label>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
                 {error && (
