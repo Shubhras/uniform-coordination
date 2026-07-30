@@ -46,7 +46,7 @@ const InventoryManagement = () => {
             Inventory Management
           </h1>
 
-          <p className="text-[16px] text-[#757575] mt-3">
+          <p className="text-[16px] text-[#757575] mt-1">
             Track inventory, stock status, and product availability.
           </p>
         </div>

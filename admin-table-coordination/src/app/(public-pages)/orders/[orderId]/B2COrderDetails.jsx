@@ -14,7 +14,7 @@ import Spinner from "@/components/ui/Spinner";
 import StatusModal from "./StatusModal";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 
-export default function B2BOrderDetails({ orderId, order, fetchOrder }) {
+export default function B2COrderDetails({ orderId, order, fetchOrder }) {
   const router = useRouter();
   const [openReturnModal, setOpenReturnModal] = useState(false);
   const { session } = useCurrentSession();
@@ -144,7 +144,7 @@ export default function B2BOrderDetails({ orderId, order, fetchOrder }) {
 
           <div className="bg-white rounded-xl border border-[#EEE] p-5">
             <div className="flex items-center gap-2 text-[12px] text-[#7A6E66] mb-4">
-              <FiUser className="text-[#A85A32]" />
+              <FiUser size={15} className="text-[#A85A32]" />
               CUSTOMER
             </div>
 
@@ -166,7 +166,7 @@ export default function B2BOrderDetails({ orderId, order, fetchOrder }) {
 
           <div className="bg-white rounded-xl border border-[#EEE] p-5">
             <div className="flex items-center gap-2 text-[12px] text-[#7A6E66] mb-4">
-              <FiMapPin className="text-[#A85A32]" />
+              <FiMapPin size={15} className="text-[#A85A32]" />
               SHIPPING ADDRESS
             </div>
 
@@ -189,7 +189,7 @@ export default function B2BOrderDetails({ orderId, order, fetchOrder }) {
 
           <div className="bg-white rounded-xl border border-[#EEE] p-5">
             <div className="flex items-center gap-2 text-[12px] text-[#7A6E66] mb-4">
-              <FiCalendar className="text-[#A85A32]" />
+              <FiCalendar size={17} className="text-[#A85A32]" />
               RENTAL DATES
             </div>
 
@@ -260,7 +260,7 @@ export default function B2BOrderDetails({ orderId, order, fetchOrder }) {
                           <div>
                             <p className="font-semibold text-[#1A1714]">
                               {item.product_name}
-                              {""} {item.category}
+                              {/* {""} {item.category} */}
                             </p>
 
                             <p className="text-xs text-gray-500">
@@ -272,16 +272,15 @@ export default function B2BOrderDetails({ orderId, order, fetchOrder }) {
 
                       <td className="px-2 py-3">{item.quantity}</td>
 
-                      <td className="px-4 py-3">{item.rental_days}</td>
+                      <td className="px-4 py-3">{item.rental_days}d</td>
 
                       <td className="px-4 py-3">
-                        {order?.payment_summary?.currency || "$"}{" "}
+                        {order?.payment_summary?.currency || ""}{" "}
                         {item.price_per_day}
                       </td>
 
                       <td className="px-4 py-3 font-semibold text-[#1A1714]">
-                        {order?.payment_summary?.currency || "$"}{" "}
-                        {item.subtotal}
+                        {order?.payment_summary?.currency || ""} {item.subtotal}
                       </td>
                     </tr>
                   ))}

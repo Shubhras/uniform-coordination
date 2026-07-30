@@ -280,7 +280,7 @@ export default function Orders() {
                     </td>
                     <td className="px-5 py-5">
                       <span className="text-[12px] text-[#2C1A0E] font-semibold">
-                        {order.currency || "N/A"} {order.total_amount || "-"}
+                        {order.payment?.currency || "N/A"} {order.total_amount || "-"}
                       </span>
                     </td>
 

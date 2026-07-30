@@ -21,6 +21,7 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import Notification from "@/components/ui/Notification";
 import toast from "@/components/ui/toast";
 import InventoryItemsModal from "../../../addTheme/components/InventoryItemsModal";
+import { apiGetCategoryList } from "@/services/CategoryService";
 
 const categoryOptions = [
   { value: "Wedding", label: "Wedding" },
@@ -44,6 +45,31 @@ const Edit = () => {
 
   const [coverImages, setCoverImages] = useState([]);
   const [errors, setErrors] = useState({});
+
+  const [categoryList, setCategoryList] = useState([]);
+
+  const categoryOptions = categoryList.map((item) => ({
+    value: item.id,
+    label: item.categoryName,
+  }));
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await apiGetCategoryList(accessToken, 1, 100);
+
+        if (res?.status) {
+          setCategoryList(res.data);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (accessToken) {
+      fetchCategories();
+    }
+  }, [accessToken]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -618,14 +644,14 @@ const Edit = () => {
             Back
           </button>
 
-          <Button
+          <button
             onClick={handleUpdateTheme}
             loading={saving}
             disabled={saving}
-            className="px-6 py-1 rounded-xl bg-[#A85A32] text-white font-semibold hover:bg-[#8E4727]"
+            className="bg-[#A0522D] transition text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium"
           >
             Update Theme
-          </Button>
+          </button>
         </div>
       </div>
       <InventoryItemsModal
