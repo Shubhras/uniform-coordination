@@ -3,6 +3,7 @@
 @config '../../../../tailwind.config.js';
 
 @layer theme {
+
 	/* :root {
 		--neutral: #ffffff;
 		--primary: #2a85ff;
@@ -56,7 +57,7 @@
 		--gray-900: #171717;
 		--gray-950: #0a0a0a;
 	} */
-	 :root {
+	/* :root {
 		--neutral: #ffffff;
 		--primary: #2a85ff;
 		--primary-deep: #0069f6;
@@ -108,10 +109,70 @@
 		--gray-800: #262626;
 		--gray-900: #171717;
 		--gray-950: #0a0a0a;
+	} */
+	:root {
+		--neutral: #ffffff;
+		--primary: #8B4513;
+		/* Primary Brown */
+		--primary-deep: #6F370E;
+		/* Slightly Darker Brown for Hover */
+		--primary-mild: #A0522D;
+		/* Medium Brown Tint */
+		--primary-subtle: #8b45131a;
+		/* Light Brown Tint (10% opacity) */
+		--error: #ff6a55;
+		--error-subtle: #ff6a551a;
+		--success: #10b981;
+		--success-subtle: #05eb7624;
+		--info: #2a85ff;
+		--info-subtle: #2a85ff1a;
+		--warning: #f59e0b;
+		--warning-subtle: #ffd40045;
+		--gray-50: #fafafa;
+		--gray-100: #f5f5f5;
+		--gray-200: #e5e5e5;
+		--gray-300: #d4d4d4;
+		--gray-400: #a3a3a3;
+		--gray-500: #737373;
+		--gray-600: #525252;
+		--gray-700: #404040;
+		--gray-800: #262626;
+		--gray-900: #171717;
+		--gray-950: #0a0a0a;
+	}
+
+	.dark {
+		--neutral: #ffffff;
+		--primary: #8B4513;
+		/* Dark mode primary brown */
+		--primary-deep: #6F370E;
+		/* Dark mode hover brown */
+		--primary-mild: #A0522D;
+		--primary-subtle: #8b45131a;
+		--error: #ff6a55;
+		--error-subtle: #ff6a551a;
+		--success: #10b981;
+		--success-subtle: #05eb7624;
+		--info: #2a85ff;
+		--info-subtle: #2a85ff1a;
+		--warning: #f59e0b;
+		--warning-subtle: #ffd40045;
+		--gray-50: #fafafa;
+		--gray-100: #f5f5f5;
+		--gray-200: #e5e5e5;
+		--gray-300: #d4d4d4;
+		--gray-400: #a3a3a3;
+		--gray-500: #737373;
+		--gray-600: #525252;
+		--gray-700: #404040;
+		--gray-800: #262626;
+		--gray-900: #171717;
+		--gray-950: #0a0a0a;
 	}
 }
 
 @layer base {
+
 	*,
 	::after,
 	::before,
@@ -120,7 +181,8 @@
 		border-color: var(--color-gray-200, currentColor);
 	}
 
-	button, [role=button] {
+	button,
+	[role=button] {
 		cursor: pointer;
 	}
 

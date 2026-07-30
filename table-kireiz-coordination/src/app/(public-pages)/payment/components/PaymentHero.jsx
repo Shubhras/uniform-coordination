@@ -92,7 +92,7 @@ const PaymentHero = () => {
                 const res = await apiOrderPayment(session.accessToken, payload)
 
                 if (res?.status) {
-                    setPaymentId(res?.payment_id || null)
+                    setPaymentId(res?.payment_id || res?.payment_method_id || null);
                     setDialogThankyouPopupOpen(true)
                 } else {
                     setError(res?.message || 'Payment processing failed. Please try again.')
@@ -279,7 +279,7 @@ const PaymentHero = () => {
             <ThankyouPopup
                 isOpen={dialogThankyouPopupOpen}
                 onClose={() => setDialogThankyouPopupOpen(false)}
-                orderData={paymentId}
+                paymentId={paymentId}
             />
 
             <PaymentFailedPopup

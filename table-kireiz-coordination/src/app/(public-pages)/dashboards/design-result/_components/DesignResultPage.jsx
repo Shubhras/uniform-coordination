@@ -104,7 +104,7 @@ const DesignResultPage = () => {
 
         const payload = {
             "user": session?.user?.id,
-            "model_info": id,
+            // "model_info": id,
             "config_json": {
                 "color": "grey",
                 "size": "M",
@@ -209,7 +209,7 @@ const DesignResultPage = () => {
         <section className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10 mt-15">
             <div className="w-full mx-auto">
                 <div className="flex items-center gap-2 py-5 md:pt-1">
-                    <button onClick={() => router.back()} className="text-[#1C2C56] hover:text-[#1C4FA8] transition-colors" title="Go Back">
+                    {/* <button onClick={() => router.back()} className="text-[#1C2C56] hover:text-[#1C4FA8] transition-colors" title="Go Back">
                         <FiArrowLeft size={20} />
                     </button>
                     <p className='text-sm text-[#7B3C1D]'>
@@ -222,7 +222,7 @@ const DesignResultPage = () => {
                             </>
                         ) : null}
                         Design Result
-                    </p>
+                    </p> */}
                 </div>
 
                 {/* HEADER */}

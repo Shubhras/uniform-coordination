@@ -109,10 +109,10 @@ const ThemeDetails = () => {
     }
 
     const handleCustomizeClick = () => {
+        // targetId is theme id
         const targetId = theme.id || selectedThemeId;
-        router.push(
-            `/dashboards/uniform-3d-design?themeId=${targetId}&id=${targetId}`,
-        )
+        router.push(`/dashboards/uniform-3d-design?themeId=${targetId}`,)
+        ///router.push(`/dashboards/uniform-3d-design?themeId=${targetId}&id=${targetId}`,)
     }
 
     useEffect(() => {

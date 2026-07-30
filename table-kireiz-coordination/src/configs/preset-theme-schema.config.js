@@ -1,16 +1,30 @@
 const defaultTheme = {
+    // light: {
+    //     primary: '#2a85ff',
+    //     primaryDeep: '#0069f6',
+    //     primaryMild: '#4996ff',
+    //     primarySubtle: '#2a85ff1a',
+    //     neutral: '#ffffff',
+    // },
+    // dark: {
+    //     primary: '#2a85ff',
+    //     primaryDeep: '#0069f6',
+    //     primaryMild: '#4996ff',
+    //     primarySubtle: '#2a85ff1a',
+    //     neutral: '#ffffff',
+    // },
     light: {
-        primary: '#2a85ff',
-        primaryDeep: '#0069f6',
-        primaryMild: '#4996ff',
-        primarySubtle: '#2a85ff1a',
+        primary: '#8B4513',           // Primary Brown
+        primaryDeep: '#6F370E',       // Darker Brown (Hover)
+        primaryMild: '#A0522D',       // Medium Brown
+        primarySubtle: '#8b45131a',   // Light Brown Tint (10% opacity)
         neutral: '#ffffff',
     },
     dark: {
-        primary: '#2a85ff',
-        primaryDeep: '#0069f6',
-        primaryMild: '#4996ff',
-        primarySubtle: '#2a85ff1a',
+        primary: '#8B4513',           // Dark mode primary brown
+        primaryDeep: '#6F370E',       // Dark mode hover brown
+        primaryMild: '#A0522D',
+        primarySubtle: '#8b45131a',
         neutral: '#ffffff',
     },
 }
