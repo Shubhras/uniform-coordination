@@ -9,6 +9,7 @@ import {
   FiEye,
   FiEdit2,
   FiTrash2,
+  FiRotateCcw,
 } from "react-icons/fi";
 import Select from "react-select";
 import Spinner from "@/components/ui/Spinner";
@@ -101,6 +102,12 @@ const ThemePage = () => {
     })),
   ];
 
+  const handleReset = () => {
+    setSearchQuery("");
+    setCategory(null);
+    setCurrentPage(1);
+  };
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -158,7 +165,7 @@ const ThemePage = () => {
   const selectStyles = {
     control: (base) => ({
       ...base,
-      minHeight: "44px",
+      minHeight: "40px",
       borderColor: "#EFE5DD",
       boxShadow: "none",
       borderRadius: "8px",
@@ -231,7 +238,7 @@ const ThemePage = () => {
               placeholder="Search Theme..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-11 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#1C4FA8]"
+              className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#1C4FA8]"
             />
 
             {searchQuery && (
@@ -253,6 +260,14 @@ const ThemePage = () => {
               styles={selectStyles}
             />
           </div>
+          <button
+            type="button"
+            onClick={handleReset}
+            className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
+          >
+            <FiRotateCcw size={14} />
+            Reset
+          </button>
 
           {/* View Toggle */}
           <div className="ml-auto flex border border-[#D1D5DB] rounded-lg overflow-hidden">

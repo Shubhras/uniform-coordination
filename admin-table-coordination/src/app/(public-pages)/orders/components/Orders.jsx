@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiOrderRentalLists } from "@/services/OrderRentals";
 import Select from "react-select";
-import { FiSearch, FiEye, FiX } from "react-icons/fi";
+import { FiSearch, FiEye, FiX, FiRotateCcw } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/ui/Spinner";
 import Pagination from "@/components/ui/Pagination";
@@ -29,7 +29,7 @@ const formatRentalPeriod = (startDate, endDate) => {
 const selectStyles = {
   control: (base) => ({
     ...base,
-    minHeight: "44px",
+    minHeight: "40px",
     borderColor: "#EFE5DD",
     boxShadow: "none",
     borderRadius: "8px",
@@ -111,6 +111,14 @@ export default function Orders() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  const handleReset = () => {
+    setSearchQuery("");
+    setDebouncedSearch("");
+    setCustomer(customerOptions[0]);
+    setStatus(statusOptions[0]);
+    setCurrentPage(1);
+  };
+
   const fetchOrders = async () => {
     if (!accessToken) return;
 
@@ -176,7 +184,7 @@ export default function Orders() {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-11 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
+              className="w-full h-10 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
             />
             {searchQuery && (
               <button
@@ -205,12 +213,20 @@ export default function Orders() {
               <div className="w-52">
                 <Select
                   value={status}
-                  onChange={setSearch}
+                  onChange={setStatus}
                   options={statusOptions}
                   styles={selectStyles}
                   isSearchable={false}
                 />
               </div>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
+              >
+                <FiRotateCcw size={14} />
+                Reset
+              </button>
             </div>
           </div>
         </div>
@@ -221,7 +237,9 @@ export default function Orders() {
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
                 <th className="text-left px-4 py-3 font-medium">OrderId</th>
 
-                <th className="text-left px-4 py-3 font-medium">Customer Name</th>
+                <th className="text-left px-4 py-3 font-medium">
+                  Customer Name
+                </th>
                 {/* <th className="text-left px-4 py-3 font-medium">Email</th> */}
                 <th className="text-left px-4 py-3 font-medium">Role</th>
                 {/* <th className="text-left px-4 py-3 font-medium">Address</th> */}
@@ -280,7 +298,8 @@ export default function Orders() {
                     </td>
                     <td className="px-5 py-5">
                       <span className="text-[12px] text-[#2C1A0E] font-semibold">
-                        {order.payment?.currency || "N/A"} {order.total_amount || "-"}
+                        {order.payment?.currency || "N/A"}{" "}
+                        {order.total_amount || "-"}
                       </span>
                     </td>
 
