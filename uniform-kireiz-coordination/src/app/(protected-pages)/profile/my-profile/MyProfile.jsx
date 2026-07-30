@@ -307,7 +307,7 @@ const MyProfile = () => {
             <div className="rounded-[12px] border border-[#E2E8F0] bg-[#F6FAFF] p-4 md:px-5 md:py-4">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-4">
                     <div className="w-full max-w-[102px] rounded-[16px] border border-[#B7D2F5] bg-[#F6FAFF] p-3">
-                        <div className="mx-auto flex w-fit items-center justify-center rounded-[18px] border border-[#B7D2F5] bg-white p-1.5">
+                        <div className="mx-auto flex w-fit items-center justify-center rounded-[24px]  bg-white p-1.5">
                             <Avatar
                                 size={56}
                                 icon={<CiUser />}
