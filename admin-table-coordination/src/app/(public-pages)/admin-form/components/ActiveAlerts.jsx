@@ -54,7 +54,7 @@ const ActiveAlerts = ({ data }) => {
   );
 
   return (
-    <div className="mt-10 px-5 md:px-8 lg:px-12 ">
+    <div className="mt-10 px-5 md:px-8 lg:px-8 ">
       {/* Header */}
       <div className="bg-white rounded-xl shadow-lg p-5">
         <div className="flex items-center justify-between mb-5">

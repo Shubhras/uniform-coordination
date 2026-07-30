@@ -64,7 +64,7 @@ const AdminHome = () => {
     <main className="text-base bg-white pb-20">
       <HeroContent data={dashboardData} />
       <DashboardStats data={dashboardData} />
-      <div className='mt-5 px-5 md:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 gap-5'>
+      <div className='mt-5 px-5 md:px-8 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-5'>
         <MostUsedIndustriesChart data={dashboardData} />
         <QuotationRequestsChart data={dashboardData} />
       </div>
@@ -72,7 +72,7 @@ const AdminHome = () => {
         <RecentlyCards data={dashboardData} />
         <QuotationsByStatusChart data={dashboardData} />
       </div> */}
-      <div className="mt-5 px-5 md:px-8 lg:px-12">
+      <div className="mt-5 px-5 md:px-8 lg:px-8">
         <QuickActionsCard />
     </div>
       <ActiveAlerts data={dashboardData} />

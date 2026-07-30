@@ -21,7 +21,7 @@ const DashboardStats = ({ data }) => {
   const b2bChange = data?.B2B_Users?.change_percentage ?? 0;
 
   return (
-    <section className="w-full mt-5 px-5 md:px-8 lg:px-12">
+    <section className="w-full mt-5 px-5 md:px-8 lg:px-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>

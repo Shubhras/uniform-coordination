@@ -11,7 +11,7 @@ const HeroContent = ({ data }) => {
   const userName = session?.user?.name || session?.user?.email || "Admin";
 
   return (
-    <section className="relative w-full px-5 md:px-8 lg:px-12 py-10 overflow-hidden">
+    <section className="relative w-full px-5 md:px-8 lg:px-8 py-10 overflow-hidden">
       {/* OUTER BACKGROUND GRADIENT */}
       <div
         className="absolute inset-0"
