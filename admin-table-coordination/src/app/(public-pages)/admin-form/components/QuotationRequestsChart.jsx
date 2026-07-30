@@ -105,7 +105,7 @@ const QuotationRequestsChart = ({ chartData = [] }) => {
   return (
     <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
       <h3 className="text-[17px] font-semibold text-[#3B3B3B]">
-        Quotation Requests This Week
+        Requests This Week
       </h3>
 
       <div className="border-b border-[#D9D9D9] mt-6 mb-8" />

@@ -333,7 +333,7 @@ const ContractsPoliciesPage = () => {
                       onClick={() =>
                         router.push(`/contracts-policies/${row.contractId}`)
                       }
-                      className="inline-flex items-center gap-1.5 rounded-full border border-[#E7D9CF] bg-white px-3 py-1.5 text-xs font-medium text-[#A85A32] transition hover:bg-[#FAF3EE]"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E7D9CF] bg-white px-3 py-1.5 text-xs font-medium text-[#A85A32] transition hover:bg-[#FAF3EE]"
                     >
                       <FiEye size={12} />
                       View

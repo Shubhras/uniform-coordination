@@ -1,33 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import {
-  FiArrowLeft,
-  FiDownload,
-} from "react-icons/fi";
+import { FiArrowLeft, FiDownload } from "react-icons/fi";
 import StatusBadge, { getStatusColors } from "./StatusBadge";
-
-const DetailCard = ({ title, children, className = "" }) => (
-  <div className={`rounded-2xl border border-[#F1E6DE] bg-white ${className}`}>
-    <div className="border-b border-[#F5ECE6] px-5 py-3">
-      <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#B6876A]">
-        {title}
-      </h3>
-    </div>
-    <div className="p-5">{children}</div>
-  </div>
-);
-
-const InfoPair = ({ label, value, valueClassName = "" }) => (
-  <div>
-    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9B8D84]">
-      {label}
-    </p>
-    <p className={`mt-1 text-sm font-medium text-[#3E312A] ${valueClassName}`}>
-      {value}
-    </p>
-  </div>
-);
 
 const DownloadButton = ({ label }) => (
   <button
@@ -75,61 +50,208 @@ const ContractDetailPage = ({ contract }) => {
       </div>
 
       <div className="space-y-4">
-        <DetailCard title="Company Information">
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            <InfoPair label="ABC Hotels Pvt Ltd" value={contract.companyName} />
-            <InfoPair label="Contact Person" value={contract.contactPerson} />
-            <InfoPair label="Business Email" value={contract.businessEmail} />
-            <InfoPair label="Phone Number" value={contract.phoneNumber} />
-            <InfoPair
-              label="Company Address"
-              value={contract.companyAddress}
-              valueClassName="max-w-[260px] text-[13px] leading-5"
-            />
-            <InfoPair label="User Type" value={contract.userType} />
-          </div>
-        </DetailCard>
-
-        <DetailCard title="Quotation & Contract Information">
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
-            <InfoPair label="Quotation No" value={contract.quotationNo} />
-            <InfoPair label="Quotation Date" value={contract.quotationDate} />
-            <InfoPair label="Contract ID" value={contract.contractIdShort} />
-            <InfoPair label={contract.signedOnLabel} value={contract.signedOnValue} />
-            <InfoPair
-              label={contract.contractStatusLabel}
-              value={contract.contractStatusValue}
-              valueClassName={isSigned ? "text-[#007A55]" : colors.accent}
-            />
+        <div className="rounded-2xl border border-[#F1E6DE] bg-white">
+          <div className="border-b border-[#F5ECE6] px-5 py-3">
+            <h3 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#7A6E66]">
+              Company Information
+            </h3>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            {contract.downloads.map((label) => (
-              <DownloadButton key={label} label={label} />
-            ))}
+          <div className="p-5">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              <div>
+                <p className="text-[13px] font-semibold text-[#7A6E66]">
+                  ABC HOTELS PVT LTD
+                </p>
+                <p className="mt-1 text-[15px] font-semibold text-[#1A1714]">
+                  {contract.companyName}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[13px] font-semibold text-[#7A6E66]">
+                  CONTACT PERSON
+                </p>
+                <p className="mt-1 text-[15px] font-semibold text-[#1A1714]">
+                  {contract.contactPerson}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[13px] font-semibold text-[#7A6E66]">
+                  BUSINESS EMAIL
+                </p>
+                <p className="mt-1 text-[15px] font-semibold text-[#1A1714]">
+                  {contract.businessEmail}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[13px] font-semibold text-[#7A6E66]">
+                  PHONE NUMBER
+                </p>
+                <p className="mt-1 text-[15px] font-semibold text-[#1A1714]">
+                  {contract.phoneNumber}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[13px] font-semibold text-[#7A6E66]">
+                  COMPANY ADDRESS
+                </p>
+                <p className="mt-1 max-w-[260px] text-[15px] font-semibold leading-5 text-[#1A1714]">
+                  {contract.companyAddress}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[13px] font-semibold text-[#7A6E66]">
+                  USER TYPE
+                </p>
+                <p className="mt-1 text-[15px] font-semibold text-[#1A1714]">
+                  {contract.userType}
+                </p>
+              </div>
+            </div>
           </div>
-        </DetailCard>
+        </div>
+
+        <div className="rounded-2xl border border-[#F1E6DE] bg-white">
+          <div className="border-b border-[#F5ECE6] px-5 py-3">
+            <h3 className="text-[12px] font-semibold text-[#7A6E66]">
+              ORDER & CONTRACT INFORMATION
+            </h3>
+          </div>
+
+          <div className="p-5">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+              <div>
+                <p className="text-[10px] font-semibold text-[#9B8D84]">
+                  ORDER ID
+                </p>
+                <p className="mt-1 text-sm font-medium text-[#3E312A]">
+                  {contract.quotationNo}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[10px] font-semibold text-[#9B8D84]">
+                  ORDER DATE
+                </p>
+                <p className="mt-1 text-sm font-medium text-[#3E312A]">
+                  {contract.quotationDate}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[10px] font-semibold text-[#9B8D84]">
+                  CONTRACT ID
+                </p>
+                <p className="mt-1 text-sm font-medium text-[#3E312A]">
+                  {contract.contractIdShort}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9B8D84]">
+                  {contract.signedOnLabel}
+                </p>
+                <p className="mt-1 text-sm font-medium text-[#3E312A]">
+                  {contract.signedOnValue}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9B8D84]">
+                  {contract.contractStatusLabel}
+                </p>
+                <p
+                  className={`mt-1 text-sm font-medium ${
+                    isSigned ? "text-[#007A55]" : colors.accent
+                  }`}
+                >
+                  {contract.contractStatusValue}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              {contract.downloads.map((label) => (
+                <DownloadButton key={label} label={label} />
+              ))}
+            </div>
+          </div>
+        </div>
 
         <div className="grid gap-4 xl:grid-cols-[1.15fr_1fr]">
-          <DetailCard title="Rental Information">
-            <div className="grid gap-5 md:grid-cols-2">
-              <InfoPair label="Rental Start" value={contract.rentalStart} />
-              <InfoPair label="Rental End" value={contract.rentalEnd} />
-              <InfoPair label="Venue Type" value={contract.venueType} />
-              <InfoPair label="Venue Name" value={contract.venueName} />
+          {/* Rental Information */}
+          <div className="rounded-2xl border border-[#F1E6DE] bg-white">
+            <div className="border-b border-[#F5ECE6] px-5 py-3">
+              <h3 className="text-[12px] font-semibold text-[#7A6E66]">
+                RENTAL INFORMATION
+              </h3>
             </div>
-          </DetailCard>
 
-          <DetailCard title="Customer Notes">
-            <p className="text-sm leading-6 text-[#7A6C64]">
-              {contract.customerNotes}
-            </p>
-          </DetailCard>
+            <div className="p-5">
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <p className="text-[10px] font-semibold text-[#9B8D84]">
+                    RENTAL START
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-[#3E312A]">
+                    {contract.rentalStart}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-semibold text-[#9B8D84]">
+                    RENTAL END
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-[#3E312A]">
+                    {contract.rentalEnd}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-semibold text-[#9B8D84]">
+                    VENUE TYPE
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-[#3E312A]">
+                    {contract.venueType}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-semibold text-[#9B8D84]">
+                    VENUE NAME
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-[#3E312A]">
+                    {contract.venueName}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Customer Notes */}
+          <div className="rounded-2xl border border-[#F1E6DE] bg-white">
+            <div className="border-b border-[#F5ECE6] px-5 py-3">
+              <h3 className="text-[11px] font-semibold text-[#B6876A]">
+                CUSTOMER NOTES
+              </h3>
+            </div>
+
+            <div className="p-5">
+              <p className="text-sm leading-6 text-[#7A6C64]">
+                {contract.customerNotes}
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-[#F1E6DE] bg-white">
           <div className="border-b border-[#F5ECE6] px-5 py-4">
-            <h3 className="text-sm font-semibold text-[#2E231E]">
+            <h3 className="text-[18px] font-semibold text-[#1E130C]">
               Requested Items
             </h3>
             <p className="mt-1 text-xs text-[#A09186]">
@@ -161,7 +283,9 @@ const ContractDetailPage = ({ contract }) => {
                       </span>
                     </td>
                     <td className="px-5 py-4">{item.requested}</td>
-                    <td className="px-5 py-4 text-[#007A55]">{item.availability}</td>
+                    <td className="px-5 py-4 text-[#007A55]">
+                      {item.availability}
+                    </td>
                     <td className="px-5 py-4 text-right">{item.unitRate}</td>
                   </tr>
                 ))}

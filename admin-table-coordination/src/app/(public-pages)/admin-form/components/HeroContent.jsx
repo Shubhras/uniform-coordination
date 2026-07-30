@@ -58,7 +58,7 @@ const HeroContent = ({ data }) => {
             </h1>
 
             <p className="mt-2 text-sm text-[#64748B] max-w-md">
-              Manage inventory, rentals, quotations and event themes from one place.
+              Manage inventory, rentals and event themes from one place.
             </p>
           </div>
 
