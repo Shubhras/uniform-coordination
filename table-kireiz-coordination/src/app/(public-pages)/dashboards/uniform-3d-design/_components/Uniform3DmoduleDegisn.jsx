@@ -1043,9 +1043,9 @@ const Uniform3DmoduleDegisn = () => {
                     <p className="text-xs font-semibold text-[#1C2C56] mb-2">Table Centrepiece</p>
                     <div className="grid grid-cols-3 gap-3">
                       {[
-                        { name: "Beige", img: "/img/centre-piece/beige.png" },
-                        { name: "Navy", img: "/img/centre-piece/navy.png" },
-                        { name: "Green", img: "/img/centre-piece/green.png" },
+                        { name: "Beige", img: "/img/table-form/centre-piece/beige.png" },
+                        { name: "Navy", img: "/img/table-form/centre-piece/navy.png" },
+                        { name: "Green", img: "/img/table-form/centre-piece/green.png" },
                       ].map(item => (
                         <button
                           key={item.name}
@@ -1108,7 +1108,7 @@ const Uniform3DmoduleDegisn = () => {
             {
               fullView ? <Image
                 src={selectedTheme.cardImage || singleProductData?.ProductImage || '/img/table-form/full-venue.png'}
-                alt="Uniform"
+                alt={selectedTheme.title}
                 width={700}
                 height={500}
                 className="object-contain "
@@ -1116,7 +1116,7 @@ const Uniform3DmoduleDegisn = () => {
                 unoptimized
               /> : <Image
                 src={singleProductData?.ProductImage || selectedTheme.cardImage || "/img/table-form/3dtable.png"}
-                alt="Uniform"
+                alt={selectedTheme.title}
                 width={500}
                 height={500}
                 className="object-contain"
