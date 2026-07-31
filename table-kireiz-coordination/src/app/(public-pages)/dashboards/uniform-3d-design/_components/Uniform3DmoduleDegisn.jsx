@@ -17,6 +17,7 @@ import { useSession } from 'next-auth/react'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import { apiGetProductDetailsById } from '@/services/ProductService'
+import { apiGetSindleThemeDetails } from '@/services/HomeService'
 const Uniform3DmoduleDegisn = () => {
   const searchParams = useSearchParams()
   // product id
@@ -133,8 +134,10 @@ const Uniform3DmoduleDegisn = () => {
 
         if (res?.status && res?.data) {
           setSingleProductData(res.data)
-          //console.log('ggggggggggggggggggggg', res.data);
-          //setSelectedTheme(res?.data?.ProductImage)
+          setSelectedTheme((prev) => ({
+            ...prev,
+            cardImage: res.data?.ProductImage || prev.cardImage,
+          }));
         } else {
           toast.push(
             <Notification title="Error!" type="danger">
@@ -156,6 +159,31 @@ const Uniform3DmoduleDegisn = () => {
 
     if (id) fetchProductDetails()
   }, [id])
+
+  useEffect(() => {
+    const fetchThemeDetails = async () => {
+      if (!themeIdParam) return;
+      try {
+        const response = await apiGetSindleThemeDetails(themeIdParam);
+        if (response?.status && response?.data) {
+          const apiData = response.data;
+          // const imageUrl = apiData.cover_images?.length > 0
+          //   ? apiData.cover_images[0].image
+          //   : (apiData.image || apiData.ProductImage);
+          setSelectedTheme((prev) => ({
+            ...prev,
+            // ...apiData,
+            cardImage: apiData?.image || prev.cardImage,
+          }));
+
+          console.log('apiData?.image', apiData?.image);
+        }
+      } catch (error) {
+        console.error("Error fetching theme details:", error);
+      }
+    };
+    if (themeIdParam) fetchThemeDetails();
+  }, [themeIdParam])
 
   const handleUniformDesignResult = async () => {
 
@@ -1079,19 +1107,21 @@ const Uniform3DmoduleDegisn = () => {
                 h-[620px] w-full flex items-center justify-center">
             {
               fullView ? <Image
-                src={selectedTheme.cardImage}
+                src={selectedTheme.cardImage || singleProductData?.ProductImage || '/img/table-form/full-venue.png'}
                 alt="Uniform"
                 width={700}
                 height={500}
                 className="object-contain "
                 priority
+                unoptimized
               /> : <Image
-                src="/img/table-form/3dtable.png"
+                src={singleProductData?.ProductImage || selectedTheme.cardImage || "/img/table-form/3dtable.png"}
                 alt="Uniform"
                 width={500}
                 height={500}
                 className="object-contain"
                 priority
+                unoptimized
               />
             }
 
