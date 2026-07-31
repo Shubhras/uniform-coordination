@@ -137,7 +137,7 @@ const matchesStatus = (item, selectedStatus) => {
 const selectStyles = {
   control: (base) => ({
     ...base,
-    minHeight: "34px",
+    minHeight: "40px",
     borderColor: "#F2E5DD",
     borderRadius: "6px",
     boxShadow: "none",
@@ -221,8 +221,7 @@ const NotificationPage = () => {
   const filteredNotifications = useMemo(() => {
     return notifications.filter(
       (item) =>
-        matchesSearch(item, searchQuery) &&
-        matchesStatus(item, status.value),
+        matchesSearch(item, searchQuery) && matchesStatus(item, status.value),
     );
   }, [notifications, searchQuery, status.value]);
 
@@ -230,7 +229,8 @@ const NotificationPage = () => {
     setCurrentPage(1);
   }, [searchQuery, status.value]);
 
-  const totalPages = Math.ceil(filteredNotifications.length / itemsPerPage) || 1;
+  const totalPages =
+    Math.ceil(filteredNotifications.length / itemsPerPage) || 1;
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -247,7 +247,10 @@ const NotificationPage = () => {
     filteredNotifications.length === 0
       ? 0
       : (currentPage - 1) * itemsPerPage + 1;
-  const endItem = Math.min(currentPage * itemsPerPage, filteredNotifications.length);
+  const endItem = Math.min(
+    currentPage * itemsPerPage,
+    filteredNotifications.length,
+  );
 
   const goToPage = (page) => {
     if (page < 1 || page > totalPages) return;
@@ -310,7 +313,7 @@ const NotificationPage = () => {
             placeholder="Search by ID, recipient, order..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-[34px] w-full rounded-md border border-[#F3E7DE] bg-white pl-8 pr-8 text-[11px] text-[#6F625B] outline-none placeholder:text-[#C28E73] focus:border-[#D7B7A3]"
+            className="h-10 w-full rounded-md border border-[#F3E7DE] bg-white pl-8 pr-8 text-[11px] text-[#6F625B] outline-none placeholder:text-[#C28E73] focus:border-[#D7B7A3]"
           />
           {searchQuery && (
             <button
@@ -326,8 +329,8 @@ const NotificationPage = () => {
 
         <div className="w-full sm:w-[96px]">
           <Select
-            instanceId="notifications-status-filter"
-            inputId="notifications-status-filter"
+            // instanceId="notifications-status-filter"
+            // inputId="notifications-status-filter"
             value={status}
             onChange={(selectedOption) =>
               setStatus(selectedOption ?? statusOptions[0])
@@ -341,23 +344,23 @@ const NotificationPage = () => {
         <button
           type="button"
           onClick={handleReset}
-          className="flex h-[34px] w-full items-center justify-center gap-1 rounded-md border border-[#F2E5DD] bg-white px-3 text-[11px] font-medium text-[#B7774D] transition hover:bg-[#FCF4EF] sm:w-auto"
+          className="flex h-10 w-full items-center justify-center gap-1 rounded-md border border-[#F2E5DD] bg-white px-3 text-sm font-medium text-[#B7774D] transition hover:bg-[#FCF4EF] sm:w-auto"
         >
           <FiRotateCcw size={12} />
           Reset
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-md border border-[#F4E9E1]">
-        <table className="min-w-[980px] w-full">
-          <thead>
-            <tr className="bg-[#FBF5F0] text-left text-[11px] font-medium text-[#8F7B6E]">
-              <th className="px-3 py-3">Recipient</th>
-              <th className="px-3 py-3">Email</th>
-              <th className="px-3 py-3">Order ID</th>
-              <th className="px-3 py-3">Status</th>
-              <th className="px-3 py-3">Sent At</th>
-              <th className="px-3 py-3 text-center">Action</th>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-[#F1F5F9] text-[#486284]">
+            <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
+              <th className="text-left px-4 py-3 font-medium">Recipient</th>
+              <th className="text-left px-4 py-3 font-medium">Email</th>
+              <th className="text-left px-4 py-3 font-medium">Order ID</th>
+              <th className="text-left px-4 py-3 font-medium">Status</th>
+              <th className="text-left px-4 py-3 font-medium">Sent At</th>
+              <th className="text-left px-4 py-3 font-medium">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -365,7 +368,7 @@ const NotificationPage = () => {
               ? Array.from({ length: itemsPerPage }).map((_, index) => (
                   <tr
                     key={`loading-${index}`}
-                    className="border-t border-[#F8EEE8] bg-white text-[11px] text-[#5F534C]"
+                    className="odd:bg-white even:bg-[#FBF8F6]"
                   >
                     <td className="px-3 py-3">
                       <div className="h-4 w-28 animate-pulse rounded bg-[#F5ECE6]" />
@@ -394,7 +397,7 @@ const NotificationPage = () => {
                   return (
                     <tr
                       key={item.id}
-                      className="border-t border-[#F8EEE8] bg-white text-[11px] text-[#5F534C]"
+                      className="odd:bg-white even:bg-[#FBF8F6]"
                     >
                       <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
                         {item.recipient}
@@ -449,7 +452,7 @@ const NotificationPage = () => {
       </div>
 
       {!loading && filteredNotifications.length === 0 && (
-        <div className="mt-4 rounded-md border border-dashed border-[#E6D6CD] bg-white px-4 py-10 text-center text-[11px] text-[#8B6A55]">
+        <div className="mt-4 rounded-md border border-dashed border-[#E6D6CD] bg-white px-4 py-10 text-center text-[13px] text-[#8B6A55]">
           No notifications found for the selected search and status.
         </div>
       )}

@@ -269,6 +269,7 @@ const CreatePromotion = () => {
             <input
               type="number"
               name="amount"
+              min={0}
               value={form.amount}
               onChange={(e) => {
                 setForm((prev) => ({
