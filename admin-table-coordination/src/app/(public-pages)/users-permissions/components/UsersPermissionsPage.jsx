@@ -165,7 +165,7 @@ const matchesStatus = (user, selectedStatus) => {
 const selectStyles = {
   control: (base) => ({
     ...base,
-    minHeight: "44px",
+    minHeight: "40px",
     borderColor: "#EFE5DD",
     boxShadow: "none",
     borderRadius: "8px",
@@ -407,7 +407,7 @@ const UsersPermissionsPage = () => {
                 placeholder="Search Theme..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#1C4FA8]"
+                className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#1C4FA8]"
               />
 
               {searchQuery && (
@@ -419,15 +419,6 @@ const UsersPermissionsPage = () => {
                 </button>
               )}
             </div>
-
-            {/* <button
-              type="button"
-              onClick={handleReset}
-              className="flex h-[34px] w-full items-center justify-center gap-1 rounded-md border border-[#F2E5DD] bg-white px-3 text-[11px] font-medium text-[#B7774D] transition hover:bg-[#FCF4EF] lg:w-auto"
-            >
-              <FiRotateCcw size={12} />
-              Reset
-            </button> */}
 
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               {/* Filters */}
@@ -451,6 +442,14 @@ const UsersPermissionsPage = () => {
                     isSearchable={false}
                   />
                 </div>
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
+                >
+                  <FiRotateCcw size={14} />
+                  Reset
+                </button>
               </div>
             </div>
           </div>
@@ -557,7 +556,7 @@ const UsersPermissionsPage = () => {
           </div>
 
           {!loading && users.length === 0 && (
-            <div className="mt-4 rounded-md border border-dashed border-[#E6D6CD] bg-white px-4 py-10 text-center text-[11px] text-[#8B6A55]">
+            <div className="mt-4 rounded-md border border-dashed border-[#E6D6CD] bg-white px-4 py-10 text-center text-[14px] text-[#8B6A55]">
               No users found.
             </div>
           )}

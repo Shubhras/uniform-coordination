@@ -8,7 +8,14 @@ import Spinner from "@/components/ui/Spinner";
 import Pagination from "@/components/ui/Pagination";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
-import { FiSearch, FiEye, FiEdit2, FiTrash2, FiX } from "react-icons/fi";
+import {
+  FiSearch,
+  FiEye,
+  FiEdit2,
+  FiTrash2,
+  FiX,
+  FiRotateCcw,
+} from "react-icons/fi";
 import NewDeleteModal from "@/components/shared/NewDeleteModal";
 import { apiGetProductList, apiDeleteProduct } from "@/services/ProductService";
 import { apiGetFabricList } from "@/services/FabricService";
@@ -148,7 +155,7 @@ const InventoryList = () => {
   const selectStyles = {
     control: (base) => ({
       ...base,
-      minHeight: "44px",
+      minHeight: "40px",
       borderColor: "#EFE5DD",
       boxShadow: "none",
       borderRadius: "8px",
@@ -201,6 +208,23 @@ const InventoryList = () => {
     }
   }, [accessToken]);
 
+  const handleReset = () => {
+    setSearchQuery("");
+    setDebouncedSearch("");
+
+    setCategory({
+      value: "all",
+      label: "All Categories",
+    });
+
+    setMaterial({
+      value: "all",
+      label: "All Fabrics",
+    });
+
+    setCurrentPage(1);
+  };
+
   useEffect(() => {
     const fetchFabricList = async () => {
       try {
@@ -232,7 +256,7 @@ const InventoryList = () => {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-11 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
+              className="w-full h-10 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
             />
             {searchQuery && (
               <button
@@ -283,6 +307,14 @@ const InventoryList = () => {
                   isSearchable={false}
                 />
               </div>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
+              >
+                <FiRotateCcw size={14} />
+                Reset
+              </button>
             </div>
           </div>
         </div>
