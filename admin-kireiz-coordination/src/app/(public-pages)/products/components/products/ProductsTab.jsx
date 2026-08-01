@@ -181,7 +181,7 @@ const ProductsTab = () => {
 
   /* ---------- IMAGE URL ---------- */
   const getImageUrl = (path) => {
-    if (!path) return "/img/kireiz-form/features/uniform-card-img-one.png";
+    if (!path) return null;
     if (path.startsWith("http")) return path;
     return `${API_BASE}${path}`;
   };
