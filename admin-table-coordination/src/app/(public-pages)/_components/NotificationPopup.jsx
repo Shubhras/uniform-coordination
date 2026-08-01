@@ -81,8 +81,8 @@ const NotificationPopup = ({ onClose }) => {
             {/* Header */}
             <div className="px-5 py-4 border-b border-[#F1F5F9] flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-[#1C2C56] flex items-center justify-center">
-                        <IoNotificationsOutline size={16} className="text-[#4A3A3A]" />
+                    <div className="w-8 h-8 rounded-full bg-[#A0522D] flex items-center justify-center">
+                        <IoNotificationsOutline size={16} className="text-white font-semibold" />
                     </div>
                     <h3 className="text-base font-semibold text-[#1C2C56]">
                         Notifications
@@ -160,7 +160,7 @@ const NotificationPopup = ({ onClose }) => {
             <div className="px-5 py-3 border-t border-[#F1F5F9]">
                 <button
                     onClick={handleViewAll}
-                    className="w-full text-center border border-[#1C2C56] text-[#1C2C56] rounded-lg py-2 text-sm font-medium hover:bg-[#F8FAFC] transition-colors"
+                    className="w-full text-center border border-[#1C2C56] text-[#1C2C56] rounded-lg py-2 text-sm font-semibold hover:bg-[#FCF7F3] transition-colors"
                 >
                     View all Notification
                 </button>
