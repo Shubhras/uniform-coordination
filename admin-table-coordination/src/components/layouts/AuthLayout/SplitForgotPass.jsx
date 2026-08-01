@@ -41,7 +41,6 @@
 
 // export default SplitForgotPassword;
 
-
 import { cloneElement } from "react";
 import { useRouter } from "next/navigation";
 
@@ -54,7 +53,6 @@ const SplitForgotPassword = ({ children, content, ...rest }) => {
 
   return (
     <div className="flex flex-col lg:flex-row bg-gray min-h-screen">
-      
       {/* LEFT SIDE */}
       <div
         className="
@@ -67,7 +65,8 @@ const SplitForgotPassword = ({ children, content, ...rest }) => {
         {/* Logo */}
         <div className="absolute top-[5%] left-[5%] z-20">
           <img
-            src="/img/others/auth-logo-small.png"
+            // src="/img/others/auth-logo-small.png"
+            src="/img/logo/sidebar-logo.png"
             alt="KIREIZ FORM SPACE"
             className="md:h-12 h-10 w-auto cursor-pointer"
             onClick={handleRedirectHome}
@@ -113,4 +112,3 @@ const SplitForgotPassword = ({ children, content, ...rest }) => {
 };
 
 export default SplitForgotPassword;
-
