@@ -853,12 +853,74 @@ class CatalogImageSerializer(serializers.ModelSerializer):
 
 
 
+# class SubCategorySerializer(serializers.ModelSerializer):
+#     category_name = serializers.CharField(
+#         source="category.categoryName",
+#         read_only=True
+#     )
+#     subcategoryImage = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = SubCategory
+#         fields = [
+#             "id",
+#             "name",
+#             "category",
+#             "category_name",
+#             "subcategoryImage",
+#             "slug",
+#             "type",
+#             "order",
+#             "description",
+#             "isActive",
+#             "isDeleted",
+#             "created_at",
+#             "updated_at",
+#         ]
+#         read_only_fields = ("id", "created_at", "updated_at")
+
+#     def get_subcategoryImage(self, obj):
+#         if not obj.subcategoryImage:
+#             return None
+
+#         # External URL (e.g. Unsplash)
+#         if obj.subcategoryImage.name.startswith(("http://", "https://")):
+#             return obj.subcategoryImage.name
+
+#         return f"{settings.SITE_URL}{obj.subcategoryImage.url}"
+
+#     def validate(self, attrs):
+#         name = attrs.get("name")
+#         category = attrs.get("category")
+
+#         if name and category:
+#             exists = SubCategory.objects.filter(
+#                 name__iexact=name,
+#                 category=category,
+#                 isDeleted=False
+#             ).exclude(
+#                 pk=self.instance.pk if self.instance else None
+#             ).exists()
+
+#             if exists:
+#                 raise serializers.ValidationError({
+#                     "name": "Validation Failed; subcategory with this name already exists in this category."
+#                 })
+
+#         return attrs
+
+
 class SubCategorySerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(
         source="category.categoryName",
         read_only=True
     )
-    subcategoryImage = serializers.SerializerMethodField()
+
+    # Same key for upload and response
+    subcategoryImage = serializers.ImageField(
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = SubCategory
@@ -879,37 +941,40 @@ class SubCategorySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ("id", "created_at", "updated_at")
 
-    def get_subcategoryImage(self, obj):
-        if not obj.subcategoryImage:
-            return None
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
 
-        # External URL (e.g. Unsplash)
-        if obj.subcategoryImage.name.startswith(("http://", "https://")):
-            return obj.subcategoryImage.name
+        if instance.subcategoryImage:
+            if instance.subcategoryImage.name.startswith(("http://", "https://")):
+                data["subcategoryImage"] = instance.subcategoryImage.name
+            else:
+                data["subcategoryImage"] = (
+                    f"{settings.SITE_URL}{instance.subcategoryImage.url}"
+                )
+        else:
+            data["subcategoryImage"] = None
 
-        return f"{settings.SITE_URL}{obj.subcategoryImage.url}"
+        return data
 
     def validate(self, attrs):
-        name = attrs.get("name")
-        category = attrs.get("category")
+        name = attrs.get("name", self.instance.name if self.instance else None)
+        category = attrs.get("category", self.instance.category if self.instance else None)
 
-        if name and category:
-            exists = SubCategory.objects.filter(
-                name__iexact=name,
-                category=category,
-                isDeleted=False
-            ).exclude(
-                pk=self.instance.pk if self.instance else None
-            ).exists()
+        exists = SubCategory.objects.filter(
+            name__iexact=name,
+            category=category,
+            isDeleted=False
+        )
 
-            if exists:
-                raise serializers.ValidationError({
-                    "name": "Validation Failed; subcategory with this name already exists in this category."
-                })
+        if self.instance:
+            exists = exists.exclude(pk=self.instance.pk)
+
+        if exists.exists():
+            raise serializers.ValidationError({
+                "name": "Validation Failed; subcategory with this name already exists in this category."
+            })
 
         return attrs
-
-
 class TableThemeSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False)
 
