@@ -23,7 +23,7 @@ const SignIn = ({
                 <div className='mx-4'>
                     <div className="mb-6">
                         <h2 className="font-[Plus Jakarta Sans]  font-medium text-[28px] tracking-[0.18px] text-[#402936] mb-2">
-                            Welcome to KIREIZ!
+                            Welcome to KIREIZ SPACE!
                         </h2>
                         <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
                             Professional Uniforms & Event Styling
