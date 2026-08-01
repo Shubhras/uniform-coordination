@@ -44,14 +44,12 @@
 
 // export default Split;
 
-
 import { cloneElement } from "react";
 import Link from "next/link";
 
 const Split = ({ children, content, ...rest }) => {
   return (
     <div className="flex flex-col lg:flex-row bg-gray min-h-[100svh]">
-
       {/* LEFT SIDE */}
       <div
         className="
@@ -65,7 +63,8 @@ const Split = ({ children, content, ...rest }) => {
         <div className="absolute top-[5%] left-[5%] z-20">
           <Link href="/admin-form">
             <img
-              src="/img/others/auth-logo-small.png"
+              // src="/img/others/auth-logo-small.png"
+              src="/img/logo/sidebar-logo.png"
               alt="KIREIZ FORM SPACE"
               className="md:h-12 h-10 w-auto"
             />
@@ -112,4 +111,3 @@ const Split = ({ children, content, ...rest }) => {
 };
 
 export default Split;
-
