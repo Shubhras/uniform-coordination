@@ -86,9 +86,9 @@ const SignInForm = (props) => {
           loading={isSubmitting}
           variant="solid"
           type="submit"
-          className="bg-[#8a5a75] hover:bg-[#8a5a75] text-white"
+          className="bg-[#A0522D] hover:bg-[#A0522D] text-white"
         >
-          {isSubmitting ? "Signing in..." : "Login to KIREIZ"}
+          {isSubmitting ? "Signing in..." : "Login to KIREIZ Space"}
         </Button>
       </Form>
     </div>
