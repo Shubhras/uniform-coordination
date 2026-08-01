@@ -67,8 +67,8 @@ const SplitForgotPassword = ({ children, content, ...rest }) => {
         {/* Logo */}
         <div className="absolute top-[5%] left-[5%] z-20">
           <img
-            src="/img/others/auth-logo.png"
-            alt="KIREIZ FORM"
+            src="/img/others/auth-logo-small.png"
+            alt="KIREIZ FORM SPACE"
             className="md:h-12 h-10 w-auto cursor-pointer"
             onClick={handleRedirectHome}
           />

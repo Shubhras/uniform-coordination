@@ -4,6 +4,7 @@ import Github from 'next-auth/providers/github'
 import Google from 'next-auth/providers/google'
 import { apiLogin } from '@/services/AuthService'
 export default {
+    trustHost: true,
     providers: [
         Github({
             clientId: process.env.GITHUB_AUTH_CLIENT_ID,
@@ -122,15 +123,29 @@ export default {
     cookies: {
         sessionToken: {
             name: `uniform-kireiz.session-token`,
-            options: { httpOnly: true, sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? false,
+            },
         },
         callbackUrl: {
             name: `uniform-kireiz.callback-url`,
-            options: { sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+            options: {
+                sameSite: 'lax',
+                path: '/',
+                secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? false,
+            },
         },
         csrfToken: {
             name: `uniform-kireiz.csrf-token`,
-            options: { httpOnly: true, sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? false,
+            },
         },
     },
 }

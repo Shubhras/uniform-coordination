@@ -6,6 +6,7 @@ import Google from "next-auth/providers/google";
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
+  trustHost: true,
   providers: [
     Github({
       clientId: process.env.GITHUB_AUTH_CLIENT_ID,
@@ -104,15 +105,29 @@ export default {
   cookies: {
     sessionToken: {
       name: `table-kireiz.session-token`,
-      options: { httpOnly: true, sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? false,
+      },
     },
     callbackUrl: {
       name: `table-kireiz.callback-url`,
-      options: { sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+      options: {
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? false,
+      },
     },
     csrfToken: {
       name: `table-kireiz.csrf-token`,
-      options: { httpOnly: true, sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? false,
+      },
     },
   },
 };
