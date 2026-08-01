@@ -220,8 +220,14 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:7003",
     "http://0.0.0.0:8000",
     "http://54.81.43.26",
-    
 
+    # Linode server (nginx par port 80)
+    "http://104.64.206.82",
+    "http://104.64.206.82:7002",
+    "http://104.64.206.82:7003",
+    "http://table.104.64.206.82.sslip.io",
+    "http://admin.104.64.206.82.sslip.io",
+    "http://admintable.104.64.206.82.sslip.io",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
