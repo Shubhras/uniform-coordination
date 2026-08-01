@@ -8,26 +8,25 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import PasswordInput from "@/components/shared/PasswordInput";
 
-const validationSchema = z
-  .object({
-    firstName: z
-      .string({ required_error: "Please enter your first name" })
-      .min(1, "Please enter your first name"),
-    lastName: z
-      .string({ required_error: "Please enter your last name" })
-      .min(1, "Please enter your last name"),
-    phone: z
-      .string({ required_error: "Please enter your mobile no." })
-      .min(1, "Please enter your mobile no.")
-      .regex(/^[0-9]{10}$/, "Please enter a valid 10-digit mobile number"),
-    email: z
-      .string({ required_error: "Please enter your email" })
-      .min(1, "Please enter your email")
-      .email({ message: "Please enter a valid email address" }),
-    password: z
-      .string({ required_error: "Password Required" })
-      .min(1, "Password Required"),
-  })
+const validationSchema = z.object({
+  firstName: z
+    .string({ required_error: "Please enter your first name" })
+    .min(1, "Please enter your first name"),
+  lastName: z
+    .string({ required_error: "Please enter your last name" })
+    .min(1, "Please enter your last name"),
+  phone: z
+    .string({ required_error: "Please enter your mobile no." })
+    .min(1, "Please enter your mobile no.")
+    .regex(/^[0-9]{10}$/, "Please enter a valid 10-digit mobile number"),
+  email: z
+    .string({ required_error: "Please enter your email" })
+    .min(1, "Please enter your email")
+    .email({ message: "Please enter a valid email address" }),
+  password: z
+    .string({ required_error: "Password Required" })
+    .min(1, "Password Required"),
+});
 
 const SignUpForm = (props) => {
   const { onSignUp, className, setMessage, termConditionHint } = props;
@@ -94,10 +93,21 @@ const SignUpForm = (props) => {
             control={control}
             render={({ field }) => (
               <Input
-                type="number"
+                // type="number"
+                // placeholder="Mobile no."
+                // autoComplete="off"
+                // {...field}
+                type="tel"
                 placeholder="Mobile no."
                 autoComplete="off"
-                {...field}
+                maxLength={10}
+                inputMode="numeric"
+                value={field.value || ""}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+
+                  field.onChange(value);
+                }}
               />
             )}
           />
@@ -143,7 +153,7 @@ const SignUpForm = (props) => {
           loading={isSubmitting}
           variant="solid"
           type="submit"
-          className="bg-[#8a5a75] hover:bg-[#8a5a75] text-white"
+          className="bg-[#A0522D] hover:bg-[#A0522D] text-white"
         >
           {isSubmitting ? "Creating Account..." : "Create Account"}
         </Button>

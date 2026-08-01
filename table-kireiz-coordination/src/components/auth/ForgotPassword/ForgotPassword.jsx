@@ -40,7 +40,7 @@ export const ForgotPassword = ({
             <h2 className="font-[Plus Jakarta Sans]  font-medium text-[28px] tracking-[0.18px] text-[#1C2C56] mb-2">
               Forgot Password
             </h2>
-            <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
+            <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#402936AD]">
               Enter your email and we'll send you instructions to reset your
               password
             </p>
