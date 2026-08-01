@@ -213,8 +213,8 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                                 {/* IMAGE */}
                                 <div className="relative w-full lg:w-[60%] h-[200px] md:h-[260px] lg:h-[300px]">
                                     <Image
-                                        // src={item.subcategoryImage}
-                                        src={`/img/medical-form/category/category${(index % 3) + 1}.png`}
+                                        src={item.subcategoryImage}
+                                        // src={`/img/medical-form/category/category${(index % 3) + 1}.png`}
                                         alt={item.name}
                                         fill
                                         className={`object-contain ${isReverse ? 'lg:object-left' : 'lg:object-right'
