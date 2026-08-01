@@ -17,7 +17,7 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
         <div className="mx-4">
           <div className="mb-4">
             <h2 className="font-[Plus Jakarta Sans]  font-medium text-[24px] tracking-[0.18px] text-[#1C2C56] mb-1">
-              Join KIREIZ Today FORM!
+              Join KIREIZ FORM Today!
             </h2>
             <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
               Design Professional Uniforms & Beautiful Events
