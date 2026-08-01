@@ -8,6 +8,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     default-libmysqlclient-dev \
     default-mysql-client \
     pkg-config \
+    libpango-1.0-0 \
+    libpangoft2-1.0-0 \
+    libharfbuzz0b \
+    libcairo2 \
+    libgdk-pixbuf-2.0-0 \
+    libffi8 \
+    shared-mime-info \
+    fonts-liberation \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

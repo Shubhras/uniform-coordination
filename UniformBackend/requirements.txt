@@ -22,6 +22,7 @@ drf-spectacular-sidecar==2024.1.1
 
 
 cryptography
+weasyprint==62.3
 python-dotenv
 ngrok
 xmltodict
