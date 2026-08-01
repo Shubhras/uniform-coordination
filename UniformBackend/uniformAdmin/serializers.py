@@ -1192,6 +1192,27 @@ class ProductSerializer(serializers.ModelSerializer):
                 })
  
         return super().to_internal_value(data)
+    
+    
+    def update(self, instance, validated_data):
+        image = validated_data.pop("ProductImage_file", None)
+        parts = validated_data.pop("parts", None)
+
+        # Update normal fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        # Update image
+        if image is not None:
+            instance.ProductImage = image
+
+        instance.save()
+
+        # Update ManyToMany
+        if parts is not None:
+            instance.parts.set(parts)
+
+        return instance
  
     
     def validate(self, data):
