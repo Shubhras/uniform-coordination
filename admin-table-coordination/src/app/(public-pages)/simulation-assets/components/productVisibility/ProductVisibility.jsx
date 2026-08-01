@@ -20,7 +20,7 @@ import { apiGetCategoryList } from "@/services/CategoryService";
 const selectStyles = {
   control: (base) => ({
     ...base,
-    minHeight: "44px",
+    minHeight: "40px",
     borderColor: "#EFE5DD",
     boxShadow: "none",
     borderRadius: "8px",
@@ -174,7 +174,7 @@ const ProductVisibility = () => {
               placeholder="Search by product name..."
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              className="w-full h-11 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
+              className="w-full h-10 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
             />
             {searchQuery && (
               <button
@@ -201,7 +201,7 @@ const ProductVisibility = () => {
             <button
               type="button"
               onClick={handleReset}
-              className="flex h-11 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
+              className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
             >
               <FiRotateCcw size={14} />
               Reset
