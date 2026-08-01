@@ -669,7 +669,7 @@ class ForgotPasswordAPIView(APIView):
         if user_type.lower() == "uniform":
             base_url = "http://23.23.88.239:7000"
         elif user_type.lower() == "table":
-            base_url = "http://23.23.88.239:7001"
+            base_url = "http://104.64.206.82:7003"
         else:
             return Response({
                 "status": False,
