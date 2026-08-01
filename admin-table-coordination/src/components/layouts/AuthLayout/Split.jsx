@@ -65,8 +65,8 @@ const Split = ({ children, content, ...rest }) => {
         <div className="absolute top-[5%] left-[5%] z-20">
           <Link href="/admin-form">
             <img
-              src="/img/others/auth-logo.png"
-              alt="KIREIZ FORM"
+              src="/img/others/auth-logo-small.png"
+              alt="KIREIZ FORM SPACE"
               className="md:h-12 h-10 w-auto"
             />
           </Link>
