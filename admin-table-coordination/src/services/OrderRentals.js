@@ -5,6 +5,8 @@ export async function apiOrderRentalLists(
   page = 1,
   pageSize = 10,
   search = "",
+  role = "",
+  status = "",
 ) {
   const params = new URLSearchParams({
     page,
@@ -14,6 +16,8 @@ export async function apiOrderRentalLists(
   if (search) {
     params.append("search", search);
   }
+  if (role && role !== "all") params.append("role", role);
+  if (status && status !== "all") params.append("status", status);
 
   return ApiService.fetchDataWithAxios({
     url: `/v1/space/uniformAdmin/orderlist/get/?${params.toString()}`,

@@ -7,15 +7,27 @@ import { useRouter } from 'next/navigation'
 import { apiPaymentDetail } from '@/services/paymentService'
 import { formatDate } from '@/utils/formatDate'
 
+/**
+ * ThankyouPopup Component
+ * 
+ * Order confirmation dialog modal showing order items summary, delivery address, rental dates, and payment receipt breakdown.
+ * 
+ * @param {Object} props - Component props.
+ * @param {boolean} props.isOpen - Modal visibility flag.
+ * @param {Function} props.onClose - Modal close handler callback.
+ * @param {string|number} props.paymentId - Confirmation payment ID.
+ */
 const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
     const router = useRouter()
     const { data: session } = useSession()
     const [orderPaymentDetail, setOrderPaymentDetail] = useState(null)
     const [loading, setLoading] = useState(false)
 
+    /**
+     * Fetches order payment receipt details by payment ID.
+     */
     useEffect(() => {
         const fetchPaymentDetail = async () => {
-            // const paymentId = paymentId;
             if (!isOpen || !session?.accessToken || !paymentId) return
 
             setLoading(true)
@@ -23,12 +35,11 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
                 const res = await apiPaymentDetail(session.accessToken, paymentId)
                 if (res?.status) {
                     setOrderPaymentDetail(res?.data)
-                    console.log('=== apiPaymentDetail Response in ThankyouPopup ===', res)
                 } else {
                     setOrderPaymentDetail(null)
                 }
             } catch (error) {
-                console.error('=== apiPaymentDetail Error in ThankyouPopup ===', error)
+                console.error('Fetch payment detail error:', error)
             } finally {
                 setLoading(false)
             }
@@ -37,12 +48,16 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
         fetchPaymentDetail()
     }, [isOpen, session?.accessToken, paymentId])
 
+    /**
+     * Closes the confirmation popup and redirects to order history.
+     */
     const handleClose = () => {
         if (onClose) {
             onClose()
         }
         router.push('/profile/my-order-rentals')
     }
+
 
     const order = orderPaymentDetail?.order
     const deliveryAddress = order?.delivery_address

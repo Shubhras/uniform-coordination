@@ -7,13 +7,19 @@ import BrowseCards from './BrowseCards'
 import HaederPage from '../../header/HaederPage'
 import FooterPage from '../../footer/FooterPage'
 
-
+/**
+ * BrowseByColorHome Component
+ * 
+ * Main container component for the Browse By Color section.
+ * Manages theme toggling and embeds the Header, Hero, Product Filter Grid, and Footer.
+ */
 const BrowseByColorHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
-    // const schema = useTheme((state) => state.themeSchema)
-    // const setSchema = useTheme((state) => state.setSchema)
 
+    /**
+     * Toggles between Light and Dark mode themes.
+     */
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }
@@ -29,3 +35,4 @@ const BrowseByColorHome = () => {
 }
 
 export default BrowseByColorHome
+

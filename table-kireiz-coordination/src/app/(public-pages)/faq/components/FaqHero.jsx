@@ -1,13 +1,18 @@
 'use client'
+
 import React from 'react'
 
+/**
+ * FaqHero Component
+ * 
+ * Renders the FAQ banner header section with title and introduction subtitle.
+ */
 const FaqHero = () => {
     return (
         <section className="w-full bg-[#FAF6F4] mt-14">
-            <div
-                className="w-full rounded-br-[60px] bg-gradient-to-r from-[#FAECE5] to-[#E8B4A933]">
-                <div className="w-full mx-auto  py-16">
-                    <div className="max-w-xl  space-y-3 px-4 sm:px-6 md:px-8 lg:px-12 ">
+            <div className="w-full rounded-br-[60px] bg-gradient-to-r from-[#FAECE5] to-[#E8B4A933]">
+                <div className="w-full mx-auto py-16">
+                    <div className="max-w-xl space-y-3 px-4 sm:px-6 md:px-8 lg:px-12">
                         <h1 className="text-3xl text-[#402936] md:text-4xl font-semibold">
                             FAQ’s
                         </h1>
@@ -23,4 +28,5 @@ const FaqHero = () => {
 }
 
 export default FaqHero
+
 

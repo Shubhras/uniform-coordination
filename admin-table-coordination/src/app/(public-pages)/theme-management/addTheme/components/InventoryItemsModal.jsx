@@ -11,7 +11,7 @@ import { apiGetFabricList } from "@/services/FabricService";
 export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [inventoryData, setInventoryData] = useState([]);
@@ -152,6 +152,18 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
     }),
   };
 
+  const handleSelect = (item) => {
+    setSelected((prev) => {
+      const exists = prev.some((i) => i.id === item.id);
+
+      if (exists) {
+        return prev.filter((i) => i.id !== item.id);
+      }
+
+      return [...prev, item];
+    });
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden">
@@ -221,19 +233,22 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
           <div className="flex justify-between text-[13px] text-[#8A8078] mb-3">
             <span>{inventoryData.length} results</span>
 
-            <span>{selected ? "1 selected" : "0 selected"}</span>
+            {/* <span>{selected ? "1 selected" : "0 selected"}</span> */}
+            <span>{selected.length} selected</span>
           </div>
 
           {/* List */}
 
           <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
             {inventoryData.map((item) => {
-              const active = selected?.id === item.id;
+              // const active = selected?.id === item.id;
+              const active = selected.some((i) => i.id === item.id);
 
               return (
                 <div
                   key={item.id}
-                  onClick={() => setSelected(item)}
+                  // onClick={() => setSelected(item)}
+                  onClick={() => handleSelect(item)}
                   className={`flex items-center justify-between rounded-2xl border px-4 py-3 cursor-pointer transition ${
                     active
                       ? "border-[#C56E42] bg-[#FFF5EF]"
@@ -254,9 +269,7 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
                     </div>
 
                     <img
-                      src={
-                        item.thumbnail || item.image || "/images/no-image.png"
-                      }
+                      src={item.ProductImage}
                       className="w-12 h-12 rounded-full object-cover"
                       alt=""
                     />
@@ -286,14 +299,20 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
           </button>
 
           <button
+            // onClick={() => {
+            //   if (!selected) return;
+
+            //   onAdd(selected);
+            // }}
             onClick={() => {
-              if (!selected) return;
+              if (!selected.length) return;
 
               onAdd(selected);
             }}
             className="flex-1 h-11 rounded-xl bg-[#A0522D] text-white font-medium hover:bg-[#8D4524]"
           >
-            Add Selected ({selected ? 1 : 0})
+            {/* Add Selected ({selected ? 1 : 0}) */}
+            Add Selected ({selected.length})
           </button>
         </div>
       </div>

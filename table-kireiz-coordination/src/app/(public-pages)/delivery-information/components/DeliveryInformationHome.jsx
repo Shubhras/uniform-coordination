@@ -6,13 +6,20 @@ import FooterPage from '../../footer/FooterPage'
 import HaederPage from '../../header/HaederPage'
 import DeliveryInformation from './DeliveryInformation'
 
-
+/**
+ * DeliveryInformationHome Component
+ * 
+ * Wrapper layout for delivery information page rendering global header, delivery form, and footer with theme state.
+ */
 const DeliveryInformationHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
     const schema = useTheme((state) => state.themeSchema)
     const setSchema = useTheme((state) => state.setSchema)
 
+    /**
+     * Toggles between Light and Dark theme modes.
+     */
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }
@@ -27,3 +34,4 @@ const DeliveryInformationHome = () => {
 }
 
 export default DeliveryInformationHome
+

@@ -11,6 +11,7 @@ import {
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetFabricList, apiDeleteFabric } from "@/services/FabricService";
+import Spinner from "@/components/ui/Spinner";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import AddEditFabricModal from "./AddEditFabricModal";
@@ -19,9 +20,7 @@ import Pagination from "@/components/ui/Pagination";
 
 const FabricsTab = () => {
   const { session } = useCurrentSession();
-  console.log(session);
   const accessToken = session?.user?.accessToken;
-  console.log(session?.user?.accessToken);
 
   const [fabrics, setFabrics] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -119,40 +118,6 @@ const FabricsTab = () => {
     fetchFabrics(currentPage);
   };
 
-  // Page navigation
-  const goToPage = (page) => {
-    if (page >= 1 && page <= pagination.total_pages) {
-      setCurrentPage(page);
-    }
-  };
-
-  // Generate page numbers
-  const getPageNumbers = () => {
-    const pages = [];
-    const total = pagination.total_pages;
-
-    if (total <= 5) {
-      for (let i = 1; i <= total; i++) pages.push(i);
-    } else {
-      if (currentPage <= 3) {
-        pages.push(1, 2, 3, 4, "...", total);
-      } else if (currentPage >= total - 2) {
-        pages.push(1, "...", total - 3, total - 2, total - 1, total);
-      } else {
-        pages.push(
-          1,
-          "...",
-          currentPage - 1,
-          currentPage,
-          currentPage + 1,
-          "...",
-          total,
-        );
-      }
-    }
-    return pages;
-  };
-
   return (
     <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
       <div className="flex justify-between sm:flex-row flex-col items-start mb-4 gap-2">
@@ -219,19 +184,13 @@ const FabricsTab = () => {
 
           <tbody>
             {loading ? (
-              // Skeleton loading rows
-              Array.from({ length: 5 }).map((_, i) => (
-                <tr
-                  key={i}
-                  className={i % 2 === 0 ? "bg-white" : "bg-[#1C4FA80F]"}
-                >
-                  {Array.from({ length: 6 }).map((_, j) => (
-                    <td key={j} className="px-5 py-4">
-                      <div className="h-4 bg-gray-200 rounded animate-pulse w-20" />
-                    </td>
-                  ))}
-                </tr>
-              ))
+              <tr>
+                <td colSpan={6} className="h-[400px]">
+                  <div className="flex justify-center items-center h-full">
+                    <Spinner size={40} customColorClass="text-[#A0522D]" />
+                  </div>
+                </td>
+              </tr>
             ) : fabrics.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-10 text-[#64748B]">
@@ -282,7 +241,6 @@ const FabricsTab = () => {
                     <div className="flex items-center gap-0">
                       <button
                         className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
-                        // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                         onClick={() => {
                           setEditFabric(fabric);
                           setOpenAdd(true);

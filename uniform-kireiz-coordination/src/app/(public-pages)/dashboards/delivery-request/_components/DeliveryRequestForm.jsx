@@ -13,6 +13,11 @@ import QuoteRequestPopup from './QuoteRequestPopup'
 import { apiCreateQuotationRequest } from '@/services/QuotationRequestService'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
+/**
+ * Zod validation schema for the delivery/quotation request form.
+ * Defines required fields and validation rules for company details,
+ * uniform request details, and terms agreement.
+ */
 const validationSchema = z.object({
     company_name: z
         .string({ required_error: 'Please enter company name' })
@@ -43,7 +48,14 @@ const validationSchema = z.object({
     additional_note: z.string().optional(),
     agreed_to_terms: z.boolean().refine(val => val === true, { message: 'Please agree to terms and conditions' }),
 })
-
+/**
+ * DeliveryRequestForm Component
+ *
+ * Renders the Quotation & Delivery Request form where users fill in
+ * company/contact details and uniform request details. Handles form
+ * validation, submission to the quotation request API, and opens the
+ * terms & conditions popup and the quote request confirmation popup.
+ */
 const DeliveryRequestForm = () => {
     const [quoteData, setQuoteData] = useState(null)
     const { data: session } = useSession()
@@ -51,8 +63,7 @@ const DeliveryRequestForm = () => {
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const params = useParams()
-
-    const id = params?.id  // custom update model id
+    const id = params?.id
     const {
         handleSubmit,
         reset,
@@ -73,7 +84,11 @@ const DeliveryRequestForm = () => {
         },
         resolver: zodResolver(validationSchema),
     })
-
+    /**
+        * Handles form submission. Builds the payload, checks for a valid
+        * session, calls the create quotation request API, and opens the
+        * quote request popup with the response data.
+        */
     const onSubmit = async (values) => {
         const payload = {
             ...values,
@@ -82,7 +97,6 @@ const DeliveryRequestForm = () => {
                 : "",
             customupdatemodel_id: id,
         }
-
         try {
             if (!session?.accessToken) {
                 alert("Please login first!")
@@ -99,11 +113,12 @@ const DeliveryRequestForm = () => {
             setIsSubmitting(false)
         }
     }
-
+    /**
+         * Opens the terms and conditions popup.
+         */
     const openDialogTerms = () => {
         setDialogTermsOpen(true)
     }
-
     return (
         <>
             <div className="w-full bg-white ">
@@ -117,7 +132,6 @@ const DeliveryRequestForm = () => {
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
                             <FormItem
-                                label="Company Name"
                                 invalid={Boolean(errors.company_name)}
                                 errorMessage={errors.company_name?.message}
                                 className="mb-2"
@@ -132,7 +146,6 @@ const DeliveryRequestForm = () => {
                             </FormItem>
 
                             <FormItem
-                                label="Contact Person"
                                 invalid={Boolean(errors.contact_person)}
                                 errorMessage={errors.contact_person?.message}
                                 className="mb-2"
@@ -147,7 +160,6 @@ const DeliveryRequestForm = () => {
                             </FormItem>
 
                             <FormItem
-                                label="Email Address"
                                 invalid={Boolean(errors.email)}
                                 errorMessage={errors.email?.message}
                                 className="mb-2"
@@ -162,7 +174,6 @@ const DeliveryRequestForm = () => {
                             </FormItem>
 
                             <FormItem
-                                label="Phone Number"
                                 invalid={Boolean(errors.phone_number)}
                                 errorMessage={errors.phone_number?.message}
                                 className="mb-2"
@@ -181,7 +192,6 @@ const DeliveryRequestForm = () => {
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
                             <FormItem
-                                label="Item Type"
                                 invalid={Boolean(errors.item_type)}
                                 errorMessage={errors.item_type?.message}
                                 className="mb-2"
@@ -196,7 +206,6 @@ const DeliveryRequestForm = () => {
                             </FormItem>
 
                             <FormItem
-                                label="Material"
                                 invalid={Boolean(errors.material)}
                                 errorMessage={errors.material?.message}
                                 className="mb-2"
@@ -211,7 +220,6 @@ const DeliveryRequestForm = () => {
                             </FormItem>
 
                             <FormItem
-                                label="Size & Quantity"
                                 invalid={Boolean(errors.size_quantity)}
                                 errorMessage={errors.size_quantity?.message}
                                 className="mb-2"
@@ -226,7 +234,6 @@ const DeliveryRequestForm = () => {
                             </FormItem>
 
                             <FormItem
-                                label="Delivery Date"
                                 invalid={Boolean(errors.delivery_date)}
                                 errorMessage={errors.delivery_date?.message}
                                 className="mb-2"
@@ -247,7 +254,6 @@ const DeliveryRequestForm = () => {
                         </div>
 
                         <FormItem
-                            label="Additional Note"
                             invalid={Boolean(errors.additional_note)}
                             errorMessage={errors.additional_note?.message}
                             className="mb-2"
@@ -298,12 +304,12 @@ const DeliveryRequestForm = () => {
                     </Form>
                 </div>
             </div>
-
+            {/* Terms and conditions popup */}
             <TermsAndConditionsPopup
                 isOpen={dialogTermsOpen}
                 onClose={() => setDialogTermsOpen(false)}
             />
-
+            {/* Quote request confirmation popup, shown after successful submission */}
             {dialoQuoteRequestOpen && (
                 <QuoteRequestPopup
                     isOpen={dialoQuoteRequestOpen}

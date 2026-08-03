@@ -1,5 +1,11 @@
 import ApiService from './ApiService'
 
+/**
+ * Fetches user profile details.
+ * 
+ * @param {string} token - User authentication Bearer token.
+ * @returns {Promise<Object>} API response with user profile details.
+ */
 export async function apiGetProfile(token) {
     return ApiService.fetchDataWithAxios({
         url: '/v1/space/userhub/profile/',
@@ -44,10 +50,6 @@ export async function apiUpdateProfile(token, payload) {
         formData.append('profileImage', payload.profileImage)
     }
 
-    // 🔍 Debug (optional)
-    for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1])
-    }
 
     return ApiService.fetchDataWithAxios({
         url: '/v1/space/userhub/profile/update/',
@@ -58,6 +60,14 @@ export async function apiUpdateProfile(token, payload) {
         },
     })
 }
+
+/**
+ * Updates user account password.
+ * 
+ * @param {string} token - User authentication Bearer token.
+ * @param {Object} payload - Password update payload containing old_password and new_password.
+ * @returns {Promise<Object>} API response confirming password update.
+ */
 export async function apiUpdatePassword(token, payload) {
     return ApiService.fetchDataWithAxios({
         url: '/v1/space/userhub/update-password/',
@@ -70,7 +80,13 @@ export async function apiUpdatePassword(token, payload) {
     })
 }
 
-
+/**
+ * Fetches user simulation history list.
+ * 
+ * @param {string} token - User authentication Bearer token.
+ * @param {Object} [params={}] - Optional query parameters.
+ * @returns {Promise<Object>} API response with simulation history items.
+ */
 export async function apiSimulationHistory(token, params = {}) {
     return ApiService.fetchDataWithAxios({
         url: "/v1/space/userhub/customupdateuser/get-list/",
@@ -81,6 +97,14 @@ export async function apiSimulationHistory(token, params = {}) {
         params,
     });
 }
+
+/**
+ * Exports simulation model detail to PDF document.
+ * 
+ * @param {string} token - User authentication Bearer token.
+ * @param {string|number} id - Model simulation ID to export.
+ * @returns {Promise<Object>} API response containing PDF export file URL.
+ */
 export async function apiSimulationExportPdf(token, id) {
     return ApiService.fetchDataWithAxios({
         url: `/v1/space/userhub/customupdatemodels/${id}/export/`,

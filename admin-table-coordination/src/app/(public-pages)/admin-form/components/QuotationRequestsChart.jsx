@@ -13,7 +13,7 @@ const QuotationRequestsChart = ({ chartData = [] }) => {
     },
   ];
 
-  // Dynamic max value for Y-axis
+  //max value for Y-axis
   const maxValue = Math.max(...series[0].data, 10);
 
   const options = {

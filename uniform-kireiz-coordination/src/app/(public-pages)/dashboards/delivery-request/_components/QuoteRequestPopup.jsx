@@ -3,20 +3,27 @@ import Dialog from '@/components/ui/Dialog'
 import { apiExportQuotationPdf } from '@/services/QuotationRequestService'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+
+/**
+ * QuoteRequestPopup Component
+ *
+ * Displays a confirmation popup after a quotation request is submitted,
+ * showing request details and options to export the quote as PDF or
+ * navigate back to the home page.
+ */
 const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
     const router = useRouter()
     const { data: session } = useSession()
     if (!isOpen || !quoteData) return null
-
     const {
         quotation_id,
         email,
         phone_number,
         created_at,
-        item_type,
-        material,
-        size_quantity,
     } = quoteData
+    /**
+    * Closes the popup and navigates back to the home page.
+    */
     const handleBackToHome = () => {
         onClose()
         router.push('/kireiz-form')
@@ -25,12 +32,15 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
         'en-GB',
         { day: '2-digit', month: 'short', year: 'numeric' }
     )
+    /**
+ * Exports the quotation as a PDF by calling the API and opening
+ * the returned PDF URL or Blob in a new tab.
+ */
     const handleExportPdf = async () => {
         if (!session?.accessToken) {
             alert("Please login first")
             return
         }
-
         try {
             const response = await apiExportQuotationPdf(
                 quotation_id,
@@ -66,7 +76,6 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
                 max-h-[90vh]
                 overflow-hidden
             ">
-                {/* Header */}
                 <div className="px-4 sm:px-6 pt-6 sm:pt-8 text-center">
                     <h2 className="text-xl sm:text-2xl font-semibold text-[#003562]">
                         Your Quote Request Has Been Submitted!
@@ -75,8 +84,6 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
                         Thank you! Our team has received your request and will contact you within 24 hours.
                     </p>
                 </div>
-
-                {/* Body */}
                 <div className="
                     flex-1
                     overflow-y-auto
@@ -112,8 +119,6 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
                         </p>
                     </div>
                 </div>
-
-                {/* Footer */}
                 <div className="
                     p-4 sm:p-6
                     bg-white
@@ -138,7 +143,6 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
                     >
                         Back to Home
                     </Button>
-
                     <button
                         className="
                             w-full sm:w-auto
@@ -161,5 +165,4 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
         </Dialog>
     )
 }
-
 export default QuoteRequestPopup

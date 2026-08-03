@@ -1,23 +1,20 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
-import Link from 'next/link'
 
 import {
     FiSave,
     FiFileText,
     FiScissors,
-    FiTag,
     FiLayers,
-    FiArchive,
-    FiArrowLeft,
-    FiDroplet,    // Color ke liye
-    FiMaximize2,  // Size ke liye
-    FiGrid,       // Table Shape ke liye
-    FiInbox,      // Pocket Configuration ke liye
-    FiFeather,    // Fabric ke liye
-    FiColumns,    // Pant ke liye
+    FiDroplet,
+    FiMaximize2,
+    FiGrid,
+    FiInbox,
+    FiFeather,
+    FiColumns,
 } from "react-icons/fi"
 
 import { useRouter, useParams } from 'next/navigation'
@@ -26,6 +23,10 @@ import { apiAddToCart } from '@/services/CartSummaryService'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import Spinner from '@/components/ui/Spinner'
+
+/**
+ * Icon mapping for specification detail cards.
+ */
 const iconMap = {
     "Style": FiScissors,
     "Type": FiLayers,
@@ -37,6 +38,34 @@ const iconMap = {
     "Size": FiMaximize2,
 }
 
+/**
+ * SpecCard Component
+ * 
+ * Renders an individual design specification detail card with icon and title.
+ * 
+ * @param {string} title - Specification label/type.
+ * @param {string} value - Specification value.
+ */
+const SpecCard = ({ title, value }) => {
+    const Icon = iconMap[title]
+    return (
+        <div className="border border-[#E8E0D9] rounded-xl px-4 py-3 bg-white">
+            <div className="flex items-start gap-2 mb-1">
+                {Icon && <Icon size={16} className="text-[#8B5A3C] mt-[2px]" />}
+                <p className="text-xs text-gray-500">{title}</p>
+            </div>
+            <p className="text-sm font-semibold text-[#2C1810]">
+                {value}
+            </p>
+        </div>
+    )
+}
+
+/**
+ * DesignResultPage Component
+ * 
+ * Displays customized design specifications, 3D/2D preview image, and provides actions to save, export PDF, or add to cart.
+ */
 const DesignResultPage = () => {
     const router = useRouter();
     const [isSaving, setIsSaving] = useState(false);
@@ -44,11 +73,14 @@ const DesignResultPage = () => {
     const { data: session } = useSession()
     const params = useParams()
 
-    const id = params?.id    // custom update model id
+    const id = params?.id
 
     const [modalInfoDesignData, setModalInfoDesignData] = useState(null)
     const [loading, setLoading] = useState(false)
 
+    /**
+     * Fetches design specifications by ID on initial mount.
+     */
     useEffect(() => {
         const fetchModalInfoDesignById = async () => {
             try {
@@ -69,7 +101,8 @@ const DesignResultPage = () => {
                 toast.push(
                     <Notification title="Error!" type="danger">
                         Failed to load product detail
-                    </Notification>)
+                    </Notification>
+                )
                 console.error("Failed to load product detail", err)
             } finally {
                 setLoading(false)
@@ -77,52 +110,29 @@ const DesignResultPage = () => {
         }
 
         if (id) fetchModalInfoDesignById()
-    }, [id])
+    }, [id, session?.accessToken])
 
-    const SpecCard = ({ title, value }) => {
-        const Icon = iconMap[title]
-        return (
-            <div className="border border-[#E8E0D9] rounded-xl px-4 py-3 bg-white">
-                <div className="flex items-start gap-2 mb-1">
-                    {Icon && <Icon size={16} className="text-[#8B5A3C] mt-[2px]" />}
-                    <p className="text-xs text-gray-500">{title}</p>
-                </div>
-                <p className="text-sm font-semibold text-[#2C1810]">
-                    {value}
-                </p>
-            </div>
-        )
-    }
-
-
-    // const handleRedirect = () => {
-    //     router.push('/dashboards/delivery-request')
-    // }
+    /**
+     * Saves the current customized design configuration.
+     */
     const handleSaveDesign = async () => {
         if (!session?.accessToken) return
         setIsSaving(true);
 
         const payload = {
             "user": session?.user?.id,
-            // "model_info": id,
             "config_json": {
                 "color": "grey",
                 "size": "M",
                 "material": "cotton"
             },
-            "design_specifications": modalInfoDesignData.design_specifications,
-            // "design_specifications": {
-            //     "logo_position": "front",
-            //     "print_type": "embroidery",
-            //     "text": "My Brand"
-            // },
+            "design_specifications": modalInfoDesignData?.design_specifications,
             "json_file_path": "uploads/configs/user6_model3.json",
             "isActive": true
         }
 
         try {
-            const response = await apiUpadteDesign(id, payload, session.accessToken);
-            // console.log("Design Saved Successfully:", response);
+            await apiUpadteDesign(id, payload, session.accessToken);
             toast.push(
                 <Notification title="Success!" type="success">
                     Design saved successfully
@@ -140,6 +150,9 @@ const DesignResultPage = () => {
         }
     };
 
+    /**
+     * Exports the design specifications to PDF and opens in a new tab.
+     */
     const handleExportPdf = async () => {
         if (!session?.accessToken) {
             toast.push(
@@ -151,7 +164,6 @@ const DesignResultPage = () => {
         }
 
         try {
-            const userId = session?.user?.id;
             const response = await apiExportDesignPdf(
                 id,
                 session.accessToken
@@ -162,7 +174,6 @@ const DesignResultPage = () => {
             }
 
             window.open(pdfUrl, "_blank");
-
         } catch (error) {
             console.error("Export PDF Error:", error);
             toast.push(
@@ -172,6 +183,10 @@ const DesignResultPage = () => {
             );
         }
     };
+
+    /**
+     * Adds the customized product design to the user's cart.
+     */
     const handleAddToCart = async () => {
         if (!session?.accessToken) {
             toast.push(
@@ -208,24 +223,7 @@ const DesignResultPage = () => {
     return (
         <section className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10 mt-15">
             <div className="w-full mx-auto">
-                <div className="flex items-center gap-2 py-5 md:pt-1">
-                    {/* <button onClick={() => router.back()} className="text-[#1C2C56] hover:text-[#1C4FA8] transition-colors" title="Go Back">
-                        <FiArrowLeft size={20} />
-                    </button>
-                    <p className='text-sm text-[#7B3C1D]'>
-                        <Link href="/kireiz-form" className="hover:underline hover:text-[#1C4FA8] cursor-pointer">My dashboard</Link>
-                        {' '} / {' '}
-                        {modalInfoDesignData?.category?.name ? (
-                            <>
-                                <Link href={`/medical-form/${modalInfoDesignData?.category?.id}`} className="hover:underline hover:text-[#1C4FA8] cursor-pointer">{modalInfoDesignData?.category?.name}</Link>
-                                {' '} / {' '}
-                            </>
-                        ) : null}
-                        Design Result
-                    </p> */}
-                </div>
-
-                {/* HEADER */}
+                {/* Header */}
                 <div className='bg-[#F5F8FF] rounded-xl md:p-8 md:pt-4 p-5'>
                     <div className="text-center mb-8">
                         <h2 className="text-[#7B3C1D] text-3xl font-semibold capitalize">
@@ -238,6 +236,7 @@ const DesignResultPage = () => {
                             </p>
                         )}
                     </div>
+
                     {loading ? (
                         <div className="flex justify-center items-center py-20">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
@@ -248,9 +247,9 @@ const DesignResultPage = () => {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-                            {/* ================= LEFT SECTION ================= */}
+                            {/* Left Section: Design Image Preview */}
                             <div className="order-1 flex flex-col items-center justify-center w-full">
-                                <div className="relative flex justify-center items-center h-[350px] lg:h-[520px] w-full bg-white border border-[#E8E0D9] rounded-[20px] overflow-hidden  p-4 lg:p-8">
+                                <div className="relative flex justify-center items-center h-[350px] lg:h-[520px] w-full bg-white border border-[#E8E0D9] rounded-[20px] overflow-hidden p-4 lg:p-8">
                                     <Image
                                         src={modalInfoDesignData?.ProductImage || '/img/table-form/3d-table.png'}
                                         alt="Uniform"
@@ -262,9 +261,9 @@ const DesignResultPage = () => {
                                     />
                                 </div>
                             </div>
-                            {/* ================= RIGHT SECTION ================= */}
+
+                            {/* Right Section: Specifications & Action Buttons */}
                             <div className="order-2 flex flex-col">
-                                {/* Product Info (Name & Description) */}
                                 {modalInfoDesignData?.productName && (
                                     <div className="mb-8">
                                         <h2 className="text-2xl font-bold text-[#7B3C1D] mb-3 capitalize">
@@ -289,7 +288,6 @@ const DesignResultPage = () => {
                                             <SpecCard title="Table Shape" value={modalInfoDesignData?.table_shape || ""} />
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                                            {/* <SpecCard title="Pocket Configuration" value="1 Chest, 2 Lower Patch" /> */}
                                             <SpecCard title="Color" value={modalInfoDesignData?.design_specifications?.color_details?.name || ""} />
                                             <SpecCard title="Fabric" value={modalInfoDesignData?.design_specifications?.fabric_details?.name || ""} />
                                             <SpecCard title="Size" value={modalInfoDesignData?.design_specifications?.size || ""} />
@@ -297,23 +295,23 @@ const DesignResultPage = () => {
                                     </div>
                                 </div>
 
-                                {/* Buttons */}
+                                {/* Action Buttons */}
                                 <div className="flex flex-col lg:flex-row justify-between items-center mt-10 gap-4 w-full">
                                     <div className="flex w-full lg:w-auto gap-4">
                                         <button
                                             className="
-                                            h-[55px]
-                                            flex-1 lg:flex-none lg:w-[140px]
-                                            flex flex-col items-center justify-center
-                                            gap-1
-                                            text-xs
-                                            border border-[#E8E0D9]
-                                            rounded-lg
-                                            bg-white
-                                            text-[#7B3C1D]
-                                            hover:bg-[#F5F8FF]
-                                            transition
-                                        "
+                                                h-[55px]
+                                                flex-1 lg:flex-none lg:w-[140px]
+                                                flex flex-col items-center justify-center
+                                                gap-1
+                                                text-xs
+                                                border border-[#E8E0D9]
+                                                rounded-lg
+                                                bg-white
+                                                text-[#7B3C1D]
+                                                hover:bg-[#F5F8FF]
+                                                transition
+                                            "
                                             onClick={handleSaveDesign}
                                             disabled={isSaving}
                                         >
@@ -323,24 +321,25 @@ const DesignResultPage = () => {
 
                                         <button
                                             className="
-                                            h-[55px]
-                                            flex-1 lg:flex-none lg:w-[140px]
-                                            flex flex-col items-center justify-center
-                                            gap-1
-                                            text-xs
-                                            border border-[#E8E0D9]
-                                            rounded-lg
-                                            bg-white
-                                            text-[#7B3C1D]
-                                            hover:bg-[#F5F8FF]
-                                            transition
-                                        "
+                                                h-[55px]
+                                                flex-1 lg:flex-none lg:w-[140px]
+                                                flex flex-col items-center justify-center
+                                                gap-1
+                                                text-xs
+                                                border border-[#E8E0D9]
+                                                rounded-lg
+                                                bg-white
+                                                text-[#7B3C1D]
+                                                hover:bg-[#F5F8FF]
+                                                transition
+                                            "
                                             onClick={handleExportPdf}
                                         >
                                             <FiFileText size={18} />
                                             <span>Export PDF</span>
                                         </button>
                                     </div>
+
                                     <button
                                         className="h-[55px] w-full lg:w-auto bg-[#8B4513] hover:bg-[#71370F] text-white px-12 rounded-md flex items-center justify-center lg:flex-1 lg:max-w-[200px] shadow-sm font-medium gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                                         onClick={handleAddToCart}

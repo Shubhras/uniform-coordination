@@ -6,13 +6,25 @@ import React, { useState, useEffect } from 'react'
 import { apiPrivatePolicy } from '@/services/privatePolicyService'
 import formatDate from '@/utils/formatDate'
 
+/**
+ * TermsAndConditionsPopup Component
+ * 
+ * Modal dialog rendering terms & conditions content fetched from backend policy service.
+ * 
+ * @param {Object} props - Component props.
+ * @param {boolean} props.isOpen - Modal visibility flag.
+ * @param {Function} props.onClose - Modal close handler callback.
+ */
 const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
-
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
     const [termsConditions, setTermsConditions] = useState(null)
 
-
+    /**
+     * Fetches terms & agreement policy data from API.
+     * 
+     * @param {string} policyType - Policy type identifier.
+     */
     const fetchPrivatePolicy = async (policyType = 'agreement') => {
         try {
             setLoading(true)
@@ -37,6 +49,7 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
             fetchPrivatePolicy("agreement")
         }
     }, [isOpen])
+
     return (
         <Dialog
             isOpen={isOpen}

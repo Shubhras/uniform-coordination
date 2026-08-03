@@ -6,13 +6,18 @@ import FooterPage from '../../footer/FooterPage'
 import HaederPage from '../../header/HaederPage'
 import Overview from './Overview'
 
-
+/**
+ * OverviewHome Component
+ * 
+ * Order overview page wrapper assembling global header, order summary review component, and footer with theme state.
+ */
 const OverviewHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
-    const schema = useTheme((state) => state.themeSchema)
-    const setSchema = useTheme((state) => state.setSchema)
 
+    /**
+     * Toggles between Light and Dark theme modes.
+     */
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }
@@ -27,3 +32,4 @@ const OverviewHome = () => {
 }
 
 export default OverviewHome
+

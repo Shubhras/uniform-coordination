@@ -52,6 +52,11 @@ const PreviewTheme = () => {
   const [themeData, setThemeData] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const bannerImages = [
+    themeData?.image,
+    ...(themeData?.cover_images?.map((item) => item.image) || []),
+  ].filter(Boolean);
+
   const getThemeDetails = async () => {
     if (!accessToken || !id) return;
 
@@ -139,7 +144,7 @@ const PreviewTheme = () => {
 
         <div className="relative overflow-hidden rounded-2xl h-[360px]">
           <img
-            src={themeData?.image}
+            src={bannerImages[activeImage]}
             alt=""
             className="w-full h-full object-cover"
           />
@@ -159,19 +164,7 @@ const PreviewTheme = () => {
           {/* Slider dots */}
 
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
-            {/* {(themeData?.gallery_images?.length
-              ? themeData.gallery_images
-              : bannerImages
-            ).map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveImage(index)}
-                className={`w-2.5 h-2.5 rounded-full transition ${
-                  activeImage === index ? "bg-white w-6" : "bg-white/50"
-                }`}
-              />
-            ))} */}
-            {themeData?.gallery_images?.map((_, index) => (
+            {bannerImages.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setActiveImage(index)}

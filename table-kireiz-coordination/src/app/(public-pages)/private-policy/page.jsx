@@ -3,7 +3,7 @@ import PrivatePolicyHome from './components/PrivatePolicyHome'
 
 const Page = () => {
     return (
-        <div><PrivatePolicyHome /></div>
+        <PrivatePolicyHome />
     )
 }
 

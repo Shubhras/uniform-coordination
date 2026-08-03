@@ -44,6 +44,8 @@ const Edit = () => {
   const [selectedSectionId, setSelectedSectionId] = useState(null);
 
   const [coverImages, setCoverImages] = useState([]);
+
+  const [newCoverImages, setNewCoverImages] = useState([]);
   const [errors, setErrors] = useState({});
 
   const [categoryList, setCategoryList] = useState([]);
@@ -137,6 +139,10 @@ const Edit = () => {
         formData.append("image", thumbnail);
       }
 
+      newCoverImages.forEach((file) => {
+        formData.append("cover_images", file);
+      });
+
       const res = await apiUpdateTheme(accessToken, id, formData);
 
       if (res?.status) {
@@ -169,6 +175,25 @@ const Edit = () => {
         };
       }),
     );
+  };
+
+  const handleGalleryUpload = (e) => {
+    const files = Array.from(e.target.files);
+
+    if (!files.length) return;
+
+    const images = files.map((file) => ({
+      id: Date.now() + Math.random(),
+      image: URL.createObjectURL(file),
+      file,
+    }));
+
+    setCoverImages((prev) => [...prev, ...images]);
+    setNewCoverImages((prev) => [...prev, ...files]);
+  };
+
+  const handleRemoveGalleryImage = (id) => {
+    setCoverImages((prev) => prev.filter((img) => img.id !== id));
   };
 
   const handleAddItem = (product) => {
@@ -462,6 +487,15 @@ const Edit = () => {
               Gallery Photos
             </label>
 
+            <input
+              id="galleryUpload"
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={handleGalleryUpload}
+            />
+
             <div className="flex gap-4 flex-wrap">
               {coverImages.map((img) => (
                 <div
@@ -481,7 +515,11 @@ const Edit = () => {
               ))}
 
               {/* Upload */}
-              <button className="w-[105px] h-[105px] rounded-xl border-2 border-dashed border-[#E5D5C8] flex items-center justify-center hover:bg-[#FAF5F2] transition">
+              <button
+                type="button"
+                onClick={() => document.getElementById("galleryUpload").click()}
+                className="w-[105px] h-[105px] rounded-xl border-2 border-dashed border-[#E5D5C8] flex items-center justify-center hover:bg-[#FAF5F2] transition"
+              >
                 <FiPlus className="text-[#A0522D]" size={20} />
               </button>
             </div>

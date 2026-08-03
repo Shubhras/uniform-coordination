@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -6,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiGetBlogs } from "@/services/BlogService";
 
+/**
+ * Trims text to a given number of words and adds "..." if it exceeds the limit.
+ */
 const trimText = (text, wordLimit = 10) => {
   if (!text) return "";
   const words = text.split(" ");
@@ -14,21 +16,38 @@ const trimText = (text, wordLimit = 10) => {
     : text;
 };
 
+/**
+ * Formats a date value into YYYY-MM-DD format.
+ */
 const formatDate = (date) => {
   if (!date) return "";
   return new Date(date).toISOString().split("T")[0];
 };
 
+/**
+ * BlogSection Component
+ *
+ * Fetches blog posts from the API and displays them in a grid.
+ * Handles loading state, empty state, and navigates to the
+ * single blog details page when a card is clicked.
+ */
 const BlogSection = () => {
   const router = useRouter();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  /**
+   * Navigates to the single blog details page for the clicked blog.
+   */
   const handleClick = (id) => {
     router.push(`/single-blog/${id}`);
   };
 
   useEffect(() => {
+    /**
+     * Fetches blogs from the API and maps the response into
+     * the format required for rendering.
+     */
     const fetchBlogs = async () => {
       try {
         const response = await apiGetBlogs();
@@ -57,8 +76,6 @@ const BlogSection = () => {
   return (
     <section className="w-full bg-white px-5 md:px-8 lg:px-12 py-20 md:py-24">
       <div className="bg-[#F5F7FB] rounded-3xl px-4 md:px-10 lg:px-8 py-10 md:py-8">
-
-        {/* HEADER */}
         <div className="text-center mb-10">
           <h2 className="text-[#1C2C56] lg:text-4xl text-3xl font-semibold">
             Blog
@@ -68,18 +85,14 @@ const BlogSection = () => {
             Read our latest updates and insights
           </p>
         </div>
-
         <h2 className="mb-5 lg:text-3xl text-3xl font-semibold text-[#1C2C56]">
           Our Latest Blog Posts
         </h2>
-
         {loading ? <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
           </div>
         </section> : null}
-
-        {/* Cards (SAME AS STATIC UI) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {blogs.map((post, index) => (
             <div
@@ -87,7 +100,6 @@ const BlogSection = () => {
               className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden cursor-pointer"
               onClick={() => handleClick(post.id)}
             >
-              {/* Image */}
               <div className="p-3">
                 <Image
                   src={post.image}
@@ -98,17 +110,13 @@ const BlogSection = () => {
                   unoptimized
                 />
               </div>
-
-              {/* Content */}
               <div className="px-5 pb-6 flex flex-col gap-3">
                 <p className="text-xs text-gray-500 mb-2">
                   {post.date} &nbsp;&nbsp; {post.category}
                 </p>
-
                 <h3 className="font-semibold text-[#1C2C56] text-base leading-snug">
                   {trimText(post.title, 10)}
                 </h3>
-
                 <p className="text-sm text-gray-600 leading-relaxed">
                   {trimText(post.desc, 15)}
                 </p>
@@ -116,7 +124,6 @@ const BlogSection = () => {
             </div>
           ))}
         </div>
-
         {!loading && blogs.length === 0 && (
           <p className="text-center text-gray-500 mt-10">
             No blogs available
@@ -128,4 +135,3 @@ const BlogSection = () => {
 };
 
 export default BlogSection;
-

@@ -55,7 +55,6 @@ const ActiveAlerts = ({ data }) => {
 
   return (
     <div className="mt-10 px-5 md:px-8 lg:px-8 ">
-      {/* Header */}
       <div className="bg-white rounded-xl shadow-lg p-5">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
@@ -70,7 +69,6 @@ const ActiveAlerts = ({ data }) => {
           </button>
         </div>
 
-        {/* Alerts List */}
         <div className="space-y-4">
           {alerts.map((alert, index) => {
             const Icon =
@@ -85,7 +83,6 @@ const ActiveAlerts = ({ data }) => {
                 key={index}
                 className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-[#E2E8F0] rounded-lg p-4"
               >
-                {/* LEFT CONTENT */}
                 <div className="flex items-start gap-3">
                   <Icon className={`${color} mt-1`} size={18} />
 
@@ -97,7 +94,6 @@ const ActiveAlerts = ({ data }) => {
                   </div>
                 </div>
 
-                {/* ACTION BUTTON */}
                 <div className="flex md:justify-end">
                   <button
                     className="

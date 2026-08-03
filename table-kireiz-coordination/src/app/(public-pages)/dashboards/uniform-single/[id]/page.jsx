@@ -3,7 +3,7 @@ import UniformSingle from './_components/UniformSingle'
 
 const Page = () => {
     return (
-        <div><UniformSingle /></div>
+        <UniformSingle />
     )
 }
 

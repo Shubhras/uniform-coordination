@@ -65,15 +65,13 @@ const selectStyles = {
 };
 
 const customerOptions = [
-  { value: "all", label: "All Customers" },
-  { value: "maison", label: "Maison Dorval" },
-  { value: "robert", label: "Robert Fox" },
-  { value: "cody", label: "Cody Fisher" },
-  { value: "sophie", label: "Sophie Laurent" },
+  { value: "all", label: "All Roles" },
+  { value: "b2b", label: "B2B" },
+  { value: "b2c", label: "B2C" },
 ];
 
 const statusOptions = [
-  { value: "all", label: "Status" },
+  { value: "all", label: "All Status" },
   { value: "delivered", label: "Delivered" },
   { value: "returned", label: "Returned" },
   { value: "shipped", label: "Shipped" },
@@ -130,6 +128,8 @@ export default function Orders() {
         currentPage,
         pageSize,
         debouncedSearch,
+        customer.value,
+        status.value,
       );
 
       if (res?.status) {
@@ -145,7 +145,7 @@ export default function Orders() {
 
   useEffect(() => {
     fetchOrders();
-  }, [accessToken, currentPage, pageSize, debouncedSearch]);
+  }, [accessToken, currentPage, pageSize, debouncedSearch, customer, status]);
 
   return (
     <>
@@ -161,15 +161,6 @@ export default function Orders() {
           </p>
         </div>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
-          {/* <div className="relative w-full lg:max-w-xl">
-          <FiSearch className="absolute left-4  top-1/2 -translate-y-1/2 text-[#C08457] text-sm" />
-
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="w-full h-11 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
-          />
-        </div> */}
           <div className="relative w-full lg:max-w-xl">
             <FiSearch
               onClick={() => {
@@ -198,7 +189,6 @@ export default function Orders() {
           </div>
 
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            {/* Filters */}
             <div className="flex gap-3">
               <div className="w-52">
                 <Select
@@ -230,7 +220,6 @@ export default function Orders() {
             </div>
           </div>
         </div>
-        {/* Table Part will come in Part 2 */}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-[#F1F5F9] text-[#486284]">
@@ -240,18 +229,12 @@ export default function Orders() {
                 <th className="text-left px-4 py-3 font-medium">
                   Customer Name
                 </th>
-                {/* <th className="text-left px-4 py-3 font-medium">Email</th> */}
                 <th className="text-left px-4 py-3 font-medium">Role</th>
-                {/* <th className="text-left px-4 py-3 font-medium">Address</th> */}
                 <th className="text-left px-4 py-3 font-medium">
                   Rental Period
                 </th>
                 <th className="text-left px-4 py-3 font-medium">Amount</th>
-                {/* <th className="text-left px-4 py-3 font-medium">
-                  Payment Status
-                </th> */}
                 <th className="text-left px-4 py-3 font-medium">Status</th>
-                {/* <th className="text-left px-4 py-3 font-medium">Order Type</th> */}
                 <th className="text-left px-4 py-3 font-medium">Action</th>
               </tr>
             </thead>
@@ -272,11 +255,6 @@ export default function Orders() {
                     <td className="px-5 py-5 font-semibold text-[#2C1A0E]">
                       {order.customer?.full_name || "-"}
                     </td>
-
-                    {/* Email */}
-                    {/* <td className="px-5 py-5 font-semibold text-[#2C1A0E]">
-                      {order.customer?.email || "-"}
-                    </td> */}
                     <td className="px-5 py-5">
                       <span
                         className={`inline-flex items-center rounded-l px-3 py-1 text-[11px] font-semibold uppercase border ${
@@ -302,31 +280,6 @@ export default function Orders() {
                         {order.total_amount || "-"}
                       </span>
                     </td>
-
-                    {/* Address */}
-                    {/* <td className="px-5 py-5 text-[#2C1A0E]">
-                      {[
-                        order.customer?.address?.address_line_1,
-                        order.customer?.address?.country,
-                      ]
-                        .filter(Boolean)
-                        .join(", ")}
-                    </td> */}
-
-                    {/* Payment Status */}
-                    {/* <td className="px-5 py-5">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-[11px] font-medium capitalize ${
-                          order.payment?.payment_status === "success"
-                            ? "bg-[#E8FFF5] text-[#0E9F6E] border border-[#B6E7D2]"
-                            : "bg-[#FFF4E5] text-[#D97706] border border-[#FCD34D]"
-                        }`}
-                      >
-                        {order.payment?.payment_status || "Pending"}
-                      </span>
-                    </td> */}
-
-                    {/* Order Status */}
                     <td className="px-4 py-5">
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-[12px] font-semibold capitalize ${
@@ -342,14 +295,6 @@ export default function Orders() {
                         {order.status}
                       </span>
                     </td>
-
-                    {/* <td className="px-5 py-5">
-                      <span className="inline-flex rounded-md border border-[#F3D4C2] bg-[#FDF2EC] px-2.5 py-1 text-[11px] font-medium text-[#C96B39] capitalize">
-                        {order.order_type}
-                      </span>
-                    </td> */}
-
-                    {/* Action */}
                     <td className="px-5 py-4">
                       <div className="flex">
                         <button

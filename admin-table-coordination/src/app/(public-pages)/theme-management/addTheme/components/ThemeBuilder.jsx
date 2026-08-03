@@ -53,18 +53,31 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
     );
   };
 
-  const handleAddItem = (product) => {
+  // const handleAddItem = (product) => {
+  //   setThemeData((prev) => ({
+  //     ...prev,
+
+  //     theme_items: {
+  //       ...prev.theme_items,
+
+  //       [currentSection]: [...prev.theme_items[currentSection], product],
+  //     },
+  //   }));
+  //   setSectionError("");
+
+  //   setOpenModal(false);
+  // };
+
+  const handleAddItem = (products) => {
     setThemeData((prev) => ({
       ...prev,
-
       theme_items: {
         ...prev.theme_items,
-
-        [currentSection]: [...prev.theme_items[currentSection], product],
+        [currentSection]: [...prev.theme_items[currentSection], ...products],
       },
     }));
-    setSectionError("");
 
+    setSectionError("");
     setOpenModal(false);
   };
 
@@ -84,7 +97,7 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
 
   return (
     <>
-      <div className="bg-[#FAF8F6] min-h-screen">
+      <div className="min-h-screen">
         <div className="flex items-center gap-3 mb-8">
           <button
             onClick={onBack}
@@ -146,8 +159,7 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
                   </h3>
 
                   <span className="px-2 py-1 rounded-full bg-[#FDF1EA] text-[#A85A32] text-[13px] font-semibold">
-                    {themeData.theme_items[section.key].length}{" "}
-                    items
+                    {themeData.theme_items[section.key].length} items
                   </span>
                 </div>
 
@@ -168,25 +180,6 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
                   {/* Toolbar */}
                   <div className="flex flex-wrap items-center justify-between gap-4 p-5">
                     <div className="flex items-center gap-3 flex-1">
-                      <div className="relative w-full max-w-xs">
-                        <input
-                          type="text"
-                          placeholder="Search themes by name..."
-                          className="w-full h-10 rounded-lg border border-[#E8DDD4] pl-10 pr-4 text-sm outline-none focus:border-[#A85A32]"
-                        />
-
-                        <svg
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                          width="15"
-                          height="15"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <circle cx="7" cy="7" r="5" />
-                          <path d="M11 11l3 3" />
-                        </svg>
-                      </div>
                       {/* 
                       <select className="h-10 rounded-lg border border-[#E8DDD4] px-4 text-sm outline-none">
                         <option>Categories</option>
@@ -199,46 +192,56 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
 
                   {/* Items */}
 
-                  <div className="px-5 pb-5 space-y-3">
-                    {themeData.theme_items[section.key].map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center justify-between border rounded-xl p-3"
-                      >
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={item.thumbnail || item.image}
-                            className="w-12 h-12 rounded-lg object-cover"
-                            alt=""
-                          />
-
-                          <div>
-                            <p className="font-medium">{item.productName}</p>
-
-                            <p className="text-xs text-gray-500">
-                              {item.category?.categoryName}
-                            </p>
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() => {
-                            setThemeData((prev) => ({
-                              ...prev,
-                              theme_items: {
-                                ...prev.theme_items,
-                                [section.key]: prev.theme_items[
-                                  section.key
-                                ].filter((p) => p.id !== item.id),
-                              },
-                            }));
-                          }}
-                          className="text-red-500"
-                        >
-                          <FiTrash2 />
-                        </button>
+                  <div className="px-5 pb-5">
+                    {themeData.theme_items[section.key].length === 0 ? (
+                      <div className="py-4 text-center text-sm text-gray-500 border border-dashed border-[#E8DDD4] rounded-xl">
+                        No items selected
                       </div>
-                    ))}
+                    ) : (
+                      <div className="space-y-3">
+                        {themeData.theme_items[section.key].map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center justify-between border rounded-xl p-3"
+                          >
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={item.thumbnail || item.image}
+                                className="w-12 h-12 rounded-lg object-cover"
+                                alt=""
+                              />
+
+                              <div>
+                                <p className="font-medium">
+                                  {item.productName}
+                                </p>
+
+                                <p className="text-xs text-gray-500">
+                                  {item.category?.categoryName}
+                                </p>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                setThemeData((prev) => ({
+                                  ...prev,
+                                  theme_items: {
+                                    ...prev.theme_items,
+                                    [section.key]: prev.theme_items[
+                                      section.key
+                                    ].filter((p) => p.id !== item.id),
+                                  },
+                                }));
+                              }}
+                              className="text-red-500"
+                            >
+                              <FiTrash2 size={17} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

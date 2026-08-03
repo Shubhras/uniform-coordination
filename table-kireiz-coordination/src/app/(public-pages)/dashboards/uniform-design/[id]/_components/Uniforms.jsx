@@ -3,12 +3,15 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiChevronDown, FiArrowLeft } from 'react-icons/fi'
+import { FiArrowLeft } from 'react-icons/fi'
 import { useParams, useRouter } from 'next/navigation'
 import { apiGetProductById } from '@/services/ProductService'
 import Select from '@/components/ui/Select'
 import { HiCheck } from 'react-icons/hi'
 
+/**
+ * Custom Option Component for React-Select dropdown.
+ */
 const CustomOption = (props) => {
     const { innerProps, label, isSelected, isDisabled } = props
     return (
@@ -23,6 +26,11 @@ const CustomOption = (props) => {
     )
 }
 
+/**
+ * Uniforms Dynamic Component ([id])
+ * 
+ * Fetches and displays category/subcategory uniform products with ordering and tab filtering.
+ */
 const Uniforms = () => {
     const router = useRouter()
     const { id } = useParams()
@@ -49,25 +57,26 @@ const Uniforms = () => {
 
     const [activeTab, setActiveTab] = useState(tabs[0])
     const [sortBy, setSortBy] = useState(sortOptions[0])
-    const [openSort, setOpenSort] = useState(false)
     const [productData, setProductData] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
     const [subCategoryData, setSubCategoryData] = useState({});
 
+    /**
+     * Fetches uniform products for the current subcategory ID, active tab, and sorting key.
+     */
     useEffect(() => {
         const fetchProduct = async () => {
             try {
                 setLoading(true)
                 setError(null)
 
-                const params = {}
-
-                params.subcategory_id = id
-                params.productType = 'uniform'
-
-                params.type = activeTab.key;
-                params.ordering = sortBy.key;
+                const params = {
+                    subcategory_id: id,
+                    productType: 'uniform',
+                    type: activeTab.key,
+                    ordering: sortBy.key
+                }
 
                 const res = await apiGetProductById(params)
 
@@ -90,10 +99,10 @@ const Uniforms = () => {
         if (id) fetchProduct()
     }, [id, activeTab, sortBy])
 
-
     return (
         <section className="w-full bg-white flex flex-col lg:flex-row px-5 md:px-8 lg:px-12 py-5 gap-10 mt-15">
             <div className="w-full mx-auto">
+                {/* Breadcrumb */}
                 <div className="flex items-center gap-2 py-5">
                     <button onClick={() => router.back()} className="text-[#1C2C56] hover:text-[#1C4FA8] transition-colors" title="Go Back">
                         <FiArrowLeft size={20} />
@@ -107,13 +116,8 @@ const Uniforms = () => {
                     </p>
                 </div>
 
-                {/* FILTER + SORT */}
+                {/* Filter & Sort Controls */}
                 <div className="flex justify-end gap-4 mb-5">
-
-                    {/* FILTERS */}
-                    {/* commented code stays commented */}
-
-                    {/* SORT */}
                     <div className="relative min-w-[220px] z-[60]">
                         <Select
                             options={sortOptions.map(opt => ({ value: opt.key, label: `${opt.name}` }))}
@@ -144,7 +148,7 @@ const Uniforms = () => {
                     </div>
                 </div>
 
-                {/* HEADER */}
+                {/* Header & Tabs */}
                 <div className="bg-[#F5F8FF] rounded-xl pt-10 text-center border-b px-5">
                     <div className="text-center mb-6">
                         <div className="inline-flex flex-col items-end">
@@ -158,14 +162,13 @@ const Uniforms = () => {
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                     </p>
 
-                    {/* TABS */}
-                    <div className="flex gap-6 mt-6 justify-start overflow-x-auto ">
+                    <div className="flex gap-6 mt-6 justify-start overflow-x-auto">
                         {tabs.map(tab => (
                             <button
                                 key={tab.key}
                                 onClick={() => setActiveTab(tab)}
                                 className={`pb-2 text-sm whitespace-nowrap border-b-3 transition
-                  ${activeTab.key === tab.key
+                                    ${activeTab.key === tab.key
                                         ? 'border-[#1C2C56] text-[#1C2C56] font-medium'
                                         : 'border-transparent text-[#6B7280]'
                                     }`}
@@ -176,13 +179,8 @@ const Uniforms = () => {
                     </div>
                 </div>
 
-                {/* PRODUCTS GRID */}
-                <div className="grid grid-cols-1
-  sm:grid-cols-2
-  lg:grid-cols-3
-  xl:grid-cols-4
-  gap-6 bg-[#F5F8FF] p-5">
-
+                {/* Products Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 bg-[#F5F8FF] p-5">
                     {loading && (
                         <div className="col-span-full flex justify-center items-center py-20">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
@@ -190,13 +188,13 @@ const Uniforms = () => {
                     )}
 
                     {!loading && error && (
-                        <div className=" col-span-full  flex items-center justify-center text-center text-sm text-red-600 min-h-32">
+                        <div className="col-span-full flex items-center justify-center text-center text-sm text-red-600 min-h-32">
                             {error}
                         </div>
                     )}
 
                     {!loading && !error && productData.length === 0 && (
-                        <div className="col-span-full  flex items-center justify-center text-sm text-[#6B7280] min-h-32">
+                        <div className="col-span-full flex items-center justify-center text-sm text-[#6B7280] min-h-32">
                             No products found
                         </div>
                     )}
@@ -206,7 +204,7 @@ const Uniforms = () => {
                             key={product.id}
                             className="bg-white border border-[#1C2C56] rounded-2xl p-4 flex flex-col justify-between text-start"
                         >
-                            <div className="flex justify-center mb-4 ">
+                            <div className="flex justify-center mb-4">
                                 <Image
                                     src={product.ProductImage || '/img/placeholder.png'}
                                     alt="Uniform"
@@ -220,7 +218,7 @@ const Uniforms = () => {
                                 <h4 className="text-[#1C2C56] font-medium">{product.productName}</h4>
                                 <p className="text-xs text-[#6B7280]">{product.description}</p>
                                 <button
-                                    className=" bg-[#1C4FA8] text-white text-sm py-2 rounded-md"
+                                    className="bg-[#1C4FA8] text-white text-sm py-2 rounded-md"
                                     onClick={() => handleUniformDesigning(product.id)}
                                 >
                                     Customize
@@ -229,11 +227,10 @@ const Uniforms = () => {
                         </div>
                     ))}
                 </div>
-
-
             </div>
         </section>
     )
 }
 
 export default Uniforms
+

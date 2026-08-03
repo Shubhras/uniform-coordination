@@ -412,7 +412,7 @@ const ProfileQuotationDetail = ({ quotationId }) => {
                         <div className="rounded-[18px] bg-[#DBEAFE] p-4">
                             <div className="mb-3 flex items-center gap-2">
                                 <FiList className="text-[#003560]" size={14} />
-                                <p className="text-sm font-semibold text-[#111827]">Notes & Terms</p>
+                                <p className="text-sm font-semibold text-[#DBEAFE]">Notes & Terms</p>
                             </div>
                             <div className="space-y-3">
                                 {quotation.terms.map((term) => (
