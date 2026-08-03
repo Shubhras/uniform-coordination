@@ -7,6 +7,7 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import signOut from "@/server/actions/auth/handleSignOut";
 import { apiLogout } from "@/services/AuthService";
 import NotificationPopup from "./NotificationPopup";
+import LanguageSelector from "@/components/template/LanguageSelector";
 import {
   FiBell,
   FiGlobe,
@@ -106,85 +107,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
 
       {/* Right Side Actions */}
       <div className="flex items-center gap-4 md:gap-5">
-        {/* Language Selector */}
-        {/* <button className="flex items-center gap-1.5 text-[#64748B] hover:text-[#1C2C56] transition-colors">
-                    <FiGlobe size={18} />
-                    <span className="text-sm font-medium hidden sm:inline">EN</span>
-                </button> */}
-        {/* Language Selector */}
-        <div className="relative" ref={languageRef}>
-          <button
-            onClick={() => {
-              setLanguageOpen(!languageOpen);
-              setNotifOpen(false);
-              setDropdownOpen(false);
-            }}
-            className={`flex items-center gap-1.5 px-2 py-2 rounded-lg transition-colors
-            ${
-              languageOpen
-                ? "bg-[#F1F5F9] text-[#1C2C56]"
-                : "text-[#64748B] hover:text-[#1C2C56] hover:bg-[#F1F5F9]"
-            }`}
-          >
-            <FiGlobe size={18} />
-
-            <span className="text-sm font-medium hidden sm:inline">
-              {selectedLanguage.code}
-            </span>
-            <FiChevronDown
-              size={14}
-              className={`transition-transform ${
-                languageOpen ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-
-          {languageOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white rounded-l shadow-lg border border-[#E2E8F0] py-2 z-50">
-              <button
-                onClick={() => {
-                  setSelectedLanguage({
-                    name: "English",
-                    code: "EN",
-                    flag: India,
-                  });
-                  setLanguageOpen(false);
-                }}
-                className="w-full px-4 py-2 text-left text-sm hover:bg-[#F8FAFC] flex items-center gap-3"
-              >
-                <Image
-                  src={India}
-                  alt="English"
-                  width={20}
-                  height={20}
-                  className="rounded-full object-cover"
-                />
-                <span>English</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setSelectedLanguage({
-                    name: "Japanese",
-                    code: "JP",
-                    flag: Japan,
-                  });
-                  setLanguageOpen(false);
-                }}
-                className="w-full px-4 py-2 text-left text-sm hover:bg-[#F8FAFC] flex items-center gap-3"
-              >
-                <Image
-                  src={Japan}
-                  alt="Japanese"
-                  width={20}
-                  height={20}
-                  className="rounded-full object-cover"
-                />
-                <span>Japanese</span>
-              </button>
-            </div>
-          )}
-        </div>
+        <LanguageSelector className="flex items-center gap-2 h-10 px-3 hover:bg-[#F8FAFC] rounded-lg transition-colors duration-200" />
 
         {/* Notification Bell */}
         <div className="relative" ref={notifRef}>

@@ -314,6 +314,19 @@ const AddEditFabricModal = ({
         );
       } else {
         const response = await apiCreateFabric(accessToken, payload);
+
+        if (!response.status) {
+          const errorMessage = Object.values(response.message || {}).flat()[0];
+
+          toast.push(
+            <Notification title="Error" type="danger">
+              {errorMessage}
+            </Notification>,
+          );
+
+          return;
+        }
+
         toast.push(
           <Notification title="Success" type="success">
             {response.message}
@@ -321,9 +334,11 @@ const AddEditFabricModal = ({
         );
       }
 
-      if (onSaveSuccess) {
-        onSaveSuccess();
-      }
+      // if (onSaveSuccess) {
+      //   onSaveSuccess();
+      // }
+      onSaveSuccess?.();
+      onClose();
     } catch (err) {
       console.error("Fabric save error:", err);
       setError(
