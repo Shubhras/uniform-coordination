@@ -1596,7 +1596,7 @@ class CreateOrderAPIView(APIView):
             existing_order = Order.objects.filter(
                 user=user,
                 cart=cart,
-                payment_status="pending"
+                is_paid=False
             ).first()
 
             if existing_order:
