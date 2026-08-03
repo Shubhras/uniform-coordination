@@ -539,6 +539,46 @@ class FavouriteSerializer(serializers.ModelSerializer):
         fields = ["id", "product", "product_type", "is_like"]
 
 
+
+
+class ProductOrderListSerializer(serializers.ModelSerializer):
+    order_id = serializers.CharField(source="order.order_id", read_only=True)
+    customer_name = serializers.SerializerMethodField()
+    order_status = serializers.CharField(source="order.status", read_only=True)
+    payment_method = serializers.CharField(source="order.payment_method", read_only=True)
+    total_amount = serializers.DecimalField(
+        source="order.total_amount",
+        max_digits=10,
+        decimal_places=2,
+        read_only=True
+    )
+    rental_start_date = serializers.DateField(source="order.rental_start_date", read_only=True)
+    rental_end_date = serializers.DateField(source="order.rental_end_date", read_only=True)
+    order_created_at = serializers.DateTimeField(source="order.created_at", read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = [
+            "id",
+            "order_id",
+            "customer_name",
+            "order_status",
+            "payment_method",
+            "quantity",
+            "price_per_day",
+            "subtotal",
+            "total_amount",
+            "rental_start_date",
+            "rental_end_date",
+            "order_created_at",
+        ]
+
+    def get_customer_name(self, obj):
+        if obj.order.customer:
+            return getattr(obj.order.customer, "userName", None)
+        return None
+
+
 # from rest_framework import serializers
 
 # class NotificationSerializer(serializers.ModelSerializer):
