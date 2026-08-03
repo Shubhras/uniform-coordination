@@ -3,14 +3,22 @@
 import { useEffect, useState } from "react";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FiArrowLeft, FiTrash2, FiEdit2, FiActivity } from "react-icons/fi";
+import {
+  FiArrowLeft,
+  FiTrash2,
+  FiEdit2,
+  FiActivity,
+  FiUser,
+} from "react-icons/fi";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import NewDeleteModal from "@/components/shared/NewDeleteModal";
 import {
   apiGetProductDetails,
   apiDeleteProduct,
+  apiRentalHistory,
 } from "@/services/ProductService";
+import Spinner from "@/components/ui/Spinner";
 
 export default function ViewInventory() {
   const router = useRouter();
@@ -19,14 +27,31 @@ export default function ViewInventory() {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
+  const [rentalHistory, setRentalHistory] = useState([]);
+
   const productId = searchParams.get("id");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showAllHistory, setShowAllHistory] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+  const displayedHistory = showAllHistory
+    ? rentalHistory
+    : rentalHistory.slice(0, 1);
 
   const [product, setProduct] = useState(null);
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
+        setLoading(true);
         const res = await apiGetProductDetails(accessToken, productId);
 
         if (res?.status && res?.data) {
@@ -34,11 +59,31 @@ export default function ViewInventory() {
         }
       } catch (err) {
         console.log(err);
+      } finally {
+        setLoading(false);
       }
     };
 
     if (accessToken && productId) {
       fetchProduct();
+    }
+  }, [accessToken, productId]);
+
+  useEffect(() => {
+    const fetchRentalHistory = async () => {
+      try {
+        const res = await apiRentalHistory(accessToken, productId);
+
+        if (res?.status) {
+          setRentalHistory(res.data || []);
+        }
+      } catch (err) {
+        console.error("Rental History Error:", err);
+      }
+    };
+
+    if (accessToken && productId) {
+      fetchRentalHistory();
     }
   }, [accessToken, productId]);
 
@@ -68,6 +113,14 @@ export default function ViewInventory() {
       setDeleteLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner size={40} customColorClass="text-[#A0522D]" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -255,54 +308,67 @@ export default function ViewInventory() {
             {/* Rental History */}
             <div className="mt-4 bg-white border border-[#EFE5DD] rounded-2xl p-5 shadow-sm">
               {/* Header */}
-              <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center justify-between mb-3">
                 <h3 className="flex items-center gap-2 text-[12px] font-bold text-[#8B6D4E]">
                   <FiActivity size={18} className="text-[#8B6D4E]" />
                   RENTAL HISTORY
                 </h3>
 
-                <button className="text-[14px] font-medium text-[#B85C2F] hover:underline">
-                  View all
-                </button>
+                {rentalHistory.length > 1 && (
+                  <button
+                    onClick={() => setShowAllHistory(!showAllHistory)}
+                    className="text-[14px] font-medium text-[#B85C2F] hover:underline"
+                  >
+                    {showAllHistory ? "View less" : "View all"}
+                  </button>
+                )}
               </div>
 
-              {/* History Item */}
-              <div className="flex items-center justify-between rounded-xl">
-                <div className="flex items-center gap-4">
-                  {/* Avatar */}
-                  <div className="w-12 h-12 rounded-full bg-[#F7EFE7] flex items-center justify-center">
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#B86A3D"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+              {displayedHistory.length > 0 ? (
+                displayedHistory.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between py-4"
+                  >
+                    <div className="flex items-center gap-4">
+                      {/* Icon */}
+                      <div className="w-12 h-12 rounded-full bg-[#F7EFE7] flex items-center justify-center">
+                        <FiUser size={18} className="text-[#B86A3D]" />
+                      </div>
+
+                      {/* Content */}
+                      <div>
+                        <h4 className="text-[16px] font-semibold text-[#1A1410]">
+                          {item.customer_name || "Guest Customer"}
+                        </h4>
+
+                        <p className="mt-1 text-[14px] text-[#A38A75]">
+                          {item.order_id} · {formatDate(item.order_created_at)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Status */}
+                    <span
+                      className={`px-4 py-1 rounded-lg text-[12px] font-semibold uppercase ${
+                        item.order_status === "processing"
+                          ? "bg-[#ECFDF5] text-[#0E9F6E] border border-[#B6F0D3]"
+                          : item.order_status === "completed"
+                            ? "bg-[#ECFDF5] text-[#0E9F6E] border border-[#B6F0D3]"
+                            : "bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]"
+                      }`}
                     >
-                      <path d="M20 21a8 8 0 0 0-16 0" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
+                      {item.order_status === "processing"
+                        ? "ACTIVE"
+                        : item.order_status.toUpperCase()}
+                    </span>
                   </div>
-
-                  {/* Details */}
-                  <div>
-                    <h4 className="text-[18px] font-semibold text-[#1A1410] leading-none">
-                      The Grand Mayfair Hotel
-                    </h4>
-
-                    <p className="mt-2 text-[14px] text-[#A38A75]">
-                      ORD-2851 · 01 Jul 2025
-                    </p>
-                  </div>
-                </div>
-
-                {/* Status */}
-                <span className="px-5 py-2 rounded-lg border border-[#B6F0D3] bg-[#ECFDF5] text-[#0E9F6E] text-[13px] font-semibold uppercase tracking-wide">
-                  Active
-                </span>
-              </div>
+                ))
+              ) : (
+                <p className="text-center text-gray-500 py-6">
+                  No rental history found.
+                </p>
+              )}
             </div>
           </div>
 

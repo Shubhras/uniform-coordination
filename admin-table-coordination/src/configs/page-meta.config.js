@@ -1,7 +1,7 @@
 const pageMeta = {
-    title: 'Kireiz Form - The Ultimate Uniform Coordination',
+    title: 'Kireiz Space - The Ultimate Space Coordination',
     description:
-        'Kireiz Form - The Ultimate Uniform Coordination',
+        'Kireiz Space - The Ultimate Space Coordination',
     icons: {
         icon: '/favicon.ico',
     },

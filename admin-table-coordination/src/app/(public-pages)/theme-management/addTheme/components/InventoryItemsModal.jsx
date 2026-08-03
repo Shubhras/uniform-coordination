@@ -269,9 +269,7 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
                     </div>
 
                     <img
-                      src={
-                        item.thumbnail || item.image || "/images/no-image.png"
-                      }
+                      src={item.ProductImage}
                       className="w-12 h-12 rounded-full object-cover"
                       alt=""
                     />
