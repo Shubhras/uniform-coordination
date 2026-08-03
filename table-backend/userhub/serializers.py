@@ -77,6 +77,7 @@ class UserResponseSerializer(serializers.ModelSerializer):
             "roleName",      # also right after role
             "email",
             "phone",
+            "phone",
             "userType",
             "userName",
             "firstName",
