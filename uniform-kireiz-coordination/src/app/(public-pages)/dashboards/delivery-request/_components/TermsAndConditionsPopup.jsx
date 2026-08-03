@@ -4,22 +4,28 @@ import React, { useState, useEffect } from 'react'
 import { apiPrivatePolicy } from '@/services/privatePolicyService'
 import { formatDate } from '@/utils/dateFormater'
 
+/**
+ * TermsAndConditionsPopup Component
+ *
+ * Displays the terms and conditions / privacy agreement popup by
+ * fetching the latest policy content from the API and rendering it.
+ */
 const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
-
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
     const [termsConditions, setTermsConditions] = useState(null)
-
-
+    /**
+ * Fetches the privacy/terms policy content of the given type
+ * from the API and updates state accordingly.
+ */
     const fetchPrivatePolicy = async (policyType) => {
         try {
             setLoading(true)
             setError(null)
-
             const res = await apiPrivatePolicy(policyType)
 
             if (res?.status && res?.data?.length > 0) {
-                setTermsConditions(res.data[0]) // taking first terms conditions
+                setTermsConditions(res.data[0])
             } else {
                 setError('Data not found')
             }
@@ -29,7 +35,6 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
             setLoading(false)
         }
     }
-
     useEffect(() => {
         fetchPrivatePolicy("agreement")
     }, [])
@@ -41,8 +46,6 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
             width={800}
         >
             <div className="flex flex-col h-full max-h-[90vh] min-h-[400px]">
-
-                {/* HEADER */}
                 <div className="
                     relative
                     px-16 sm:px-16
@@ -65,7 +68,6 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
                     ">
                         Terms & Conditions
                     </h2>
-
                     <span className="
                         text-xs
                         sm:text-sm
@@ -76,8 +78,6 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
                         Last Updated: {termsConditions?.updated_at && formatDate(termsConditions.updated_at)}
                     </span>
                 </div>
-
-                {/* CONTENT */}
                 <div className="
                     px-4 sm:px-6
                     py-4
@@ -103,8 +103,6 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
                         </div>
                     )}
                 </div>
-
-                {/* FOOTER */}
                 <div className="
                     px-4 sm:px-6
                     py-4
@@ -122,7 +120,6 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
                     >
                         Cancel
                     </Button>
-
                     <Button
                         variant="solid"
                         className="
@@ -139,7 +136,6 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
                         I Agree
                     </Button>
                 </div>
-
             </div>
         </Dialog>
     )

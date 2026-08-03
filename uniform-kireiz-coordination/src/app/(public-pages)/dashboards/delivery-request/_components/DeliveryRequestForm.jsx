@@ -13,6 +13,11 @@ import QuoteRequestPopup from './QuoteRequestPopup'
 import { apiCreateQuotationRequest } from '@/services/QuotationRequestService'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
+/**
+ * Zod validation schema for the delivery/quotation request form.
+ * Defines required fields and validation rules for company details,
+ * uniform request details, and terms agreement.
+ */
 const validationSchema = z.object({
     company_name: z
         .string({ required_error: 'Please enter company name' })
@@ -43,7 +48,14 @@ const validationSchema = z.object({
     additional_note: z.string().optional(),
     agreed_to_terms: z.boolean().refine(val => val === true, { message: 'Please agree to terms and conditions' }),
 })
-
+/**
+ * DeliveryRequestForm Component
+ *
+ * Renders the Quotation & Delivery Request form where users fill in
+ * company/contact details and uniform request details. Handles form
+ * validation, submission to the quotation request API, and opens the
+ * terms & conditions popup and the quote request confirmation popup.
+ */
 const DeliveryRequestForm = () => {
     const [quoteData, setQuoteData] = useState(null)
     const { data: session } = useSession()
@@ -51,8 +63,7 @@ const DeliveryRequestForm = () => {
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const params = useParams()
-
-    const id = params?.id  // custom update model id
+    const id = params?.id
     const {
         handleSubmit,
         reset,
@@ -73,7 +84,11 @@ const DeliveryRequestForm = () => {
         },
         resolver: zodResolver(validationSchema),
     })
-
+    /**
+        * Handles form submission. Builds the payload, checks for a valid
+        * session, calls the create quotation request API, and opens the
+        * quote request popup with the response data.
+        */
     const onSubmit = async (values) => {
         const payload = {
             ...values,
@@ -82,7 +97,6 @@ const DeliveryRequestForm = () => {
                 : "",
             customupdatemodel_id: id,
         }
-
         try {
             if (!session?.accessToken) {
                 alert("Please login first!")
@@ -99,11 +113,12 @@ const DeliveryRequestForm = () => {
             setIsSubmitting(false)
         }
     }
-
+    /**
+         * Opens the terms and conditions popup.
+         */
     const openDialogTerms = () => {
         setDialogTermsOpen(true)
     }
-
     return (
         <>
             <div className="w-full bg-white ">
@@ -298,12 +313,12 @@ const DeliveryRequestForm = () => {
                     </Form>
                 </div>
             </div>
-
+            {/* Terms and conditions popup */}
             <TermsAndConditionsPopup
                 isOpen={dialogTermsOpen}
                 onClose={() => setDialogTermsOpen(false)}
             />
-
+            {/* Quote request confirmation popup, shown after successful submission */}
             {dialoQuoteRequestOpen && (
                 <QuoteRequestPopup
                     isOpen={dialoQuoteRequestOpen}

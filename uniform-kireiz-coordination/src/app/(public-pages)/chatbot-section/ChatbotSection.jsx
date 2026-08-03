@@ -6,18 +6,11 @@ const ChatbotSection = () => {
     return (
         <section className="w-full bg-white  sm:px-6 md:px-8 ">
             <div className=" mx-auto flex justify-end px-4">
-
-                {/* CHAT CONTAINER */}
                 <div className="relative flex items-center gap-6">
-
-                    {/* MESSAGE BUBBLE */}
-                    {/* MESSAGE BUBBLE */}
                     <div className="relative bg-white px-8 py-4 rounded-xl shadow-lg max-w-lg">
                         <p className="text-[#1C2C56] text-lg ">
                             Need help with designs or orders? Ask me anything!
                         </p>
-
-                        {/* DOWNWARD SPEECH TAIL */}
                         <div
                             className="
                                 absolute
@@ -28,9 +21,6 @@ const ChatbotSection = () => {
                                 border-l-transparent border-r-transparent border-t-white
                             "/>
                     </div>
-
-
-                    {/* CHATBOT ICON */}
                     <div className="relative w-[100px] h-[100px]">
                         <Image
                             src="/img/logo/chatbot.png"
@@ -39,7 +29,6 @@ const ChatbotSection = () => {
                             className="object-contain h-full w-full "
                         />
                     </div>
-
                 </div>
             </div>
         </section >
