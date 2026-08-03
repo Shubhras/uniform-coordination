@@ -48,9 +48,10 @@ const UniformAbouUsPage = () => {
   // };
   const getCardsPerView = () => {
     if (typeof window === "undefined") return 2;
-    if (window.innerWidth >= 1024) return 3; // lg & above → MAX 3
-    if (window.innerWidth >= 768) return 2;  // md
-    return 1; // mobile
+
+    if (window.innerWidth >= 768) return 2; // md and lg -> 2 cards
+
+    return 1; // mobile -> 1 card
   };
   // 🔹 Resize listener
   useEffect(() => {
@@ -94,12 +95,12 @@ const UniformAbouUsPage = () => {
           </div> */}
 
           <div className="text-center mb-10">
-            <div className="inline-flex flex-col items-end">
-              <h2 className="text-[#1C2C56] md:text-3xl text-2xl font-semibold">
-                Trusted by 500+ Businesses
-              </h2>
-              <div className="w-[180px] md:w-[270px] h-[3px] bg-[#87CEEB] mt-2" />
-            </div>
+            <h2 className="text-[#1C2C56] md:text-3xl text-2xl font-semibold">
+              <span className="inline-block border-b-[3px] border-[#1C2C56] pb-2">
+                Trusted by 500+
+              </span>{" "}
+              Businesses
+            </h2>
           </div>
           <div className="relative flex items-center justify-center">
             {/* <button
@@ -110,7 +111,7 @@ const UniformAbouUsPage = () => {
             </button> */}
             <FiArrowLeft onClick={prev} size={25} className="text-lg text-gray-600 cursor-pointer absolute left-2 md:left-4" />
             <div
-              className=" grid w-full px-14 md:px-18 gap-6 mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              className=" grid w-full px-14 md:px-18 gap-6 mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
               {testimonials
                 .slice(index, index + cardsPerView)
                 .map((item, i) => (

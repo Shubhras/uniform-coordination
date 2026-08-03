@@ -21,7 +21,7 @@ const PANELS = {
   color: {
     title: "Color",
     type: "colors",
-    data: ["#1A73E8", "#34A853", "#EA4335", "#FBBC05", "#FF7043", "#8E24AA", "#00ACC1", "#43A047", "#C2185B", "#6D4C41"]
+    data: ["#1A73E8", "#34A853", "#EA4335", "#FBBC05", "#FF7043", "#8E24AA", "#00ACC1", "#43A047", "#C2185B", "#6D4C41",]
   },
   legy: {
     title: "Legy",
@@ -327,7 +327,7 @@ const Uniform3DmoduleDegisn = () => {
 
 
   const [showDropdown, setShowDropdown] = useState(false);
-  
+
   const handleUniformDesignResult = async () => {
     console.log("FINAL DESIGN JSON:", designJSON);
 
@@ -616,7 +616,8 @@ const Uniform3DmoduleDegisn = () => {
                 {PANELS[active].title}
               </h5> */}
               {PANELS[active].type === "colors" && (
-                <div className="grid grid-cols-5 gap-3 relative">
+                // <div className="grid grid-cols-5 gap-3 relative">
+                <div className="grid grid-cols-4 gap-3 relative">
                   {/* <button
                     onClick={() => setShowColorPicker(true)}
                     className="w-10 h-10 rounded-full"
@@ -734,38 +735,26 @@ const Uniform3DmoduleDegisn = () => {
               )}
 
               {PANELS[active].type === "size" && (
-                <div className="flex flex-col items-center
-                 gap-2">
-                  {PANELS[active].data.map((size, i) => (
-                    <div
-                      key={size}
-                      className=" shadow-md text-[#003560] rounded-md flex items-center justify-between gap-3 px-4 py-2 w-full"
-                    >
-                      {/* Size label */}
-                      <span className="text-sm font-medium ">
+                <div className="grid grid-cols-4 gap-3">
+                  {PANELS[active].data.map((size, i) => {
+                    const isSelected = Boolean(counts[size]);
+                    return (
+                      <button
+                        key={size}
+                        onClick={() => {
+                          if (isSelected) {
+                            decrement(size);
+                          } else {
+                            increment(size);
+                          }
+                        }}
+                        className={`bg-white shadow-md rounded-xl px-3 py-3 flex items-center justify-center text-sm font-medium text-[#003560] hover:shadow-lg transition ${isSelected ? "ring-2 ring-blue-500" : ""
+                          }`}
+                      >
                         {size}
-                      </span>
-
-                      {/* Counter */}
-                      <div className="flex items-center gap-2 my-2">
-                        <button
-                          onClick={() => decrement(size)}
-                          className="text-[#1C2C56] px-2 font-bold text-lg border-l border-gray-300"
-                        >
-                          −
-                        </button>
-                        <span className="text-sm text-center px-2 ">
-                          {counts[size] || 0}
-                        </span>
-                        <button
-                          onClick={() => increment(size)}
-                          className="font-bold text-lg border-r border-gray-300 px-2"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 
