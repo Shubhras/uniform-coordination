@@ -20,7 +20,7 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
             <h2 className="font-[Plus Jakarta Sans]  font-medium text-[24px] tracking-[0.18px] text-[#1C2C56] mb-1">
               Join KIREIZ Space Today!
             </h2>
-            <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
+            <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#402936AD]">
               Elegant Table Styling & Rental Solutions
             </p>
           </div>

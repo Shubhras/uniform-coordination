@@ -25,7 +25,7 @@ const SignIn = ({
                         <h2 className="font-[Plus Jakarta Sans]  font-medium text-[28px] tracking-[0.18px] text-[#1C2C56] mb-2">
                             Welcome to KIREIZ Space!
                         </h2>
-                        <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
+                        <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#402936AD]">
                             Elegant Table Styling & Rental Solutions
                         </p>
                     </div>
