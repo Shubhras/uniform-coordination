@@ -6,13 +6,16 @@ import { useRouter } from "next/navigation";
 
 const HeroContent = ({ data }) => {
   const { session } = useCurrentSession();
+  console.log("SESSION =>", session);
+  console.log("USER =>", session?.user);
+  console.log("ROLE =>", session?.user?.role);
   const router = useRouter();
 
-  const userName = session?.user?.name || session?.user?.email || "Admin";
+  // const userName = session?.user?.name || session?.user?.email || "Admin";
+  const userName = session?.user?.authority?.[0];
 
   return (
     <section className="relative w-full px-5 md:px-8 lg:px-8 py-10 overflow-hidden">
-      {/* OUTER BACKGROUND GRADIENT */}
       <div
         className="absolute inset-0"
         style={{
@@ -21,13 +24,9 @@ const HeroContent = ({ data }) => {
         }}
       />
 
-      {/* INNER CARD */}
       <div className="relative z-10 bg-white rounded-xl shadow-lg p-5 md:p-8 flex flex-col gap-6">
-        {/* TOP BUTTONS */}
         <div className="flex flex-wrap gap-3">
-          <button
-            className="bg-[#6A341A] text-white px-4 py-2 rounded-md text-sm font-medium"
-          >
+          <button className="bg-[#6A341A] text-white px-4 py-2 rounded-md text-sm font-medium">
             Create Theme
           </button>
 
@@ -38,33 +37,25 @@ const HeroContent = ({ data }) => {
             View Orders
           </button>
 
-          <button className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
-          onClick={() => router.push("/inventory-management/add")}>
+          <button
+            className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
+            onClick={() => router.push("/inventory-management/add")}
+          >
             Add New Product
           </button>
-
-          {/* <button
-            className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
-
-          >
-            View Profile
-          </button> */}
         </div>
 
-        {/* CONTENT AREA */}
         <div className="flex flex-col lg:flex-row items-center gap-6">
-          {/* LEFT TEXT */}
           <div className="flex-1">
             <h1 className="text-xl md:text-2xl font-semibold text-[#4D2512]">
-              Welcome to Dashboard! {userName}!
+              Welcome Back, {userName}!
             </h1>
 
-            <p className="mt-2 text-sm text-[#64748B] max-w-md">
+            <p className="text-[14px] text-[#4D2512] max-w-md">
               Manage inventory, rentals and event themes from one place.
             </p>
           </div>
 
-          {/* RIGHT EMOJI (LG ONLY absolute) */}
           <div className="flex justify-center lg:absolute lg:right-5 lg:bottom-0">
             <Image
               src="/img/admin/emoji.png"

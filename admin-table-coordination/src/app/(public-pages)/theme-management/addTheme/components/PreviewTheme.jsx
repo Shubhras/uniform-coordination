@@ -110,7 +110,7 @@ const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
   };
 
   return (
-    <div className="bg-[#FAF8F6] min-h-screen">
+    <div className="bg-white min-h-screen">
       <div className="max-w-[1450px] mx-auto ">
         {/* Header */}
 
@@ -213,24 +213,30 @@ const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
               </button>
 
               {section.open && (
-                <div className="border-t px-5 py-4 space-y-3">
-                  {themeData.theme_items[section.key].map((item) => (
-                    <div key={item.id} className="flex items-center gap-3">
-                      <img
-                        src={item.thumbnail || item.image}
-                        className="w-12 h-12 rounded-lg object-cover"
-                        alt=""
-                      />
-
-                      <div>
-                        <p className="font-medium">{item.productName}</p>
-
-                        <p className="text-xs text-gray-500">
-                          {item.category?.categoryName}
-                        </p>
-                      </div>
+                <div className="border-t px-5 py-4">
+                  {themeData.theme_items[section.key].length === 0 ? (
+                    <div className="py-4 text-center text-sm text-gray-500">
+                      No items selected
                     </div>
-                  ))}
+                  ) : (
+                    themeData.theme_items[section.key].map((item) => (
+                      <div key={item.id} className="flex items-center gap-3">
+                        <img
+                          src={item.thumbnail || item.image}
+                          className="w-12 h-12 rounded-lg object-cover"
+                          alt=""
+                        />
+
+                        <div>
+                          <p className="font-medium">{item.productName}</p>
+
+                          <p className="text-xs text-gray-500">
+                            {item.category?.categoryName}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>
@@ -240,7 +246,7 @@ const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
       <div className="flex justify-between mt-10">
         <button
           onClick={onBack}
-          className="px-8 py-2.5 rounded-xl border border-[#E5D5C8] text-[#8C6E5D] font-medium hover:bg-[#FAF5F2]"
+          className="px-8 py-1 h-10 rounded-xl border border-[#E5D5C8] text-[#8C6E5D] font-medium hover:bg-[#FAF5F2]"
         >
           Back
         </button>
@@ -248,7 +254,7 @@ const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
         <Button
           onClick={handlePublish}
           loading={saving}
-          className="px-8 py-2.5 rounded-xl bg-[#A85A32] text-white font-semibold hover:bg-[#8E4727]"
+          className="px-8 py-1 h-10 rounded-xl bg-[#A85A32] text-white font-semibold hover:bg-[#8E4727]"
         >
           Publish Theme
         </Button>
