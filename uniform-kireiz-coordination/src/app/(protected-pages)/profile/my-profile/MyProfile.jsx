@@ -322,7 +322,7 @@ const MyProfile = () => {
                                 className="object-cover"
                             />
                         </div>
-
+{/* 
                         <div className="mt-3 flex items-center justify-center gap-2 text-[9px] font-medium">
                             <button
                                 type="button"
@@ -338,7 +338,7 @@ const MyProfile = () => {
                             >
                                 Remove
                             </button>
-                        </div>
+                        </div> */}
 
                         <input
                             type="file"

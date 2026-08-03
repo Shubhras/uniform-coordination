@@ -26,7 +26,7 @@ const SignIn = ({
                             Welcome to KIREIZ FORM!
                         </h2>
                         <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
-                            Professional Uniforms & Event Styling
+                            Professional Uniform Design for Every Industry
                         </p>
                     </div>
                     {message && (

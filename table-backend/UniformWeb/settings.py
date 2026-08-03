@@ -188,10 +188,10 @@ STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# SITE_DOMAIN = "http://54.81.43.26"
-SITE_DOMAIN = "https://t8sjq87n-8002.inc1.devtunnels.ms"
+SITE_DOMAIN = "http://table.104.64.206.82.sslip.io"
+# SITE_DOMAIN = "https://t8sjq87n-8002.inc1.devtunnels.ms"
 
-SITE_URL = "https://t8sjq87n-8002.inc1.devtunnels.ms"
+SITE_URL = "http://table.104.64.206.82.sslip.io"
 
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
@@ -233,8 +233,14 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:7003",
     "http://0.0.0.0:8000",
     "http://54.81.43.26",
-    
 
+    # Linode server (nginx par port 80)
+    "http://104.64.206.82",
+    "http://104.64.206.82:7002",
+    "http://104.64.206.82:7003",
+    "http://table.104.64.206.82.sslip.io",
+    "http://admin.104.64.206.82.sslip.io",
+    "http://admintable.104.64.206.82.sslip.io",
 ]
 
 CORS_ALLOW_CREDENTIALS = True

@@ -26,7 +26,9 @@ const validationSchema = z
       .email({ message: "Please enter a valid email address" }),
     password: z
       .string({ required_error: "Password Required" })
-      .min(1, "Password Required"),
+      .min(1, "Password Required")
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[^A-Za-z0-9]/, "Must include a symbol"),
   })
 
 
