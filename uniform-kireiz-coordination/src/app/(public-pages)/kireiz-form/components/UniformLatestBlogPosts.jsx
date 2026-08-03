@@ -29,8 +29,8 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
             </button>
           </div>
 
-          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {blogs.map((post, index) => (
+          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+            {blogs.slice(0, 3).map((post, index) => (
               <div
                 // key={post.id}
                 key={index}
