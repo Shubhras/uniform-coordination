@@ -59,6 +59,8 @@ urlpatterns = [
     path('order/<str:order_id>/cancel/', UserCancelOrderAPIView.as_view(), name='user_cancel_order'),
     # Return an order (post-shipment)
     path('order/return/',ReturnOrderAPIView.as_view(), name='user_return_order'),
+    
+    path("admin/product/orders-rentallist/<int:product_id>/",ProductOrderListAPIView.as_view(),name="product-order-list"),
 
 
     #<-------------------Payment API------------------------------->

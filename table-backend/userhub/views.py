@@ -1639,25 +1639,63 @@ class CreateOrderAPIView(APIView):
                         "status": False,
                         "statusCode": 400,
                         "message": "Invalid customer_id"}, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    
             elif customer_data:
-                customer = CustomerDetails.objects.filter(user=user, email=customer_data.get("email")).first()
-                if not customer:
-                    customer_data = data.get("customer")
-                    delivery = data.get("delivery_address", {})
+                delivery = data.get("delivery_address", {})
 
-                    customer = CustomerDetails.objects.create(
-                        user=user,
-                        email=customer_data.get("email"),
-                        first_name=customer_data.get("first_name"),
-                        last_name=customer_data.get("last_name"),
-                        phone=customer_data.get("phone"),
-                        address_line_1=delivery.get("address_line_1"),
-                        address_line_2=delivery.get("address_line_2", "") or "",
-                        city=delivery.get("city"),
-                        postal_code=delivery.get("postal_code"),
-                        country=delivery.get("country"),
-                        payment_method=data.get("payment_method", "stripe") or "stripe",
-                    )
+                customer, created = CustomerDetails.objects.update_or_create(
+                    user=user,
+                    defaults={
+                        "email": customer_data.get("email"),
+                        "first_name": customer_data.get("first_name"),
+                        "last_name": customer_data.get("last_name"),
+                        "phone": customer_data.get("phone"),
+                        "address_line_1": delivery.get("address_line_1"),
+                        "address_line_2": delivery.get("address_line_2", ""),
+                        "city": delivery.get("city"),
+                        "postal_code": delivery.get("postal_code"),
+                        "country": delivery.get("country"),
+                        "payment_method": data.get("payment_method", "stripe") or "stripe",
+                    }
+                )        
+            # elif customer_data:
+            #     customer = CustomerDetails.objects.filter(user=user, email=customer_data.get("email")).first()
+            #     if not customer:
+            #         customer_data = data.get("customer")
+            #         # delivery = data.get("delivery_address", {})
+
+            #         # customer = CustomerDetails.objects.create(
+            #         #     user=user,
+            #         #     email=customer_data.get("email"),
+            #         #     first_name=customer_data.get("first_name"),
+            #         #     last_name=customer_data.get("last_name"),
+            #         #     phone=customer_data.get("phone"),
+            #         #     address_line_1=delivery.get("address_line_1"),
+            #         #     address_line_2=delivery.get("address_line_2", "") or "",
+            #         #     city=delivery.get("city"),
+            #         #     postal_code=delivery.get("postal_code"),
+            #         #     country=delivery.get("country"),
+            #         #     payment_method=data.get("payment_method", "stripe") or "stripe",
+            #         # )
+                    
+            #         delivery = data.get("delivery_address", {})
+
+            #         customer, created = CustomerDetails.objects.update_or_create(
+            #             user=user,
+            #             defaults={
+            #                 "email": customer_data.get("email"),
+            #                 "first_name": customer_data.get("first_name"),
+            #                 "last_name": customer_data.get("last_name"),
+            #                 "phone": customer_data.get("phone"),
+            #                 "address_line_1": delivery.get("address_line_1"),
+            #                 "address_line_2": delivery.get("address_line_2", ""),
+            #                 "city": delivery.get("city"),
+            #                 "postal_code": delivery.get("postal_code"),
+            #                 "country": delivery.get("country"),
+            #                 "payment_method": data.get("payment_method", "stripe") or "stripe",
+            #             }
+            #         )
                     
             
             else:
@@ -1962,6 +2000,58 @@ class OrderSummaryAPIView(APIView):
             )
 
 
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.response import Response
+from rest_framework import status
+
+from uniformAdmin.models import Product
+from userhub.models import OrderItem
+
+class ProductOrderListAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, product_id):
+        try:
+            product = Product.objects.filter(
+                id=product_id,
+                isDeleted=False
+            ).first()
+
+            if not product:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Product not found."
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            order_items = (
+                OrderItem.objects
+                .filter(product_id=product_id)
+                .select_related("order", "order__customer", "product")
+                .order_by("-order__created_at")
+            )
+
+            serializer = ProductOrderListSerializer(order_items, many=True)
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Product orders fetched successfully.",
+                "count": order_items.count(),
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Something went wrong.",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
 
 from rest_framework.pagination import PageNumberPagination
 class CustomPagination(PageNumberPagination):
