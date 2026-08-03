@@ -3,7 +3,7 @@ import SingleBlogHome from './components/SingleBlogHome'
 
 const Page = () => {
     return (
-        <div><SingleBlogHome /></div>
+        <SingleBlogHome />
     )
 }
 

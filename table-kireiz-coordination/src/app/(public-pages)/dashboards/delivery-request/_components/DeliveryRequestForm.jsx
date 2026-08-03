@@ -1,4 +1,5 @@
 'use client'
+
 import { useState } from 'react'
 import { FormItem, Form } from '@/components/ui/Form'
 import Input from '@/components/ui/Input'
@@ -10,6 +11,10 @@ import { z } from 'zod'
 import DatePicker from '@/components/ui/DatePicker'
 import TermsAndConditionsPopup from './TermsAndConditionsPopup'
 import QuoteRequestPopup from './QuoteRequestPopup'
+
+/**
+ * Validation schema for the quotation and delivery request form.
+ */
 const validationSchema = z.object({
     companyName: z.string().min(1, 'Company Name Required'),
     contactPerson: z.string().min(1, 'Contact Person Required'),
@@ -25,12 +30,17 @@ const validationSchema = z.object({
     agree: z.boolean().refine(val => val === true, { message: 'Required' }),
 })
 
+/**
+ * DeliveryRequestForm Component
+ * 
+ * Handles user input for custom uniform quotation and delivery date requests.
+ */
 const DeliveryRequestForm = () => {
     const [dialogTermsOpen, setDialogTermsOpen] = useState(false);
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false);
+
     const {
         handleSubmit,
-        reset,
         formState: { errors },
         control,
     } = useForm({
@@ -45,67 +55,33 @@ const DeliveryRequestForm = () => {
             deliveryDate: null,
             notes: "",
             agree: false,
-
         },
         resolver: zodResolver(validationSchema),
     });
 
+    /**
+     * Handles form submission, formats the delivery date, and opens the quote popup.
+     * 
+     * @param {Object} values - Validated form field values.
+     */
     const onSubmit = (values) => {
-
         const payload = {
             ...values,
             deliveryDate: values.deliveryDate.toISOString().split('T')[0],
         }
-        console.log('summit from', payload);
-        openDialogQuoteRequest();
+        setDialogQuoteRequestOpen(true);
     };
 
-    const openDialogTerms = () => {
-        setDialogTermsOpen(true)
-    }
-    const openDialogQuoteRequest = () => {
-        setDialogQuoteRequestOpen(true)
-    }
     return (
         <>
-            {/* <div className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10"> */}
             <div className="w-full bg-white py-8 px-4">
-                {/* <div className="w-full lg:w-1/2 px-4 ">
-                    <h5 className="font-medium mb-3">Design Result</h5>
-                    <div className="relative w-[250px] h-[250px] mx-auto">
-                        <div className="absolute inset-0 rounded-full bg-[#BEE3F8]"></div>
-                        <img
-                            src="/img/uniform/uniform.png"
-                            alt="Model"
-                            className="absolute top-0 left-1/2 -translate-x-1/2 h-[400px] object-contain"
-                        />
-                    </div>
-                    <div className="mt-40 border border-gray-300 rounded-lg w-[350px] mx-auto">
-                        <div className="grid grid-cols-2 text-sm relative">
-                            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-200"></div>
-                            <div className="flex flex-col gap-4 p-6">
-                                <span className="font-medium">Collar</span>
-                                <span className="font-medium">Color</span>
-                                <span className="font-medium">Material</span>
-                                <span className="font-medium">Sleeve</span>
-                                <span className="font-medium">Pants Color</span>
-                            </div>
-                            <div className="flex flex-col gap-4 p-6">
-                                <span>Stand</span>
-                                <span>White</span>
-                                <span>100% Polyester</span>
-                                <span>Full</span>
-                                <span>Navy</span>
-                            </div>
-                        </div>
-                    </div>
-                </div> */}
-                {/* <div className="w-full lg:w-1/2 "> */}
                 <div className="w-full mx-auto max-w-[720px]">
                     <h4 className="font-semibold mb-8">
                         Quotation & Delivery Request Form
                     </h4>
+
                     <Form onSubmit={handleSubmit(onSubmit)}>
+                        {/* Company & Contact Section */}
                         <h5 className="font-medium mb-3">Company & Contact</h5>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
                             <FormItem
@@ -122,6 +98,7 @@ const DeliveryRequestForm = () => {
                                     )}
                                 />
                             </FormItem>
+
                             <FormItem
                                 label="Contact Person"
                                 invalid={Boolean(errors.contactPerson)}
@@ -136,6 +113,7 @@ const DeliveryRequestForm = () => {
                                     )}
                                 />
                             </FormItem>
+
                             <FormItem
                                 label="Email Address"
                                 invalid={Boolean(errors.email)}
@@ -150,6 +128,7 @@ const DeliveryRequestForm = () => {
                                     )}
                                 />
                             </FormItem>
+
                             <FormItem
                                 label="Phone Number"
                                 invalid={Boolean(errors.phone)}
@@ -165,6 +144,8 @@ const DeliveryRequestForm = () => {
                                 />
                             </FormItem>
                         </div>
+
+                        {/* Uniform Specifications Section */}
                         <h5 className="font-medium mb-3">Uniform Request Details</h5>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
                             <FormItem
@@ -179,6 +160,7 @@ const DeliveryRequestForm = () => {
                                     render={({ field }) => <Input placeholder="Item Type" {...field} />}
                                 />
                             </FormItem>
+
                             <FormItem
                                 label="Material"
                                 invalid={Boolean(errors.material)}
@@ -191,6 +173,7 @@ const DeliveryRequestForm = () => {
                                     render={({ field }) => <Input placeholder="Material" {...field} />}
                                 />
                             </FormItem>
+
                             <FormItem
                                 label="Size & Quantity"
                                 invalid={Boolean(errors.sizeQty)}
@@ -203,6 +186,7 @@ const DeliveryRequestForm = () => {
                                     render={({ field }) => <Input placeholder="Size & Quantity" {...field} />}
                                 />
                             </FormItem>
+
                             <FormItem
                                 label="Delivery Date"
                                 invalid={Boolean(errors.deliveryDate)}
@@ -222,6 +206,7 @@ const DeliveryRequestForm = () => {
                                 />
                             </FormItem>
                         </div>
+
                         <FormItem
                             label="Additional Note"
                             invalid={Boolean(errors.notes)}
@@ -236,6 +221,7 @@ const DeliveryRequestForm = () => {
                                 )}
                             />
                         </FormItem>
+
                         <FormItem
                             invalid={Boolean(errors.agree)}
                             errorMessage={errors.agree?.message}
@@ -249,7 +235,7 @@ const DeliveryRequestForm = () => {
                                         I agree to privacy
                                         <span
                                             className="text-blue-500 cursor-pointer ml-2"
-                                            onClick={openDialogTerms}
+                                            onClick={() => setDialogTermsOpen(true)}
                                         >
                                             policy & terms
                                         </span>
@@ -257,6 +243,7 @@ const DeliveryRequestForm = () => {
                                 )}
                             />
                         </FormItem>
+
                         <Button
                             type="submit"
                             variant="solid"
@@ -265,12 +252,9 @@ const DeliveryRequestForm = () => {
                             Request a Quote
                         </Button>
                     </Form>
-                    {/* <div className="flex justify-center gap-4 mt-6">
-                        <button className="border px-6 py-2 rounded-md">Save Design</button>
-                        <button className="border px-6 py-2 rounded-md" onClick={openDialogQuoteRequest}>Export PDF</button>
-                    </div> */}
                 </div>
             </div>
+
             <TermsAndConditionsPopup
                 isOpen={dialogTermsOpen}
                 onClose={() => setDialogTermsOpen(false)}
@@ -279,9 +263,7 @@ const DeliveryRequestForm = () => {
                 isOpen={dialoQuoteRequestOpen}
                 onClose={() => setDialogQuoteRequestOpen(false)}
             />
-
         </>
-
     )
 }
 

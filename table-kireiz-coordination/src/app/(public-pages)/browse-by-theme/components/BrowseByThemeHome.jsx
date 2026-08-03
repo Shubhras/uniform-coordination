@@ -7,13 +7,19 @@ import BrowseByThemeHero from './BrowseByThemeHero'
 import FooterPage from '../../footer/FooterPage'
 import HaederPage from '../../header/HaederPage'
 
-
+/**
+ * BrowseByThemeHome Component
+ * 
+ * Main container component for the Browse By Theme section.
+ * Manages theme mode state (Light/Dark) and integrates Header, Hero, Theme Cards, and Footer.
+ */
 const BrowseByThemeHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
-    // const schema = useTheme((state) => state.themeSchema)
-    // const setSchema = useTheme((state) => state.setSchema)
 
+    /**
+     * Toggles between Light and Dark mode themes.
+     */
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }
@@ -29,3 +35,4 @@ const BrowseByThemeHome = () => {
 }
 
 export default BrowseByThemeHome
+

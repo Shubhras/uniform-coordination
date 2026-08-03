@@ -8,18 +8,28 @@ import { apiGetMaterialList } from "@/services/CategoryService"
 import { apiGetColorList } from "@/services/CategoryService"
 import { apiGetBrowseByColorProductData } from "@/services/ProductService"
 
+/**
+ * Filter tab navigation options for product categorization.
+ */
 const TABS = ["By Category", "By Color", "By Material", "By Function"]
 
+/**
+ * Available product function types for filtering.
+ */
 export const PRODUCT_TYPES = [
     { key: "tablecloth", label: "Tablecloth" },
     { key: "napkin", label: "Napkin" },
     { key: "runner", label: "Runner" },
     { key: "chair_cover", label: "Chair Cover" },
     { key: "background", label: "Background" },
-    // { key: "top", label: "Top" },
-    // { key: "bottom", label: "Bottom" },
-    // { key: "set", label: "Set" },
 ];
+
+/**
+ * BrowseCards Component
+ * 
+ * Interactive product catalog featuring multi-attribute filtering 
+ * (Category, Color swatch, Material fabric, Function type) and canvas preview navigation.
+ */
 const BrowseCards = () => {
     const [selectedColor, setSelectedColor] = useState(null)
     const [activeTab, setActiveTab] = useState("")
@@ -35,7 +45,9 @@ const BrowseCards = () => {
     const [selectedType, setSelectedType] = useState("");
     const [refresh, setRefresh] = useState(0);
 
-
+    /**
+     * Effect hook to fetch filter options (Categories, Fabrics, Colors) on component mount.
+     */
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -94,8 +106,9 @@ const BrowseCards = () => {
         fetchColorList();
     }, []);
 
-
-
+    /**
+     * Effect hook to fetch filtered products whenever filter selections change.
+     */
     useEffect(() => {
         const fetchBrowseByColorProductData = async () => {
             setLoading(true);
@@ -119,7 +132,7 @@ const BrowseCards = () => {
                     setBrowseByColorProduct([]);
                 }
             } catch (error) {
-                console.error("Error fetching themes:", error);
+                console.error("Error fetching products:", error);
                 setBrowseByColorProduct([]);
             } finally {
                 setLoading(false);
@@ -129,7 +142,9 @@ const BrowseCards = () => {
         fetchBrowseByColorProductData();
     }, [selectedCategory, selectedMaterial, selectedColor, selectedType, refresh]);
 
-
+    /**
+     * Closes dropdown filter panels when clicking outside the filter area.
+     */
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (filterRef.current && !filterRef.current.contains(e.target)) {
@@ -140,13 +155,18 @@ const BrowseCards = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [])
 
+    /**
+     * Navigates to the uniform single product preview canvas page.
+     * 
+     * @param {string|number} productId - Unique ID of the product.
+     */
     const previewInCanvas = (productId) => {
         router.push(`/dashboards/uniform-single/${productId}`)
     }
 
     return (
         <section className="w-full bg-[#fffdfb] px-4 sm:px-6 md:px-8 lg:px-12">
-            {/* FILTER BAR */}
+            {/* Filter Navigation Bar */}
             <div
                 ref={filterRef}
                 className="flex flex-wrap gap-2 sm:gap-3 items-center pt-6 relative"
@@ -174,15 +194,16 @@ const BrowseCards = () => {
                         setActiveTab("");
                         setRefresh(prev => prev + 1);
                     }}
-                    className="px-4 sm:px-5 py-2 rounded-xl font-medium text-xs sm:text-sm transition whitespace-nowrap text-red-500 bg-[#A0522D] hover:bg-[#8B4513] text-white px-5"
+                    className="px-4 sm:px-5 py-2 rounded-xl font-medium text-xs sm:text-sm transition whitespace-nowrap text-white bg-[#A0522D] hover:bg-[#8B4513]"
                 >
                     Reset
                 </button>
+                {/* Dropdown: By Category */}
                 {activeTab === "By Category" && (
                     <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
                         <div className="flex md:flex-row flex-col flex-wrap gap-3">
                             {categoryData.map(cat => (
-                                <label key={cat.id} className="flex items-center gap-2 text-sm">
+                                <label key={cat.id} className="flex items-center gap-2 text-sm cursor-pointer">
                                     <input
                                         type="radio"
                                         name="category"
@@ -197,6 +218,7 @@ const BrowseCards = () => {
                         </div>
                     </div>
                 )}
+                {/* Dropdown: By Color Swatches */}
                 {activeTab === "By Color" && (
                     <div className="absolute top-14 sm:top-16 left-0 w-full  max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
                         <div className="flex  flex-wrap gap-3">
@@ -227,11 +249,12 @@ const BrowseCards = () => {
                         </div>
                     </div>
                 )}
+                {/* Dropdown: By Material */}
                 {activeTab === "By Material" && (
                     <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
                         <div className="flex md:flex-row flex-col flex-wrap gap-3">
                             {materialData.map(mat => (
-                                <label key={mat.id} className="flex items-center gap-2 text-sm">
+                                <label key={mat.id} className="flex items-center gap-2 text-sm cursor-pointer">
                                     <input
                                         type="radio"
                                         name="material"
@@ -246,11 +269,12 @@ const BrowseCards = () => {
                         </div>
                     </div>
                 )}
+                {/* Dropdown: By Function */}
                 {activeTab === "By Function" && (
                     <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
                         <div className="flex md:flex-row flex-col flex-wrap gap-3">
                             {PRODUCT_TYPES.map(fun => (
-                                <label key={fun.key} className="flex items-center gap-2 text-sm">
+                                <label key={fun.key} className="flex items-center gap-2 text-sm cursor-pointer">
                                     <input
                                         type="radio"
                                         name="function"
@@ -267,24 +291,27 @@ const BrowseCards = () => {
                 )}
             </div>
             <div className="my-8 border-t-2 border-[#E5D5C8]" />
-            {/* PRODUCT GRID */}
+            {/* Product Cards Grid Section */}
             {loading ? (
+                /* Loading State Spinner */
                 <section className="relative w-full bg-[#FBF8F6] mx-auto px-5 md:px-8 lg:px-12 mt-10">
                     <div className="flex justify-center items-center py-20">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
                     </div>
                 </section>
             ) : browseByColorProduct.length === 0 ? (
+                /* Empty Product List State */
                 <section className="relative w-full bg-[#FBF8F6] mx-auto px-5 md:px-8 lg:px-12 mt-10 mb-10 rounded-xl">
                     <div className="flex flex-col justify-center items-center py-24 text-center">
                         <h3 className="text-xl font-semibold text-[#3B3B3B] mb-2">No Products Found</h3>
                     </div>
                 </section>
             ) : (
+                /* Product Cards Grid */
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-5">
                     {browseByColorProduct.map((item, i) => (
                         <div
-                            key={i}
+                            key={item.id || i}
                             className="group bg-[#EDEDED] border border-[#A0522D4F] rounded-br-4xl overflow-hidden shadow-lg hover:shadow-xl transition"
                         >
                             <div className="relative h-[220px] sm:h-[260px] lg:h-[300px] overflow-hidden">
@@ -304,12 +331,12 @@ const BrowseCards = () => {
                                 </p>
                                 <div className="flex items-center gap-3">
                                     <button
-                                        className="flex-1 py-2 text-sm bg-[#A0614D] text-white rounded-lg"
+                                        className="flex-1 py-2 text-sm bg-[#A0614D] text-white rounded-lg hover:bg-[#8B4513] transition"
                                         onClick={() => previewInCanvas(item.id)}
                                     >
                                         Preview in Canvas
                                     </button>
-                                    <FaRegHeart size={20} className="text-black" />
+                                    <FaRegHeart size={20} className="text-black cursor-pointer hover:text-red-500 transition" />
                                 </div>
                             </div>
                         </div>

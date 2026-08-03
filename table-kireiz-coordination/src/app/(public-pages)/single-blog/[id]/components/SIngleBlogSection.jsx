@@ -6,13 +6,19 @@ import { useEffect, useState } from "react";
 import { apiGetBlogDetail } from "@/services/BlogService";
 import { formatISODate as formatDate } from "@/utils/formatDate";
 
-
-
+/**
+ * SingleBlogSection Component
+ * 
+ * Fetches and displays detailed blog article content based on the URL parameter ID.
+ */
 const SingleBlogSection = () => {
   const { id } = useParams();
   const [blogData, setBlogData] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Fetches single blog article details by blog ID.
+   */
   useEffect(() => {
     const fetchBlog = async () => {
       setLoading(true);
@@ -27,7 +33,7 @@ const SingleBlogSection = () => {
           });
         }
       } catch (err) {
-        console.error("Failed to load blog detail", err);
+        // Silently handle fetch error
       } finally {
         setLoading(false);
       }
@@ -39,19 +45,18 @@ const SingleBlogSection = () => {
   return (
     <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
       <div className="py-10 md:py-8">
-
-        {/* HEADER */}
+        {/* Header */}
         <div className="text-center mb-10">
-          <h2 className=" lg:text-4xl text-3xl font-semibold">
+          <h2 className="lg:text-4xl text-3xl font-semibold">
             Blog
           </h2>
           <div className="w-24 h-1 rounded-full bg-[#E8B4A9] mx-auto mt-2" />
           <p className="text-[#6B7280] text-sm mt-4 max-w-xl mx-auto">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            Discover the latest news, updates, and articles.
           </p>
         </div>
 
-        <h2 className=" text-center mb-5 lg:text-4xl text-3xl font-semibold ">
+        <h2 className="text-center mb-5 lg:text-4xl text-3xl font-semibold">
           Our Latest Blog Posts
         </h2>
 
@@ -66,7 +71,6 @@ const SingleBlogSection = () => {
           </div>
         ) : (
           <div className="w-full rounded-3xl p-3">
-
             {/* Image */}
             <div className="mb-6">
               <Image
@@ -81,7 +85,7 @@ const SingleBlogSection = () => {
 
             {/* Title + Date */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <h1 className="text-2xl md:text-3xl font-semibold ">
+              <h1 className="text-2xl md:text-3xl font-semibold">
                 {blogData.title}
               </h1>
               <p className="text-sm text-gray-500">
@@ -96,10 +100,10 @@ const SingleBlogSection = () => {
             />
           </div>
         )}
-
       </div>
     </section>
   );
 };
 
 export default SingleBlogSection;
+

@@ -16,6 +16,11 @@ import { FiLock } from 'react-icons/fi'
 import ThankyouPopup from '../../thankyou-popup/ThankyouPopup'
 import PaymentFailedPopup from '../../payment-failed-popup/PaymentFailedPopup'
 
+/**
+ * PaymentHero Component
+ * 
+ * Payment gateway form supporting Stripe Card Element checkout and PayPal SDK payment processing.
+ */
 const PaymentHero = () => {
     const stripe = useStripe()
     const elements = useElements()
@@ -32,7 +37,11 @@ const PaymentHero = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
-    /* ---------------- HANDLE STRIPE CARD CHANGE ---------------- */
+    /**
+     * Handles Stripe card element validation changes.
+     * 
+     * @param {Object} event - Stripe element change event.
+     */
     const handleElementChange = (event) => {
         if (event.error) {
             setError(event.error.message)
@@ -41,7 +50,9 @@ const PaymentHero = () => {
         }
     }
 
-    /* ---------------- HANDLE PAYMENT ---------------- */
+    /**
+     * Handles Stripe credit card payment submission.
+     */
     const handlePayment = async () => {
         try {
             setError(null)
@@ -111,6 +122,11 @@ const PaymentHero = () => {
         }
     }
 
+    /**
+     * Handles successful PayPal transaction capture.
+     * 
+     * @param {Object} details - PayPal transaction details object.
+     */
     const handlePayPalSuccess = async (details) => {
         try {
             const payload = {
@@ -121,7 +137,7 @@ const PaymentHero = () => {
             }
 
             const res = await apiOrderPayment(session?.accessToken, payload)
-            console.log('ssssssssssssssssss apiOrderPayment', res)
+
             if (res?.status) {
                 setPaymentId(res?.payment_id || null)
                 setDialogThankyouPopupOpen(true)
@@ -133,6 +149,7 @@ const PaymentHero = () => {
             setDialogCancelPopupOpen(true)
         }
     }
+
 
     return (
         <>

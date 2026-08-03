@@ -1,4 +1,5 @@
 'use client'
+
 import React, { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -9,6 +10,12 @@ import Spinner from '@/components/ui/Spinner'
 import { FiUser, FiMapPin, FiCalendar } from 'react-icons/fi'
 import Image from 'next/image'
 import TermsAndConditionsPopup from './TermsAndConditionsPopup'
+
+/**
+ * Overview Component
+ * 
+ * Renders complete order review including customer contact info, delivery address, rental period, order items, and payment navigation.
+ */
 const Overview = () => {
     const { data: session } = useSession()
     const router = useRouter()
@@ -32,6 +39,9 @@ const Overview = () => {
         }
     }, [session?.accessToken, orderId])
 
+    /**
+     * Fetches order overview summary and items list from backend API.
+     */
     const fetchOverviewSummary = async () => {
         try {
             if (!session?.accessToken || !orderId) return
@@ -39,7 +49,6 @@ const Overview = () => {
             setError(null)
 
             const res = await apiGetOverviewSummary(session.accessToken, { order_id: orderId })
-
             const data = res?.data || res?.order_details || res || null
 
             if (data) {
@@ -62,6 +71,9 @@ const Overview = () => {
         }
     }
 
+    /**
+     * Validates terms agreement and navigates user to the payment gateway page.
+     */
     const handleProceedToPayment = () => {
         if (!agreedToTerms) {
             toast.push(
@@ -95,9 +107,14 @@ const Overview = () => {
         end: overviewData?.rental_end_date || null,
         duration: overviewData?.rental_days ? `${overviewData.rental_days} day(s)` : null,
     }
+
+    /**
+     * Opens the terms and conditions dialog modal.
+     */
     const openDialogTerms = () => {
         setDialogTermsOpen(true)
     }
+
     return (
         <>
             <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 mt-14">
@@ -120,7 +137,7 @@ const Overview = () => {
                         <>
                             <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-6">
 
-                                {/* LEFT — ORDER REVIEW */}
+                                {/* Left — Contact, Address & Rental Review */}
                                 <div className="bg-white rounded-xl p-6 shadow-xl space-y-6 border border-gray-100">
                                     <h3 className="text-xl font-semibold text-[#8B4513] border-b border-gray-100 pb-3">
                                         Order Review
@@ -195,13 +212,12 @@ const Overview = () => {
                                     </div>
                                 </div>
 
-                                {/* RIGHT — ORDER ITEMS & SUMMARY (DESIGN MATCHED TO FIGMA) */}
+                                {/* Right — Order Items & Calculation Summary */}
                                 <div className="bg-white rounded-xl p-6 shadow-xl space-y-6 border border-gray-100">
                                     <h3 className="text-xl font-semibold text-[#111827]">
                                         Order Items
                                     </h3>
 
-                                    {/* ITEMS LIST */}
                                     {cartItems.length === 0 ? (
                                         <p className="text-sm text-gray-500 py-4">No items found in this order</p>
                                     ) : (
@@ -217,7 +233,6 @@ const Overview = () => {
                                                         key={item.id || index}
                                                         className="flex justify-between items-center border-b border-gray-200 pb-4"
                                                     >
-                                                        {/* LEFT: Name + Qty and Price */}
                                                         <div className="space-y-1 pr-4">
                                                             <p className="text-base text-[#1E293B] font-medium capitalize">
                                                                 {itemName} ({itemQty})
@@ -227,14 +242,12 @@ const Overview = () => {
                                                             </p>
                                                         </div>
 
-                                                        {/* RIGHT: Thumbnail Image */}
-                                                        <div className="w-[68px] h-[68px] rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
+                                                        <div className="relative w-[68px] h-[68px] rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
                                                             <Image
                                                                 src={itemThumb || '/img/table-form/3d-table.png'}
                                                                 alt={itemName}
                                                                 fill
                                                                 className="w-full h-full object-cover"
-
                                                                 unoptimized
                                                             />
                                                         </div>
@@ -244,7 +257,7 @@ const Overview = () => {
                                         </div>
                                     )}
 
-                                    {/* ORDER SUMMARY */}
+                                    {/* Order Summary Calculation */}
                                     {cartSummary && (
                                         <div className="space-y-3 pt-4 border-t border-gray-200">
                                             <h4 className="text-[#111827] text-xl font-semibold mb-4">
@@ -288,7 +301,7 @@ const Overview = () => {
                                         </div>
                                     )}
 
-                                    {/* TERMS CHECKBOX */}
+                                    {/* Terms Agreement Checkbox */}
                                     <div className="pt-2">
                                         <label className="flex items-center gap-2 text-base text-[#374151] cursor-pointer select-none">
                                             <input
@@ -310,17 +323,10 @@ const Overview = () => {
                                 </div>
                             </div>
 
-                            {/* FOOTER BUTTONS */}
+                            {/* Navigation Buttons */}
                             <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-6 mt-8">
                                 <div></div>
                                 <div className="flex justify-end w-full">
-                                    {/* <button
-                                        className="w-full px-6 py-3 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md transition font-medium"
-                                        onClick={() => router.push(`/delivery-information/${overviewData?.cart_id || overviewData?.cart || 1}`)}
-                                        disabled={navigatingToPayment}
-                                    >
-                                        Edit Delivery
-                                    </button> */}
                                     <button
                                         className="max-w-[250px] px-6 py-3 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md flex items-center justify-center gap-2 transition font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                                         onClick={handleProceedToPayment}
@@ -344,3 +350,4 @@ const Overview = () => {
 }
 
 export default Overview
+

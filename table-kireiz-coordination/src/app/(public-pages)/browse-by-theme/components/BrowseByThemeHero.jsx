@@ -1,12 +1,17 @@
 import Image from 'next/image'
 import React from 'react'
 
+/**
+ * BrowseByThemeHero Component
+ * 
+ * Displays the top banner section with a background hero image, gradient overlay,
+ * and page header title ("Browse By Theme").
+ */
 const BrowseByThemeHero = () => {
     return (
         <section className="w-full mt-14">
-            <div className="relative w-full h-[300px]  overflow-hidden">
-
-                {/* IMAGE */}
+            <div className="relative w-full h-[300px] overflow-hidden">
+                {/* Background Hero Image */}
                 <Image
                     src="/img/table-form/themes/theme2.png"
                     alt="Table Design"
@@ -15,7 +20,7 @@ const BrowseByThemeHero = () => {
                     className="object-cover object-center blur-[2px] scale-105"
                 />
 
-                {/* GRADIENT OVERLAY */}
+                {/* Gradient Overlay */}
                 <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
@@ -31,7 +36,7 @@ const BrowseByThemeHero = () => {
                     }}
                 />
 
-                {/* TEXT */}
+                {/* Hero Title Header */}
                 <h1 className="
                     absolute
                     top-1/2 left-1/2
@@ -53,3 +58,4 @@ const BrowseByThemeHero = () => {
 }
 
 export default BrowseByThemeHero
+

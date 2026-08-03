@@ -9,12 +9,18 @@ import ThemeDetails from './ThemeDetails'
 
 import React, { Suspense } from 'react'
 
+/**
+ * ThemeDetailsHome Component
+ * 
+ * Theme details page wrapper assembling global header, theme details view, and footer with theme state.
+ */
 const ThemeDetailsHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
-    const schema = useTheme((state) => state.themeSchema)
-    const setSchema = useTheme((state) => state.setSchema)
 
+    /**
+     * Toggles between Light and Dark theme modes.
+     */
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }

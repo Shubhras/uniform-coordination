@@ -3,7 +3,7 @@ import DeliveryInformationHome from './components/DeliveryInformationHome'
 
 const Page = () => {
     return (
-        <div><DeliveryInformationHome /></div>
+        <DeliveryInformationHome />
     )
 }
 

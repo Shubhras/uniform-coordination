@@ -3,7 +3,7 @@ import TermsAndConditionHome from './components/TermsAndConditionHome'
 
 const Page = () => {
     return (
-        <div><TermsAndConditionHome /></div>
+        <TermsAndConditionHome />
     )
 }
 

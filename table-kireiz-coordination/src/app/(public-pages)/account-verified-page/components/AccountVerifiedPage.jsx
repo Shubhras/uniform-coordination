@@ -8,6 +8,14 @@ import HaederPage from "../../header/HaederPage";
 import { verifyEmail } from "@/services/AuthService";
 import { useState, useEffect } from "react";
 import Spinner from "@/components/ui/Spinner";
+
+/**
+ * AccountVerifiedPage Component
+ * 
+ * Renders the account email verification status screen. 
+ * Extracts query parameters (`user_id`, `email`), performs the verification API call,
+ * and provides navigation options upon completion.
+ */
 const AccountVerifiedPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -17,6 +25,9 @@ const AccountVerifiedPage = () => {
 
     const [loading, setLoading] = useState(true);
 
+    /**
+     * Executes the email verification request using the user ID from search parameters.
+     */
     const verifyUserEmail = async () => {
         try {
             if (!userId) {
@@ -24,14 +35,10 @@ const AccountVerifiedPage = () => {
                 return;
             }
 
-            const res = await verifyEmail({
+            await verifyEmail({
                 user_id: userId,
                 is_verify: true,
             });
-
-            if (res?.status || res?.data?.success) {
-                //router.push("/account-verified-page")
-            }
         } catch (error) {
             console.error("Email verification failed", error);
         } finally {
@@ -43,15 +50,16 @@ const AccountVerifiedPage = () => {
         verifyUserEmail();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId]);
+
     return (
         <>
             <HaederPage />
-            {/* FIXED OVERLAY TO BLOCK CLICKS */}
+            {/* Modal overlay to block clicks during verification */}
             <div className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center px-4">
-                {/* CARD */}
+                {/* Verification Status Card */}
                 <div className="bg-white rounded-xl px-10 py-12 text-center shadow-lg w-full max-w-2xl relative">
 
-                    {/* LOGO + BRAND */}
+                    {/* Logo & Greeting */}
                     <div className="flex items-center gap-3 mb-10">
                         <Image
                             src="/img/logo/logo-table.png"
@@ -59,36 +67,38 @@ const AccountVerifiedPage = () => {
                             width={60}
                             height={60}
                         />
-                        {/* TITLE */}
                         <h2 className="text-xl font-semibold text-[#583D4C]">
                             Welcome User!
                         </h2>
                     </div>
 
                     {loading ? (
+                        /* Loading Spinner State */
                         <div className="flex flex-col items-center justify-center py-10 gap-4">
                             <Spinner size={40} customColorClass="text-[#A0522D]" />
-                            <span className="text-[#A0522D] text-lg font-medium">Verifying your account, please wait...</span>
+                            <span className="text-[#A0522D] text-lg font-medium">
+                                Verifying your account, please wait...
+                            </span>
                         </div>
                     ) : (
+                        /* Verification Success State */
                         <>
-                            {/* VERIFIED MESSAGE */}
                             <div className="mx-auto flex items-center justify-center text-[#583D4C] text-2xl font-semibold text-center mb-10">
                                 <span className="inline-flex items-center gap-2">
-                                    Your account has been successfully verified <HiBadgeCheck size={30} className="text-[#A0522D]" />
+                                    Your account has been successfully verified{" "}
+                                    <HiBadgeCheck size={30} className="text-[#A0522D]" />
                                 </span>
                             </div>
 
-                            {/* ACTION BUTTONS */}
+                            {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                                 <Button
                                     variant="solid"
-                                    className="bg-[#FBF4F3]   text-[#A0522D] hover:bg-[#FBF4F3] px-8 w-full sm:w-auto font-medium"
+                                    className="bg-[#FBF4F3] text-[#A0522D] hover:bg-[#FBF4F3] px-8 w-full sm:w-auto font-medium"
                                     onClick={() => router.push("/table-form")}
                                 >
                                     Go to Dashboard
                                 </Button>
-
                                 <Button
                                     variant="solid"
                                     className="bg-[#A0522D] hover:bg-[#8B4513] text-white px-8 w-full sm:w-auto font-medium"
@@ -106,3 +116,4 @@ const AccountVerifiedPage = () => {
 };
 
 export default AccountVerifiedPage;
+

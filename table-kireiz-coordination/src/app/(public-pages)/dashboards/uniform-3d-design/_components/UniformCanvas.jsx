@@ -1,39 +1,3 @@
-// 'use client'
-
-// import { Canvas } from '@react-three/fiber'
-// import { OrbitControls, Environment } from '@react-three/drei'
-// import { useRef } from 'react'
-// import UniformModel from './UniformModel'
-// import { useSnapshot } from 'valtio'
-// import { uniformState } from './uniformStore'
-
-// export default function UniformCanvas() {
-//   const controlsRef = useRef()
-//   const snap = useSnapshot(uniformState)
-
-//   return (
-//     <Canvas
-//       camera={{ position: [0, 1.6, 3], fov: 45 }}
-//       style={{ height: 650 }}
-//     >
-//       <ambientLight intensity={0.6} />
-//       <directionalLight position={[5, 5, 5]} intensity={1} />
-
-//       <UniformModel />
-
-//       <OrbitControls
-//         ref={controlsRef}
-//         enableZoom
-//         enablePan
-//         autoRotate={snap.autoRotate}
-//         autoRotateSpeed={1}
-//       />
-
-//       <Environment preset="studio" />
-//     </Canvas>
-//   )
-// }
-
 'use client'
 
 import { Canvas } from '@react-three/fiber'
@@ -42,7 +6,10 @@ import { useRef, Suspense } from 'react'
 import UniformModel from './UniformModel'
 import { useSnapshot } from 'valtio'
 import { uniformState } from './uniformStore'
-import * as THREE from 'three'
+
+/**
+ * Exposed camera control actions API (zoom, rotate, undo/redo).
+ */
 export let controlsApi = {
     zoomIn: () => { },
     zoomOut: () => { },
@@ -51,11 +18,15 @@ export let controlsApi = {
     redo: () => { },
 }
 
+/**
+ * UniformCanvas Component
+ * 
+ * Renders the 3D Three.js React Three Fiber Canvas with lights, orbit controls, and environment setup.
+ */
 export default function UniformCanvas() {
     const controlsRef = useRef()
     const snap = useSnapshot(uniformState)
 
-    // camera history
     const history = useRef([])
     const redoStack = useRef([])
 
@@ -75,7 +46,6 @@ export default function UniformCanvas() {
         controlsRef.current.update()
     }
 
-    // expose controls to parent
     controlsApi.zoomIn = () => {
         saveCameraState()
         controlsRef.current.dollyIn(1.2)
@@ -118,38 +88,6 @@ export default function UniformCanvas() {
     }
 
     return (
-        // <Canvas
-        //     camera={{ position: [0, 1.5, 6], fov: 35 }}
-        //     style={{ width: '100%', height: '100%' }}
-        // >
-        //     {/* LIGHTS */}
-        //     <ambientLight intensity={0.6} />
-        //     {/* <directionalLight position={[5, 5, 5]} intensity={1} /> */}
-        //     <directionalLight position={[5, 5, 5]} intensity={1} />
-        //     {/*  DEBUG BOX (CONFIRM CANVAS WORKS) */}
-        //     {/* <mesh position={[0, 0.5, 0]}>
-        //         <boxGeometry args={[0.5, 0.5, 0.5]} />
-        //         <meshStandardMaterial color="red" />
-        //     </mesh> */}
-
-        //     {/* MODEL (ASYNC LOAD) */}
-        //     <Suspense fallback={null}>
-        //         <UniformModel />
-        //         <Environment preset="studio" />
-        //     </Suspense>
-
-        //     {/* CONTROLS */}
-        //     <OrbitControls
-        //         ref={controlsRef}
-        //         enableZoom
-        //         enablePan
-        //         autoRotate={snap.autoRotate}
-        //         autoRotateSpeed={1}
-        //     />
-
-        // </Canvas>
-        // <div className="w-full aspect-[16/9] sm:aspect-[4/3] lg:aspect-[3/2]">
-        //    <div className="w-full aspect-[21/9] sm:aspect-[16/9] lg:aspect-[18/9]">
         <div className="w-full aspect-[18/9] sm:aspect-[15/9] lg:aspect-[15/9]">
             <Canvas camera={{ position: [0, 1.5, 6], fov: 35 }}>
                 <ambientLight intensity={0.6} />
