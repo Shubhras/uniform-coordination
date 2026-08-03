@@ -132,7 +132,6 @@ const DeliveryRequestForm = () => {
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
                             <FormItem
-                                label="Company Name"
                                 invalid={Boolean(errors.company_name)}
                                 errorMessage={errors.company_name?.message}
                                 className="mb-2"
@@ -147,7 +146,6 @@ const DeliveryRequestForm = () => {
                             </FormItem>
 
                             <FormItem
-                                label="Contact Person"
                                 invalid={Boolean(errors.contact_person)}
                                 errorMessage={errors.contact_person?.message}
                                 className="mb-2"
@@ -162,7 +160,6 @@ const DeliveryRequestForm = () => {
                             </FormItem>
 
                             <FormItem
-                                label="Email Address"
                                 invalid={Boolean(errors.email)}
                                 errorMessage={errors.email?.message}
                                 className="mb-2"
@@ -177,7 +174,6 @@ const DeliveryRequestForm = () => {
                             </FormItem>
 
                             <FormItem
-                                label="Phone Number"
                                 invalid={Boolean(errors.phone_number)}
                                 errorMessage={errors.phone_number?.message}
                                 className="mb-2"
@@ -196,7 +192,6 @@ const DeliveryRequestForm = () => {
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
                             <FormItem
-                                label="Item Type"
                                 invalid={Boolean(errors.item_type)}
                                 errorMessage={errors.item_type?.message}
                                 className="mb-2"
@@ -211,7 +206,6 @@ const DeliveryRequestForm = () => {
                             </FormItem>
 
                             <FormItem
-                                label="Material"
                                 invalid={Boolean(errors.material)}
                                 errorMessage={errors.material?.message}
                                 className="mb-2"
@@ -226,7 +220,6 @@ const DeliveryRequestForm = () => {
                             </FormItem>
 
                             <FormItem
-                                label="Size & Quantity"
                                 invalid={Boolean(errors.size_quantity)}
                                 errorMessage={errors.size_quantity?.message}
                                 className="mb-2"
@@ -241,7 +234,6 @@ const DeliveryRequestForm = () => {
                             </FormItem>
 
                             <FormItem
-                                label="Delivery Date"
                                 invalid={Boolean(errors.delivery_date)}
                                 errorMessage={errors.delivery_date?.message}
                                 className="mb-2"
@@ -262,7 +254,6 @@ const DeliveryRequestForm = () => {
                         </div>
 
                         <FormItem
-                            label="Additional Note"
                             invalid={Boolean(errors.additional_note)}
                             errorMessage={errors.additional_note?.message}
                             className="mb-2"

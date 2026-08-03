@@ -185,7 +185,7 @@ const DesignResultPage = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                         <div className="flex flex-col items-center lg:border-r lg:border-[#E5E7EB] border-r-none">
                             <div className="w-full flex justify-between items-center mb-6 px-2 sm:w-[420px]">
-                                <p className="text-sm text-gray-600">Design Result</p>
+                                <p className="text-sm text-[#000000]">Design Result</p>
                                 <p className="cursor-pointer "><TbView360Number size={23} className="text-gray-600" />
                                 </p>
                             </div>
@@ -231,6 +231,11 @@ const DesignResultPage = () => {
 
                                             <div className="flex justify-between items-center">
                                                 <span className="text-sm text-gray-700">S</span>
+                                                <Counter />
+                                            </div>
+
+                                             <div className="flex justify-between items-center">
+                                                <span className="text-sm text-gray-700">M</span>
                                                 <Counter />
                                             </div>
                                         </div>
