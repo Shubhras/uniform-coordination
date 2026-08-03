@@ -1,7 +1,0 @@
-{
-  "/(public-pages)/cart-summary/page": "app/(public-pages)/cart-summary/page.js",
-  "/(public-pages)/delivery-information/[id]/page": "app/(public-pages)/delivery-information/[id]/page.js",
-  "/(public-pages)/overview/page": "app/(public-pages)/overview/page.js",
-  "/(public-pages)/payment/page": "app/(public-pages)/payment/page.js",
-  "/(public-pages)/dashboards/design-result/[id]/page": "app/(public-pages)/dashboards/design-result/[id]/page.js"
-}
