@@ -20,15 +20,10 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
             <h2 className="font-[Plus Jakarta Sans]  font-medium text-[24px] tracking-[0.18px] text-[#1C2C56] mb-1">
               Join KIREIZ Space Today!
             </h2>
-            <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
+            <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#402936AD]">
               Elegant Table Styling & Rental Solutions
             </p>
           </div>
-          {message && (
-            <Alert showIcon className="mb-2" type="danger">
-              <span className="break-all">{message}</span>
-            </Alert>
-          )}
           {message && (
             <Alert showIcon className="mb-2" type="danger">
               <span className="break-all">{message}</span>
@@ -78,14 +73,14 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
               Sign in instead
             </ActionLink>
           </div>
-          {/* <div className="mt-4">
+          <div className="mt-4">
             <div className="flex items-center gap-5 mb-2">
               <div className="border-t border-gray-200 dark:border-gray-800 flex-1 " />
               <p className="text-base">or</p>
               <div className="border-t border-gray-200 dark:border-gray-800 flex-1 " />
             </div>
             <OauthSignIn setMessage={setMessage} onOauthSignIn={onOauthSignIn} />
-          </div> */}
+          </div>
         </div>
       </SplitSignup>
     </>

@@ -25,7 +25,7 @@ const SignIn = ({
                         <h2 className="font-[Plus Jakarta Sans]  font-medium text-[28px] tracking-[0.18px] text-[#1C2C56] mb-2">
                             Welcome to KIREIZ Space!
                         </h2>
-                        <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
+                        <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#402936AD]">
                             Elegant Table Styling & Rental Solutions
                         </p>
                     </div>
@@ -85,7 +85,7 @@ const SignIn = ({
                             Create an account
                         </ActionLink>
                     </div>
-                    {/* <div className="mt-4">
+                    <div className="mt-4">
                         <div className="flex items-center gap-5 mb-2">
                             <div className="border-t border-gray-200 dark:border-gray-800 flex-1 " />
                             <p className="text-base">
@@ -97,7 +97,7 @@ const SignIn = ({
                             setMessage={setMessage}
                             onOauthSignIn={onOauthSignIn}
                         />
-                    </div> */}
+                    </div>
                 </div>
             </Split>
         </>
