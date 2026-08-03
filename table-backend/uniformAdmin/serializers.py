@@ -1056,7 +1056,17 @@ class ProductSerializer(serializers.ModelSerializer):
  
         return super().to_internal_value(data)
  
-    
+    def update(self, instance, validated_data):
+        image = validated_data.pop("ProductImage_file", None)
+
+        instance = super().update(instance, validated_data)
+
+        if image:
+            instance.ProductImage = image
+            instance.save(update_fields=["ProductImage"])
+
+        return instance
+
     def validate(self, data):
         product_type = data.get(
             "productType",
@@ -1097,6 +1107,7 @@ class ProductSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 "available_quantity": "Available quantity cannot exceed total quantity"
             })
+            
 
         # if product_type == "table" and not theme_value:
         #     raise serializers.ValidationError({

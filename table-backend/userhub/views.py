@@ -1586,10 +1586,17 @@ class CreateOrderAPIView(APIView):
                     }, status=status.HTTP_400_BAD_REQUEST)
 
             cart = Cart.objects.filter(id=cart_id, user=user, is_active=True).first()
+            
+            # existing_order = Order.objects.filter(
+            #     cart=cart,
+            #     user=user,
+            #     status__in=["pending", "processing"]
+            # ).first()
+            
             existing_order = Order.objects.filter(
-                cart=cart,
                 user=user,
-                status__in=["pending", "processing"]
+                cart=cart,
+                payment_status="pending"
             ).first()
 
             if existing_order:
@@ -1652,44 +1659,7 @@ class CreateOrderAPIView(APIView):
                         payment_method=data.get("payment_method", "stripe") or "stripe",
                     )
                     
-                #     customer, created = CustomerDetails.objects.get_or_create(
-                #     user=user,
-                #     defaults={
-                #         "email": customer_data.get("email"),
-                #         "first_name": customer_data.get("first_name"),
-                #         "last_name": customer_data.get("last_name"),
-                #         "phone": customer_data.get("phone"),
-                #         "address_line_1": delivery.get("address_line1"),
-                #         "address_line_2": delivery.get("address_line2"),
-                #         "city": delivery.get("city"),
-                #         "postal_code": delivery.get("postal_code"),
-                #         "country": delivery.get("country"),
-                #     }
-                # )
-
-                # if not created:
-                #     customer.email = customer_data.get("email")
-                #     customer.first_name = customer_data.get("first_name")
-                #     customer.last_name = customer_data.get("last_name")
-                #     customer.phone = customer_data.get("phone")
-                #     customer.address_line_1 = delivery.get("address_line1")
-                #     customer.address_line_2 = delivery.get("address_line2")
-                #     customer.city = delivery.get("city")
-                #     customer.postal_code = delivery.get("postal_code")
-                #     customer.country = delivery.get("country")
-                #     customer.save()
-                    # customer = CustomerDetails.objects.create(
-                    #     user=user,
-                    #     email=customer_data.get("email"),
-                    #     first_name=customer_data.get("first_name"),
-                    #     last_name=customer_data.get("last_name"),
-                    #     phone=customer_data.get("phone"),
-                    #     address_line_1=customer_data.get("address_line1"),
-                    #     address_line_2=customer_data.get("address_line2"),
-                    #     city=customer_data.get("city"),
-                    #     postal_code=customer_data.get("postal_code"),
-                    #     country=customer_data.get("country"),
-                    # )
+            
             else:
                 return Response({
                     "status": False,
@@ -1810,6 +1780,14 @@ class CreateOrderAPIView(APIView):
                 if product.available_quantity < 0:
                     product.available_quantity = 0
                 product.save()
+                
+                
+            # Clear the cart after order creation
+            # cart.items.all().delete()      # remove all cart items
+            # cart.is_active = False         # deactivate this cart
+            # cart.save(update_fields=["is_active"])    
+            cart.items.all().delete()
+            cart.delete()
 
             response_data = {
                 "order_id": order.order_id,
@@ -2016,10 +1994,10 @@ class UserOrderListAPIView(APIView):
             if search:
                 orders = orders.filter(
                     Q(order_id__icontains=search) |
-                    Q(status__icontains=search)
+                    # Q(status__icontains=search)
                     # Add more searchable fields if required
-                    # Q(customer__first_name__icontains=search) |
-                    # Q(customer__last_name__icontains=search)
+                    Q(customer__first_name__icontains=search) |
+                    Q(customer__last_name__icontains=search)
                 )
 
             orders = orders.order_by("-created_at")
