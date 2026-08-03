@@ -3,7 +3,7 @@ import Uniforms from './_components/Uniforms'
 
 const Page = () => {
   return (
-    <Uniforms/>
+    <Uniforms />
   )
 }
 

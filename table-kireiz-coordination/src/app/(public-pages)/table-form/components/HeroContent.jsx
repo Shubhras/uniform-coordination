@@ -3,11 +3,15 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
+/**
+ * HeroContent Component
+ * 
+ * Top hero banner section with call-to-action buttons navigating to Browse by Color and Browse by Theme pages.
+ */
 const HeroContent = () => {
   const router = useRouter();
   return (
     <section className="relative w-full min-h-[520px] md:min-h-[620px] overflow-hidden mt-13">
-
       {/* BACKGROUND GRADIENT */}
       <div
         className="absolute inset-0"
@@ -18,7 +22,6 @@ const HeroContent = () => {
       />
 
       <div className="relative grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 min-h-[520px] md:min-h-[620px]">
-
         {/* LEFT CONTENT */}
         <div className="
           border-r border-b border-white
@@ -50,10 +53,10 @@ const HeroContent = () => {
               </h1>
 
               <div className="flex flex-wrap gap-4 mt-8 md:mt-10">
-                <button className="px-6 py-3 rounded-md border border-white bg-[#A0522D] text-white text-sm" onClick={()=>router.push("/browse-by-color")}>
+                <button className="px-6 py-3 rounded-md border border-white bg-[#A0522D] text-white text-sm cursor-pointer hover:bg-[#8B4513] transition-colors" onClick={() => router.push("/browse-by-color")}>
                   Browse by Color
                 </button>
-                <button className="px-6 py-3 rounded-md  border border-white  bg-[#EEC04F] text-sm text-white" onClick={()=>router.push("/browse-by-theme")}>
+                <button className="px-6 py-3 rounded-md border border-white bg-[#EEC04F] text-sm text-white cursor-pointer hover:bg-[#dcae3d] transition-colors" onClick={() => router.push("/browse-by-theme")}>
                   Browse by Theme
                 </button>
               </div>
@@ -86,10 +89,10 @@ const HeroContent = () => {
             />
           </div>
         </div>
-
       </div>
     </section>
   );
 };
 
 export default HeroContent;
+

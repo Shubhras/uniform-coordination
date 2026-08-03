@@ -3,6 +3,11 @@
 import { useGLTF, Primitive } from '@react-three/drei'
 import * as THREE from 'three'
 
+/**
+ * DoctorUniform Component
+ * 
+ * Renders the 3D GLTF doctor uniform model and manages individual mesh part selections and material colors.
+ */
 export function DoctorUniform({ onClickPart, activePart, color, ...props }) {
   const gltf = useGLTF('/img/3dmodels/doctor_-_sketchfab_weekly_-_13_mar23.glb')
   const { nodes, materials, scene } = gltf
@@ -22,10 +27,10 @@ export function DoctorUniform({ onClickPart, activePart, color, ...props }) {
 
   return (
     <group {...props} dispose={null}>
-      {/* Pura original model (body + skeleton ke saath) */}
+      {/* Base 3D Model Scene */}
       <Primitive object={scene.clone()} />
 
-      {/* Clickable parts overlay (sirf yeh color change karenge) */}
+      {/* Interactive Mesh Parts Overlay */}
       {nodes.coat && (
         <mesh geometry={nodes.coat.geometry} material={getMaterial(materials.material || materials.coat, 'coat')}
           onClick={(e) => { e.stopPropagation(); onClickPart('coat') }}

@@ -7,13 +7,20 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import HaederPage from "../../header/HaederPage";
 
-const EmailVerificatinoPage = () => {
+/**
+ * EmailVerificationPage Component
+ * 
+ * Displays registration confirmation, masked user email address, and email verification prompt popup.
+ */
+const EmailVerificationPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const userId = searchParams.get("user_id");
     const email = searchParams.get("email");
 
-
+    /**
+     * Opens external email client in a new tab for verification.
+     */
     const verifyUserEmail = async () => {
         window.open("https://mail.google.com/", "_blank");
     };
@@ -21,11 +28,11 @@ const EmailVerificatinoPage = () => {
     return (
         <>
             <HaederPage />
-            {/* FIXED OVERLAY TO BLOCK CLICKS */}
+            {/* Overlay Container */}
             <div className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center px-4">
                 <div className="bg-white rounded-xl px-8 py-10 text-center shadow-lg w-full max-w-xl relative">
 
-                    {/* CLOSE ICON */}
+                    {/* Close Button */}
                     <button
                         onClick={() => router.push("/")}
                         className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
@@ -33,7 +40,7 @@ const EmailVerificatinoPage = () => {
                         <HiX size={24} />
                     </button>
 
-                    {/* LOGO */}
+                    {/* Logo & Welcome */}
                     <div className="flex items-center gap-3 mb-8">
                         <Image
                             src="/img/logo/logo-table.png"
@@ -41,7 +48,6 @@ const EmailVerificatinoPage = () => {
                             width={60}
                             height={60}
                         />
-                        {/* TITLE */}
                         <h2 className="text-xl font-semibold text-[#583D4C]">
                             Welcome User!
                         </h2>
@@ -50,7 +56,8 @@ const EmailVerificatinoPage = () => {
                     <h2 className="text-2xl font-semibold text-[#583D4C]">
                         Thanks for registering
                     </h2>
-                    {/* VERIFY INFO */}
+
+                    {/* Masked Email Info */}
                     <p className="text-sm text-gray-600 mt-2">
                         <span className="text-[#A0522D] underline">Verify Email</span> Starts with{" "}
                         {(() => {
@@ -64,7 +71,7 @@ const EmailVerificatinoPage = () => {
                         })()}
                     </p>
 
-                    {/* NOTE */}
+                    {/* Verification Link Prompt */}
                     <p className="text-sm text-gray-500 mt-4">
                         Please verify your email address.{" "}
                         <span className="text-[#A0522D] underline cursor-pointer" onClick={verifyUserEmail}>
@@ -72,29 +79,18 @@ const EmailVerificatinoPage = () => {
                         </span>
                     </p>
 
-                    {/* VERIFIED STATUS */}
+                    {/* Verification Status */}
                     <div className="mt-6 text-[#583D4C] font-semibold text-lg flex justify-center">
                         <span className="inline-flex items-center gap-1">
                             Email Verified
                             <HiBadgeCheck size={24} />
                         </span>
                     </div>
-
-                    {/* ACTION */}
-                    {/* <div className="mt-8 flex justify-center">
-                    <Button
-                        variant="solid"
-                        className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white px-10"
-                        onClick={() => router.push("/sign-in")}
-                    >
-                        OK
-                    </Button>
-                </div> */}
-
                 </div>
             </div>
         </>
     );
 };
 
-export default EmailVerificatinoPage;
+export default EmailVerificationPage;
+

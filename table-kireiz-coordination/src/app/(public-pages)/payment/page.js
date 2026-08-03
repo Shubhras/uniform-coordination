@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import PaymentHome from "./components/PaymentHome";
 import { Elements } from "@stripe/react-stripe-js";
@@ -10,12 +11,11 @@ const stripePromise = loadStripe(
 
 const Page = () => {
   return (
-    <>
-      <Elements stripe={stripePromise}>
-        <PaymentHome />
-      </Elements>
-    </>
+    <Elements stripe={stripePromise}>
+      <PaymentHome />
+    </Elements>
   );
 };
 
 export default Page;
+

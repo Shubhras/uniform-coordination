@@ -2,7 +2,6 @@ import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
 
 const QuoteRequestPopup = ({ isOpen, onClose }) => {
-
     return (
         <Dialog
             isOpen={isOpen}
@@ -25,8 +24,7 @@ const QuoteRequestPopup = ({ isOpen, onClose }) => {
                         <ul className="text-sm text-gray-700 space-y-1">
                             <li>• Request ID: RQ-2025-0194</li>
                             <li>• Submitted on: 26 Nov 2025</li>
-                            <li>• Service/Product: (Auto-fill from form)</li>
-                            <li>• Quantity/Requirements: (Auto-fill)</li>
+                            <li>• Service/Product: Custom Table Uniform</li>
                             <li>• Preferred Contact: Email / Phone</li>
                         </ul>
                     </div>

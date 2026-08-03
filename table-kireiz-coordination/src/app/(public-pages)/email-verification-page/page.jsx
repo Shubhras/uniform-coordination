@@ -1,11 +1,9 @@
 import React from 'react'
-import EmailVerificatinoPage from './components/EmailVerificationPage'
+import EmailVerificationPage from './components/EmailVerificationPage'
 
 const Page = () => {
   return (
-    <div>
-      <EmailVerificatinoPage  />
-    </div>
+    <EmailVerificationPage />
   )
 }
 
