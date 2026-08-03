@@ -99,7 +99,7 @@ const stackList = [
   {
     id: "location",
     icon: PiMapPinFill,
-    title: "Design Uniform",
+    title: "Design Uniform/Table",
     description:
       "Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices, orci vitae convallis mattis.",
   },
@@ -154,7 +154,7 @@ const TechStack = () => {
                 </div>
 
                 {/* TEXT */}
-                <h3 className="text-base font-semibold text-[#1C2C56] mb-2 ">
+                <h3 className="text-base font-semibold text-[black] mb-2 ">
                   {stack.title}
                 </h3>
                 <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
