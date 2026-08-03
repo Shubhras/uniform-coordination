@@ -20,8 +20,7 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
               Join KIREIZ FORM Today!
             </h2>
             <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
-              Design Professional Uniforms & Beautiful Events
-            </p>
+              Professional Uniform Design for Every Industry            </p>
           </div>
           {message && (
             <Alert showIcon className="mb-2" type="danger">
