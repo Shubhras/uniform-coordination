@@ -4,19 +4,20 @@ import { useMemo, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useSession } from 'next-auth/react'
+
 import Button from '@/components/ui/Button'
 import { Form, FormItem } from '@/components/ui/Form'
-import { HiCheck } from 'react-icons/hi'
 import PasswordInput from '@/components/shared/PasswordInput'
+import Notification from '@/components/ui/Notification'
+import toast from '@/components/ui/toast'
+
+import { HiCheck } from 'react-icons/hi'
 import { FiLock } from 'react-icons/fi'
 
-/* ✅ ADDED (same as reference file) */
-import { useSession } from 'next-auth/react'
 import { apiUpdatePassword } from '@/services/AuthProfileService'
-import toast from '@/components/ui/toast'
-import Notification from '@/components/ui/Notification'
 
-/* ----------------_toggle schema ---------------- */
+// Password validation rules & schema
 const passwordSchema = z
     .string()
     .min(8, 'Password must be at least 8 characters')
@@ -34,12 +35,11 @@ const validationSchema = z
         message: 'Password does not match',
     })
 
-/* ---------------- component ---------------- */
 const ChangePassword = () => {
-    /* ✅ ADDED */
     const { data: session } = useSession()
     const [loading, setLoading] = useState(false)
 
+    // Form control & validation
     const {
         handleSubmit,
         control,
@@ -53,6 +53,7 @@ const ChangePassword = () => {
     const newPassword = watch('newPassword') || ''
     const confirmPassword = watch('confirmPassword') || ''
 
+    // Password validation rules check
     const rules = useMemo(
         () => ({
             length: newPassword.length >= 8,
@@ -65,7 +66,7 @@ const ChangePassword = () => {
         [newPassword, confirmPassword],
     )
 
-    // ✅ API IMPLEMENTED (same pattern as reference)
+    // Handle password update submission
     const onSubmit = async (values) => {
         try {
             setLoading(true)
@@ -102,23 +103,22 @@ const ChangePassword = () => {
         }
     }
 
+    // Password strength progress value calculation
     const progressValue =
         [rules.length, rules.number, rules.symbol].filter(Boolean).length
-
     const progressPercent = (progressValue / 3) * 100
 
     return (
-        <div className='bg-[#F5F0EE30] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md'>
+        <div className="bg-[#F5F0EE30] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
             <Form onSubmit={handleSubmit(onSubmit)}>
-                <h4 className=" text-lg font-semibold mb-1 flex items-center gap-1">
+                {/* Form Header */}
+                <h4 className="text-lg font-semibold mb-1 flex items-center gap-1">
                     <FiLock size={23} />
                     Change Password
                 </h4>
                 <p className="text-sm text-gray-500 mb-6">
                     Secure your account with a strong password
                 </p>
-
-                {/* Current Password */}
                 <FormItem
                     label="Current Password"
                     invalid={Boolean(errors.currentPassword)}
@@ -136,8 +136,6 @@ const ChangePassword = () => {
                         )}
                     />
                 </FormItem>
-
-                {/* New Password */}
                 <FormItem
                     label="New Password"
                     invalid={Boolean(errors.newPassword)}
@@ -155,25 +153,19 @@ const ChangePassword = () => {
                         )}
                     />
                 </FormItem>
-
-                {/* Password Strength Progress */}
                 <div className="mb-4">
                     <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
                         <div
-                            className={`h-full transition-all duration-300 bg-[#1C2C56]`}
+                            className="h-full transition-all duration-300 bg-[#1C2C56]"
                             style={{ width: `${progressPercent}%` }}
                         />
                     </div>
                 </div>
-
-                {/* Password Rules */}
                 <div className="flex flex-wrap gap-4 text-sm mb-6">
                     <Rule label="8+ Character" active={rules.length} />
                     <Rule label="Number" active={rules.number} />
                     <Rule label="Symbol" active={rules.symbol} />
                 </div>
-
-                {/* Confirm Password */}
                 <FormItem
                     label="Confirm New Password"
                     invalid={Boolean(errors.confirmPassword)}
@@ -191,13 +183,9 @@ const ChangePassword = () => {
                         )}
                     />
                 </FormItem>
-
-                {/* Match Indicator */}
                 <div className="flex flex-wrap gap-4 text-sm mb-6">
                     <Rule label="Password match" active={rules.match} />
                 </div>
-
-                {/* Actions */}
                 <div className="flex flex-col sm:flex-row justify-end gap-3">
                     <Button
                         type="button"
@@ -221,9 +209,7 @@ const ChangePassword = () => {
     )
 }
 
-export default ChangePassword
-
-/* ---------------- helper ---------------- */
+// Rule indicator component
 const Rule = ({ label, active }) => (
     <div
         className={`flex items-center gap-2 ${active ? 'text-green-600' : 'text-gray-400'
@@ -233,3 +219,5 @@ const Rule = ({ label, active }) => (
         <span>{label}</span>
     </div>
 )
+
+export default ChangePassword

@@ -1,17 +1,17 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { apiUserOrderList } from '@/services/OrderService'
 import { formatDate } from '@/utils/formatDate'
-import { FiCalendar, FiSearch, FiX, FiClock, FiRotateCcw, FiMapPin } from 'react-icons/fi'
+import { FiCalendar, FiSearch, FiX, FiRotateCcw, FiMapPin } from 'react-icons/fi'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
-import Spinner from '@/components/ui/Spinner'
 import Pagination from '@/components/ui/Pagination'
 import { HiCheck } from 'react-icons/hi'
 
+// Order image component with fallback pattern
 const OrderImage = ({ src, alt }) => (
     <div className="h-[102px] w-[98px] overflow-hidden rounded-xl border border-[#F0E4DE] bg-[#FAF6F4] shrink-0 flex items-center justify-center">
         {src ? (
@@ -35,9 +35,12 @@ const OrderImage = ({ src, alt }) => (
     </div>
 )
 
+// Active orders tab content component
 const ActiveOrders = ({ onTotalCountChange }) => {
     const router = useRouter()
     const { data: session } = useSession()
+
+    // Active orders state
     const [ordersList, setOrdersList] = useState([])
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
@@ -47,7 +50,7 @@ const ActiveOrders = ({ onTotalCountChange }) => {
     const [totalCount, setTotalCount] = useState(0)
     const pageSize = 5
 
-    // Debounce search input by 500ms
+    // Debounce search input
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearchTerm(searchTerm)
@@ -57,6 +60,7 @@ const ActiveOrders = ({ onTotalCountChange }) => {
         return () => clearTimeout(timer)
     }, [searchTerm])
 
+    // Fetch active orders list
     useEffect(() => {
         const fetchActiveOrders = async () => {
             if (!session?.accessToken) return
@@ -70,7 +74,6 @@ const ActiveOrders = ({ onTotalCountChange }) => {
                 if (statusFilter) params.status = statusFilter
 
                 const response = await apiUserOrderList(session.accessToken, params)
-                //console.log('=== apiUserOrderList Active Orders Response ===', response)
 
                 let list = []
                 let total = 0
@@ -99,6 +102,7 @@ const ActiveOrders = ({ onTotalCountChange }) => {
         fetchActiveOrders()
     }, [session?.accessToken, debouncedSearchTerm, statusFilter, currentPage])
 
+    // Status filter options
     const statusOptions = [
         { value: '', label: 'All Status' },
         { value: 'pending', label: 'Pending' },
@@ -108,9 +112,9 @@ const ActiveOrders = ({ onTotalCountChange }) => {
         { value: 'out_for_delivery', label: 'Out For Delivery' },
         { value: 'delivered', label: 'Delivered' },
         { value: 'returned', label: 'Returned' },
-
     ]
 
+    // Custom select option item
     const CustomOption = (props) => {
         const { innerProps, label, isSelected, isDisabled } = props
         return (
@@ -125,10 +129,12 @@ const ActiveOrders = ({ onTotalCountChange }) => {
         )
     }
 
+    // View order details handler
     const handleViewDetails = (orderId) => {
         router.push(`/profile/my-order-rentals/${orderId}`)
     }
 
+    // Status badge style helper
     const getStatusBadge = (status) => {
         const lower = status?.toLowerCase()
         if (lower === 'out_for_delivery') {
@@ -143,6 +149,7 @@ const ActiveOrders = ({ onTotalCountChange }) => {
         return 'bg-amber-100 text-amber-800 border-amber-200'
     }
 
+    // Address formatter helper
     const formatAddress = (addr) => {
         if (!addr) return ''
         if (typeof addr === 'string') return addr
@@ -156,6 +163,7 @@ const ActiveOrders = ({ onTotalCountChange }) => {
         return parts.join(', ')
     }
 
+    // Reset filters handler
     const handleResetFilters = () => {
         setSearchTerm('')
         setDebouncedSearchTerm('')
@@ -165,7 +173,7 @@ const ActiveOrders = ({ onTotalCountChange }) => {
 
     return (
         <div>
-            {/* SEARCH & STATUS FILTERS */}
+            {/* Search & Status Filters */}
             <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center">
                 <div className="relative flex-1">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C08A72]">
@@ -245,10 +253,9 @@ const ActiveOrders = ({ onTotalCountChange }) => {
                     <FiRotateCcw size={14} />
                     Reset
                 </button>
-
             </div>
 
-            {/* ORDERS LIST */}
+            {/* Orders List */}
             <div className="mt-5 space-y-4">
                 {loading ? (
                     <div className="flex justify-center items-center py-20">
@@ -339,7 +346,7 @@ const ActiveOrders = ({ onTotalCountChange }) => {
                 )}
             </div>
 
-            {/* PAGINATION */}
+            {/* Pagination */}
             {totalCount > 0 && (
                 <div className="mt-6 flex justify-end">
                     <Pagination
