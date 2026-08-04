@@ -189,11 +189,11 @@ const AddEditPartModal = ({
 
     const fetchFabrics = async () => {
       setLoadingFabrics(true);
-      const page= 1;
-      const pageSize= 100;
-      const search= "";
+      const page = 1;
+      const pageSize = 100;
+      const search = "";
       try {
-        const response = await apiGetFabricList( page);
+        const response = await apiGetFabricList(page);
 
         if (response?.status && response?.data) {
           const options = response.data
@@ -287,8 +287,8 @@ const AddEditPartModal = ({
         partName: initialData.partName || "",
         category: initialData.category
           ? {
-              value: initialData.category,
-              label: `Category #${initialData.category}`,
+              value: initialData.category.id,
+              label: initialData.category.categoryName,
             }
           : null,
         fabric:
@@ -439,13 +439,13 @@ const AddEditPartModal = ({
       const formData = new FormData();
 
       formData.append("partName", values.partName);
-      formData.append("category", values.category.value);
+      formData.append("category_id", values.category.value);
 
       if (values.fabric) {
         formData.append("fabric", values.fabric.value);
       }
       if (values.subcategory) {
-        formData.append("subcategory", values.subcategory.value);
+        formData.append("subcategory_id", values.subcategory.value);
       }
 
       if (values.zIndex) {
@@ -476,6 +476,15 @@ const AddEditPartModal = ({
           ? await apiUpdatePart(accessToken, initialData.id, formData)
           : await apiCreatePart(accessToken, formData);
 
+      if (!response?.status) {
+        toast.push(
+          <Notification title="Error" type="danger">
+            {response.message}
+          </Notification>,
+        );
+        return;
+      }
+
       toast.push(
         <Notification title="Success" type="success">
           {response?.message}
@@ -483,10 +492,17 @@ const AddEditPartModal = ({
       );
 
       onSaveSuccess?.();
+      onClose?.();
     } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-          "Failed to save part. Please try again.",
+      const message =
+        typeof err?.response?.data?.message === "object"
+          ? Object.values(err.response.data.message).flat().join(", ")
+          : err?.response?.data?.message || "Failed to save part.";
+
+      toast.push(
+        <Notification title="Error" type="danger">
+          {message}
+        </Notification>,
       );
     } finally {
       setSaving(false);

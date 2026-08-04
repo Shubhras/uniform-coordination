@@ -226,25 +226,6 @@ const PartsTab = () => {
     return duplicateName;
   };
 
-  const getPartImageFile = async (part) => {
-    if (!part?.partImage) return null;
-
-    const imageUrl = getImageUrl(part.partImage);
-    const response = await fetch(imageUrl);
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch part image for duplication.");
-    }
-
-    const imageBlob = await response.blob();
-    const fileName =
-      part.partImage.split("/").pop() || `${part.partName || "part"}.jpg`;
-
-    return new File([imageBlob], fileName, {
-      type: imageBlob.type || "application/octet-stream",
-    });
-  };
-
   const handleDuplicatePart = async (part) => {
     if (!accessToken || !part) return;
 
@@ -252,10 +233,11 @@ const PartsTab = () => {
       setDuplicatingId(part.id);
 
       const formData = new FormData();
+
       formData.append("partName", getDuplicatePartName(part.partName));
 
       if (part.category?.id) {
-        formData.append("category", part.category.id);
+        formData.append("category_id", part.category.id);
       }
 
       if (part.fabric) {
@@ -263,45 +245,31 @@ const PartsTab = () => {
       }
 
       if (part.subcategory?.id) {
-        formData.append("subcategory", part.subcategory.id);
+        formData.append("subcategory_id", part.subcategory.id);
       }
 
-      if (part.zIndex !== undefined && part.zIndex !== null) {
-        formData.append("zIndex", String(part.zIndex));
+      if (part.zIndex != null) {
+        formData.append("zIndex", part.zIndex);
       }
 
-      const partImageFile = await getPartImageFile(part);
-      if (partImageFile) {
-        formData.append("partImage", partImageFile);
-      }
+      // Image URL direct bhej rahe hain
+      formData.append("partImage", part.partImage);
 
       const response = await apiCreatePart(accessToken, formData);
 
-      if (!response?.status) {
-        throw new Error(response?.message || "Failed to duplicate part.");
-      }
-
       toast.push(
         <Notification title="Success" type="success">
-          {response?.message || "Part duplicated successfully."}
+          {response?.message}
         </Notification>,
       );
 
       fetchParts(currentPage);
     } catch (error) {
-      console.error("Failed to duplicate part:", error);
-      toast.push(
-        <Notification title="Error" type="danger">
-          {error?.response?.data?.message ||
-            error?.message ||
-            "Failed to duplicate part. Please try again."}
-        </Notification>,
-      );
+      console.error(error);
     } finally {
       setDuplicatingId(null);
     }
   };
-
   /* ---------- FILTERING ---------- */
   const filteredParts = parts.filter((p) => {
     const q = searchQuery.toLowerCase();
@@ -487,8 +455,9 @@ const PartsTab = () => {
                       disabled={duplicatingId === part.id}
                       className="flex-1 border border-[#1C4FA8] text-[#1C4FA8] text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-[#EEF2FF] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                 
-                      {duplicatingId === part.id ? "Duplicating..." : "Duplicate"}
+                      {duplicatingId === part.id
+                        ? "Duplicating..."
+                        : "Duplicate"}
                     </button>
                     <button
                       onClick={() => {

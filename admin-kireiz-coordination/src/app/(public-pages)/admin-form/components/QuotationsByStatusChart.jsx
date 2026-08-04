@@ -47,16 +47,16 @@ const QuotationsByStatusChart = ({ data }) => {
   };
 
   return (
-    <div className="bg-white border border-[#ececec] rounded-xl shadow-lg p-5">
+    <div className="h-full bg-white border border-[#ececec] rounded-xl shadow-sm p-5">
       <h3 className="text-[#1C2C56] font-semibold mb-6 text-[17px]">
-        Quotations by Status
+        Quote Status Distribution
       </h3>
 
       <Chart
         options={options}
         series={hasData ? values : [1]}
         type="donut"
-        height={280}
+        height={250}
       />
     </div>
   );

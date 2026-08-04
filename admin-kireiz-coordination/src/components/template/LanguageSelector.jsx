@@ -1,5 +1,5 @@
 "use client";
-import { useMemo ,useState} from "react";
+import { useMemo, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Dropdown from "@/components/ui/Dropdown";
 import classNames from "classnames";
@@ -34,7 +34,7 @@ const _LanguageSelector = ({ className }) => {
     <div
       className={classNames(
         className,
-        "flex items-center gap-2 cursor-pointer",
+        "group flex items-center gap-2 cursor-pointer rounded-lg px-3 py-2 transition-all duration-200 hover:bg-white",
       )}
     >
       <Avatar
@@ -43,15 +43,15 @@ const _LanguageSelector = ({ className }) => {
         src={`/img/countries/${selectLangFlag}.png`}
       />
 
-      <span className="text-sm font-semibold text-[#4A3A3A]">
+      <span className="text-sm font-semibold text-white transition-colors duration-200 group-hover:text-[#1C2C56]">
         {selectedLang?.flag}
       </span>
 
       <FiChevronDown
         size={15}
-        className={`text-[#4A3A3A] transition-transform duration-200 ${
+        className={`transition-all duration-200 ${
           isOpen ? "rotate-180" : ""
-        }`}
+        } text-white group-hover:text-[#1C2C56]`}
       />
     </div>
   );
