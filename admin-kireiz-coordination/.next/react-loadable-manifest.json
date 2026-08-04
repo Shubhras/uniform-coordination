@@ -2049,22 +2049,21 @@
   "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./MostUsedIndustriesChart": {
     "id": 76553,
     "files": [
-      "static/chunks/477d4af2.46a33de73afd014f.js",
-      "static/chunks/6553.a07bb3f0b3259842.js"
+      "static/chunks/6553.ea3bcad6c81397eb.js"
     ]
   },
   "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./QuotationRequestsChart": {
     "id": 14987,
     "files": [
       "static/chunks/477d4af2.46a33de73afd014f.js",
-      "static/chunks/4987.819d6a0a3134f84d.js"
+      "static/chunks/4987.57dff015b13347c5.js"
     ]
   },
   "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./QuotationsByStatusChart": {
     "id": 89353,
     "files": [
       "static/chunks/477d4af2.46a33de73afd014f.js",
-      "static/chunks/9353.6e90e97227f157b0.js"
+      "static/chunks/9353.43089157b310b433.js"
     ]
   },
   "components/shared/Chart.jsx -> react-apexcharts": {
