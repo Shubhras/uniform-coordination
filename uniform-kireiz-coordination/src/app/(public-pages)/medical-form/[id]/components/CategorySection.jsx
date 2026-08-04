@@ -134,7 +134,7 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                         </div>
 
                         {/* SORT DROPDOWN */}
-                        <div className="relative min-w-[220px] z-[60]">
+                        <div className="relative min-w-[220px] ">
                             <Select
                                 options={sortOptions.map(opt => ({ value: opt.id, label: `${opt.name}` }))}
                                 value={{ value: sortBy.id, label: `Sort By : ${sortBy.name}` }}
