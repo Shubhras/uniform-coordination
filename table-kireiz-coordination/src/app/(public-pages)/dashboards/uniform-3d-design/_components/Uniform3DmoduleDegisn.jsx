@@ -1,11 +1,14 @@
 'use client'
 import Image from 'next/image'
-import '@google/model-viewer'
 import { useEffect, useRef, useState } from 'react'
-import ColorPickerPopup from './ColorPickerPopup'
+
+if (typeof window !== 'undefined') {
+  import('@google/model-viewer')
+}
+// import ColorPickerPopup from './ColorPickerPopup'
 // const SAMPLE_MODEL = '/img/3dmodels/Astronaut.glb'
 // const SAMPLE_MODEL = '/img/3dmodels/doctor_uniform.glb'
-const FALLBACK_MODEL = '' //'https://modelviewer.dev/shared-assets/models/Astronaut.glb'
+//const FALLBACK_MODEL = '' //'https://modelviewer.dev/shared-assets/models/Astronaut.glb'
 import Button from '@/components/ui/Button';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { RiTable2 } from 'react-icons/ri'
@@ -18,50 +21,30 @@ import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import { apiGetProductDetailsById } from '@/services/ProductService'
 import { apiGetSindleThemeDetails } from '@/services/HomeService'
+/**
+ * Uniform3DmoduleDegisn Component
+ *
+ * Handles the 3D table customization workflow, including product and theme
+ * loading, design configuration, model creation, and design saving.
+ */
 const Uniform3DmoduleDegisn = () => {
   const searchParams = useSearchParams()
   // product id
   const { id } = useParams();
   // theme id
   const themeIdParam = searchParams.get('themeId')
-
-  console.log('ffffffffffffffffffffffffffffff======= id', id, '======= themeIdParam', themeIdParam);
-
-  const [loading, setLoading] = useState(false)
   const [singleProductData, setSingleProductData] = useState(null)
-  const [shapeOpen, setShapeOpen] = useState(false)
-  const [sittingOpen, setSittingOpen] = useState(false)
   const { data: session } = useSession();
-  // const [tableShape, setTableShape] = useState("Circle")
   const [tableSitting, setTableSitting] = useState(6)
-
-  const [selectedCategory, setSelectedCategory] = useState("Tablecloths")
   const [categoryView, setCategoryView] = useState("list"); // list | tablecloths
-
-  const [fabric, setFabric] = useState("Crushed Velvet");
-  const [style, setStyle] = useState("Round");
-  const [colorr, setColorr] = useState("Beige");
-  const [chairColor, setChairColor] = useState(null)
-  const [centrePiece, setCentrePiece] = useState(null)
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const router = useRouter()
-
-  const mvRef = useRef(null)
-  // const [modelSrc, setModelSrc] = useState(SAMPLE_MODEL)
   const [active, setActive] = useState('tableShape')
-  const [autoRotate, setAutoRotate] = useState(true)
-  const [color, setColor] = useState('#7fc7ff')
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [status, setStatus] = useState('loading')
-  const [fieldOfView, setFieldOfView] = useState(45); // zoom control
-  const [cameraHistory, setCameraHistory] = useState([]);
-  const [redoStack, setRedoStack] = useState([]);
-  const [mounted, setMounted] = useState(false)
   const panelRef = useRef(null)
   const [fullView, setFullView] = useState(false);
-
+  const [loading, setLoading] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState({
     title: 'Loading Theme...',
     description: 'Please wait while we load the theme details.',
@@ -78,6 +61,7 @@ const Uniform3DmoduleDegisn = () => {
     ]
   })
   const [tableShape, setTableShape] = useState("Circle");
+  const [tableScale, setTableScale] = useState(300);
 
   // Category-specific states
   const [tablecloth, setTablecloth] = useState({
@@ -118,12 +102,18 @@ const Uniform3DmoduleDegisn = () => {
   function onIconClick(key) {
     setActive(prev => {
       if (prev === key) {
-        setShowColorPicker(false)
         return ''
       }
       return key
     })
   }
+
+  useEffect(() => {
+    import('@google/model-viewer').catch((err) => {
+      console.error('Failed to load @google/model-viewer:', err)
+    })
+  }, [])
+
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
@@ -160,6 +150,7 @@ const Uniform3DmoduleDegisn = () => {
     if (id) fetchProductDetails()
   }, [id])
 
+  /** Fetch theme details if themeId is provided in URL params */
   useEffect(() => {
     const fetchThemeDetails = async () => {
       if (!themeIdParam) return;
@@ -175,8 +166,6 @@ const Uniform3DmoduleDegisn = () => {
             // ...apiData,
             cardImage: apiData?.image || prev.cardImage,
           }));
-
-          console.log('apiData?.image', apiData?.image);
         }
       } catch (error) {
         console.error("Error fetching theme details:", error);
@@ -185,6 +174,7 @@ const Uniform3DmoduleDegisn = () => {
     if (themeIdParam) fetchThemeDetails();
   }, [themeIdParam])
 
+  /** Initialize and submit 3D model info payload */
   const handleUniformDesignResult = async () => {
 
     let productId = "";
@@ -200,22 +190,15 @@ const Uniform3DmoduleDegisn = () => {
       themeId = "";
     }
 
-
-
-    console.log(productId, '=================', themeId);
-
-
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append("product", productId);
     formData.append("theme_id", themeId);
-
-    formData.append("model_file", ""); // Send empty or file object
+    formData.append("model_file", "");
     formData.append("description", "School uniform 3D model");
 
     try {
       const response = await apiModelInfoCreate(formData, session?.accessToken);
-      // console.log("Design create Successfully:", response);
 
       if (response?.status) {
         handleSaveDesign(response.data?.id);
@@ -226,7 +209,6 @@ const Uniform3DmoduleDegisn = () => {
           </Notification>
         );
       }
-
     } catch (error) {
       console.error("Save Design Error:", error);
       toast.push(
@@ -239,8 +221,8 @@ const Uniform3DmoduleDegisn = () => {
     }
   };
 
+  /** Save complete design specification payload and navigate to result page */
   const handleSaveDesign = async (modelId) => {
-
     if (!session?.accessToken) {
       toast.push(
         <Notification title="Login Required" type="warning">
@@ -252,35 +234,32 @@ const Uniform3DmoduleDegisn = () => {
     setIsSaving(true);
 
     const payload = {
-      "user": session?.user?.id,
-      "model_info": modelId,
-      "config_json": {
-        "color": "grey",
-        "size": "M",
-        "material": "cotton",
-
+      user: session?.user?.id,
+      model_info: modelId,
+      config_json: {
+        color: "grey",
+        size: "M",
+        material: "cotton",
       },
-      "design_specifications": {
-        "logo_position": "front",
-        "print_type": "embroidery",
-        "text": "My Brand",
-        "size": singleProductData?.size,
-        // "productType": singleProductData?.product_type,
-        "table_shape": singleProductData?.table_shape,
-        "style": singleProductData?.style,
-        "fabric_details": singleProductData?.fabric_details,
-        "color_details": singleProductData?.color_details,
-        "category": singleProductData?.category,
-        "subcategory": singleProductData?.subcategory,
-        "parts": singleProductData?.parts,
+      design_specifications: {
+        logo_position: "front",
+        print_type: "embroidery",
+        text: "My Brand",
+        size: singleProductData?.size,
+        table_shape: singleProductData?.table_shape,
+        style: singleProductData?.style,
+        fabric_details: singleProductData?.fabric_details,
+        color_details: singleProductData?.color_details,
+        category: singleProductData?.category,
+        subcategory: singleProductData?.subcategory,
+        parts: singleProductData?.parts,
       },
-      "json_file_path": "uploads/configs/user6_model3.json",
-      "isActive": true
-    }
+      json_file_path: "uploads/configs/user6_model3.json",
+      isActive: true
+    };
 
     try {
       const response = await apiSaveDesign(payload, session.accessToken);
-      console.log("Design Saved Successfully:", response);
       toast.push(
         <Notification title="Success!" type="success">
           Design saved successfully
@@ -304,40 +283,40 @@ const Uniform3DmoduleDegisn = () => {
     }
   };
   return (
-    <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-15 ">
+    <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-15">
       <div className="flex gap-6">
+        {/* Left Toolbar: Navigation Selector */}
         <div className="w-[80px] flex flex-col items-center gap-4 py-4">
           {[
             { key: "tableShape", label: "Table Shape", img: "/img/top-left-image/collar.png" },
             { key: "category", label: "Categories", img: "/img/top-left-image/sleeves.png" },
-            // { key: "theme", label: "Theme", img: "/img/top-left-image/measuring-tape.png" },
-            // { key: "color", label: "Color Palette", img: "/img/top-left-image/color-wheel.png" },
           ].map(item => (
             <button
               key={item.key}
               onClick={() => onIconClick(item.key)}
-              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition
-                ${active === item.key
-                  ? "border-[#A0522D] ring-2 ring-blue-500 bg-[#FFF5F1] shadow-md"
-                  : "bg-white shadow-sm hover:bg-gray-50"
+              className={`w-[75px] h-[100px] rounded-lg p-2 flex flex-col justify-center items-center transition ${active === item.key
+                ? "border-l-[0px] border-b-[0px] border-t-[3.5px] border-r-[3.5px] border-[#A0522D]  shadow-md"
+                : "bg-white border border-gray-200 shadow-sm hover:bg-gray-50"
                 }`}
             >
-              <img src={item.img} className="w-10" />
-              <span className="text-xs text-gray-600">
+              <img src={item.img} className="w-8 h-8 object-contain mb-1" alt={item.label} />
+              <span className={`text-xs font-medium text-center leading-tight ${active === item.key ? "font-semibold" : "text-gray-600"}`}>
                 {item.label}
               </span>
             </button>
           ))}
         </div>
+
+        {/* Configuration Side Panel */}
         <div className="max-w-sm py-4">
+          {/* Panel Option 1: Table Shape & Seating Options */}
           {active === "tableShape" && (
             <div
               ref={panelRef}
-              className="w-full h-full  bg-[#FFF5F1] border border-[#F3D3C8]
-                       rounded-2xl p-5 shadow-lg"
+              className="w-full h-full bg-[#FFF5F1] border border-[#F3D3C8] rounded-2xl p-5 shadow-lg"
             >
-              {/* TABLE SHAPE */}
-              <div className='mb-6'>
+              {/* Table Shape Selector */}
+              <div className="mb-6">
                 <p className="text-sm text-[#1C2C56] block mb-1">
                   Table Shape
                 </p>
@@ -357,18 +336,12 @@ const Uniform3DmoduleDegisn = () => {
                         src={item.img}
                         alt={item.name}
                         className={`rounded-sm object-contain border p-2 w-full border-[#A0522D4D] h-[70px]
-          ${tableShape === item.name ? "bg-[#A0522D33] border-[#A0522D4D]" : "bg-white"}`}
+                          ${tableShape === item.name ? "bg-[#A0522D33] border-[#A0522D4D]" : "bg-white"}`}
                       />
 
-                      {/* CHECK ICON */}
+                      {/* Selected Item Indicator */}
                       {tableShape === item.name && (
-                        <span
-                          className="absolute top-1 right-1
-            bg-[#A0522D] text-white
-            text-[10px] w-4 h-4
-            flex items-center justify-center
-            rounded-sm shadow-md"
-                        >
+                        <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
                           ✓
                         </span>
                       )}
@@ -380,67 +353,71 @@ const Uniform3DmoduleDegisn = () => {
                   ))}
                 </div>
               </div>
-              {/* TABLE SCALE */}
+
+              {/* Table Scale Adjustment */}
               <div className="mb-6">
-                <label className="text-sm text-[#1C2C56] block mb-1">
+                <label className="text-sm text-[#1C2C56] font-medium block mb-2">
                   Table Scale
                 </label>
-                <div className="relative">
+                <div className="relative w-full flex items-center h-6">
+                  {/* Track Background */}
+                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
+                    <div
+                      className="h-full bg-[#A0522D] rounded-full transition-all duration-75"
+                      style={{ width: `${((tableScale - 100) / 400) * 100}%` }}
+                    />
+                  </div>
+                  {/* Custom Circular Thumb */}
+                  <div
+                    className="absolute w-5 h-5 bg-white border-2 border-[#A0522D] rounded-full shadow-md pointer-events-none transition-all duration-75 -ml-2.5 top-1/2 -translate-y-1/2"
+                    style={{ left: `${((tableScale - 100) / 400) * 100}%` }}
+                  />
+                  {/* Interactive Range Input */}
                   <input
                     type="range"
                     min="100"
                     max="500"
-                    defaultValue="300"
-                    className="w-full accent-[#A0522D]"
+                    value={tableScale}
+                    onChange={(e) => setTableScale(Number(e.target.value))}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                   />
-                  {/* <div className="flex justify-between text-[10px] text-gray-500 mt-1">
-                                        <span>100</span>
-                                        <span>300</span>
-                                        <span>500</span>
-                                    </div> */}
                 </div>
               </div>
 
-              {/* TABLE SITTING */}
-              <div className="mb-6  flex justify-between items-center">
+              {/* Table Seating Count Control */}
+              <div className="mb-6 flex justify-between items-center">
                 <label className="text-sm text-[#1C2C56] block">
                   Table Sitting
                 </label>
 
                 <div className="flex items-center gap-2">
-                  {/* MINUS */}
                   <button
                     type="button"
                     onClick={() =>
                       setTableSitting((prev) => Math.max(2, prev - 1))
                     }
-                    className="w-8 h-8 flex items-center justify-center
-      border border-[#E6B8A2] rounded-md bg-white text-[#A0522D]"
+                    className="w-8 h-8 flex items-center justify-center border border-[#E6B8A2] rounded-md bg-white text-[#A0522D]"
                   >
                     <FiMinus size={14} />
                   </button>
 
-                  {/* VALUE */}
                   <span className="text-sm font-medium text-[#1C2C56]">
                     {tableSitting}
                   </span>
 
-                  {/* PLUS */}
                   <button
                     type="button"
                     onClick={() =>
                       setTableSitting((prev) => Math.min(8, prev + 1))
                     }
-                    className="w-8 h-8 flex items-center justify-center
-      border border-[#E6B8A2] rounded-md bg-white text-[#A0522D]"
+                    className="w-8 h-8 flex items-center justify-center border border-[#E6B8A2] rounded-md bg-white text-[#A0522D]"
                   >
                     <FiPlus size={14} />
                   </button>
                 </div>
               </div>
 
-
-              {/* TIP BOX */}
+              {/* Interactive Tip Banner */}
               <div className="bg-[#FFF] border border-[#F3D3C8] rounded-xl p-3 text-xs text-gray-600">
                 <span className="font-medium text-[#A0522D]">💡 Tip:</span>
                 <p className="mt-1 leading-relaxed">
@@ -1100,9 +1077,7 @@ const Uniform3DmoduleDegisn = () => {
               <RiTable2 className="text-lg" />
               Full Venue
             </button>
-
           </div>
-
           <div className="relative z-10  overflow-hidden 
                 h-[620px] w-full flex items-center justify-center">
             {
@@ -1145,13 +1120,10 @@ const Uniform3DmoduleDegisn = () => {
                 <img src="/img/top-left-image/redo.png" className="w-5 h-5" />
               </button>
               <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2" >
+              <button className="p-2">
                 <span className="text-lg font-bold">+</span>
               </button>
-              <span className="text-sm font-semibold text-gray-700">
-                {/* {zoomPercent}% */}
-              </span>
-              <button className="p-2" >
+              <button className="p-2">
                 <span className="text-lg font-bold">−</span>
               </button>
               <div className="w-px h-6 bg-gray-300"></div>
