@@ -97,7 +97,7 @@ const SignInForm = (props) => {
           type="submit"
           className="bg-[#1C2C56] hover:bg-[#152243] text-white"
         >
-          {isSubmitting ? "Signing in..." : "Login to KIREIZ FORM"}
+          {isSubmitting ? "Signing in..." : "Login to Admin Portal"}
         </Button>
       </Form>
     </div>

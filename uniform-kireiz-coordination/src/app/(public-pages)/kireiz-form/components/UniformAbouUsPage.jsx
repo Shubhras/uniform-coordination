@@ -85,7 +85,7 @@ const UniformAbouUsPage = () => {
 
   return (
     <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12 py-12">
-      <div className="bg-[#EEF3FB] rounded-bl-[120px]">
+      <div className="bg-[#F4F7FC] rounded-bl-[120px]">
         <div className="relative py-8">
           {/* <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-semibold text-[#1C2C56]">
