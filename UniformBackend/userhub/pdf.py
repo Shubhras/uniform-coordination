@@ -12,27 +12,7 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 import io
 from rest_framework.permissions import AllowAny
-# class QuotationDetailView(APIView):
-#     """
-#     GET /api/quotations/<uuid:pk>/
-#     Returns summary JSON (for the right panel) + a pdf_url (for the left viewer).
-#     """
-   
-#     from rest_framework.permissions import AllowAny
 
-#     def get(self, request, pk):
-#         quotation = QuotationRequest.objects.filter(
-#             uuids=pk, isDeleted=False
-#         ).select_related('customupdatemodel__model_info__product').first()
-#         if not quotation:
-#             return Response({"detail": "Not found"}, status=404)
-
-#         data = QuotationSummarySerializer(quotation).data
-#         pdf_path = reverse('quotation-pdf', kwargs={'pk': quotation.uuids})
-#         data['pdf_url'] = request.build_absolute_uri(pdf_path)
-
-#         return Response(data, status=200)
-    
     
 class QuotationDetailView(APIView):
     """

@@ -182,7 +182,8 @@ class Parts(models.Model):
         ('table', 'Table'),
     ]
     
-    partName = models.CharField(max_length=150, unique=True)
+    # partName = models.CharField(max_length=150, unique=True)
+    partName = models.CharField(max_length=150)
     partImage = models.ImageField(upload_to='part_images/', blank=True, null=True)
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="parts_category")
     subcategory = models.ForeignKey('SubCategory', on_delete=models.SET_NULL, null=True, blank=True, related_name="parts_subcategory")

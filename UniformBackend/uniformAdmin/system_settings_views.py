@@ -15,7 +15,10 @@ class SystemSettingsRetrieveView(APIView):
 
     def get(self, request):
         settings_obj = SystemSettings.load()
-        data = SystemSettingsSerializer(settings_obj).data
+        data = SystemSettingsSerializer(
+            settings_obj,
+            context={"request": request}   # <-- add this
+        ).data
         return Response(
             {
                 "success": True,
@@ -25,7 +28,6 @@ class SystemSettingsRetrieveView(APIView):
             },
             status=200,
         )
-
 
 class SystemSettingsUpdateView(APIView):
     """
@@ -38,7 +40,10 @@ class SystemSettingsUpdateView(APIView):
     def put(self, request):
         settings_obj = SystemSettings.load()
         serializer = SystemSettingsSerializer(
-            settings_obj, data=request.data, partial=True
+            settings_obj,
+            data=request.data,
+            partial=True,
+            context={"request": request}   # <-- add this
         )
         if not serializer.is_valid():
             return Response(

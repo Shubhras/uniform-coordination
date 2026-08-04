@@ -107,6 +107,204 @@ class RoundedKFBox(Flowable):
         )
 
 
+# def generate_customization_pdf(obj, user):
+#     file_name = f"customization_{obj.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+#     file_path = os.path.join(settings.MEDIA_ROOT, "exports", file_name)
+#     os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+#     doc = SimpleDocTemplate(
+#         file_path,
+#         pagesize=A4,
+#         rightMargin=40,
+#         leftMargin=40,
+#         topMargin=40,
+#         bottomMargin=40,
+#     )
+
+#     styles = getSampleStyleSheet()
+#     elements = []
+
+    
+#     # LOGO STYLES (SAFE & TESTED)
+#     logo_kf_style = ParagraphStyle(
+#         "LogoKF",
+#         fontSize=22,
+#         fontName="Helvetica-Bold",
+#         textColor=colors.white,
+#         alignment=TA_LEFT,
+#         leading=25
+#     )
+
+#     logo_text_style = ParagraphStyle(
+#         "LogoText",
+#         fontSize=14,
+#         fontName="Helvetica-Bold",
+#         textColor=colors.HexColor("#0B3C5D"),
+#         leading=16
+#     )
+
+#     logo_tagline_style = ParagraphStyle(
+#         "LogoTagline",
+#         fontSize=9,
+#         textColor=colors.HexColor("#0B3C5D"),
+#         leading=2
+#     )
+
+    
+#     # MAIN STYLES
+    
+#     title_style = ParagraphStyle(
+#         "TitleStyle",
+#         parent=styles["Title"],
+#         fontSize=22,
+#         alignment=TA_CENTER,
+#         textColor=colors.HexColor("#1F3A5F"),
+#         spaceAfter=25
+#     )
+
+#     section_style = ParagraphStyle(
+#         "SectionStyle",
+#         parent=styles["Heading2"],
+#         fontSize=14,
+#         textColor=colors.HexColor("#154360"),
+#         spaceBefore=20,
+#         spaceAfter=10
+#     )
+
+#     normal_style = ParagraphStyle(
+#         "NormalStyle",
+#         parent=styles["Normal"],
+#         fontSize=10,
+#         leading=14,
+#         spaceAfter=6
+#     )
+
+#     muted_style = ParagraphStyle(
+#         "MutedStyle",
+#         parent=styles["Normal"],
+#         fontSize=9,
+#         textColor=colors.grey
+#     )
+#     #<--------------LOGO LEFT TEXT------------->
+#     left_logo_block = Table(
+#         [
+#             [RoundedKFBox()],
+#             [Paragraph("Cleanliness and Trust.", logo_tagline_style)],
+#         ],
+#         colWidths=[100]
+#     )
+
+#     left_logo_block.setStyle(TableStyle([
+#         ("ALIGN", (0, 1), (0, 1), "CENTER"),
+#         ("TOPPADDING", (0, 1), (0, 1), 4),
+#         ("LEFTPADDING", (0, 0), (-1, -1), 0),
+#         ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+#         ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+#     ]))
+
+#    #<-----------------LOGO RIGHT TEXT-----------------> 
+#     right_logo_text = Table(
+#     [   [Spacer(1, 8)],
+#         [Paragraph("KIREIZ", logo_text_style)],
+#         [Paragraph("FORM", logo_text_style)],
+#     ],
+#     colWidths=[140]
+#     )
+
+#     right_logo_text.setStyle(TableStyle([
+#         ("LEFTPADDING", (0, 0), (-1, -1), 0),
+#         ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+#         ("TOPPADDING", (0, 0), (-1, -1), 0),
+#         ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+#     ]))
+
+# #<----------------------MAIN LOGO----------------->
+#     logo_table = Table(
+#     [
+#         [left_logo_block, right_logo_text],
+#     ],
+#     colWidths=[55, 440]
+#     )
+
+#     logo_table.setStyle(TableStyle([
+#     ("VALIGN", (0, 0), (-1, -1), "TOP"),
+#     ("LEFTPADDING", (0, 0), (-1, -1), 0),
+#     ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+#     ("TOPPADDING", (0, 0), (-1, -1), 0),
+#     ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+#     ]))
+
+
+#     elements.append(logo_table)
+#     elements.append(Spacer(1, 20))
+
+    
+#     # TITLE
+    
+#     elements.append(Paragraph("Customization Summary", title_style))
+   
+#     # USER INFO
+#     full_name = f"{user.firstName or ''} {user.lastName or ''}".strip()
+#     user_data = [
+#         ["Customization ID", obj.id],
+#         ["User", full_name or user.email],
+#         ["Email", user.email],
+#     ]
+#     user_table = Table(user_data, colWidths=[150, 330])
+#     user_table.setStyle(TableStyle([
+#         ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F4F6F7")),
+#         ("GRID", (0, 0), (-1, -1), 0.3, colors.lightgrey),
+#         ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
+#         ("FONTSIZE", (0, 0), (-1, -1), 10),
+#         ("LEFTPADDING", (0, 0), (-1, -1), 8),
+#         ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+#         ("TOPPADDING", (0, 0), (-1, -1), 8),
+#         ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+#     ]))
+
+#     elements.append(user_table)
+
+    
+#     # PRODUCT DETAILS
+    
+#     product = obj.model_info.product
+#     elements.append(Paragraph("Product Details", section_style))
+#     product_table = Table(
+#         [
+#             ["Product Name", product.productName],
+#             ["Product Type", product.productType],
+#             ["Price", f"{product.price}"],
+#         ],
+#         colWidths=[250, 250]
+#     )
+#     product_table.setStyle(TableStyle([
+#         ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
+#         ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
+#         ("FONTSIZE", (0, 0), (-1, -1), 10),
+#         ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
+#         ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+#         ("TOPPADDING", (0, 0), (-1, -1), 8),
+#     ]))
+
+#     elements.append(product_table)
+
+    
+#     # FOOTER
+   
+#     elements.append(Spacer(1, 30))
+#     elements.append(
+#         Paragraph(
+#             f"Generated on {datetime.now().strftime('%d %b %Y, %I:%M %p')}",
+#             muted_style
+#         )
+#     )
+
+#     doc.build(elements)
+#     return f"{settings.MEDIA_URL}exports/{file_name}"
+
+
+from reportlab.platypus import Image
+
 def generate_customization_pdf(obj, user):
     file_name = f"customization_{obj.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
     file_path = os.path.join(settings.MEDIA_ROOT, "exports", file_name)
@@ -124,35 +322,7 @@ def generate_customization_pdf(obj, user):
     styles = getSampleStyleSheet()
     elements = []
 
-    
-    # LOGO STYLES (SAFE & TESTED)
-    logo_kf_style = ParagraphStyle(
-        "LogoKF",
-        fontSize=22,
-        fontName="Helvetica-Bold",
-        textColor=colors.white,
-        alignment=TA_LEFT,
-        leading=25
-    )
-
-    logo_text_style = ParagraphStyle(
-        "LogoText",
-        fontSize=14,
-        fontName="Helvetica-Bold",
-        textColor=colors.HexColor("#0B3C5D"),
-        leading=16
-    )
-
-    logo_tagline_style = ParagraphStyle(
-        "LogoTagline",
-        fontSize=9,
-        textColor=colors.HexColor("#0B3C5D"),
-        leading=2
-    )
-
-    
-    # MAIN STYLES
-    
+    # MAIN STYLES (unchanged)
     title_style = ParagraphStyle(
         "TitleStyle",
         parent=styles["Title"],
@@ -185,64 +355,22 @@ def generate_customization_pdf(obj, user):
         fontSize=9,
         textColor=colors.grey
     )
-    #<--------------LOGO LEFT TEXT------------->
-    left_logo_block = Table(
-        [
-            [RoundedKFBox()],
-            [Paragraph("Cleanliness and Trust.", logo_tagline_style)],
-        ],
-        colWidths=[100]
-    )
 
-    left_logo_block.setStyle(TableStyle([
-        ("ALIGN", (0, 1), (0, 1), "CENTER"),
-        ("TOPPADDING", (0, 1), (0, 1), 4),
-        ("LEFTPADDING", (0, 0), (-1, -1), 0),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
-    ]))
+    from uniformAdmin.models import SystemSettings  # adjust import to your actual path
 
-   #<-----------------LOGO RIGHT TEXT-----------------> 
-    right_logo_text = Table(
-    [   [Spacer(1, 8)],
-        [Paragraph("KIREIZ", logo_text_style)],
-        [Paragraph("FORM", logo_text_style)],
-    ],
-    colWidths=[140]
-    )
+    system_settings = SystemSettings.load()
 
-    right_logo_text.setStyle(TableStyle([
-        ("LEFTPADDING", (0, 0), (-1, -1), 0),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
-        ("TOPPADDING", (0, 0), (-1, -1), 0),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
-    ]))
+    if system_settings.logo and os.path.exists(system_settings.logo.path):
+        logo_img = Image(system_settings.logo.path, width=140, height=140)
+        logo_img.hAlign = "CENTER"
+        elements.append(logo_img)
+    # else: silently skip — no crash if the file's missing
 
-#<----------------------MAIN LOGO----------------->
-    logo_table = Table(
-    [
-        [left_logo_block, right_logo_text],
-    ],
-    colWidths=[55, 440]
-    )
-
-    logo_table.setStyle(TableStyle([
-    ("VALIGN", (0, 0), (-1, -1), "TOP"),
-    ("LEFTPADDING", (0, 0), (-1, -1), 0),
-    ("RIGHTPADDING", (0, 0), (-1, -1), 0),
-    ("TOPPADDING", (0, 0), (-1, -1), 0),
-    ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
-    ]))
-
-
-    elements.append(logo_table)
     elements.append(Spacer(1, 20))
 
-    
     # TITLE
-    
     elements.append(Paragraph("Customization Summary", title_style))
-   
+
     # USER INFO
     full_name = f"{user.firstName or ''} {user.lastName or ''}".strip()
     user_data = [
@@ -261,12 +389,9 @@ def generate_customization_pdf(obj, user):
         ("TOPPADDING", (0, 0), (-1, -1), 8),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
     ]))
-
     elements.append(user_table)
 
-    
     # PRODUCT DETAILS
-    
     product = obj.model_info.product
     elements.append(Paragraph("Product Details", section_style))
     product_table = Table(
@@ -285,12 +410,9 @@ def generate_customization_pdf(obj, user):
         ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
         ("TOPPADDING", (0, 0), (-1, -1), 8),
     ]))
-
     elements.append(product_table)
 
-    
     # FOOTER
-   
     elements.append(Spacer(1, 30))
     elements.append(
         Paragraph(
@@ -301,6 +423,7 @@ def generate_customization_pdf(obj, user):
 
     doc.build(elements)
     return f"{settings.MEDIA_URL}exports/{file_name}"
+
 
 
 def generate_quotation_pdf(quotation, request):
