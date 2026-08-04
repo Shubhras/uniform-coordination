@@ -114,7 +114,7 @@ const Uniforms = () => {
                     {/* commented code stays commented */}
 
                     {/* SORT */}
-                    <div className="relative min-w-[220px] z-[60]">
+                    <div className="relative min-w-[220px] ">
                         <Select
                             options={sortOptions.map(opt => ({ value: opt.key, label: `${opt.name}` }))}
                             value={{ value: sortBy.key, label: `Sort By : ${sortBy.name}` }}
@@ -206,13 +206,12 @@ const Uniforms = () => {
                             key={product.id}
                             className="bg-white border border-[#1C2C56] rounded-2xl p-4 flex flex-col justify-between text-start"
                         >
-                            <div className="flex justify-center mb-4 ">
+                            <div className="relative w-full h-[220px] flex justify-center items-center mb-4">
                                 <Image
                                     src={product.ProductImage || '/img/placeholder.png'}
                                     alt="Uniform"
-                                    width={250}
-                                    height={250}
-                                    className="object-contain"
+                                    fill
+                                    className="object-contain p-2"
                                     unoptimized
                                 />
                             </div>
