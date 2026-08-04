@@ -30,6 +30,66 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/dashboards/uniform-3d-design/page.js"
+    ],
+    "/(auth-pages)/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(auth-pages)/layout.js"
+    ],
+    "/(auth-pages)/sign-in/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(auth-pages)/sign-in/page.js"
+    ],
+    "/(public-pages)/browse-by-theme/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/browse-by-theme/page.js"
+    ],
+    "/(auth-pages)/sign-up/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(auth-pages)/sign-up/page.js"
+    ],
+    "/(protected-pages)/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(protected-pages)/layout.js"
+    ],
+    "/(protected-pages)/loading": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(protected-pages)/loading.js"
+    ],
+    "/(public-pages)/table-form/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/table-form/page.js"
+    ],
+    "/(protected-pages)/profile/my-profile/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(protected-pages)/profile/my-profile/page.js"
+    ],
+    "/(protected-pages)/profile/my-order-rentals/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(protected-pages)/profile/my-order-rentals/page.js"
+    ],
+    "/(protected-pages)/profile/notifications/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(protected-pages)/profile/notifications/page.js"
+    ],
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
+    ],
+    "/(public-pages)/browse-by-color/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/browse-by-color/page.js"
     ]
   }
 }

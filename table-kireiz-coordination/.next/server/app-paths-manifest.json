@@ -1,5 +1,9 @@
 {
+  "/(public-pages)/table-form/page": "app/(public-pages)/table-form/page.js",
   "/_not-found/page": "app/_not-found/page.js",
-  "/(public-pages)/dashboards/uniform-3d-design/[id]/page": "app/(public-pages)/dashboards/uniform-3d-design/[id]/page.js",
-  "/(public-pages)/dashboards/uniform-3d-design/page": "app/(public-pages)/dashboards/uniform-3d-design/page.js"
+  "/page": "app/page.js",
+  "/(public-pages)/browse-by-color/page": "app/(public-pages)/browse-by-color/page.js",
+  "/(auth-pages)/sign-in/page": "app/(auth-pages)/sign-in/page.js",
+  "/(auth-pages)/sign-up/page": "app/(auth-pages)/sign-up/page.js",
+  "/(protected-pages)/profile/notifications/page": "app/(protected-pages)/profile/notifications/page.js"
 }
