@@ -1,73 +1,56 @@
 "use client";
 
-import Chart from "react-apexcharts";
-
 const MostUsedIndustriesChart = ({ data }) => {
-  const chartData = data?.most_used_industries;
+  const fabrics = data?.most_used_fabrics || [];
 
-  const categories = Array.isArray(chartData?.categories) 
-    ? chartData.categories 
-    : [
-        "Chef uniform",
-        "Medical Coat",
-        "Cotton Fabric",
-        "Corporate uniform",
-        "Medical Cap",
-        "Food service",
-      ];
+  // fallback data
+  const list =
+    fabrics.length > 0
+      ? fabrics
+      : [
+          { fabric_name: "Polyester A", count: 25 },
+          { fabric_name: "Tops", count: 23 },
+          { fabric_name: "Pants", count: 20 },
+          { fabric_name: "Aprons", count: 15 },
+        ];
 
-  const values = Array.isArray(chartData?.values) 
-    ? chartData.values 
-    : [300, 320, 350, 380, 420, 450];
-
-  const options = {
-    chart: {
-      type: "bar",
-      toolbar: { show: false },
-    },
-    colors: ["#CBDCF5"],
-    plotOptions: {
-      bar: {
-        borderRadius: 6,
-        columnWidth: "45%",
-      },
-    },
-    dataLabels: { enabled: false },
-    grid: {
-      strokeDashArray: 4,
-      borderColor: "#E2E8F0",
-    },
-    xaxis: {
-      categories,
-      labels: {
-        style: { colors: "#64748B", fontSize: "12px" },
-      },
-    },
-    yaxis: {
-      labels: {
-        style: { colors: "#64748B", fontSize: "12px" },
-      },
-    },
-  };
-
-  const series = [
-    {
-      name: "Usage",
-      data: values,
-    },
-  ];
+  // highest count
+  const maxCount = Math.max(...list.map((item) => item.count), 1);
 
   return (
-    <div className="bg-white border border-[#ececec] rounded-xl shadow-lg p-5">
-      <h3 className="text-[#1C2C56] text-[17px] font-semibold mb-4">
-        Most Used Industries
-      </h3>
+    <div className="bg-white border border-[#E9EDF5] rounded-2xl shadow-sm p-6 h-full">
+      <h2 className="text-[18px] font-semibold text-[#1C2C56] mb-8">
+        Most Used Fabrics or Item Types
+      </h2>
 
-      <Chart options={options} series={series} type="bar" height={300} />
+      <div className="space-y-8">
+        {list.map((item, index) => {
+          const percentage = (item.count / maxCount) * 100;
 
-      <p className="text-xs text-[#94A3B8] mt-2 flex items-center gap-1">
-        Growth Chart Visualization ↗
-      </p>
+          return (
+            <div key={index}>
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-[14px] text-[#475569] font-medium truncate">
+                  {item.fabric_name}
+                </p>
+
+                <span className="text-[14px] font-semibold text-[#1C2C56]">
+                  {item.count}
+                </span>
+              </div>
+
+              <div className="w-full h-[10px] rounded-full bg-[#EEF3FB] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-[#1E3A8A] transition-all duration-500"
+                  style={{
+                    width: `${percentage}%`,
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

@@ -21,9 +21,10 @@ import {
 
 import { apiGetPartsList } from "@/services/PartsService";
 
-const productTypeOptions = [
-  { value: "uniform", label: "Uniform" },
-  { value: "table", label: "Table" },
+const TypeOptions = [
+  { value: "top", label: "Top" },
+  { value: "bottom", label: "Bottom" },
+  { value: "set", label: "Set" },
 ];
 
 const selectStyles = {
@@ -83,6 +84,15 @@ const validationSchema = z.object({
     }),
 
   subcategory: z.any().optional(),
+  type: z
+    .object({
+      value: z.string(),
+      label: z.string(),
+    })
+    .nullable()
+    .refine((val) => val !== null, {
+      message: "Type is required",
+    }),
 
   price: z
     .string()
@@ -103,6 +113,7 @@ const EMPTY_PRODUCT_FORM_VALUES = {
   subcategory: null,
   price: "",
   selectedParts: [],
+  type: null,
   image: null,
 };
 
@@ -310,7 +321,7 @@ const AddEditProductModal = ({
     if (isEdit && initialData) {
       reset({
         productName: initialData.productName || "",
-        
+
         description: initialData.description || "",
         price: initialData.price?.toString() || "",
 
@@ -319,6 +330,10 @@ const AddEditProductModal = ({
               value: initialData.category.id,
               label: initialData.category.categoryName,
             }
+          : null,
+
+        type: initialData?.type
+          ? TypeOptions.find((item) => item.value === initialData.type) || null
           : null,
 
         subcategory: initialData.subcategory
@@ -400,14 +415,15 @@ const AddEditProductModal = ({
   const handleSave = async (values) => {
     setError("");
     setSaving(true);
-  console.log("Product Type:", values);
-  
+    console.log("Product Type:", values);
+
     try {
       const formData = new FormData();
       formData.append("productName", values.productName.trim());
 
       console.log("Product Type:", values);
       formData.append("productType", "uniform");
+      formData.append("type", values.type.value);
 
       if (values.description.trim()) {
         formData.append("description", values.description.trim());
@@ -561,18 +577,6 @@ const AddEditProductModal = ({
             </div>
           )}
 
-          {/* Product Name */}
-          {/* <div>
-            <label className="text-base font-medium text-[#1C2C56]">
-              Product Name<span className="text-red-500">*</span>
-            </label>
-            <input
-              value={productName}
-              onChange={(e) => setProductName(e.target.value)}
-              className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-              placeholder="Eg:- School Uniform Set"
-            />
-          </div> */}
           <FormItem
             label="Product Name"
             invalid={!!errors.productName}
@@ -587,15 +591,7 @@ const AddEditProductModal = ({
             />
           </FormItem>
 
-          {/* Description */}
           <div>
-            {/* <textarea
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-              placeholder="Product description..."
-            /> */}
             <FormItem
               label="Description"
               invalid={!!errors.description}
@@ -616,28 +612,6 @@ const AddEditProductModal = ({
             </FormItem>
           </div>
 
-          {/* Category (from API) */}
-          {/* <div>
-            <label className="text-base font-medium text-[#1C2C56]">
-              Category
-            </label>
-            <Select
-              options={categoryOptions}
-              value={category}
-              onChange={setCategory}
-              styles={selectStyles}
-              placeholder="Select Category"
-              isLoading={loadingCategories}
-              loadingMessage={() => "Loading categories..."}
-              noOptionsMessage={() => "No categories found"}
-              isClearable
-              menuPortalTarget={
-                typeof document !== "undefined" ? document.body : null
-              }
-              menuPosition="fixed"
-              className="mt-1"
-            />
-          </div> */}
           <FormItem
             label="Category"
             invalid={!!errors.category}
@@ -657,29 +631,6 @@ const AddEditProductModal = ({
               )}
             />
           </FormItem>
-
-          {/* Subcategory (from API) */}
-          {/* <div>
-            <label className="text-base font-medium text-[#1C2C56]">
-              Subcategory
-            </label>
-            <Select
-              options={subcategoryOptions}
-              value={subcategory}
-              onChange={setSubcategory}
-              styles={selectStyles}
-              placeholder="Select Subcategory"
-              isLoading={loadingSubcategories}
-              loadingMessage={() => "Loading subcategories..."}
-              noOptionsMessage={() => "No subcategories found"}
-              isClearable
-              menuPortalTarget={
-                typeof document !== "undefined" ? document.body : null
-              }
-              menuPosition="fixed"
-              className="mt-1"
-            />
-          </div> */}
 
           <FormItem
             label="Subcategory"
@@ -709,25 +660,7 @@ const AddEditProductModal = ({
             />
           </FormItem>
 
-          {/* Parts (multi-select from API) */}
           <div>
-            {/* <Select
-              isMulti
-              options={partOptions}
-              value={selectedParts}
-              onChange={setSelectedParts}
-              styles={selectStyles}
-              placeholder="Select Parts..."
-              isLoading={loadingParts}
-              loadingMessage={() => "Loading parts..."}
-              noOptionsMessage={() => "No parts found"}
-              closeMenuOnSelect={false}
-              menuPortalTarget={
-                typeof document !== "undefined" ? document.body : null
-              }
-              menuPosition="fixed"
-              className="mt-1"
-            /> */}
             <FormItem
               label="Parts"
               invalid={!!errors.selectedParts}
@@ -750,20 +683,6 @@ const AddEditProductModal = ({
             </FormItem>
           </div>
 
-          {/* Price */}
-          {/* <div>
-            <label className="text-base font-medium text-[#1C2C56]">
-              Price
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-              placeholder="e.g. 100"
-            />
-          </div> */}
           <FormItem
             label="Price"
             invalid={!!errors.price}
@@ -783,7 +702,6 @@ const AddEditProductModal = ({
             />
           </FormItem>
 
-          {/* Product Type */}
           {/* <div>
             <label className="text-base font-medium text-[#1C2C56]">
               Product Type
@@ -800,24 +718,26 @@ const AddEditProductModal = ({
               className="mt-1"
             />
           </div> */}
-          {/* <FormItem
-            label="Product Type"
-            invalid={!!errors.productType}
-            errorMessage={errors.productType?.message}
+          <FormItem
+            label="Type"
+            invalid={!!errors.type}
+            errorMessage={errors.type?.message}
           >
             <Controller
-              name="productType"
+              name="type"
               control={control}
               render={({ field }) => (
                 <Select
                   {...field}
-                  options={productTypeOptions}
+                  value={field.value}
+                  options={TypeOptions}
                   styles={selectStyles}
+                  placeholder="Select Type"
                   onChange={field.onChange}
                 />
               )}
             />
-          </FormItem> */}
+          </FormItem>
         </div>
 
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
