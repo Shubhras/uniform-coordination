@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useParams, useRouter } from 'next/navigation'
 import { apiSindleOrderDetials } from '@/services/OrderService'
 import { formatDate } from '@/utils/formatDate'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
@@ -9,18 +10,12 @@ import {
     FiArrowLeft,
     FiCalendar,
     FiCreditCard,
-    FiDownload,
-    FiFileText,
-    FiHome,
     FiMail,
-    FiMapPin,
     FiPhone,
     FiUser,
 } from 'react-icons/fi'
-import { useParams, useRouter } from 'next/navigation'
 
-
-
+// Order item image preview component
 const PreviewImage = ({ src, alt }) => (
     <div className="h-[186px] w-full overflow-hidden rounded-xl border border-[#EADCD2] bg-[radial-gradient(circle_at_top,_#f8efe7,_#ead4be_60%,_#e4c7aa)]">
         {src ? (
@@ -48,6 +43,7 @@ const PreviewImage = ({ src, alt }) => (
 
 const cardClassName = 'rounded-2xl border border-[#F0E4DE] bg-white shadow-sm'
 
+// Reusable detail card container
 const DetailCard = ({ title, icon, children, className = '' }) => (
     <div className={`${cardClassName} p-4 ${className}`}>
         <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#C8A18C]">
@@ -58,6 +54,7 @@ const DetailCard = ({ title, icon, children, className = '' }) => (
     </div>
 )
 
+// Reusable detail info row
 const InfoRow = ({ label, value, valueClassName = 'text-[#2C1810]' }) => (
     <div>
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C8A18C]">{label}</p>
@@ -65,6 +62,7 @@ const InfoRow = ({ label, value, valueClassName = 'text-[#2C1810]' }) => (
     </div>
 )
 
+// Payment status badge style helper
 const getPaymentStatusBadge = (status) => {
     const lower = status?.toLowerCase()
     if (lower === 'success' || lower === 'paid') {
@@ -82,23 +80,25 @@ const getPaymentStatusBadge = (status) => {
     return 'bg-gray-100 text-gray-700 border border-gray-200'
 }
 
+// Order rental detail component
 const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
     const params = useParams()
     const router = useRouter()
     const { data: session } = useSession()
 
+    // Single order detail state
     const [orderDetailData, setOrderDetailData] = useState(null)
     const [loading, setLoading] = useState(true)
 
     const orderId = params?.id || 'ORD-2024-0091'
 
+    // Fetch order details by ID
     useEffect(() => {
         const fetchOrderDetail = async () => {
             if (!session?.accessToken || !orderId) return
             try {
                 setLoading(true)
                 const response = await apiSindleOrderDetials(session.accessToken, orderId)
-                console.log('=== apiSindleOrderDetials Single Order Response ===', response)
                 setOrderDetailData(response)
             } catch (err) {
                 console.error('Error fetching single order details:', err)
@@ -110,6 +110,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
         fetchOrderDetail()
     }, [session?.accessToken, orderId])
 
+    // Back button click handler
     const handleBack = () => {
         router.push(backPath)
     }
@@ -118,7 +119,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
         ? orderDetailData.data[0]
         : orderDetailData?.data || orderDetailData
 
-
+    // Address formatter helper
     const formatAddress = (addr) => {
         if (!addr) return ''
         if (typeof addr === 'string') return addr
@@ -131,9 +132,11 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
         ].filter(Boolean)
         return parts.join(', ')
     }
+
     return (
         <AdaptiveCard className="h-full mt-8 border-0">
             <div className="mx-auto w-full max-w-7xl rounded-2xl bg-[#F5F0EE30] p-5 shadow-md md:p-8">
+                {/* Header */}
                 <div className="mb-5 flex items-center gap-3">
                     <button
                         type="button"
@@ -176,8 +179,6 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                     <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                                         <InfoRow label="Rental Start" value={formatDate(orderData?.rental_start_date)} />
                                         <InfoRow label="Rental End" value={formatDate(orderData?.rental_end_date)} />
-                                        {/* <InfoRow label="Venue/Event" value="Grand Hyatt Tokyo" />
-                                        <InfoRow label="Event Type" value="WEDDING" /> */}
                                     </div>
                                 </DetailCard>
                             </div>
@@ -257,13 +258,9 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                             Customer Name
                                         </p>
                                         <div className="mt-1 flex items-center gap-2">
-                                            {/* <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#F0FAF0] text-[#4CA64C]">
-                                                <FiHome size={12} />
-                                            </div> */}
                                             <span className="text-sm font-medium text-[#2C1810]">{orderData?.delivery_address?.name}</span>
                                         </div>
                                     </div>
-                                    {/* <InfoRow label="Contact Person" value={orderData?.delivery_address?.name} /> */}
                                     <InfoRow label="Business Email" value={orderData?.delivery_address?.email} />
                                     <div className="flex items-center gap-2 text-sm text-[#2C1810]">
                                         <FiPhone size={14} className="text-[#B48A73]" />
@@ -288,49 +285,11 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                                         </>
                                                     )}
                                                 </p>
-
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </DetailCard>
-
-                            {/* <DetailCard
-                        title="Quotation & Contract Information"
-                        icon={<FiFileText size={12} className="text-[#B66636]" />}
-                    >
-                        <div className="grid gap-x-8 gap-y-4 lg:grid-cols-[1.25fr_0.75fr]">
-                            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-                                <InfoRow label="Quotation ID" value="QT-2026-105" />
-                                <InfoRow label="Quotation Date" value="20 May 2024" />
-                                <InfoRow label="Contract ID" value="CT-2026-021" />
-                                <InfoRow label="Contract Status" value="Signed" valueClassName="text-[#0F9F6E]" />
-                                <InfoRow
-                                    label="CloudSign Status"
-                                    value="Completed"
-                                    valueClassName="text-[#0F9F6E]"
-                                />
-                                <InfoRow label="Signed Date" value="22 May 2024" />
-                            </div>
-
-                            <div className="flex flex-col justify-center gap-4">
-                                <button
-                                    type="button"
-                                    className="flex w-full items-center justify-center gap-2 rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
-                                >
-                                    <FiDownload size={14} />
-                                    Download Quotation PDF
-                                </button>
-                                <button
-                                    type="button"
-                                    className="flex w-full items-center justify-center gap-2 rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
-                                >
-                                    <FiDownload size={14} />
-                                    Download Contract PDF
-                                </button>
-                            </div>
-                        </div>
-                    </DetailCard> */}
 
                             <div className={`${cardClassName} overflow-hidden`}>
                                 <div className="flex items-center justify-between border-b border-[#F4E8E2] px-4 py-4">
