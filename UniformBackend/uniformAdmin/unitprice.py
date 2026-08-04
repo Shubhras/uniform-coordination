@@ -305,7 +305,7 @@ class UnitPriceListAPIView(APIView):
 #         return response
 
 class UnitPriceExportAPIView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
 
     def get(self, request):
         try:
