@@ -19,6 +19,7 @@ import {
   apiGetPartsList,
   apiDeletePart,
   apiCreatePart,
+  apiCreateDuplicateParts,
 } from "@/services/PartsService";
 import { apiFabricCategoryList } from "@/services/FabricService";
 import AddEditPartModal from "./AddEditPartModal";
@@ -205,71 +206,34 @@ const PartsTab = () => {
     fetchParts(currentPage);
   };
 
-  const getDuplicatePartName = (name = "") => {
-    const baseName = String(name).trim();
-    const existingNames = new Set(
-      parts.map((item) => item.partName?.trim()).filter(Boolean),
-    );
-
-    if (!existingNames.has(baseName)) {
-      return baseName;
-    }
-
-    let copyIndex = 1;
-    let duplicateName = `${baseName} Copy`;
-
-    while (existingNames.has(duplicateName)) {
-      copyIndex += 1;
-      duplicateName = `${baseName} Copy ${copyIndex}`;
-    }
-
-    return duplicateName;
-  };
-
   const handleDuplicatePart = async (part) => {
-    if (!accessToken || !part) return;
+    if (!accessToken || !part?.id) return;
 
     try {
       setDuplicatingId(part.id);
 
-      const formData = new FormData();
-
-      formData.append("partName", getDuplicatePartName(part.partName));
-
-      if (part.category?.id) {
-        formData.append("category_id", part.category.id);
-      }
-
-      if (part.fabric) {
-        formData.append("fabric", part.fabric);
-      }
-
-      if (part.subcategory?.id) {
-        formData.append("subcategory_id", part.subcategory.id);
-      }
-
-      if (part.zIndex != null) {
-        formData.append("zIndex", part.zIndex);
-      }
-
-      // Image URL direct bhej rahe hain
-      formData.append("partImage", part.partImage);
-
-      const response = await apiCreatePart(accessToken, formData);
+      const response = await apiCreateDuplicateParts(accessToken, part.id);
 
       toast.push(
         <Notification title="Success" type="success">
-          {response?.message}
+          {response?.message || "Part duplicated successfully."}
         </Notification>,
       );
 
       fetchParts(currentPage);
     } catch (error) {
-      console.error(error);
+      console.error("Duplicate failed:", error);
+
+      toast.push(
+        <Notification title="Error" type="danger">
+          {error?.response?.data?.message || "Failed to duplicate part."}
+        </Notification>,
+      );
     } finally {
       setDuplicatingId(null);
     }
   };
+
   /* ---------- FILTERING ---------- */
   const filteredParts = parts.filter((p) => {
     const q = searchQuery.toLowerCase();
