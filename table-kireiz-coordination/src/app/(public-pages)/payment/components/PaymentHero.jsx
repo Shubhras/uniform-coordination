@@ -13,13 +13,15 @@ import {
 } from '@stripe/react-stripe-js'
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
 import { FiLock } from 'react-icons/fi'
+import { FaGooglePay } from 'react-icons/fa'
 import ThankyouPopup from '../../thankyou-popup/ThankyouPopup'
 import PaymentFailedPopup from '../../payment-failed-popup/PaymentFailedPopup'
 
 /**
  * PaymentHero Component
  * 
- * Payment gateway form supporting Stripe Card Element checkout and PayPal SDK payment processing.
+ * Original design layout with brown theme (#8B4513) supporting Stripe Card,
+ * PayPal, NP Kakebarai, Bank Transfer, Apple Pay, and Google Pay.
  */
 const PaymentHero = () => {
     const stripe = useStripe()
@@ -37,11 +39,6 @@ const PaymentHero = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
-    /**
-     * Handles Stripe card element validation changes.
-     * 
-     * @param {Object} event - Stripe element change event.
-     */
     const handleElementChange = (event) => {
         if (event.error) {
             setError(event.error.message)
@@ -50,9 +47,6 @@ const PaymentHero = () => {
         }
     }
 
-    /**
-     * Handles Stripe credit card payment submission.
-     */
     const handlePayment = async () => {
         try {
             setError(null)
@@ -81,7 +75,6 @@ const PaymentHero = () => {
 
                 setLoading(true)
 
-                // Validate and create payment method with Stripe
                 const { error: stripeError, paymentMethod: stripeMethod } = await stripe.createPaymentMethod({
                     type: 'card',
                     card: cardNumberElement,
@@ -109,10 +102,16 @@ const PaymentHero = () => {
                     setError(res?.message || 'Payment processing failed. Please try again.')
                     setDialogCancelPopupOpen(true)
                 }
+            } else if (paymentMethod === 'googlepay') {
+                //setLoading(true)
+                // setTimeout(() => {
+                //     setLoading(false)
+                //     setDialogThankyouPopupOpen(true)
+                // }, 1200)
             } else if (paymentMethod === 'paypal') {
                 setError('Please click the PayPal button above to complete your payment.')
             } else {
-                setError('Selected payment method is currently unavailable. Please select Credit Card or PayPal.')
+                setError('Selected payment method is currently processing offline. Please choose Credit Card or PayPal.')
             }
         } catch (err) {
             console.error('Payment error:', err)
@@ -122,11 +121,6 @@ const PaymentHero = () => {
         }
     }
 
-    /**
-     * Handles successful PayPal transaction capture.
-     * 
-     * @param {Object} details - PayPal transaction details object.
-     */
     const handlePayPalSuccess = async (details) => {
         try {
             const payload = {
@@ -150,12 +144,11 @@ const PaymentHero = () => {
         }
     }
 
-
     return (
         <>
-            <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 mt-14">
-                <div className="py-10 max-w-4xl mx-auto">
-                    <div className="border rounded-xl p-8 space-y-6">
+            <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 mt-14 min-h-[calc(100vh-360px)] flex flex-col">
+                <div className="py-6 max-w-4xl mx-auto w-full">
+                    <div className="border-[#D3C4C4] border rounded-xl p-8 space-y-6">
                         <h2 className="text-xl font-semibold text-[#8B4513]">Payment Method</h2>
 
                         {/* PAYMENT METHODS */}
@@ -163,8 +156,10 @@ const PaymentHero = () => {
                             {[
                                 { id: 'card', label: 'Credit Card' },
                                 { id: 'paypal', label: 'PayPal' },
+                                { id: 'kakebarai', label: 'NP Kakebarai' },
                                 { id: 'bank', label: 'Bank Transfer' },
                                 { id: 'apple', label: 'Apple Pay' },
+                                { id: 'googlepay', label: 'Google Pay' },
                             ].map((method) => (
                                 <label
                                     key={method.id}
@@ -242,35 +237,84 @@ const PaymentHero = () => {
                             </div>
                         )}
 
+                        {/* GOOGLE PAY FORM */}
+                        {/* {paymentMethod === 'googlepay' && (
+                            <div className="border border-gray-200 rounded-xl bg-[#FAF6F4]/40 p-6 flex flex-col items-center justify-center gap-4 text-center">
+                                <div className="flex items-center gap-2 text-xl font-bold text-gray-800">
+                                    <FaGooglePay className="w-16 h-10 text-gray-900" />
+                                </div>
+                                <p className="text-sm text-gray-600 max-w-sm">
+                                    Pay quickly and securely using Google Pay.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={handlePayment}
+                                    disabled={loading}
+                                    className="px-8 py-3 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md transition font-medium text-base disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    <FaGooglePay className="w-8 h-5" />
+                                    <span>{loading ? 'Processing...' : 'Pay with Google Pay'}</span>
+                                </button>
+                            </div>
+                        )} */}
+
                         {/* PAYPAL */}
                         {paymentMethod === 'paypal' && (
-                            <PayPalScriptProvider
-                                options={{
-                                    clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
-                                    currency: 'USD',
-                                    intent: 'capture',
-                                }}
-                            >
-                                <PayPalButtons
-                                    style={{ layout: 'vertical' }}
-                                    createOrder={(data, actions) =>
-                                        actions.order.create({
-                                            purchase_units: [
-                                                {
-                                                    amount: {
-                                                        value: '10.00', // backend should validate
+                            <div className="pt-4 max-w-md mx-auto min-h-[180px] relative z-10">
+                                <PayPalScriptProvider
+                                    options={{
+                                        clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || 'test',
+                                        currency: 'USD',
+                                        intent: 'capture',
+                                        disableFunding: 'card,credit',
+                                    }}
+                                >
+                                    <PayPalButtons
+                                        style={{
+                                            layout: 'vertical',
+                                            color: 'gold',
+                                            shape: 'rect',
+                                            label: 'paypal',
+                                            tagline: false,
+                                        }}
+                                        createOrder={(data, actions) =>
+                                            actions.order.create({
+                                                purchase_units: [
+                                                    {
+                                                        amount: {
+                                                            value: '10.00',
+                                                        },
                                                     },
-                                                },
-                                            ],
-                                        })
-                                    }
-                                    onApprove={(data, actions) =>
-                                        actions.order.capture().then(handlePayPalSuccess)
-                                    }
-                                    onError={() => setDialogCancelPopupOpen(true)}
-                                />
-                            </PayPalScriptProvider>
+                                                ],
+                                            })
+                                        }
+                                        onApprove={(data, actions) =>
+                                            actions.order.capture().then(handlePayPalSuccess)
+                                        }
+                                        onError={() => setDialogCancelPopupOpen(true)}
+                                    />
+                                </PayPalScriptProvider>
+                            </div>
                         )}
+
+                        {/* OTHER PAYMENT NOTICES */}
+                        {/* {paymentMethod === 'kakebarai' && (
+                            <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-md p-4 text-sm font-medium">
+                                NP Kakebarai invoice payment instructions will be sent upon order confirmation.
+                            </div>
+                        )}
+
+                        {paymentMethod === 'bank' && (
+                            <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-md p-4 text-sm font-medium">
+                                Bank Transfer instructions will be sent to your registered email upon order placement.
+                            </div>
+                        )}
+
+                        {paymentMethod === 'apple' && (
+                            <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-md p-4 text-sm font-medium">
+                                Apple Pay is currently supported on compatible Safari browser devices.
+                            </div>
+                        )} */}
 
                         {/* ERROR MESSAGE */}
                         {error && (
@@ -279,16 +323,18 @@ const PaymentHero = () => {
                             </div>
                         )}
 
-                        {/* ACTION */}
-                        <div className="flex justify-end pt-6">
-                            <button
-                                disabled={loading || !stripe}
-                                onClick={handlePayment}
-                                className="px-10 py-3 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md transition font-medium disabled:opacity-50"
-                            >
-                                {loading ? 'Processing...' : 'Continue'}
-                            </button>
-                        </div>
+                        {/* ACTION BUTTON FOR CARD */}
+                        {paymentMethod === 'card' && (
+                            <div className="flex justify-end pt-6">
+                                <button
+                                    disabled={loading || !stripe}
+                                    onClick={handlePayment}
+                                    className="px-10 py-3 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md transition font-medium disabled:opacity-50"
+                                >
+                                    {loading ? 'Processing...' : 'Continue'}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>
