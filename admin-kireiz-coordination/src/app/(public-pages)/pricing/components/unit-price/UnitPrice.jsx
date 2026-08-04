@@ -73,13 +73,11 @@ const UnitPrice = () => {
 
   /* ---------- EXPORT ---------- */
   const handleExport = async (type) => {
-    if (!accessToken) return;
-
     setExporting(true);
     setExportOpen(false);
 
     try {
-      const response = await apiExportUnitPrice(accessToken, type);
+      const response = await apiExportUnitPrice(type);
 
       // Get filename from Content-Disposition header or use default
       const contentDisposition = response.headers?.["content-disposition"];
