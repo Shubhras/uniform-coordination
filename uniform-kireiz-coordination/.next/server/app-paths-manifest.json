@@ -1,8 +1,1 @@
-{
-  "/(public-pages)/faq/page": "app/(public-pages)/faq/page.js",
-  "/(public-pages)/kireiz-form/page": "app/(public-pages)/kireiz-form/page.js",
-  "/(public-pages)/medical-form/[id]/page": "app/(public-pages)/medical-form/[id]/page.js",
-  "/(public-pages)/dashboards/uniform-design/[id]/page": "app/(public-pages)/dashboards/uniform-design/[id]/page.js",
-  "/(public-pages)/dashboards/uniform-single/[id]/page": "app/(public-pages)/dashboards/uniform-single/[id]/page.js",
-  "/(public-pages)/dashboards/uniform-3d-design/[id]/page": "app/(public-pages)/dashboards/uniform-3d-design/[id]/page.js"
-}
+{}
