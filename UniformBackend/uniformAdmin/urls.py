@@ -49,6 +49,7 @@ urlpatterns = [
     # Parts URLs
     path("parts/list/", PartsListView.as_view()),
     path("parts/create/", PartsCreateView.as_view()),
+    path("parts/<int:pk>/duplicate/", PartsDuplicateView.as_view(), name="parts-duplicate"),
     path("parts/<int:pk>/", PartsDetailView.as_view()),
     path("parts/update/<int:pk>/", PartsUpdateView.as_view()),
     path("parts/delete/<int:pk>/", PartsDeleteView.as_view()),

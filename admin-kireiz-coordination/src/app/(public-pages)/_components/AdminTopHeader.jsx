@@ -72,8 +72,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
       // await signOut();
     } catch (error) {
       console.error("Logout failed:", error);
-
-      // API fail ho jaye tab bhi local session logout kar do
+    } finally {
       await signOut();
     }
   };
@@ -85,7 +84,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
     <header
       className={`
                 fixed top-0 right-0 z-30 h-16
-                bg-white border-b border-[#E2E8F0]
+                bg-[#1C2C56] border-b border-[#E2E8F0]
                 flex items-center justify-between
                 px-4 md:px-6
                 transition-all duration-300 ease-in-out
@@ -107,7 +106,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
 
       {/* Right Side Actions */}
       <div className="flex items-center gap-4 md:gap-5">
-        <LanguageSelector className="flex items-center gap-2 h-10 px-3 hover:bg-[#F8FAFC] rounded-lg transition-colors duration-200" />
+        <LanguageSelector className="flex items-center gap-2 h-10 px-3 hover:bg-white rounded-lg transition-colors duration-200" />
 
         {/* Notification Bell */}
         <div className="relative" ref={notifRef}>
@@ -116,11 +115,18 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
               setNotifOpen(!notifOpen);
               setDropdownOpen(false);
             }}
-            className={`relative bg-[#1C2C56] transition-colors p-2 rounded-full ${
-              notifOpen ? "bg-[#F1F5F9] text-[#1C2C56]" : ""
+            className={`group relative transition-colors p-2 rounded-full ${
+              notifOpen ? "bg-white" : "bg-[#1C2C56] hover:bg-white"
             }`}
           >
-            <FiBell className="text-white" size={20} />
+            <FiBell
+              className={`transition-colors duration-200 ${
+                notifOpen
+                  ? "text-[#1C2C56]"
+                  : "text-white group-hover:text-[#1C2C56]"
+              }`}
+              size={20}
+            />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
           </button>
 
@@ -137,10 +143,18 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
               setDropdownOpen(!dropdownOpen);
               setNotifOpen(false);
             }}
-            className="flex items-center gap-2 md:gap-3 hover:bg-[#F8FAFC] rounded-lg px-2 py-1.5 transition-colors"
+            className={`group flex items-center gap-2 md:gap-3 rounded-lg px-2 py-1.5 transition-all duration-200 ${
+              dropdownOpen ? "bg-white" : "hover:bg-white"
+            }`}
           >
             {/* Avatar */}
-            <div className="w-9 h-9 rounded-full bg-[#1C2C56] flex items-center justify-center overflow-hidden">
+            <div
+              className={`w-9 h-9 rounded-full flex items-center justify-center overflow-hidden transition-colors duration-200 ${
+                dropdownOpen
+                  ? "bg-[#1C2C56]"
+                  : "bg-white group-hover:bg-[#E2E8F0]"
+              }`}
+            >
               {session?.user?.image ? (
                 <Image
                   src={session.user.image}
@@ -150,20 +164,37 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <FiUser className="text-white" size={18} />
+                <FiUser
+                  size={18}
+                  className={`transition-colors duration-200 ${
+                    dropdownOpen
+                      ? "text-white"
+                      : "text-[#1C2C56] group-hover:text-[#1C2C56]"
+                  }`}
+                />
               )}
             </div>
 
             {/* Name */}
             <div className="hidden md:block text-left">
-              <p className="text-sm font-semibold text-[#1E293B] leading-tight">
+              <p
+                className={`text-sm font-semibold transition-colors duration-200 ${
+                  dropdownOpen
+                    ? "text-[#1C2C56]"
+                    : "text-white group-hover:text-[#1C2C56]"
+                }`}
+              >
                 {userName}
               </p>
             </div>
 
             <FiChevronDown
               size={16}
-              className={`hidden md:block text-[#94A3B8] transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+              className={`hidden md:block transition-all duration-200 ${
+                dropdownOpen
+                  ? "rotate-180 text-[#1C2C56]"
+                  : "text-white group-hover:text-[#1C2C56]"
+              }`}
             />
           </button>
 
@@ -211,7 +242,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
               <div className="border-t border-[#F1F5F9] pt-1">
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-500 hover:bg-[#F8FAFC] hover:text-[#1C2C56] transition-colors"
                 >
                   <FiLogOut size={16} />
                   <span>Sign Out</span>

@@ -1,5 +1,6 @@
 'use client'
 
+// Order rental detail page
 import OrderRentalDetail from '../_components/OrderRentalDetail'
 
 const Page = () => {

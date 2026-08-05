@@ -5,19 +5,24 @@ import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import ActiveOrders from './ActiveOrders'
 import CompletedOrders from './CompletedOrders'
 
+// Orders tab list component
 const OrdersList = () => {
+    // Active tab & count states
     const [activeTab, setActiveTab] = useState('active-orders')
     const [activeOrdersCount, setActiveOrdersCount] = useState(0)
     const [completedOrdersCount, setCompletedOrdersCount] = useState(0)
 
+    // Tab change handler
     const handleTabChange = (tab) => {
         setActiveTab(tab)
     }
 
+    // Active orders count callback
     const handleActiveTotalCount = useCallback((count) => {
         setActiveOrdersCount(count)
     }, [])
 
+    // Completed orders count callback
     const handleCompletedTotalCount = useCallback((count) => {
         setCompletedOrdersCount(count)
     }, [])
@@ -32,7 +37,6 @@ const OrdersList = () => {
                     </p>
                 </div>
 
-                {/* TABS */}
                 <div className="border-b border-[#ECDDD3]">
                     <div className="flex items-center gap-8">
                         <button
@@ -67,7 +71,6 @@ const OrdersList = () => {
                     </div>
                 </div>
 
-                {/* TAB CONTENT */}
                 {activeTab === 'active-orders' ? (
                     <ActiveOrders onTotalCountChange={handleActiveTotalCount} />
                 ) : (

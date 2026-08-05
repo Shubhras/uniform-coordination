@@ -1,3 +1,4 @@
+// My order rentals page
 import OrdersList from './_components/OrdersList'
 
 const MyOrderRentalsPage = () => {

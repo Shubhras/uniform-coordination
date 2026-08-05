@@ -34,290 +34,7 @@ from .auth import IsAdminUserJWT,MultiRoleJWTAuth
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 from userhub.views import get_docusign_token
 from docusign_esign import ApiClient, EnvelopesApi
-# class AdminLoginAPIView(APIView):
-#     authentication_classes = []   # IMPORTANT
-#     permission_classes = []       # IMPORTANT
 
-#     def post(self, request):
-#         try:
-#             serializer = AdminLoginSerializer(data=request.data)
-#             serializer.is_valid(raise_exception=True)
-#             user = serializer.validated_data['user']
-
-#             remember_me = request.data.get('remember_me', False)
-#             if isinstance(remember_me, str):
-#                 remember_me = remember_me.lower() == 'true'
-
-#             refresh = RefreshToken.for_user(user)
-#             refresh["user_id"] = str(user.id)
-#             refresh["role"] = "admin"
-
-#             if remember_me:
-#                 refresh.set_exp(lifetime=timedelta(days=30))
-#                 refresh.access_token.set_exp(lifetime=timedelta(days=30))
-#             else:
-#                 refresh.set_exp(lifetime=timedelta(days=1))
-#                 refresh.access_token.set_exp(lifetime=timedelta(hours=1))
-
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": "Login successful",
-#                 "data": {
-#                     "admin": {
-#                         "id": user.id,
-#                         "email": user.email,
-#                         "role": user.role.role_name if user.role else None,
-#                         "name": user.name,
-#                         "remember_me": remember_me,
-#                     },
-#                     "access_token": str(refresh.access_token),
-#                     "refresh_token": str(refresh),
-#                 }
-#             }, status=status.HTTP_200_OK)
-
-#         except ValidationError as ve:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 400,
-#                 "message": "Invalid email or password",
-#                 "errors": ve.detail
-#             }, status=status.HTTP_200_OK)
-
-#         except Exception as e:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "message": "Something went wrong",
-#                 "errors": str(e)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-# class AdminChangePasswordAPIView(APIView):
-#     permission_classes = [IsAuthenticated]  
-
-#     def post(self, request):
-#         try:
-#             serializer = AdminChangePasswordSerializer(data=request.data, context={'request': request})
-#             serializer.is_valid(raise_exception=True)
-#             user = request.user
-
-#             # Set new password
-#             with transaction.atomic():
-#                 user.set_password(serializer.validated_data['new_password'])
-#                 user.save()
-
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": "Password changed successfully"
-#             }, status=status.HTTP_200_OK)
-
-#         except ValidationError as ve:
-#             # **Return 400 for validation errors**
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 400,
-#                 "message": "Validation Error",
-#                 "errors": ve.detail
-#             }, status=status.HTTP_200_OK)
-
-#         except Exception as e:
-#             # **Only unexpected errors return 500**
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "message": "Something went wrong",
-#                 "errors": str(e)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-# class AdminUpdateProfileAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def patch(self, request):
-#         try:
-#             user = request.user  
-#             serializer = AdminUpdateSerializer(user, data=request.data, partial=True)
-            
-#             if serializer.is_valid(raise_exception=True):
-#                 serializer.save()
-#                 return Response({
-#                     "status": True,
-#                     "statusCode": 200,
-#                     'message': 'Profile updated successfully',
-#                     'data': serializer.data
-#                 }, status=status.HTTP_200_OK)
-
-#         except ValidationError as ve:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 400,
-#                 'message': 'Validation error',
-#                 'errors': ve.message_dict
-#             }, status=status.HTTP_200_OK)
-
-#         except ObjectDoesNotExist:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 404,
-#                 'error': 'User not found'
-#             }, status=status.HTTP_200_OK)
-
-#         except Exception as e:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 'error': 'Something went wrong',
-#                 'details': str(e)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
-
-
-# class AdminDetailAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         try:
-#             user = request.user
-
-#             jwt_auth = JWTAuthentication()
-
-#             header = jwt_auth.get_header(request)
-#             raw_token = jwt_auth.get_raw_token(header)
-#             validated_token = jwt_auth.get_validated_token(raw_token)
-
-#             role = validated_token.get('role')
-
-#             if role != 'admin':
-#                 return Response({
-#                     "status": False,
-#                     "statusCode": 403,
-#                     "error": "Forbidden",
-#                     "details": "Only admin users can access this endpoint"
-#                 }, status=status.HTTP_200_OK)
-
-#             serializer = AdminDetailSerializer(user)
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": "Admin details retrieved successfully",
-#                 "data": serializer.data
-#             }, status=status.HTTP_200_OK)
-
-#         except AttributeError:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 404,
-#                 "error": "User not found",
-#                 "details": "The authenticated user does not exist"
-#             }, status=status.HTTP_200_OK)
-
-#         except Exception as e:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "error": "Something went wrong",
-#                 "details": str(e)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-# class AdminLogoutAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self, request):
-#         try:
-#             refresh_token = request.data.get("refresh_token")
-#             if not refresh_token:
-#                 return Response({
-#                     "status": False,
-#                     "statusCode": 400,
-#                     "error": "Bad Request",
-#                     "details": "Refresh token is required for logout"
-#                 }, status=status.HTTP_200_OK)
-
-#             try:
-#                 token = RefreshToken(refresh_token)
-#                 token.blacklist()  
-#             except TokenError:
-#                 return Response({
-#                     "status": False,
-#                     "statusCode": 400,
-#                     "error": "Invalid token",
-#                     "details": "Token is already blacklisted or malformed"
-#                 }, status=status.HTTP_200_OK)
-
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": "Logout successful"
-#             }, status=status.HTTP_200_OK)
-
-#         except Exception as e:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "error": "Something went wrong",
-#                 "details": str(e)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-# class AdminForgotPasswordAPIView(APIView):
-#     # authentication_classes = [JWTAuthentication] 
-#     # permission_classes = [IsAuthenticated]  
-
-#     def post(self, request):
-#         """Send password reset email to admin and return reset link in response"""
-#         ip = request.META.get('REMOTE_ADDR')
-#         user_agent = request.META.get('HTTP_USER_AGENT', 'unknown')
-
-#         try:
-#             email = request.data.get("email")
-#             if not email:
-#                 return Response(
-#                     {"statusCode": 400, "status": False, "message": "Email is required"},
-#                     status=status.HTTP_200_OK
-#                 )
-#             try:
-#                 user = AdminUser.objects.get(email=email, is_staff=True)  
-#             except AdminUser.DoesNotExist:
-#                 return Response(
-#                     {"statusCode": 404, "status": False, "message": "Admin not found"},
-#                     status=status.HTTP_200_OK
-#                 )
-
-#             token = default_token_generator.make_token(user)
-#             base_url = "http://23.23.88.239:7001/forgotpassword/"
-#             full_reset_link = f"{base_url}?token={token}&user_id={user.pk}"
-
-
-#             # try:
-#             #     send_mail(
-#             #         subject="Admin Password Reset Request",
-#             #         message=f"Click the link to reset your password: {full_reset_link}",
-#             #         from_email="your-email@gmail.com",
-#             #         recipient_list=[email],
-#             #         fail_silently=False,
-#             #     )
-#             #     logger.info(f"[Forgot Password] Reset email sent to: {email} | IP: {ip}")
-#             # except Exception as e:
-#             #     logger.error(f"[Forgot Password] Failed to send reset email to {email}: {e} | IP: {ip}")
-#             #     return Response(
-#             #         {"statusCode": 500, "status": False, "message": "Failed to send email", "error": str(e)},
-#             #         status=status.HTTP_500_INTERNAL_SERVER_ERROR
-#             #     )
-
-#             return Response({
-#                 "statusCode": 200,
-#                 "status": True,
-#                 "message": "Password reset email sent",
-#                 "reset_link": full_reset_link
-#             }, status=status.HTTP_200_OK)           
-
-#         except Exception as e:
-#             # logger.exception(f"[Forgot Password] Unexpected error: {e} | IP: {ip}")
-#             return Response(
-#                 {"statusCode": 500, "status": False, "message": "An unexpected error occurred", "error": str(e)},
-#                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
-#             )
 
 #<--------------------TableTheme------------------
 
@@ -2171,21 +1888,7 @@ class AdminDashAPIView(APIView):
                 .values("fabricName", "total_count")
                 .order_by("-total_count")[:4]
             )
-            #  Command out when sales_representative  model is create
-            # sales_qs = (
-            #     QuotationRequest.objects
-            #     .filter(
-            #         quotation_status="pending",
-            #         isDeleted=False
-            #     )
-            #     .values("sales_representative__first_name")
-            #     .annotate(count=Count("quotation_id"))
-            # )
-
-            # pending_sales_rep_action = {
-            #     item["sales_representative__first_name"]: item["count"]
-            #     for item in sales_qs
-            # }
+       
             most_used_categories_qs = (
                 Product.objects
                 .filter(isDeleted=False, isActive=True)
@@ -2194,14 +1897,14 @@ class AdminDashAPIView(APIView):
                 .order_by("-count")
             )
 
-            most_used_industries = [
-                {
-                    "category_name": item["category__categoryName"] or "Uncategorized",
-                    "category_slug": item["category__slug"] or "",
-                    "count": item["count"]
-                }
-                for item in most_used_categories_qs
-            ]
+            # most_used_industries = [
+            #     {
+            #         "category_name": item["category__categoryName"] or "Uncategorized",
+            #         "category_slug": item["category__slug"] or "",
+            #         "count": item["count"]
+            #     }
+            #     for item in most_used_categories_qs
+            # ]
             most_used_fabrics =[{
                  "fabric_name": f["fabricName"],
                  "count": f["total_count"]
@@ -2230,6 +1933,33 @@ class AdminDashAPIView(APIView):
                          "type":item["type"],
                          "created_date": item["date"].strftime("%b %d, %Y")
                      }) 
+                     
+                     
+            category_usage_qs = (
+                QuotationRequest.objects
+                .filter(
+                    isDeleted=False,
+                    customupdatemodel__isnull=False,
+                    customupdatemodel__model_info__isnull=False,
+                    customupdatemodel__model_info__product__isnull=False,
+                    customupdatemodel__model_info__product__isDeleted=False,
+                )
+                .values(
+                    "customupdatemodel__model_info__product__category__categoryName",
+                    "customupdatemodel__model_info__product__category__slug",
+                )
+                .annotate(count=Count("uuids"))
+                .order_by("-count")
+            )
+
+            most_used_industries = [
+                {
+                    "category_name": item["customupdatemodel__model_info__product__category__categoryName"] or "Uncategorized",
+                    "category_slug": item["customupdatemodel__model_info__product__category__slug"] or "",
+                    "count": item["count"],
+                }
+                for item in category_usage_qs
+            ]         
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -2256,41 +1986,6 @@ class AdminDashAPIView(APIView):
                 "trace": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-# class AdminOrderUpdateAPIView(APIView):
-#     authentication_classes = [JWTAuthentication]
-
-#     def patch(self, request, order_id):
-#         try:
-#             order = Order.objects.get(order_id=order_id)
-#         except Order.DoesNotExist:
-#             return Response({"status": False, "statusCode": 404, "message": "Order not found"}, status=404)
-
-#         serializer = AdminOrderUpdateSerializer(order, data=request.data, partial=True)
-#         if serializer.is_valid():
-#             data = serializer.validated_data
-
-#             if data.get('status') == 'cancelled':
-#                 order.status = 'cancelled'
-#                 order.admin_cancel_reason = data['admin_cancel_reason']
-#                 order.cancelled_by = 'admin'
-#             else:
-#                 order.status = data['status']
-
-#             order.save()
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": "Order updated successfully",
-#                 "data": {
-#                     "order_id": order.order_id,
-#                     "status": order.status,
-#                     "user_cancel_reason": order.cancel_reason,
-#                     "admin_cancel_reason": order.admin_cancel_reason,
-#                     "cancelled_by": order.cancelled_by
-#                 }
-#             })
-#         return Response({"status": False, "statusCode": 400, "message": serializer.errors}, status=400)
 
 class AdminRefundProcessAPIView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -2361,83 +2056,6 @@ class AdminRefundProcessAPIView(APIView):
             })
 
         return Response({"status": False, "message": serializer.errors}, status=400)
-
-
-# class AdminOrderRefundAPI(APIView):
-#     def post(self, request):
-#         data = request.data
-#         order_id = data.get('order_id')
-#         refund_type = data.get('refund_type')
-#         admin_note = data.get('admin_note', '')
-
-#         if not order_id or not refund_type:
-#             return Response({"status": False, "message": "order_id and refund_type are required"}, status=400)
-
-    
-#         try:
-#             order = Order.objects.get(order_id=order_id)
-#             payment = Payment.objects.get(order=order)
-#         except Order.DoesNotExist:
-#             return Response({"status": False, "message": "Order not found"}, status=404)
-#         except Payment.DoesNotExist:
-#             return Response({"status": False, "message": "Payment not found"}, status=404)
-
-#         refunded_total = Refund.objects.filter(payment=payment, status='completed').aggregate(
-#             total=models.Sum('refund_amount')
-#         )['total'] or Decimal('0')
-
-        
-#         if refund_type == 'full':
-#             if refunded_total >= payment.amount:
-#                 return Response({"status": False, "message": "Payment already fully refunded"}, status=400)
-#             refund_amount = payment.amount - refunded_total
-
-#         elif refund_type == 'partial':
-#             refund_amount = Decimal(str(data.get('refund_amount', '0')))
-#             if refund_amount < 1:
-#                 return Response({"status": False, "message": "Refund amount must be at least 1"}, status=400)
-#             if refunded_total + refund_amount > payment.amount:
-#                 return Response({"status": False, "message": "Refund amount exceeds payment amount"}, status=400)
-
-#         elif refund_type == 'percentage':
-#             percentage = Decimal(str(data.get('refund_percentage', '0')))
-#             if percentage < 1:
-#                 return Response({"status": False, "message": "Refund percentage must be at least 1"}, status=400)
-#             refund_amount = (payment.amount * percentage) / Decimal('100')
-#             if refunded_total + refund_amount > payment.amount:
-#                 refund_amount = payment.amount - refunded_total  
-
-#         else:
-#             return Response({"status": False, "message": "Invalid refund_type"}, status=400)
-#         try:
-#             stripe_refund = stripe.Refund.create(
-#                 payment_intent=payment.payment_id,
-#                 amount=int(refund_amount * 100)  
-#             )
-
-#             Refund.objects.create(
-#                 order=order,
-#                 payment=payment,
-#                 user=order.user,
-#                 refund_amount=refund_amount,
-#                 admin_note=f"{admin_note} | Refund type: {refund_type}",
-#                 status='processed',  
-#                 payment_gateway_id=stripe_refund.id,  
-#                 currency=payment.currency  
-#             )
-
-#             return Response({
-#                 "status": True,
-#                 "message": "Refund successful",
-#                 "stripe_refund_id": stripe_refund.id,
-#                 "refunded_amount": str(refund_amount)
-#             })
-
-#         except stripe.error.StripeError as e:
-#             return Response({
-#                 "status": False,
-#                 "message": f"Stripe Error: {str(e)}"
-#             }, status=400)
 
 class AdminOrderRefundAPI(APIView):
     authentication_classes = [JWTAuthentication]
@@ -2836,35 +2454,6 @@ class AdminOrderListAPIView(APIView):
                 "message": "Server error while fetching order.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-        # data = {
-        #     "count": paginator.page.paginator.count,
-        #     "next": paginator.get_next_link(),
-        #     "previous": paginator.get_previous_link(),
-
-        #     "total_order": orders.count(),
-        #     "status_count": {
-        #         "pending": orders.filter(status="pending").count(),
-        #         "conformed": orders.filter(status="conformed").count(),
-        #         "processing": orders.filter(status="processing").count(),
-        #         "out_for_delivery": orders.filter(status="out_for_delivery").count(),
-        #         "delivered": orders.filter(status="delivered").count(),
-        #         "cancelled": orders.filter(status="cancelled").count(),
-        #     },
-
-        #     "orders": serializer.data
-        # }
-
-        # return Response(
-        #     {
-        #         "statusCode": 200,
-        #         "status": True,
-        #         "message": "Fetch orders successfully",
-        #         "data": data
-        #     },
-        #     status=200
-        # )
        
 
 class AdminOrderDetailAPIView(APIView):

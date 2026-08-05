@@ -1,6 +1,11 @@
 'use client'
 import Button from '@/components/ui/Button'
 
+/**
+ * OauthSignIn Component
+ * 
+ * Renders OAuth login buttons for social authentication providers.
+ */
 const OauthSignIn = ({ onOauthSignIn, setMessage }) => {
     // const handleGoogleSignIn = async () => {
     //     onOauthSignIn?.({ type: 'google', setMessage })
@@ -17,9 +22,9 @@ const OauthSignIn = ({ onOauthSignIn, setMessage }) => {
 
     const providers = [
         { type: 'facebook', img: '/img/others/facebook.png' },
-        { type: 'twitter',  img: '/img/others/twitter.png' },
-        { type: 'github',   img: '/img/others/github.png' },
-        { type: 'google',   img: '/img/others/google.png' },
+        { type: 'twitter', img: '/img/others/twitter.png' },
+        { type: 'github', img: '/img/others/github.png' },
+        { type: 'google', img: '/img/others/google.png' },
     ]
 
 

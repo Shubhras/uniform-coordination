@@ -9,6 +9,9 @@ from .models import *
 from .fabric import IsAdministrator, CustomPagination
 from rest_framework import status
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
+import os
+from django.core.files.base import ContentFile
+
 
 
 @extend_schema(
@@ -72,6 +75,77 @@ class PartsCreateView(APIView):
             })
 
 
+
+class PartsDuplicateView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+
+    def post(self, request, pk):
+        try:
+            try:
+                original = Parts.objects.get(pk=pk, isDeleted=False)
+            except Parts.DoesNotExist:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Part not found"
+                }, status=status.HTTP_200_OK)
+
+            new_name = request.data.get("partName", "").strip()
+            if not new_name:
+                new_name = f"{original.partName} (Copy)"
+
+            duplicate = Parts(
+                partName=new_name,
+                category=original.category,
+                subcategory=original.subcategory,
+                partType=original.partType,
+                fabric=original.fabric,
+                theme=original.theme,
+                zIndex=original.zIndex,
+                isActive=True,
+                isDeleted=False,
+            )
+
+            # Physically copy the image file, don't just reference it
+            if original.partImage:
+                original.partImage.open("rb")
+                file_content = original.partImage.read()
+                original.partImage.close()
+
+                file_name = os.path.basename(original.partImage.name)
+                duplicate.partImage.save(
+                    file_name,
+                    ContentFile(file_content),
+                    save=False
+                )
+
+            duplicate.save()
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Part duplicated successfully",
+                "data": {
+                    "id": duplicate.id,
+                    "partName": duplicate.partName,
+                    "partImage": duplicate.partImage.url if duplicate.partImage else None,
+                    "category": duplicate.category_id,
+                    "subcategory": duplicate.subcategory_id,
+                    "partType": duplicate.partType,
+                    "fabric": duplicate.fabric_id,
+                    "theme": duplicate.theme_id,
+                    "zIndex": duplicate.zIndex,
+                }
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "statusCode": 500,
+                "status": False,
+                "message": f"Internal Server Error: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
 
 @extend_schema(
     tags=["Parts"],
