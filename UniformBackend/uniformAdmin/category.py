@@ -101,7 +101,8 @@ class CategoryListAPIView(APIView):
 
             # FIX 1: newest data first
             categories = Category.objects.filter(
-                isDeleted=False
+                isDeleted=False,
+                type = "uniform"
             ).order_by("order")
 
             if search:
@@ -157,7 +158,8 @@ class CategoryDetailAPIView(APIView):
         try:
             category = Category.objects.filter(
                 id=category_id,
-                isDeleted=False
+                isDeleted=False,
+                type = "uniform"
             ).first()
 
             if not category:
@@ -204,7 +206,8 @@ class CategoryUpdateAPIView(APIView):
             try:
                 category = Category.objects.get(
                     id=category_id,
-                    isDeleted=False
+                    isDeleted=False,
+                    type = "uniform"
                 )
             except Category.DoesNotExist:
                 return Response({
@@ -269,7 +272,8 @@ class CategoryDeleteAPIView(APIView):
             try:
                 category = Category.objects.get(
                     id=category_id,
-                    isDeleted=False
+                    isDeleted=False,
+                    type = "uniform"
                 )
             except Category.DoesNotExist:
                 return Response({
@@ -332,7 +336,7 @@ class CategoryReorderAPIView(APIView):
             }, status=200)
 
         try:
-            category = Category.objects.get(id=category_id, isDeleted=False)
+            category = Category.objects.get(id=category_id, isDeleted=False,type = "uniform")
         except Category.DoesNotExist:
             return Response({
                 "status": False,

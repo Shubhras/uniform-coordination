@@ -352,6 +352,7 @@ class SystemSettingsSerializer(serializers.ModelSerializer):
 
 class CustomerListSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
+    role = serializers.CharField(source="role.role_name", read_only=True)
 
     class Meta:
         model = Users
@@ -369,6 +370,7 @@ class CustomerListSerializer(serializers.ModelSerializer):
             "is_verify",
             "isActive",
             "profileImage",
+            "role",
             "createdAt",
         ]
 

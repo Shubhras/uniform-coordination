@@ -1345,7 +1345,7 @@ class PrivacyPolicySerializer(serializers.ModelSerializer):
     
     
 class SystemSettingsSerializer(serializers.ModelSerializer):
-    logo = serializers.SerializerMethodField()
+    logo = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = SystemSettings
@@ -1361,16 +1361,21 @@ class SystemSettingsSerializer(serializers.ModelSerializer):
             "logo",
             "updated_at",
         ]
+        read_only_fields = ["updated_at"]
 
-    def get_logo(self, obj):
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
         request = self.context.get("request")
-        if obj.logo:
+        if instance.logo:
             if request:
-                return request.build_absolute_uri(obj.logo.url)
-            return obj.logo.url
-        return None
-    
+                data["logo"] = request.build_absolute_uri(instance.logo.url)
+            else:
+                data["logo"] = instance.logo.url
+        else:
+            data["logo"] = None
 
+        return data
 
 
 class QuotationTemplateSerializer(serializers.ModelSerializer):
@@ -1518,6 +1523,7 @@ class AdminSignupSerializer(serializers.ModelSerializer):
 
 class CustomerListSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
+    role = serializers.CharField(source="role.role_name", read_only=True)
 
     class Meta:
         model = Users
@@ -1535,12 +1541,115 @@ class CustomerListSerializer(serializers.ModelSerializer):
             "is_verify",
             "isActive",
             "profileImage",
+            "role",
             "createdAt",
         ]
 
     def get_full_name(self, obj):
         return f"{obj.firstName or ''} {obj.lastName or ''}".strip()
     
+
+
+class SubMenuSerializer(serializers.ModelSerializer):
+    menu_name = serializers.CharField(source="menu.name", read_only=True)
+
+    class Meta:
+        model = SubMenu
+        fields = [
+            "id", "menu", "menu_name", "name", "slug", "route", "order",
+            "isActive", "isDeleted", "created_at", "updated_at"
+        ]
+        read_only_fields = ["id", "slug", "created_at", "updated_at"]
+
+    def validate(self, attrs):
+        name = attrs.get("name")
+        menu = attrs.get("menu")
+
+        if name and menu:
+            # Check unique constraint condition
+            qs = SubMenu.objects.filter(name__iexact=name, menu=menu, isDeleted=False)
+            if self.instance:
+                qs = qs.exclude(id=self.instance.id)
+            if qs.exists():
+                raise serializers.ValidationError({
+                    "name": "A submenu with this name already exists under the selected menu."
+                })
+        return attrs
+
+
+class MenuSerializer(serializers.ModelSerializer):
+    submenus = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Menu
+        fields = [
+            "id", "name", "slug", "icon", "route", "order", "submenus",
+            "isActive", "isDeleted", "created_at", "updated_at"
+        ]
+        read_only_fields = ["id", "slug", "created_at", "updated_at"]
+
+    def get_submenus(self, obj):
+        # Only return active, non-deleted submenus
+        active_submenus = obj.submenus.filter(isDeleted=False, isActive=True).order_by("order")
+        return SubMenuSerializer(active_submenus, many=True).data
+
+    def validate_name(self, value):
+        qs = Menu.objects.filter(name__iexact=value, isDeleted=False)
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+        if qs.exists():
+            raise serializers.ValidationError("A menu with this name already exists.")
+        return value
+
+
+
+# --- Role-Based Permission Serializers ---
+
+
+class RoleMenuPermissionSerializer(serializers.ModelSerializer):
+    menu_name = serializers.CharField(source="menu.name", read_only=True)
+
+    class Meta:
+        model = RoleMenuPermission
+        fields = ["id", "role", "menu", "menu_name", "can_view", "can_create", "can_update", "can_delete"]
+
+
+class RoleSubMenuPermissionSerializer(serializers.ModelSerializer):
+    submenu_name = serializers.CharField(source="submenu.name", read_only=True)
+
+    class Meta:
+        model = RoleSubMenuPermission
+        fields = ["id", "role", "submenu", "submenu_name", "can_view", "can_create", "can_update", "can_delete"]
+
+
+class SubMenuPermissionAssignSerializer(serializers.Serializer):
+    submenu_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubMenu.objects.filter(isDeleted=False, isActive=True)
+    )
+    can_view = serializers.BooleanField(default=True)
+    can_create = serializers.BooleanField(default=False)
+    can_update = serializers.BooleanField(default=False)
+    can_delete = serializers.BooleanField(default=False)
+
+
+class MenuPermissionAssignSerializer(serializers.Serializer):
+    menu_id = serializers.PrimaryKeyRelatedField(
+        queryset=Menu.objects.filter(isDeleted=False, isActive=True)
+    )
+    can_view = serializers.BooleanField(default=True)
+    can_create = serializers.BooleanField(default=False)
+    can_update = serializers.BooleanField(default=False)
+    can_delete = serializers.BooleanField(default=False)
+    submenus = SubMenuPermissionAssignSerializer(many=True, required=False, default=[])
+
+
+class RolePermissionAssignSerializer(serializers.Serializer):
+    role_id = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects.all(),
+        source="role"
+    )
+    permissions = MenuPermissionAssignSerializer(many=True)
+
 
 
 class CustomerDetailSerializer(serializers.ModelSerializer):
@@ -1836,10 +1945,24 @@ class DamagePhotoSerializer(serializers.ModelSerializer):
 
 class InspectionItemSerializer(serializers.ModelSerializer):
     photos = DamagePhotoSerializer(many=True, read_only=True)
-    
+    item_name = serializers.SerializerMethodField()
+    category_name = serializers.SerializerMethodField()
+
     class Meta:
         model = InspectionItem
         fields = '__all__'
+
+    def get_item_name(self, obj):
+        try:
+            return obj.rental_item.product.productName
+        except AttributeError:
+            return None
+
+    def get_category_name(self, obj):
+        try:
+            return obj.rental_item.product.category.categoryName
+        except AttributeError:
+            return None
 
 class DamagedItemSerializer(serializers.ModelSerializer):
     class Meta:

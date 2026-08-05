@@ -317,6 +317,103 @@ class Blog(models.Model):
 
         super().save(*args, **kwargs)
 
+
+class Menu(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.CharField(max_length=150, unique=True, blank=True, null=True)
+    icon = models.CharField(max_length=100, blank=True, null=True)
+    route = models.CharField(max_length=255, blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old = Menu.objects.get(pk=self.pk)
+            if old.name != self.name:
+                self.slug = slugify(self.name).replace("-", "_")
+        else:
+            self.slug = slugify(self.name).replace("-", "_")
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class SubMenu(models.Model):
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name="submenus")
+    name = models.CharField(max_length=100)
+    slug = models.CharField(max_length=150, blank=True, null=True)
+    route = models.CharField(max_length=255, blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["menu", "name"],
+                condition=models.Q(isDeleted=False),
+                name="unique_submenu_name_per_menu"
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old = SubMenu.objects.get(pk=self.pk)
+            if old.name != self.name:
+                self.slug = slugify(self.name).replace("-", "_")
+        else:
+            self.slug = slugify(self.name).replace("-", "_")
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.menu.name} -> {self.name}"
+
+
+class RoleMenuPermission(models.Model):
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="menu_permissions")
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name="role_permissions")
+    can_view = models.BooleanField(default=True)
+    can_create = models.BooleanField(default=False)
+    can_update = models.BooleanField(default=False)
+    can_delete = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["role", "menu"],
+                name="unique_role_menu_permission"
+            )
+        ]
+
+
+class RoleSubMenuPermission(models.Model):
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="submenu_permissions")
+    submenu = models.ForeignKey(SubMenu, on_delete=models.CASCADE, related_name="role_permissions")
+    can_view = models.BooleanField(default=True)
+    can_create = models.BooleanField(default=False)
+    can_update = models.BooleanField(default=False)
+    can_delete = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["role", "submenu"],
+                name="unique_role_submenu_permission"
+            )
+        ]
+
  
  
  
