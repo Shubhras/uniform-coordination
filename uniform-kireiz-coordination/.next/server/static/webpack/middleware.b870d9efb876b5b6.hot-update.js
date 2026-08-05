@@ -1,0 +1,22 @@
+"use strict";
+/*
+ * ATTENTION: An "eval-source-map" devtool has been used.
+ * This devtool is neither made for production nor for readable output files.
+ * It uses "eval()" calls to create a separate source file with attached SourceMaps in the browser devtools.
+ * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
+ * or disable the default devtool with "devtool: false".
+ * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
+ */
+self["webpackHotUpdate_N_E"]("middleware",{
+
+/***/ "(middleware)/./src/services/ApiService.js":
+/*!************************************!*\
+  !*** ./src/services/ApiService.js ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var _axios_AxiosBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./axios/AxiosBase */ \"(middleware)/./src/services/axios/AxiosBase.js\");\n\n/**\n * ApiService\n * \n * Core HTTP client service wrapping AxiosBase instance for making API requests across the application.\n */ const ApiService = {\n    /**\n     * Executes an HTTP request using the configured AxiosBase instance and returns response data.\n     * \n     * @param {import('axios').AxiosRequestConfig} param - Axios request configuration options.\n     * @returns {Promise<any>} Promise resolving to response payload or rejecting on error.\n     */ fetchDataWithAxios (param) {\n        return new Promise((resolve, reject)=>{\n            (0,_axios_AxiosBase__WEBPACK_IMPORTED_MODULE_0__[\"default\"])(param).then((response)=>{\n                resolve(response.data);\n            }).catch((errors)=>{\n                reject(errors);\n            });\n        });\n    }\n};\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ApiService);\n//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiKG1pZGRsZXdhcmUpLy4vc3JjL3NlcnZpY2VzL0FwaVNlcnZpY2UuanMiLCJtYXBwaW5ncyI6Ijs7Ozs7QUFBeUM7QUFFekM7Ozs7Q0FJQyxHQUNELE1BQU1DLGFBQWE7SUFDZjs7Ozs7S0FLQyxHQUNEQyxvQkFBbUJDLEtBQUs7UUFDcEIsT0FBTyxJQUFJQyxRQUFRLENBQUNDLFNBQVNDO1lBQ3pCTiw0REFBU0EsQ0FBQ0csT0FDTEksSUFBSSxDQUFDLENBQUNDO2dCQUNISCxRQUFRRyxTQUFTQyxJQUFJO1lBQ3pCLEdBQ0NDLEtBQUssQ0FBQyxDQUFDQztnQkFDSkwsT0FBT0s7WUFDWDtRQUNSO0lBQ0o7QUFDSjtBQUVBLGlFQUFlVixVQUFVQSxFQUFBIiwic291cmNlcyI6WyIvaG9tZS9kaWdpLTQvcHJvamVjdC9Vbmlmb3JtIENvb3JkaW5hdGlvbiBXZWIgQXBwbGljYXRpb24vdW5pZm9ybS1jb29yZGluYXRpb24vdW5pZm9ybS1raXJlaXotY29vcmRpbmF0aW9uL3NyYy9zZXJ2aWNlcy9BcGlTZXJ2aWNlLmpzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBBeGlvc0Jhc2UgZnJvbSAnLi9heGlvcy9BeGlvc0Jhc2UnXG5cbi8qKlxuICogQXBpU2VydmljZVxuICogXG4gKiBDb3JlIEhUVFAgY2xpZW50IHNlcnZpY2Ugd3JhcHBpbmcgQXhpb3NCYXNlIGluc3RhbmNlIGZvciBtYWtpbmcgQVBJIHJlcXVlc3RzIGFjcm9zcyB0aGUgYXBwbGljYXRpb24uXG4gKi9cbmNvbnN0IEFwaVNlcnZpY2UgPSB7XG4gICAgLyoqXG4gICAgICogRXhlY3V0ZXMgYW4gSFRUUCByZXF1ZXN0IHVzaW5nIHRoZSBjb25maWd1cmVkIEF4aW9zQmFzZSBpbnN0YW5jZSBhbmQgcmV0dXJucyByZXNwb25zZSBkYXRhLlxuICAgICAqIFxuICAgICAqIEBwYXJhbSB7aW1wb3J0KCdheGlvcycpLkF4aW9zUmVxdWVzdENvbmZpZ30gcGFyYW0gLSBBeGlvcyByZXF1ZXN0IGNvbmZpZ3VyYXRpb24gb3B0aW9ucy5cbiAgICAgKiBAcmV0dXJucyB7UHJvbWlzZTxhbnk+fSBQcm9taXNlIHJlc29sdmluZyB0byByZXNwb25zZSBwYXlsb2FkIG9yIHJlamVjdGluZyBvbiBlcnJvci5cbiAgICAgKi9cbiAgICBmZXRjaERhdGFXaXRoQXhpb3MocGFyYW0pIHtcbiAgICAgICAgcmV0dXJuIG5ldyBQcm9taXNlKChyZXNvbHZlLCByZWplY3QpID0+IHtcbiAgICAgICAgICAgIEF4aW9zQmFzZShwYXJhbSlcbiAgICAgICAgICAgICAgICAudGhlbigocmVzcG9uc2UpID0+IHtcbiAgICAgICAgICAgICAgICAgICAgcmVzb2x2ZShyZXNwb25zZS5kYXRhKVxuICAgICAgICAgICAgICAgIH0pXG4gICAgICAgICAgICAgICAgLmNhdGNoKChlcnJvcnMpID0+IHtcbiAgICAgICAgICAgICAgICAgICAgcmVqZWN0KGVycm9ycylcbiAgICAgICAgICAgICAgICB9KVxuICAgICAgICB9KVxuICAgIH0sXG59XG5cbmV4cG9ydCBkZWZhdWx0IEFwaVNlcnZpY2VcblxuIl0sIm5hbWVzIjpbIkF4aW9zQmFzZSIsIkFwaVNlcnZpY2UiLCJmZXRjaERhdGFXaXRoQXhpb3MiLCJwYXJhbSIsIlByb21pc2UiLCJyZXNvbHZlIiwicmVqZWN0IiwidGhlbiIsInJlc3BvbnNlIiwiZGF0YSIsImNhdGNoIiwiZXJyb3JzIl0sImlnbm9yZUxpc3QiOltdLCJzb3VyY2VSb290IjoiIn0=\n//# sourceURL=webpack-internal:///(middleware)/./src/services/ApiService.js\n");
+
+/***/ })
+
+});
