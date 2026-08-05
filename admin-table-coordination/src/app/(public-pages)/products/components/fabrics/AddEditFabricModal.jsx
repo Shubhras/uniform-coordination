@@ -477,6 +477,7 @@ const AddEditFabricModal = ({
                 {colors.map((color) => (
                   <button
                     key={color}
+                    type="button"
                     onClick={() => setSelectedColor(color)}
                     className={`w-6 h-6 rounded border-[0.5px] ${selectedColor === color ? "ring-2 ring-[#1C2C56] ring-offset-1" : ""}`}
                     style={{ backgroundColor: color }}
