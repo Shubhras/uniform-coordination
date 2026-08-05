@@ -21,10 +21,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/kireiz-form/page.js"
     ],
-    "/(public-pages)/blog/page": [
+    "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/blog/page.js"
+      "static/chunks/app/_not-found/page.js"
+    ],
+    "/(public-pages)/medical-form/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/medical-form/[id]/page.js"
     ],
     "/(protected-pages)/layout": [
       "static/chunks/webpack.js",
@@ -41,10 +46,40 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(protected-pages)/profile/my-profile/page.js"
     ],
-    "/(public-pages)/medical-form/[id]/page": [
+    "/(protected-pages)/profile/my-profile/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/medical-form/[id]/page.js"
+      "static/chunks/app/(protected-pages)/profile/my-profile/[id]/page.js"
+    ],
+    "/(public-pages)/blog/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/blog/page.js"
+    ],
+    "/(public-pages)/dashboards/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/layout.js"
+    ],
+    "/(public-pages)/dashboards/uniform-design/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/uniform-design/[id]/page.js"
+    ],
+    "/(public-pages)/dashboards/uniform-single/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/uniform-single/[id]/page.js"
+    ],
+    "/(public-pages)/dashboards/uniform-3d-design/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/uniform-3d-design/[id]/page.js"
+    ],
+    "/(public-pages)/dashboards/design-result/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/design-result/[id]/page.js"
     ]
   }
 }
