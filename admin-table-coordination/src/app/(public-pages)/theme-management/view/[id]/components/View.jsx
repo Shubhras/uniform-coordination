@@ -12,12 +12,6 @@ import {
 } from "react-icons/fi";
 import { apiGetThemeDetails } from "@/services/ThemeManagement";
 
-const bannerImages = [
-  "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1600",
-  "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1600",
-  "https://images.unsplash.com/photo-1511578314322-379afb476865?w=1600",
-];
-
 const sectionsData = [
   {
     id: 1,
@@ -57,6 +51,11 @@ const PreviewTheme = () => {
 
   const [themeData, setThemeData] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const bannerImages = [
+    themeData?.image,
+    ...(themeData?.cover_images?.map((item) => item.image) || []),
+  ].filter(Boolean);
 
   const getThemeDetails = async () => {
     if (!accessToken || !id) return;
@@ -145,7 +144,7 @@ const PreviewTheme = () => {
 
         <div className="relative overflow-hidden rounded-2xl h-[360px]">
           <img
-            src={themeData?.image || bannerImages[activeImage]}
+            src={bannerImages[activeImage]}
             alt=""
             className="w-full h-full object-cover"
           />
@@ -165,10 +164,7 @@ const PreviewTheme = () => {
           {/* Slider dots */}
 
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
-            {(themeData?.gallery_images?.length
-              ? themeData.gallery_images
-              : bannerImages
-            ).map((_, index) => (
+            {bannerImages.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setActiveImage(index)}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { FiImage } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
@@ -18,6 +18,7 @@ const GeneralSettings = () => {
   const [loading, setLoading] = useState(false);
 
   const [logoFile, setLogoFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -78,9 +79,6 @@ const GeneralSettings = () => {
       setLoading(true);
 
       const res = await apiGeneralSettingList(accessToken);
-      console.log("ddddddddddddd", res);
-      console.log("adpiiiiiiii", res.data);
-
       // if (res?.data?.success) {
       setSettings(res.data);
       // }
@@ -268,7 +266,13 @@ const GeneralSettings = () => {
               Logo
             </label>
 
-            <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-[#E6D4C8] bg-[#FFFDFC]">
+            <div
+              onClick={() => isEditing && fileInputRef.current?.click()}
+              className={`flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-[#E6D4C8] bg-[#FFFDFC] ${
+                isEditing ? "cursor-pointer hover:bg-[#FCF7F3]" : ""
+              }`}
+            >
+              {" "}
               {settings.logo ? (
                 <img
                   src={settings.logo}
@@ -286,8 +290,25 @@ const GeneralSettings = () => {
                   </p>
                 </div>
               )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
 
-              {isEditing && (
+                  if (!file) return;
+
+                  setLogoFile(file);
+
+                  setSettings((prev) => ({
+                    ...prev,
+                    logo: URL.createObjectURL(file),
+                  }));
+                }}
+              />
+              {/* {isEditing && (
                 <input
                   type="file"
                   accept="image/*"
@@ -300,11 +321,11 @@ const GeneralSettings = () => {
 
                     setSettings((prev) => ({
                       ...prev,
-                      logo: URL.createObjectURL(file),
+                      company_logo: URL.createObjectURL(file),
                     }));
                   }}
                 />
-              )}
+              )} */}
             </div>
           </div>
 

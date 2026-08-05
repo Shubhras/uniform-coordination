@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { FiArrowLeft, FiLayers, FiPlus, FiX } from "react-icons/fi";
 import Select from "react-select";
-import { FiBarChart2 ,FiImage} from "react-icons/fi";
+import { FiBarChart2, FiImage } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import ThemeBuilder from "./components/ThemeBuilder";
 import PreviewTheme from "./components/PreviewTheme";
@@ -97,7 +97,7 @@ const AddTheme = () => {
   };
 
   return (
-    <div className="bg-[#FAF8F6] min-h-screen p-6">
+    <div className="bg-white min-h-screen p-6">
       {/* Header */}
       {step === 1 && (
         <>
@@ -149,7 +149,7 @@ const AddTheme = () => {
                     }));
                   }}
                   placeholder="Enter theme name"
-                  className="w-full h-12 rounded-xl border border-[#E7D9CF] px-4 outline-none focus:border-[#A0522D]"
+                  className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 outline-none focus:border-[#A85A32]"
                 />
                 {errors.title && (
                   <p className="text-red-500 text-sm mt-1">{errors.title}</p>
@@ -204,7 +204,7 @@ const AddTheme = () => {
                 }}
                 rows={4}
                 placeholder="Write short description..."
-                className="w-full rounded-xl border border-[#E7D9CF] p-4 resize-none outline-none focus:border-[#A0522D]"
+                className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] p-4 resize-none outline-none focus:border-[#A85A32]"
               />
               {errors.description && (
                 <p className="text-red-500 text-sm mt-1">

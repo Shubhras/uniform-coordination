@@ -15,7 +15,7 @@ const Split = ({ children, content, ...rest }) => {
         "
       >
         {/* Logo */}
-        <div className="absolute top-[5%] left-[5%] z-20">
+        {/* <div className="absolute top-[5%] left-[5%] z-20">
           <Link href="/table-form">
             <img
               src="/img/others/auth-logo.png"
@@ -23,7 +23,7 @@ const Split = ({ children, content, ...rest }) => {
               className="md:h-12 h-10 w-auto"
             />
           </Link>
-        </div>
+        </div> */}
 
         {/* Image */}
         <div

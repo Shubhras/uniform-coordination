@@ -5,7 +5,7 @@ export async function apiGetProductList(
   page = 1,
   pageSize = 10,
   productType = "table",
-  params=""
+  params = "",
 ) {
   return ApiService.fetchDataWithAxios({
     url: `/v1/space/uniformAdmin/product/list/?productType=${productType}&page=${page}&page_size=${pageSize}${params}`,
@@ -62,6 +62,16 @@ export async function apiGetProductDetails(accessToken, id) {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "multipart/form-data",
+    },
+  });
+}
+
+export async function apiRentalHistory(accessToken, productId) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/userhub/admin/product/orders-rentallist/${productId}/`,
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 }

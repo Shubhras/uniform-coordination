@@ -1,6 +1,8 @@
 'use client'
-import React, { useState } from 'react'
+
+import React, { useState, useEffect } from 'react'
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
+
 import { useSession } from 'next-auth/react'
 import { apiApplyPromocode, apiCreateOrder } from '@/services/OrderService'
 import Notification from '@/components/ui/Notification'
@@ -14,6 +16,9 @@ import Input from '@/components/ui/Input'
 import dayjs from 'dayjs'
 import DatePicker from '@/components/ui/DatePicker'
 
+/**
+ * Zod validation schema for customer delivery details & rental dates.
+ */
 const deliveryValidationSchema = z.object({
     first_name: z.string().min(1, { message: 'First name is required' }),
     last_name: z.string().min(1, { message: 'Last name is required' }),
@@ -27,15 +32,19 @@ const deliveryValidationSchema = z.object({
     start_date: z.string().min(1, { message: 'Start date is required' }),
     return_date: z.string().min(1, { message: 'Return date is required' }),
     coupon_code: z.string().optional(),
-    //payment_method: z.string().min(1, { message: 'Payment method is required' })
 })
 
+/**
+ * DeliveryInformation Component
+ * 
+ * Form component collecting delivery addresses, rental dates, promo codes, and creating customer orders.
+ */
 const DeliveryInformation = () => {
     const router = useRouter()
-    const { data: session } = useSession();
-    const params = useParams();
-    const searchParams = useSearchParams();
-    const cartId = params?.id || searchParams?.get('id');
+    const { data: session } = useSession()
+    const params = useParams()
+    const searchParams = useSearchParams()
+    const cartId = params?.id || searchParams?.get('id')
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -48,13 +57,14 @@ const DeliveryInformation = () => {
         control,
         handleSubmit,
         watch,
+        setValue,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(deliveryValidationSchema),
         defaultValues: {
-            first_name: "",
-            last_name: "",
-            email: "",
+            first_name: session?.user?.firstName || "",
+            last_name: session?.user?.lastName || "",
+            email: session?.user?.email || "",
             phone: "",
             address_line_1: "",
             address_line_2: "",
@@ -68,10 +78,22 @@ const DeliveryInformation = () => {
         },
     });
 
+    useEffect(() => {
+        if (session?.user) {
+            if (session.user.email) setValue("email", session.user.email);
+            if (session.user.firstName || session.user.name) {
+                setValue("first_name", session.user.firstName || session.user.name?.split(' ')[0] || "");
+            }
+            if (session.user.lastName || session.user.name) {
+                setValue("last_name", session.user.lastName || session.user.name?.split(' ')[1] || "");
+            }
+        }
+    }, [session, setValue]);
+
+
     const start_date = watch("start_date");
     const return_date = watch("return_date");
     const couponCode = watch("coupon_code");
-    //const payment_method = watch("payment_method");
 
     const today = new Date().toISOString().split("T")[0];
 
@@ -84,6 +106,11 @@ const DeliveryInformation = () => {
             )
             : 0;
 
+    /**
+     * Handles order submission with customer details, delivery address, and rental dates.
+     * 
+     * @param {Object} data - Form data values.
+     */
     const onSubmit = async (data) => {
         if (!session?.accessToken) return;
 
@@ -111,27 +138,16 @@ const DeliveryInformation = () => {
                 country: data.country,
             },
             payment: {
-                // payment_method: data.payment_method,
                 payment_method: '',
             },
             rental_start_date: data.start_date,
             rental_end_date: data.return_date,
-            // rental: {
-            //     start_date: form.start_date,
-            //     return_date: form.return_date,
-            // },
             promocode: couponCode ? { code: couponCode } : {},
         };
-        console.log('aaaaaaaaaaaaaaaaaaaaaaaaaa', payload)
-
-
-        setLoading(false);
 
         try {
             const res = await apiCreateOrder(session.accessToken, payload);
-            console.log(res, 'rrrrrrrrrrrrrrrrrrrr')
             if (res?.status) {
-
                 const createdOrderId = res?.data?.order_id
                 toast.push(<Notification title="Success!" type="success">Order created successfully</Notification>);
                 router.push(`/overview?orderId=${createdOrderId}`)
@@ -147,6 +163,9 @@ const DeliveryInformation = () => {
         }
     };
 
+    /**
+     * Applies promo coupon code via API.
+     */
     const handleApplyCoupon = async () => {
         if (!session?.accessToken) return;
 
@@ -167,7 +186,6 @@ const DeliveryInformation = () => {
 
             const res = await apiApplyPromocode(session.accessToken, payload);
 
-            // adjust according to your API response
             if (res?.status) {
                 setCouponSuccess("Discount applied successfully");
             } else {
@@ -179,6 +197,7 @@ const DeliveryInformation = () => {
             setCouponLoading(false);
         }
     };
+
 
     return (
         <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 mt-14">
@@ -242,9 +261,10 @@ const DeliveryInformation = () => {
                                     render={({ field }) => (
                                         <Input
                                             type="text"
+                                            readOnly
                                             autoComplete="off"
                                             placeholder="Enter email address"
-                                            className="mb-1"
+                                            className="mb-1 bg-gray-100 cursor-not-allowed"
                                             {...field}
                                         />
                                     )}
@@ -481,62 +501,6 @@ const DeliveryInformation = () => {
                                 </p>
                             )}
                         </div>
-                        {/* PAYMENT METHOD */}
-                        {/* <div>
-                            <h3 className="text-lg font-medium text-[#8B4513] mb-3">
-                                Payment Method <span className="text-red-500">*</span>
-                            </h3>
-                            <div className="space-y-3">
-                                <label className={`flex items-center gap-3 border rounded-xl p-4 cursor-pointer transition ${payment_method === 'card' ? 'border-[#8B4513] bg-[#FAF6F4]/60' : 'border-gray-200 hover:border-gray-300'}`}>
-                                    <Controller
-                                        name="payment_method"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <input
-                                                type="radio"
-                                                value="card"
-                                                checked={field.value === "card"}
-                                                onChange={field.onChange}
-                                                className="w-5 h-5 accent-[#8B4513] cursor-pointer"
-                                            />
-                                        )}
-                                    />
-                                    <span className="text-base font-medium text-[#374151]">Credit Card (ending in 4242)</span>
-                                </label>
-                                <label className={`flex items-center gap-3 border rounded-xl p-4 cursor-pointer transition ${payment_method === 'paypal' ? 'border-[#8B4513] bg-[#FAF6F4]/60' : 'border-gray-200 hover:border-gray-300'}`}>
-                                    <Controller
-                                        name="payment_method"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <input
-                                                type="radio"
-                                                value="paypal"
-                                                checked={field.value === "paypal"}
-                                                onChange={field.onChange}
-                                                className="w-5 h-5 accent-[#8B4513] cursor-pointer"
-                                            />
-                                        )}
-                                    />
-                                    <span className="text-base font-medium text-[#374151]">PayPal</span>
-                                </label>
-                                <label className={`flex items-center gap-3 border rounded-xl p-4 cursor-pointer transition ${payment_method === 'other' ? 'border-[#8B4513] bg-[#FAF6F4]/60' : 'border-gray-200 hover:border-gray-300'}`}>
-                                    <Controller
-                                        name="payment_method"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <input
-                                                type="radio"
-                                                value="other"
-                                                checked={field.value === "other"}
-                                                onChange={field.onChange}
-                                                className="w-5 h-5 accent-[#8B4513] cursor-pointer"
-                                            />
-                                        )}
-                                    />
-                                    <span className="text-base font-medium text-[#374151]">Choose another payment method</span>
-                                </label>
-                            </div>
-                        </div> */}
                     </div>
                 </div>
                 {error && (

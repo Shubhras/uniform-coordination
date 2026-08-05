@@ -5,12 +5,12 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetReportAnalytics } from "@/services//ReportAnalytics";
 import { FiDownload } from "react-icons/fi";
 
-const inventoryLegend = [
-  { label: "Available", color: "#B56735" },
-  { label: "Rented", color: "#D9A79E" },
-  { label: "Maintenance", color: "#F5EDE6" },
-  { label: "Damaged", color: "#2A211D" },
-];
+const inventoryColors = {
+  Available: "#B56735",
+  Rented: "#D9A79E",
+  Maintenance: "#F5EDE6",
+  Damaged: "#2A211D",
+};
 
 // --- helpers -----------------------------------------------------------
 
@@ -21,6 +21,8 @@ function DonutChart({
   size = 170,
   thickness = 34,
   showLabels = false,
+  onHover,
+  onLeave,
 }) {
   const total = segments.reduce((sum, s) => sum + s.value, 0);
   const radius = size / 2;
@@ -74,7 +76,19 @@ function DonutChart({
   return (
     <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
       {arcs.map((arc, i) => (
-        <path key={i} d={arc.path} fill={arc.color} />
+        <path
+          key={i}
+          d={arc.path}
+          fill={arc.color}
+          onMouseMove={(e) =>
+            onHover?.({
+              x: e.clientX,
+              y: e.clientY,
+              data: segments[i],
+            })
+          }
+          onMouseLeave={onLeave}
+        />
       ))}
       {showLabels &&
         arcs.map((arc, i) =>
@@ -103,6 +117,7 @@ const ReportsAnalyticsPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState(null);
+  const [tooltip, setTooltip] = useState(null);
 
   const chartWidth = 340;
   const chartLeftPad = 34;
@@ -112,7 +127,7 @@ const ReportsAnalyticsPage = () => {
   const summaryCards = [
     {
       label: "TOTAL REVENUE",
-      value: `¥${reportData?.kpi?.total_revenue ?? 0}`,
+      value: `${reportData?.kpi?.total_revenue ?? 0}`,
     },
     {
       label: "TOTAL ORDERS",
@@ -209,7 +224,7 @@ const ReportsAnalyticsPage = () => {
           type="button"
           className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-[#A0522D] px-4 text-[13px] font-medium text-white"
         >
-          <FiDownload size={14}/>
+          <FiDownload size={14} />
           Export Data
         </button>
       </div>
@@ -388,47 +403,44 @@ const ReportsAnalyticsPage = () => {
             <DonutChart
               size={170}
               thickness={34}
-              segments={[
-                {
-                  value:
-                    reportData?.inventory_status?.find(
-                      (x) => x.label === "Available",
-                    )?.percentage || 0,
-                  color: "#B56735",
-                },
-                {
-                  value:
-                    reportData?.inventory_status?.find(
-                      (x) => x.label === "Rented",
-                    )?.percentage || 0,
-                  color: "#D9A79E",
-                },
-                {
-                  value:
-                    reportData?.inventory_status?.find(
-                      (x) => x.label === "Maintenance",
-                    )?.percentage || 0,
-                  color: "#F5EDE6",
-                },
-                {
-                  value:
-                    reportData?.inventory_status?.find(
-                      (x) => x.label === "Damaged",
-                    )?.percentage || 0,
-                  color: "#2A211D",
-                },
-              ]}
+              segments={
+                reportData?.inventory_status?.map((item) => ({
+                  label: item.label,
+                  count: item.count,
+                  value: item.percentage,
+                  color: inventoryColors[item.label],
+                })) || []
+              }
+              onHover={setTooltip}
+              onLeave={() => setTooltip(null)}
             />
+            {tooltip && (
+              <div
+                className="fixed z-50 rounded-md bg-black px-3 py-2 text-xs text-white font-bold pointer-events-none"
+                style={{
+                  left: tooltip.x + 10,
+                  top: tooltip.y + 10,
+                }}
+              >
+                <div>{tooltip.data.label}</div>
+                <div>Count: {tooltip.data.count}</div>
+                <div>{tooltip.data.value}%</div>
+              </div>
+            )}
           </div>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] text-[#8E7C70]">
-            {inventoryLegend.map((item) => (
-              <div key={item.label} className="flex items-center gap-1.5">
+            {reportData?.inventory_status?.map((item) => (
+              <div key={item.label} className="flex items-center gap-1.5 text-[14px]">
                 <span
                   className="inline-block h-2.5 w-2.5 rounded-[2px]"
-                  style={{ backgroundColor: item.color }}
+                  style={{
+                    backgroundColor: inventoryColors[item.label] || "#CCCCCC",
+                  }}
                 />
-                <span>{item.label}</span>
+                <span>
+                  {item.label} ({item.count})
+                </span>
               </div>
             ))}
           </div>

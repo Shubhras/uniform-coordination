@@ -16,6 +16,7 @@ import { apiGetColorsList, apiDeleteColor } from "@/services/ColorsService";
 import AddEditColorModal from "./AddEditColorModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
+import Spinner from "@/components/ui/Spinner";
 
 const ColorsTab = () => {
   const { session } = useCurrentSession();
@@ -24,6 +25,9 @@ const ColorsTab = () => {
   const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Delay search API call until user stops typing for 500ms
+  // Also reset pagination to the first page for new search results
   const [debouncedSearch, setDebouncedSearch] = useState("");
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -54,12 +58,18 @@ const ColorsTab = () => {
   });
   const [pageSize, setPageSize] = useState(10);
 
-  /* ---------- FETCH COLORS ---------- */
+  /* ------------------------------------------------------------------
+   Fetch color list from the API based on:
+   - Current page
+   - Page size
+   - Search keyword
+------------------------------------------------------------------- */
   const fetchColors = useCallback(
     async (page = 1, search = "") => {
       if (!accessToken) return;
 
       try {
+        // Show loader while fetching data
         setLoading(true);
         const response = await apiGetColorsList(
           accessToken,
@@ -69,6 +79,8 @@ const ColorsTab = () => {
         );
 
         if (response?.status && response?.data) {
+          // Update color list and pagination using API response
+
           setColors(response.data);
           if (response.pagination) {
             setPagination(response.pagination);
@@ -77,17 +89,21 @@ const ColorsTab = () => {
       } catch (error) {
         console.error("Failed to fetch colors:", error);
       } finally {
+        // Hide loader after API request completes
+
         setLoading(false);
       }
     },
     [accessToken, pageSize],
   );
 
+  // Automatically reload data whenever
+  // page number, page size or search query changes
   useEffect(() => {
-    fetchColors(currentPage,debouncedSearch);
+    fetchColors(currentPage, debouncedSearch);
   }, [fetchColors, currentPage, pageSize, debouncedSearch]);
 
-  /* ---------- DELETE ---------- */
+  /* ---- Delete selected color from database and refresh current page------- */
   const handleDeleteConfirm = async () => {
     if (!colorToDelete || !accessToken) return;
 
@@ -102,6 +118,7 @@ const ColorsTab = () => {
       );
       setDeleteDialogOpen(false);
       setColorToDelete(null);
+      // Refresh list after successful deletion
       fetchColors(currentPage);
     } catch (error) {
       console.error("Failed to delete color:", error);
@@ -110,30 +127,33 @@ const ColorsTab = () => {
     }
   };
 
-  /* ---------- MODAL HANDLERS ---------- */
+  // Open modal in Add mode
   const handleAddColor = () => {
     setModalMode("add");
     setSelectedColor(null);
     setIsModalOpen(true);
   };
 
+  // Open modal in Edit mode with selected color details
   const handleEditColor = (color) => {
     setModalMode("edit");
     setSelectedColor(color);
     setIsModalOpen(true);
   };
 
+  // Close modal and clear selected color
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedColor(null);
   };
 
+  // Refresh list after successful add/edit operation
   const handleSaveSuccess = () => {
     handleCloseModal();
     fetchColors(currentPage);
   };
 
-  /* ---------- HELPERS ---------- */
+  // Convert HEX color code into RGB format for display
   const hexToRgb = (hex) => {
     if (!hex) return "";
     const cleanHex = hex.replace("#", "");
@@ -143,39 +163,6 @@ const ColorsTab = () => {
     const b = bigint & 255;
     return `rgb(${r}, ${g}, ${b})`;
   };
-
-  /* ---------- PAGINATION ---------- */
-  const goToPage = (page) => {
-    if (page >= 1 && page <= pagination.total_pages) {
-      setCurrentPage(page);
-    }
-  };
-
-  /* ---------- SKELETON ---------- */
-  const CardSkeleton = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <div
-          key={i}
-          className="border border-[#1C2C5633] rounded-xl overflow-hidden animate-pulse"
-        >
-          <div className="h-52 bg-gray-200" />
-          <div className="p-4 space-y-2">
-            <div className="h-4 bg-gray-200 rounded w-3/4" />
-            <div className="h-3 bg-gray-100 rounded w-full" />
-            <div className="flex gap-2 mt-3">
-              <div className="h-5 bg-gray-100 rounded-full w-16" />
-              <div className="h-5 bg-gray-100 rounded-full w-16" />
-            </div>
-            <div className="flex gap-2 mt-3">
-              <div className="h-7 bg-gray-200 rounded flex-1" />
-              <div className="h-7 bg-gray-100 rounded flex-1" />
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
 
   return (
     <>
@@ -199,6 +186,7 @@ const ColorsTab = () => {
           </button>
         </div>
 
+        {/* Search input for filtering colors */}
         <div className="relative w-full md:w-72 mb-6">
           <FiSearch
             className="absolute left-3 top-2.5 text-[#64748B]"
@@ -223,7 +211,9 @@ const ColorsTab = () => {
         </div>
 
         {loading ? (
-          <CardSkeleton />
+          <div className="flex justify-center items-center h-[400px] w-full">
+            <Spinner size={40} customColorClass="text-[#A0522D]" />
+          </div>
         ) : colors.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
             No colors found
@@ -272,7 +262,7 @@ const ColorsTab = () => {
                   <div className="flex gap-2 mt-4">
                     <button
                       onClick={() => handleEditColor(color)}
-                      className="flex-1 bg-[#A0522D] text-white text-xs py-1.5 rounded-md"
+                      className="flex items-center justify-center bg-[#A0522D] text-white text-xs px-3 py-1.5 rounded-md"
                     >
                       Edit
                     </button>
@@ -284,47 +274,15 @@ const ColorsTab = () => {
                       }}
                       className="flex-1 border border-red-200 text-red-500 text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                     >
-                      {/* <FiTrash2 size={12} /> */}
                       Delete
                     </button>
-                    <button
-                      // onClick={() => handleEditColor(color)}
-                      className="flex-1 border border-gray-300 text-[#91A1B6] text-xs py-1.5 rounded-md"
-                    >
+                    <button className="flex-1 border border-gray-300 text-[#91A1B6] text-xs py-1.5 rounded-md">
                       Duplicate
                     </button>
                   </div>
                 </div>
               </div>
             ))}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {!loading && pagination.total_pages > 1 && (
-          <div className="flex items-center justify-between mt-6 px-2">
-            <p className="text-sm text-[#64748B]">
-              Page {pagination.page} of {pagination.total_pages} (
-              {pagination.total_items} items)
-            </p>
-
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-              >
-                <FiChevronLeft size={16} />
-              </button>
-
-              <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === pagination.total_pages}
-                className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-              >
-                <FiChevronRight size={16} />
-              </button>
-            </div>
           </div>
         )}
       </div>

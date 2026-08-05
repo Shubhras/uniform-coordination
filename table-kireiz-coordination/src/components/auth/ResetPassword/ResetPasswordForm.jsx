@@ -13,8 +13,8 @@ const validationSchema = z
       .string({ required_error: "Please enter your password" })
       .min(1, "Please enter your password"),
     confirmPassword: z
-      .string({ required_error: "Confirm Password Required" })
-      .min(1, "Confirm Password Required"),
+      .string({ required_error: "Please enter your confirm password" })
+      .min(1, "Please enter your confirm password"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Your passwords do not match",
@@ -109,7 +109,7 @@ const ResetPasswordForm = (props) => {
               </div>
               <p>
                 I Agree to privacy
-                <span className="text-blue-400"> policy & terms</span>
+                <span className="text-[#8B4513]"> policy & terms</span>
               </p>
             </label>
           </div>
@@ -118,7 +118,7 @@ const ResetPasswordForm = (props) => {
             loading={isSubmitting}
             variant="solid"
             type="submit"
-            className="bg-[#8a5a75] hover:bg-[#8a5a75] text-white"
+            className="bg-[#A0522D] hover:bg-[#A0522D] text-white"
           >
             {isSubmitting ? "Submiting..." : "Submit"}
           </Button>

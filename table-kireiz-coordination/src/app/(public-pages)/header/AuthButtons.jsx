@@ -1,29 +1,35 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+/**
+ * AuthButtons Component
+ * 
+ * Switcher buttons for user Login and Signup navigation.
+ */
 const AuthButtons = () => {
   const [active, setActive] = useState("login");
   const router = useRouter();
 
-  
+  /**
+   * Handles authentication route switching.
+   * 
+   * @param {string} type - Auth action type ('login' | 'signup').
+   */
   const handleClick = (type) => {
     setActive(type);
     if (type === "login") {
-      // router.push("/auth/sign-in-split");
       router.push("/sign-in");
     } else {
-      //router.push("/auth/sign-up-split");
-      router.push("/sign-up")
+      router.push("/sign-up");
     }
-    console.log('clickeddddddddddd');
-
   };
 
   return (
     <div className="flex items-center">
       <div className="flex items-center border border-white rounded-full overflow-hidden">
-        {/* LOGIN */}
+        {/* Login Button */}
         <button
           onClick={() => handleClick("login")}
           className={`
@@ -34,7 +40,7 @@ const AuthButtons = () => {
           Login
         </button>
 
-        {/* SIGNUP */}
+        {/* Signup Button */}
         <button
           onClick={() => handleClick("signup")}
           className={`
@@ -50,3 +56,4 @@ const AuthButtons = () => {
 };
 
 export default AuthButtons;
+

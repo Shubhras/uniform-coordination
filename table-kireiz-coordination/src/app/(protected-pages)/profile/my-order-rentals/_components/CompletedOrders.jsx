@@ -5,10 +5,10 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { apiUserOrderList } from '@/services/OrderService'
 import { formatDate } from '@/utils/formatDate'
-import { FiCalendar, FiClock, FiMapPin } from 'react-icons/fi'
-import Spinner from '@/components/ui/Spinner'
+import { FiCalendar, FiMapPin } from 'react-icons/fi'
 import Pagination from '@/components/ui/Pagination'
 
+// Order image component with fallback pattern
 const OrderImage = ({ src, alt }) => (
     <div className="h-[102px] w-[98px] overflow-hidden rounded-xl border border-[#F0E4DE] bg-[#FAF6F4] shrink-0 flex items-center justify-center">
         {src ? (
@@ -32,14 +32,19 @@ const OrderImage = ({ src, alt }) => (
     </div>
 )
 
+// Completed orders tab content component
 const CompletedOrders = ({ onTotalCountChange }) => {
     const router = useRouter()
     const { data: session } = useSession()
+
+    // Completed orders state
     const [ordersList, setOrdersList] = useState([])
     const [loading, setLoading] = useState(true)
     const [currentPage, setCurrentPage] = useState(1)
     const [totalCount, setTotalCount] = useState(0)
     const pageSize = 5
+
+    // Fetch completed orders
     useEffect(() => {
         const fetchCompletedOrders = async () => {
             if (!session?.accessToken) return
@@ -52,7 +57,6 @@ const CompletedOrders = ({ onTotalCountChange }) => {
                 }
 
                 const response = await apiUserOrderList(session.accessToken, params)
-                console.log('=== apiUserOrderList Completed Orders Response ===', response)
 
                 let list = []
                 let total = 0
@@ -81,10 +85,12 @@ const CompletedOrders = ({ onTotalCountChange }) => {
         fetchCompletedOrders()
     }, [session?.accessToken, currentPage])
 
+    // View order details handler
     const handleViewDetails = (orderId) => {
         router.push(`/profile/my-order-rentals/${orderId}`)
     }
 
+    // Status badge style helper
     const getStatusBadge = (status) => {
         const lower = status?.toLowerCase()
         if (lower === 'completed' || lower === 'delivered') {
@@ -99,6 +105,7 @@ const CompletedOrders = ({ onTotalCountChange }) => {
         return 'bg-green-100 text-green-700 border-green-200'
     }
 
+    // Address formatter helper
     const formatAddress = (addr) => {
         if (!addr) return ''
         if (typeof addr === 'string') return addr
@@ -114,7 +121,7 @@ const CompletedOrders = ({ onTotalCountChange }) => {
 
     return (
         <div>
-            {/* ORDERS LIST */}
+            {/* Orders List */}
             <div className="mt-5 space-y-4">
                 {loading ? (
                     <div className="flex justify-center items-center py-20">
@@ -198,7 +205,7 @@ const CompletedOrders = ({ onTotalCountChange }) => {
                 )}
             </div>
 
-            {/* PAGINATION */}
+            {/* Pagination */}
             {totalCount > 0 && (
                 <div className="mt-6 flex justify-end">
                     <Pagination

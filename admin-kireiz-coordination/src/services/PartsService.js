@@ -14,13 +14,21 @@ export async function apiGetPartsList(
     page_size: pageSize,
   });
 
-  if (search) { params.append("search", search); }
+  if (search) {
+    params.append("search", search);
+  }
 
-  if (categoryId) { params.append("category_id", categoryId); }
+  if (categoryId) {
+    params.append("category_id", categoryId);
+  }
 
-  if (subcategoryId) {params.append("subcategory_id", subcategoryId);}
+  if (subcategoryId) {
+    params.append("subcategory_id", subcategoryId);
+  }
 
-  if (partId) { params.append("part_id", partId);}
+  if (partId) {
+    params.append("part_id", partId);
+  }
 
   return ApiService.fetchDataWithAxios({
     url: `/v1/uniformAdmin/parts/list/?${params.toString()}`,
@@ -61,6 +69,16 @@ export async function apiUpdatePart(accessToken, id, formData) {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "multipart/form-data",
+    },
+  });
+}
+
+export async function apiCreateDuplicateParts(accessToken, id) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/parts/${id}/duplicate/`,
+    method: "post",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 }

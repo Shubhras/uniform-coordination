@@ -118,20 +118,6 @@ const AddEditColorModal = ({
   // Reset / prefill form on open
   useEffect(() => {
     if (!isOpen) return;
-
-    // if (mode === "edit" && initialData) {
-
-    // Pre-select compatible fabrics
-    // if (initialData.compatibleFabric && Array.isArray(initialData.compatibleFabric)) {
-    //     const preSelected = initialData.compatibleFabric.map((f) => {
-    //         const match = fabricOptions.find((opt) => opt.value === f.id || opt.label === f.fabricName);
-    //         if (match) return match;
-    //         return { value: f.id, label: f.fabricName || String(f.id) };
-    //     });
-    //     setSelectedFabrics(preSelected);
-    // } else {
-    //     setSelectedFabrics([]);
-    // }
     if (mode === "edit" && initialData) {
       const preSelected =
         initialData.compatibleFabric?.map((fabric) => {
@@ -188,6 +174,18 @@ const AddEditColorModal = ({
           payload,
         );
 
+        if (!response.status) {
+          const errorMessage = Object.values(response.message || {}).flat()[0];
+
+          toast.push(
+            <Notification title="Error" type="danger">
+              {errorMessage}
+            </Notification>,
+          );
+
+          return;
+        }
+
         toast.push(
           <Notification title="Success" type="success">
             {response.message}
@@ -195,6 +193,18 @@ const AddEditColorModal = ({
         );
       } else {
         const response = await apiCreateColor(accessToken, payload);
+
+        if (!response.status) {
+          const errorMessage = Object.values(response.message || {}).flat()[0];
+
+          toast.push(
+            <Notification title="Error" type="danger">
+              {errorMessage}
+            </Notification>,
+          );
+
+          return;
+        }
 
         toast.push(
           <Notification title="Success" type="success">
@@ -244,13 +254,6 @@ const AddEditColorModal = ({
               <label className="text-[#1C2C56] text-sm font-medium">
                 Color Name<span className="text-red-500">*</span>
               </label>
-              {/* <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Enter color name"
-                            className="mt-1 w-full border border-[#E2E8F0] rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[#1C2C56]"
-                        /> */}
               <FormItem
                 invalid={Boolean(errors.name)}
                 errorMessage={errors.name?.message}
@@ -303,24 +306,10 @@ const AddEditColorModal = ({
               />
             </div>
 
-            {/* Compatible Fabrics — Static multi-select */}
             <div>
               <label className="text-[#1C2C56] text-sm font-medium">
                 Compatible Fabrics
               </label>
-              {/* <Select
-                            isMulti
-                            options={fabricOptions}
-                            value={selectedFabrics}
-                            onChange={setSelectedFabrics}
-                            styles={selectStyles}
-                            placeholder="Select compatible fabrics..."
-                            noOptionsMessage={() => "No fabrics found"}
-                            menuPortalTarget={typeof document !== "undefined" ? document.body : null}
-                            menuPosition="fixed"
-                            className="mt-1"
-                            closeMenuOnSelect={false}
-                        /> */}
               <FormItem
                 invalid={Boolean(errors.compatibleFabric)}
                 errorMessage={errors.compatibleFabric?.message}
@@ -365,7 +354,6 @@ const AddEditColorModal = ({
               variant="solid"
               size="sm"
               className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"
-              //   onClick={handleSave}
               loading={saving}
             >
               {mode === "edit" ? "Update" : "Save"}

@@ -7,14 +7,22 @@ import { useRouter } from "next/navigation";
 import { apiGetBrowseByThemeData } from "@/services/HomeService";
 import { apiGetCategories } from "@/services/CategoryService";
 
+/**
+ * ThemeCards Component
+ * 
+ * Renders a category-filterable grid of table design themes fetched from the API.
+ * Supports category tab filtering, loading indicators, empty states, and navigation to theme details.
+ */
 const ThemeCards = () => {
-  const [activeFilter, setActiveFilter] = useState("All");
   const [themeCards, setThemeCards] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  /**
+   * Effect hook to fetch themes filtered by the selected category ID.
+   */
   useEffect(() => {
     const fetchThemes = async () => {
       setLoading(true);
@@ -47,6 +55,9 @@ const ThemeCards = () => {
     fetchThemes();
   }, [selectedCategoryId]);
 
+  /**
+   * Effect hook to fetch categories list for filter pill buttons.
+   */
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -73,6 +84,11 @@ const ThemeCards = () => {
     fetchCategories();
   }, []);
 
+  /**
+   * Navigates to the theme detail and customization view.
+   * 
+   * @param {string|number} themeId - Unique ID of the theme card.
+   */
   const handleCustomizeClick = (themeId) => {
     router.push(`/theme-details?id=${themeId}`);
   };
@@ -81,22 +97,20 @@ const ThemeCards = () => {
 
   return (
     <section className="w-full bg-[#fffdfb] px-4 sm:px-6 md:px-8 lg:px-12">
-      {/* ================= FILTER SECTION ================= */}
+      {/* Category Filter Pills */}
       <div className="flex gap-3 flex-wrap items-center pt-6">
-        <h4 className="text-sm font-medium">Filters :</h4>
         <button
           onClick={() => setSelectedCategoryId("all")}
           className={`
-                        px-5 py-2
-                        rounded-full
-                        text-xs sm:text-sm font-medium
-                        transition
-                        ${
-                          selectedCategoryId === "all"
-                            ? "bg-[#A0614D] text-white shadow"
-                            : " text-[#6B7280] hover:bg-[#ead7c5]"
-                        }
-                    `}
+            px-5 py-2
+            rounded-full
+            text-xs sm:text-sm font-medium
+            transition
+            ${selectedCategoryId === "all"
+              ? "bg-[#A0614D] text-white shadow"
+              : " text-[#6B7280] hover:bg-[#ead7c5]"
+            }
+          `}
         >
           All
         </button>
@@ -105,34 +119,34 @@ const ThemeCards = () => {
             key={cat.id}
             onClick={() => setSelectedCategoryId(cat.id)}
             className={`
-                            px-5 py-2
-                            rounded-full
-                            text-xs sm:text-sm font-medium
-                            transition
-                            ${
-                              selectedCategoryId === cat.id
-                                ? "bg-[#A0614D] text-white shadow"
-                                : " text-[#6B7280] hover:bg-[#ead7c5]"
-                            }
-                        `}
+              px-5 py-2
+              rounded-full
+              text-xs sm:text-sm font-medium
+              transition
+              ${selectedCategoryId === cat.id
+                ? "bg-[#A0614D] text-white shadow"
+                : " text-[#6B7280] hover:bg-[#ead7c5]"
+              }
+            `}
           >
             {cat.categoryName || cat.title || cat.name || "Category"}
           </button>
         ))}
       </div>
 
-      {/* ================= DIVIDER ================= */}
       <div className="my-8 border-t-2 border-[#E5D5C8]" />
 
-      {/* ================= CARDS ================= */}
+      {/* Theme Cards Grid Section */}
       <div className="overflow-hidden pb-12">
         {loading ? (
+          /* Loading State Spinner */
           <section className="relative w-full bg-[#FBF8F6] mx-auto px-5 md:px-8 lg:px-12 mt-10">
             <div className="flex justify-center items-center py-20">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
             </div>
           </section>
         ) : filteredCards.length === 0 ? (
+          /* Empty State Fallback */
           <section className="relative w-full bg-[#FBF8F6] mx-auto px-5 md:px-8 lg:px-12 mt-10 mb-10 rounded-xl">
             <div className="flex flex-col justify-center items-center py-24 text-center">
               <h3 className="text-xl font-semibold text-[#3B3B3B] mb-2">
@@ -141,31 +155,31 @@ const ThemeCards = () => {
             </div>
           </section>
         ) : (
+          /* Cards Grid */
           <div className="grid gap-6 transition-transform duration-500 ease-in-out grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredCards.map((item) => (
               <div
                 key={item.id}
                 className="
-                            group
-                                relative
-                                overflow-hidden
-                                shadow-md
-                                cursor-pointer
-                                w-full
-                                p-3
-                                rounded-tl-4xl rounded-br-4xl
-                                bg-[#F5F0EE]
-                                border
-                                border-transparent
-                                hover:border-[#A0522D]
-                                transition
-                            "
+                  group
+                  relative
+                  overflow-hidden
+                  shadow-md
+                  cursor-pointer
+                  w-full
+                  p-3
+                  rounded-tl-4xl rounded-br-4xl
+                  bg-[#F5F0EE]
+                  border
+                  border-transparent
+                  hover:border-[#A0522D]
+                  transition
+                "
               >
-                {/* IMAGE */}
+                {/* Theme Image */}
                 <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl">
                   <Image
                     src={item.image || item.cardImage}
-                    // src="/img/table-form/themes/theme1.png"
                     alt={item.title || "Theme Image"}
                     fill
                     className="object-cover"
@@ -174,15 +188,16 @@ const ThemeCards = () => {
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%]">
                     <button
                       className="
-                                            w-full
-                                            py-2
-                                            border border-white
-                                            text-[14px]
-                                            font-medium
-                                            text-white
-                                            bg-[#A0614D]
-                                            rounded-lg
-                                        "
+                        w-full
+                        py-2
+                        border border-white
+                        text-[14px]
+                        font-medium
+                        text-white
+                        bg-[#A0614D]
+                        rounded-lg
+                        hover:bg-[#8B4513] transition
+                      "
                       onClick={() => handleCustomizeClick(item.id)}
                     >
                       View & Customize This Theme
@@ -191,10 +206,11 @@ const ThemeCards = () => {
                   <div className="absolute right-3 top-3">
                     <FaRegHeart
                       size={20}
-                      className="text-black group-hover:text-white transition"
+                      className="text-black group-hover:text-white transition cursor-pointer hover:text-red-500"
                     />
                   </div>
                 </div>
+                {/* Theme Details */}
                 <div className="p-4">
                   <h3 className="text-[#1C2C56] text-[18px] font-semibold">
                     {item.title}
@@ -213,3 +229,4 @@ const ThemeCards = () => {
 };
 
 export default ThemeCards;
+

@@ -26,7 +26,7 @@ const SignIn = ({
                             Welcome to KIREIZ FORM!
                         </h2>
                         <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
-                            Professional Uniforms & Event Styling
+                            Professional Uniform Design for Every Industry
                         </p>
                     </div>
                     {message && (
@@ -85,7 +85,7 @@ const SignIn = ({
                             Create an account
                         </ActionLink>
                     </div>
-                    {/* <div className="mt-4">
+                    <div className="mt-4">
                         <div className="flex items-center gap-5 mb-2">
                             <div className="border-t border-gray-200 dark:border-gray-800 flex-1 " />
                             <p className="text-base">
@@ -97,7 +97,7 @@ const SignIn = ({
                             setMessage={setMessage}
                             onOauthSignIn={onOauthSignIn}
                         />
-                    </div> */}
+                    </div>
                 </div>
             </Split>
         </>

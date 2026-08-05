@@ -8,6 +8,11 @@ import { CiCircleInfo } from 'react-icons/ci'
 import { FiBox, FiChevronDown, FiChevronLeft } from 'react-icons/fi'
 import { apiGetSindleThemeDetails } from '@/services/HomeService'
 
+/**
+ * ThemeDetails Component
+ * 
+ * Renders theme details view including image gallery preview, items included accordion breakdown, and customization CTA.
+ */
 const ThemeDetails = () => {
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -34,6 +39,9 @@ const ThemeDetails = () => {
     const themeIdParam = searchParams.get('themeId')
     const selectedThemeId = idParam || themeIdParam
 
+    /**
+     * Fetches single theme details from backend service.
+     */
     useEffect(() => {
         if (selectedThemeId) {
             const fetchSingleTheme = async () => {
@@ -81,6 +89,11 @@ const ThemeDetails = () => {
         0,
     ) : 0;
 
+    /**
+     * Toggles open/close state of an accordion section by index.
+     * 
+     * @param {number} index - Accordion section index.
+     */
     const toggleSection = (index) => {
         setOpenSections((prev) =>
             prev.includes(index)
@@ -89,6 +102,11 @@ const ThemeDetails = () => {
         )
     }
 
+    /**
+     * Scrolls gallery slider to specified image index.
+     * 
+     * @param {number} index - Image gallery index.
+     */
     const scrollToIndex = (index) => {
         if (!scrollRef.current) return
 
@@ -100,6 +118,9 @@ const ThemeDetails = () => {
         setActiveIndex(index)
     }
 
+    /**
+     * Updates active gallery index on scroll event.
+     */
     const handleScroll = () => {
         const element = scrollRef.current
         if (!element) return
@@ -108,8 +129,10 @@ const ThemeDetails = () => {
         setActiveIndex(index)
     }
 
+    /**
+     * Navigates to 3D canvas editor with selected theme ID.
+     */
     const handleCustomizeClick = () => {
-        // targetId is theme id
         const targetId = theme.id || selectedThemeId;
         router.push(`/dashboards/uniform-3d-design?themeId=${targetId}`,)
         ///router.push(`/dashboards/uniform-3d-design?themeId=${targetId}&id=${targetId}`,)
@@ -121,6 +144,7 @@ const ThemeDetails = () => {
         setOpenSections([0])
         scrollRef.current?.scrollTo({ left: 0 })
     }, [theme?.id])
+
 
     return (
         <section className="w-full mx-auto px-4 sm:px-5 md:px-8 lg:px-12 py-8 sm:py-10 mt-15">
@@ -315,14 +339,6 @@ const ThemeDetails = () => {
                             </span>
                             Final pricing varies based on your customization choices in the Canva.
                         </div>
-
-                        {/* <button
-                            type="button"
-                            onClick={handleCustomizeClick}
-                            className="w-full rounded-md bg-[#A0614D] text-white py-3 font-medium"
-                        >
-                            Customize in Canva
-                        </button> */}
                     </div>
                 </div>
             </div>
@@ -331,3 +347,4 @@ const ThemeDetails = () => {
 }
 
 export default ThemeDetails
+

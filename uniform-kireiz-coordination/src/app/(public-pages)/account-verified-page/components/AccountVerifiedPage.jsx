@@ -8,6 +8,15 @@ import HaederPage from "../../header/HaederPage";
 import { verifyEmail } from "@/services/AuthService";
 import { useState, useEffect } from "react";
 import Spinner from "@/components/ui/Spinner";
+
+/**
+ * AccountVerifiedPage Component
+ *
+ * Verifies the user's email using the user_id from the URL query params
+ * and displays a success screen with options to go to the dashboard
+ * or start designing a uniform. Shows a loading spinner while verification
+ * is in progress.
+ */
 const AccountVerifiedPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -17,6 +26,10 @@ const AccountVerifiedPage = () => {
 
     const [loading, setLoading] = useState(true);
 
+     /**
+     * Calls the verify email API using the user_id from query params
+     * and updates the loading state once the request completes.
+     */
     const verifyUserEmail = async () => {
         try {
             if (!userId) {
@@ -30,7 +43,6 @@ const AccountVerifiedPage = () => {
             });
 
             if (res?.status || res?.data?.success) {
-                //router.push("/account-verified-page")
             }
         } catch (error) {
             console.error("Email verification failed", error);
@@ -41,18 +53,13 @@ const AccountVerifiedPage = () => {
 
     useEffect(() => {
         verifyUserEmail();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId]);
 
     return (
         <>
             <HaederPage />
-            {/* FIXED OVERLAY TO BLOCK CLICKS */}
             <div className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center px-4">
-                {/* CARD */}
                 <div className="bg-white rounded-xl px-10 py-12 text-center shadow-lg w-full max-w-2xl relative">
-
-                    {/* LOGO + BRAND */}
                     <div className="flex items-center gap-3 mb-10">
                         <Image
                             src="/img/logo/uniform-nav-logo.png"
@@ -60,7 +67,6 @@ const AccountVerifiedPage = () => {
                             width={60}
                             height={60}
                         />
-                        {/* TITLE */}
                         <h2 className="text-xl font-semibold text-[#012D53]">
                             Welcome User!
                         </h2>
@@ -72,14 +78,11 @@ const AccountVerifiedPage = () => {
                         </div>
                     ) : (
                         <>
-                            {/* VERIFIED MESSAGE */}
                             <div className="mx-auto flex items-center justify-center text-[#25455F] text-2xl font-semibold text-center mb-10">
                                 <span className="inline-flex items-center gap-2">
                                     Your account has been successfully verified <HiBadgeCheck size={30} className="text-[#1C2C56]" />
                                 </span>
                             </div>
-
-                            {/* ACTION BUTTONS */}
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                                 <Button
                                     variant="solid"

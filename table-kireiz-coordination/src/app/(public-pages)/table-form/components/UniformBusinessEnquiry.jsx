@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { LuPalette, LuRocket } from "react-icons/lu";
 import { FaArrowTrendUp } from "react-icons/fa6";
 import { FiDollarSign } from "react-icons/fi";
+
 const bottomCards = [
   {
     img: "/img/table-form/themes/theme1.png",
@@ -23,34 +24,16 @@ const bottomCards = [
     title: "Classy Corporate",
     desc: "Modern natural tones with sophisticated greenery",
   },
-  {
-    img: "/img/table-form/themes/theme1.png",
-    title: "Warm Elegance",
-    desc: "Romantic whites and ivories for your special day",
-  },
-  {
-    img: "/img/table-form/themes/theme2.png",
-    title: "Olive Chic",
-    desc: "Modern natural tones with sophisticated greenery",
-  },
-  {
-    img: "/img/table-form/themes/theme3.png",
-    title: "Classy Corporate",
-    desc: "Modern natural tones with sophisticated greenery",
-  },
-  {
-    img: "/img/table-form/themes/theme1.png",
-    title: "Warm Elegance",
-    desc: "Romantic whites and ivories for your special day",
-  },
-  {
-    img: "/img/table-form/themes/theme2.png",
-    title: "Olive Chic",
-    desc: "Modern natural tones with sophisticated greenery",
-  },
-
 ];
 
+/**
+ * UniformBusinessEnquiry Component
+ * 
+ * Features showcase section detailing space coordination advantages and responsive slider for table themes.
+ * 
+ * @param {Object} props
+ * @param {Array} [props.tableThemes=[]] - Array of theme objects.
+ */
 const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
   const [cardsPerView, setCardsPerView] = useState(3);
   const router = useRouter();
@@ -67,11 +50,6 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-
-      // if (width >= 1440) setCardsPerView(3);
-      // else if (width >= 1024) setCardsPerView(2);
-      // // else if (width >= 600) setCardsPerView(1);
-      // else setCardsPerView(1); // ✅ REQUIRED
 
       if (width >= 1440) {
         setCardsPerView(4);      // xl / large desktop
@@ -93,54 +71,37 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-
-
-  // const handleNext = () => {
-  //   setIndex((prev) =>
-  //     prev + 3 >= bottomCards.length ? 0 : prev + 1
-  //   );
-  // };
-
-  // const handlePrev = () => {
-  //   setIndex((prev) =>
-  //     prev === 0 ? bottomCards.length - 3 : prev - 1
-  //   );
-  // };
+  /**
+   * Navigates theme carousel forward.
+   */
   const handleNext = () => {
     setIndex((prev) =>
-      prev + cardsPerView >= bottomCards.length ? 0 : prev + 1
+      prev + cardsPerView >= (cards.length || bottomCards.length) ? 0 : prev + 1
     );
   };
 
+  /**
+   * Navigates theme carousel backward.
+   */
   const handlePrev = () => {
     setIndex((prev) =>
-      prev === 0 ? bottomCards.length - cardsPerView : prev - 1
+      prev === 0 ? Math.max(0, (cards.length || bottomCards.length) - cardsPerView) : prev - 1
     );
   };
+
+  /**
+   * Redirects to Browse by Theme catalog.
+   */
   const handleThemeClick = () => {
     router.push("/browse-by-theme");
   };
+
   return (
     <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12">
-
-      {/* TITLE */}
       <h2 className="text-center text-3xl font-semibold text-[#402936] pt-14">
         Why Choose KIREIZ SPACE
       </h2>
-
-      {/* TOP FEATURE CARDS */}
-
-      <div
-        className="
-    mt-10
-    grid 
-    gap-4 sm:gap-5 md:gap-6 lg:gap-8 xl:gap-10
-    grid-cols-1
-    sm:grid-cols-2
-    md:grid-cols-3
-    lg:grid-cols-4
-  "
-      >
+      <div className="mt-10 grid gap-4 sm:gap-5 md:gap-6 lg:gap-8 xl:gap-10 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {[
           {
             icon: LuPalette,
@@ -168,23 +129,12 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
           return (
             <div
               key={i}
-              className="
-          bg-[#E8B4A924]
-          rounded-xl
-          shadow-sm
-          px-4 py-5
-          text-left
-          hover:shadow-md
-          transition
-        "
+              className="bg-[#E8B4A924] rounded-xl shadow-sm px-4 py-5 text-left hover:shadow-md transition"
             >
-              {/* ICON */}
               <Icon
                 size={30}
                 className="mb-3 text-[#A0522D]"
               />
-
-              {/* TEXT */}
               <p className="text-black font-semibold text-sm">
                 {item.title}
               </p>
@@ -195,31 +145,16 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
           );
         })}
       </div>
-      {/* Divider */}
       <div className="w-full h-px bg-gray-300 my-14" />
       <h2 className="text-center text-3xl font-semibold text-[#402936]">
         Explore Our Table Themes
       </h2>
       <div className="flex justify-end gap-3 mt-6 mr-6">
-        {/* <button
-            onClick={handlePrev}
-            className="h-10 w-10 border rounded-full flex items-center justify-center hover:bg-gray-100"
-          >
-            <FiArrowLeft size={30} className="text-lg text-gray-600" />
-          </button>
-          <button
-            onClick={handleNext}
-            className="h-10 w-10 border rounded-full flex items-center justify-center hover:bg-gray-100"
-          >
-            <FiArrowRight className="text-lg text-gray-600" />
-          </button> */}
         <FiArrowLeft onClick={handlePrev} size={25} className="text-lg cursor-pointer text-[#5D4A4A]" />
         <FiArrowRight onClick={handleNext} size={25} className="text-lg text-[#5D4A4A] ml-8 cursor-pointer" />
       </div>
-
-      {/* INDUSTRY SLIDER */}
-      <div className="mt-6 overflow-hidden pb-12 ">
-        <div className="flex gap-6 transition-transform duration-500 ease-in-out justify-center ">
+      <div className="mt-6 overflow-hidden pb-12">
+        <div className="flex gap-6 transition-transform duration-500 ease-in-out justify-center">
           {cards
             .slice(index, index + cardsPerView)
             .map((item, i) => (
@@ -230,8 +165,7 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
                   maxWidth: `calc(${100 / cardsPerView}% - ${((cardsPerView - 1) * 24) / cardsPerView}px)`,
                 }}
               >
-                {/* IMAGE */}
-                <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl ">
+                <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl">
                   <Image
                     src={item.img || "/img/table-form/themes/theme1.png"}
                     alt={item.title || "Category Image"}
@@ -240,43 +174,30 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
                     priority={i === 0}
                     unoptimized
                   />
-
-                  {/* OVERLAY BUTTON */}
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%]">
                     <button
-                      className="w-full py-3 border border-white text-lg font-medium text-white
-          group-hover:text-black
-          bg-[#A0522D]
-          rounded-xl
-          cursor-pointer
-          group-hover:bg-[#FEF3C7]
-          transition-all
-          duration-200
-        "
+                      className="w-full py-3 border border-white text-lg font-medium text-white group-hover:text-black bg-[#A0522D] rounded-xl cursor-pointer group-hover:bg-[#FEF3C7] transition-all duration-200"
                       onClick={handleThemeClick}
                     >
                       Try This Theme
                     </button>
                   </div>
                 </div>
-
-                {/* TEXT (UNCHANGED DATA) */}
-                <div className="p-4 ">
+                <div className="p-4">
                   <h3 className="text-[#1C2C56] group-hover:text-white text-[18px] font-semibold">
                     {item.title}
                   </h3>
-                  <p className="text-[#6B7280] group-hover:text-white text-[14px] mt-2 leading-tight">
+                  <p className="text-[#6B7280] group-hover:text-white text-[14px] mt-2 leading-tight line-clamp-2">
                     {item.desc}
                   </p>
                 </div>
               </div>
-
             ))}
         </div>
       </div>
-
     </section>
   );
 };
 
 export default UniformBusinessEnquiry;
+

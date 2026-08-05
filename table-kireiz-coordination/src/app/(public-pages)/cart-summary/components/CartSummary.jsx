@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { FiShoppingCart, FiTrash2 } from "react-icons/fi"
@@ -13,26 +15,35 @@ import {
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 
+/**
+ * CartSummary Component
+ * 
+ * Manages active user cart items, quantity adjustments, item deletions,
+ * and order price breakdown calculations with checkout navigation.
+ */
 const CartSummary = () => {
     const { data: session } = useSession()
     const router = useRouter()
     const [currentPage, setCurrentPage] = useState(1)
     const [pageSize, setPageSize] = useState(100)
-    /* ---------------- CART LIST ---------------- */
+
+    /* Cart Items State */
     const [cartItems, setCartItems] = useState([])
     const [cartLoading, setCartLoading] = useState(false)
     const [cartError, setCartError] = useState(null)
 
-    /* ---------------- CART SUMMARY ---------------- */
+    /* Cart Summary Totals State */
     const [cartSummary, setCartSummary] = useState(null)
     const [summaryLoading, setSummaryLoading] = useState(false)
     const [summaryError, setSummaryError] = useState(null)
     const [cartId, setCartId] = useState(null)
-    /* ---------------- UPDATE STATES ---------------- */
-    const [updatingItemId, setUpdatingItemId] = useState(null)
-    const debounceTimers = useRef({})
 
-    /* ---------------- FETCH CART LIST ---------------- */
+    /* Item Update States */
+    const [updatingItemId, setUpdatingItemId] = useState(null)
+
+    /**
+     * Fetches current user cart items list from the CartSummary API.
+     */
     const fetchCartList = async () => {
         try {
             if (!session?.accessToken) return
@@ -46,7 +57,6 @@ const CartSummary = () => {
             if (res?.results?.length > 0) {
                 setCartId(res.results[0]?.cart?.id)
             }
-
         } catch {
             setCartError("Failed to load cart items")
         } finally {
@@ -54,7 +64,11 @@ const CartSummary = () => {
         }
     }
 
-    /* ---------------- FETCH CART SUMMARY ---------------- */
+    /**
+     * Fetches current order summary details (subtotal, shipping, tax, grand total).
+     * 
+     * @param {boolean} [isSilent=false] - If true, suppresses the main summary loading spinner.
+     */
     const fetchCartSummary = async (isSilent = false) => {
         try {
             if (!session?.accessToken) return
@@ -68,12 +82,16 @@ const CartSummary = () => {
         }
     }
 
-    /* ---------------- API HANDLER ---------------- */
+    /**
+     * Updates item quantity or removes item if quantity reaches 0.
+     * 
+     * @param {string|number} itemId - ID of the cart item.
+     * @param {number} qty - Quantity delta (+1, -1) or 0 for deletion.
+     */
     const updateItemQuantity = async (itemId, qty) => {
         try {
             setUpdatingItemId(String(itemId))
             if (qty === -1 || qty === 1) {
-                console.log("itemId", itemId, qty)
                 await apiUpdateItemQuantity(session.accessToken, itemId, qty)
                 toast.push(<Notification title="Success!" type="success">Quantity updated successfully</Notification>);
             } else {
@@ -90,33 +108,41 @@ const CartSummary = () => {
         }
     }
 
+    /**
+     * Increases the quantity of a cart item by 1.
+     * 
+     * @param {number} index - Index of the item in the cartItems array.
+     */
     const increaseQty = (index) => {
         const item = cartItems[index]
         if (!item || updatingItemId || summaryLoading) return;
-
         updateItemQuantity(item.id, 1)
     }
 
+    /**
+     * Decreases the quantity of a cart item or removes it if current quantity is 1.
+     * 
+     * @param {number} index - Index of the item in the cartItems array.
+     */
     const decreaseQty = (index) => {
         const item = cartItems[index]
         if (!item || updatingItemId || summaryLoading) return;
 
         if (item.quantity <= 1) {
-            // Send 0 to trigger the delete (else block)
             updateItemQuantity(item.id, 0)
         } else {
-            // Send -1 to decrease
             updateItemQuantity(item.id, -1)
         }
     }
 
+    /**
+     * Navigates to the delivery information checkout step.
+     */
     const handleProceed = () => {
         const targetCartId = cartId
-        //console.log("targetCartId", targetCartId)
         router.push(`/delivery-information/${targetCartId}`)
     }
 
-    /* ---------------- EFFECT ---------------- */
     useEffect(() => {
         if (session?.accessToken) {
             fetchCartList()
@@ -129,7 +155,7 @@ const CartSummary = () => {
             <div className="py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-6">
 
-                    {/* LEFT CART */}
+                    {/* Left Panel: Cart Items List */}
                     <div className="bg-[#FBF4F3] rounded-xl p-5 min-h-[300px] flex flex-col justify-between">
                         <div>
                             <h2 className="text-xl font-medium mb-6">
@@ -137,15 +163,18 @@ const CartSummary = () => {
                             </h2>
 
                             {cartLoading ? (
+                                /* Loading Spinner */
                                 <div className="flex justify-center items-center py-20">
                                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B4513]"></div>
                                 </div>
                             ) : cartItems.length === 0 ? (
+                                /* Empty Cart View */
                                 <div className="flex flex-col items-center justify-center py-20">
                                     <FiShoppingCart size={64} className="text-gray-400 mb-4" />
                                     <p className="text-gray-600">Your cart is empty</p>
                                 </div>
                             ) : (
+                                /* Cart Item Row List */
                                 cartItems.map((item, i) => (
                                     <div key={item.id} className="flex gap-4 bg-white rounded-lg p-4 mb-4">
                                         <div className="relative w-40 h-28 rounded-md overflow-hidden shrink-0">
@@ -163,7 +192,7 @@ const CartSummary = () => {
                                                 {item?.product_name}
                                             </h4>
                                             <p className="text-sm text-gray-500 mb-2 line-clamp-1">
-                                                Descriptio: {item?.product_description || "-"}
+                                                Description: {item?.product_description || "-"}
                                             </p>
 
                                             <div className="space-y-1 mt-1">
@@ -215,11 +244,11 @@ const CartSummary = () => {
                             )}
                         </div>
 
-                        {/* ACTION BUTTONS */}
+                        {/* Cart Action Buttons */}
                         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
                             <button
                                 type="button"
-                                className="px-8 py-3 rounded-md bg-[#8B4513] text-white"
+                                className="px-8 py-3 rounded-md bg-[#8B4513] text-white hover:bg-[#72380f] transition font-medium"
                                 onClick={() => router.push("/table-form")}
                             >
                                 Continue Shopping
@@ -228,7 +257,7 @@ const CartSummary = () => {
                             {cartItems.length > 0 && (
                                 <button
                                     type="button"
-                                    className="px-12 py-3 rounded-md bg-[#8B4513] text-white"
+                                    className="px-12 py-3 rounded-md bg-[#8B4513] text-white hover:bg-[#72380f] transition font-medium"
                                     onClick={handleProceed}
                                 >
                                     Proceed
@@ -237,7 +266,7 @@ const CartSummary = () => {
                         </div>
                     </div>
 
-                    {/* RIGHT SUMMARY */}
+                    {/* Right Panel: Order Summary Breakdown */}
                     <div className="bg-white rounded-xl p-6 h-fit shadow-sm border border-gray-100">
                         <h3 className="text-[22px] font-medium border-b border-[#E9E9E9] pb-4 mb-4">
                             Order Summary
@@ -307,8 +336,9 @@ const CartSummary = () => {
                     </div>
                 </div>
             </div>
-        </section >
+        </section>
     )
 }
 
 export default CartSummary
+

@@ -3,7 +3,7 @@ import ThemeDetailsHome from './components/ThemeDetailsHome'
 
 const Page = () => {
     return (
-        <div><ThemeDetailsHome /></div>
+        <ThemeDetailsHome />
     )
 }
 

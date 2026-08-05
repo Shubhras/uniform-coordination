@@ -6,7 +6,12 @@ import { useEffect, useState } from "react";
 import { apiGetBlogs } from "@/services/BlogService";
 import { formatISODate as formatDate } from "@/utils/formatDate";
 
-/* helpers (same usage as before) */
+/**
+ * Truncates text to a specified maximum word count.
+ * 
+ * @param {string} text - The input string to trim.
+ * @param {number} [wordLimit=10] - Maximum word limit.
+ */
 const trimText = (text, wordLimit = 10) => {
     if (!text) return "";
     const words = text.split(" ");
@@ -15,17 +20,27 @@ const trimText = (text, wordLimit = 10) => {
         : text;
 };
 
+/**
+ * BlogSection - Fetches and displays a grid of blog posts.
+ */
 const BlogSection = () => {
     const router = useRouter();
 
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    /**
+     * Handles navigation to single blog detail page.
+     * 
+     * @param {string|number} id - Blog post ID.
+     */
     const handleClick = (id) => {
-        console.log("click")
         router.push(`/single-blog/${id}`);
     };
 
+    /**
+     * Fetches blog list data from the service.
+     */
     useEffect(() => {
         const fetchBlogs = async () => {
             try {
@@ -53,10 +68,11 @@ const BlogSection = () => {
     }, []);
 
     return (
-        <section className=" w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
-            <div className=" rounded-3xl py-10 md:py-8">
+        <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+            <div className="rounded-3xl py-10 md:py-8">
+                {/* Section Header */}
                 <div className="text-center mb-10">
-                    <h2 className=" lg:text-4xl text-3xl font-semibold">
+                    <h2 className="lg:text-4xl text-3xl font-semibold">
                         Blog
                     </h2>
                     <div className="w-24 h-1 rounded-full bg-[#E8B4A9] mx-auto mt-2" />
@@ -64,16 +80,21 @@ const BlogSection = () => {
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
                     </p>
                 </div>
-                <h2 className="mb-5 lg:text-4xl text-3xl font-semibold ">
+
+                <h2 className="mb-5 lg:text-4xl text-3xl font-semibold">
                     Our Latest Blog Posts
                 </h2>
-                {loading ? <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
-                    <div className="flex justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
-                    </div>
-                </section> : null}
 
-                {/* Cards */}
+                {/* Loading State Spinner */}
+                {loading ? (
+                    <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+                        <div className="flex justify-center items-center py-20">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
+                        </div>
+                    </section>
+                ) : null}
+
+                {/* Blog Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     {blogs.map((post) => (
                         <div
@@ -95,11 +116,9 @@ const BlogSection = () => {
                                 <p className="text-xs text-gray-500">
                                     {post.date} &nbsp;&nbsp; {post.category}
                                 </p>
-
                                 <h3 className="font-semibold text-[#1C2C56] text-base mt-8 leading-snug">
                                     {trimText(post.title, 10)}
                                 </h3>
-
                                 <p className="text-sm text-gray-600 leading-relaxed">
                                     {trimText(post.desc, 15)}
                                 </p>
@@ -108,7 +127,7 @@ const BlogSection = () => {
                     ))}
                 </div>
 
-                {/* Empty state */}
+                {/* Empty State Fallback */}
                 {!loading && blogs.length === 0 && (
                     <p className="text-center text-gray-500 mt-10">
                         No blogs available
@@ -120,4 +139,5 @@ const BlogSection = () => {
 };
 
 export default BlogSection;
+
 

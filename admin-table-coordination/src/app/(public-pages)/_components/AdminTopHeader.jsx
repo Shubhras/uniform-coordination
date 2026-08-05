@@ -7,6 +7,7 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import signOut from "@/server/actions/auth/handleSignOut";
 import { apiLogout } from "@/services/AuthService";
 import NotificationPopup from "./NotificationPopup";
+import LanguageSelector from "@/components/template/LanguageSelector";
 import {
   FiBell,
   FiGlobe,
@@ -17,7 +18,7 @@ import {
   FiMenu,
   FiLock,
 } from "react-icons/fi";
-import India from "../../../assets/indaimages.jpeg";
+import USA from "../../../assets/USAflag.jpeg";
 import Japan from "../../../assets/japanflag.png";
 
 const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
@@ -30,7 +31,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
   const [selectedLanguage, setSelectedLanguage] = useState({
     name: "English",
     code: "EN",
-    flag: India,
+    flag: USA,
   });
 
   const languageRef = useRef(null);
@@ -71,7 +72,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
     }
   };
 
-  const userName = session?.user?.name || "Admin";
+  const userName = session?.user?.role || "Admin";
   const userEmail = session?.user?.email || "";
 
   return (
@@ -86,7 +87,6 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
                 ${sidebarCollapsed ? "lg:left-[72px]" : "lg:left-[250px]"}
             `}
     >
-      {/* Left: Mobile hamburger */}
       <button
         onClick={onMobileMenuToggle}
         className="lg:hidden text-[#64748B] hover:text-[#1C2C56] p-2 rounded-lg hover:bg-[#F1F5F9] transition-colors"
@@ -95,90 +95,10 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
         <FiMenu size={22} />
       </button>
 
-      {/* Spacer for desktop */}
       <div className="hidden lg:block" />
 
-      {/* Right Side Actions */}
-      <div className="flex items-center gap-4 md:gap-5">
-        {/* Language Selector */}
-        {/* <button className="flex items-center gap-1.5 text-[#64748B] hover:text-[#1C2C56] transition-colors">
-                    <FiGlobe size={18} />
-                    <span className="text-sm font-medium hidden sm:inline">EN</span>
-                </button> */}
-        {/* Language Selector */}
-        <div className="relative" ref={languageRef}>
-          <button
-            onClick={() => {
-              setLanguageOpen(!languageOpen);
-              setNotifOpen(false);
-              setDropdownOpen(false);
-            }}
-            className={`flex items-center gap-1.5 px-2 py-2 rounded-lg transition-colors
-            ${languageOpen
-                ? "bg-[#F1F5F9] text-[#4A3A3A]"
-                : "text-[#64748B] hover:text-[#4A3A3A] hover:bg-[#DFA296]"
-              }`}
-          >
-            <FiGlobe size={18} className="text-[#4A3A3A]"/>
-
-
-            <span className="text-sm font-medium hidden sm:inline text-[#4A3A3A]">
-              {selectedLanguage.code}
-            </span>
-            <FiChevronDown
-              size={14}
-              className={`transition-transform text-[#4A3A3A]  ${languageOpen ? "rotate-180" : ""
-                }`}
-            />
-          </button>
-
-          {languageOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white rounded-l shadow-lg border border-[#E2E8F0] py-2 z-50">
-              <button
-                onClick={() => {
-                  setSelectedLanguage({
-                    name: "English",
-                    code: "EN",
-                    flag: India,
-                  });
-                  setLanguageOpen(false);
-                }}
-                className="w-full px-4 py-2 text-left text-sm hover:bg-[#F8FAFC] flex items-center gap-3"
-              >
-                <Image
-                  src={India}
-                  alt="English"
-                  width={20}
-                  height={20}
-                  className="rounded-full object-cover"
-                />
-                <span>English</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setSelectedLanguage({
-                    name: "Japanese",
-                    code: "JP",
-                    flag: Japan,
-                  });
-                  setLanguageOpen(false);
-                }}
-                className="w-full px-4 py-2 text-left text-sm hover:bg-[#F8FAFC] flex items-center gap-3"
-              >
-                <Image
-                  src={Japan}
-                  alt="Japanese"
-                  width={20}
-                  height={20}
-                  className="rounded-full object-cover"
-                />
-                <span>Japanese</span>
-              </button>
-            </div>
-          )}
-        </div>
-
+      <div className="flex items-center gap-4 md:gap-3">
+        <LanguageSelector className="flex items-center gap-2 h-10 px-3 hover:bg-[#DFA296] rounded-lg transition-colors duration-200" />
         {/* Notification Bell */}
         <div className="relative" ref={notifRef}>
           <button
@@ -186,8 +106,9 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
               setNotifOpen(!notifOpen);
               setDropdownOpen(false);
             }}
-            className={`relative bg-white transition-colors p-2 rounded-full ${notifOpen ? "bg-[#F1F5F9] text-[#1C2C56]" : ""
-              }`}
+            className={`relative bg-white transition-colors p-2 rounded-full ${
+              notifOpen ? "bg-[#F1F5F9] text-[#1C2C56]" : ""
+            }`}
           >
             <FiBell className="text-[#4A3A3A]" size={20} />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />

@@ -3,7 +3,9 @@ import BrowseByThemeHome from './components/BrowseByThemeHome'
 
 const Page = () => {
     return (
-        <div><BrowseByThemeHome /></div>
+        <div>
+            <BrowseByThemeHome />
+        </div>
     )
 }
 

@@ -6,13 +6,19 @@ import FooterPage from '../../footer/FooterPage'
 import HaederPage from '../../header/HaederPage'
 import CartSummary from './CartSummary'
 
-
+/**
+ * CartSummaryHome Component
+ * 
+ * Main container component for the shopping cart summary view.
+ * Manages theme mode state (Light/Dark) and integrates Header, CartSummary, and Footer.
+ */
 const CartSummaryHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
-    const schema = useTheme((state) => state.themeSchema)
-    const setSchema = useTheme((state) => state.setSchema)
 
+    /**
+     * Toggles between Light and Dark mode themes.
+     */
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }
@@ -27,3 +33,4 @@ const CartSummaryHome = () => {
 }
 
 export default CartSummaryHome
+

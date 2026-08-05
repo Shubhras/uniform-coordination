@@ -3,7 +3,9 @@ import CartSummaryHome from './components/CartSummaryHome'
 
 const Page = () => {
     return (
-        <div><CartSummaryHome /></div>
+        <div>
+            <CartSummaryHome />
+        </div>
     )
 }
 

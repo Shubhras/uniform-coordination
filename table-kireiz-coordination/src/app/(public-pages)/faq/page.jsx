@@ -3,7 +3,7 @@ import FaqHome from './components/FaqHome'
 
 const Page = () => {
     return (
-        <div><FaqHome /></div>
+        <FaqHome />
     )
 }
 

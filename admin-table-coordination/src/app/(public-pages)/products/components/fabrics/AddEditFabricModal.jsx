@@ -314,6 +314,19 @@ const AddEditFabricModal = ({
         );
       } else {
         const response = await apiCreateFabric(accessToken, payload);
+
+        if (!response.status) {
+          const errorMessage = Object.values(response.message || {}).flat()[0];
+
+          toast.push(
+            <Notification title="Error" type="danger">
+              {errorMessage}
+            </Notification>,
+          );
+
+          return;
+        }
+
         toast.push(
           <Notification title="Success" type="success">
             {response.message}
@@ -321,9 +334,11 @@ const AddEditFabricModal = ({
         );
       }
 
-      if (onSaveSuccess) {
-        onSaveSuccess();
-      }
+      // if (onSaveSuccess) {
+      //   onSaveSuccess();
+      // }
+      onSaveSuccess?.();
+      onClose();
     } catch (err) {
       console.error("Fabric save error:", err);
       setError(
@@ -462,6 +477,7 @@ const AddEditFabricModal = ({
                 {colors.map((color) => (
                   <button
                     key={color}
+                    type="button"
                     onClick={() => setSelectedColor(color)}
                     className={`w-6 h-6 rounded border-[0.5px] ${selectedColor === color ? "ring-2 ring-[#1C2C56] ring-offset-1" : ""}`}
                     style={{ backgroundColor: color }}

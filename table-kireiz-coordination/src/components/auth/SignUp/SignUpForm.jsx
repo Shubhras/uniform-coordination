@@ -23,9 +23,14 @@ const validationSchema = z.object({
     .string({ required_error: "Please enter your email" })
     .min(1, "Please enter your email")
     .email({ message: "Please enter a valid email address" }),
+  // password: z
+  //   .string({ required_error: "Password Required" })
+  //   .min(1, "Password Required"),
   password: z
-    .string({ required_error: "Password Required" })
-    .min(1, "Password Required"),
+    .string({ required_error: "Please enter your Password" })
+    .min(1, "Please enter your Password")
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[^A-Za-z0-9]/, "Must include a symbol"),
 });
 
 const SignUpForm = (props) => {

@@ -1,30 +1,5 @@
 import ApiService from "./ApiService";
 
-// export async function apiSignUp(data) {
-//     console.log(data)
-//     return ApiService.fetchDataWithAxios({
-//         url: '/auth/sign-up',
-//         method: 'post',
-//         data,
-//     })
-// }
-
-// export async function apiForgotPassword(data) {
-//     return ApiService.fetchDataWithAxios({
-//         url: '/auth/forgot-password',
-//         method: 'post',
-//         data,
-//     })
-// }
-
-// export async function apiResetPassword(data) {
-//     return ApiService.fetchDataWithAxios({
-//         url: '/auth/reset-password',
-//         method: 'post',
-//         data,
-//     })
-// }
-
 export async function apiSignUp(data) {
   const payload = {
     ...data,
@@ -37,13 +12,17 @@ export async function apiSignUp(data) {
   });
 }
 
+/**
+ * Authenticates user credentials and returns session tokens.
+ * 
+ * @param {Object} data - Login credentials payload containing email and password.
+ * @returns {Promise<Object>} API response containing authentication token and user info.
+ */
 export async function apiLogin(data) {
   const payload = {
     ...data,
     userType: "table",
   };
-
-  console.log("Login payload:", payload);
 
   return ApiService.fetchDataWithAxios({
     url: "/v1/space/userhub/login/",
@@ -52,6 +31,12 @@ export async function apiLogin(data) {
   });
 }
 
+/**
+ * Triggers forgot password email recovery request.
+ * 
+ * @param {Object} data - Password recovery payload containing user email.
+ * @returns {Promise<Object>} API response confirming recovery email dispatch.
+ */
 export async function apiForgotPassword(data) {
   const payload = {
     ...data,
@@ -64,11 +49,15 @@ export async function apiForgotPassword(data) {
   });
 }
 
+/**
+ * Resets user password using reset token and new password credentials.
+ * 
+ * @param {Object} data - Payload containing reset token and new password.
+ * @returns {Promise<Object>} API response confirming password reset success.
+ */
 export async function apiResetPassword(data) {
   const payload = {
     ...data,
-    // userId: id,
-    // userType: "table",
   };
 
   return ApiService.fetchDataWithAxios({
@@ -78,11 +67,17 @@ export async function apiResetPassword(data) {
   });
 }
 
-
+/**
+ * Verifies user email verification token.
+ * 
+ * @param {Object} data - Email verification token payload.
+ * @returns {Promise<Object>} API response with verification status.
+ */
 export async function verifyEmail(data) {
-    return ApiService.fetchDataWithAxios({
-        url: '/v1/space/userhub/verify-user/',
-        method: 'post',
-        data,
-    })
+  return ApiService.fetchDataWithAxios({
+    url: '/v1/space/userhub/verify-user/',
+    method: 'post',
+    data,
+  });
 }
+

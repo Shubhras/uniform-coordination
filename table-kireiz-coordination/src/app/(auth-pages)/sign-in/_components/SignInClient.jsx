@@ -11,17 +11,6 @@ const SignInClient = () => {
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get(REDIRECT_URL_KEY)
 
-    // const handleSignIn = ({ values, setSubmitting, setMessage }) => {
-    //     setSubmitting(true)
-
-    //     onSignInWithCredentials(values, callbackUrl || '').then((data) => {
-    //         if (data?.error) {
-    //             setMessage(data.error)
-    //             setSubmitting(false)
-    //         }
-    //     })
-    // }
-
     const router = useRouter()
     const handleSignIn = async ({ values, setSubmitting, setMessage }) => {
         try {

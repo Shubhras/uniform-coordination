@@ -13,23 +13,6 @@ const ResetPasswordClient = () => {
     // const token = searchParams.get('token')
 
     const userId = searchParams.get('user_id')
-    // console.log(userId)
-
-    // const handleResetPassword = async (payload) => {
-    //     const { values, setSubmitting, setMessage, setResetComplete } = payload
-    //     try {
-    //         setSubmitting(true)
-    //         await apiResetPassword({
-    //             ...values,
-    //             token: token,
-    //         })
-    //         setResetComplete?.(true)
-    //     } catch (error) {
-    //         setMessage(error)
-    //     } finally {
-    //         setSubmitting(false)
-    //     }
-    // }
 
     const handleResetPassword = async (payload) => {
         const { values, setSubmitting, setMessage, setResetComplete } = payload
