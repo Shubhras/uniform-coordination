@@ -17,6 +17,12 @@ const navMenu = [
   { title: `FAQ's`, value: "faq", url: "/faq" },
 ];
 
+/**
+ * HeaderPage Component.
+ * Main application navigation header containing brand logo, menu links, user session status, and mobile drawer.
+ *
+ * @returns {JSX.Element} Global application top navigation bar.
+ */
 const HeaderPage = () => {
   const { session } = useCurrentSession();
   const [isOpen, setIsOpen] = useState(false);

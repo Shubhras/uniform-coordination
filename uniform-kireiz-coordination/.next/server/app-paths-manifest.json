@@ -1,7 +1,11 @@
 {
+  "/(public-pages)/kireiz-form/page": "app/(public-pages)/kireiz-form/page.js",
   "/(public-pages)/medical-form/[id]/page": "app/(public-pages)/medical-form/[id]/page.js",
-  "/(public-pages)/blog/page": "app/(public-pages)/blog/page.js",
-  "/(public-pages)/faq/page": "app/(public-pages)/faq/page.js",
+  "/page": "app/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(public-pages)/private-policy/page": "app/(public-pages)/private-policy/page.js",
+  "/(public-pages)/terms-and-condition/page": "app/(public-pages)/terms-and-condition/page.js",
+  "/(protected-pages)/profile/my-profile/page": "app/(protected-pages)/profile/my-profile/page.js",
   "/(protected-pages)/profile/personal-information/page": "app/(protected-pages)/profile/personal-information/page.js",
-  "/(protected-pages)/profile/my-profile/page": "app/(protected-pages)/profile/my-profile/page.js"
+  "/(auth-pages)/sign-in/page": "app/(auth-pages)/sign-in/page.js"
 }
