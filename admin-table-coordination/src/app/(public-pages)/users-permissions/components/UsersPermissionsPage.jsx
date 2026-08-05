@@ -22,6 +22,7 @@ const typeOptions = [
   { value: "all", label: "All Types" },
   { value: "b2c", label: "B2C" },
   { value: "b2b", label: "B2B" },
+  { value: "user", label: "User" },
 ];
 
 const statusOptions = [
@@ -51,6 +52,10 @@ const getDisplayName = (user) =>
 const getDisplayEmail = (user) => user?.email || user?.user_email || "-";
 
 const getDisplayStatus = (user) => {
+  if (typeof user?.isActive === "boolean") {
+    return user.isActive ? "Active" : "Inactive";
+  }
+
   if (typeof user?.status === "boolean") {
     return user.status ? "Active" : "Inactive";
   }
@@ -459,7 +464,7 @@ const UsersPermissionsPage = () => {
               <thead className="bg-[#F1F5F9] text-[#486284]">
                 <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
                   <th className="text-left px-4 py-3">Full Name</th>
-                  <th className="text-left px-4 py-3">User Type</th>
+                  <th className="text-left px-4 py-3">Role</th>
                   <th className="text-left px-4 py-3">Email</th>
                   <th className="text-left px-4 py-3">Registration Date</th>
                   <th className="text-left px-4 py-3">Status</th>
@@ -477,7 +482,6 @@ const UsersPermissionsPage = () => {
                   </tr>
                 ) : (
                   users.map((user) => {
-                    const isActive = user.isActive;
                     const canViewUser = Boolean(user.id);
 
                     return (
@@ -490,13 +494,15 @@ const UsersPermissionsPage = () => {
                         </td>
                         <td className="px-4 py-3">
                           <span
-                            className={`rounded px-2 py-0.5 text-[9px] font-medium ${
-                              user.userType === "B2C"
+                            className={`rounded px-3 py-1 text-[12px] font-medium ${
+                              user.role === "b2c"
                                 ? "bg-[#EAF4FF] text-[#4B93D4]"
-                                : "bg-[#FFF0E8] text-[#C58A62]"
+                                : user.role === "b2b"
+                                  ? "bg-[#FFF0E8] text-[#C58A62]"
+                                  : "bg-[#F3F4F6] text-[#6B7280]"
                             }`}
                           >
-                            {user.userType}
+                            {user.role?.toUpperCase()}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-[#4A3D36]">
@@ -507,18 +513,18 @@ const UsersPermissionsPage = () => {
                         </td>
                         <td className="px-4 py-3">
                           <span
-                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${
-                              isActive
+                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-medium ${
+                              user.isActive
                                 ? "bg-[#E8FAF2] text-[#007A55]"
                                 : "bg-[#FFE9E8] text-[#F04444]"
                             }`}
                           >
                             <span
                               className={`h-1.5 w-1.5 rounded-full ${
-                                isActive ? "bg-[#007A55]" : "bg-[#F04444]"
+                                user.isActive ? "bg-[#007A55]" : "bg-[#F04444]"
                               }`}
                             />
-                            {user.statusLabel}
+                            {user.isActive ? "Active" : "Inactive"}
                           </span>
                         </td>
                         <td className="px-4 py-3">
