@@ -1,1 +1,4 @@
-{}
+{
+  "/(protected-pages)/profile/my-profile/page": "app/(protected-pages)/profile/my-profile/page.js",
+  "/(protected-pages)/profile/my-quotations/page": "app/(protected-pages)/profile/my-quotations/page.js"
+}
