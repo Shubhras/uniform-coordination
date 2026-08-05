@@ -1,5 +1,318 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { FiSave, FiLock } from "react-icons/fi";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
+import {
+  apiGeneralSettingList,
+  apiUpdateSystemSettings,
+} from "@/services/SystemSettings";
+
+/*
+ * DESIGN NOTE — no Figma for this tab.
+ *
+ * Scope is deliberately limited to how notification emails *present* and *route*.
+ * SMTP host, port and credentials are NOT editable here: they are secrets and
+ * belong in environment configuration, not a form any admin can open.
+ *
+ * The toggles map to the notifications KIREIZ FORM actually sends today —
+ * registration confirmation, request received, and quotation status changes —
+ * plus the internal alert to admins on a new request.
+ */
+
+const SENDER_FIELDS = [
+  {
+    name: "email_sender_name",
+    label: "Sender Name",
+    type: "text",
+    maxLength: 150,
+    placeholder: "KIREIZ FORM",
+    hint: "Shown as the From name on outgoing email.",
+  },
+  {
+    name: "email_sender_address",
+    label: "Sender Address",
+    type: "email",
+    placeholder: "no-reply@example.com",
+  },
+  {
+    name: "email_reply_to",
+    label: "Reply-To Address",
+    type: "email",
+    placeholder: "sales@example.com",
+    hint: "Where customer replies land.",
+  },
+];
+
+const TOGGLES = [
+  {
+    name: "notify_admin_on_new_request",
+    label: "New quotation request (to admin)",
+    hint: "Alerts the addresses below when a customer submits a request.",
+  },
+  {
+    name: "notify_customer_on_registration",
+    label: "Registration confirmation (to customer)",
+  },
+  {
+    name: "notify_customer_on_request_received",
+    label: "Request received confirmation (to customer)",
+  },
+  {
+    name: "notify_customer_on_status_change",
+    label: "Quotation status change (to customer)",
+    hint: "Sent as a request moves through Received → Quoting → Submitted → Agreed/Declined.",
+  },
+];
+
+const notify = (title, type, message) =>
+  toast.push(
+    <Notification title={title} type={type}>
+      {message}
+    </Notification>,
+  );
+
 const EmailNotifications = () => {
-  return <div className="mt-5 min-h-[320px]" />;
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
+  const [form, setForm] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    if (!accessToken) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await apiGeneralSettingList(accessToken);
+      const d = res?.data;
+      if (d) {
+        setForm({
+          email_sender_name: d.email_sender_name || "",
+          email_sender_address: d.email_sender_address || "",
+          email_reply_to: d.email_reply_to || "",
+          email_footer_note: d.email_footer_note || "",
+          admin_notification_emails: d.admin_notification_emails || "",
+          notify_admin_on_new_request: !!d.notify_admin_on_new_request,
+          notify_customer_on_registration: !!d.notify_customer_on_registration,
+          notify_customer_on_request_received:
+            !!d.notify_customer_on_request_received,
+          notify_customer_on_status_change:
+            !!d.notify_customer_on_status_change,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to load email settings:", error);
+      notify("Error", "danger", "Could not load email settings");
+    } finally {
+      setLoading(false);
+    }
+  }, [accessToken]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const change = (e) => {
+    const { name, type, value, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSave = async () => {
+    if (saving || !form) return;
+
+    // Basic sanity check on the recipient list before sending it on.
+    const invalid = (form.admin_notification_emails || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .filter((address) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address));
+
+    if (invalid.length) {
+      notify(
+        "Invalid email",
+        "warning",
+        `Not a valid address: ${invalid.join(", ")}`,
+      );
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const res = await apiUpdateSystemSettings(accessToken, form);
+      // This endpoint replies with `success`, not `status`.
+      if (res?.success) {
+        notify("Success", "success", "Email settings saved");
+      } else {
+        notify("Error", "danger", res?.message || "Could not save settings");
+      }
+    } catch (error) {
+      console.error("Failed to save email settings:", error);
+      notify(
+        "Error",
+        "danger",
+        error?.response?.data?.message || "Could not save settings",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading || !form) {
+    return (
+      <div className="mt-5 border border-[#E2E8F0] rounded-xl p-6 animate-pulse">
+        <div className="h-4 w-48 bg-gray-200 rounded" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-11 bg-gray-100 rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-5 space-y-5">
+      {/* Sender identity */}
+      <div className="border border-[#E2E8F0] rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-[#1C2C56]">
+          Sender Identity
+        </h2>
+        <p className="text-sm text-[#64748B] mt-1">
+          How outgoing notification emails appear to recipients.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          {SENDER_FIELDS.map((field) => (
+            <div key={field.name}>
+              <label className="block text-sm font-medium text-[#1C2C56] mb-2">
+                {field.label}
+              </label>
+              <input
+                type={field.type}
+                name={field.name}
+                value={form[field.name]}
+                onChange={change}
+                maxLength={field.maxLength}
+                placeholder={field.placeholder}
+                className="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]/30"
+              />
+              {field.hint && (
+                <p className="text-xs text-[#94A3B8] mt-1">{field.hint}</p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-5">
+          <label className="block text-sm font-medium text-[#1C2C56] mb-2">
+            Email Footer / Signature
+          </label>
+          <textarea
+            name="email_footer_note"
+            value={form.email_footer_note}
+            onChange={change}
+            rows={3}
+            placeholder="Appended to the bottom of notification emails."
+            className="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]/30"
+          />
+        </div>
+
+        {/* Why SMTP creds aren't here */}
+        <div className="flex gap-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg p-4 mt-5">
+          <FiLock className="text-[#64748B] mt-0.5 flex-shrink-0" size={15} />
+          <p className="text-xs text-[#64748B]">
+            SMTP host, port and password are not editable here by design — they
+            are credentials and stay in server environment configuration.
+          </p>
+        </div>
+      </div>
+
+      {/* Notification routing */}
+      <div className="border border-[#E2E8F0] rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-[#1C2C56]">
+          Notifications
+        </h2>
+        <p className="text-sm text-[#64748B] mt-1">
+          Choose which emails the system sends.
+        </p>
+
+        <div className="mt-6 space-y-1">
+          {TOGGLES.map((toggle) => (
+            <label
+              key={toggle.name}
+              className="flex items-start gap-3 py-3 border-b border-[#F1F5F9] last:border-0 cursor-pointer"
+            >
+              <input
+                type="checkbox"
+                name={toggle.name}
+                checked={form[toggle.name]}
+                onChange={change}
+                className="w-4 h-4 mt-0.5 accent-[#1C4FA8] flex-shrink-0"
+              />
+              <span>
+                <span className="block text-sm text-[#1C2C56]">
+                  {toggle.label}
+                </span>
+                {toggle.hint && (
+                  <span className="block text-xs text-[#94A3B8] mt-0.5">
+                    {toggle.hint}
+                  </span>
+                )}
+              </span>
+            </label>
+          ))}
+        </div>
+
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-[#1C2C56] mb-2">
+            Admin Notification Recipients
+          </label>
+          <input
+            type="text"
+            name="admin_notification_emails"
+            value={form.admin_notification_emails}
+            onChange={change}
+            placeholder="admin@example.com, sales@example.com"
+            className="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]/30"
+          />
+          <p className="text-xs text-[#94A3B8] mt-1">
+            Comma-separated. Used for the internal alerts above.
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 mt-8">
+          <button
+            type="button"
+            onClick={load}
+            disabled={saving}
+            className="border border-[#CBD5E1] text-[#486284] px-4 py-2 rounded-lg text-sm disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2 bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+          >
+            <FiSave size={15} />
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default EmailNotifications;

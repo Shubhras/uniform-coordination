@@ -1708,12 +1708,99 @@ class AdminNotificationDeleteAPIView(APIView):
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# ---------------- Dashboard Active Alerts ----------------
+# Thresholds in days. Tune these to match the agreed SLA.
+ALERT_REVIEW_SLA_DAYS = 3         # a pending quote older than this is an overdue review
+ALERT_CUSTOMER_FOLLOWUP_DAYS = 3  # a sent quote untouched this long needs a follow-up
+
+
+def compute_active_alerts():
+    """
+    Build the dashboard Active Alerts from live quotation data.
+
+    Each alert carries a `fingerprint` of its own counts. That is what read-state is
+    stored against (see DashboardAlertRead) — so marking an alert read hides exactly
+    the state that was seen, and any change in the numbers brings it back.
+
+    Only alerts with a non-zero count are returned, so an empty pipeline yields an
+    empty list rather than zeroed-out placeholders.
+    """
+    now_dt = now()
+    review_cutoff = now_dt - timedelta(days=ALERT_REVIEW_SLA_DAYS)
+    followup_cutoff = now_dt - timedelta(days=ALERT_CUSTOMER_FOLLOWUP_DAYS)
+
+    pending_review_total = QuotationRequest.objects.filter(
+        isDeleted=False, quotation_status="pending"
+    ).count()
+
+    overdue_review = QuotationRequest.objects.filter(
+        isDeleted=False,
+        quotation_status="pending",
+        created_at__lt=review_cutoff,
+    ).count()
+
+    # updated_at, not created_at: it tracks when the quote was last actioned
+    # (i.e. when it was sent), which is what a follow-up is timed from.
+    awaiting_customer = QuotationRequest.objects.filter(
+        isDeleted=False,
+        quotation_status="sent",
+        updated_at__lt=followup_cutoff,
+    ).count()
+
+    alerts = []
+
+    if pending_review_total:
+        message = f"{pending_review_total} quotes pending review"
+        if overdue_review:
+            message += f" - {overdue_review} overdue"
+        alerts.append({
+            "type": "pending_review",
+            "level": "HIGH" if overdue_review else "MEDIUM",
+            "message": message,
+            "action": "Review Now",
+            "icon": "alert" if overdue_review else "clock",
+            "color": "text-red-500" if overdue_review else "text-orange-500",
+            "count": pending_review_total,
+            "overdue_count": overdue_review,
+            "fingerprint": f"{pending_review_total}:{overdue_review}",
+        })
+
+    if awaiting_customer:
+        alerts.append({
+            "type": "awaiting_customer",
+            "level": "MEDIUM",
+            "message": f"{awaiting_customer} Quotation request - Contact customers required",
+            "action": "View Details",
+            "icon": "clock",
+            "color": "text-orange-500",
+            "count": awaiting_customer,
+            "overdue_count": 0,
+            "fingerprint": f"{awaiting_customer}:0",
+        })
+
+    return alerts
+
+
+def filter_read_alerts(alerts, admin_user):
+    """Drop alerts this admin has already marked read at their current fingerprint."""
+    if not alerts or admin_user is None:
+        return alerts
+
+    read_map = dict(
+        DashboardAlertRead.objects
+        .filter(admin=admin_user, alert_type__in=[a["type"] for a in alerts])
+        .values_list("alert_type", "fingerprint")
+    )
+    return [a for a in alerts if read_map.get(a["type"]) != a["fingerprint"]]
+
+
 class AdminDashAPIView(APIView):
     # permission_classes = [IsAdministrator]
-    # permission_classes  =[IsAuthenticated]   #need to remove after take clone 
-    
+    # permission_classes  =[IsAuthenticated]   #need to remove after take clone
+
     authentication_classes = [IsAdminUserJWT]
-    
+
+
     @extend_schema(
     tags=["Admin Dashboard"],
     summary="Admin dashboard analytics",
@@ -1738,6 +1825,8 @@ class AdminDashAPIView(APIView):
                             "Pending_Sales_Representation_Action": {"type": "object"},
                             "most_used_fabrics": {"type": "array"},
                             "Recently_update_product_color_part": {"type": "array"},
+                            "active_alerts": {"type": "array"},
+                            "alert_count": {"type": "integer"},
                         }
                     }
                 }
@@ -1959,7 +2048,11 @@ class AdminDashAPIView(APIView):
                     "count": item["count"],
                 }
                 for item in category_usage_qs
-            ]         
+            ]
+
+            # Active Alerts — computed live, then filtered by this admin's read-state
+            active_alerts = filter_read_alerts(compute_active_alerts(), request.user)
+
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -1975,6 +2068,10 @@ class AdminDashAPIView(APIView):
                     # "Pending_Sales_Representation_Action": pending_sales_rep_action,
                     "most_used_fabrics": most_used_fabrics,
                     "Recently_update_product_color_part": recent_updates,
+                    # snake_case here deliberately: ActiveAlerts.jsx reads
+                    # data.active_alerts / data.alert_count
+                    "active_alerts": active_alerts,
+                    "alert_count": len(active_alerts),
                 }
             }, status=status.HTTP_200_OK)
         except Exception as e:
@@ -1982,6 +2079,50 @@ class AdminDashAPIView(APIView):
                 "status": False,
                 "statusCode": 500,
                 "message": "Failed to fetch dashboard data",
+                "error": str(e),
+                "trace": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class DashboardAlertMarkReadAPIView(APIView):
+    """Mark the current dashboard Active Alerts as read for the logged-in admin."""
+
+    authentication_classes = [IsAdminUserJWT]
+
+    @extend_schema(
+        tags=["Admin Dashboard"],
+        summary="Mark dashboard Active Alerts as read",
+        description=(
+            "Marks every currently-raised Active Alert as read for the authenticated "
+            "admin. Read-state is stored per admin against the alert's current counts, "
+            "so an alert reappears once those counts change."
+        ),
+        request=None,
+        responses={200: OpenApiResponse(description="Alerts marked as read")},
+    )
+    def post(self, request):
+        try:
+            # Recompute server-side rather than trusting counts from the client.
+            alerts = compute_active_alerts()
+
+            for alert in alerts:
+                DashboardAlertRead.objects.update_or_create(
+                    admin=request.user,
+                    alert_type=alert["type"],
+                    defaults={"fingerprint": alert["fingerprint"]},
+                )
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Alerts marked as read",
+                "data": {"marked": len(alerts)},
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Failed to mark alerts as read",
                 "error": str(e),
                 "trace": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

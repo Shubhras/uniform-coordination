@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useMenuPermissions } from "@/components/shared/MenuPermissionProvider";
 import Image from "next/image";
 import {
   FiGrid,
@@ -59,19 +60,19 @@ const sidebarMenu = [
     label: "Reports & Analytics",
     icon: FiBarChart2,
     path: "/reports-analytics",
-    slug: "pdf_simulation_configuration",
+    slug: "reports_analytics",
   },
   {
     label: "System Settings",
     icon: FiSliders,
     path: "/system-settings",
-    slug: "product_specification",
+    slug: "system_settings",
   },
   {
     label: "Quotation Requests",
     icon: FiFileText,
     path: "/quotation-requests",
-    slug: "product_specification",
+    slug: "quotation_requests",
   },
 ];
 
@@ -79,7 +80,9 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
-  const userPermissions = session?.user?.permissions || [];
+  // Provider seeds from the JWT then refreshes from my-permissions/, so an admin
+  // editing permissions no longer has to log out for the sidebar to update.
+  const { canView } = useMenuPermissions();
 
   const isActive = (path) => {
     if (path === "/admin-form") {
@@ -154,8 +157,9 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3">
         <ul className="space-y-1">
           {sidebarMenu.map((item) => {
-            // Permission check: item ka slug permissions array me nahi hai, toh render mat karo
-            if (item.slug && !userPermissions.includes(item.slug)) {
+            // Hide sections this role cannot view. MenuRouteGuard enforces the
+            // same rule for direct URL access.
+            if (!canView(item.slug)) {
               return null;
             }
 

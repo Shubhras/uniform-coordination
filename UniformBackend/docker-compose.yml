@@ -11,7 +11,7 @@ services:
       MYSQL_PASSWORD: uniformpass
 
     ports:
-      - "127.0.0.1:3307:3306"
+      - "127.0.0.1:3309:3306"
 
     volumes:
       - mysql_data:/var/lib/mysql
@@ -28,7 +28,6 @@ services:
       dockerfile: Dockerfile
 
     container_name: uniform-backend
-
     restart: unless-stopped
 
     depends_on:
@@ -58,7 +57,6 @@ services:
 
     ports:
       - "8005:8005"
-  
 
   adminer:
     image: adminer:latest
@@ -74,7 +72,6 @@ services:
 
     environment:
       ADMINER_DEFAULT_SERVER: mysql
-
 
 volumes:
   mysql_data:

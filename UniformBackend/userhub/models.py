@@ -472,6 +472,24 @@ class QuotationRequest(models.Model):
     agreed_user_agent = models.TextField(null=True, blank=True)
     workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default="REQUESTED")
     quotation_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+
+    # --- Admin-entered quotation figures ---
+    # Per spec, quotations are prepared manually by the admin and the system does
+    # no price calculation, so these are entered by hand rather than derived from
+    # unit prices. Nullable because a freshly-submitted request has none yet.
+    valid_until = models.DateField(null=True, blank=True)
+    sales_rep = models.ForeignKey(
+        "uniformAdmin.AdminUser",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_quotations",
+    )
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    discount_percent = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    total = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    # Set when the quote is emailed to the customer, so "sent proposals" is real.
+    last_sent_at = models.DateTimeField(null=True, blank=True)
     
     external_document_id = models.CharField(max_length=255, null=True, blank=True)
     signed_pdf = models.FileField(upload_to='signed_pdfs/', null=True, blank=True)

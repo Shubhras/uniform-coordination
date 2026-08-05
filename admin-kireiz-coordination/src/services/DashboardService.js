@@ -9,3 +9,13 @@ export async function apiGetDashboard(accessToken) {
         },
     })
 }
+
+export async function apiMarkDashboardAlertsRead(accessToken) {
+    return ApiService.fetchDataWithAxios({
+        url: '/v1/uniformAdmin/dashboard/alerts/mark-read/',
+        method: 'post',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    })
+}

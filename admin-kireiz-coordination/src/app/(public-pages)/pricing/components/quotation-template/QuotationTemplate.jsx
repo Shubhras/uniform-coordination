@@ -1,75 +1,137 @@
 "use client";
 
-import { useState } from "react";
-import { FiPlus } from "react-icons/fi";
-import RichTextEditor from "@/components/shared/RichTextEditor"; // apne path ke according change kr lena
-import Button from "@/components/ui/Button";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FiSave, FiRotateCcw } from "react-icons/fi";
+import RichTextEditor from "@/components/shared/RichTextEditor";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
+import {
+  apiGetActiveQuotationTemplate,
+  apiSaveActiveQuotationTemplate,
+} from "@/services/PdfTemplateService";
 
-// const variables = [
-//   "{CLIENT_NAME}",
-//   "{DATE}",
-//   "{FABRIC}",
-//   "{VALID_DATE}",
-//   "{QUANTITY}",
-//   "{PRICE}",
-//   "{SUBTOTAL}",
-//   "{DISCOUNT}",
-//   "{TOTAL}",
-// ];
+// Sample values used only to render the live preview, so the admin sees what a
+// real quotation will look like instead of raw {PLACEHOLDER} tokens.
+const PREVIEW_SAMPLE = {
+  QUOTATION_ID: "Q-2024-001",
+  DATE: "04/12/2025",
+  VALID_DATE: "18/12/2025",
+  CLIENT_NAME: "John Doe",
+  COMPANY_NAME: "Acme Industries",
+  COMPANY_ADDRESS: "1-2-3 Shibuya, Tokyo",
+  FABRIC: "Premium Cotton 400TC",
+  ITEM_TYPE: "Chef Jacket",
+  QUANTITY: "150 meters",
+  PRICE: "$12.50",
+  SUBTOTAL: "$1,875.00",
+  DISCOUNT: "-$187.50",
+  TOTAL: "$1,687.50",
+};
+
+const VARIABLES = Object.keys(PREVIEW_SAMPLE).map((key) => `{${key}}`);
+
+const notify = (title, type, message) =>
+  toast.push(
+    <Notification title={title} type={type}>
+      {message}
+    </Notification>,
+  );
 
 const QuotationTemplate = () => {
-  const [editorData, setEditorData] = useState({
-    html: "",
-    text: "",
-    json: null,
-  });
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
 
-  const preview = `
-<h2>QUOTATION #Q-2024-001</h2>
+  const [content, setContent] = useState("");
+  // Remount key for the editor — RichTextEditor only picks up `content` on init,
+  // so loading or resetting needs a fresh instance.
+  const [editorKey, setEditorKey] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
-<p><strong>Date:</strong> 04/12/2025</p>
-<p><strong>Valid until:</strong> 18/12/2025</p>
+  const loadTemplate = useCallback(async () => {
+    if (!accessToken) {
+      setLoading(false);
+      return;
+    }
 
-<br/>
+    try {
+      setLoading(true);
+      const res = await apiGetActiveQuotationTemplate(accessToken);
+      if (res?.status && res.data) {
+        setContent(res.data.content || "");
+        setEditorKey((k) => k + 1);
+      }
+    } catch (error) {
+      console.error("Failed to load quotation template:", error);
+      notify("Error", "danger", "Could not load the quotation template");
+    } finally {
+      setLoading(false);
+    }
+  }, [accessToken]);
 
-<p>Dear John Doe,</p>
+  useEffect(() => {
+    loadTemplate();
+  }, [loadTemplate]);
 
-<p>
-Thank you for your interest in our products. Based on your requirements,
-we are pleased to offer the following quotation:
-</p>
+  // Live preview: substitute the sample values into whatever is in the editor.
+  const preview = useMemo(
+    () =>
+      Object.entries(PREVIEW_SAMPLE).reduce(
+        (html, [key, value]) => html.split(`{${key}}`).join(value),
+        content || "",
+      ),
+    [content],
+  );
 
-<p>
-Item: Premium Cotton 400TC<br/>
-Quantity: 150 meters<br/>
-Unit Price: $12.50
-</p>
+  const handleSave = async () => {
+    if (saving || !content.trim()) {
+      if (!content.trim()) {
+        notify("Required", "warning", "Template content cannot be empty");
+      }
+      return;
+    }
 
-<hr/>
+    try {
+      setSaving(true);
+      const res = await apiSaveActiveQuotationTemplate(accessToken, { content });
+      if (res?.status) {
+        notify("Success", "success", "Quotation template saved");
+      } else {
+        notify("Error", "danger", res?.message || "Could not save template");
+      }
+    } catch (error) {
+      console.error("Failed to save quotation template:", error);
+      notify("Error", "danger", "Could not save the template");
+    } finally {
+      setSaving(false);
+    }
+  };
 
-<p>
-Subtotal: $1,875.00<br/>
-Discount: -$187.50
-</p>
+  const handleResetDefault = async () => {
+    if (resetting) return;
 
-<hr/>
+    try {
+      setResetting(true);
+      const res = await apiSaveActiveQuotationTemplate(accessToken, {
+        reset: true,
+      });
+      if (res?.status && res.data) {
+        setContent(res.data.content || "");
+        setEditorKey((k) => k + 1);
+        notify("Success", "success", "Template reset to default");
+      } else {
+        notify("Error", "danger", res?.message || "Could not reset template");
+      }
+    } catch (error) {
+      console.error("Failed to reset quotation template:", error);
+      notify("Error", "danger", "Could not reset the template");
+    } finally {
+      setResetting(false);
+    }
+  };
 
-<p><strong>TOTAL: $1,687.50</strong></p>
-
-<br/>
-
-<p><strong>Terms & Conditions:</strong></p>
-
-<ol>
-<li>50% advance payment required.</li>
-<li>Delivery within 14 days of confirmation.</li>
-</ol>
-
-<br/>
-
-<p>Sincerely,</p>
-<p>Sales Team</p>
-`;
   return (
     <div className="p-6">
       {/* Header */}
@@ -87,51 +149,76 @@ Discount: -$187.50
         <div className="flex gap-3">
           <button
             type="button"
-            className="border border-gray-300 text-[#91A1B6] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50"
+            onClick={handleResetDefault}
+            disabled={loading || resetting}
+            className="border border-gray-300 text-[#91A1B6] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 disabled:opacity-50 flex items-center gap-2"
           >
-            Reset Default
+            <FiRotateCcw size={15} />
+            {resetting ? "Resetting..." : "Reset Default"}
           </button>
 
           <button
             type="button"
-            className="bg-[#1C4FA8] text-[#FFFFFF] px-3 py-2 rounded-md text-sm fw-500 flex items-center gap-2"
+            onClick={handleSave}
+            disabled={loading || saving}
+            className="bg-[#1C4FA8] text-[#FFFFFF] px-3 py-2 rounded-md text-sm fw-500 flex items-center gap-2 disabled:opacity-50"
           >
-            <FiPlus size={16} /> Save Template
+            <FiSave size={16} /> {saving ? "Saving..." : "Save Template"}
           </button>
         </div>
       </div>
 
       {/* Body */}
-      <div className="grid grid-cols-2 gap-6">
-        {/* LEFT */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* LEFT — editor */}
         <div className="border rounded-xl bg-white overflow-hidden">
-          {/* <div className="px-4 py-2 border-b flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-gray-500 mr-2">Variables:</span>
+          <div className="px-4 py-2 border-b flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-gray-500 mr-1">Variables:</span>
 
-            {variables.map((item) => (
+            {VARIABLES.map((item) => (
               <button
                 key={item}
+                type="button"
+                title="Copy to clipboard"
+                onClick={() => {
+                  navigator.clipboard?.writeText(item);
+                  notify("Copied", "info", `${item} copied to clipboard`);
+                }}
                 className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
               >
                 {item}
               </button>
             ))}
-          </div> */}
+          </div>
 
-          <RichTextEditor
-            content=""
-            onChange={(value) => setEditorData(value)}
-            editorContentClass="min-h-[650px]"
-          />
+          {loading ? (
+            <div className="p-4 min-h-[650px]">
+              <div className="h-4 w-40 bg-gray-200 rounded animate-pulse" />
+              <div className="h-[560px] w-full bg-gray-100 rounded mt-4 animate-pulse" />
+            </div>
+          ) : (
+            <RichTextEditor
+              key={editorKey}
+              content={content}
+              onChange={(value) => setContent(value.html)}
+              editorContentClass="min-h-[650px]"
+            />
+          )}
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT — live preview with sample data */}
         <div className="bg-[#E5E7EB] rounded-xl p-6">
           <div className="bg-white rounded-lg shadow-sm mx-auto max-w-[550px] min-h-[650px] p-5">
-            <div
-              className="prose max-w-none"
-              dangerouslySetInnerHTML={{ __html: preview }}
-            />
+            {content?.trim() ? (
+              <div
+                className="prose max-w-none"
+                dangerouslySetInnerHTML={{ __html: preview }}
+              />
+            ) : (
+              <p className="text-sm text-gray-400 text-center mt-20">
+                Start typing on the left to see a preview here.
+              </p>
+            )}
           </div>
         </div>
       </div>
