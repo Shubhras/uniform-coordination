@@ -8,12 +8,21 @@ import HaederPage from '../../../header/HaederPage'
 import FooterPage from '../../../footer/FooterPage'
 import ChatbotSection from '../../../chatbot-section/ChatbotSection'
 
+/**
+ * SingleBlogHome Component.
+ * Main container for individual blog post detail page view.
+ *
+ * @returns {JSX.Element} Single blog post container layout.
+ */
 const SingleBlogHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
     const schema = useTheme((state) => state.themeSchema)
     const setSchema = useTheme((state) => state.setSchema)
 
+    /**
+     * Toggles between Light and Dark mode themes.
+     */
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }

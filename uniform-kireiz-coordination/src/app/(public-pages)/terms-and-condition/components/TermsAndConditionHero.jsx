@@ -2,12 +2,22 @@
 import { apiPrivatePolicy } from '@/services/privatePolicyService'
 import React, { useEffect, useState } from 'react'
 
+/**
+ * TermsAndConditionsContent Component.
+ * Dynamically fetches and displays legal Terms and Conditions content from API.
+ *
+ * @returns {JSX.Element} Terms and conditions content view section.
+ */
 const TermsAndConditionsContent = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
     const [termsConditions, setTermsConditions] = useState(null)
 
-
+    /**
+     * Fetches Terms & Conditions document payload by policy type string.
+     *
+     * @param {string} policyType - Type identifier for policy ("terms_and_conditions").
+     */
     const fetchPrivatePolicy = async (policyType) => {
         try {
             setLoading(true)
@@ -47,10 +57,6 @@ const TermsAndConditionsContent = () => {
 
                 {!loading && termsConditions && (
                     <>
-                        {/* <h1 className="text-3xl md:text-3xl font-semibold text-[#1C2C56]">
-                            {termsConditions.title}
-                        </h1> */}
-
                         <p className="text-sm text-gray-500">
                             Version {termsConditions.version}
                         </p>

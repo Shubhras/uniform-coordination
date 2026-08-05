@@ -3,9 +3,23 @@ import SignUp from '@/components/auth/SignUp'
 import { apiSignUp } from '@/services/AuthService'
 import { useRouter } from 'next/navigation'
 
+/**
+ * SignUpClient Component.
+ * Handles user sign-up registration API call and redirects to email verification.
+ *
+ * @returns {JSX.Element} Rendered SignUp component.
+ */
 const SignUpClient = () => {
     const router = useRouter()
 
+    /**
+     * Submits user registration payload to API.
+     *
+     * @param {Object} params - Form submission parameters.
+     * @param {Object} params.values - Registration form values.
+     * @param {Function} params.setSubmitting - State updater function for submitting state.
+     * @param {Function} params.setMessage - State updater function for displaying error message.
+     */
     const handlSignUp = async ({ values, setSubmitting, setMessage }) => {
         try {
             setSubmitting(true)

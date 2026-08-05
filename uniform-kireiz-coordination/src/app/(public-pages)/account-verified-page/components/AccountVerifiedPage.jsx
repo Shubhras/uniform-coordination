@@ -58,8 +58,12 @@ const AccountVerifiedPage = () => {
     return (
         <>
             <HaederPage />
+            {/* Modal overlay to block clicks during verification */}
             <div className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center px-4">
+                {/* Verification Status Card */}
                 <div className="bg-white rounded-xl px-10 py-12 text-center shadow-lg w-full max-w-2xl relative">
+                    
+                    {/* Logo & Greeting */}
                     <div className="flex items-center gap-3 mb-10">
                         <Image
                             src="/img/logo/uniform-nav-logo.png"
@@ -72,17 +76,21 @@ const AccountVerifiedPage = () => {
                         </h2>
                     </div>
                     {loading ? (
+                        /* Loading Spinner State */
                         <div className="flex flex-col items-center justify-center py-10 gap-4">
                             <Spinner size={40} customColorClass="text-[#1C2C56]" />
                             <span className="text-[#1C2C56] text-lg font-medium">Verifying your account, please wait...</span>
                         </div>
                     ) : (
+                        /* Verification Success State */
                         <>
                             <div className="mx-auto flex items-center justify-center text-[#25455F] text-2xl font-semibold text-center mb-10">
                                 <span className="inline-flex items-center gap-2">
                                     Your account has been successfully verified <HiBadgeCheck size={30} className="text-[#1C2C56]" />
                                 </span>
                             </div>
+
+                            {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                                 <Button
                                     variant="solid"
