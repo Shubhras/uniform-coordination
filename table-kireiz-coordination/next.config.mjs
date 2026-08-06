@@ -11,7 +11,6 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     transpilePackages: ['three', '@react-three/drei', '@react-three/fiber'],
-    basePath: '/table',
     env: {
         NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
         NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
