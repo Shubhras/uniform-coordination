@@ -581,7 +581,7 @@ class Product(models.Model):
     description = models.TextField(blank=True, null=True)
     productType = models.CharField(max_length=20,choices=productType,default='table' ,blank=True, null=True)
     type = models.CharField(max_length=30, choices=type_CHOICES, default="set")
-    theme = models.ForeignKey(TableTheme,on_delete=models.SET_NULL,null=True,blank=True,related_name="products")
+    # theme = models.ForeignKey(TableTheme,on_delete=models.SET_NULL,null=True,blank=True,related_name="products")
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,related_name="product_category")
     subcategory = models.ForeignKey(SubCategory,on_delete=models.SET_NULL, null=True,related_name="product_subcategory")
     parts = models.ManyToManyField(Parts,related_name="products_parts",blank=True)
@@ -824,6 +824,7 @@ class DamagedItem(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pending"),
         ("repair", "Repair"),
+        ("discard", "Discard"),
         ("moved", "Moved to Available"),
     ]
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="damaged_records")

@@ -193,6 +193,8 @@ SITE_DOMAIN = "http://table.104.64.206.82.sslip.io"
 
 SITE_URL = "http://table.104.64.206.82.sslip.io"
 
+# SITE_URL = "https://t8sjq87n-8002.inc1.devtunnels.ms"
+
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
@@ -225,6 +227,7 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:8002",
     "http://192.168.1.31:8000",
     "http://192.168.1.56:8000",
     "http://localhost:7000",

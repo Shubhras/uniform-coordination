@@ -301,3 +301,98 @@ class PromocodeDeleteAPIView(BaseAPIView):
 
         except Exception as e:
             return self.error_response(f"Internal server error: {str(e)}")
+
+
+
+class ValidatePromocodeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        promocode = request.data.get("promocode")
+
+        if not promocode:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Promocode is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # coupon = Promocode.objects.filter(
+        #     promocodeName__iexact=promocode.strip(),
+        #     isDeleted=False
+        # ).first()
+        
+        # coupon = Promocode.objects.filter(
+        #     promocodeName__exact=promocode.strip(),
+        #     isDeleted=False
+        # ).first()
+        coupon = Promocode.objects.extra(
+            where=["BINARY promocodeName = %s"],
+            params=[promocode.strip()]
+        ).filter(
+            isDeleted=False
+        ).first()
+
+        if not coupon:
+            return Response({
+                "status": False,
+                "statusCode": 200,
+                "message": "Invalid promocode."
+            }, status=status.HTTP_200_OK)
+
+        if not coupon.isActive:
+            return Response({
+                "status": False,
+                "statusCode": 200,
+                "message": "This promocode is inactive."
+            }, status=status.HTTP_200_OK)
+
+        now = timezone.now()
+
+        if coupon.started_at and coupon.started_at > now:
+            return Response({
+                "status": False,
+                "statusCode": 200,
+                "message": "This promocode is not active yet."
+            }, status=status.HTTP_200_OK)
+
+        if coupon.ended_at and coupon.ended_at < now:
+            return Response({
+                "status": False,
+                "statusCode": 200,
+                "message": "This promocode has expired."
+            }, status=status.HTTP_200_OK)
+
+        if coupon.limit_uses:
+            used_count = Order.objects.filter(
+                promocode=coupon
+            ).count()
+
+            if coupon.max_uses and used_count >= coupon.max_uses:
+                return Response({
+                    "status": False,
+                    "statusCode": 200,
+                    "message": "This promocode has reached its usage limit."
+                }, status=status.HTTP_200_OK)
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "message": "Promocode is varified succesfully.",
+            "data": {
+                "id": coupon.id,
+                "promocode": coupon.promocodeName,
+                "type": coupon.promocodeType,
+                "amount": coupon.amount,
+                "min_order_value": coupon.min_order_value,
+                "started_at": coupon.started_at,
+                "ended_at": coupon.ended_at,
+                "max_uses": coupon.max_uses,
+                "remaining_uses": (
+                    coupon.max_uses - used_count
+                    if coupon.limit_uses and coupon.max_uses
+                    else None
+                )
+            }
+        }, status=status.HTTP_200_OK)
+        

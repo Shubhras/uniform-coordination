@@ -468,11 +468,30 @@ class userOrderSerializer(serializers.ModelSerializer):
             "country": customer.country,
         }
         
+
     def get_payment_summary(self, obj):
         payment = obj.payment_set.order_by("-created_at").first()
 
+        promo_code = None
+        promo_type = None
+        promo_amount = Decimal("0.00")
+
+        if obj.promocode:
+            promo_code = obj.promocode.promocodeName
+            promo_type = obj.promocode.promocodeType
+
+            if obj.promocode.promocodeType == "discount":
+                promo_amount = (
+                    Decimal(obj.subtotal or 0) * Decimal(obj.promocode.amount)
+                ) / Decimal("100")
+            elif obj.promocode.promocodeType == "fix_price":
+                promo_amount = Decimal(obj.promocode.amount or 0)
+
         return {
             "subtotal": str(obj.subtotal or Decimal("0.00")),
+            "promo_code": promo_code,
+            "promo_type": promo_type,
+            "promo_amount": str(promo_amount),
             "shipping_charge": str(obj.shipping_charge or Decimal("0.00")),
             "tax": str(obj.tax or Decimal("0.00")),
             "total_amount": str(obj.total_amount or Decimal("0.00")),
@@ -485,7 +504,26 @@ class userOrderSerializer(serializers.ModelSerializer):
             "payment_method_id": payment.payment_method_id if payment else None,
             "amount_paid": str(payment.amount) if payment else None,
             "paid_at": payment.paid_at if payment else None,
-        }
+        }    
+        
+    # def get_payment_summary(self, obj):
+    #     payment = obj.payment_set.order_by("-created_at").first()
+
+    #     return {
+    #         "subtotal": str(obj.subtotal or Decimal("0.00")),
+    #         "shipping_charge": str(obj.shipping_charge or Decimal("0.00")),
+    #         "tax": str(obj.tax or Decimal("0.00")),
+    #         "total_amount": str(obj.total_amount or Decimal("0.00")),
+
+    #         "payment_status": payment.payment_status if payment else None,
+    #         "payment_method": payment.payment_method if payment else None,
+    #         "currency": payment.currency if payment else obj.currency,
+    #         "payment_id": payment.payment_id if payment else None,
+    #         "customer_id": payment.customer_id if payment else None,
+    #         "payment_method_id": payment.payment_method_id if payment else None,
+    #         "amount_paid": str(payment.amount) if payment else None,
+    #         "paid_at": payment.paid_at if payment else None,
+    #     }
             
 
     def get_order_items(self, obj):

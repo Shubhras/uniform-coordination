@@ -4,10 +4,11 @@ import { useRouter } from "next/navigation";
 import { FiArrowLeft, FiDownload } from "react-icons/fi";
 import StatusBadge, { getStatusColors } from "./StatusBadge";
 
-const DownloadButton = ({ label }) => (
+const DownloadButton = ({ label, onClick }) => (
   <button
     type="button"
-    className="inline-flex items-center gap-2 rounded-lg border border-[#EEDDD1] bg-[#FFF8F3] px-3 py-2 text-xs font-medium text-[#C2703D]"
+    onClick={onClick}
+    className="inline-flex items-center gap-2 rounded-lg border border-[#EEDDD1] bg-[#FFF8F3] px-3 py-2 text-xs font-medium text-[#C2703D] hover:bg-[#FFEFE5] transition-colors"
   >
     <FiDownload size={13} />
     {label}
@@ -176,9 +177,23 @@ const ContractDetailPage = ({ contract }) => {
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2">
-              {contract.downloads.map((label) => (
-                <DownloadButton key={label} label={label} />
-              ))}
+              {contract.downloads.map((label) => {
+                const handleDownload = () => {
+                  let docName = "";
+                  if (label === "Download Contract PDF") {
+                    docName = "Contract PDF";
+                  } else if (label === "Download Signed PDF") {
+                    docName = "Signed PDF";
+                  }
+                  const doc = contract.documents?.find((d) => d.label === docName);
+                  if (doc?.url) {
+                    window.open(doc.url, "_blank");
+                  } else {
+                    alert(`${docName} not available`);
+                  }
+                };
+                return <DownloadButton key={label} label={label} onClick={handleDownload} />;
+              })}
             </div>
           </div>
         </div>
@@ -295,7 +310,7 @@ const ContractDetailPage = ({ contract }) => {
 
           <div className="border-t border-[#F5ECE6] px-5 py-4">
             <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-[#9B8D84]">
-              Quote Summary
+              Order Summary
             </h3>
 
             <div className="mt-4 grid gap-2 text-sm text-[#8B7C73]">

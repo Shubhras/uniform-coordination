@@ -324,7 +324,7 @@ def send_b2b_welcome_email(user, raw_password):
         fail_silently=False,
     )
     
-
+# for server
 def new_build_media_url(file_field):
     """
     Returns an absolute URL for an ImageField/FileField.
@@ -336,4 +336,20 @@ def new_build_media_url(file_field):
     if file_field.name.startswith(("http://", "https://")):
         return file_field.name
 
-    return f"{settings.SITE_URL}{file_field.url}"    
+    domain = settings.SITE_URL
+    if settings.DEBUG and ("sslip.io" in domain or "localhost" in domain):
+        domain = "http://127.0.0.1:8002"
+
+    return f"{domain.rstrip('/')}{file_field.url}"    
+
+# for local
+# from django.conf import settings
+
+# def new_build_media_url(file_field):
+#     if not file_field:
+#         return None
+
+#     if file_field.url.startswith(("http://", "https://")):
+#         return file_field.url
+
+#     return f"{settings.SITE_URL.rstrip('/')}{file_field.url}"
