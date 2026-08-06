@@ -11,6 +11,7 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     transpilePackages: ['three', '@react-three/drei', '@react-three/fiber'],
+    basePath: '/admintable',
 };
 
 export default withNextIntl(nextConfig);
