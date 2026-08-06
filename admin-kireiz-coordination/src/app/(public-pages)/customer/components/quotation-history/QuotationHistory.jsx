@@ -5,13 +5,14 @@ import { FiSearch, FiEye, FiDownload, FiX, FiEdit2 } from "react-icons/fi";
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetQUotationList } from "@/services/B2BAccountService";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Pagination from "@/components/ui/Pagination";
 
 const QuotationHistory = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [quotes, setQuotes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -28,7 +29,17 @@ const QuotationHistory = () => {
     { value: "Cancelled", label: "Cancelled" },
   ];
 
-  const [selectedCategory, setSelectedCategory] = useState(statusOptions[0]);
+  // Seed the filter from ?status= so the dashboard's Active Alerts can deep-link
+  // into a pre-filtered list. Matched case-insensitively because the API/DB use
+  // lowercase ("pending") while these options are capitalised. Unknown or missing
+  // values fall back to "All Status".
+  const statusFromUrl = searchParams.get("status") || "";
+  const initialStatus =
+    statusOptions.find(
+      (option) => option.value.toLowerCase() === statusFromUrl.toLowerCase(),
+    ) || statusOptions[0];
+
+  const [selectedCategory, setSelectedCategory] = useState(initialStatus);
 
   useEffect(() => {
     const timer = setTimeout(() => {

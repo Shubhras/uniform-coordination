@@ -23,6 +23,8 @@ yarn-error.log*
 # Misc
 .DS_Store
 
+doc
+
 # Environment variables
 /uniform-kireiz-coordination/.env
 /table-kireiz-coordination/.env

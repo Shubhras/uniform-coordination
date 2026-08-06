@@ -17,6 +17,11 @@ from .home_page import *
 from .menu import *
 from .permissions import *
 from .system_settings_views import *
+from .pdf_templates import *
+from .quotation_history import *
+from .sales_reps import *
+from .simulation_config import *
+from .reports import *
 
 
 
@@ -184,6 +189,33 @@ urlpatterns = [
 
     #<-------------------Dashboardes------------------------------->
     path("admindesh/",AdminDashAPIView.as_view(),name="admin-dash-info"),
+    path("dashboard/alerts/mark-read/",DashboardAlertMarkReadAPIView.as_view(),name="dashboard-alerts-mark-read"),
+
+    # PDF Template Library (Content & Media -> PDF Templates)
+    path("pdf-templates/list/",PdfTemplateListAPIView.as_view(),name="pdf-template-list"),
+    path("pdf-templates/create/",PdfTemplateCreateAPIView.as_view(),name="pdf-template-create"),
+    path("pdf-templates/reorder/",PdfTemplateReorderAPIView.as_view(),name="pdf-template-reorder"),
+    # Pricing -> Quotation Template tab (single active template: GET reads, POST saves/resets)
+    path("pdf-templates/active-quotation/",ActiveQuotationTemplateAPIView.as_view(),name="pdf-template-active-quotation"),
+
+    # Quotation History (Pricing -> PDF Templates tab)
+    path("quotation-history/",QuotationHistoryListAPIView.as_view(),name="quotation-history-list"),
+    path("quotation-history/<str:quotation_id>/resend/",QuotationResendAPIView.as_view(),name="quotation-history-resend"),
+
+    # Sales Representation + Territory/Account Assignment
+    path("sales-reps/",SalesRepListAPIView.as_view(),name="sales-rep-list"),
+    path("sales-reps/assignments/",SalesRepAssignmentBoardAPIView.as_view(),name="sales-rep-assignments"),
+    path("sales-reps/<int:pk>/",SalesRepDetailAPIView.as_view(),name="sales-rep-detail"),
+
+    # PDF & Simulation Configuration
+    path("simulation-config/",SimulationConfigAPIView.as_view(),name="simulation-config"),
+
+    # Reports & Analytics
+    path("reports/analytics/",ReportsAnalyticsAPIView.as_view(),name="reports-analytics"),
+    path("reports/export/",ReportsExportAPIView.as_view(),name="reports-export"),
+    path("pdf-templates/<int:pk>/",PdfTemplateDetailAPIView.as_view(),name="pdf-template-detail"),
+    path("pdf-templates/<int:pk>/update/",PdfTemplateUpdateAPIView.as_view(),name="pdf-template-update"),
+    path("pdf-templates/<int:pk>/delete/",PdfTemplateDeleteAPIView.as_view(),name="pdf-template-delete"),
 
     #<-------------------Homepage------------------------------->
     path("uniform-home/", HomePageAPIView.as_view(), name="home-page"),

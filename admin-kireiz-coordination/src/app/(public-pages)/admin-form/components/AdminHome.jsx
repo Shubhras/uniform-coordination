@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetDashboard } from "@/services/DashboardService";
@@ -32,15 +32,17 @@ const AdminHome = () => {
 
   const accessToken = session?.user?.accessToken;
 
-  useEffect(() => {
-    const fetchDashboard = async () => {
+  // useCallback so ActiveAlerts can call this again after marking alerts read,
+  // without the initial-load effect re-running on every render.
+  const fetchDashboard = useCallback(
+    async ({ showSkeleton = true } = {}) => {
       if (!accessToken) {
         setLoading(false);
         return;
       }
 
       try {
-        setLoading(true);
+        if (showSkeleton) setLoading(true);
         const response = await apiGetDashboard(accessToken);
         if (response?.data) {
           setDashboardData(response.data);
@@ -49,12 +51,15 @@ const AdminHome = () => {
         console.error("Dashboard fetch error:", err);
         setError(err?.message || "Failed to load dashboard data");
       } finally {
-        setLoading(false);
+        if (showSkeleton) setLoading(false);
       }
-    };
+    },
+    [accessToken],
+  );
 
+  useEffect(() => {
     fetchDashboard();
-  }, [accessToken]);
+  }, [fetchDashboard]);
 
   if (loading) {
     return <DashboardSkeleton />;
@@ -87,7 +92,10 @@ const AdminHome = () => {
       <div className="mt-5 px-5 md:px-8 lg:px-12">
         <QuickActionsCard />
       </div>
-      <ActiveAlerts data={dashboardData} />
+      <ActiveAlerts
+        data={dashboardData}
+        onAlertsRead={() => fetchDashboard({ showSkeleton: false })}
+      />
     </main>
   );
 };

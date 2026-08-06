@@ -408,6 +408,45 @@ class SaveUpdateRolePermissionView(APIView):
         )
             
                    
+# The admin sidebar has nine sections but only six existed as Menu rows, so
+# Reports & Analytics, System Settings and Quotation Requests could never be
+# permission-controlled. Seeded here (idempotent) rather than in a data migration
+# so a fresh install and an existing one converge on the same set.
+ADMIN_MENU_SEED = [
+    {"name": "Dashboard", "slug": "dashboard", "route": "/admin-form", "order": 1},
+    {"name": "Product & Specification", "slug": "product_specification", "route": "/products", "order": 2},
+    {"name": "Content & Media", "slug": "content_media", "route": "/contents", "order": 3},
+    {"name": "Pricing & Quotation", "slug": "order_manage", "route": "/pricing", "order": 4},
+    {"name": "Customer & Sales Representative", "slug": "customer_sales_representative", "route": "/customer", "order": 5},
+    {"name": "PDF & Simulation Configuration", "slug": "pdf_simulation_configuration", "route": "/simulation-configuration", "order": 6},
+    {"name": "Reports & Analytics", "slug": "reports_analytics", "route": "/reports-analytics", "order": 7},
+    {"name": "System Settings", "slug": "system_settings", "route": "/system-settings", "order": 8},
+    {"name": "Quotation Requests", "slug": "quotation_requests", "route": "/quotation-requests", "order": 9},
+]
+
+
+def ensure_admin_menus():
+    """
+    Make sure every sidebar section exists as a Menu row with a stable slug.
+
+    Menu.save() derives the slug from the name, so slug is set with an update()
+    afterwards to keep the exact values the frontend matches on.
+    """
+    for entry in ADMIN_MENU_SEED:
+        menu, created = Menu.objects.get_or_create(
+            name=entry["name"],
+            defaults={
+                "route": entry["route"],
+                "order": entry["order"],
+                "isActive": True,
+            },
+        )
+        # Force the canonical slug/route/order even for pre-existing rows.
+        Menu.objects.filter(pk=menu.pk).update(
+            slug=entry["slug"], route=entry["route"], order=entry["order"]
+        )
+
+
 class UserMenuPermissionView(APIView):
     authentication_classes = [MultiRoleJWTAuth]
 
@@ -417,15 +456,19 @@ class UserMenuPermissionView(APIView):
         responses={200: OpenApiResponse(description="User permissions retrieved successfully")}
     )
     def get(self, request):
+        ensure_admin_menus()
+
         user = request.user
         role = user.role
-        
+
         if not role:
+            # Was HTTP_430_FORBIDDEN, which does not exist in DRF — this branch
+            # raised AttributeError instead of returning 403.
             return Response({
                 "statusCode": 403,
                 "status": False,
                 "message": "User has no assigned role."
-            }, status=status.HTTP_430_FORBIDDEN)
+            }, status=status.HTTP_403_FORBIDDEN)
 
         # Get menu permissions where can_view is True
         allowed_menu_ids = RoleMenuPermission.objects.filter(
