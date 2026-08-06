@@ -8,10 +8,49 @@ import {
   FiChevronRight,
   FiX,
 } from "react-icons/fi";
+import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiInspectionQueueList } from "@/services/InventoryManagement";
 import Spinner from "@/components/ui/Spinner";
 import Pagination from "@/components/ui/Pagination";
+
+const selectStyles = {
+  control: (base) => ({
+    ...base,
+    minHeight: "40px",
+    borderColor: "#EFE5DD",
+    boxShadow: "none",
+    borderRadius: "8px",
+    "&:hover": {
+      borderColor: "#C08457",
+    },
+  }),
+
+  singleValue: (base) => ({
+    ...base,
+    color: "#A85A32B2",
+  }),
+
+  placeholder: (base) => ({
+    ...base,
+    color: "#A85A32B2",
+  }),
+
+  menu: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? "#A0522D"
+      : state.isFocused
+        ? "#F8F2ED"
+        : "#fff",
+    color: state.isSelected ? "#fff" : "#444",
+  }),
+};
 
 const InspectionQueueList = () => {
   const [search, setSearch] = useState("");
@@ -26,6 +65,23 @@ const InspectionQueueList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const statusOptions = [
+    { value: "", label: "Status" },
+    { value: "pending", label: "Pending" },
+    { value: "passed", label: "Passed" },
+    { value: "failed", label: "Failed" },
+  ];
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const fetchInspectionQueue = async () => {
     if (!accessToken) return;
@@ -37,17 +93,22 @@ const InspectionQueueList = () => {
         accessToken,
         currentPage,
         pageSize,
+        debouncedSearch,
+        status?.value || "",
       );
 
-      if (res?.data) {
+      if (res?.status) {
         setInspectionData(res.data || []);
-        setTotal(res.data.count || res.data.pagination?.total_items || 0);
+
+        setTotal(res.pagination?.count || 0);
       } else {
         setInspectionData([]);
+        setTotal(0);
       }
-    } catch (error) {
-      console.error("Inspection Queue Error:", error);
+    } catch (err) {
+      console.error(err);
       setInspectionData([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -55,11 +116,12 @@ const InspectionQueueList = () => {
 
   useEffect(() => {
     fetchInspectionQueue();
-  }, [accessToken, currentPage, pageSize]);
+  }, [accessToken, currentPage, pageSize, debouncedSearch, status]);
 
   return (
     <>
-      <div className="min-h-screen">
+      <div className="bg-white rounded-lg">
+        {" "}
         {/* Search + Filter */}
         <div className="flex items-center gap-4 mb-6">
           <div className="relative w-full lg:max-w-xl">
@@ -83,35 +145,33 @@ const InspectionQueueList = () => {
             )}
           </div>
 
-          <div className="relative">
-            <select
+          {/* <div className="w-44">
+            <Select
               value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="appearance-none h-10 w-[110px] rounded-lg border border-[#EFE5DD] bg-white px-4 pr-10 text-[14px] text-[#8B5E3C] outline-none cursor-pointer"
-            >
-              <option value="">Status</option>
-              <option>Pending</option>
-              <option>Passed</option>
-              <option>Failed</option>
-            </select>
-
-            <FiChevronDown
-              size={16}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8B5E3C] pointer-events-none"
+              onChange={setStatus}
+              options={statusOptions}
+              styles={selectStyles}
+              placeholder="Status"
+              isClearable={false}
             />
-          </div>
+          </div> */}
         </div>
-
         {/* Table */}
         {/* Table */}
-   <div className="overflow-x-auto">
+        <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-[#F1F5F9] text-[#486284]">
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                <th className="text-left  px-4 py-3 font-normal">Product Name</th>
+                <th className="text-left  px-4 py-3 font-normal">
+                  Product Name
+                </th>
                 <th className="text-left  px-4 py-3 font-normal">Order ID</th>
-                <th className="text-left  px-4 py-3 font-normal">Returned Qty</th>
-                <th className="text-left  px-4 py-3 font-normal">Return Date</th>
+                <th className="text-left  px-4 py-3 font-normal">
+                  Returned Qty
+                </th>
+                <th className="text-left  px-4 py-3 font-normal">
+                  Return Date
+                </th>
                 <th className="text-left  px-4 py-3 font-normal">Action</th>
               </tr>
             </thead>
@@ -135,13 +195,13 @@ const InspectionQueueList = () => {
                     }`}
                   >
                     <td className="px-5 py-3">
-                      <h3 className="text-[#2C1A0E] text-[14px] font-semibold">
-                        Rental Item #{item.rental_item}
+                      <h3 className="text-[#2C1A0E] text-[15px] font-semibold">
+                        {item.category_name}
                       </h3>
 
-                      {/* <p className="mt-1 text-[11px] text-[#B39A88]">
-                        Inspection #{item.id}
-                      </p> */}
+                      <p className="text-[12px] text-[#A08070]">
+                        {item.item_name}
+                      </p>
                     </td>
 
                     <td className="px-5 py-3 text-[#2C1A0E] font-semibold text-[14px]">
@@ -149,7 +209,7 @@ const InspectionQueueList = () => {
                     </td>
 
                     <td className="px-5 py-3 text-[#2C1A0E] font-semibold text-[14px]">
-                      {item.returned_qty}{" "} Units
+                      {item.returned_qty} Units
                     </td>
 
                     <td className="px-5 py-3 text-[#2C1A0E] font-semibold text-[14px]">
@@ -191,8 +251,12 @@ const InspectionQueueList = () => {
         <Pagination
           currentPage={currentPage}
           pageSize={pageSize}
-          // total={totalItems || themes.length}
-          onChange={(page) => setCurrentPage(page)}
+          total={total}
+          onChange={setCurrentPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
         />
       </div>
     </>

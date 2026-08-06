@@ -20,7 +20,9 @@ from .pricing import *
 from .reports import ReportsAnalyticsAPIView
 from .system_settings_views import *
 from .ai_views import *
-
+from .menu import *
+from .permissions import *
+from .system_settings_views import *
 
 
 
@@ -233,6 +235,27 @@ urlpatterns = [
     
     path('settings/rental-policy/', RentalPolicySettingsRetrieveView.as_view(), name='rental-policy-get'),
     path('settings/rental-policy/update/', RentalPolicySettingsUpdateView.as_view(), name='rental-policy-update'),
+    
+    
+    # Menu URLs
+    path('menu/create/', MenuCreateView.as_view(), name='menu-create'),
+    path('menu/list/', MenuListView.as_view(), name='menu-list'),
+    path('menu/<int:pk>/', MenuDetailView.as_view(), name='menu-detail'),
+    path('menu/update/<int:pk>/', MenuUpdateView.as_view(), name='menu-update'),
+    path('menu/delete/<int:pk>/', MenuDeleteView.as_view(), name='menu-delete'),
+
+    # SubMenu URLs
+    path('submenu/create/', SubMenuCreateView.as_view(), name='submenu-create'),
+    path('submenu/list/', SubMenuListView.as_view(), name='submenu-list'),
+    path('submenu/<int:pk>/', SubMenuDetailView.as_view(), name='submenu-detail'),
+    path('submenu/update/<int:pk>/', SubMenuUpdateView.as_view(), name='submenu-update'),
+    path('submenu/delete/<int:pk>/', SubMenuDeleteView.as_view(), name='submenu-delete'),
+
+    # Permission URLs
+    path('role-permissions/assign/', RolePermissionAssignView.as_view(), name='role-permissions-assign'),
+    path('role-permissions/update/', SaveUpdateRolePermissionView.as_view(), name='role-permissions-update'),
+    path('role-permissions/list/', RolePermissionListView.as_view(), name='role-permissions-list'),
+    path('my-permissions/', UserMenuPermissionView.as_view(), name='my-permissions'),
     
     
     # ==========================================

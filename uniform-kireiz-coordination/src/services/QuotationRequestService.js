@@ -1,5 +1,12 @@
 import ApiService from './ApiService';
 
+/**
+ * Submits a new quotation request.
+ *
+ * @param {Object} data - Quotation request data payload.
+ * @param {string} token - User authentication Bearer token.
+ * @returns {Promise<Object>} API response with created quotation request details.
+ */
 export async function apiCreateQuotationRequest(data, token) {
     return ApiService.fetchDataWithAxios({
         url: "/v1/userhub/quotationrequest/create/",
@@ -10,8 +17,13 @@ export async function apiCreateQuotationRequest(data, token) {
         },
     });
 }
+
 /**
- * Export quotation PDF
+ * Exports quotation request details to a PDF format.
+ *
+ * @param {string|number} id - Quotation request ID.
+ * @param {string} token - User authentication Bearer token.
+ * @returns {Promise<Object>} API response containing exported PDF details.
  */
 export async function apiExportQuotationPdf(id, token) {
     return ApiService.fetchDataWithAxios({
@@ -24,6 +36,14 @@ export async function apiExportQuotationPdf(id, token) {
     });
 }
 
+/**
+ * Fetches user quotation detail by ID or absolute URL.
+ *
+ * @param {string|number} id - Quotation ID.
+ * @param {string} token - User authentication Bearer token.
+ * @param {string} [absoluteUrl] - Optional full request URL override.
+ * @returns {Promise<Object>} API response with quotation detail.
+ */
 export async function apiGetUserQuotationDetail(id, token, absoluteUrl) {
     return ApiService.fetchDataWithAxios({
         url: absoluteUrl || `/v1/userhub/quotations/${id}/`,
@@ -34,6 +54,13 @@ export async function apiGetUserQuotationDetail(id, token, absoluteUrl) {
     });
 }
 
+/**
+ * Fetches quotation request detail by ID.
+ *
+ * @param {string|number} id - Quotation request ID.
+ * @param {string} token - User authentication Bearer token.
+ * @returns {Promise<Object>} API response with quotation request details.
+ */
 export async function apiGetQuotationRequestDetail(id, token) {
     return ApiService.fetchDataWithAxios({
         url: `/v1/userhub/quotationrequest/${id}/get/`,
@@ -44,6 +71,14 @@ export async function apiGetQuotationRequestDetail(id, token) {
     });
 }
 
+/**
+ * Downloads user quotation PDF document as a blob object.
+ *
+ * @param {string|number} id - Quotation ID.
+ * @param {string} token - User authentication Bearer token.
+ * @param {string} [absoluteUrl] - Optional full request URL override.
+ * @returns {Promise<Blob>} API response containing PDF file blob.
+ */
 export async function apiDownloadUserQuotationPdf(id, token, absoluteUrl) {
     return ApiService.fetchDataWithAxios({
         url: absoluteUrl || `/v1/userhub/quotations/${id}/pdf/`,
@@ -55,6 +90,14 @@ export async function apiDownloadUserQuotationPdf(id, token, absoluteUrl) {
     });
 }
 
+/**
+ * Cancels a quotation request by ID.
+ *
+ * @param {string|number} id - Quotation request ID to cancel.
+ * @param {Object} data - Cancellation reason or parameters payload.
+ * @param {string} token - User authentication Bearer token.
+ * @returns {Promise<Object>} API response confirming quotation cancellation.
+ */
 export async function apiCancelQuotation(id, data, token) {
     return ApiService.fetchDataWithAxios({
         url: `/v1/userhub/quotation/cancel/${id}/`,

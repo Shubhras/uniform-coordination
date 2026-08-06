@@ -7,15 +7,24 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import HaederPage from "../../header/HaederPage";
 
+/**
+ * EmailVerificationPage Component.
+ * Displays email verification instructions and masked registered email to the user.
+ *
+ * @returns {JSX.Element} Email verification prompt component.
+ */
 const EmailVerificatinoPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const userId = searchParams.get("user_id");
     const email = searchParams.get("email");
 
-     const verifyUserEmail = async () => {
+    /**
+     * Opens external email client (Gmail) in a new browser tab.
+     */
+    const verifyUserEmail = async () => {
         window.open("https://mail.google.com/", "_blank");
-    };;
+    };
 
     return (
         <>
@@ -77,17 +86,6 @@ const EmailVerificatinoPage = () => {
                             <HiBadgeCheck size={24} />
                         </span>
                     </div>
-
-                    {/* ACTION */}
-                    {/* <div className="mt-8 flex justify-center">
-                    <Button
-                        variant="solid"
-                        className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white px-10"
-                        onClick={() => router.push("/sign-in")}
-                    >
-                        OK
-                    </Button>
-                </div> */}
 
                 </div>
             </div>

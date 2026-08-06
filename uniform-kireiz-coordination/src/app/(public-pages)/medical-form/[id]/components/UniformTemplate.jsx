@@ -93,15 +93,20 @@ const bottomCards = [
     },
 ];
 
+/**
+ * UniformTemplate Component.
+ * Interactive carousel slider displaying pre-designed uniform template cards with responsiveness.
+ *
+ * @returns {JSX.Element} Uniform template showcase carousel section.
+ */
 const UniformTemplate = () => {
 
     const [index, setIndex] = useState(0);
     const [cardsPerView, setCardsPerView] = useState(4);
 
     useEffect(() => {
+        /** Updates carousel card counts per view based on viewport width breakpoints */
         const updateCards = () => {
-            // if (window.innerWidth < 640) setCardsPerView(1);
-            // else
             if (window.innerWidth < 768) setCardsPerView(1);
             else if (window.innerWidth < 1024) setCardsPerView(2);
             else if (window.innerWidth < 1440) setCardsPerView(3);
@@ -113,11 +118,12 @@ const UniformTemplate = () => {
         return () => window.removeEventListener("resize", updateCards);
     }, []);
 
-
+    /** Advances carousel slider forward */
     const handleNext = () => {
         setIndex((prev) => (prev + 1) % bottomCards.length);
     };
 
+    /** Rewinds carousel slider backward */
     const handlePrev = () => {
         setIndex((prev) => (prev === 0 ? bottomCards.length - 1 : prev - 1));
     };

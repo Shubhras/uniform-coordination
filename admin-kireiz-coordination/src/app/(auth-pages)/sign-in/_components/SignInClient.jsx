@@ -8,7 +8,6 @@ import { useSearchParams } from 'next/navigation'
 const SignInClient = () => {
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get(REDIRECT_URL_KEY)
-
     const handleSignIn = ({ values, setSubmitting, setMessage }) => {
         setSubmitting(true)
 

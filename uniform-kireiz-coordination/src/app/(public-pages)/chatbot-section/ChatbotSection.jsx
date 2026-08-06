@@ -2,6 +2,12 @@
 
 import Image from 'next/image'
 
+/**
+ * ChatbotSection Component.
+ * Displays a fixed/floating AI assistant widget banner prompt.
+ *
+ * @returns {JSX.Element} Chatbot callout section UI component.
+ */
 const ChatbotSection = () => {
     return (
         <section className="w-full bg-white  sm:px-6 md:px-8 ">

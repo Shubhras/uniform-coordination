@@ -72,7 +72,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
     }
   };
 
-  const userName = session?.user?.name || "Admin";
+  const userName = session?.user?.role || "Admin";
   const userEmail = session?.user?.email || "";
 
   return (

@@ -4,14 +4,27 @@ import { apiResetPassword } from '@/services/AuthService'
 import { useRouter, useSearchParams } from 'next/navigation'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
+
+/**
+ * ResetPasswordClient Component.
+ * Reads user_id from query parameters and calls API to update the user's password.
+ *
+ * @returns {JSX.Element} Rendered ResetPassword component with submit handler.
+ */
 const ResetPasswordClient = () => {
-    const router = useRouter();
+    const router = useRouter()
     const searchParams = useSearchParams()
     const userId = searchParams.get('user_id')
 
-    /** Token or Verification Code ensures the request is tied to the correct user */
-    // const token = searchParams.get('token')
-
+    /**
+     * Handles password reset form submission.
+     *
+     * @param {Object} payload - Form helper functions and values.
+     * @param {Object} payload.values - Form payload containing new password.
+     * @param {Function} payload.setSubmitting - State updater for form submission state.
+     * @param {Function} payload.setMessage - State updater for displaying error messages.
+     * @param {Function} [payload.setResetComplete] - State updater flag for completion status.
+     */
     const handleResetPassword = async (payload) => {
         const { values, setSubmitting, setMessage, setResetComplete } = payload
         try {
