@@ -7,27 +7,27 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { apiLogin } from '@/services/AuthService'
 import { Notification, toast } from '@/components/ui'
 
+/**
+ * SignInClient Component.
+ * Manages credential and OAuth authentication flow.
+ *
+ * @returns {JSX.Element} Rendered SignIn UI component.
+ */
 const SignInClient = () => {
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get(REDIRECT_URL_KEY)
-
     const router = useRouter()
+
+    /**
+     * Handles credential-based user sign-in submission.
+     *
+     * @param {Object} params - Form submission params.
+     * @param {Object} params.values - User credentials (email and password).
+     * @param {Function} params.setSubmitting - State updater function for submitting state.
+     * @param {Function} params.setMessage - State updater function for displaying error message.
+     */
     const handleSignIn = async ({ values, setSubmitting, setMessage }) => {
         try {
-            // console.log("SignInClient values:", values);
-            // setSubmitting(true)
-            // const response = await apiLogin(values)
-            // const data = response
-            // if (!data?.status) {
-            //     setMessage(data?.message || 'Invalid email or password')
-            //     return
-            // }
-            // toast.push(
-            //     <Notification title="Login success!" type="success">
-            //         Login successfully
-            //     </Notification>,
-            // )
-            //  router.push('/table-form');
             setSubmitting(true)
             onSignInWithCredentials(values, callbackUrl || '').then((data) => {
                 if (data?.error) {
@@ -46,6 +46,12 @@ const SignInClient = () => {
         }
     }
 
+    /**
+     * Handles OAuth provider sign-in submission (Google, GitHub).
+     *
+     * @param {Object} params - OAuth provider parameters.
+     * @param {string} params.type - Provider type ('google' | 'github').
+     */
     const handleOAuthSignIn = async ({ type }) => {
         if (type === 'google') {
             await handleOauthSignIn('google')

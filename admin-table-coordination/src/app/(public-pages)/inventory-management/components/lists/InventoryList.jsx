@@ -290,6 +290,7 @@ const InventoryList = () => {
             <div className="flex gap-3">
               <div className="w-52">
                 <Select
+                  instanceId="status-select"
                   value={category}
                   onChange={setCategory}
                   options={categoryOptions}
@@ -300,6 +301,7 @@ const InventoryList = () => {
 
               <div className="w-52">
                 <Select
+                    instanceId="category-select"
                   value={material}
                   onChange={setMaterial}
                   options={materialOptions}

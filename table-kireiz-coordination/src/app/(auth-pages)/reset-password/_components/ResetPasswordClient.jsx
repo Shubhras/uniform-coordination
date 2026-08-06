@@ -1,19 +1,30 @@
 'use client'
 import ResetPassword from '@/components/auth/ResetPassword'
 import { apiResetPassword } from '@/services/AuthService'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
-
+import { useRouter, useSearchParams } from 'next/navigation'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
+
+/**
+ * ResetPasswordClient Component.
+ * Reads user_id from query string and submits password reset request to backend API.
+ *
+ * @returns {JSX.Element} Rendered ResetPassword UI component.
+ */
 const ResetPasswordClient = () => {
-    const router = useRouter();
+    const router = useRouter()
     const searchParams = useSearchParams()
-
-    /** Token or Verification Code ensures the request is tied to the correct user */
-    // const token = searchParams.get('token')
-
     const userId = searchParams.get('user_id')
 
+    /**
+     * Handles reset password form submission.
+     *
+     * @param {Object} payload - Form helper payload and values.
+     * @param {Object} payload.values - Form values containing new password.
+     * @param {Function} payload.setSubmitting - State updater for form submission state.
+     * @param {Function} payload.setMessage - State updater for displaying error message.
+     * @param {Function} [payload.setResetComplete] - State updater flag for completion status.
+     */
     const handleResetPassword = async (payload) => {
         const { values, setSubmitting, setMessage, setResetComplete } = payload
         console.log(values)

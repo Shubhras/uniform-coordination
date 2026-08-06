@@ -168,14 +168,14 @@ const PermissionPage = () => {
             <table className="w-full text-sm">
               <thead className="bg-[#F7F2EE] border-b border-[#ECE7E3]">
                 <tr className="text-[#486284]">
-                  <th className="text-left text-[#1C1917] bg-[#FDF0E8] px-5 py-3 font-semibold">
+                  <th className="text-left text-[#1C1917] px-5 py-3 font-semibold">
                     Feature / Capability
                   </th>
 
                   {roles.map((role) => (
                     <th
                       key={role.role_name}
-                      className="text-center px-5 py-3 font-medium"
+                      className="text-center text-[#1C1917] px-5 py-3 font-medium"
                     >
                       {role.role_name}
                     </th>
@@ -189,7 +189,7 @@ const PermissionPage = () => {
                     key={perm.id}
                     className="border-b last:border-none border-[#E2E8F0]"
                   >
-                    <td className="px-5 py-4 font-medium">{perm.name}</td>
+                    <td className="px-5 py-4 font-medium text-[#1C1917]">{perm.name}</td>
 
                     {/* <td className="px-5 py-4 text-center">
                   <ToggleSwitch checked={perm.admin} disabled />
@@ -232,9 +232,9 @@ const PermissionPage = () => {
 
         {/* Footer Buttons */}
         <div className="flex justify-end gap-3 mt-6">
-          <button className="border border-[#CBD5E1] text-[#486284] px-4 py-2 rounded-md text-sm">
+          {/* <button className="border border-[#CBD5E1] text-[#486284] px-4 py-2 rounded-md text-sm">
             Cancel
-          </button>
+          </button> */}
 
           <Button
             onClick={handleSaveChanges}
@@ -256,7 +256,7 @@ const ToggleSwitch = ({ checked, onClick, disabled }) => {
     <button
       onClick={disabled ? undefined : onClick}
       className={`relative w-12 h-6 rounded-full transition 
-        ${checked ? "bg-[#1C2C56]" : "bg-gray-300"}
+        ${checked ? "bg-[#A0522D]" : "bg-gray-300"}
         ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}
       `}
     >
