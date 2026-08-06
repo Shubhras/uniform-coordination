@@ -1,0 +1,10 @@
+{
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/(public-pages)/browse-by-theme/page": "app/(public-pages)/browse-by-theme/page.js",
+  "/(public-pages)/table-form/page": "app/(public-pages)/table-form/page.js",
+  "/(public-pages)/browse-by-color/page": "app/(public-pages)/browse-by-color/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(protected-pages)/profile/my-profile/page": "app/(protected-pages)/profile/my-profile/page.js",
+  "/(protected-pages)/profile/simulation-history/page": "app/(protected-pages)/profile/simulation-history/page.js",
+  "/(auth-pages)/sign-in/page": "app/(auth-pages)/sign-in/page.js"
+}

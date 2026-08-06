@@ -278,10 +278,10 @@ const Overview = () => {
                                                 </div>
                                             )}
 
-                                            {cartSummary?.discount !== undefined && cartSummary?.discount !== null && Number(cartSummary.discount) > 0 && (
+                                            {cartSummary?.amount !== undefined && cartSummary?.amount !== null && Number(cartSummary.amount) > 0 && (
                                                 <div className="flex justify-between text-base text-green-600 font-medium">
                                                     <span>Discount:</span>
-                                                    <span>-¥{Number(cartSummary.discount).toLocaleString()}</span>
+                                                    <span>-¥{Number(cartSummary.amount).toLocaleString()}</span>
                                                 </div>
                                             )}
 
@@ -328,7 +328,7 @@ const Overview = () => {
                                 <div></div>
                                 <div className="flex justify-end w-full">
                                     <button
-                                        className="max-w-[250px] px-6 py-3 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md flex items-center justify-center gap-2 transition font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                                        className="max-w-[250px] px-5 py-2 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md flex items-center justify-center gap-2 transition font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                                         onClick={handleProceedToPayment}
                                         disabled={navigatingToPayment}
                                     >

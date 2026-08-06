@@ -133,8 +133,8 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
                                 {customerName && (
                                     <div>
                                         <h5 className="font-semibold text-[#111827] mb-1">Customer Info</h5>
-                                        <p className="font-medium">{customerName}</p>
-                                        {customerEmail && <p className="text-gray-500 text-xs">{customerEmail}</p>}
+                                        <p className="font-medium mb-1">{customerName}</p>
+                                        {customerEmail && <p className="text-gray-500 text-xs mb-1">{customerEmail}</p>}
                                         {customerPhone && <p className="text-gray-500 text-xs">{customerPhone}</p>}
                                     </div>
                                 )}
