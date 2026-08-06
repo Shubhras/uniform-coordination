@@ -31,8 +31,6 @@ const MyProfile = () => {
   const router = useRouter();
   const fileRef = useRef(null);
   const { data: session } = useSession();
-  console.log("Status:", status);
-  console.log("Session:", session);
 
   // Profile state
   const [profile, setProfile] = useState(null);

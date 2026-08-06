@@ -201,7 +201,7 @@ const CartSummary = () => {
                                                 </p>
                                                 <p className="text-sm font-medium">
                                                     <span className="text-green-600">
-                                                        Price: ¥{item?.price} × {item?.quantity} = ¥{item?.total_price}
+                                                        Price:{""}{item?.price} × {item?.quantity} = ${item?.total_price}
                                                     </span>
                                                 </p>
                                             </div>
@@ -295,7 +295,7 @@ const CartSummary = () => {
                                                     Qty: {item.quantity}
                                                 </p>
                                             </div>
-                                            <span className="text-gray-800">¥{item.total_price}</span>
+                                            <span className="text-gray-800">${item.total_price}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -305,30 +305,30 @@ const CartSummary = () => {
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-gray-700">
                                         <span>Subtotal</span>
-                                        <span>¥{cartSummary?.summary?.subtotal}</span>
+                                        <span>${cartSummary?.summary?.subtotal}</span>
                                     </div>
                                     <div className="flex justify-between text-gray-700">
                                         <span>Shipping & Handling</span>
-                                        <span>¥{cartSummary?.summary?.shipping}</span>
+                                        <span>${cartSummary?.summary?.shipping}</span>
                                     </div>
                                     <div className="flex justify-between text-[#00A859]">
                                         <span>Discount</span>
-                                        <span>¥{cartSummary?.summary?.discount}</span>
+                                        <span>${cartSummary?.summary?.discount}</span>
                                     </div>
                                     <div className="flex justify-between text-gray-700">
                                         <span>Tax</span>
-                                        <span>¥{cartSummary?.summary?.tax}</span>
+                                        <span>${cartSummary?.summary?.tax}</span>
                                     </div>
                                     <div className="flex justify-between text-[#B05B3B]">
                                         <span>Fees:</span>
-                                        <span>¥{cartSummary?.summary?.fees}</span>
+                                        <span>${cartSummary?.summary?.fees}</span>
                                     </div>
                                 </div>
 
                                 <div className="border-t border-[#E9E9E9] mt-4 pt-4">
                                     <div className="flex justify-between items-center text-[17px]">
                                         <span className="text-[#B05B3B]">Order Total:</span>
-                                        <span className="font-semibold text-gray-900">¥{cartSummary?.summary?.grand_total}</span>
+                                        <span className="font-semibold text-gray-900">${cartSummary?.summary?.grand_total}</span>
                                     </div>
                                 </div>
                             </div>

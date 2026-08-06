@@ -482,6 +482,7 @@ const DeliveryInformation = () => {
                         placeholder="Start Date"
                         className="mb-1"
                         minDate={new Date()}
+                        inputtable={true} // agar library support karti ho
                       />
                     )}
                   />

@@ -122,12 +122,12 @@ const UniformSingle = () => {
                                         <div className="flex flex-wrap items-center gap-4 text-sm mt-1">
                                             <div>
                                                 <span className="text-[#6B7280]">Price: </span>
-                                                <span className="text-[#7B3C1D] font-bold text-lg">₹{singleProductData.price}</span>
+                                                <span className="text-[#7B3C1D] font-bold text-lg">${singleProductData.price}</span>
                                             </div>
                                             {singleProductData.rental_price_per_day && (
                                                 <div className="border-l border-gray-300 pl-4">
                                                     <span className="text-[#6B7280]">Rental: </span>
-                                                    <span className="text-[#1C2C56] font-semibold">₹{singleProductData.rental_price_per_day} <span className="text-xs font-normal text-gray-500">/ day</span></span>
+                                                    <span className="text-[#1C2C56] font-semibold">${singleProductData.rental_price_per_day} <span className="text-xs font-normal text-gray-500">/ day</span></span>
                                                 </div>
                                             )}
                                             {singleProductData.discount > 0 && (

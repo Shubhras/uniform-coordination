@@ -997,19 +997,6 @@ eval("/* eslint-disable import/no-extraneous-dependencies */ \nObject.defineProp
 
 /***/ }),
 
-/***/ "(rsc)/./node_modules/next/dist/client/app-dir/link.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/next/dist/client/app-dir/link.js ***!
-  \*******************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-const { createProxy } = __webpack_require__(/*! next/dist/build/webpack/loaders/next-flight-loader/module-proxy */ "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-loader/module-proxy.js")
-
-module.exports = createProxy("/home/digi-35/Desktop/Uniform/uniform-coordination/table-kireiz-coordination/node_modules/next/dist/client/app-dir/link.js")
-
-
-/***/ }),
-
 /***/ "(rsc)/./node_modules/next/dist/client/components/app-router-headers.js":
 /*!************************************************************************!*\
   !*** ./node_modules/next/dist/client/components/app-router-headers.js ***!
@@ -2227,17 +2214,6 @@ eval("\nmodule.exports = __webpack_require__(/*! ../../module.compiled */ \"(ssr
 
 "use strict";
 eval("\nmodule.exports = __webpack_require__(/*! ../../module.compiled */ \"(ssr)/./node_modules/next/dist/server/route-modules/app-page/module.compiled.js?cc4a\").vendored[\"react-rsc\"].React;\n\n//# sourceMappingURL=react.js.map//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiKHJzYykvLi9ub2RlX21vZHVsZXMvbmV4dC9kaXN0L3NlcnZlci9yb3V0ZS1tb2R1bGVzL2FwcC1wYWdlL3ZlbmRvcmVkL3JzYy9yZWFjdC5qcyIsIm1hcHBpbmdzIjoiQUFBYTtBQUNiLHFMQUE2RTs7QUFFN0UiLCJzb3VyY2VzIjpbIi9ob21lL2RpZ2ktMzUvRGVza3RvcC9Vbmlmb3JtL3VuaWZvcm0tY29vcmRpbmF0aW9uL3RhYmxlLWtpcmVpei1jb29yZGluYXRpb24vbm9kZV9tb2R1bGVzL25leHQvZGlzdC9zZXJ2ZXIvcm91dGUtbW9kdWxlcy9hcHAtcGFnZS92ZW5kb3JlZC9yc2MvcmVhY3QuanMiXSwic291cmNlc0NvbnRlbnQiOlsiXCJ1c2Ugc3RyaWN0XCI7XG5tb2R1bGUuZXhwb3J0cyA9IHJlcXVpcmUoJy4uLy4uL21vZHVsZS5jb21waWxlZCcpLnZlbmRvcmVkWydyZWFjdC1yc2MnXS5SZWFjdDtcblxuLy8jIHNvdXJjZU1hcHBpbmdVUkw9cmVhY3QuanMubWFwIl0sIm5hbWVzIjpbXSwiaWdub3JlTGlzdCI6WzBdLCJzb3VyY2VSb290IjoiIn0=\n//# sourceURL=webpack-internal:///(rsc)/./node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react.js\n");
-
-/***/ }),
-
-/***/ "(rsc)/./node_modules/next/dist/server/route-modules/app-route/module.compiled.js":
-/*!**********************************************************************************!*\
-  !*** ./node_modules/next/dist/server/route-modules/app-route/module.compiled.js ***!
-  \**********************************************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-eval("\nif (false) {} else {\n    if (false) {} else {\n        if (true) {\n            if (false) {} else {\n                module.exports = __webpack_require__(/*! next/dist/compiled/next-server/app-route.runtime.dev.js */ \"next/dist/compiled/next-server/app-route.runtime.dev.js\");\n            }\n        } else {}\n    }\n}\n\n//# sourceMappingURL=module.compiled.js.map//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiKHJzYykvLi9ub2RlX21vZHVsZXMvbmV4dC9kaXN0L3NlcnZlci9yb3V0ZS1tb2R1bGVzL2FwcC1yb3V0ZS9tb2R1bGUuY29tcGlsZWQuanMiLCJtYXBwaW5ncyI6IkFBQWE7QUFDYixJQUFJLEtBQW1DLEVBQUUsRUFFeEMsQ0FBQztBQUNGLFFBQVEsS0FBcUMsRUFBRSxFQWMxQyxDQUFDO0FBQ04sWUFBWSxJQUFzQztBQUNsRCxnQkFBZ0IsS0FBcUIsRUFBRSxFQUUxQixDQUFDO0FBQ2QsZ0JBQWdCLDhKQUFtRjtBQUNuRztBQUNBLFVBQVUsS0FBSyxFQU1OO0FBQ1Q7QUFDQTs7QUFFQSIsInNvdXJjZXMiOlsiL2hvbWUvZGlnaS0zNS9EZXNrdG9wL1VuaWZvcm0vdW5pZm9ybS1jb29yZGluYXRpb24vdGFibGUta2lyZWl6LWNvb3JkaW5hdGlvbi9ub2RlX21vZHVsZXMvbmV4dC9kaXN0L3NlcnZlci9yb3V0ZS1tb2R1bGVzL2FwcC1yb3V0ZS9tb2R1bGUuY29tcGlsZWQuanMiXSwic291cmNlc0NvbnRlbnQiOlsiXCJ1c2Ugc3RyaWN0XCI7XG5pZiAocHJvY2Vzcy5lbnYuTkVYVF9SVU5USU1FID09PSAnZWRnZScpIHtcbiAgICBtb2R1bGUuZXhwb3J0cyA9IHJlcXVpcmUoJ25leHQvZGlzdC9zZXJ2ZXIvcm91dGUtbW9kdWxlcy9hcHAtcm91dGUvbW9kdWxlLmpzJyk7XG59IGVsc2Uge1xuICAgIGlmIChwcm9jZXNzLmVudi5fX05FWFRfRVhQRVJJTUVOVEFMX1JFQUNUKSB7XG4gICAgICAgIGlmIChwcm9jZXNzLmVudi5OT0RFX0VOViA9PT0gJ2RldmVsb3BtZW50Jykge1xuICAgICAgICAgICAgaWYgKHByb2Nlc3MuZW52LlRVUkJPUEFDSykge1xuICAgICAgICAgICAgICAgIG1vZHVsZS5leHBvcnRzID0gcmVxdWlyZSgnbmV4dC9kaXN0L2NvbXBpbGVkL25leHQtc2VydmVyL2FwcC1yb3V0ZS10dXJiby1leHBlcmltZW50YWwucnVudGltZS5kZXYuanMnKTtcbiAgICAgICAgICAgIH0gZWxzZSB7XG4gICAgICAgICAgICAgICAgbW9kdWxlLmV4cG9ydHMgPSByZXF1aXJlKCduZXh0L2Rpc3QvY29tcGlsZWQvbmV4dC1zZXJ2ZXIvYXBwLXJvdXRlLWV4cGVyaW1lbnRhbC5ydW50aW1lLmRldi5qcycpO1xuICAgICAgICAgICAgfVxuICAgICAgICB9IGVsc2Uge1xuICAgICAgICAgICAgaWYgKHByb2Nlc3MuZW52LlRVUkJPUEFDSykge1xuICAgICAgICAgICAgICAgIG1vZHVsZS5leHBvcnRzID0gcmVxdWlyZSgnbmV4dC9kaXN0L2NvbXBpbGVkL25leHQtc2VydmVyL2FwcC1yb3V0ZS10dXJiby1leHBlcmltZW50YWwucnVudGltZS5wcm9kLmpzJyk7XG4gICAgICAgICAgICB9IGVsc2Uge1xuICAgICAgICAgICAgICAgIG1vZHVsZS5leHBvcnRzID0gcmVxdWlyZSgnbmV4dC9kaXN0L2NvbXBpbGVkL25leHQtc2VydmVyL2FwcC1yb3V0ZS1leHBlcmltZW50YWwucnVudGltZS5wcm9kLmpzJyk7XG4gICAgICAgICAgICB9XG4gICAgICAgIH1cbiAgICB9IGVsc2Uge1xuICAgICAgICBpZiAocHJvY2Vzcy5lbnYuTk9ERV9FTlYgPT09ICdkZXZlbG9wbWVudCcpIHtcbiAgICAgICAgICAgIGlmIChwcm9jZXNzLmVudi5UVVJCT1BBQ0spIHtcbiAgICAgICAgICAgICAgICBtb2R1bGUuZXhwb3J0cyA9IHJlcXVpcmUoJ25leHQvZGlzdC9jb21waWxlZC9uZXh0LXNlcnZlci9hcHAtcm91dGUtdHVyYm8ucnVudGltZS5kZXYuanMnKTtcbiAgICAgICAgICAgIH0gZWxzZSB7XG4gICAgICAgICAgICAgICAgbW9kdWxlLmV4cG9ydHMgPSByZXF1aXJlKCduZXh0L2Rpc3QvY29tcGlsZWQvbmV4dC1zZXJ2ZXIvYXBwLXJvdXRlLnJ1bnRpbWUuZGV2LmpzJyk7XG4gICAgICAgICAgICB9XG4gICAgICAgIH0gZWxzZSB7XG4gICAgICAgICAgICBpZiAocHJvY2Vzcy5lbnYuVFVSQk9QQUNLKSB7XG4gICAgICAgICAgICAgICAgbW9kdWxlLmV4cG9ydHMgPSByZXF1aXJlKCduZXh0L2Rpc3QvY29tcGlsZWQvbmV4dC1zZXJ2ZXIvYXBwLXJvdXRlLXR1cmJvLnJ1bnRpbWUucHJvZC5qcycpO1xuICAgICAgICAgICAgfSBlbHNlIHtcbiAgICAgICAgICAgICAgICBtb2R1bGUuZXhwb3J0cyA9IHJlcXVpcmUoJ25leHQvZGlzdC9jb21waWxlZC9uZXh0LXNlcnZlci9hcHAtcm91dGUucnVudGltZS5wcm9kLmpzJyk7XG4gICAgICAgICAgICB9XG4gICAgICAgIH1cbiAgICB9XG59XG5cbi8vIyBzb3VyY2VNYXBwaW5nVVJMPW1vZHVsZS5jb21waWxlZC5qcy5tYXAiXSwibmFtZXMiOltdLCJpZ25vcmVMaXN0IjpbMF0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///(rsc)/./node_modules/next/dist/server/route-modules/app-route/module.compiled.js\n");
 
 /***/ }),
 

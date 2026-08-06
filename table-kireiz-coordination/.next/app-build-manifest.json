@@ -21,26 +21,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/table-form/page.js"
     ],
-    "/(protected-pages)/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/layout.js"
-    ],
-    "/(protected-pages)/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/loading.js"
-    ],
-    "/(protected-pages)/profile/my-profile/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/profile/my-profile/page.js"
-    ],
-    "/(public-pages)/cart-summary/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/cart-summary/page.js"
-    ],
     "/(public-pages)/browse-by-color/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -66,50 +46,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/dashboards/design-result/[id]/page.js"
     ],
-    "/(public-pages)/delivery-information/[id]/page": [
+    "/(public-pages)/cart-summary/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/delivery-information/[id]/page.js"
-    ],
-    "/(public-pages)/overview/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/overview/page.js"
-    ],
-    "/(public-pages)/payment/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/payment/page.js"
-    ],
-    "/_not-found/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
-    ],
-    "/(protected-pages)/profile/my-order-rentals/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/profile/my-order-rentals/page.js"
-    ],
-    "/(public-pages)/browse-by-theme/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/browse-by-theme/page.js"
-    ],
-    "/(protected-pages)/profile/simulation-history/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/profile/simulation-history/page.js"
-    ],
-    "/(auth-pages)/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(auth-pages)/layout.js"
-    ],
-    "/(auth-pages)/sign-in/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(auth-pages)/sign-in/page.js"
+      "static/chunks/app/(public-pages)/cart-summary/page.js"
     ]
   }
 }
