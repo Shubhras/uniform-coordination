@@ -2,7 +2,7 @@
   "version": 1,
   "config": {
     "env": {
-      "NEXT_PUBLIC_API_BASE_URL": "http://192.168.1.52:8005"
+      "NEXT_PUBLIC_API_BASE_URL": "http://104.64.206.82"
     },
     "eslint": {
       "ignoreDuringBuilds": true
