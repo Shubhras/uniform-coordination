@@ -1,0 +1,440 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "/table",
+  "redirects": [
+    {
+      "source": "/table/",
+      "destination": "/table",
+      "basePath": false,
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^/table/$"
+    },
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "dynamicRoutes": [
+    {
+      "page": "/api/auth/[...nextauth]",
+      "regex": "^/api/auth/(.+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPnextauth": "nxtPnextauth"
+      },
+      "namedRegex": "^/api/auth/(?<nxtPnextauth>.+?)(?:/)?$"
+    },
+    {
+      "page": "/api/contacts/[id]",
+      "regex": "^/api/contacts/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/contacts/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/conversations/[id]",
+      "regex": "^/api/conversations/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/conversations/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/projects/[id]",
+      "regex": "^/api/projects/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/projects/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/dashboards/delivery-request/[id]",
+      "regex": "^/dashboards/delivery\\-request/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/dashboards/delivery\\-request/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/dashboards/design-result/[id]",
+      "regex": "^/dashboards/design\\-result/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/dashboards/design\\-result/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/dashboards/uniform-3d-design/[id]",
+      "regex": "^/dashboards/uniform\\-3d\\-design/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/dashboards/uniform\\-3d\\-design/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/dashboards/uniform-design/[id]",
+      "regex": "^/dashboards/uniform\\-design/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/dashboards/uniform\\-design/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/dashboards/uniform-single/[id]",
+      "regex": "^/dashboards/uniform\\-single/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/dashboards/uniform\\-single/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/delivery-information/[id]",
+      "regex": "^/delivery\\-information/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/delivery\\-information/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/my-order-rentals/[id]",
+      "regex": "^/profile/my\\-order\\-rentals/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/my\\-order\\-rentals/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/my-quotations/cloudsign-signature/[id]",
+      "regex": "^/profile/my\\-quotations/cloudsign\\-signature/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/my\\-quotations/cloudsign\\-signature/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/my-quotations/contract-accepted-detail/[id]",
+      "regex": "^/profile/my\\-quotations/contract\\-accepted\\-detail/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/my\\-quotations/contract\\-accepted\\-detail/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/my-quotations/contract-inbox/[id]",
+      "regex": "^/profile/my\\-quotations/contract\\-inbox/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/my\\-quotations/contract\\-inbox/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/my-quotations/contract-review/[id]",
+      "regex": "^/profile/my\\-quotations/contract\\-review/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/my\\-quotations/contract\\-review/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/my-quotations/make-payment/[id]",
+      "regex": "^/profile/my\\-quotations/make\\-payment/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/my\\-quotations/make\\-payment/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/my-quotations/order-confirmed/[id]",
+      "regex": "^/profile/my\\-quotations/order\\-confirmed/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/my\\-quotations/order\\-confirmed/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/my-quotations/quotation-ready-detail/[id]",
+      "regex": "^/profile/my\\-quotations/quotation\\-ready\\-detail/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/my\\-quotations/quotation\\-ready\\-detail/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/my-quotations/rejected-quotation-detail/[id]",
+      "regex": "^/profile/my\\-quotations/rejected\\-quotation\\-detail/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/my\\-quotations/rejected\\-quotation\\-detail/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/my-quotations/sent-quotation-detail/[id]",
+      "regex": "^/profile/my\\-quotations/sent\\-quotation\\-detail/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/my\\-quotations/sent\\-quotation\\-detail/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/my-quotations/signature-success/[id]",
+      "regex": "^/profile/my\\-quotations/signature\\-success/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/my\\-quotations/signature\\-success/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/my-quotations/signed-quotation-detail/[id]",
+      "regex": "^/profile/my\\-quotations/signed\\-quotation\\-detail/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/my\\-quotations/signed\\-quotation\\-detail/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/single-blog/[id]",
+      "regex": "^/single\\-blog/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/single\\-blog/(?<nxtPid>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/account-verified-page",
+      "regex": "^/account\\-verified\\-page(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/account\\-verified\\-page(?:/)?$"
+    },
+    {
+      "page": "/blog",
+      "regex": "^/blog(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/blog(?:/)?$"
+    },
+    {
+      "page": "/browse-by-color",
+      "regex": "^/browse\\-by\\-color(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/browse\\-by\\-color(?:/)?$"
+    },
+    {
+      "page": "/browse-by-theme",
+      "regex": "^/browse\\-by\\-theme(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/browse\\-by\\-theme(?:/)?$"
+    },
+    {
+      "page": "/cart-summary",
+      "regex": "^/cart\\-summary(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cart\\-summary(?:/)?$"
+    },
+    {
+      "page": "/dashboards/delivery-request",
+      "regex": "^/dashboards/delivery\\-request(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboards/delivery\\-request(?:/)?$"
+    },
+    {
+      "page": "/dashboards/design-result",
+      "regex": "^/dashboards/design\\-result(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboards/design\\-result(?:/)?$"
+    },
+    {
+      "page": "/dashboards/uniform-3d-design",
+      "regex": "^/dashboards/uniform\\-3d\\-design(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboards/uniform\\-3d\\-design(?:/)?$"
+    },
+    {
+      "page": "/dashboards/uniform-design",
+      "regex": "^/dashboards/uniform\\-design(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboards/uniform\\-design(?:/)?$"
+    },
+    {
+      "page": "/dashboards/uniform-single",
+      "regex": "^/dashboards/uniform\\-single(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboards/uniform\\-single(?:/)?$"
+    },
+    {
+      "page": "/delivery-information",
+      "regex": "^/delivery\\-information(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/delivery\\-information(?:/)?$"
+    },
+    {
+      "page": "/email-verification-page",
+      "regex": "^/email\\-verification\\-page(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/email\\-verification\\-page(?:/)?$"
+    },
+    {
+      "page": "/faq",
+      "regex": "^/faq(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/faq(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/forgot-password",
+      "regex": "^/forgot\\-password(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/forgot\\-password(?:/)?$"
+    },
+    {
+      "page": "/overview",
+      "regex": "^/overview(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/overview(?:/)?$"
+    },
+    {
+      "page": "/payment",
+      "regex": "^/payment(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/payment(?:/)?$"
+    },
+    {
+      "page": "/private-policy",
+      "regex": "^/private\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/private\\-policy(?:/)?$"
+    },
+    {
+      "page": "/profile",
+      "regex": "^/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile(?:/)?$"
+    },
+    {
+      "page": "/profile/change-password",
+      "regex": "^/profile/change\\-password(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile/change\\-password(?:/)?$"
+    },
+    {
+      "page": "/profile/my-order-rentals",
+      "regex": "^/profile/my\\-order\\-rentals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile/my\\-order\\-rentals(?:/)?$"
+    },
+    {
+      "page": "/profile/my-profile",
+      "regex": "^/profile/my\\-profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile/my\\-profile(?:/)?$"
+    },
+    {
+      "page": "/profile/my-quotations",
+      "regex": "^/profile/my\\-quotations(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile/my\\-quotations(?:/)?$"
+    },
+    {
+      "page": "/profile/notifications",
+      "regex": "^/profile/notifications(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile/notifications(?:/)?$"
+    },
+    {
+      "page": "/profile/order-history",
+      "regex": "^/profile/order\\-history(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile/order\\-history(?:/)?$"
+    },
+    {
+      "page": "/profile/personal-information",
+      "regex": "^/profile/personal\\-information(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile/personal\\-information(?:/)?$"
+    },
+    {
+      "page": "/profile/simulation-history",
+      "regex": "^/profile/simulation\\-history(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile/simulation\\-history(?:/)?$"
+    },
+    {
+      "page": "/reset-password",
+      "regex": "^/reset\\-password(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/reset\\-password(?:/)?$"
+    },
+    {
+      "page": "/sign-in",
+      "regex": "^/sign\\-in(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/sign\\-in(?:/)?$"
+    },
+    {
+      "page": "/sign-up",
+      "regex": "^/sign\\-up(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/sign\\-up(?:/)?$"
+    },
+    {
+      "page": "/table-form",
+      "regex": "^/table\\-form(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/table\\-form(?:/)?$"
+    },
+    {
+      "page": "/terms-and-condition",
+      "regex": "^/terms\\-and\\-condition(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/terms\\-and\\-condition(?:/)?$"
+    },
+    {
+      "page": "/theme-details",
+      "regex": "^/theme\\-details(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/theme\\-details(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "RSC",
+    "varyHeader": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch",
+    "prefetchHeader": "Next-Router-Prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "Next-Router-Segment-Prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  },
+  "rewrites": []
+}
