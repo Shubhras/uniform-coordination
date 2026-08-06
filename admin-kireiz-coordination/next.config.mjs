@@ -11,7 +11,6 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     transpilePackages: ['three', '@react-three/drei', '@react-three/fiber'],
-    basePath: '/admin-kireiz',
 };
 
 export default withNextIntl(nextConfig);
