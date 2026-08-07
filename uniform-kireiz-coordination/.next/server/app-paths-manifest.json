@@ -1,0 +1,8 @@
+{
+  "/(public-pages)/kireiz-form/page": "app/(public-pages)/kireiz-form/page.js",
+  "/(public-pages)/single-blog/[id]/page": "app/(public-pages)/single-blog/[id]/page.js",
+  "/(protected-pages)/profile/my-profile/page": "app/(protected-pages)/profile/my-profile/page.js",
+  "/(protected-pages)/profile/change-password/page": "app/(protected-pages)/profile/change-password/page.js",
+  "/(protected-pages)/profile/personal-information/page": "app/(protected-pages)/profile/personal-information/page.js",
+  "/(protected-pages)/profile/my-quotations/page": "app/(protected-pages)/profile/my-quotations/page.js"
+}
