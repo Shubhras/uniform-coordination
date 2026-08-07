@@ -341,7 +341,7 @@ const DesignResultPage = () => {
                                     </div>
 
                                     <button
-                                        className="h-[55px] w-full lg:w-auto bg-[#8B4513] hover:bg-[#71370F] text-white px-12 rounded-md flex items-center justify-center lg:flex-1 lg:max-w-[200px] shadow-sm font-medium gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                        className="w-full lg:w-auto bg-[#8B4513] hover:bg-[#71370F] text-white px-12 py-2 rounded-md flex items-center justify-center lg:flex-1 lg:max-w-[200px] shadow-sm font-medium gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                                         onClick={handleAddToCart}
                                         disabled={isAddCart}
                                     >
