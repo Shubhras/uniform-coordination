@@ -1,30 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Select from "react-select";
-import {
-    FiFileText,
-    FiImage,
-    FiDownload,
-    FiSave,
-} from "react-icons/fi";
+import { FiFileText, FiImage, FiDownload, FiSave } from "react-icons/fi";
+import LivePreview from "../LivePreview";
 
-const formatOptions = [
-    { value: "pdf", label: "pdf", icon: <FiFileText /> },
-    { value: "png", label: "png", icon: <FiImage /> },
-    { value: "jpg", label: "jpg", icon: <FiImage /> },
-];
+const FORMAT_ICONS = {
+    pdf: <FiFileText />,
+    png: <FiImage />,
+    jpg: <FiImage />,
+};
 
-const dpiOptions = [
-    { value: "72", label: "72 DPI (Screen)" },
-    { value: "150", label: "150 DPI (Web High Quality)" },
-    { value: "300", label: "300 DPI (Print)" },
-];
+const Exports = ({ config, loading, saving, onSave, onReset }) => {
+    const exportConfig = config?.export;
 
-const Exports = () => {
-    const [selectedFormat, setSelectedFormat] = useState("pdf");
+    // Local draft — nothing is written until Save, so Cancel can discard it.
+    const [format, setFormat] = useState("pdf");
     const [quality, setQuality] = useState(50);
-    const [dpi, setDpi] = useState(dpiOptions[0]);
+    const [dpi, setDpi] = useState(72);
+
+    useEffect(() => {
+        if (!exportConfig) return;
+        setFormat(exportConfig.output_format);
+        setQuality(exportConfig.compression_quality);
+        setDpi(exportConfig.dpi);
+    }, [exportConfig]);
+
+    const formatOptions = exportConfig?.format_options || [
+        { value: "pdf", label: "pdf" },
+        { value: "png", label: "png" },
+        { value: "jpg", label: "jpg" },
+    ];
+
+    const dpiOptions = exportConfig?.dpi_options || [];
+    const selectedDpiOption =
+        dpiOptions.find((o) => o.value === dpi) || null;
+
+    const isDirty =
+        !!exportConfig &&
+        (format !== exportConfig.output_format ||
+            Number(quality) !== Number(exportConfig.compression_quality) ||
+            Number(dpi) !== Number(exportConfig.dpi));
+
+    const payload = () => ({
+        output_format: format,
+        compression_quality: Number(quality),
+        dpi: Number(dpi),
+    });
+
+    const handleCancel = () => {
+        if (exportConfig) {
+            setFormat(exportConfig.output_format);
+            setQuality(exportConfig.compression_quality);
+            setDpi(exportConfig.dpi);
+        }
+        onReset?.();
+    };
 
     return (
         <div className="bg-white rounded-2xl shadow p-6">
@@ -47,18 +78,21 @@ const Exports = () => {
 
                         <div className="flex gap-4">
                             {formatOptions.map((item) => {
-                                const isActive = selectedFormat === item.value;
+                                const isActive = format === item.value;
                                 return (
                                     <button
                                         key={item.value}
-                                        onClick={() => setSelectedFormat(item.value)}
-                                        className={`capitalize flex items-center gap-2 px-6 py-2 rounded-lg border transition text-sm font-medium
-                      ${isActive
-                                                ? "border-green-500 bg-green-50 text-green-600"
-                                                : "border-gray-300 bg-white text-[#1C2C56] hover:bg-gray-50"
-                                            }`}
+                                        type="button"
+                                        disabled={loading}
+                                        onClick={() => setFormat(item.value)}
+                                        className={`capitalize flex items-center gap-2 px-6 py-2 rounded-lg border transition text-sm font-medium disabled:opacity-50
+                      ${
+                          isActive
+                              ? "border-green-500 bg-green-50 text-green-600"
+                              : "border-gray-300 bg-white text-[#1C2C56] hover:bg-gray-50"
+                      }`}
                                     >
-                                        {item.icon}
+                                        {FORMAT_ICONS[item.value]}
                                         {item.label}
                                     </button>
                                 );
@@ -82,8 +116,9 @@ const Exports = () => {
                             min="0"
                             max="100"
                             value={quality}
-                            onChange={(e) => setQuality(e.target.value)}
-                            className="w-full mt-4 accent-green-600 cursor-pointer"
+                            disabled={loading}
+                            onChange={(e) => setQuality(Number(e.target.value))}
+                            className="w-full mt-4 accent-green-600 cursor-pointer disabled:opacity-50"
                         />
 
                         <div className="flex justify-between text-xs text-gray-400 mt-1">
@@ -92,16 +127,18 @@ const Exports = () => {
                         </div>
                     </div>
 
-                    {/* DPI SELECT (react-select) */}
+                    {/* DPI SELECT */}
                     <div className="mt-8">
                         <p className="text-sm font-medium text-[#1C2C56] mb-3">
                             Target Resolution (DPI)
                         </p>
 
                         <Select
-                            value={dpi}
-                            onChange={setDpi}
+                            value={selectedDpiOption}
+                            onChange={(option) => setDpi(option?.value)}
                             options={dpiOptions}
+                            isDisabled={loading}
+                            instanceId="export-dpi"
                             className="text-sm"
                             styles={{
                                 control: (base) => ({
@@ -116,68 +153,43 @@ const Exports = () => {
                     </div>
 
                     {/* Save Preset Button */}
-                    <button className="mt-8 w-full flex items-center justify-center gap-2 bg-[#1C4FA8] text-white py-3 rounded-xl text-sm font-medium transition">
+                    <button
+                        type="button"
+                        disabled={loading || saving}
+                        onClick={() =>
+                            onSave(payload(), "Export preset saved")
+                        }
+                        className="mt-8 w-full flex items-center justify-center gap-2 bg-[#1C4FA8] text-white py-3 rounded-xl text-sm font-medium transition disabled:opacity-50"
+                    >
                         <FiDownload />
-                        Save Export Preset
+                        {saving ? "Saving..." : "Save Export Preset"}
                     </button>
 
                     {/* Bottom Buttons */}
                     <div className="flex justify-end gap-3 mt-6">
-                        <button className="border border-[#CBD5E1] px-4 py-2 rounded-lg text-sm text-[#486284] hover:bg-gray-50 transition">
+                        <button
+                            type="button"
+                            onClick={handleCancel}
+                            disabled={loading || saving}
+                            className="border border-[#CBD5E1] px-4 py-2 rounded-lg text-sm text-[#486284] hover:bg-gray-50 transition disabled:opacity-50"
+                        >
                             Cancel
                         </button>
 
-                        <button className="flex items-center gap-2 bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm font-medium transition">
+                        <button
+                            type="button"
+                            onClick={() => onSave(payload())}
+                            disabled={loading || saving || !isDirty}
+                            className="flex items-center gap-2 bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
+                        >
                             <FiSave />
-                            Save Changes
+                            {saving ? "Saving..." : "Save Changes"}
                         </button>
                     </div>
                 </div>
 
                 {/* RIGHT SIDE */}
-                <div className="border rounded-2xl p-5 bg-[#F8FAFC] flex flex-col min-h-[420px]">
-                    <div className="flex justify-between items-center">
-                        <p className="text-sm font-medium text-[#1C2C56]">
-                            Live Preview
-                        </p>
-                        <span className="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-full">
-                            Auto-updating
-                        </span>
-                    </div>
-
-                    {/* Preview Box */}
-                    <div className="flex-1 bg-white rounded-xl border mt-4 flex items-center justify-center relative">
-                        <span className="text-sm text-gray-300">
-                            Simulation Layer
-                        </span>
-
-                        <button className="absolute bg-white border shadow px-4 py-1.5 rounded-lg text-xs text-[#1C2C56]">
-                            Expand Preview
-                        </button>
-                    </div>
-
-                    {/* Info Section */}
-                    <div className="text-xs text-[#64748B] mt-4 space-y-2">
-                        <p>
-                            <span className="font-medium text-[#1C2C56]">
-                                Dimensions:
-                            </span>{" "}
-                            210 × 297 mm
-                        </p>
-                        <p>
-                            <span className="font-medium text-[#1C2C56]">
-                                File Size Est:
-                            </span>{" "}
-                            ~2.4 MB
-                        </p>
-                        <p>
-                            <span className="font-medium text-[#1C2C56]">
-                                Active Layers:
-                            </span>{" "}
-                            4
-                        </p>
-                    </div>
-                </div>
+                <LivePreview preview={config?.preview} loading={loading} />
             </div>
         </div>
     );

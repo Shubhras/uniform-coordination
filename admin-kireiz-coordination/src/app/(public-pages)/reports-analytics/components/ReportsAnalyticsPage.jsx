@@ -1,512 +1,575 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-// import { apiGetReportAnalytics } from "@/services//ReportAnalytics";
 import { FiDownload } from "react-icons/fi";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
+import {
+  apiGetReportsAnalytics,
+  apiExportReportsCsv,
+} from "@/services/ReportsService";
 
-const inventoryLegend = [
-  { label: "Available", color: "#B56735" },
-  { label: "Rented", color: "#D9A79E" },
-  { label: "Maintenance", color: "#F5EDE6" },
-  { label: "Damaged", color: "#2A211D" },
-];
+/*
+ * DESIGN NOTE — no Figma exists for this screen, so the metric set is chosen to
+ * match what KIREIZ FORM actually stores. See uniformAdmin/reports.py for the
+ * full reasoning. In short, the previous tiles (Active Rentals, Inventory Items,
+ * Late Returns, Top Rented Categories, Inventory Status, B2B-vs-B2C segments)
+ * were KIREIZ SPACE rental metrics that have no source on this platform, so they
+ * are replaced by the quotation funnel FORM does have.
+ *
+ * Anything the backend cannot derive comes back as null and renders as "—"
+ * rather than a placeholder number.
+ */
 
-// --- helpers -----------------------------------------------------------
+// Status colours reused across the donut and the legend.
+const STATUS_COLORS = {
+  Pending: "#F59E0B",
+  Received: "#FBBF24",
+  Sent: "#3B82F6",
+  Approved: "#10B981",
+  Accepted: "#059669",
+  Cancelled: "#EF4444",
+  Unknown: "#94A3B8",
+};
 
-// Builds an SVG donut made of arcs so segments and labels are always
-// mathematically correct (unlike a CSS conic-gradient + hand-placed label).
-function DonutChart({
-  segments,
-  size = 170,
-  thickness = 34,
-  showLabels = false,
-}) {
+const money = (value) =>
+  value === null || value === undefined
+    ? "—"
+    : `¥${Number(value).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+
+const num = (value) =>
+  value === null || value === undefined ? "—" : Number(value).toLocaleString();
+
+const notify = (title, type, message) =>
+  toast.push(
+    <Notification title={title} type={type}>
+      {message}
+    </Notification>,
+  );
+
+/* ---------------- small chart primitives (no chart lib needed) ---------------- */
+
+// SVG donut built from arcs so segment angles and the centre hole are exact.
+function DonutChart({ segments, size = 180, thickness = 32 }) {
   const total = segments.reduce((sum, s) => sum + s.value, 0);
-  const radius = size / 2;
-  const innerRadius = radius - thickness;
-  const center = size / 2;
+  if (!total) {
+    return (
+      <div
+        style={{ width: size, height: size }}
+        className="flex items-center justify-center text-xs text-gray-400"
+      >
+        No data
+      </div>
+    );
+  }
 
-  let cumulativeAngle = -90; // start at 12 o'clock
+  const radius = size / 2;
+  const inner = radius - thickness;
+  const center = size / 2;
+  let angle = -90;
+
+  const toRad = (deg) => (deg * Math.PI) / 180;
 
   const arcs = segments.map((seg) => {
-    const angle = (seg.value / total) * 360;
-    const startAngle = cumulativeAngle;
-    const endAngle = cumulativeAngle + angle;
-    cumulativeAngle = endAngle;
+    const sweep = (seg.value / total) * 360;
+    const start = angle;
+    const end = angle + sweep;
+    angle = end;
 
-    const toRad = (deg) => (deg * Math.PI) / 180;
+    // A full circle can't be drawn with a single arc — nudge it closed.
+    const drawEnd = sweep >= 360 ? end - 0.01 : end;
 
-    const x1 = center + radius * Math.cos(toRad(startAngle));
-    const y1 = center + radius * Math.sin(toRad(startAngle));
-    const x2 = center + radius * Math.cos(toRad(endAngle));
-    const y2 = center + radius * Math.sin(toRad(endAngle));
-
-    const ix1 = center + innerRadius * Math.cos(toRad(startAngle));
-    const iy1 = center + innerRadius * Math.sin(toRad(startAngle));
-    const ix2 = center + innerRadius * Math.cos(toRad(endAngle));
-    const iy2 = center + innerRadius * Math.sin(toRad(endAngle));
-
-    const largeArc = angle > 180 ? 1 : 0;
-
-    const path = `
-      M ${x1} ${y1}
-      A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}
-      L ${ix2} ${iy2}
-      A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${ix1} ${iy1}
-      Z
-    `;
-
-    const midAngle = (startAngle + endAngle) / 2;
-    const labelRadius = (radius + innerRadius) / 2;
-    const lx = center + labelRadius * Math.cos(toRad(midAngle));
-    const ly = center + labelRadius * Math.sin(toRad(midAngle));
+    const x1 = center + radius * Math.cos(toRad(start));
+    const y1 = center + radius * Math.sin(toRad(start));
+    const x2 = center + radius * Math.cos(toRad(drawEnd));
+    const y2 = center + radius * Math.sin(toRad(drawEnd));
+    const ix1 = center + inner * Math.cos(toRad(drawEnd));
+    const iy1 = center + inner * Math.sin(toRad(drawEnd));
+    const ix2 = center + inner * Math.cos(toRad(start));
+    const iy2 = center + inner * Math.sin(toRad(start));
+    const large = sweep > 180 ? 1 : 0;
 
     return {
-      path,
-      color: seg.color,
-      percent: Math.round((seg.value / total) * 1000) / 10,
-      lx,
-      ly,
+      key: seg.label,
+      color: STATUS_COLORS[seg.label] || "#94A3B8",
+      d: `M ${x1} ${y1} A ${radius} ${radius} 0 ${large} 1 ${x2} ${y2} L ${ix1} ${iy1} A ${inner} ${inner} 0 ${large} 0 ${ix2} ${iy2} Z`,
     };
   });
 
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
-      {arcs.map((arc, i) => (
-        <path key={i} d={arc.path} fill={arc.color} />
+    <svg width={size} height={size} role="img" aria-label="Status distribution">
+      {arcs.map((a) => (
+        <path key={a.key} d={a.d} fill={a.color} />
       ))}
-      {showLabels &&
-        arcs.map((arc, i) =>
-          arc.percent >= 6 ? (
-            <text
-              key={i}
-              x={arc.lx}
-              y={arc.ly}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontSize="11"
-              fontWeight={500}
-              fill="#ffffff"
-            >
-              {arc.percent}%
-            </text>
-          ) : null,
-        )}
+      <text
+        x={center}
+        y={center - 2}
+        textAnchor="middle"
+        className="fill-[#1C2C56]"
+        style={{ fontSize: 22, fontWeight: 600 }}
+      >
+        {total}
+      </text>
+      <text
+        x={center}
+        y={center + 16}
+        textAnchor="middle"
+        className="fill-[#64748B]"
+        style={{ fontSize: 10 }}
+      >
+        requests
+      </text>
     </svg>
   );
 }
 
-const reportData = {
-  kpi: {
-    total_revenue: "245,600",
-    total_orders: 1248,
-    active_rentals: 286,
-    inventory_items: 1890,
-    late_returns: 18,
-    total_customers: 965,
-  },
+// Simple column chart — enough for a 6-point monthly trend.
+function BarChart({ data, height = 200, color = "#1C4FA8" }) {
+  const max = Math.max(...data.map((d) => d.value), 1);
 
-  customer_growth: [
-    { label: "Jan", value: 220 },
-    { label: "Feb", value: 350 },
-    { label: "Mar", value: 430 },
-    { label: "Apr", value: 590 },
-    { label: "May", value: 720 },
-    { label: "Jun", value: 890 },
-  ],
+  return (
+    <div className="flex items-end gap-3" style={{ height }}>
+      {data.map((d) => (
+        <div key={d.label} className="flex-1 flex flex-col items-center gap-2">
+          <span className="text-xs font-medium text-[#1C2C56]">
+            {d.value || ""}
+          </span>
+          <div
+            className="w-full rounded-t transition-all"
+            style={{
+              height: `${Math.max((d.value / max) * (height - 44), d.value ? 3 : 1)}px`,
+              backgroundColor: d.value ? color : "#E2E8F0",
+            }}
+            title={`${d.label}: ${d.value}`}
+          />
+          <span className="text-[10px] text-[#64748B] whitespace-nowrap">
+            {d.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
-  customer_segments: [
-    {
-      label: "B2B",
-      percentage: 65,
-    },
-    {
-      label: "B2C",
-      percentage: 35,
-    },
-  ],
+// Horizontal ranked bars for "top N" lists.
+function RankedBars({ rows, color = "#1C4FA8", emptyLabel = "No data yet" }) {
+  if (!rows?.length) {
+    return <p className="text-sm text-gray-400 py-8 text-center">{emptyLabel}</p>;
+  }
 
-  top_rented_categories: [
-    {
-      label: "Wedding",
-      count: 390,
-    },
-    {
-      label: "Corporate",
-      count: 310,
-    },
-    {
-      label: "Birthday",
-      count: 270,
-    },
-    {
-      label: "Outdoor",
-      count: 210,
-    },
-    {
-      label: "Luxury",
-      count: 165,
-    },
-  ],
+  const max = Math.max(...rows.map((r) => r.value), 1);
 
-  inventory_status: [
-    {
-      label: "Available",
-      percentage: 45,
-    },
-    {
-      label: "Rented",
-      percentage: 30,
-    },
-    {
-      label: "Maintenance",
-      percentage: 15,
-    },
-    {
-      label: "Damaged",
-      percentage: 10,
-    },
-  ],
-};
+  return (
+    <div className="space-y-3">
+      {rows.map((r) => (
+        <div key={r.label}>
+          <div className="flex justify-between text-xs mb-1">
+            <span className="text-[#1C2C56] truncate pr-2">{r.label}</span>
+            <span className="text-[#64748B] flex-shrink-0">{r.value}</span>
+          </div>
+          <div className="h-2 bg-[#F1F5F9] rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${(r.value / max) * 100}%`,
+                backgroundColor: color,
+              }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const StatCard = ({ label, value, hint, accent }) => (
+  <div className="border border-[#E2E8F0] rounded-xl p-4">
+    <p className="text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">
+      {label}
+    </p>
+    <p
+      className={`text-2xl font-semibold mt-2 ${accent || "text-[#1C2C56]"}`}
+    >
+      {value}
+    </p>
+    {hint && <p className="text-[11px] text-[#94A3B8] mt-1">{hint}</p>}
+  </div>
+);
+
+const Panel = ({ title, subtitle, right, children }) => (
+  <div className="border border-[#E2E8F0] rounded-xl p-5">
+    <div className="flex items-start justify-between mb-4 gap-3">
+      <div>
+        <h3 className="text-base font-semibold text-[#1C2C56]">{title}</h3>
+        {subtitle && (
+          <p className="text-xs text-[#64748B] mt-0.5">{subtitle}</p>
+        )}
+      </div>
+      {right}
+    </div>
+    {children}
+  </div>
+);
+
+/* ------------------------------- page ------------------------------- */
+
+const MONTH_OPTIONS = [3, 6, 12];
 
 const ReportsAnalyticsPage = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
-  const [loading, setLoading] = useState(false);
-  const [reportData, setReportData] = useState(null);
+  const [data, setData] = useState(null);
+  const [months, setMonths] = useState(6);
+  const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
-  const chartWidth = 340;
-  const chartLeftPad = 34;
-  const chartRightPad = 16;
-  const plotWidth = chartWidth - chartLeftPad - chartRightPad;
+  const fetchAnalytics = useCallback(async () => {
+    if (!accessToken) {
+      setLoading(false);
+      return;
+    }
 
-  const summaryCards = [
-    {
-      label: "TOTAL REVENUE",
-      value: `¥${reportData?.kpi?.total_revenue ?? 0}`,
-    },
-    {
-      label: "TOTAL ORDERS",
-      value: reportData?.kpi?.total_orders ?? 0,
-    },
-    {
-      label: "ACTIVE RENTALS",
-      value: reportData?.kpi?.active_rentals ?? 0,
-    },
-    {
-      label: "INVENTORY ITEMS",
-      value: reportData?.kpi?.inventory_items ?? 0,
-    },
-    {
-      label: "LATE RETURNS",
-      value: reportData?.kpi?.late_returns ?? 0,
-      valueClass: "text-[#E4574E]",
-    },
-    {
-      label: "CUSTOMERS",
-      value: reportData?.kpi?.total_customers ?? 0,
-    },
-  ];
+    try {
+      setLoading(true);
+      const res = await apiGetReportsAnalytics(accessToken, months);
+      if (res?.status) setData(res.data);
+    } catch (error) {
+      console.error("Failed to load analytics:", error);
+      notify("Error", "danger", "Could not load analytics");
+    } finally {
+      setLoading(false);
+    }
+  }, [accessToken, months]);
 
-  const categoryBars =
-    reportData?.top_rented_categories?.map((item) => ({
-      label: item.label,
-      value: item.count,
-    })) || [];
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
 
-  const growthPoints =
-    reportData?.customer_growth?.map((item) => ({
-      month: item.label,
-      value: item.value,
-    })) || [];
+  // type: quotations | customers | products | sales | fabrics
+  const handleExport = async (type = "quotations") => {
+    if (exporting) return;
 
-  const maxValue =
-    Math.max(...growthPoints.map((item) => item.value), 100) || 100;
-  const chartTop = 24;
-  const chartBottom = 165;
-  const plotHeight = chartBottom - chartTop;
+    try {
+      setExporting(type);
+      const blob = await apiExportReportsCsv(accessToken, type);
+      const url = window.URL.createObjectURL(
+        blob instanceof Blob ? blob : new Blob([blob], { type: "text/csv" }),
+      );
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${type}_report_${new Date()
+        .toISOString()
+        .slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to export CSV:", error);
+      notify("Error", "danger", "Could not export the report");
+    } finally {
+      setExporting(false);
+    }
+  };
 
-  const yForValue = (value) => chartBottom - (value / maxValue) * plotHeight;
-  const maxBarValue =
-    Math.max(...categoryBars.map((item) => item.value), 100) || 100;
+  // Small download button for a panel header.
+  const ExportButton = ({ type }) => (
+    <button
+      type="button"
+      onClick={() => handleExport(type)}
+      disabled={!!exporting}
+      title={`Export ${type} as CSV`}
+      className="text-[#64748B] hover:text-[#1C4FA8] disabled:opacity-40 flex-shrink-0"
+    >
+      <FiDownload size={15} />
+    </button>
+  );
 
-  const stepX =
-    growthPoints.length > 1 ? plotWidth / (growthPoints.length - 1) : plotWidth;
-
-  const polylinePoints = growthPoints
-    .map(
-      (point, index) =>
-        `${chartLeftPad + index * stepX},${yForValue(point.value)}`,
-    )
-    .join(" ");
-
-//   const getReportAnalytics = async () => {
-//     try {
-//       setLoading(true);
-
-//       const res = await apiGetReportAnalytics(accessToken, "table");
-
-//       console.log("Report API", res);
-
-//       if (res?.status) {
-//         setReportData(res.data);
-//       }
-//     } catch (err) {
-//       console.log(err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (accessToken) {
-//       getReportAnalytics();
-//     }
-//   }, [accessToken]);
+  const stats = data?.stats;
+  const charts = data?.charts;
+  const catalog = data?.catalog;
 
   return (
-    <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div className="px-5 md:px-8 lg:px-12 py-8 bg-white min-h-screen">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-[28px] font-semibold leading-tight text-[#2A211D]">
+          <h1 className="text-2xl font-semibold text-[#1C2C56]">
             Reports &amp; Analytics
           </h1>
-          <p className="text-[13px] text-[#B29D8C]">
-            Track inventory, stock status, and product availability.
+          <p className="text-sm text-[#64748B]">
+            Quotation funnel, customers and catalog usage.
           </p>
         </div>
 
-        <button
-          type="button"
-          className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-[#1C4FA8] px-4 text-[13px] font-medium text-white"
-        >
-          <FiDownload size={14} />
-          Export Data
-        </button>
-      </div>
-
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-        {summaryCards.map((card) => (
-          <div
-            key={card.label}
-            className="rounded-[10px] border border-[#F0E4DB] bg-white px-4 py-4"
+        <div className="flex items-center gap-3">
+          <select
+            value={months}
+            onChange={(e) => setMonths(Number(e.target.value))}
+            disabled={loading}
+            className="border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm bg-white disabled:opacity-50"
           >
-            <p className="text-[12px] font-semibold tracking-[0.12em] text-[#757575]">
-              {card.label}
-            </p>
-            <p
-              className={`mt-2 text-[22px] font-semibold text-[#2F241F] ${card.valueClass ?? ""}`}
-            >
-              {card.value}
-            </p>
-          </div>
-        ))}
+            {MONTH_OPTIONS.map((m) => (
+              <option key={m} value={m}>
+                Last {m} months
+              </option>
+            ))}
+          </select>
+
+          <button
+            type="button"
+            onClick={() => handleExport("quotations")}
+            disabled={!!exporting || loading}
+            className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+          >
+            <FiDownload size={15} />
+            {exporting === "quotations" ? "Exporting..." : "Export Quotations"}
+          </button>
+        </div>
       </div>
 
-      <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)]">
-        <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
-          <div className="flex items-start justify-between">
-            <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
-              Customer Growth (Last 6 Months)
-            </h2>
-            <p className="text-[11px] text-[#C0ADA0]">+12% avg growth</p>
-          </div>
-
-          <div className="mt-5 overflow-x-auto">
-            <div className="min-w-[520px]">
-              <svg
-                viewBox={`0 0 ${chartWidth} 190`}
-                className="h-[190px] w-full"
-              >
-                {[0, 200, 400, 600, 800, 1000].map((value) => (
-                  <line
-                    key={value}
-                    x1={chartLeftPad}
-                    y1={yForValue(value)}
-                    x2={chartWidth - chartRightPad}
-                    y2={yForValue(value)}
-                    stroke="#F4EAE3"
-                    strokeWidth="1"
-                  />
-                ))}
-                <polygon
-                  fill="#B56735"
-                  fillOpacity="0.08"
-                  points={`${chartLeftPad},${chartBottom} ${polylinePoints} ${chartLeftPad + (growthPoints.length - 1) * stepX},${chartBottom}`}
-                />
-                <polyline
-                  fill="none"
-                  stroke="#B56735"
-                  strokeWidth="2"
-                  points={polylinePoints}
-                />
-                {growthPoints.map((point, index) => (
-                  <g key={point.month}>
-                    <circle
-                      cx={chartLeftPad + index * stepX}
-                      cy={yForValue(point.value)}
-                      r="3.5"
-                      fill="#B56735"
-                    />
-                    <text
-                      x={chartLeftPad + index * stepX}
-                      y={chartBottom + 18}
-                      textAnchor="middle"
-                      fontSize="10"
-                      fill="#B3A096"
-                    >
-                      {point.month}
-                    </text>
-                  </g>
-                ))}
-                {[0, 200, 400, 600, 800, 1000].map((label) => (
-                  <text
-                    key={label}
-                    x={chartLeftPad - 8}
-                    y={yForValue(label) + 3}
-                    textAnchor="end"
-                    fontSize="10"
-                    fill="#B3A096"
-                  >
-                    {label}
-                  </text>
-                ))}
-              </svg>
+      {loading && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+            <div
+              key={i}
+              className="border border-[#E2E8F0] rounded-xl p-4 animate-pulse"
+            >
+              <div className="h-3 w-20 bg-gray-200 rounded" />
+              <div className="h-7 w-16 bg-gray-100 rounded mt-3" />
             </div>
-          </div>
+          ))}
         </div>
+      )}
 
-        <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
-          <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
-            Customer Segments
-          </h2>
-
-          <div className="mt-6 flex justify-center">
-            <DonutChart
-              size={170}
-              thickness={34}
-              showLabels
-              segments={[
-                {
-                  value:
-                    reportData?.customer_segments?.find(
-                      (x) => x.label === "B2B",
-                    )?.percentage || 0,
-                  color: "#B56735",
-                },
-                {
-                  value:
-                    reportData?.customer_segments?.find(
-                      (x) => x.label === "B2C",
-                    )?.percentage || 0,
-                  color: "#7FCCF9",
-                },
-              ]}
+      {!loading && stats && (
+        <>
+          {/* Stat tiles */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard
+              label="Total Requests"
+              value={num(stats.total_requests)}
+            />
+            <StatCard
+              label="Pending Review"
+              value={num(stats.pending_review)}
+              accent="text-amber-600"
+              hint="Awaiting an admin quote"
+            />
+            <StatCard
+              label="Sent"
+              value={num(stats.sent)}
+              accent="text-blue-600"
+              hint="Awaiting customer reply"
+            />
+            <StatCard
+              label="Won"
+              value={num(stats.won)}
+              accent="text-green-600"
+              hint={`${stats.win_rate}% win rate`}
+            />
+            <StatCard
+              label="Quoted Value (Won)"
+              value={money(stats.quoted_value)}
+              hint="From admin-entered totals"
+            />
+            <StatCard
+              label="Open Pipeline"
+              value={money(stats.pipeline_value)}
+              hint="Pending + sent"
+            />
+            <StatCard
+              label="Avg. Response"
+              value={
+                stats.avg_response_days === null
+                  ? "—"
+                  : `${stats.avg_response_days} d`
+              }
+              hint={`Based on ${stats.responded_sample} sent quote${
+                stats.responded_sample === 1 ? "" : "s"
+              }`}
+            />
+            <StatCard
+              label="Customers"
+              value={num(stats.customers)}
+              hint={`${stats.b2b_accounts} B2B account${
+                stats.b2b_accounts === 1 ? "" : "s"
+              }`}
             />
           </div>
 
-          <div className="mt-6 flex items-center justify-center gap-6 text-[11px] text-[#8E7C70]">
-            <div className="flex items-center gap-2">
-              <span className="inline-block h-2.5 w-2.5 rounded-[2px] bg-[#B56735]" />
-              <span>B2B</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#7FCCF9]" />
-              <span>B2C</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 grid gap-4 xl:grid-cols-2">
-        <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
-          <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
-            Top Rented Categories
-          </h2>
-
-          <div className="mt-6 space-y-4">
-            {categoryBars.map((item) => (
-              <div
-                key={item.label}
-                className="grid grid-cols-[110px_minmax(0,1fr)] items-center gap-4"
+          {/* Row 1 — trend + status */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-6">
+            <div className="lg:col-span-2">
+              <Panel
+                title={`Quotation Requests (Last ${data.range_months} Months)`}
+                subtitle="New requests received per month"
               >
-                <p className="text-[11px] text-[#9F8D81]">{item.label}</p>
-                <div className="h-5 w-full rounded-[3px] bg-[#F4EAE3]">
-                  <div
-                    className="h-5 rounded-[3px] bg-[#B56735]"
-                    style={{ width: `${(item.value / maxBarValue) * 100}%` }}
-                  />
+                <BarChart data={charts.quotation_trend} />
+              </Panel>
+            </div>
+
+            <Panel title="Status Distribution" subtitle="All quotation requests">
+              <div className="flex flex-col items-center gap-4">
+                <DonutChart segments={charts.status_distribution} />
+                <div className="w-full space-y-1.5">
+                  {charts.status_distribution.map((s) => (
+                    <div
+                      key={s.label}
+                      className="flex items-center justify-between text-xs"
+                    >
+                      <span className="flex items-center gap-2 text-[#64748B]">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{
+                            backgroundColor:
+                              STATUS_COLORS[s.label] || "#94A3B8",
+                          }}
+                        />
+                        {s.label}
+                      </span>
+                      <span className="text-[#1C2C56] font-medium">
+                        {s.value} ({s.percentage}%)
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            </Panel>
           </div>
 
-          <div className="mt-4 flex justify-between pl-[126px] pr-1 text-[10px] text-[#B3A096]">
-            <span>0</span>
-            <span>100</span>
-            <span>200</span>
-            <span>300</span>
-            <span>400</span>
-          </div>
-        </div>
+          {/* Row 2 — industries + fabrics */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+            <Panel
+              title="Top Industries"
+              subtitle="By quotation request volume"
+            >
+              <RankedBars
+                rows={charts.top_industries}
+                emptyLabel="No categorised requests yet"
+              />
+            </Panel>
 
-        <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
-          <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
-            Inventory Status
-          </h2>
-
-          <div className="mt-6 flex justify-center">
-            <DonutChart
-              size={170}
-              thickness={34}
-              segments={[
-                {
-                  value:
-                    reportData?.inventory_status?.find(
-                      (x) => x.label === "Available",
-                    )?.percentage || 0,
-                  color: "#B56735",
-                },
-                {
-                  value:
-                    reportData?.inventory_status?.find(
-                      (x) => x.label === "Rented",
-                    )?.percentage || 0,
-                  color: "#D9A79E",
-                },
-                {
-                  value:
-                    reportData?.inventory_status?.find(
-                      (x) => x.label === "Maintenance",
-                    )?.percentage || 0,
-                  color: "#F5EDE6",
-                },
-                {
-                  value:
-                    reportData?.inventory_status?.find(
-                      (x) => x.label === "Damaged",
-                    )?.percentage || 0,
-                  color: "#2A211D",
-                },
-              ]}
-            />
+            <Panel
+              title="Top Fabrics"
+              subtitle="By parts using each fabric"
+              right={<ExportButton type="fabrics" />}
+            >
+              <RankedBars rows={charts.top_fabrics} color="#0EA5E9" />
+            </Panel>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] text-[#8E7C70]">
-            {inventoryLegend.map((item) => (
-              <div key={item.label} className="flex items-center gap-1.5">
-                <span
-                  className="inline-block h-2.5 w-2.5 rounded-[2px]"
-                  style={{ backgroundColor: item.color }}
-                />
-                <span>{item.label}</span>
+          {/* Row 3 — top customers + top products (plan: Customer / Product Reports) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+            <Panel
+              title="Top Customers"
+              subtitle="By quotation request volume"
+              right={<ExportButton type="customers" />}
+            >
+              {charts.top_customers?.length ? (
+                <div className="space-y-2">
+                  {charts.top_customers.map((c) => (
+                    <div
+                      key={c.label}
+                      className="flex items-center justify-between border border-[#E2E8F0] rounded-lg px-3 py-2"
+                    >
+                      <span className="text-sm text-[#1C2C56] truncate pr-2">
+                        {c.label}
+                      </span>
+                      <span className="text-xs text-[#64748B] flex-shrink-0">
+                        {c.value} request{c.value === 1 ? "" : "s"} · {c.won} won
+                        {c.amount !== null ? ` · ${money(c.amount)}` : ""}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-400 py-8 text-center">
+                  No named companies on requests yet
+                </p>
+              )}
+            </Panel>
+
+            <Panel
+              title="Top Products"
+              subtitle="By quotation request volume"
+              right={<ExportButton type="products" />}
+            >
+              <RankedBars
+                rows={charts.top_products}
+                color="#8B5CF6"
+                emptyLabel="No requests linked to a product yet"
+              />
+            </Panel>
+          </div>
+
+          {/* Row 4 — customer growth + sales reps */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+            <Panel
+              title={`Customer Growth (Last ${data.range_months} Months)`}
+              subtitle="New uniform-platform customers per month"
+            >
+              <BarChart data={charts.customer_growth} color="#10B981" />
+            </Panel>
+
+            <Panel
+              title="Sales Rep Performance"
+              subtitle="Quotations assigned vs won"
+              right={<ExportButton type="sales" />}
+            >
+              {charts.sales_leaderboard.length ? (
+                <div className="space-y-3">
+                  {charts.sales_leaderboard.map((r) => (
+                    <div
+                      key={r.id}
+                      className="flex items-center justify-between border border-[#E2E8F0] rounded-lg px-3 py-2"
+                    >
+                      <span className="text-sm text-[#1C2C56] truncate pr-2">
+                        {r.label}
+                      </span>
+                      <span className="text-xs text-[#64748B] flex-shrink-0">
+                        {r.won}/{r.assigned} won · {r.win_rate}% ·{" "}
+                        {money(r.value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-400 py-8 text-center">
+                  No quotations assigned to a sales rep yet
+                </p>
+              )}
+            </Panel>
+          </div>
+
+          {/* Catalog snapshot */}
+          <div className="mt-5">
+            <Panel
+              title="Catalog Snapshot"
+              subtitle="Current published catalog size"
+            >
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {[
+                  ["Products", catalog.products],
+                  ["Categories", catalog.categories],
+                  ["Fabrics", catalog.fabrics],
+                  ["Parts", catalog.parts],
+                  ["Templates", catalog.templates],
+                ].map(([label, value]) => (
+                  <div key={label} className="text-center">
+                    <p className="text-xl font-semibold text-[#1C2C56]">
+                      {num(value)}
+                    </p>
+                    <p className="text-xs text-[#64748B]">{label}</p>
+                  </div>
+                ))}
               </div>
-            ))}
+            </Panel>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };

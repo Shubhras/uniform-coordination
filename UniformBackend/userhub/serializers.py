@@ -557,6 +557,15 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             "size_quantity",
             "delivery_date",
             "additional_note",
+
+            # Admin-entered quotation figures (manual quoting, no auto-calculation)
+            "valid_until",
+            "sales_rep",
+            "subtotal",
+            "discount_percent",
+            "total",
+            "last_sent_at",
+
             "agreed_to_terms",
             "isActive",
             "isDeleted",

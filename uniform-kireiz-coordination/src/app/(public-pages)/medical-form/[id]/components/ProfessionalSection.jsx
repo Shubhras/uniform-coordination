@@ -33,6 +33,12 @@ const features = [
 
 ]
 
+/**
+ * ProfessionalSection Component.
+ * Highlights healthcare-tailored features (antibacterial fabrics, comfort stretch, practical pockets).
+ *
+ * @returns {JSX.Element} Feature highlight cards grid section.
+ */
 const ProfessionalSection = () => {
     return (
         <section className="w-full bg-white px-5 md:px-8 lg:px-12">

@@ -1,29 +1,12 @@
-// import ApiService from './ApiService'
-
-// export async function apiGetProductList(params) {
-//     return ApiService.fetchDataWithAxios({
-//         url: '/products',
-//         method: 'get',
-//         params,
-//     })
-// }
-
-// export async function apiGetProduct({ id, ...params }) {
-//     return ApiService.fetchDataWithAxios({
-//         url: `/products/${id}`,
-//         method: 'get',
-//         params,
-//     })
-// }
-
 import ApiService from "./ApiService";
 
-// export async function apiGetProductById(id) {
-//   return ApiService.fetchDataWithAxios({
-//     url: `/v1/uniformAdmin/product/list/?subcategoryId=${id}&productType=uniform`,
-//     method: "get",
-//   });
-// }
+
+/**
+ * Fetches product list by parameters (subcategoryId, productType, etc.).
+ *
+ * @param {Object} [params] - Query parameters for fetching product list.
+ * @returns {Promise<Object>} API response with list of products.
+ */
 export async function apiGetProductById(params) {
   return ApiService.fetchDataWithAxios({
     url: `/v1/uniformAdmin/product/list/`,
@@ -32,6 +15,12 @@ export async function apiGetProductById(params) {
   });
 }
 
+/**
+ * Fetches detailed product information by product ID.
+ *
+ * @param {string|number} id - Product ID.
+ * @returns {Promise<Object>} API response with detailed product information.
+ */
 export async function apiGetProductDetailsById(id) {
   return ApiService.fetchDataWithAxios({
     url: `/v1/uniformAdmin/product/get/${id}/`,

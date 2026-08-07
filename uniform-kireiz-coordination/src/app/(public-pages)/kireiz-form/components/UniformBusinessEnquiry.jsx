@@ -71,7 +71,6 @@
 //     return () => window.removeEventListener("resize", handleResize);
 //   }, []);
 
-
 //   // const handleNext = () => {
 //   //   setIndex((prev) =>
 //   //     prev + 3 >= bottomCards.length ? 0 : prev + 1
@@ -110,12 +109,12 @@
 //         <div
 //           className="
 //               mt-10
-//               grid 
-//               gap-4       
-//               sm:gap-5     
-//               md:gap-6    
-//               lg:gap-8    
-//               xl:gap-10    
+//               grid
+//               gap-4
+//               sm:gap-5
+//               md:gap-6
+//               lg:gap-8
+//               xl:gap-10
 //               grid-cols-1
 //               sm:grid-cols-2
 //               md:grid-cols-3
@@ -238,7 +237,6 @@
 
 // export default UniformBusinessEnquiry;
 
-
 "use client";
 
 import Image from "next/image";
@@ -247,7 +245,7 @@ import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 
 const UniformBusinessEnquiry = ({ categories = [] }) => {
-  const [cardsPerView, setCardsPerView] = useState(3);
+  const [cardsPerView, setCardsPerView] = useState(4);
   const [index, setIndex] = useState(0);
   const router = useRouter();
 
@@ -261,35 +259,53 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
     }));
   }, [categories]);
 
-  /* RESPONSIVE CARDS COUNT */
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     const width = window.innerWidth;
+
+  //     if (width >= 1440) setCardsPerView(5);
+  //     else if (width >= 1280) setCardsPerView(4);
+  //     else if (width >= 1024) setCardsPerView(3);
+  //     else if (width >= 768) setCardsPerView(2);
+  //     else if (width >= 640) setCardsPerView(2);
+  //     else setCardsPerView(1);
+  //   };
+
+  //   handleResize();
+  //   window.addEventListener("resize", handleResize);
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
+
+  const isPrevDisabled = index === 0;
+  const isNextDisabled = index + cardsPerView >= cards.length;
+
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
 
-      if (width >= 1440) setCardsPerView(5);
-      else if (width >= 1280) setCardsPerView(4);
-      else if (width >= 1024) setCardsPerView(3);
-      else if (width >= 768) setCardsPerView(2);
-      else if (width >= 640) setCardsPerView(2);
-      else setCardsPerView(1);
+      if (width >= 1024)
+        setCardsPerView(4); // Desktop
+      else if (width >= 768)
+        setCardsPerView(2); // Tablet
+      else setCardsPerView(1); // Mobile
     };
 
     handleResize();
     window.addEventListener("resize", handleResize);
+
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  /* SLIDER CONTROLS */
   const handleNext = () => {
-    setIndex((prev) =>
-      prev + cardsPerView >= cards.length ? 0 : prev + 1
-    );
+    if (index + cardsPerView < cards.length) {
+      setIndex(index + cardsPerView);
+    }
   };
 
   const handlePrev = () => {
-    setIndex((prev) =>
-      prev === 0 ? cards.length - cardsPerView : prev - 1
-    );
+    if (index - cardsPerView >= 0) {
+      setIndex(index - cardsPerView);
+    }
   };
 
   const handleMedicalFormDesigning = (id) => {
@@ -299,7 +315,6 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
   return (
     <section className="w-full bg-white mx-auto px-5 md:px-8 lg:px-12">
       <div className="mx-auto bg-[#EEF3FB] rounded-tr-[120px]">
-
         {/* TITLE */}
         <h2 className="text-center text-3xl font-semibold text-[#1C2C56] pt-14">
           How KIREIZ Helps Your Business
@@ -368,61 +383,62 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
         {/* SLIDER ARROWS */}
         <div className="flex justify-end gap-6 mt-6 mr-6">
           <FiArrowLeft
-            onClick={handlePrev}
             size={25}
-            className="cursor-pointer text-gray-600"
+            onClick={!isPrevDisabled ? handlePrev : undefined}
+            className={`cursor-pointer transition ${
+              isPrevDisabled
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-gray-600 hover:text-black"
+            }`}
           />
           <FiArrowRight
-            onClick={handleNext}
             size={25}
-            className="cursor-pointer text-gray-600"
+            onClick={!isNextDisabled ? handleNext : undefined}
+            className={`cursor-pointer transition ${
+              isNextDisabled
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-gray-600 hover:text-black"
+            }`}
           />
         </div>
 
         {/* INDUSTRY SLIDER */}
         <div className="mt-6 overflow-hidden pb-12 ml-6 mr-6">
           <div className="flex gap-6 transition-transform duration-500 ease-in-out justify-center">
-            {cards
-              .slice(index, index + cardsPerView)
-              .map((item, i) => (
-                <div
-                  key={i}
-                  className="
+            {cards.slice(index, index + cardsPerView).map((item, i) => (
+              <div
+                key={i}
+                className="
                     bg-white border border-[#E3E8F1]
                     rounded-[15px] shadow-md p-4 cursor-pointer
                     w-full sm:w-[280px] md:w-[300px] lg:w-[320px]
                   "
-                  onClick={() => handleMedicalFormDesigning(item.id)}
-                >
-                  <div className="flex justify-center mb-6">
-                    <div className="w-[180px] h-[200px] md:w-[200px] md:h-[220px] rounded-full overflow-hidden">
-                      <Image
-                        src={item.img}
-                        alt={item.id}
-                        width={200}
-                        height={220}
-                        className="object-cover w-full h-full"
-                        unoptimized
-                      />
-
-                    </div>
+                onClick={() => handleMedicalFormDesigning(item.id)}
+              >
+                <div className="flex justify-center mb-6">
+                  <div className="w-[180px] h-[200px] md:w-[200px] md:h-[220px] rounded-full overflow-hidden">
+                    <Image
+                      src={item.img}
+                      alt={item.id}
+                      width={200}
+                      height={220}
+                      className="object-cover w-full h-full"
+                      unoptimized
+                    />
                   </div>
-
-                  <h3 className="text-[#1C2C56] text-[18px] font-semibold">
-                    {item.title}
-                  </h3>
-                  <p className="text-[#6B7280] text-[14px] mt-2">
-                    {item.desc}
-                  </p>
                 </div>
-              ))}
+
+                <h3 className="text-[#1C2C56] text-[18px] font-semibold">
+                  {item.title}
+                </h3>
+                <p className="text-[#6B7280] text-[14px] mt-2">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
-
       </div>
     </section>
   );
 };
 
 export default UniformBusinessEnquiry;
-

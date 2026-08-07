@@ -12,12 +12,17 @@ import ChatbotSection from '../../../kireiz-form/components/ChatbotSection'
 import { apiCategoryById, apiGetTemplateByCategory } from '@/services/CategoryService'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-// import ChatbotSection from '../../chatbot-section/ChatbotSection'
+
+/**
+ * MedicalHome Component.
+ * Main container for the medical uniform category page view.
+ * Handles fetching subcategories, templates, filtering, sorting, and theme mode.
+ *
+ * @returns {JSX.Element} Medical uniform main page layout.
+ */
 const MedicalHome = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
-    const schema = useTheme((state) => state.themeSchema)
-    const setSchema = useTheme((state) => state.setSchema)
     const { id } = useParams();
     const [categoryData, setCategoryData] = useState([]);
     const [subCategoryData, setSubCategoryData] = useState([]);
@@ -26,10 +31,12 @@ const MedicalHome = () => {
     const [sortBy, setSortBy] = useState(sortOptions[0]);
 
     useEffect(() => {
+        /**
+         * Fetches templates list associated with the category ID.
+         */
         const fetchTemplates = async () => {
             try {
                 const res = await apiGetTemplateByCategory(id);
-                console.log("Templates API Response:", res);
             } catch (err) {
                 console.error("Failed to fetch templates", err);
             }
@@ -39,6 +46,9 @@ const MedicalHome = () => {
     }, [id]);
 
     useEffect(() => {
+        /**
+         * Fetches subcategory data filtered and sorted by criteria.
+         */
         const fetchCategory = async () => {
             setLoading(true);
             try {
@@ -57,11 +67,12 @@ const MedicalHome = () => {
         if (id) fetchCategory();
     }, [id, activeFilter, sortBy]);
 
-
+    /**
+     * Toggles theme mode between Light and Dark.
+     */
     const toggleMode = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }
-    //console.log(categoryData)
 
     return (
         <main className="text-base bg-white dark:bg-gray-900">

@@ -7,6 +7,12 @@ import { FiChevronDown } from 'react-icons/fi'
 import Select from '@/components/ui/Select'
 import { HiCheck } from 'react-icons/hi'
 
+/**
+ * CustomOption Component for Select dropdown menu.
+ *
+ * @param {Object} props - React Select option props.
+ * @returns {JSX.Element} Dropdown option item component.
+ */
 const CustomOption = (props) => {
     const { innerProps, label, isSelected, isDisabled } = props
     return (
@@ -21,53 +27,7 @@ const CustomOption = (props) => {
     )
 }
 
-// const categories = [
-//     {
-//         title: 'Medical Scrubs',
-//         desc: 'Professional, heat-resistant jackets for kitchen safety and comfort',
-//         points: [
-//             'Classic Double-Breasted | Euro Style | Slim Fit',
-//             '12+ Colors | Multiple Sizes',
-//             'Heat-Resistant Fabrics | Breathable Cotton',
-//         ],
-//         img: '/img/medical-form/category/category1.png',
-//         btn: 'Customize Jacket',
-//     },
-//     {
-//         title: 'Professional Lab Coats',
-//         desc: 'Durable, comfortable pants designed for long hours in the kitchen',
-//         points: [
-//             'Classic Checkered | Solid Black | Striped',
-//             'Elastic Waist | Drawstring | Traditional',
-//             'Stain-Resistant | Quick-Drying',
-//         ],
-//         img: '/img/medical-form/category/category2.png',
-//         btn: 'Design Pants',
-//     },
-//     {
-//         title: 'Clinical Staff Wear',
-//         desc: 'Protective aprons for chefs and kitchen staff',
-//         points: [
-//             'Waist Aprons | Bib Aprons | Full Length',
-//             'Multiple Colors | Custom Printing',
-//             'Water-Resistant | Easy Clean',
-//         ],
-//         img: '/img/medical-form/category/category3.png',
-//         btn: 'View Aprons',
-//     },
-//     {
-//         title: 'Office & Admin Staff',
-//         desc: 'Hygienic and professional head coverings',
-//         points: [
-//             'Chef Hats | Skull Caps | Bandanas',
-//             'Disposable Options | Reusable Cotton',
-//             'Branding Available',
-//         ],
-//         img: '/img/medical-form/category/category4.png',
-//         btn: 'Explore Headwear',
-//     },
-// ]
-
+/** Available filter choices for subcategory list */
 export const filters = [
     { id: '', name: 'All' },
     { id: 'scrub', name: 'Scrub' },
@@ -75,19 +35,31 @@ export const filters = [
     { id: 'patient-care', name: 'Patient Care' },
     { id: 'administrative', name: 'Administrative' }
 ]
+
+/** Available sorting choices for subcategory list */
 export const sortOptions = [
     { id: '', name: 'All' },
     { id: 'popular', name: 'Popular' },
-    { id: 'newest', name: 'Newest' },
-    // { id: 'price-low-to-high', name: 'Price: Low to High' },
-    // { id: 'price-high-to-low', name: 'Price: High to Low' }
+    { id: 'newest', name: 'Newest' }
 ]
+
+/**
+ * CategorySection Component.
+ * Displays subcategory grid list with filtering, sorting dropdowns, and navigation to uniform design studio.
+ *
+ * @returns {JSX.Element} Subcategory listing section view.
+ */
 const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortBy, setSortBy, loading }) => {
 
     const [openSort, setOpenSort] = useState(false)
 
     const router = useRouter();
 
+    /**
+     * Navigates to the uniform designer canvas for the chosen subcategory ID.
+     *
+     * @param {string|number} id - Subcategory ID.
+     */
     const handleStartDesigning = (id) => {
         router.push(`/dashboards/uniform-design/${id}`);
     };
