@@ -1,6 +1,7 @@
 {
+  "/page": "app/page.js",
   "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js",
-  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
   "/(auth-pages)/sign-in/page": "app/(auth-pages)/sign-in/page.js",
-  "/(auth-pages)/forgot-password/page": "app/(auth-pages)/forgot-password/page.js"
+  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
+  "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js"
 }

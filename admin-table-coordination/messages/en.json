@@ -274,6 +274,7 @@
         }     
     },
     "productSpecification":{
+        "fabric":{
         "productManagement":"Product & Specification Management",
         "productSubtitle":"Manage fabrics, parts, colors, options, and templates",
         "fabrics":"Fabrics",
@@ -287,12 +288,27 @@
         "pricePer":"Price per Unit",
         "actions":"Actions",
         "materialType":"Material Type",
+        "material":"Material",
         "category":"Category",
         "subCategory":"Sub Category",
         "status":"Status",
         "active":"Active",
         "cancel":"Cancel",
-        "addAnother":"Save & Add Another"
+        "addAnother":"Save & Add Another",
+        "showing":"Showing",
+        "save":"Save",
+        "deleteFabric":"Delete Fabric",
+        "deleteFabricContent":"Are you sure you want to delete this fabric? This action cannot be undone.",
+        "Delete":"Delete",
+        "editFabric":"Edit Fabric"
+        },
+        "color":{
+            "palette":"Color Palette",
+            "colorAvailable":"colors available",
+            "searchColor":"Search Colors...",
+            "addColor":"Add Color",
+            "duplicate":"Duplicate"
 
+        }
     }
 }
