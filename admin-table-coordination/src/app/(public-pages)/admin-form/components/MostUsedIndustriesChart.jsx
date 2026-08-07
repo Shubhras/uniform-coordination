@@ -2,15 +2,19 @@
 
 import Chart from "react-apexcharts";
 
-const MostUsedIndustriesChart = () => {
-  const categories = [
-    "Round 6ft",
-    "Round 8ft",
-    "Rectangular\n6x3",
-    "Rectangular\n8x4",
-    "Circle Table",
-    "Food service",
-  ];
+const MostUsedIndustriesChart = ({ data }) => {
+  const mostRentedTheme = data?.Most_Rented_Theme || [];
+
+  const categories = mostRentedTheme.length > 0
+    ? mostRentedTheme.map(item => item.theme_name || "Unassigned")
+    : [
+        "Round 6ft",
+        "Round 8ft",
+        "Rectangular\n6x3",
+        "Rectangular\n8x4",
+        "Circle Table",
+        "Food service",
+      ];
 
   const options = {
     chart: {
@@ -21,7 +25,7 @@ const MostUsedIndustriesChart = () => {
       fontFamily: "inherit",
     },
 
-    colors: ["#E1D1C7", "#6A341A"],
+    colors: ["#6A341A", "#E1D1C7"],
 
     plotOptions: {
       bar: {
@@ -72,9 +76,6 @@ const MostUsedIndustriesChart = () => {
 
     yaxis: {
       min: 0,
-      max: 500,
-      tickAmount: 5,
-
       labels: {
         style: {
           colors: "#777",
@@ -90,12 +91,10 @@ const MostUsedIndustriesChart = () => {
 
   const series = [
     {
-      name: "Previous",
-      data: [150, 170, 190, 210, 230, 250],
-    },
-    {
-      name: "Current",
-      data: [120, 145, 170, 190, 200, 225],
+      name: "Orders/Rentals",
+      data: mostRentedTheme.length > 0
+        ? mostRentedTheme.map(item => item.count)
+        : [120, 145, 170, 190, 200, 225],
     },
   ];
 

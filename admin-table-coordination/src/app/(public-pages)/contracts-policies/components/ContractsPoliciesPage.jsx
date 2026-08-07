@@ -1,85 +1,13 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Select from "react-select";
 import { FiChevronLeft, FiChevronRight, FiEye, FiRotateCcw, FiSearch, FiX } from "react-icons/fi";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { apiGetContractsList } from "@/services/ContractsPoliciesService";
+import Spinner from "@/components/ui/Spinner";
 import StatusBadge from "./StatusBadge";
-
-const contractRows = [
-  {
-    contractId: "CTR-2024-0891",
-    company: "Meridian Events Group",
-    orderId: "ORD-2024-3847",
-    quotationId: "QUO-2024-1203",
-    sentDate: "—",
-    signedDate: "Nov 13, 2024",
-    status: "Sent",
-  },
-  {
-    contractId: "CTR-2024-0892",
-    company: "Bluewater Hospitality Co.",
-    orderId: "ORD-2024-3848",
-    quotationId: "QUO-2024-1204",
-    sentDate: "Nov 10, 2024",
-    signedDate: "Nov 13, 2024",
-    status: "Signed",
-  },
-  {
-    contractId: "CTR-2024-0893",
-    company: "Lumina Wedding Studios",
-    orderId: "ORD-2024-3849",
-    quotationId: "QUO-2024-1205",
-    sentDate: "Nov 11, 2024",
-    signedDate: "Nov 13, 2024",
-    status: "Sent",
-  },
-  {
-    contractId: "CTR-2024-0894",
-    company: "Bluewater Hospitality Co.",
-    orderId: "ORD-2024-3850",
-    quotationId: "QUO-2024-1206",
-    sentDate: "Nov 12, 2024",
-    signedDate: "Nov 14, 2024",
-    status: "Signed",
-  },
-  {
-    contractId: "CTR-2024-0895",
-    company: "Meridian Events Group",
-    orderId: "ORD-2024-3851",
-    quotationId: "QUO-2024-1207",
-    sentDate: "—",
-    signedDate: "Nov 15, 2024",
-    status: "Sent",
-  },
-  {
-    contractId: "CTR-2024-0896",
-    company: "Meridian Events Group",
-    orderId: "ORD-2024-3852",
-    quotationId: "QUO-2024-1208",
-    sentDate: "—",
-    signedDate: "Nov 16, 2024",
-    status: "Sent",
-  },
-  {
-    contractId: "CTR-2024-0897",
-    company: "Meridian Events Group",
-    orderId: "ORD-2024-3853",
-    quotationId: "QUO-2024-1209",
-    sentDate: "—",
-    signedDate: "Nov 17, 2024",
-    status: "Sent",
-  },
-  {
-    contractId: "CTR-2024-0898",
-    company: "Meridian Events Group",
-    orderId: "ORD-2024-3854",
-    quotationId: "QUO-2024-1210",
-    sentDate: "—",
-    signedDate: "Nov 18, 2024",
-    status: "Sent",
-  },
-];
 
 const statusOptions = [
   { value: "all", label: "Status" },
@@ -133,50 +61,61 @@ const selectStyles = {
 
 const ContractsPoliciesPage = () => {
   const router = useRouter();
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
+
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState(statusOptions[0]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
-  // Search aur status ke hisab se rows filter hongi
-  const filteredRows = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-
-    return contractRows.filter((row) => {
-      const matchesSearch =
-        !query ||
-        row.contractId.toLowerCase().includes(query) ||
-        row.company.toLowerCase().includes(query) ||
-        row.orderId.toLowerCase().includes(query) ||
-        row.quotationId.toLowerCase().includes(query);
-
-      const matchesStatus =
-        status.value === "all" ||
-        row.status.toLowerCase() === status.value.toLowerCase();
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [searchQuery, status]);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [contracts, setContracts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, status]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
 
-  const totalPages = Math.ceil(filteredRows.length / itemsPerPage) || 1;
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
+  const fetchContracts = async () => {
+    if (!accessToken) return;
+
+    try {
+      setLoading(true);
+      const res = await apiGetContractsList(
+        accessToken,
+        currentPage,
+        pageSize,
+        debouncedSearch,
+        status.value
+      );
+
+      if (res?.status) {
+        setContracts(res.data || []);
+        setTotal(res.pagination?.count || 0);
+      } else {
+        setContracts([]);
+        setTotal(0);
+      }
+    } catch (err) {
+      console.error(err);
+      setContracts([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
     }
-  }, [totalPages, currentPage]);
+  };
 
-  const paginatedRows = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return filteredRows.slice(start, start + itemsPerPage);
-  }, [filteredRows, currentPage]);
+  useEffect(() => {
+    fetchContracts();
+  }, [accessToken, currentPage, pageSize, debouncedSearch, status]);
 
-  const startItem = filteredRows.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
-  const endItem = Math.min(currentPage * itemsPerPage, filteredRows.length);
+  const totalPages = Math.ceil(total / pageSize) || 1;
 
   const goToPage = (page) => {
     if (page < 1 || page > totalPages) return;
@@ -212,6 +151,9 @@ const ContractsPoliciesPage = () => {
     setStatus(statusOptions[0]);
     setCurrentPage(1);
   };
+
+  const startItem = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, total);
 
   return (
     <div className="bg-white p-3 sm:p-6">
@@ -284,7 +226,6 @@ const ContractsPoliciesPage = () => {
               <th className="px-4 py-4">Contract ID</th>
               <th className="px-4 py-4">Company</th>
               <th className="px-4 py-4">Order ID</th>
-              <th className="px-4 py-4">Quotation ID</th>
               <th className="px-4 py-4">Sent Date</th>
               <th className="px-4 py-4">Signed Date</th>
               <th className="px-4 py-4">Status</th>
@@ -293,45 +234,49 @@ const ContractsPoliciesPage = () => {
           </thead>
 
           <tbody>
-            {paginatedRows.length > 0 ? (
-              paginatedRows.map((row, index) => (
+            {loading ? (
+              <tr>
+                <td colSpan={7} className="py-10">
+                  <div className="flex justify-center">
+                    <Spinner size={40} customColorClass="text-[#A0522D]" />
+                  </div>
+                </td>
+              </tr>
+            ) : contracts.length > 0 ? (
+              contracts.map((row, index) => (
                 <tr
-                  key={`${row.contractId}-${index}`}
+                  key={`${row.contract_id}-${index}`}
                   className="border-t border-[#F6EFEB] bg-[#FFFDFC] text-xs text-[#5F534C]"
                 >
                   <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#4A3D36]">
-                    {row.contractId}
+                    {row.contract_id}
                   </td>
 
                   <td className="whitespace-nowrap px-4 py-4 font-medium text-[#4A3D36]">
-                    {row.company}
+                    {row.company_name}
                   </td>
 
                   <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#4A3D36]">
-                    {row.orderId}
-                  </td>
-
-                  <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#4A3D36]">
-                    {row.quotationId}
+                    {row.order_id || "—"}
                   </td>
 
                   <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#7E736C]">
-                    {row.sentDate}
+                    {row.created_at ? new Date(row.created_at).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }) : "—"}
                   </td>
 
                   <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#4A3D36]">
-                    {row.signedDate}
+                    {row.signed_at ? new Date(row.signed_at).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }) : "—"}
                   </td>
 
                   <td className="whitespace-nowrap px-4 py-4">
-                    <StatusBadge status={row.status} />
+                    <StatusBadge status={row.is_signed ? "Signed" : "Sent"} />
                   </td>
 
                   <td className="px-4 py-4 text-center">
                     <button
                       type="button"
                       onClick={() =>
-                        router.push(`/contracts-policies/${row.contractId}`)
+                        router.push(`/contracts-policies/${row.contract_id}`)
                       }
                       className="inline-flex items-center gap-1.5 rounded-lg border border-[#E7D9CF] bg-white px-3 py-1.5 text-xs font-medium text-[#A85A32] transition hover:bg-[#FAF3EE]"
                     >
@@ -344,7 +289,7 @@ const ContractsPoliciesPage = () => {
             ) : (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={7}
                   className="bg-white px-4 py-12 text-center text-sm text-[#8B817A]"
                 >
                   No contracts found.
@@ -356,9 +301,9 @@ const ContractsPoliciesPage = () => {
       </div>
       <div className="mt-5 flex flex-col gap-3 text-[11px] text-[#9A8C82] sm:flex-row sm:items-center sm:justify-between">
         <p>
-          {filteredRows.length === 0
+          {total === 0
             ? "No results"
-            : `Showing ${startItem}-${endItem} of ${filteredRows.length}`}
+            : `Showing ${startItem}-${endItem} of ${total}`}
         </p>
 
         <div className="flex items-center gap-2">

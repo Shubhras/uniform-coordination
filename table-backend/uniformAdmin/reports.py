@@ -160,7 +160,7 @@ class ReportsAnalyticsAPIView(APIView):
             )
             top_rented_categories = [
                 {
-                    "category": cat['product__category__categoryName'] or "Uncategorized",
+                    "label": cat['product__category__categoryName'] or "Uncategorized",
                     "count": cat['total_rented'] or 0
                 }
                 for cat in top_cats

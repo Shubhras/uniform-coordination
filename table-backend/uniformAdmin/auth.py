@@ -552,62 +552,47 @@ class LogoutAPIView(APIView):
             "message": "Logout successful"
         }, status=status.HTTP_200_OK)
 
-# class ForgotPasswordAPIView(APIView):
-#     authentication_classes = []
-#     permission_classes = []
 
-#     @extend_schema(
-#     tags=["Admin Authentication"],
-#     summary="Forgot Password",
-#     description="Send password reset link to admin email.",
-#     request={
-#         "application/json": {
-#             "type": "object",
-#             "properties": {
-#                 "email": {"type": "string", "example": "admin@example.com"}
-#             },
-#             "required": ["email"]
-#         }
-#     },
-#     responses={
-#         200: OpenApiResponse(description="Reset link sent"),
-#         400: OpenApiResponse(description="Email required"),
-#         404: OpenApiResponse(description="User not found")
-#     }
-# )
+# from rest_framework.permissions import IsAuthenticated
+# from rest_framework_simplejwt.exceptions import TokenError
+
+# class LogoutAPIView(APIView):
+#     authentication_classes = [IsAdminUserJWT]
+#     permission_classes = [IsAuthenticated]
+
+#     @extend_schema(...)
 #     def post(self, request):
-#         email = request.data.get("email")
-#         type = request.data.get("type")
-
-#         if not email:
+#         refresh_token = request.data.get("refresh_token")
+#         if not refresh_token:
 #             return Response({
-#                 "statusCode":400,
-#                 "status":False,
-#                 "message":"Email required.",
-#             },status=status.HTTP_400_BAD_REQUEST)
+#                 "status": False,
+#                 "statusCode": 400,
+#                 "message": "Refresh token required"
+#             }, status=status.HTTP_400_BAD_REQUEST)
+
 #         try:
-#             user = AdminUser.objects.get(email=email, is_active=True)
-#         except AdminUser.DoesNotExist:
-#             return Response({"status": False, "message": "User not found"}, status=404)
+#             token = RefreshToken(refresh_token)
+#             token.blacklist()
+#         except TokenError:
+#             return Response({
+#                 "status": False,
+#                 "statusCode": 400,
+#                 "message": "Invalid or expired refresh token"
+#             }, status=status.HTTP_400_BAD_REQUEST)
 
-#         token = PasswordResetTokenGenerator().make_token(user)
-#         reset_link = f"http://23.23.88.239:7001/reset-password/?user_id={user.id}&token={token}"
+#         tokens = OutstandingToken.objects.filter(user=request.user)
+#         for t in tokens:
+#             BlacklistedToken.objects.get_or_create(token=t)
 
-#         # ASYNC EMAIL
-#         Thread(
-#             target=send_reset_email,
-#             args=(
-#                 "Reset Your Password",
-#                 f"Click the link to reset password:\n{reset_link}",
-#                 user.email,
-#             ),
-#         ).start()
+#         request.user.is_currently_login = False
+#         request.user.save(update_fields=['is_currently_login'])
 
 #         return Response({
 #             "status": True,
-#             "message": "Password reset link sent"
-#         }, status=200)
-
+#             "statusCode": 200,
+#             "message": "Logout successful"
+#         }, status=status.HTTP_200_OK)
+        
 class ForgotPasswordAPIView(APIView):
     authentication_classes = []
     permission_classes = []

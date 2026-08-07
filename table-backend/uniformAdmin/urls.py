@@ -168,6 +168,10 @@ urlpatterns = [
     path("customers/<int:id>/",CustomerDetailAPIView.as_view(),name="admin-customer-detail",),
     path("customers/<int:id>/update/",CustomerUpdateAPIView.as_view(),name="admin-customer-update",),
 
+    # Contracts Management
+    path("contracts/get/", AdminContractsListAPIView.as_view(), name="admin-contracts-list"),
+    path("contracts/<str:contract_id>/get/", AdminContractDetailAPIView.as_view(), name="admin-contract-detail"),
+
     #<----------------------Table_Theme ---------------------------->
     path('tabletheme/create/',TableThemeCreateAPIView.as_view(), name = 'Table_Theme-create'),
     path('tabletheme/get-list/',TableThemeListAPIView.as_view(), name = 'Table_Theme-get-list'),
@@ -263,6 +267,9 @@ urlpatterns = [
     # ==========================================
     path('settings/system/', SystemSettingsRetrieveView.as_view(), name='system-settings-get'),
     path('settings/system/update/', SystemSettingsUpdateView.as_view(), name='system-settings-update'),
+    
+    
+    path("validate-promocode/",ValidatePromocodeAPIView.as_view(),name="validate-promocode",),
 
     
     # ==========================================

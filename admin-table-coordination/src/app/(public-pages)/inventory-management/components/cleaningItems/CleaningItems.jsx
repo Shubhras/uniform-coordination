@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiCleaningItems } from "@/services/InventoryManagement";
+import { apiCleaningItems, apiUpdateCleaningItem } from "@/services/InventoryManagement";
 import Spinner from "@/components/ui/Spinner";
 import { FiRefreshCw } from "react-icons/fi";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 
 const CleaningItems = () => {
   const { session } = useCurrentSession();
@@ -21,8 +23,8 @@ const CleaningItems = () => {
 
       const res = await apiCleaningItems(accessToken);
 
-      if (res?.data?.status) {
-        setItems(res.data.data || []);
+      if (res?.status) {
+        setItems(res.data || []);
       } else {
         setItems([]);
       }
@@ -38,8 +40,35 @@ const CleaningItems = () => {
     fetchCleaningItems();
   }, [accessToken]);
 
-  const moveToAvailable = (id) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  const moveToAvailable = async (id) => {
+    if (!accessToken) return;
+    try {
+      const res = await apiUpdateCleaningItem(accessToken, id, {
+        status: "moved",
+      });
+      if (res?.status) {
+        toast.push(
+          <Notification type="success" title="Success">
+            Item moved to available stock.
+          </Notification>
+        );
+        fetchCleaningItems();
+      } else {
+        toast.push(
+          <Notification type="danger" title="Error">
+            {res?.message || "Failed to move item to available"}
+          </Notification>
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      const errMsg = err.response?.data?.message || err.message || "Failed to move item to available";
+      toast.push(
+        <Notification type="danger" title="Error">
+          {errMsg}
+        </Notification>
+      );
+    }
   };
 
   return (
@@ -75,7 +104,7 @@ const CleaningItems = () => {
 
               <button
                 onClick={() => moveToAvailable(item.id)}
-                className="flex items-center gap-2 px-5 h-9 rounded-full border border-[#BDEFD9] bg-[#ECFDF5] text-[#007A55] text-[13px] font-semibold hover:bg-[#DDFBF0] transition"
+                className="flex items-center gap-2 px-5 h-9 rounded-full border border-[#BDEFD9] bg-[#ECFDF5] text-[#007A55] text-[13px] font-semibold hover:bg-[#DDFBF0] transition cursor-pointer"
               >
                 <FiRefreshCw size={13} />
                 Move to Available

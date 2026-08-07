@@ -13,15 +13,28 @@ import json
 # from userhub.models import Order
 
 
-def build_media_url(file_field):
+def build_media_url(file_field, request=None):
     """
     Returns absolute media URL for a FileField/ImageField
-    Works without request object
     """
     if not file_field:
         return None
 
-    return f"{settings.SITE_DOMAIN}{settings.MEDIA_URL}{file_field.name}"
+    url_name = getattr(file_field, "name", str(file_field))
+    if url_name.startswith(("http://", "https://")):
+        return url_name
+
+    if request:
+        return request.build_absolute_uri(file_field.url)
+
+    domain = settings.SITE_DOMAIN
+    if settings.DEBUG and ("sslip.io" in domain or "localhost" in domain):
+        domain = "http://127.0.0.1:8002"
+
+    file_url = file_field.url if hasattr(file_field, "url") else f"{settings.MEDIA_URL}{url_name}"
+    if file_url.startswith("/"):
+        return f"{domain.rstrip('/')}{file_url}"
+    return f"{domain.rstrip('/')}/{file_url}"
 
 
 from django.conf import settings
@@ -422,7 +435,7 @@ class BlogSerializer(serializers.ModelSerializer):
     # Return image URL
     # -----------------------------
     def get_image_url(self, obj):
-        return build_media_url(obj.image)
+        return build_media_url(obj.image, self.context.get("request"))
 
     # -----------------------------
     # Validate title
@@ -734,6 +747,8 @@ class ThemeItemSerializer(serializers.ModelSerializer):
             "id": obj.product.id,
             "productName": obj.product.productName,
             "ProductImage": request.build_absolute_uri(obj.product.ProductImage.url) if (request:=self.context.get('request')) and obj.product.ProductImage else (obj.product.ProductImage.url if obj.product.ProductImage else None),
+            # "ProductImage": build_media_url(obj.product.ProductImage.url) if (request:=self.context.get('request')) and obj.product.ProductImage else (obj.product.ProductImage.url if obj.product.ProductImage else None),
+            # "ProductImage": new_build_media_url(obj.product.ProductImage),
             "price": str(obj.product.price),
         }
 
@@ -876,11 +891,11 @@ class ProductSerializer(serializers.ModelSerializer):
         required=False
     )
     
-    theme = serializers.PrimaryKeyRelatedField(
-        queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
-        required=False,
-        allow_null=True
-    )
+    # theme = serializers.PrimaryKeyRelatedField(
+    #     queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
+    #     required=False,
+    #     allow_null=True
+    # )
     fabric_details = serializers.SerializerMethodField(read_only=True)
     color_details = serializers.SerializerMethodField(read_only=True)
  
@@ -888,7 +903,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             "id", "productName", "slug", "description", "productType",
-            "theme",
+            # "theme",
             
             # New specific attributes
             "table_shape", "style", "fabric", "color", "size", "rfid_tracking_enabled",
@@ -939,6 +954,8 @@ class ProductSerializer(serializers.ModelSerializer):
     
     def get_ProductImage(self, obj):
         return new_build_media_url(obj.ProductImage)
+    # def get_ProductImage(self, obj):
+    #     return new_build_media_url(obj.ProductImage)
     
     def get_on_rent_quantity(self, obj):
         # We need to fetch from userhub RentalItem where rental is active
@@ -985,53 +1002,12 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_damaged_quantity(self, obj):
         return sum(item.quantity for item in obj.damaged_records.filter(status__in=['pending', 'repair']))
     
-    # def validate(self, data):
-    #     product_type = data.get("productType")
- 
-    #     theme_provided = "theme" in self.initial_data
-    #     theme_value = data.get("theme")
- 
-    #     category = data.get("category")
-    #     subcategory = data.get("subcategory")
- 
-    #     if subcategory and category and subcategory.category != category:
-    #         raise serializers.ValidationError({
-    #             "subcategory": "Selected subcategory does not belong to selected category"
-    #         })
- 
-    #     total_qty = data.get(
-    #         "total_quantity",
-    #         self.instance.total_quantity if self.instance else 0
-    #     )
+    
 
-    #     avail_qty = data.get(
-    #         "available_quantity",
-    #         self.instance.available_quantity if self.instance else 0
-    #     )
- 
-    #     if avail_qty > total_qty:
-    #         raise serializers.ValidationError({
-    #             "available_quantity": 
-    #             "Available quantity cannot exceed total quantity"
-    #         })
- 
-    #     if product_type == "table" and not theme_value:
-    #         raise serializers.ValidationError({
-    #             "theme": "Theme is required when product type is table."
-    #         })
- 
-    #     if product_type == "uniform" and theme_provided:
-    #         raise serializers.ValidationError({
-    #             "theme": "Theme is not allowed for uniform products."
-    #         })
- 
-    #     return data
-    #     read_only_fields = ["slug", "created_at"]
-
-    def get_ProductImage(self, obj):
-        if obj.ProductImage:
-            return build_media_url(obj.ProductImage)
-        return None
+    # def get_ProductImage(self, obj):
+    #     if obj.ProductImage:
+    #         return build_media_url(obj.ProductImage, self.context.get("request"))
+    #     return None
 
     def create(self, validated_data):
         image = validated_data.pop('ProductImage_file', None)
@@ -1073,10 +1049,10 @@ class ProductSerializer(serializers.ModelSerializer):
             self.instance.productType if self.instance else None
         )
 
-        theme_value = data.get(
-            "theme",
-            self.instance.theme if self.instance else None
-        )
+        # theme_value = data.get(
+        #     "theme",
+        #     self.instance.theme if self.instance else None
+        # )
 
         category = data.get(
             "category",
@@ -1114,10 +1090,10 @@ class ProductSerializer(serializers.ModelSerializer):
         #         "theme": "Theme is required when product type is table."
         #     })
 
-        if product_type == "uniform" and "theme" in self.initial_data:
-            raise serializers.ValidationError({
-                "theme": "Theme is not allowed for uniform products."
-            })
+        # if product_type == "uniform" and "theme" in self.initial_data:
+        #     raise serializers.ValidationError({
+        #         "theme": "Theme is not allowed for uniform products."
+        #     })
 
         return data
     
@@ -1399,9 +1375,41 @@ class QuotationTemplateSerializer(serializers.ModelSerializer):
 
 
 class AdminNotificationSerializer(serializers.ModelSerializer):
+    recipient_name = serializers.SerializerMethodField()
+    recipient_email = serializers.SerializerMethodField()
+    order_id = serializers.SerializerMethodField()
+    notification_status = serializers.SerializerMethodField()
+
     class Meta:
         model = AdminNotification
         fields = "__all__"
+
+    def get_recipient_name(self, obj):
+        if obj.content_object:
+            return getattr(obj.content_object, "contact_person", None) or getattr(obj.content_object, "company_name", None) or "-"
+        return "-"
+
+    def get_recipient_email(self, obj):
+        if obj.content_object:
+            return getattr(obj.content_object, "email", None) or "-"
+        return "-"
+
+    def get_order_id(self, obj):
+        if obj.content_object:
+            order = getattr(obj.content_object, "order", None)
+            if order:
+                return getattr(order, "order_id", "-")
+            return getattr(obj.content_object, "contract_id", None) or getattr(obj.content_object, "quotation_id", None) or "-"
+        return "-"
+
+    def get_notification_status(self, obj):
+        if obj.content_object:
+            status_val = getattr(obj.content_object, "workflow_status", None) or getattr(obj.content_object, "contract_status", None) or getattr(obj.content_object, "quotation_status", None) or "sent"
+            status_lower = str(status_val).lower()
+            if status_lower in ["sent", "success", "delivered", "done", "completed", "signed", "requested", "agreed"]:
+                return "sent"
+            return "failed"
+        return "sent"
         
         
 class UnitPriceSerializer(serializers.Serializer):
@@ -1947,6 +1955,9 @@ class InspectionItemSerializer(serializers.ModelSerializer):
     photos = DamagePhotoSerializer(many=True, read_only=True)
     item_name = serializers.SerializerMethodField()
     category_name = serializers.SerializerMethodField()
+    order_id = serializers.SerializerMethodField()
+    return_date = serializers.SerializerMethodField()
+    product_image = serializers.SerializerMethodField()
 
     class Meta:
         model = InspectionItem
@@ -1964,15 +1975,90 @@ class InspectionItemSerializer(serializers.ModelSerializer):
         except AttributeError:
             return None
 
+    def get_order_id(self, obj):
+        if obj.order:
+            return obj.order.order_id
+        try:
+            return obj.rental_item.rental.order.order_id
+        except AttributeError:
+            return None
+
+    def get_return_date(self, obj):
+        if obj.order and obj.order.rental_end_date:
+            return obj.order.rental_end_date
+        try:
+            return obj.rental_item.rental.end_date
+        except AttributeError:
+            return None
+
+    def get_product_image(self, obj):
+        try:
+            request = self.context.get("request")
+            return build_media_url(obj.rental_item.product.ProductImage, request)
+        except AttributeError:
+            return None
+
 class DamagedItemSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    added = serializers.SerializerMethodField()
+
     class Meta:
         model = DamagedItem
         fields = '__all__'
 
+    def get_name(self, obj):
+        return obj.product.productName
+
+    def get_category(self, obj):
+        try:
+            return obj.product.category.categoryName
+        except AttributeError:
+            return None
+
+    def get_image(self, obj):
+        try:
+            request = self.context.get("request")
+            return build_media_url(obj.product.ProductImage, request)
+        except AttributeError:
+            return None
+
+    def get_added(self, obj):
+        if obj.reported_at:
+            return obj.reported_at.strftime("%d %b %Y")
+        return None
+
 class CleaningItemSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    added = serializers.SerializerMethodField()
+
     class Meta:
         model = CleaningItem
         fields = '__all__'
+
+    def get_name(self, obj):
+        return obj.product.productName
+
+    def get_category(self, obj):
+        try:
+            return obj.product.category.categoryName
+        except AttributeError:
+            return None
+
+    def get_image(self, obj):
+        try:
+            request = self.context.get("request")
+            return build_media_url(obj.product.ProductImage, request)
+        except AttributeError:
+            return None
+
+    def get_added(self, obj):
+        if obj.entered_at:
+            return obj.entered_at.strftime("%d %b %Y")
+        return None
 
 from uniformAdmin.models import PricingPackage, PricingRule
 
