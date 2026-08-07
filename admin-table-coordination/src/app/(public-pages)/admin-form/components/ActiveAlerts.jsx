@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { FiAlertTriangle, FiClock } from "react-icons/fi";
+import { useRouter } from "next/navigation";
 
 const defaultAlerts = [
   {
@@ -9,6 +11,7 @@ const defaultAlerts = [
     action: "Review Now",
     icon: "alert",
     color: "text-red-500",
+    path: "/inventory-management?tab=Inspection Queue",
   },
   {
     level: "MEDIUM",
@@ -16,6 +19,7 @@ const defaultAlerts = [
     action: "View Details",
     icon: "clock",
     color: "text-orange-500",
+    path: "/orders",
   },
 ];
 
@@ -25,33 +29,62 @@ const iconMap = {
 };
 
 const ActiveAlerts = ({ data }) => {
+  const router = useRouter();
+  const [isCleared, setIsCleared] = useState(false);
   const apiAlerts = data?.Active_Alerts;
 
-  const alerts = apiAlerts
-    ? [
-        {
-          level: "HIGH",
-          message: apiAlerts.high?.label,
-          action: "Review Now",
-          icon: "alert",
-          color: "text-red-500",
-          count: apiAlerts.high?.count,
-        },
-        {
-          level: "MEDIUM",
-          message: apiAlerts.medium?.label,
-          action: "View Details",
-          icon: "clock",
-          color: "text-orange-500",
-          count: apiAlerts.medium?.count,
-        },
-      ]
-    : defaultAlerts;
+  const alertsSignature = apiAlerts
+    ? `${apiAlerts.high?.count || 0}-${apiAlerts.medium?.count || 0}`
+    : "default";
 
-  const alertCount = alerts.reduce(
-    (total, item) => total + (item.count ?? 0),
-    0,
-  );
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const clearedSignature = localStorage.getItem("dashboard_alerts_cleared_signature");
+      if (clearedSignature === alertsSignature) {
+        setIsCleared(true);
+      } else {
+        setIsCleared(false);
+      }
+    }
+  }, [alertsSignature]);
+
+  const handleMarkAllRead = () => {
+    setIsCleared(true);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("dashboard_alerts_cleared_signature", alertsSignature);
+    }
+  };
+
+  const alerts = isCleared
+    ? []
+    : apiAlerts
+      ? [
+          {
+            level: "HIGH",
+            message: apiAlerts.high?.label,
+            action: "Review Now",
+            icon: "alert",
+            color: "text-red-500",
+            count: apiAlerts.high?.count,
+            path: "/inventory-management?tab=Inspection Queue",
+          },
+          {
+            level: "MEDIUM",
+            message: apiAlerts.medium?.label,
+            action: "View Details",
+            icon: "clock",
+            color: "text-orange-500",
+            count: apiAlerts.medium?.count,
+            path: "/orders",
+          },
+        ]
+      : defaultAlerts;
+
+  const alertCount = isCleared
+    ? 0
+    : apiAlerts
+      ? alerts.reduce((total, item) => total + (item.count ?? 0), 0)
+      : defaultAlerts.length;
 
   return (
     <div className="mt-10 px-5 md:px-8 lg:px-8 ">
@@ -64,52 +97,68 @@ const ActiveAlerts = ({ data }) => {
             </span>
           </div>
 
-          <button className="text-sm text-[#1C2C56] hover:underline">
+          <button
+            onClick={handleMarkAllRead}
+            className="text-sm text-[#1C2C56] hover:underline cursor-pointer"
+          >
             Mark All Read
           </button>
         </div>
 
         <div className="space-y-4">
-          {alerts.map((alert, index) => {
-            const Icon =
-              iconMap[alert.icon] ||
-              (alert.level === "HIGH" ? FiAlertTriangle : FiClock);
-            const color =
-              alert.color ||
-              (alert.level === "HIGH" ? "text-red-500" : "text-orange-500");
+          {alerts.length > 0 ? (
+            alerts.map((alert, index) => {
+              const Icon =
+                iconMap[alert.icon] ||
+                (alert.level === "HIGH" ? FiAlertTriangle : FiClock);
+              const color =
+                alert.color ||
+                (alert.level === "HIGH" ? "text-red-500" : "text-orange-500");
 
-            return (
-              <div
-                key={index}
-                className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-[#E2E8F0] rounded-lg p-4"
-              >
-                <div className="flex items-start gap-3">
-                  <Icon className={`${color} mt-1`} size={18} />
+              return (
+                <div
+                  key={index}
+                  className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-[#E2E8F0] rounded-lg p-4"
+                >
+                  <div className="flex items-start gap-3">
+                    <Icon className={`${color} mt-1`} size={18} />
 
-                  <div>
-                    <p className="text-sm font-semibold text-[#1C2C56]">
-                      {alert.level}
-                    </p>
-                    <p className="text-sm text-[#64748B]">{alert.message}</p>
+                    <div>
+                      <p className="text-sm font-semibold text-[#1C2C56]">
+                        {alert.level}
+                      </p>
+                      <p className="text-sm text-[#64748B]">{alert.message}</p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex md:justify-end">
-                  <button
-                    className="
+                  <div className="flex md:justify-end">
+                    <button
+                      onClick={() => {
+                        if (alert.path) {
+                          router.push(alert.path);
+                        }
+                      }}
+                      className="
       bg-[#6A341A] text-white
       px-3 py-1.5 md:px-4 md:py-2
       rounded-md
       text-xs md:text-sm
       w-fit
+      cursor-pointer
     "
-                  >
-                    {alert.action}
-                  </button>
+                    >
+                      {alert.action}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10 text-gray-500 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E2E8F0]">
+              <p className="text-sm font-semibold text-[#64748B]">All caught up!</p>
+              <p className="text-xs text-[#94A3B8] mt-1">No active alerts require your attention.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

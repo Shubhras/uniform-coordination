@@ -55,7 +55,7 @@ class AdminInspectionQueueListAPIView(APIView):
     def get(self, request):
         inspections = (
             InspectionItem.objects
-            .filter(result="pending")
+            .filter(result="pending", rental_item__product__isDeleted=False)
             .select_related("rental_item__product__category", "order")
             .order_by("-inspected_at")
         )
@@ -85,7 +85,7 @@ class AdminInspectionQueueListAPIView(APIView):
         except EmptyPage:
             page_obj = paginator.page(paginator.num_pages) if paginator.num_pages else []
 
-        serializer = InspectionItemSerializer(page_obj, many=True)
+        serializer = InspectionItemSerializer(page_obj, many=True, context={"request": request})
 
         return Response({
             "status": True,
@@ -108,55 +108,71 @@ class AdminProcessInspectionAPIView(APIView):
     @extend_schema(tags=["Inventory Management"], summary="Process Inspection")
     def post(self, request, pk):
         try:
-            inspection = InspectionItem.objects.get(pk=pk, result="pending")
-        except InspectionItem.DoesNotExist:
-            return Response({"status": False, "message": "Pending inspection not found"}, status=404)
-            
-        good_qty = int(request.data.get("good_qty", 0))
-        damaged_qty = int(request.data.get("damaged_qty", 0))
-        notes = request.data.get("notes", "")
-        
-        if good_qty + damaged_qty != inspection.returned_qty:
-            return Response({"status": False, "message": "Good + Damaged quantity must equal Returned quantity"}, status=400)
-            
-        with transaction.atomic():
-            inspection.good_qty = good_qty
-            inspection.damaged_qty = damaged_qty
-            inspection.notes = notes
-            inspection.inspected_by = request.user if hasattr(request.user, 'role') else None
-            
-            # Find the product. Assume rental_item or order has it.
-            # For simplicity, assuming rental_item links to product directly
-            product = None
-            if inspection.rental_item:
-                product = inspection.rental_item.product
+            try:
+                inspection = InspectionItem.objects.get(pk=pk, result="pending")
+            except InspectionItem.DoesNotExist:
+                return Response({"status": False, "message": "Pending inspection not found"}, status=404)
                 
-            if damaged_qty == 0:
-                inspection.result = "pass"
-            else:
-                inspection.result = "fail"
-                if product:
-                    DamagedItem.objects.create(
-                        product=product,
-                        source_inspection=inspection,
-                        quantity=damaged_qty,
-                        reason=notes,
-                        status="pending"
-                    )
+            good_qty = int(request.data.get("good_qty", 0))
+            damaged_qty = int(request.data.get("damaged_qty", 0))
+            notes = request.data.get("notes", "")
             
-            inspection.save()
-            
-            # Return good items to available stock
-            if good_qty > 0 and product:
-                product.available_quantity += good_qty
-                product.save()
+            if good_qty + damaged_qty != inspection.returned_qty:
+                return Response({"status": False, "message": "Good + Damaged quantity must equal Returned quantity"}, status=400)
                 
-            # Handle photo uploads (assuming multipart/form-data with 'photos' field)
-            photos = request.FILES.getlist('photos')
-            for photo in photos:
-                DamagePhoto.objects.create(inspection=inspection, photo=photo)
+            with transaction.atomic():
+                inspection.good_qty = good_qty
+                inspection.damaged_qty = damaged_qty
+                inspection.notes = notes
+                
+                # Check inspected_by
+                inspected_by_user = None
+                if request.user and request.user.is_authenticated:
+                    from uniformAdmin.models import AdminUser
+                    if isinstance(request.user, AdminUser):
+                        inspected_by_user = request.user
+                    else:
+                        user_email = getattr(request.user, "email", None)
+                        if user_email:
+                            inspected_by_user = AdminUser.objects.filter(email=user_email).first()
+                inspection.inspected_by = inspected_by_user
+                
+                # Find the product
+                product = None
+                if inspection.rental_item:
+                    product = inspection.rental_item.product
+                    
+                if damaged_qty == 0:
+                    inspection.result = "pass"
+                else:
+                    inspection.result = "fail"
+                    if product:
+                        DamagedItem.objects.create(
+                            product=product,
+                            source_inspection=inspection,
+                            quantity=damaged_qty,
+                            reason=notes,
+                            status="pending"
+                        )
+                
+                inspection.save()
+                
+                # Return good items to available stock
+                if good_qty > 0 and product:
+                    product.available_quantity += good_qty
+                    product.save()
+                    
+                # Handle photo uploads
+                photos = request.FILES.getlist('photos')
+                for photo in photos:
+                    DamagePhoto.objects.create(inspection=inspection, photo=photo)
 
-        return Response({"status": True, "message": f"Inspection marked as {inspection.result}"})
+            return Response({"status": True, "message": f"Inspection marked as {inspection.result}"})
+        except Exception as e:
+            import traceback
+            with open("debug_error.log", "w") as f:
+                traceback.print_exc(file=f)
+            return Response({"status": False, "message": str(e)}, status=500)
 
 
 class AdminDamagedItemListAPIView(APIView):
@@ -164,8 +180,8 @@ class AdminDamagedItemListAPIView(APIView):
 
     @extend_schema(tags=["Inventory Management"], summary="List Damaged Items")
     def get(self, request):
-        items = DamagedItem.objects.exclude(status="moved").order_by("-reported_at")
-        serializer = DamagedItemSerializer(items, many=True)
+        items = DamagedItem.objects.filter(product__isDeleted=False).exclude(status="moved").order_by("-reported_at")
+        serializer = DamagedItemSerializer(items, many=True, context={"request": request})
         return Response({"status": True, "data": serializer.data})
 
 class AdminUpdateDamagedItemAPIView(APIView):
@@ -183,13 +199,25 @@ class AdminUpdateDamagedItemAPIView(APIView):
             return Response({"status": False, "message": "Invalid status"}, status=400)
             
         with transaction.atomic():
-            if new_status == "moved" and item.status != "moved":
-                item.resolved_at = now()
-                # Return to available stock
-                product = item.product
-                product.available_quantity += item.quantity
-                product.save()
+            product = item.product
+            
+            # Undo effects of the old status
+            if item.status == "moved":
+                product.available_quantity -= item.quantity
+            elif item.status == "discard":
+                product.total_quantity += item.quantity
                 
+            # Apply effects of the new status
+            if new_status == "moved":
+                product.available_quantity += item.quantity
+                item.resolved_at = now()
+            elif new_status == "discard":
+                product.total_quantity -= item.quantity
+                item.resolved_at = now()
+            else:
+                item.resolved_at = None
+                
+            product.save()
             item.status = new_status
             item.save()
             
@@ -201,8 +229,8 @@ class AdminCleaningItemListAPIView(APIView):
 
     @extend_schema(tags=["Inventory Management"], summary="List Cleaning Items")
     def get(self, request):
-        items = CleaningItem.objects.exclude(status="moved").order_by("-entered_at")
-        serializer = CleaningItemSerializer(items, many=True)
+        items = CleaningItem.objects.filter(product__isDeleted=False).exclude(status="moved").order_by("-entered_at")
+        serializer = CleaningItemSerializer(items, many=True, context={"request": request})
         return Response({"status": True, "data": serializer.data})
 
 class AdminCreateCleaningItemAPIView(APIView):
@@ -249,13 +277,20 @@ class AdminUpdateCleaningItemAPIView(APIView):
             return Response({"status": False, "message": "Invalid status"}, status=400)
             
         with transaction.atomic():
-            if new_status == "moved" and item.status != "moved":
-                item.resolved_at = now()
-                # Return to available stock
-                product = item.product
-                product.available_quantity += item.quantity
-                product.save()
+            product = item.product
+            
+            # Undo effects of the old status
+            if item.status == "moved":
+                product.available_quantity -= item.quantity
                 
+            # Apply effects of the new status
+            if new_status == "moved":
+                product.available_quantity += item.quantity
+                item.resolved_at = now()
+            else:
+                item.resolved_at = None
+                
+            product.save()
             item.status = new_status
             item.save()
             

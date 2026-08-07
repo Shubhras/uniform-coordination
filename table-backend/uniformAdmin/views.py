@@ -1649,14 +1649,14 @@ class AdminDashAPIView(APIView):
             
             most_rented_themes_qs = (
                 RentalItem.objects
-                .filter(isDeleted=False, isActive=True, product__theme__isnull=False)
-                .values("product__theme__title")
+                .filter(isDeleted=False, isActive=True, product__theme_associations__theme__isnull=False)
+                .values("product__theme_associations__theme__title")
                 .annotate(count=Count("id"))
                 .order_by("-count")[:6]
             )
             most_rented_themes = [
                 {
-                    "theme_name": item["product__theme__title"],
+                    "theme_name": item["product__theme_associations__theme__title"],
                     "count": item["count"]
                 }
                 for item in most_rented_themes_qs
@@ -2724,3 +2724,240 @@ class CompensationInvoiceGenerateAPIView(APIView):
                 "grand_total": str(invoice.grand_total)
             }
         }, status=status.HTTP_201_CREATED)
+
+
+class AdminContractsListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        from userhub.models import Contract
+        
+        # Get query parameters
+        search_query = request.query_params.get("search", "")
+        status_filter = request.query_params.get("status", "")
+        page = int(request.query_params.get("page", 1))
+        page_size = int(request.query_params.get("page_size", 10))
+
+        contracts = Contract.objects.all().order_by("-created_at")
+
+        if search_query:
+            contracts = contracts.filter(
+                Q(contract_id__icontains=search_query) |
+                Q(company_name__icontains=search_query) |
+                Q(contact_person__icontains=search_query) |
+                Q(email__icontains=search_query) |
+                Q(order__order_id__icontains=search_query)
+            )
+
+        if status_filter:
+            contracts = contracts.filter(contract_status__iexact=status_filter)
+
+        total_count = contracts.count()
+
+        # Paginate
+        start_idx = (page - 1) * page_size
+        end_idx = start_idx + page_size
+        paginated_contracts = contracts[start_idx:end_idx]
+
+        data_list = []
+        for contract in paginated_contracts:
+            data_list.append({
+                "id": contract.id,
+                "contract_id": contract.contract_id,
+                "order_id": contract.order.order_id if contract.order else None,
+                "company_name": contract.company_name,
+                "contact_person": contract.contact_person,
+                "email": contract.email,
+                "phone_number": contract.phone_number,
+                "delivery_date": str(contract.delivery_date) if contract.delivery_date else None,
+                "workflow_status": contract.workflow_status,
+                "contract_status": contract.contract_status,
+                "is_signed": contract.is_signed,
+                "signed_at": contract.signed_at.strftime("%Y-%m-%d %H:%M:%S") if contract.signed_at else None,
+                "created_at": contract.created_at.strftime("%Y-%m-%d %H:%M:%S") if contract.created_at else None,
+            })
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "data": data_list,
+            "pagination": {
+                "count": total_count,
+                "page": page,
+                "page_size": page_size
+            }
+        }, status=200)
+
+
+class AdminContractDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request, contract_id):
+        from userhub.models import Contract, ContractAuditLog
+        
+        contract = Contract.objects.filter(contract_id=contract_id).first()
+        if not contract:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "Contract not found"
+            }, status=404)
+
+        # Get items from the associated order
+        items_data = []
+        summary_data = {
+            "items": "0 line items",
+            "rental_days": "0 days",
+            "subtotal": "¥0.00",
+            "discount": "¥0.00",
+            "delivery": "¥0.00",
+            "total": "¥0.00"
+        }
+
+        if contract.order:
+            order = contract.order
+            for item in order.items.all():
+                items_data.append({
+                    "item": item.product.productName,
+                    "category": item.product.subcategory.category.categoryName if (item.product.subcategory and item.product.subcategory.category) else "Uniform",
+                    "requested": item.quantity,
+                    "availability": f"Available ({item.quantity})",
+                    "unitRate": f"¥{item.price_per_day}"
+                })
+
+            rental_days = 0
+            if order.rental_start_date and order.rental_end_date:
+                rental_days = (order.rental_end_date - order.rental_start_date).days + 1
+
+            discount_amount = (order.subtotal or 0) + (order.shipping_charge or 0) + (order.tax or 0) - (order.total_amount or 0)
+            if discount_amount < 0:
+                discount_amount = 0
+
+            summary_data = {
+                "items": f"{order.items.count()} line items",
+                "rental_days": f"{rental_days} days",
+                "subtotal": f"¥{order.subtotal}",
+                "discount": f"¥{discount_amount}",
+                "delivery": f"¥{order.shipping_charge}",
+                "total": f"¥{order.total_amount}"
+            }
+
+        # Format audit logs
+        audit_logs = []
+        logs = ContractAuditLog.objects.filter(contract=contract).order_by("-created_at")
+        for log in logs:
+            audit_logs.append({
+                "action": log.action,
+                "description": log.description,
+                "timestamp": log.created_at.strftime("%Y-%m-%d %H:%M:%S")
+            })
+
+        # Set default downloads and documents structure
+        import os
+        from django.conf import settings
+        
+        pdf_filename = f"contract_{contract.contract_id}.pdf"
+        pdf_path = os.path.join(settings.MEDIA_ROOT, "exports", pdf_filename)
+        if not os.path.exists(pdf_path):
+            from userhub.utils import generate_contract_pdf
+            try:
+                generate_contract_pdf(contract, request)
+            except Exception:
+                pass
+                
+        contract_pdf_url = request.build_absolute_uri(f"{settings.MEDIA_URL}exports/{pdf_filename}")
+
+        signed_pdf_url = None
+        if contract.is_signed and contract.signed_pdf:
+            url = contract.signed_pdf.url
+            if url.startswith("http"):
+                signed_pdf_url = url
+            else:
+                signed_pdf_url = request.build_absolute_uri(url)
+
+        downloads = ["Download Contract PDF"]
+        documents = [
+            {"label": "Contract PDF", "enabled": True, "url": contract_pdf_url},
+            {"label": "Signed PDF", "enabled": contract.is_signed, "url": signed_pdf_url}
+        ]
+        if contract.is_signed:
+            downloads.append("Download Signed PDF")
+
+        data = {
+            "id": contract.id,
+            "contract_id": contract.contract_id,
+            "contractId": contract.contract_id,
+            "contractIdShort": contract.contract_id,
+            "status": "Signed" if contract.is_signed else "Sent",
+            "company_name": contract.company_name,
+            "companyName": contract.company_name,
+            "contact_person": contract.contact_person,
+            "contactPerson": contract.contact_person,
+            "business_email": contract.email,
+            "businessEmail": contract.email,
+            "phone_number": contract.phone_number,
+            "phoneNumber": contract.phone_number,
+            "company_address": contract.order.customer.address_line_1 if (contract.order and contract.order.customer) else "N/A",
+            "companyAddress": contract.order.customer.address_line_1 if (contract.order and contract.order.customer) else "N/A",
+            # "user_type": "B2B" if (contract.order and contract.order.user and contract.order.user.userType == "B2B") else "B2C",
+            # "userType": "B2B" if (contract.order and contract.order.user and contract.order.user.userType == "B2B") else "B2C",
+            "user_type": (
+                contract.order.user.role.get_role_name_display()
+                if (
+                    contract.order
+                    and contract.order.user
+                    and contract.order.user.role
+                )
+                else "N/A"
+            ),
+            "userType": (
+                contract.order.user.role.get_role_name_display()
+                if (
+                    contract.order
+                    and contract.order.user
+                    and contract.order.user.role
+                )
+                else "N/A"
+            ),
+            "signed_on_label": "Signed Date" if contract.is_signed else "Awaiting Signature",
+            "signed_on_value": contract.signed_at.strftime("%d %b %Y") if contract.signed_at else "Awaiting Signature",
+            "signedOnLabel": "Signed Date" if contract.is_signed else "Awaiting Signature",
+            "signedOnValue": contract.signed_at.strftime("%d %b %Y") if contract.signed_at else "Awaiting Signature",
+            "contract_status_label": "Contract Status",
+            "contract_status_value": "Completed" if contract.is_signed else "Awaiting Signature",
+            "contractStatusLabel": "Contract Status",
+            "contractStatusValue": "Completed" if contract.is_signed else "Awaiting Signature",
+            "venue_type": "Event" if contract.order else "N/A",
+            "venueType": "Event" if contract.order else "N/A",
+            "venue_name": contract.order.customer.city if (contract.order and contract.order.customer) else "N/A",
+            "venueName": contract.order.customer.city if (contract.order and contract.order.customer) else "N/A",
+            "requested_items_note": f"{len(items_data)} items for {summary_data['rental_days']} rental period",
+            "requestedItemsNote": f"{len(items_data)} items for {summary_data['rental_days']} rental period",
+            "downloads": downloads,
+            "documents": documents,
+            "rental_start": contract.order.rental_start_date.strftime("%d %b %Y") if (contract.order and contract.order.rental_start_date) else "N/A",
+            "rentalStart": contract.order.rental_start_date.strftime("%d %b %Y") if (contract.order and contract.order.rental_start_date) else "N/A",
+            "rental_end": contract.order.rental_end_date.strftime("%d %b %Y") if (contract.order and contract.order.rental_end_date) else "N/A",
+            "rentalEnd": contract.order.rental_end_date.strftime("%d %b %Y") if (contract.order and contract.order.rental_end_date) else "N/A",
+            "customer_notes": contract.additional_note or "None",
+            "customerNotes": contract.additional_note or "None",
+            "quotationNo": contract.order.order_id if contract.order else "N/A",
+            "quotationDate": contract.order.created_at.strftime("%d %b %Y") if contract.order else "N/A",
+            "is_signed": contract.is_signed,
+            "isSigned": contract.is_signed,
+            "signed_at": contract.signed_at.isoformat() if contract.signed_at else None,
+            "signedAt": contract.signed_at.isoformat() if contract.signed_at else None,
+            "created_at": contract.created_at.isoformat(),
+            "createdAt": contract.created_at.isoformat(),
+            "items": items_data,
+            "summary": summary_data,
+            "audit_logs": audit_logs
+        }
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "data": data
+        }, status=200)

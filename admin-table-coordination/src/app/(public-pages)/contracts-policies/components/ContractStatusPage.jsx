@@ -180,7 +180,15 @@ const ContractStatusPage = ({ contract }) => {
                   </div>
 
                   {document.enabled ? (
-                    <button type="button" className="text-[#C2703D]">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (document.url) {
+                          window.open(document.url, "_blank");
+                        }
+                      }}
+                      className="text-[#C2703D] hover:text-[#9F5425]"
+                    >
                       <FiDownload size={14} />
                     </button>
                   ) : (

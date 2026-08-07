@@ -1,8 +1,12 @@
 import ApiService from "./ApiService";
 
-export async function apiGetReportAnalytics(accessToken, type) {
+export async function apiGetReportAnalytics(accessToken, type, startDate = "", endDate = "") {
+  let url = `/v1/space/uniformAdmin/reports-analytics/?type=${type}`;
+  if (startDate && endDate) {
+    url += `&start_date=${startDate}&end_date=${endDate}`;
+  }
   return ApiService.fetchDataWithAxios({
-    url: `/v1/space/uniformAdmin/reports-analytics/?type=${type}&start_date=2026-01-01&end_date=2026-06-20`,
+    url,
     method: "get",
     headers: {
       Authorization: `Bearer ${accessToken}`,
