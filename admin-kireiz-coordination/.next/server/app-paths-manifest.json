@@ -1,6 +1,7 @@
 {
-  "/page": "app/page.js",
-  "/_not-found/page": "app/_not-found/page.js",
-  "/(auth-pages)/sign-in/page": "app/(auth-pages)/sign-in/page.js",
-  "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js"
+  "/(public-pages)/reports-analytics/page": "app/(public-pages)/reports-analytics/page.js",
+  "/(public-pages)/quotation-requests/page": "app/(public-pages)/quotation-requests/page.js",
+  "/(public-pages)/customer/edit/[id]/page": "app/(public-pages)/customer/edit/[id]/page.js",
+  "/(public-pages)/system-settings/page": "app/(public-pages)/system-settings/page.js",
+  "/(public-pages)/customer/view/[id]/page": "app/(public-pages)/customer/view/[id]/page.js"
 }

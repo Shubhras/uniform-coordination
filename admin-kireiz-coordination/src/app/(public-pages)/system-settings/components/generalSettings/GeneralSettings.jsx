@@ -204,7 +204,7 @@ const GeneralSettings = () => {
 
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
-                Defualt Language
+                Default Language
               </label>
 
               <input
