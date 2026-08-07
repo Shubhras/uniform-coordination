@@ -398,7 +398,7 @@
             "addNew": "+ Add Color",
             "searchPlaceholder": "Search Colors...",
             "noData": "No colors found",
-            "showingRange": "Showing {from}–{to}",
+            "showingRange": "Showing ",
             "addColorModal": {
                 "modalTitle": "Add New Color",
                 "colorNameLabel": "Color Name",
@@ -419,7 +419,7 @@
             "allCategories": "All Categories",
             "reset": "Reset",
             "noData": "No templates found",
-            "showingRange": "Showing {from}–{to}",
+            "showingRange": "Showing ",
             "createTemplateModal": {
                 "modalTitle": "Create Template",
                 "templateNameLabel": "Template Name",
@@ -449,7 +449,7 @@
             "allCategories": "All Categories",
             "reset": "Reset",
             "noData": "No products found",
-            "showingRange": "Showing {from}–{to}",
+            "showingRange": "Showing ",
             "addProductModal": {
                 "modalTitle": "Add Product",
                 "productImageLabel": "Product Image",
@@ -494,40 +494,114 @@
         "categories": {
             "title": "Product Categories",
             "subtitle": "Manage and organize your product categories",
-            "addNew": "Add Category",
+            "addNew": "+ Add Category",
             "searchPlaceholder": "Search Categories...",
             "noData": "No categories found",
-            "showingRange": "Showing "
+            "showingRange": "Showing ",
+            "createCategoryModal": {
+                "modalTitle": "Create Category",
+                "nameLabel": "Name",
+                "namePlaceholder": "Eg:- Medical Surgeon",
+                "imageLabel": "Image",
+                "uploadImageButton": "Upload image",
+                "dragDropText": "Drag & Drop your image file here",
+                "orText": "or",
+                "clickToBrowse": "click to browse here",
+                "allowedFormats": "JPG, PNG, or WEBP files",
+                "maxDimension": "Maximum dimension 1000×1000px",
+                "descriptionLabel": "Description",
+                "descriptionPlaceholder": "Type Description",
+                "cancel": "Cancel",
+                "saveAndAddAnother": "Save & Add Another",
+                "save": "Save"
+            }
         },
         "catalogImages": {
             "title": "Catalog Images",
             "subtitle": "Upload and manage catalog photography",
-            "addNew": "Upload Image",
+            "addNew": "+ Upload Image",
             "searchPlaceholder": "Search Catalog...",
             "noData": "No catalog images found",
-            "showingRange": "Showing "
+            "showingRange": "Showing ",
+            "addCatalogImageModal": {
+                "modalTitle": "Add Catalog Image",
+                "nameLabel": "Name",
+                "namePlaceholder": "Enter catalog name",
+                "categoryLabel": "Category",
+                "categoryPlaceholder": "Select category",
+                "imageLabel": "Image",
+                "uploadImageButton": "Upload Image",
+                "dragDropText": "Drag & Drop your image file here",
+                "orText": "or",
+                "clickToBrowse": "click to browse here",
+                "allowedFormats": "JPG, PNG, or WEBP files",
+                "maxDimension": "Maximum dimension 1000×1000px",
+                "cancel": "Cancel",
+                "save": "Save"
+            }
         },
         "blog": {
             "title": "Blog",
             "subtitle": "Manage your blog posts",
             "arrangeOrder": "Arrange Order",
-            "addNew": "Add Blog",
+            "addNew": "+ Add Blog",
             "searchPlaceholder": "Search Blog Posts...",
             "noData": "No blog posts found",
-            "showingRange": "Showing "
+            "showingRange": "Showing ",
+            "createBlogModal": {
+                "modalTitle": "Create Blog",
+                "titleLabel": "Title",
+                "titlePlaceholder": "Type blog title",
+                "categoryLabel": "Category",
+                "categoryPlaceholder": "Select Category",
+                "imageLabel": "Image",
+                "uploadImageButton": "Upload image",
+                "dragDropText": "Drag & Drop your image here",
+                "orText": "or",
+                "clickToBrowse": "click to browse here",
+                "allowedFormats": "JPG, PNG, or WEBP files",
+                "recommendedSize": "Recommended size 1200×800px",
+                "descriptionLabel": "Description",
+                "descriptionPlaceholder": "Type Description",
+                "cancel": "Cancel",
+                "saveAndAddAnother": "Save & Add Another",
+                "save": "Save"
+            }
         },
         "faq": {
             "title": "FAQ's",
             "subtitle": "Manage frequently asked questions",
-            "addNew": "Add FAQ",
-            "noData": "No FAQs found"
+            "addNew": "+ Add FAQ",
+            "noData": "No FAQs found",
+            "createFaqModal": {
+                "modalTitle": "Create FAQ",
+                "titleLabel": "Title",
+                "titlePlaceholder": "Type your question",
+                "descriptionsLabel": "Descriptions",
+                "addMore": "Add More",
+                "descriptionPlaceholder": "Type Description",
+                "cancel": "Cancel",
+                "saveAndAddAnother": "Save & Add Another",
+                "save": "Save"
+            }
         },
         "pdfTemplates": {
             "title": "PDF Template Library",
             "subtitle": "Manage your catalog templates",
-            "addNew": "Add Template",
+            "addNew": "+ Add Template",
             "noData": "No PDF templates yet",
-            "noDataSubtitle": "Create your first template to get started."
+            "noDataSubtitle": "Create your first template to get started.",
+            "addPdfTemplatePage": {
+                "pageTitle": "Add PDF Template",
+                "pageSubtitle": "Design and preview your quote layouts",
+                "templateNameLabel": "Template Name",
+                "templateNamePlaceholder": "e.g. Standard quotation",
+                "pageSizeLabel": "Page Size",
+                "pageSizeA4": "A4",
+                "placeholderHelperText": "Use placeholders like {CLIENT_NAME}, {ITEM_TYPE}, {QUANTITY} — these get filled in when a quotation is generated. The library counts distinct placeholders as \"customizable fields\".",
+                "cancel": "Cancel",
+                "saveTemplate": "Save Template"
+            }
         }
     },
     "pricingQuotation": {
@@ -562,8 +636,25 @@
         "specialConditions": {
             "title": "Special Conditions",
             "subtitle": "Manage discount tiers and corporate rules",
-            "addNew": "+ Add Condition",
-            "noData": "No special conditions found"
+            "addNew": "Add Condition",
+            "noData": "No special conditions found",
+            "addConditionModal": {
+                "modalTitle": "Add Condition",
+                "titleLabel": "Title",
+                "titlePlaceholder": "e.g. Wholesale Partner",
+                "conditionTypeLabel": "Condition Type",
+                "conditionTypePlaceholder": "Select condition type",
+                "descriptionLabel": "Description",
+                "descriptionPlaceholder": "Describe the condition",
+                "discountPercentageLabel": "Discount Percentage",
+                "discountPercentagePlaceholder": "e.g. 15.00",
+                "featuresLabel": "Features",
+                "featurePrioritySupport": "Priority Support",
+                "featureNet30Terms": "Net 30 Terms",
+                "featureFreeSamples": "Free Samples",
+                "cancel": "Cancel",
+                "save": "Save"
+            }
         },
         "quotationHistory": {
             "title": "Quotation History",
@@ -601,13 +692,36 @@
             "reset": "Reset",
             "addNew": "Add Account",
             "noData": "No accounts found",
-            "showingRange": "Showing "
+            "showingRange": "Showing ",
+            "addAccountModal": {
+                "modalTitle": "Add New Account",
+                "nameLabel": "Name",
+                "namePlaceholder": "Enter name",
+                "companyNameLabel": "Company Name",
+                "companyNamePlaceholder": "e.g. HP Pvt Ltd",
+                "emailLabel": "Email",
+                "emailPlaceholder": "john@example.com",
+                "mobileLabel": "Mobile",
+                "tierLabel": "Tier",
+                "tierPlaceholder": "Select Tier",
+                "passwordLabel": "Password",
+                "passwordPlaceholder": "Enter password",
+                "cancel": "Cancel",
+                "createAccount": "Create Account"
+            }
         },
         "customers": {
             "title": "Customers Lists",
             "subtitle": "Manage discount tiers and corporate rules",
             "searchPlaceholder": "Search...",
             "reset": "Reset",
+            "tableHeaders": {
+                "userName": "User Name",
+                "userType": "User Type",
+                "contactInfo": "Contact Info",
+                "status": "Status",
+                "actions": "Actions"
+            },
             "noData": "No Customers found",
             "showingRange": "Showing "
         },
@@ -626,7 +740,37 @@
                 "actions": "Actions"
             },
             "noData": "No quotations found",
-            "showingRange": "Showing"
+            "showingRange": "Showing ",
+            "editQuotationPage": {
+                "pageTitle": "Edit Quotation",
+                "pageSubtitle": "Update quotation information",
+                "companyInfoSection": "Company Information",
+                "companyNameLabel": "Company Name",
+                "contactPersonLabel": "Contact Person",
+                "emailLabel": "Email",
+                "phoneNumberLabel": "Phone Number",
+                "quotationDetailsSection": "Quotation Details",
+                "itemTypeLabel": "Item Type",
+                "materialLabel": "Material",
+                "sizeQuantityLabel": "Size & Quantity",
+                "deliveryDateLabel": "Delivery Date",
+                "quotationStatusLabel": "Quotation Status",
+                "statusApproved": "Approved",
+                "salesRepresentativeLabel": "Sales Representative",
+                "unassigned": "Unassigned",
+                "noRepresentativesHint": "No representatives yet — add them under Customer & Sales Representative → Sales Representation.",
+                "validUntilLabel": "Valid Until",
+                "subtotalLabel": "Subtotal",
+                "discountPercentLabel": "Discount (%)",
+                "discountHint": "Discount amount is calculated from subtotal × this percentage.",
+                "totalLabel": "Total",
+                "totalHint": "Leave blank to fall back to subtotal minus discount.",
+                "activeQuotationLabel": "Active Quotation",
+                "additionalNoteSection": "Additional Note",
+                "additionalNotePlaceholder": "Enter additional notes...",
+                "cancel": "Cancel",
+                "saveChanges": "Save Changes"
+            }
         },
         "salesRepresentation": {
             "title": "Sales Team Performance",
@@ -634,7 +778,18 @@
             "searchPlaceholder": "Search...",
             "addRepresentative": "Add Representative",
             "noData": "No sales representatives yet",
-            "noDataSubtitle": "Use \"Add Representative\" to create the first one."
+            "noDataSubtitle": "Use \"Add Representative\" to create the first one.",
+            "addRepresentativeModal": {
+                "modalTitle": "Add Representative",
+                "fullNameLabel": "Full Name",
+                "emailLabel": "Email",
+                "mobileLabel": "Mobile (optional)",
+                "designationLabel": "Designation",
+                "designationPlaceholder": "Sales Representative",
+                "passwordLabel": "Password",
+                "cancel": "Cancel",
+                "addRepresentative": "Add Representative"
+            }
         },
         "assignments": {
             "title": "Territory & Account Assignment",
@@ -648,6 +803,13 @@
             "title": "Role Permissions",
             "subtitle": "Configure access levels for different system roles. Admin permissions are locked for security.",
             "featureCapability": "Feature / Capability",
+            "roles": {
+                "customer": "customer",
+                "admin": "admin",
+                "b2b": "b2b",
+                "user": "user",
+                "b2bUser": "b2b_user"
+            },
             "cancel": "Cancel",
             "saveChanges": "Save Changes"
         }
@@ -704,5 +866,103 @@
             "last12Months": "Last 12 months"
         },
         "exportQuotations": "Export Quotations"
+    },
+    "systemSettings": {
+        "pageTitle": "System Settings",
+        "pageSubtitle": "Manage your company identity, regional preferences, and default configurations.",
+        "tabs": {
+            "generalSettings": "General Settings",
+            "paymentSettings": "Payment Settings",
+            "emailNotifications": "Email & Notifications"
+        },
+        "generalSettings": {
+            "companyNameLabel": "Company Name",
+            "businessAddressLabel": "Business Address",
+            "supportEmailLabel": "Support Email",
+            "supportEmailPlaceholder": "supportemail@gmail.com",
+            "contactNumberLabel": "Contact Number",
+            "defaultLanguageLabel": "Default Language",
+            "defaultCurrencyLabel": "Default Currency",
+            "timeZoneLabel": "Time Zone",
+            "dateFormatLabel": "Date Format",
+            "logoLabel": "Logo",
+            "companyLogoAlt": "Company Logo",
+            "uploadLogo": "Upload Logo",
+            "cancel": "Cancel",
+            "saveChanges": "Save Changes",
+            "edit": "Edit"
+        },
+        "paymentSettings": {
+            "infoBanner": "KIREIZ FORM does not process payments — the customer journey ends at a quotation request. These settings control the billing terms shown on quotations and quotation PDFs, not a payment gateway.",
+            "sectionTitle": "Payment & Billing Terms",
+            "sectionSubtitle": "Printed on quotations sent to customers.",
+            "paymentTermsLabel": "Payment Terms",
+            "paymentTermsPlaceholder": "e.g. 50% advance payment required. Balance due on delivery.",
+            "quotationValidityLabel": "Quotation Validity (days)",
+            "quotationValidityHint": "Default validity period suggested when quoting.",
+            "consumptionTaxLabel": "Consumption Tax (%)",
+            "bankNameLabel": "Bank Name",
+            "branchLabel": "Branch",
+            "accountHolderLabel": "Account Holder",
+            "accountNumberLabel": "Account Number",
+            "quotedFiguresIncludeTax": "Quoted figures already include tax",
+            "cancel": "Cancel",
+            "saveChanges": "Save Changes"
+        },
+        "emailNotifications": {
+            "senderIdentitySection": "Sender Identity",
+            "senderIdentitySubtitle": "How outgoing notification emails appear to recipients.",
+            "senderNameLabel": "Sender Name",
+            "senderNamePlaceholder": "KIREIZ FORM",
+            "senderAddressLabel": "Sender Address",
+            "senderAddressPlaceholder": "no-reply@example.com",
+            "senderNameHint": "Shown as the From name on outgoing email.",
+            "replyToAddressLabel": "Reply-To Address",
+            "replyToAddressPlaceholder": "sales@example.com",
+            "replyToAddressHint": "Where customer replies land.",
+            "emailFooterLabel": "Email Footer / Signature",
+            "emailFooterPlaceholder": "Appended to the bottom of notification emails.",
+            "smtpNoticeText": "SMTP host, port and password are not editable here by design — they are credentials and stay in server environment configuration.",
+            "notificationsSection": "Notifications",
+            "notificationsSubtitle": "Choose which emails the system sends.",
+            "notifyNewQuotationRequest": "New quotation request (to admin)",
+            "notifyNewQuotationRequestHint": "Alerts the addresses below when a customer submits a request.",
+            "notifyRegistrationConfirmation": "Registration confirmation (to customer)",
+            "notifyRequestReceivedConfirmation": "Request received confirmation (to customer)",
+            "notifyQuotationStatusChange": "Quotation status change (to customer)",
+            "notifyQuotationStatusChangeHint": "Sent as a request moves through Received → Quoting → Submitted → Agreed/Declined.",
+            "adminNotificationRecipientsLabel": "Admin Notification Recipients",
+            "adminNotificationRecipientsPlaceholder": "admin@example.com, sales@example.com",
+            "adminNotificationRecipientsHint": "Comma-separated. Used for the internal alerts above.",
+            "cancel": "Cancel",
+            "saveChanges": "Save Changes"
+        }
+    },
+    "quotationRequests": {
+        "title": "Quotation History",
+        "subtitle": "Manage discount tiers and corporate rules",
+        "searchPlaceholder": "Search...",
+        "allStatus": "All Status",
+        "pending": "Pending",
+        "approved": "Approved",
+        "sent": "Sent",
+        "cancel": "Cancelled",
+        "reset": "Reset",
+        "exportCsv": "Export CSV",
+        "tableHeaders": {
+            "quoteId": "Quote ID",
+            "company": "Company",
+            "contactPerson": "Contact Person",
+            "itemType": "Item Type",
+            "status": "Status",
+            "actions": "Actions"
+        },
+        "statusLabels": {
+            "approved": "Approved",
+            "pending": "Pending",
+            "sent": "Sent"
+        },
+        "noData": "No quotations found",
+        "showingRange": "Showing {from}–{to}"
     }
 }
