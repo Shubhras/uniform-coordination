@@ -7,11 +7,23 @@ import { useSession } from "next-auth/react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
-import { FiEdit2, FiLock, FiMail, FiBox, FiChevronRight, FiFileText, FiDownload } from "react-icons/fi";
+import {
+  FiEdit2,
+  FiLock,
+  FiMail,
+  FiBox,
+  FiChevronRight,
+  FiFileText,
+  FiDownload,
+} from "react-icons/fi";
 import { HiCheckCircle } from "react-icons/hi";
 import { GoArrowRight } from "react-icons/go";
 
-import { apiGetProfile, apiSimulationExportPdf, apiSimulationHistory } from "@/services/AuthProfileService";
+import {
+  apiGetProfile,
+  apiSimulationExportPdf,
+  apiSimulationHistory,
+} from "@/services/AuthProfileService";
 import { apiUserOrderList } from "@/services/OrderService";
 import { formatDate } from "@/utils/formatDate";
 
@@ -428,7 +440,9 @@ const MyProfile = () => {
                           disabled={pdfLoadingId === item?.id}
                         >
                           <FiDownload />{" "}
-                          {pdfLoadingId === item?.id ? "Downloading..." : "PDF Download"}
+                          {pdfLoadingId === item?.id
+                            ? "Downloading..."
+                            : "PDF Download"}
                         </button>
                       </div>
                     </div>
