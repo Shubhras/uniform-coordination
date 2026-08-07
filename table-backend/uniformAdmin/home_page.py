@@ -23,7 +23,14 @@ def build_media_url(request, file_field):
     if file_field.name.startswith(("http://", "https://")):
         return file_field.name
 
-    return f"{settings.SITE_URL}{file_field.url}"
+    if request:
+        return request.build_absolute_uri(file_field.url)
+
+    domain = settings.SITE_URL
+    if settings.DEBUG and ("sslip.io" in domain or "localhost" in domain):
+        domain = "http://127.0.0.1:8002"
+
+    return f"{domain.rstrip('/')}{file_field.url}"
     
 class HomePageAPIView(APIView):
 

@@ -47,3 +47,36 @@ export async function apiCleaningItems(accessToken) {
     },
   });
 }
+
+export async function apiProcessInspection(accessToken, pk, data) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/inventory/inspection-queue/${pk}/process/`,
+    method: "post",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    data,
+  });
+}
+
+export async function apiUpdateDamagedItem(accessToken, pk, data) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/inventory/damaged-items/${pk}/update/`,
+    method: "patch",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    data,
+  });
+}
+
+export async function apiUpdateCleaningItem(accessToken, pk, data) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/inventory/cleaning-items/${pk}/update/`,
+    method: "patch",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    data,
+  });
+}

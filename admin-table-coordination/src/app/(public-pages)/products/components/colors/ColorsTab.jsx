@@ -12,7 +12,7 @@ import {
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiGetColorsList, apiDeleteColor } from "@/services/ColorsService";
+import { apiGetColorsList, apiDeleteColor, apiCreateColor } from "@/services/ColorsService";
 import AddEditColorModal from "./AddEditColorModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
@@ -139,6 +139,48 @@ const ColorsTab = () => {
     setModalMode("edit");
     setSelectedColor(color);
     setIsModalOpen(true);
+  };
+
+  // Duplicate a color directly via the API without opening a modal
+  const handleDuplicateColor = async (color) => {
+    if (!accessToken) return;
+
+    try {
+      setLoading(true);
+      const payload = {
+        colorName: `${color.colorName} (Copy)`,
+        colorCode: color.colorCode,
+        compatibleFabric: color.compatibleFabric || [],
+      };
+
+      const response = await apiCreateColor(accessToken, payload);
+
+      if (response?.status) {
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.message || "Color duplicated successfully!"}
+          </Notification>,
+        );
+      } else {
+        const errorMessage = Object.values(response?.message || {}).flat()[0] || "Failed to duplicate color.";
+        toast.push(
+          <Notification title="Error" type="danger">
+            {errorMessage}
+          </Notification>,
+        );
+      }
+      fetchColors(currentPage);
+    } catch (error) {
+      console.error("Failed to duplicate color:", error);
+      toast.push(
+        <Notification title="Error" type="danger">
+          An error occurred while duplicating the color.
+        </Notification>,
+      );
+      fetchColors(currentPage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Close modal and clear selected color
@@ -276,7 +318,10 @@ const ColorsTab = () => {
                     >
                       Delete
                     </button>
-                    <button className="flex-1 border border-gray-300 text-[#91A1B6] text-xs py-1.5 rounded-md">
+                    <button
+                      onClick={() => handleDuplicateColor(color)}
+                      className="flex-1 border border-gray-300 text-[#486284] hover:bg-gray-50 transition-colors text-xs py-1.5 rounded-md cursor-pointer"
+                    >
                       Duplicate
                     </button>
                   </div>
