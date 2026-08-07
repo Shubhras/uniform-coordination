@@ -99,6 +99,143 @@ class CategoryAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(Menu)
+class MenuAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "slug",
+        "icon",
+        "route",
+        "order",
+        "isActive",
+        "isDeleted",
+        "created_at",
+    )
+    list_filter = (
+        "isActive",
+        "isDeleted",
+        "created_at",
+    )
+    search_fields = (
+        "name",
+        "slug",
+        "route",
+    )
+    ordering = ("order", "name")
+    readonly_fields = (
+        "slug",
+        "created_at",
+        "updated_at",
+    )
+
+
+@admin.register(SubMenu)
+class SubMenuAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "menu",
+        "slug",
+        "route",
+        "order",
+        "isActive",
+        "isDeleted",
+        "created_at",
+    )
+    list_filter = (
+        "menu",
+        "isActive",
+        "isDeleted",
+        "created_at",
+    )
+    search_fields = (
+        "name",
+        "slug",
+        "menu__name",
+        "route",
+    )
+    ordering = (
+        "menu",
+        "order",
+        "name",
+    )
+    readonly_fields = (
+        "slug",
+        "created_at",
+        "updated_at",
+    )
+
+
+@admin.register(RoleMenuPermission)
+class RoleMenuPermissionAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "role",
+        "menu",
+        "can_view",
+        "can_create",
+        "can_update",
+        "can_delete",
+        "created_at",
+    )
+    list_filter = (
+        "role",
+        "menu",
+        "can_view",
+        "can_create",
+        "can_update",
+        "can_delete",
+    )
+    search_fields = (
+        "role__role_name",
+        "menu__name",
+    )
+    ordering = (
+        "role",
+        "menu",
+    )
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+    )
+
+
+@admin.register(RoleSubMenuPermission)
+class RoleSubMenuPermissionAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "role",
+        "submenu",
+        "can_view",
+        "can_create",
+        "can_update",
+        "can_delete",
+        "created_at",
+    )
+    list_filter = (
+        "role",
+        "submenu",
+        "can_view",
+        "can_create",
+        "can_update",
+        "can_delete",
+    )
+    search_fields = (
+        "role__role_name",
+        "submenu__name",
+        "submenu__menu__name",
+    )
+    ordering = (
+        "role",
+        "submenu",
+    )
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+    )
+
+
 @admin.register(Parts)
 class PartsAdmin(admin.ModelAdmin):
     list_display = ("id",

@@ -21,20 +21,87 @@ class CustomPagination(PageNumberPagination):
 # INVENTORY WORKFLOW APIS
 # ==========================================
 
+# class AdminInspectionQueueListAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+    
+#     @extend_schema(tags=["Inventory Management"], summary="List Inspection Queue")
+#     def get(self, request):
+#         inspections = InspectionItem.objects.filter(result="pending").order_by("-inspected_at")
+#         serializer = InspectionItemSerializer(inspections, many=True)
+#         return Response({
+#             "status": True,
+#             "statusCode": 200,
+#             "message": "Fetched inspection queue",
+#             "data": serializer.data
+#         })
+
+from django.core.paginator import Paginator, EmptyPage
+from django.db.models import Q
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+
+
 class AdminInspectionQueueListAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    
-    @extend_schema(tags=["Inventory Management"], summary="List Inspection Queue")
+
+    @extend_schema(
+        tags=["Inventory Management"],
+        summary="List Inspection Queue",
+        parameters=[
+            OpenApiParameter(name="search", description="Search by item/product name", required=False, type=str),
+            OpenApiParameter(name="page", description="Page number", required=False, type=int),
+            OpenApiParameter(name="page_size", description="Items per page", required=False, type=int),
+        ]
+    )
     def get(self, request):
-        inspections = InspectionItem.objects.filter(result="pending").order_by("-inspected_at")
-        serializer = InspectionItemSerializer(inspections, many=True)
+        inspections = (
+            InspectionItem.objects
+            .filter(result="pending")
+            .select_related("rental_item__product__category", "order")
+            .order_by("-inspected_at")
+        )
+
+        search = request.query_params.get("search")
+        if search:
+            inspections = inspections.filter(
+                Q(rental_item__product__productName__icontains=search) |
+                Q(rental_item__product__category__categoryName__icontains=search)
+            )
+
+        try:
+            page_number = int(request.query_params.get("page", 1))
+            page_size = int(request.query_params.get("page_size", 10))
+        except ValueError:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Invalid page or page_size",
+                "data": []
+            }, status=400)
+
+        paginator = Paginator(inspections, page_size)
+
+        try:
+            page_obj = paginator.page(page_number)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages) if paginator.num_pages else []
+
+        serializer = InspectionItemSerializer(page_obj, many=True)
+
         return Response({
             "status": True,
             "statusCode": 200,
             "message": "Fetched inspection queue",
-            "data": serializer.data
+            "data": serializer.data,
+            "pagination": {
+                "count": paginator.count,
+                "total_pages": paginator.num_pages,
+                "current_page": page_number,
+                "page_size": page_size,
+                "has_next": getattr(page_obj, "has_next", lambda: False)(),
+                "has_previous": getattr(page_obj, "has_previous", lambda: False)(),
+            }
         })
-
+        
 class AdminProcessInspectionAPIView(APIView):
     permission_classes = [IsAuthenticated]
 

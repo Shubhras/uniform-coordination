@@ -4,13 +4,23 @@ import { PiPhone, PiInstagramLogoFill } from "react-icons/pi";
 import { FaLinkedin, FaInstagram, FaYoutube, FaTiktok } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
+/**
+ * FooterPage Component.
+ * Renders application global footer with company details, navigation links, and social media icons.
+ *
+ * @param {Object} props - Component properties.
+ * @param {string} props.mode - Current theme mode ('light' | 'dark').
+ * @returns {JSX.Element} Global application footer section.
+ */
 const FooterPage = ({ mode }) => {
     const year = new Date().getFullYear()
 
     const router = useRouter()
 
+    /**
+     * Handles preview button navigation.
+     */
     const handlePreview = () => {
-        // router.push('/dashboards/ecommerce')
         router.push('/kireiz-form')
     }
 

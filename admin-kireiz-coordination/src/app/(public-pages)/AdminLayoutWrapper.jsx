@@ -3,12 +3,15 @@
 import { useState } from 'react'
 import AdminSidebar from './_components/AdminSidebar'
 import AdminTopHeader from './_components/AdminTopHeader'
+import MenuPermissionProvider from '@/components/shared/MenuPermissionProvider'
+import MenuRouteGuard from '@/components/shared/MenuRouteGuard'
 
 const AdminLayoutWrapper = ({ children }) => {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
     return (
+        <MenuPermissionProvider>
         <div className="min-h-screen bg-[#F8FAFC]">
             {/* Mobile overlay */}
             {mobileSidebarOpen && (
@@ -44,9 +47,10 @@ const AdminLayoutWrapper = ({ children }) => {
                     ml-0
                 `}
             >
-                {children}
+                <MenuRouteGuard>{children}</MenuRouteGuard>
             </main>
         </div>
+        </MenuPermissionProvider>
     )
 }
 

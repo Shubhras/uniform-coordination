@@ -10,6 +10,7 @@ import {
   apiQuotationDetails,
   apiUpdateQuotation,
 } from "@/services/B2BAccountService";
+import { apiGetSalesReps } from "@/services/SalesRepService";
 
 const EditQuotation = () => {
   const router = useRouter();
@@ -21,6 +22,9 @@ const EditQuotation = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({});
+  // Options for the Sales Rep dropdown. Without this the sales_rep FK could never
+  // be set from the UI, so Sales Team Performance would always read zero.
+  const [salesReps, setSalesReps] = useState([]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -79,6 +83,12 @@ const EditQuotation = () => {
     quotation_status: "",
     workflow_status: "",
     isActive: true,
+    // Admin-entered quotation figures — no auto-calculation per spec
+    valid_until: "",
+    subtotal: "",
+    discount_percent: "",
+    total: "",
+    sales_rep: "",
   });
 
   const getQuotationDetails = async () => {
@@ -103,6 +113,11 @@ const EditQuotation = () => {
           quotation_status: data.quotation_status || "",
           workflow_status: data.workflow_status || "",
           isActive: data.isActive ?? true,
+          valid_until: data.valid_until || "",
+          subtotal: data.subtotal ?? "",
+          discount_percent: data.discount_percent ?? "",
+          total: data.total ?? "",
+          sales_rep: data.sales_rep ?? "",
         });
       }
     } catch (error) {
@@ -118,6 +133,23 @@ const EditQuotation = () => {
       getQuotationDetails();
     }
   }, [accessToken, id]);
+
+  // Load the rep list separately — a failure here shouldn't block editing the
+  // quotation, it just leaves the dropdown empty.
+  useEffect(() => {
+    if (!accessToken) return;
+
+    const loadSalesReps = async () => {
+      try {
+        const res = await apiGetSalesReps(accessToken);
+        if (res?.status) setSalesReps(res.data || []);
+      } catch (error) {
+        console.error("Failed to load sales reps:", error);
+      }
+    };
+
+    loadSalesReps();
+  }, [accessToken]);
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
@@ -150,6 +182,15 @@ const EditQuotation = () => {
         quotation_status: formData.quotation_status,
         // workflow_status: formData.workflow_status,
         isActive: formData.isActive,
+
+        // Send null rather than "" for the optional figures — DRF rejects an
+        // empty string on DecimalField/DateField, but accepts null.
+        valid_until: formData.valid_until || null,
+        subtotal: formData.subtotal === "" ? null : formData.subtotal,
+        discount_percent:
+          formData.discount_percent === "" ? null : formData.discount_percent,
+        total: formData.total === "" ? null : formData.total,
+        sales_rep: formData.sales_rep === "" ? null : Number(formData.sales_rep),
       };
 
       const res = await apiUpdateQuotation(accessToken, id, payload);
@@ -392,14 +433,113 @@ const EditQuotation = () => {
               <option value="sent">Sent</option>
               <option value="approved">Approved</option>
               <option value="cancelled">Cancelled</option>
-              <option value="cancelled">Accepted</option>
-              <option value="cancelled">Received</option>
+              <option value="accepted">Accepted</option>
+              <option value="received">Received</option>
             </select>
             {errors.quotation_status && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.quotation_status}
               </p>
             )}
+          </div>
+
+          {/* Sales Representative */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Sales Representative
+            </label>
+            <select
+              name="sales_rep"
+              value={formData.sales_rep}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 bg-white outline-none focus:ring-2 focus:ring-[#1C2C56]"
+            >
+              <option value="">Unassigned</option>
+              {salesReps.map((rep) => (
+                <option key={rep.id} value={rep.id}>
+                  {rep.name} — {rep.designation}
+                </option>
+              ))}
+            </select>
+            {salesReps.length === 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                No representatives yet — add them under Customer &amp; Sales
+                Representative → Sales Representation.
+              </p>
+            )}
+          </div>
+
+          {/* Valid Until */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Valid Until
+            </label>
+            <input
+              type="date"
+              name="valid_until"
+              value={formData.valid_until}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
+            />
+          </div>
+
+          {/* Subtotal */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Subtotal
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              name="subtotal"
+              value={formData.subtotal}
+              onChange={handleChange}
+              placeholder="0.00"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
+            />
+          </div>
+
+          {/* Discount % */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Discount (%)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              name="discount_percent"
+              value={formData.discount_percent}
+              onChange={handleChange}
+              placeholder="0"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Discount amount is calculated from subtotal &times; this
+              percentage.
+            </p>
+          </div>
+
+          {/* Total */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Total
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              name="total"
+              value={formData.total}
+              onChange={handleChange}
+              placeholder="0.00"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Leave blank to fall back to subtotal minus discount.
+            </p>
           </div>
 
           {/* Workflow Status */}

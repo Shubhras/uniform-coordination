@@ -1,0 +1,2487 @@
+-- MySQL dump 10.13  Distrib 8.0.46, for Linux (x86_64)
+--
+-- Host: localhost    Database: uniform_db
+-- ------------------------------------------------------
+-- Server version	8.0.46
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Current Database: `uniform_db`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `uniform_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+USE `uniform_db`;
+
+--
+-- Table structure for table `auth_group`
+--
+
+DROP TABLE IF EXISTS `auth_group`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auth_group` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_group`
+--
+
+LOCK TABLES `auth_group` WRITE;
+/*!40000 ALTER TABLE `auth_group` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_group` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_group_permissions`
+--
+
+DROP TABLE IF EXISTS `auth_group_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auth_group_permissions` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `group_id` int NOT NULL,
+  `permission_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `auth_group_permissions_group_id_permission_id_0cd325b0_uniq` (`group_id`,`permission_id`),
+  KEY `auth_group_permissio_permission_id_84c5c92e_fk_auth_perm` (`permission_id`),
+  CONSTRAINT `auth_group_permissio_permission_id_84c5c92e_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),
+  CONSTRAINT `auth_group_permissions_group_id_b120cbf9_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_group_permissions`
+--
+
+LOCK TABLES `auth_group_permissions` WRITE;
+/*!40000 ALTER TABLE `auth_group_permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_group_permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_permission`
+--
+
+DROP TABLE IF EXISTS `auth_permission`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auth_permission` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `content_type_id` int NOT NULL,
+  `codename` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
+  CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=269 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_permission`
+--
+
+LOCK TABLES `auth_permission` WRITE;
+/*!40000 ALTER TABLE `auth_permission` DISABLE KEYS */;
+INSERT INTO `auth_permission` VALUES (1,'Can add log entry',1,'add_logentry'),(2,'Can change log entry',1,'change_logentry'),(3,'Can delete log entry',1,'delete_logentry'),(4,'Can view log entry',1,'view_logentry'),(5,'Can add permission',2,'add_permission'),(6,'Can change permission',2,'change_permission'),(7,'Can delete permission',2,'delete_permission'),(8,'Can view permission',2,'view_permission'),(9,'Can add group',3,'add_group'),(10,'Can change group',3,'change_group'),(11,'Can delete group',3,'delete_group'),(12,'Can view group',3,'view_group'),(13,'Can add user',4,'add_user'),(14,'Can change user',4,'change_user'),(15,'Can delete user',4,'delete_user'),(16,'Can view user',4,'view_user'),(17,'Can add content type',5,'add_contenttype'),(18,'Can change content type',5,'change_contenttype'),(19,'Can delete content type',5,'delete_contenttype'),(20,'Can view content type',5,'view_contenttype'),(21,'Can add session',6,'add_session'),(22,'Can change session',6,'change_session'),(23,'Can delete session',6,'delete_session'),(24,'Can view session',6,'view_session'),(25,'Can add Blacklisted Token',7,'add_blacklistedtoken'),(26,'Can change Blacklisted Token',7,'change_blacklistedtoken'),(27,'Can delete Blacklisted Token',7,'delete_blacklistedtoken'),(28,'Can view Blacklisted Token',7,'view_blacklistedtoken'),(29,'Can add Outstanding Token',8,'add_outstandingtoken'),(30,'Can change Outstanding Token',8,'change_outstandingtoken'),(31,'Can delete Outstanding Token',8,'delete_outstandingtoken'),(32,'Can view Outstanding Token',8,'view_outstandingtoken'),(33,'Can add role',9,'add_role'),(34,'Can change role',9,'change_role'),(35,'Can delete role',9,'delete_role'),(36,'Can view role',9,'view_role'),(37,'Can add admin user',10,'add_adminuser'),(38,'Can change admin user',10,'change_adminuser'),(39,'Can delete admin user',10,'delete_adminuser'),(40,'Can view admin user',10,'view_adminuser'),(41,'Can add users',11,'add_users'),(42,'Can change users',11,'change_users'),(43,'Can delete users',11,'delete_users'),(44,'Can view users',11,'view_users'),(45,'Can add category',12,'add_category'),(46,'Can change category',12,'change_category'),(47,'Can delete category',12,'delete_category'),(48,'Can view category',12,'view_category'),(49,'Can add fabric',13,'add_fabric'),(50,'Can change fabric',13,'change_fabric'),(51,'Can delete fabric',13,'delete_fabric'),(52,'Can view fabric',13,'view_fabric'),(53,'Can add colors',14,'add_colors'),(54,'Can change colors',14,'change_colors'),(55,'Can delete colors',14,'delete_colors'),(56,'Can view colors',14,'view_colors'),(57,'Can add parts',15,'add_parts'),(58,'Can change parts',15,'change_parts'),(59,'Can delete parts',15,'delete_parts'),(60,'Can view parts',15,'view_parts'),(61,'Can add template',16,'add_template'),(62,'Can change template',16,'change_template'),(63,'Can delete template',16,'delete_template'),(64,'Can view template',16,'view_template'),(65,'Can add blog',17,'add_blog'),(66,'Can change blog',17,'change_blog'),(67,'Can delete blog',17,'delete_blog'),(68,'Can view blog',17,'view_blog'),(69,'Can add faq',18,'add_faq'),(70,'Can change faq',18,'change_faq'),(71,'Can delete faq',18,'delete_faq'),(72,'Can view faq',18,'view_faq'),(73,'Can add faq description',19,'add_faqdescription'),(74,'Can change faq description',19,'change_faqdescription'),(75,'Can delete faq description',19,'delete_faqdescription'),(76,'Can view faq description',19,'view_faqdescription'),(77,'Can add catalog image',20,'add_catalogimage'),(78,'Can change catalog image',20,'change_catalogimage'),(79,'Can delete catalog image',20,'delete_catalogimage'),(80,'Can view catalog image',20,'view_catalogimage'),(81,'Can add sub category',21,'add_subcategory'),(82,'Can change sub category',21,'change_subcategory'),(83,'Can delete sub category',21,'delete_subcategory'),(84,'Can view sub category',21,'view_subcategory'),(85,'Can add product',22,'add_product'),(86,'Can change product',22,'change_product'),(87,'Can delete product',22,'delete_product'),(88,'Can view product',22,'view_product'),(89,'Can add favourite',23,'add_favourite'),(90,'Can change favourite',23,'change_favourite'),(91,'Can delete favourite',23,'delete_favourite'),(92,'Can view favourite',23,'view_favourite'),(93,'Can add promocode',24,'add_promocode'),(94,'Can change promocode',24,'change_promocode'),(95,'Can delete promocode',24,'delete_promocode'),(96,'Can view promocode',24,'view_promocode'),(97,'Can add privacy policy',25,'add_privacypolicy'),(98,'Can change privacy policy',25,'change_privacypolicy'),(99,'Can delete privacy policy',25,'delete_privacypolicy'),(100,'Can view privacy policy',25,'view_privacypolicy'),(101,'Can add quotation template',26,'add_quotationtemplate'),(102,'Can change quotation template',26,'change_quotationtemplate'),(103,'Can delete quotation template',26,'delete_quotationtemplate'),(104,'Can view quotation template',26,'view_quotationtemplate'),(105,'Can add special condition',27,'add_specialcondition'),(106,'Can change special condition',27,'change_specialcondition'),(107,'Can delete special condition',27,'delete_specialcondition'),(108,'Can view special condition',27,'view_specialcondition'),(109,'Can add admin notification',28,'add_adminnotification'),(110,'Can change admin notification',28,'change_adminnotification'),(111,'Can delete admin notification',28,'delete_adminnotification'),(112,'Can view admin notification',28,'view_adminnotification'),(113,'Can add cart',29,'add_cart'),(114,'Can change cart',29,'change_cart'),(115,'Can delete cart',29,'delete_cart'),(116,'Can view cart',29,'view_cart'),(117,'Can add cart item',30,'add_cartitem'),(118,'Can change cart item',30,'change_cartitem'),(119,'Can delete cart item',30,'delete_cartitem'),(120,'Can view cart item',30,'view_cartitem'),(121,'Can add customer details',31,'add_customerdetails'),(122,'Can change customer details',31,'change_customerdetails'),(123,'Can delete customer details',31,'delete_customerdetails'),(124,'Can view customer details',31,'view_customerdetails'),(125,'Can add model info',32,'add_modelinfo'),(126,'Can change model info',32,'change_modelinfo'),(127,'Can delete model info',32,'delete_modelinfo'),(128,'Can view model info',32,'view_modelinfo'),(129,'Can add custom update models',33,'add_customupdatemodels'),(130,'Can change custom update models',33,'change_customupdatemodels'),(131,'Can delete custom update models',33,'delete_customupdatemodels'),(132,'Can view custom update models',33,'view_customupdatemodels'),(133,'Can add order',34,'add_order'),(134,'Can change order',34,'change_order'),(135,'Can delete order',34,'delete_order'),(136,'Can view order',34,'view_order'),(137,'Can add payment',35,'add_payment'),(138,'Can change payment',35,'change_payment'),(139,'Can delete payment',35,'delete_payment'),(140,'Can view payment',35,'view_payment'),(141,'Can add quotation request',36,'add_quotationrequest'),(142,'Can change quotation request',36,'change_quotationrequest'),(143,'Can delete quotation request',36,'delete_quotationrequest'),(144,'Can view quotation request',36,'view_quotationrequest'),(145,'Can add table theme',37,'add_tabletheme'),(146,'Can change table theme',37,'change_tabletheme'),(147,'Can delete table theme',37,'delete_tabletheme'),(148,'Can view table theme',37,'view_tabletheme'),(149,'Can add docu sign envelope',38,'add_docusignenvelope'),(150,'Can change docu sign envelope',38,'change_docusignenvelope'),(151,'Can delete docu sign envelope',38,'delete_docusignenvelope'),(152,'Can view docu sign envelope',38,'view_docusignenvelope'),(153,'Can add terms and conditions',39,'add_termsandconditions'),(154,'Can change terms and conditions',39,'change_termsandconditions'),(155,'Can delete terms and conditions',39,'delete_termsandconditions'),(156,'Can view terms and conditions',39,'view_termsandconditions'),(157,'Can add rental reservation',40,'add_rentalreservation'),(158,'Can change rental reservation',40,'change_rentalreservation'),(159,'Can delete rental reservation',40,'delete_rentalreservation'),(160,'Can view rental reservation',40,'view_rentalreservation'),(161,'Can add rental rfid item',41,'add_rentalrfiditem'),(162,'Can change rental rfid item',41,'change_rentalrfiditem'),(163,'Can delete rental rfid item',41,'delete_rentalrfiditem'),(164,'Can view rental rfid item',41,'view_rentalrfiditem'),(165,'Can add return scan log',42,'add_returnscanlog'),(166,'Can change return scan log',42,'change_returnscanlog'),(167,'Can delete return scan log',42,'delete_returnscanlog'),(168,'Can view return scan log',42,'view_returnscanlog'),(169,'Can add rental unit',43,'add_rentalunit'),(170,'Can change rental unit',43,'change_rentalunit'),(171,'Can delete rental unit',43,'delete_rentalunit'),(172,'Can view rental unit',43,'view_rentalunit'),(173,'Can add rental shipment',44,'add_rentalshipment'),(174,'Can change rental shipment',44,'change_rentalshipment'),(175,'Can delete rental shipment',44,'delete_rentalshipment'),(176,'Can view rental shipment',44,'view_rentalshipment'),(177,'Can add rental product',45,'add_rentalproduct'),(178,'Can change rental product',45,'change_rentalproduct'),(179,'Can delete rental product',45,'delete_rentalproduct'),(180,'Can view rental product',45,'view_rentalproduct'),(181,'Can add order item',46,'add_orderitem'),(182,'Can change order item',46,'change_orderitem'),(183,'Can delete order item',46,'delete_orderitem'),(184,'Can view order item',46,'view_orderitem'),(185,'Can add rental',47,'add_rental'),(186,'Can change rental',47,'change_rental'),(187,'Can delete rental',47,'delete_rental'),(188,'Can view rental',47,'view_rental'),(189,'Can add rental item',48,'add_rentalitem'),(190,'Can change rental item',48,'change_rentalitem'),(191,'Can delete rental item',48,'delete_rentalitem'),(192,'Can view rental item',48,'view_rentalitem'),(193,'Can add refund',49,'add_refund'),(194,'Can change refund',49,'change_refund'),(195,'Can delete refund',49,'delete_refund'),(196,'Can view refund',49,'view_refund'),(197,'Can add menu',50,'add_menu'),(198,'Can change menu',50,'change_menu'),(199,'Can delete menu',50,'delete_menu'),(200,'Can view menu',50,'view_menu'),(201,'Can add sub menu',51,'add_submenu'),(202,'Can change sub menu',51,'change_submenu'),(203,'Can delete sub menu',51,'delete_submenu'),(204,'Can view sub menu',51,'view_submenu'),(205,'Can add role sub menu permission',52,'add_rolesubmenupermission'),(206,'Can change role sub menu permission',52,'change_rolesubmenupermission'),(207,'Can delete role sub menu permission',52,'delete_rolesubmenupermission'),(208,'Can view role sub menu permission',52,'view_rolesubmenupermission'),(209,'Can add role menu permission',53,'add_rolemenupermission'),(210,'Can change role menu permission',53,'change_rolemenupermission'),(211,'Can delete role menu permission',53,'delete_rolemenupermission'),(212,'Can view role menu permission',53,'view_rolemenupermission'),(213,'Can add inspection item',54,'add_inspectionitem'),(214,'Can change inspection item',54,'change_inspectionitem'),(215,'Can delete inspection item',54,'delete_inspectionitem'),(216,'Can view inspection item',54,'view_inspectionitem'),(217,'Can add damage photo',55,'add_damagephoto'),(218,'Can change damage photo',55,'change_damagephoto'),(219,'Can delete damage photo',55,'delete_damagephoto'),(220,'Can view damage photo',55,'view_damagephoto'),(221,'Can add damaged item',56,'add_damageditem'),(222,'Can change damaged item',56,'change_damageditem'),(223,'Can delete damaged item',56,'delete_damageditem'),(224,'Can view damaged item',56,'view_damageditem'),(225,'Can add cleaning item',57,'add_cleaningitem'),(226,'Can change cleaning item',57,'change_cleaningitem'),(227,'Can delete cleaning item',57,'delete_cleaningitem'),(228,'Can view cleaning item',57,'view_cleaningitem'),(229,'Can add theme item',58,'add_themeitem'),(230,'Can change theme item',58,'change_themeitem'),(231,'Can delete theme item',58,'delete_themeitem'),(232,'Can view theme item',58,'view_themeitem'),(233,'Can add theme cover image',59,'add_themecoverimage'),(234,'Can change theme cover image',59,'change_themecoverimage'),(235,'Can delete theme cover image',59,'delete_themecoverimage'),(236,'Can view theme cover image',59,'view_themecoverimage'),(237,'Can add compensation invoice',60,'add_compensationinvoice'),(238,'Can change compensation invoice',60,'change_compensationinvoice'),(239,'Can delete compensation invoice',60,'delete_compensationinvoice'),(240,'Can view compensation invoice',60,'view_compensationinvoice'),(241,'Can add compensation invoice item',61,'add_compensationinvoiceitem'),(242,'Can change compensation invoice item',61,'change_compensationinvoiceitem'),(243,'Can delete compensation invoice item',61,'delete_compensationinvoiceitem'),(244,'Can view compensation invoice item',61,'view_compensationinvoiceitem'),(245,'Can add pricing package',62,'add_pricingpackage'),(246,'Can change pricing package',62,'change_pricingpackage'),(247,'Can delete pricing package',62,'delete_pricingpackage'),(248,'Can view pricing package',62,'view_pricingpackage'),(249,'Can add pricing rule',63,'add_pricingrule'),(250,'Can change pricing rule',63,'change_pricingrule'),(251,'Can delete pricing rule',63,'delete_pricingrule'),(252,'Can view pricing rule',63,'view_pricingrule'),(253,'Can add System Settings',64,'add_systemsettings'),(254,'Can change System Settings',64,'change_systemsettings'),(255,'Can delete System Settings',64,'delete_systemsettings'),(256,'Can view System Settings',64,'view_systemsettings'),(257,'Can add dashboard alert read',65,'add_dashboardalertread'),(258,'Can change dashboard alert read',65,'change_dashboardalertread'),(259,'Can delete dashboard alert read',65,'delete_dashboardalertread'),(260,'Can view dashboard alert read',65,'view_dashboardalertread'),(261,'Can add Simulation Export Setting',66,'add_simulationexportsetting'),(262,'Can change Simulation Export Setting',66,'change_simulationexportsetting'),(263,'Can delete Simulation Export Setting',66,'delete_simulationexportsetting'),(264,'Can view Simulation Export Setting',66,'view_simulationexportsetting'),(265,'Can add pdf page template',67,'add_pdfpagetemplate'),(266,'Can change pdf page template',67,'change_pdfpagetemplate'),(267,'Can delete pdf page template',67,'delete_pdfpagetemplate'),(268,'Can view pdf page template',67,'view_pdfpagetemplate');
+/*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_user`
+--
+
+DROP TABLE IF EXISTS `auth_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auth_user` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `password` varchar(128) NOT NULL,
+  `last_login` datetime(6) DEFAULT NULL,
+  `is_superuser` tinyint(1) NOT NULL,
+  `username` varchar(150) NOT NULL,
+  `first_name` varchar(150) NOT NULL,
+  `last_name` varchar(150) NOT NULL,
+  `email` varchar(254) NOT NULL,
+  `is_staff` tinyint(1) NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `date_joined` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_user`
+--
+
+LOCK TABLES `auth_user` WRITE;
+/*!40000 ALTER TABLE `auth_user` DISABLE KEYS */;
+INSERT INTO `auth_user` VALUES (1,'pbkdf2_sha256$1000000$JZ0nBKlyCIxtSjKdtsBbND$NP7qKDS0uARKi9LrOo3+rHY7LpjHo3d/PNgtWhUDogs=','2025-12-10 11:22:26.921326',1,'admin','','','admin@gmail.com',1,1,'2025-12-10 11:22:09.684167');
+/*!40000 ALTER TABLE `auth_user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_user_groups`
+--
+
+DROP TABLE IF EXISTS `auth_user_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auth_user_groups` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL,
+  `group_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `auth_user_groups_user_id_group_id_94350c0c_uniq` (`user_id`,`group_id`),
+  KEY `auth_user_groups_group_id_97559544_fk_auth_group_id` (`group_id`),
+  CONSTRAINT `auth_user_groups_group_id_97559544_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`),
+  CONSTRAINT `auth_user_groups_user_id_fk_adminuser_id` FOREIGN KEY (`user_id`) REFERENCES `uniformAdmin_adminuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_user_groups`
+--
+
+LOCK TABLES `auth_user_groups` WRITE;
+/*!40000 ALTER TABLE `auth_user_groups` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_user_groups` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_user_user_permissions`
+--
+
+DROP TABLE IF EXISTS `auth_user_user_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auth_user_user_permissions` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL,
+  `permission_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `auth_user_user_permissions_user_id_permission_id_14a6b632_uniq` (`user_id`,`permission_id`),
+  KEY `auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm` (`permission_id`),
+  CONSTRAINT `auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),
+  CONSTRAINT `auth_user_user_permissions_user_id_fk_adminuser_id` FOREIGN KEY (`user_id`) REFERENCES `uniformAdmin_adminuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_user_user_permissions`
+--
+
+LOCK TABLES `auth_user_user_permissions` WRITE;
+/*!40000 ALTER TABLE `auth_user_user_permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_user_user_permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `contracts_docusignenvelope`
+--
+
+DROP TABLE IF EXISTS `contracts_docusignenvelope`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contracts_docusignenvelope` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `envelope_id` varchar(100) NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `signed_pdf` varchar(100) DEFAULT NULL,
+  `audit_log` json DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `quotation_request_id` char(32) DEFAULT NULL,
+  `admin_approved_at` datetime(6) DEFAULT NULL,
+  `agreement_status` varchar(30) NOT NULL,
+  `client_signed_at` datetime(6) DEFAULT NULL,
+  `final_sent_at` datetime(6) DEFAULT NULL,
+  `order_id` varchar(120) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `envelope_id` (`envelope_id`),
+  KEY `contracts_docusignenvelope_quotation_request_id_ab7704b7` (`quotation_request_id`),
+  CONSTRAINT `contracts_docusignen_quotation_request_id_ab7704b7_fk_userhub_q` FOREIGN KEY (`quotation_request_id`) REFERENCES `userhub_quotationrequest` (`uuids`)
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `contracts_docusignenvelope`
+--
+
+LOCK TABLES `contracts_docusignenvelope` WRITE;
+/*!40000 ALTER TABLE `contracts_docusignenvelope` DISABLE KEYS */;
+INSERT INTO `contracts_docusignenvelope` VALUES (1,'b07c2406-6f3b-87c6-814f-ddf21d120dbf','sent','',NULL,'2026-01-13 09:37:25.618139','2026-01-13 09:37:25.618173','243767d61aaa4003ab3843b1e7c2943c',NULL,'sent_to_client',NULL,NULL,NULL),(2,'06f42167-94c8-8c76-80be-cba9ab180dc1','sent','',NULL,'2026-01-13 10:30:37.984107','2026-01-13 10:30:37.984138','293be79852bf42e6a68c027f3258ba0e',NULL,'sent_to_client',NULL,NULL,NULL),(3,'4efe21a3-eddc-8b37-81d2-faa6b6170dea','sent','',NULL,'2026-01-13 11:31:24.125458','2026-01-13 11:31:24.125516','5b64ae509b6b4f25a0a7c1a26fb7602d',NULL,'sent_to_client',NULL,NULL,NULL),(4,'4d082448-fbd3-8b0a-81c9-f88700100db1','delivered','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/4d082448-fbd3-8b0a-81c9-f88700100db1\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"4d082448-fbd3-8b0a-81c9-f88700100db1\"}, \"event\": \"envelope-delivered\", \"apiVersion\": \"v2.1\", \"retryCount\": 4, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-13T12:25:13.1011169Z\"}','2026-01-13 12:24:45.699978','2026-01-13 13:45:45.881927','431683d0ceda4eacb8b7fc10aeb459b4',NULL,'viewed',NULL,NULL,NULL),(5,'047521f2-71cb-8587-8072-d9a88f120d14','completed','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/047521f2-71cb-8587-8072-d9a88f120d14\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"047521f2-71cb-8587-8072-d9a88f120d14\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 3, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-13T12:35:25.6253377Z\"}','2026-01-13 12:33:28.664171','2026-01-13 13:44:56.716586','ee894821dda746d58145d45571277295',NULL,'client_signed','2026-01-13 13:44:56.716271',NULL,NULL),(6,'af7e2de7-3260-8301-8006-0a34d8110d67','sent','',NULL,'2026-01-13 12:39:27.270072','2026-01-13 12:39:27.270107','82d3e3b135f64593b50d7d8fd76594db',NULL,'sent_to_client',NULL,NULL,NULL),(7,'90112c10-e19e-8bcb-8195-be9ff2100da3','sent','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/90112c10-e19e-8bcb-8195-be9ff2100da3\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"90112c10-e19e-8bcb-8195-be9ff2100da3\"}, \"event\": \"envelope-sent\", \"apiVersion\": \"v2.1\", \"retryCount\": 3, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-13T12:45:04.6628748Z\"}','2026-01-13 12:45:05.125864','2026-01-13 13:33:02.803784','ce1dfb21bfbc4e1fb0aeeb3ba436df2d',NULL,'sent_to_client',NULL,NULL,NULL),(8,'b45e20d4-bbe8-8997-81f0-da0bab140d88','delivered','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/b45e20d4-bbe8-8997-81f0-da0bab140d88\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"b45e20d4-bbe8-8997-81f0-da0bab140d88\"}, \"event\": \"envelope-delivered\", \"apiVersion\": \"v2.1\", \"retryCount\": 3, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-13T12:59:21.2923063Z\"}','2026-01-13 12:58:47.376520','2026-01-13 13:39:51.504018','44fb0903f89748508567fe68c3d7f138',NULL,'viewed',NULL,NULL,NULL),(9,'ffac29e3-1573-8727-80d0-dc736d120d7a','delivered','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/ffac29e3-1573-8727-80d0-dc736d120d7a\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"ffac29e3-1573-8727-80d0-dc736d120d7a\"}, \"event\": \"envelope-delivered\", \"apiVersion\": \"v2.1\", \"retryCount\": 2, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-13T13:07:50.7323645Z\"}','2026-01-13 13:06:26.932773','2026-01-13 13:34:24.196355','f5f2cb76ade3471da3c34582e84f39d3',NULL,'viewed',NULL,NULL,NULL),(10,'32ac2236-2aca-80b6-8193-0fe826110dec','completed','signed_contracts/signed_32ac2236-2aca-80b6-8193-0fe826110dec.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/32ac2236-2aca-80b6-8193-0fe826110dec\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"32ac2236-2aca-80b6-8193-0fe826110dec\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-13T13:29:28.7245958Z\"}','2026-01-13 13:27:16.678352','2026-01-13 13:38:59.783892','c59ce1181f794a6c8d1a98f939434461',NULL,'final_sent','2026-01-13 13:29:53.155539','2026-01-13 13:38:59.783497',NULL),(11,'0dea23c4-7d73-8206-802a-fcef27140d35','sent','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/0dea23c4-7d73-8206-802a-fcef27140d35\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"0dea23c4-7d73-8206-802a-fcef27140d35\"}, \"event\": \"envelope-sent\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-13T13:49:41.6240438Z\"}','2026-01-13 13:49:42.028142','2026-01-13 13:50:03.557959','2a3567e4247049d0a1d3060d8bffd292',NULL,'sent_to_client',NULL,NULL,NULL),(12,'35902623-2f88-83f5-802a-09242e1d0def','completed','signed_contracts/signed_35902623-2f88-83f5-802a-09242e1d0def.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/35902623-2f88-83f5-802a-09242e1d0def\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"35902623-2f88-83f5-802a-09242e1d0def\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-13T13:52:47.2931671Z\"}','2026-01-13 13:50:47.470496','2026-01-13 13:56:08.466663','ad120f57d45c4306abfa621a43e3edd4',NULL,'final_sent','2026-01-13 13:53:10.625512','2026-01-13 13:56:08.466412',NULL),(13,'99292033-78e7-851f-8132-8a8b3d190d07','delivered','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/99292033-78e7-851f-8132-8a8b3d190d07\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"99292033-78e7-851f-8132-8a8b3d190d07\"}, \"event\": \"envelope-delivered\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-16T09:30:09.4592069Z\"}','2026-01-14 05:53:27.047717','2026-01-16 09:30:33.553953','a41ea628a7334fa18f5d3bfc046535b0',NULL,'viewed',NULL,NULL,NULL),(14,'3e102c51-ac38-8101-81ea-4748c7110d0a','completed','signed_contracts/signed_3e102c51-ac38-8101-81ea-4748c7110d0a.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/3e102c51-ac38-8101-81ea-4748c7110d0a\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"3e102c51-ac38-8101-81ea-4748c7110d0a\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-14T06:18:18.2911428Z\"}','2026-01-14 06:16:01.711800','2026-01-14 06:20:31.635684','eb1a18f7828344cd8dc90ed6c1b321ad',NULL,'final_sent','2026-01-14 06:18:41.903405','2026-01-14 06:20:31.635479',NULL),(16,'fe7a280a-5ce3-875d-8000-c7bdec160e7b','sent','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/fe7a280a-5ce3-875d-8000-c7bdec160e7b\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"fe7a280a-5ce3-875d-8000-c7bdec160e7b\"}, \"event\": \"envelope-sent\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-14T09:39:46.4980396Z\"}','2026-01-14 09:39:46.892264','2026-01-14 09:40:08.315534','f40800b6bea7465f86de0f5456eb8198',NULL,'sent_to_client',NULL,NULL,NULL),(17,'22c5255c-56ad-8e59-813a-819068110eda','completed','signed_contracts/signed_22c5255c-56ad-8e59-813a-819068110eda.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/22c5255c-56ad-8e59-813a-819068110eda\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"22c5255c-56ad-8e59-813a-819068110eda\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-14T09:43:06.9915761Z\"}','2026-01-14 09:41:19.756243','2026-01-14 09:44:44.984002','fc80efa4b03a4213bd9750809da0d6ea',NULL,'final_sent','2026-01-14 09:43:30.595816','2026-01-14 09:44:44.983604',NULL),(18,'33b42e5d-926c-87d6-8173-e5c5c9110f41','completed','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/33b42e5d-926c-87d6-8173-e5c5c9110f41\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"33b42e5d-926c-87d6-8173-e5c5c9110f41\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-15T10:54:37.5640049Z\"}','2026-01-15 10:14:31.685040','2026-01-15 10:55:01.402194','460b34a712fc499681f90de679e845db',NULL,'client_signed','2026-01-15 10:55:01.401826',NULL,NULL),(19,'06f524fc-3a80-8562-806c-d4bebd170fec','sent','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/06f524fc-3a80-8562-806c-d4bebd170fec\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"06f524fc-3a80-8562-806c-d4bebd170fec\"}, \"event\": \"envelope-sent\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-15T10:44:48.0154747Z\"}','2026-01-15 10:44:48.689880','2026-01-15 10:45:10.016401','b56275f36a9747f29fcd15f8f492b0a3',NULL,'sent_to_client',NULL,NULL,NULL),(20,'c8c424de-cb0e-8373-8073-9d020b1310c6','completed','signed_contracts/signed_c8c424de-cb0e-8373-8073-9d020b1310c6.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/c8c424de-cb0e-8373-8073-9d020b1310c6\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"c8c424de-cb0e-8373-8073-9d020b1310c6\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-16T09:33:15.4981867Z\"}','2026-01-16 09:24:45.578841','2026-01-16 09:45:40.260241','8e018055b823482fa0acbc570da0064a',NULL,'final_sent','2026-01-16 09:33:39.040734','2026-01-16 09:45:40.260035',NULL),(21,'67212b31-7b02-8a60-813d-5ad9071c1034','completed','signed_contracts/signed_67212b31-7b02-8a60-813d-5ad9071c1034.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/67212b31-7b02-8a60-813d-5ad9071c1034\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"67212b31-7b02-8a60-813d-5ad9071c1034\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-16T09:49:54.9278368Z\"}','2026-01-16 09:47:49.823647','2026-01-16 09:51:28.755699','faae680ae7d648cf8b7b6509435e65d6',NULL,'final_sent','2026-01-16 09:50:18.780318','2026-01-16 09:51:28.755403',NULL),(22,'1fdf2c84-53a1-8e82-80a8-a8a4841e1031','completed','signed_contracts/signed_1fdf2c84-53a1-8e82-80a8-a8a4841e1031.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/1fdf2c84-53a1-8e82-80a8-a8a4841e1031\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"1fdf2c84-53a1-8e82-80a8-a8a4841e1031\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-16T10:15:01.9801251Z\"}','2026-01-16 10:05:20.134698','2026-01-16 10:18:13.135298','f5973d7963da4e09bb9872b702411d18',NULL,'final_sent','2026-01-16 10:15:27.311961','2026-01-16 10:18:13.134887',NULL),(23,'9a3223f8-59ec-8a0c-8028-33240e1b1043','completed','signed_contracts/signed_9a3223f8-59ec-8a0c-8028-33240e1b1043.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/9a3223f8-59ec-8a0c-8028-33240e1b1043\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"9a3223f8-59ec-8a0c-8028-33240e1b1043\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-16T10:31:08.4706989Z\"}','2026-01-16 10:28:24.185615','2026-01-16 10:34:10.419009','3c2e4a032ec844e1a740de64bcb839e0','2026-01-16 10:34:10.418730','final_sent','2026-01-16 10:31:33.797680','2026-01-16 10:34:10.418741',NULL),(24,'9325246e-fd77-8503-803a-b996ea1f1305','completed','signed_contracts/signed_9325246e-fd77-8503-803a-b996ea1f1305.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/9325246e-fd77-8503-803a-b996ea1f1305\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"9325246e-fd77-8503-803a-b996ea1f1305\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-20T05:49:51.5718884Z\"}','2026-01-20 05:44:18.967412','2026-01-20 06:01:19.354347','2e16ea7be21e4d12ba3e0af055273a3a','2026-01-20 06:01:19.354134','final_sent','2026-01-20 05:50:15.583960','2026-01-20 06:01:19.354143',NULL),(25,'d2c820f8-f790-833a-8061-e7f9ef1115b0','completed','signed_contracts/signed_d2c820f8-f790-833a-8061-e7f9ef1115b0.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/d2c820f8-f790-833a-8061-e7f9ef1115b0\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"d2c820f8-f790-833a-8061-e7f9ef1115b0\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-21T13:34:32.6350367Z\"}','2026-01-21 13:30:03.138595','2026-01-21 13:35:38.905905','59a614a0058a4490857b84a5b9922284','2026-01-21 13:35:38.905637','final_sent','2026-01-21 13:34:56.891853','2026-01-21 13:35:38.905648',NULL),(26,'04bb2a65-4626-8326-80ae-0e0dbd131592','completed','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/04bb2a65-4626-8326-80ae-0e0dbd131592\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"04bb2a65-4626-8326-80ae-0e0dbd131592\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-22T05:27:12.0386944Z\"}','2026-01-22 05:21:00.923476','2026-01-22 05:27:35.700787','a9957faaa62946eda5e289f14e849605',NULL,'client_signed','2026-01-22 05:27:35.699991',NULL,NULL),(27,'8ec72fdb-afdf-868f-811c-dfe8941c1559','sent','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/8ec72fdb-afdf-868f-811c-dfe8941c1559\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"8ec72fdb-afdf-868f-811c-dfe8941c1559\"}, \"event\": \"envelope-sent\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-22T06:09:14.9539809Z\"}','2026-01-22 06:09:15.471142','2026-01-22 06:09:36.588726','55c243ed81714c1a835bc72a4b8d17fc',NULL,'sent_to_client',NULL,NULL,NULL),(28,'58782601-96cb-8351-8034-7002571c158f','sent','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/58782601-96cb-8351-8034-7002571c158f\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"58782601-96cb-8351-8034-7002571c158f\"}, \"event\": \"envelope-sent\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-22T06:12:26.8271358Z\"}','2026-01-22 06:12:27.322298','2026-01-22 06:12:48.519802','68736ceda0814100878d0abe8fc80ede',NULL,'sent_to_client',NULL,NULL,NULL),(29,'f5d02967-03ea-8def-8156-5319ac1815cc','completed','signed_contracts/signed_f5d02967-03ea-8def-8156-5319ac1815cc.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/f5d02967-03ea-8def-8156-5319ac1815cc\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"f5d02967-03ea-8def-8156-5319ac1815cc\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-22T06:19:47.5339019Z\"}','2026-01-22 06:17:52.333708','2026-01-22 06:21:15.124666','5f343c6855874c9eb4d0599ed5a8f37e','2026-01-22 06:21:15.124370','final_sent','2026-01-22 06:20:11.666280','2026-01-22 06:21:15.124382',NULL),(30,'9f072b7d-ce58-8311-80a0-a7499d13153b','completed','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/9f072b7d-ce58-8311-80a0-a7499d13153b\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"9f072b7d-ce58-8311-80a0-a7499d13153b\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-22T06:26:01.4934379Z\"}','2026-01-22 06:24:50.706889','2026-01-22 06:26:25.475935','e3a249416cd0410db788988c3b6652ba',NULL,'client_signed','2026-01-22 06:26:25.475526',NULL,NULL),(31,'4ce22e1d-3d87-8ec5-80b6-def5b51d1572','completed','signed_contracts/signed_4ce22e1d-3d87-8ec5-80b6-def5b51d1572.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/4ce22e1d-3d87-8ec5-80b6-def5b51d1572\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"4ce22e1d-3d87-8ec5-80b6-def5b51d1572\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-22T06:30:34.9315090Z\"}','2026-01-22 06:28:53.566536','2026-01-22 06:36:19.010317','3ba98ee481ed466091c7b6f111423b63','2026-01-22 06:36:19.010110','final_sent','2026-01-22 06:30:59.290011','2026-01-22 06:36:19.010118',NULL),(32,'5d3226da-c28b-8aaf-815e-24e78315158b','completed','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/5d3226da-c28b-8aaf-815e-24e78315158b\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"5d3226da-c28b-8aaf-815e-24e78315158b\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-22T07:25:15.4316244Z\"}','2026-01-22 07:22:49.050127','2026-01-22 07:25:39.194790','022b18c3a9c74dda84e7d6137b39448a',NULL,'client_signed','2026-01-22 07:25:39.194679',NULL,NULL),(33,'175a23ff-234a-8b62-8104-93c7fb1b15b7','completed','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/175a23ff-234a-8b62-8104-93c7fb1b15b7\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"175a23ff-234a-8b62-8104-93c7fb1b15b7\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-22T07:30:05.7301882Z\"}','2026-01-22 07:28:50.279573','2026-01-22 07:30:29.723047','3675683f23de401c81783b3bd808dc10',NULL,'client_signed','2026-01-22 07:30:29.722700',NULL,NULL),(34,'00142ce8-bfd9-84b7-814c-9a83ba1215f6','completed','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/00142ce8-bfd9-84b7-814c-9a83ba1215f6\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"00142ce8-bfd9-84b7-814c-9a83ba1215f6\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-22T07:39:59.1371009Z\"}','2026-01-22 07:38:32.437194','2026-01-22 07:40:22.740677','781945478b994d8a81cd11411de1b914',NULL,'client_signed','2026-01-22 07:40:22.740222',NULL,NULL),(35,'f0472490-6b98-8a4c-813a-2e867a171679','completed','signed_contracts/signed_f0472490-6b98-8a4c-813a-2e867a171679.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/f0472490-6b98-8a4c-813a-2e867a171679\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"f0472490-6b98-8a4c-813a-2e867a171679\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-22T09:12:15.9927744Z\"}','2026-01-22 09:07:22.226248','2026-01-22 09:14:32.596339','7d9ae8fe12414950bed1ade663aad971','2026-01-22 09:14:32.595909','final_sent','2026-01-22 09:12:39.885803','2026-01-22 09:14:32.595928',NULL),(36,'eab0225c-c009-8004-81be-eb3b2b1a16fd','completed','signed_contracts/signed_eab0225c-c009-8004-81be-eb3b2b1a16fd.pdf','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/eab0225c-c009-8004-81be-eb3b2b1a16fd\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"eab0225c-c009-8004-81be-eb3b2b1a16fd\"}, \"event\": \"envelope-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-22T09:44:59.8308263Z\"}','2026-01-22 09:42:55.425498','2026-01-22 09:46:08.256678','f9f8f2d1e51848a5b9fb52e9ac6191cf','2026-01-22 09:46:08.256103','final_sent','2026-01-22 09:45:23.214525','2026-01-22 09:46:08.256119',NULL),(37,'505825de-221a-818d-81a3-fbccf811179b','sent','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/505825de-221a-818d-81a3-fbccf811179b\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"505825de-221a-818d-81a3-fbccf811179b\"}, \"event\": \"envelope-sent\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-23T11:03:26.7034638Z\"}','2026-01-23 11:03:27.301255','2026-01-23 11:03:48.526646','833f366f076d48f4919730fab5bd6846',NULL,'sent_to_client',NULL,NULL,NULL),(38,'e20a280a-514c-8a62-81a4-74e0401c1b47','sent','','{\"uri\": \"/restapi/v2.1/accounts/c0991bc6-1892-4da7-85a5-57306afbbb9a/envelopes/e20a280a-514c-8a62-81a4-74e0401c1b47\", \"data\": {\"userId\": \"014d6609-430a-4333-adce-b119673b7219\", \"accountId\": \"c0991bc6-1892-4da7-85a5-57306afbbb9a\", \"envelopeId\": \"e20a280a-514c-8a62-81a4-74e0401c1b47\", \"recipientId\": \"1\"}, \"event\": \"recipient-completed\", \"apiVersion\": \"v2.1\", \"retryCount\": 0, \"configurationId\": 22028251, \"generatedDateTime\": \"2026-01-28T05:35:24.3660275Z\"}','2026-01-28 05:34:11.289768','2026-01-28 05:35:45.617050','06aa6329936b4aa59bb856cce6103cbd',NULL,'sent_to_client',NULL,NULL,NULL),(39,'eba925a0-dfc0-84c6-80bf-c6c3cc191cd5','sent','',NULL,'2026-01-29 07:26:00.449919','2026-01-29 07:26:00.449966',NULL,NULL,'sent_to_client',NULL,NULL,'ORD123');
+/*!40000 ALTER TABLE `contracts_docusignenvelope` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `django_admin_log`
+--
+
+DROP TABLE IF EXISTS `django_admin_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `django_admin_log` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `action_time` datetime(6) NOT NULL,
+  `object_id` longtext,
+  `object_repr` varchar(200) NOT NULL,
+  `action_flag` smallint unsigned NOT NULL,
+  `change_message` longtext NOT NULL,
+  `content_type_id` int DEFAULT NULL,
+  `user_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `django_admin_log_content_type_id_c4bce8eb_fk_django_co` (`content_type_id`),
+  KEY `django_admin_log_user_id_fk_adminuser_id` (`user_id`),
+  CONSTRAINT `django_admin_log_content_type_id_c4bce8eb_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
+  CONSTRAINT `django_admin_log_user_id_fk_adminuser_id` FOREIGN KEY (`user_id`) REFERENCES `uniformAdmin_adminuser` (`id`),
+  CONSTRAINT `django_admin_log_chk_1` CHECK ((`action_flag` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=259 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `django_admin_log`
+--
+
+LOCK TABLES `django_admin_log` WRITE;
+/*!40000 ALTER TABLE `django_admin_log` DISABLE KEYS */;
+INSERT INTO `django_admin_log` VALUES (258,'2026-08-04 05:57:33.870746','7','maqboolp435@gmail.com',2,'[{\"changed\": {\"fields\": [\"Name\", \"Mobile\"]}}]',10,7);
+/*!40000 ALTER TABLE `django_admin_log` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `django_content_type`
+--
+
+DROP TABLE IF EXISTS `django_content_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `django_content_type` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `app_label` varchar(100) NOT NULL,
+  `model` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `django_content_type`
+--
+
+LOCK TABLES `django_content_type` WRITE;
+/*!40000 ALTER TABLE `django_content_type` DISABLE KEYS */;
+INSERT INTO `django_content_type` VALUES (1,'admin','logentry'),(3,'auth','group'),(2,'auth','permission'),(4,'auth','user'),(5,'contenttypes','contenttype'),(38,'contracts','docusignenvelope'),(45,'rental','rentalproduct'),(40,'rental','rentalreservation'),(41,'rental','rentalrfiditem'),(44,'rental','rentalshipment'),(43,'rental','rentalunit'),(42,'rental','returnscanlog'),(6,'sessions','session'),(7,'token_blacklist','blacklistedtoken'),(8,'token_blacklist','outstandingtoken'),(28,'uniformAdmin','adminnotification'),(10,'uniformAdmin','adminuser'),(17,'uniformAdmin','blog'),(20,'uniformAdmin','catalogimage'),(12,'uniformAdmin','category'),(57,'uniformAdmin','cleaningitem'),(14,'uniformAdmin','colors'),(60,'uniformAdmin','compensationinvoice'),(61,'uniformAdmin','compensationinvoiceitem'),(56,'uniformAdmin','damageditem'),(55,'uniformAdmin','damagephoto'),(65,'uniformAdmin','dashboardalertread'),(13,'uniformAdmin','fabric'),(18,'uniformAdmin','faq'),(19,'uniformAdmin','faqdescription'),(54,'uniformAdmin','inspectionitem'),(50,'uniformAdmin','menu'),(15,'uniformAdmin','parts'),(67,'uniformAdmin','pdfpagetemplate'),(62,'uniformAdmin','pricingpackage'),(63,'uniformAdmin','pricingrule'),(25,'uniformAdmin','privacypolicy'),(22,'uniformAdmin','product'),(24,'uniformAdmin','promocode'),(26,'uniformAdmin','quotationtemplate'),(9,'uniformAdmin','role'),(53,'uniformAdmin','rolemenupermission'),(52,'uniformAdmin','rolesubmenupermission'),(66,'uniformAdmin','simulationexportsetting'),(27,'uniformAdmin','specialcondition'),(21,'uniformAdmin','subcategory'),(51,'uniformAdmin','submenu'),(64,'uniformAdmin','systemsettings'),(37,'uniformAdmin','tabletheme'),(16,'uniformAdmin','template'),(59,'uniformAdmin','themecoverimage'),(58,'uniformAdmin','themeitem'),(29,'userhub','cart'),(30,'userhub','cartitem'),(31,'userhub','customerdetails'),(33,'userhub','customupdatemodels'),(23,'userhub','favourite'),(32,'userhub','modelinfo'),(34,'userhub','order'),(46,'userhub','orderitem'),(35,'userhub','payment'),(36,'userhub','quotationrequest'),(49,'userhub','refund'),(47,'userhub','rental'),(48,'userhub','rentalitem'),(39,'userhub','termsandconditions'),(11,'userhub','users');
+/*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `django_migrations`
+--
+
+DROP TABLE IF EXISTS `django_migrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `django_migrations` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `app` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `applied` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `django_migrations`
+--
+
+LOCK TABLES `django_migrations` WRITE;
+/*!40000 ALTER TABLE `django_migrations` DISABLE KEYS */;
+INSERT INTO `django_migrations` VALUES (1,'contenttypes','0001_initial','2025-12-10 09:03:54.459529'),(2,'auth','0001_initial','2025-12-10 09:03:55.275732'),(3,'admin','0001_initial','2025-12-10 09:03:55.417982'),(4,'admin','0002_logentry_remove_auto_add','2025-12-10 09:03:55.430715'),(5,'admin','0003_logentry_add_action_flag_choices','2025-12-10 09:03:55.444171'),(6,'contenttypes','0002_remove_content_type_name','2025-12-10 09:03:55.543951'),(7,'auth','0002_alter_permission_name_max_length','2025-12-10 09:03:55.590728'),(8,'auth','0003_alter_user_email_max_length','2025-12-10 09:03:55.613040'),(9,'auth','0004_alter_user_username_opts','2025-12-10 09:03:55.621380'),(10,'auth','0005_alter_user_last_login_null','2025-12-10 09:03:55.661052'),(11,'auth','0006_require_contenttypes_0002','2025-12-10 09:03:55.663447'),(12,'auth','0007_alter_validators_add_error_messages','2025-12-10 09:03:55.672244'),(13,'auth','0008_alter_user_username_max_length','2025-12-10 09:03:55.719791'),(14,'auth','0009_alter_user_last_name_max_length','2025-12-10 09:03:55.773012'),(15,'auth','0010_alter_group_name_max_length','2025-12-10 09:03:55.797320'),(16,'auth','0011_update_proxy_permissions','2025-12-10 09:03:55.818043'),(17,'auth','0012_alter_user_first_name_max_length','2025-12-10 09:03:55.868334'),(18,'sessions','0001_initial','2025-12-10 09:03:55.893099'),(19,'token_blacklist','0001_initial','2025-12-10 09:03:56.029745'),(20,'token_blacklist','0002_outstandingtoken_jti_hex','2025-12-10 09:03:56.077435'),(21,'token_blacklist','0003_auto_20171017_2007','2025-12-10 09:03:56.097615'),(22,'token_blacklist','0004_auto_20171017_2013','2025-12-10 09:03:56.161334'),(23,'token_blacklist','0005_remove_outstandingtoken_jti','2025-12-10 09:03:56.207468'),(24,'token_blacklist','0006_auto_20171017_2113','2025-12-10 09:03:56.233780'),(25,'token_blacklist','0007_auto_20171017_2214','2025-12-10 09:03:56.367435'),(26,'token_blacklist','0008_migrate_to_bigautofield','2025-12-10 09:03:56.548384'),(27,'token_blacklist','0010_fix_migrate_to_bigautofield','2025-12-10 09:03:56.571168'),(28,'token_blacklist','0011_linearizes_history','2025-12-10 09:03:56.573995'),(29,'token_blacklist','0012_alter_outstandingtoken_user','2025-12-10 09:03:56.591488'),(30,'token_blacklist','0013_alter_blacklistedtoken_options_and_more','2025-12-10 09:03:56.604250'),(31,'uniformAdmin','0001_initial','2025-12-10 09:20:06.057864'),(35,'uniformAdmin','0002_category_fabric_colors_parts_template','2025-12-15 06:12:05.899754'),(37,'uniformAdmin','0003_blog','2025-12-15 09:01:54.284274'),(38,'uniformAdmin','0004_faq_alter_blog_image','2025-12-15 12:04:10.404484'),(39,'uniformAdmin','0005_remove_faq_description_faqdescription','2025-12-15 13:31:08.373947'),(40,'uniformAdmin','0006_alter_blog_title_alter_category_categoryname_and_more','2025-12-16 11:26:02.223059'),(41,'uniformAdmin','0007_subcategory','2025-12-18 07:20:54.706824'),(43,'uniformAdmin','0008_alter_subcategory_name','2025-12-18 10:25:17.426710'),(45,'uniformAdmin','0009_category_order','2025-12-19 13:30:53.085518'),(46,'uniformAdmin','0010_alter_category_order','2025-12-20 05:52:28.056454'),(47,'uniformAdmin','0011_subcategory_order','2025-12-20 09:23:10.533630'),(48,'uniformAdmin','0012_alter_subcategory_order','2025-12-20 09:27:41.363956'),(49,'uniformAdmin','0013_product','2025-12-20 13:05:50.882183'),(51,'uniformAdmin','0014_promocode','2025-12-22 09:01:06.905873'),(52,'uniformAdmin','0015_remove_promocode_discount','2025-12-22 10:28:07.034197'),(53,'uniformAdmin','0016_privacypolicy','2025-12-22 13:14:44.986668'),(54,'uniformAdmin','0017_alter_promocode_ended_at_alter_promocode_started_at','2025-12-23 05:29:19.785411'),(55,'uniformAdmin','0018_quotationtemplate_specialcondition_blog_type_and_more','2026-01-02 09:08:32.032317'),(57,'uniformAdmin','0019_faq_type','2026-01-02 11:12:21.469593'),(58,'uniformAdmin','0020_tabletheme_remove_subcategory_order_and_more','2026-01-02 12:54:31.690596'),(60,'uniformAdmin','0021_fabric_fabrictype_fabric_theme','2026-01-03 07:11:33.091352'),(61,'uniformAdmin','0022_parts_parttype_parts_theme','2026-01-03 07:46:34.269449'),(62,'uniformAdmin','0023_category_categoryimage_category_description_and_more','2026-01-05 12:15:39.922181'),(63,'uniformAdmin','0024_subcategory_order','2026-01-06 10:03:44.411662'),(64,'uniformAdmin','0025_alter_blog_title_and_more','2026-01-07 10:01:49.593445'),(65,'uniformAdmin','0026_alter_category_categoryname_and_more','2026-01-07 10:19:29.397127'),(66,'uniformAdmin','0027_alter_catalogimage_name_alter_catalogimage_slug_and_more','2026-01-08 11:49:27.770569'),(67,'contracts','0001_initial','2026-01-09 07:37:04.974069'),(69,'contracts','0002_docusignenvelope_admin_approved_at_and_more','2026-01-13 09:36:58.366496'),(71,'contracts','0003_alter_docusignenvelope_agreement_status_and_more','2026-01-15 05:48:45.638729'),(73,'uniformAdmin','0028_alter_privacypolicy_privacypolicytype','2026-01-16 12:34:45.141962'),(75,'uniformAdmin','0029_product_type','2026-01-21 11:21:38.863795'),(78,'contracts','0004_docusignenvelope_order_id','2026-01-29 05:23:13.977560'),(80,'rental','0001_initial','2026-01-29 05:23:14.756743'),(81,'contracts','0005_alter_docusignenvelope_quotation_request','2026-01-29 07:25:45.053252'),(82,'rental','0002_rentalproduct_remove_rentalrfiditem_rental_unit_and_more','2026-01-30 09:36:16.724269'),(83,'uniformAdmin','0030_product_rental_price_per_day_and_more','2026-01-30 10:16:04.893392'),(85,'uniformAdmin','0031_alter_product_rental_price_per_day','2026-01-30 10:29:47.407407'),(87,'rental','0003_alter_rentalproduct_order_item','2026-01-30 11:29:00.894716'),(92,'userhub','0001_initial','2026-07-07 10:17:17.180885'),(93,'uniformAdmin','0002_alter_blog_type_alter_category_type_alter_faq_type_and_more','2026-07-10 05:00:42.906622'),(94,'userhub','0002_alter_order_order_type_alter_users_usertype','2026-07-10 05:00:42.931015'),(95,'uniformAdmin','0002_fabric_category_fabric_subcategory','2026-07-10 07:03:40.792643'),(96,'uniformAdmin','0003_menu_submenu_rolesubmenupermission_and_more','2026-07-10 07:19:44.638473'),(97,'uniformAdmin','0004_parts_category_old_parts_subcategory_and_more','2026-07-13 05:23:24.410000'),(98,'uniformAdmin','0005_migrate_parts_categories','2026-07-13 05:23:49.944298'),(99,'uniformAdmin','0006_remove_parts_category_old','2026-07-13 05:24:34.722861'),(100,'userhub','0002_alter_modelinfo_product','2026-07-14 11:02:59.208076'),(101,'uniformAdmin','0007_product_rental_price_per_day_and_more','2026-07-16 09:51:33.013229'),(102,'uniformAdmin','0003_product_color_product_fabric_and_more','2026-07-18 04:32:32.749997'),(103,'uniformAdmin','0004_tabletheme_category_themecoverimage_themeitem','2026-07-18 05:43:52.439858'),(104,'uniformAdmin','0005_compensationinvoice_inspectionitem_missing_qty_and_more','2026-07-18 08:54:20.046441'),(105,'uniformAdmin','0006_pricingpackage_promocode_limit_uses_and_more','2026-07-18 09:21:22.541002'),(106,'uniformAdmin','0008_systemsettings','2026-07-27 10:55:32.444096'),(107,'userhub','0003_alter_quotationrequest_quotation_status','2026-07-27 10:55:32.454717'),(108,'uniformAdmin','0009_product_rfid_tracking_enabled','2026-07-27 12:09:12.530805'),(109,'uniformAdmin','0010_alter_parts_partname','2026-08-04 07:03:26.542277'),(110,'uniformAdmin','0011_dashboardalertread_and_more','2026-08-05 08:15:27.279582'),(111,'uniformAdmin','0012_quotationtemplate_name_quotationtemplate_page_size_and_more','2026-08-05 08:44:29.115804'),(112,'userhub','0004_quotationrequest_discount_percent_and_more','2026-08-05 09:09:26.430065'),(113,'uniformAdmin','0013_adminuser_assigned_sales_rep_adminuser_designation','2026-08-05 09:39:25.419611'),(114,'uniformAdmin','0014_pdfpagetemplate_simulationexportsetting','2026-08-05 10:04:47.985224'),(115,'uniformAdmin','0015_systemsettings_admin_notification_emails_and_more','2026-08-05 10:23:05.516880');
+/*!40000 ALTER TABLE `django_migrations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `django_session`
+--
+
+DROP TABLE IF EXISTS `django_session`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `django_session` (
+  `session_key` varchar(40) NOT NULL,
+  `session_data` longtext NOT NULL,
+  `expire_date` datetime(6) NOT NULL,
+  PRIMARY KEY (`session_key`),
+  KEY `django_session_expire_date_a5c62663` (`expire_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `django_session`
+--
+
+LOCK TABLES `django_session` WRITE;
+/*!40000 ALTER TABLE `django_session` DISABLE KEYS */;
+INSERT INTO `django_session` VALUES ('0f3ccdkneh0tjfhnp2ri16joqlrg2ihe','.eJxVjMsOwiAUBf-FtSFcwAZcuvcbCNyHVA1NSrtq_Hdt0oVuz8ycTaW8LjWtnec0krooUKffrWR8ctsBPXK7Txqntsxj0buiD9r1bSJ-XQ_376DmXr-1mEAWBj84fzaRHJGg9RAZGQQYCLwXG9l5A0CmCKKAddYYDEFyUe8P13E34g:1vkb8V:yoCDdywF8AM5iYvRQzEkM0Qv11OHCbM4eUhwzu3fsP0','2026-02-10 04:57:07.382601'),('0rew72p6g1rpvx1lz7vf0akqq7ori5q5','.eJxVjMsOwiAUBf-FtSFcwAZcuvcbCNyHVA1NSrtq_Hdt0oVuz8ycTaW8LjWtnec0krooUKffrWR8ctsBPXK7Txqntsxj0buiD9r1bSJ-XQ_376DmXr-1mEAWBj84fzaRHJGg9RAZGQQYCLwXG9l5A0CmCKKAddYYDEFyUe8P13E34g:1wi7l3:ejVRvSszwaSE_3AFiPgNotMLijyzVJHepedOYZZvruk','2026-07-24 09:42:57.826988'),('1j4ldq53y3lfouasvi9cm01pr5qmxvnf','.eJxVjMsOwiAQRf-FtSGlQ4G6dO83kBmGkaqBpI-V8d-1SRe6veec-1IRt7XEbclznFidlVGn340wPXLdAd-x3ppOra7zRHpX9EEXfW2cn5fD_TsouJRvDV7AimGXTIeCPtAA1vIYYHCQAhGL7yUESSDBoGMYfe5N7ojRCw3q_QHp8jhx:1wlf6q:KC_4XeOGptWrYI3h6wJkRzkkreG2tvWuDtZ_fwap8uM','2026-08-03 03:56:04.852881'),('318l7w5pdn1hpqiay8wjwpwjcna3ace9','.eJxVjDsOwjAQBe_iGll2nCWEkp4zWPszDiBbipMKcXeIlALaNzPvZSKuS45r0zlOYs7Gm8PvRsgPLRuQO5ZbtVzLMk9kN8XutNlrFX1edvfvIGPL3zpxAgc-JMQgqQuM6mQ4enHEKJgAO9YTOR109KwQmKQnGFUg9apk3h8qdzoq:1wkFjx:dNNGgNWhSM7hGYSu_isWN8UzA545bauPz89vu2w_qVk','2026-07-30 06:38:37.161898'),('3eln1e7xr8riu6ocop5rocv2mn0sekxx','.eJxVjMsOwiAUBf-FtSFcwAZcuvcbCNyHVA1NSrtq_Hdt0oVuz8ycTaW8LjWtnec0krooUKffrWR8ctsBPXK7Txqntsxj0buiD9r1bSJ-XQ_376DmXr-1mEAWBj84fzaRHJGg9RAZGQQYCLwXG9l5A0CmCKKAddYYDEFyUe8P13E34g:1wgwui:mWrT3-WaGi6WUuin9BE2o0c1EkXvPOT5wUD73oSGoZk','2026-07-21 03:56:04.556213'),('41d2i488s98125rlx88remvwurap0o4g','.eJxVjMsOwiAQRf-FtSGlQ4G6dO83kBmGkaqBpI-V8d-1SRe6veec-1IRt7XEbclznFidlVGn340wPXLdAd-x3ppOra7zRHpX9EEXfW2cn5fD_TsouJRvDV7AimGXTIeCPtAA1vIYYHCQAhGL7yUESSDBoGMYfe5N7ojRCw3q_QHp8jhx:1wmPIb:men483Jy9_xMBB0VnJxsOTdZhc3xoIdgHVCpCWu23CQ','2026-08-05 05:15:17.381964'),('8evauyt4hzmrxm9kwplvjigg674kyv63','.eJxVjMsOwiAUBf-FtSFcwAZcuvcbCNyHVA1NSrtq_Hdt0oVuz8ycTaW8LjWtnec0krooUKffrWR8ctsBPXK7Txqntsxj0buiD9r1bSJ-XQ_376DmXr-1mEAWBj84fzaRHJGg9RAZGQQYCLwXG9l5A0CmCKKAddYYDEFyUe8P13E34g:1wjA7j:0HJHiOzkZiosmVIv1dScU-BWpTKAbB1XNGfzfc_w-Gw','2026-07-27 06:26:39.677987'),('9exnl6miejwrfkzwdrt01jc2g5odvrrm','.eJxVjM0OwiAQhN-FsyH8Vzx69xnILixSNZCU9mR8d2nSgx4mmcw3M28WYFtL2DotYU7swiZ2-s0Q4pPqDtID6r3x2Oq6zMj3Cj9o57eW6HU9un8HBXoZa5O0iVmehyRQdgqzEBGNVSiUskI4TVrJbKQHj96B9cOSnwABrQb2-QLkUze6:1wrVxC:kwDwNcyjmFyjyrR11pUqXLt8S6-TlITaC6gpU-oe95M','2026-08-19 07:22:18.826566'),('d87xegmmnfwqdd9lmuczmiy8m5afh9fo','.eJxVjMsOwiAQRf-FtSED5SEu3fcbyMAMUjU0Ke3K-O_apAvd3nPOfYmI21rj1nmJE4mLUOL0uyXMD247oDu22yzz3NZlSnJX5EG7HGfi5_Vw_w4q9vqtjclEA6HXOgebTbFOWw4JQkHNoA1YCIo5EDCBYcdOecbiB1uo-LN4fwDrUzg7:1vV1bJ:Pxvdmsw18xyst5egwbdXlNmRv2_JCJ7H3qnwoRYT5Kg','2025-12-29 05:58:29.384074'),('e950nzg8reogot19ajuo6bava1po3c5c','.eJxVjMsOwiAUBf-FtSFcwAZcuvcbCNyHVA1NSrtq_Hdt0oVuz8ycTaW8LjWtnec0krooUKffrWR8ctsBPXK7Txqntsxj0buiD9r1bSJ-XQ_376DmXr-1mEAWBj84fzaRHJGg9RAZGQQYCLwXG9l5A0CmCKKAddYYDEFyUe8P13E34g:1wgyOw:U8oFFNLjRFdmhsG-kRWBKH2Bie8-dpYOJAqMOisybys','2026-07-21 05:31:22.503800'),('giayek9gay0ztdu61190d6msz9cwl0uz','.eJxVjM0OwiAQhN-FsyH8Vzx69xnILixSNZCU9mR8d2nSgx4mmcw3M28WYFtL2DotYU7swiZ2-s0Q4pPqDtID6r3x2Oq6zMj3Cj9o57eW6HU9un8HBXoZa5O0iVmehyRQdgqzEBGNVSiUskI4TVrJbKQHj96B9cOSnwABrQb2-QLkUze6:1woEBZ:QdJMO9jtHcewOQF7_Zf8J5K_47DEGtilFiXsju9jXAc','2026-08-10 05:47:33.308977'),('hhhy37w45xi2qdfe6a3m9mqsl017fs2r','.eJxVjMsOwiAQRf-FtSGlQ4G6dO83kBmGkaqBpI-V8d-1SRe6veec-1IRt7XEbclznFidlVGn340wPXLdAd-x3ppOra7zRHpX9EEXfW2cn5fD_TsouJRvDV7AimGXTIeCPtAA1vIYYHCQAhGL7yUESSDBoGMYfe5N7ojRCw3q_QHp8jhx:1wkvNh:RmC5KOeB5fp59iI3qLgCnJoV7d9ljoswQBWyhbcf__M','2026-08-01 03:06:25.861220'),('ip5vbubvh8dfzsedibaope3ma9ardxca','.eJxVjM0OwiAQhN-FsyH8Vzx69xnILixSNZCU9mR8d2nSgx4mmcw3M28WYFtL2DotYU7swiZ2-s0Q4pPqDtID6r3x2Oq6zMj3Cj9o57eW6HU9un8HBXoZa5O0iVmehyRQdgqzEBGNVSiUskI4TVrJbKQHj96B9cOSnwABrQb2-QLkUze6:1wnAHH:sSlR_50vemMV6CJ0BFIxe8_Q4rCAqzIb-DhMcQIgmfo','2026-08-07 07:25:03.856030'),('j0gdwpak6vkpebohp82zo2pwqekgx18b','.eJxVjMsOwiAUBf-FtSFcwAZcuvcbCNyHVA1NSrtq_Hdt0oVuz8ycTaW8LjWtnec0krooUKffrWR8ctsBPXK7Txqntsxj0buiD9r1bSJ-XQ_376DmXr-1mEAWBj84fzaRHJGg9RAZGQQYCLwXG9l5A0CmCKKAddYYDEFyUe8P13E34g:1wjvWX:kHsL5e8BcUlkl6yKHgiHIeEYbckW2dbZ00a72cCjFuo','2026-07-29 09:03:25.875306'),('j8tzrcc1uyknghwvpmgqil0jnr5gmz3t','.eJxVjMsOwiAUBf-FtSFcwAZcuvcbCNyHVA1NSrtq_Hdt0oVuz8ycTaW8LjWtnec0krooUKffrWR8ctsBPXK7Txqntsxj0buiD9r1bSJ-XQ_376DmXr-1mEAWBj84fzaRHJGg9RAZGQQYCLwXG9l5A0CmCKKAddYYDEFyUe8P13E34g:1whl9Z:sFCG0EbB6lYnL8fCivgLuJz3cifC6_7753amokDcvFQ','2026-07-23 09:34:45.408112'),('jlpwtzxbqd7lgq8eao195rmil76muk94','.eJxVjMsOwiAUBf-FtSFcwAZcuvcbCNyHVA1NSrtq_Hdt0oVuz8ycTaW8LjWtnec0krooUKffrWR8ctsBPXK7Txqntsxj0buiD9r1bSJ-XQ_376DmXr-1mEAWBj84fzaRHJGg9RAZGQQYCLwXG9l5A0CmCKKAddYYDEFyUe8P13E34g:1wgy93:5uhGkxywcjmOFbn-xYHPUwcU0YrN7QIea447BUJmFb0','2026-07-21 05:14:57.623095'),('ke9zivls0035m5lp37pijhxv130het4x','.eJxVjMsOwiAUBf-FtSFcwAZcuvcbCNyHVA1NSrtq_Hdt0oVuz8ycTaW8LjWtnec0krooUKffrWR8ctsBPXK7Txqntsxj0buiD9r1bSJ-XQ_376DmXr-1mEAWBj84fzaRHJGg9RAZGQQYCLwXG9l5A0CmCKKAddYYDEFyUe8P13E34g:1wjati:YBTSglAQqiKqvAglioHIA611EHhMdadXnj9aqB7fW-g','2026-07-28 11:01:58.916659'),('koy6dyq29nyphfefyi3qdzp7ids55lxe','.eJxVjMsOwiAQRf-FtSGlQ4G6dO83kBmGkaqBpI-V8d-1SRe6veec-1IRt7XEbclznFidlVGn340wPXLdAd-x3ppOra7zRHpX9EEXfW2cn5fD_TsouJRvDV7AimGXTIeCPtAA1vIYYHCQAhGL7yUESSDBoGMYfe5N7ojRCw3q_QHp8jhx:1wm0gM:m96jPSnwt9Fcpq8kTjeY-Ls5fIj0YIqulZbuEOcKheU','2026-08-04 02:58:10.658367'),('liegvj7r7s4xj1r2py100vns2zxwc9g0','.eJxVjMsOwiAQRf-FtSGlQ4G6dO83kBmGkaqBpI-V8d-1SRe6veec-1IRt7XEbclznFidlVGn340wPXLdAd-x3ppOra7zRHpX9EEXfW2cn5fD_TsouJRvDV7AimGXTIeCPtAA1vIYYHCQAhGL7yUESSDBoGMYfe5N7ojRCw3q_QHp8jhx:1wli9Z:hcDBZrVl0jcE066KstATB5sA5TqaYj48YQ2Rgpa1iqA','2026-08-03 07:11:05.278470'),('mndcyczmzxaf718hib6wfz7iw4jzt3by','.eJxVjMsOwiAQRf-FtSGlQ4G6dO83kBmGkaqBpI-V8d-1SRe6veec-1IRt7XEbclznFidlVGn340wPXLdAd-x3ppOra7zRHpX9EEXfW2cn5fD_TsouJRvDV7AimGXTIeCPtAA1vIYYHCQAhGL7yUESSDBoGMYfe5N7ojRCw3q_QHp8jhx:1wmp83:V7MlGyoYUhkeznTwHaNcZ7EFFmwB8eOf9ugtJ5XY73o','2026-08-06 08:50:07.982604'),('mqab7bobztfhwytuyhrr4jrdcnjf5xwg','.eJxVjMsOwiAUBf-FtSFcwAZcuvcbCNyHVA1NSrtq_Hdt0oVuz8ycTaW8LjWtnec0krooUKffrWR8ctsBPXK7Txqntsxj0buiD9r1bSJ-XQ_376DmXr-1mEAWBj84fzaRHJGg9RAZGQQYCLwXG9l5A0CmCKKAddYYDEFyUe8P13E34g:1wjpka:rpQJfxDTI-F4X9Df4xL3Kir_PrFiwa9i9b-l5rI5UaY','2026-07-29 02:53:32.894811'),('nihz21w4op6wgsncbf14pntlmljehmm2','.eJxVjM0OwiAQhN-FsyH8Vzx69xnILixSNZCU9mR8d2nSgx4mmcw3M28WYFtL2DotYU7swiZ2-s0Q4pPqDtID6r3x2Oq6zMj3Cj9o57eW6HU9un8HBXoZa5O0iVmehyRQdgqzEBGNVSiUskI4TVrJbKQHj96B9cOSnwABrQb2-QLkUze6:1wq36S:Mby3fhPmPGY7OPd-57k5X6zD_7EyH_2ojZca3aWpPQM','2026-08-15 06:21:48.908398'),('obgj8hu2xhzf021he8iwec1exw8luolq','.eJxVjMsOwiAQRf-FtSED5SEu3fcbyMAMUjU0Ke3K-O_apAvd3nPOfYmI21rj1nmJE4mLUOL0uyXMD247oDu22yzz3NZlSnJX5EG7HGfi5_Vw_w4q9vqtjclEA6HXOgebTbFOWw4JQkHNoA1YCIo5EDCBYcdOecbiB1uo-LN4fwDrUzg7:1vbyWi:kntSWmqIlw2WOsyBRLRS0I-xB0A9_o0LWBigtQwx7Jc','2026-01-17 10:06:28.777573'),('ofb81vw22idi1ryoeoq5oiidt3rlswka','.eJxVjM0OwiAQhN-FsyH8Vzx69xnILixSNZCU9mR8d2nSgx4mmcw3M28WYFtL2DotYU7swiZ2-s0Q4pPqDtID6r3x2Oq6zMj3Cj9o57eW6HU9un8HBXoZa5O0iVmehyRQdgqzEBGNVSiUskI4TVrJbKQHj96B9cOSnwABrQb2-QLkUze6:1woJvH:4lCs8gYhW-W5v30P23HwbYiYVKnTSA6cDf7lH1gNj0g','2026-08-10 11:55:07.618908'),('pdvv1v3njqx0r2gdzzpi72ww695hvc19','.eJxVjMsOwiAQRf-FtSED5SEu3fcbyMAMUjU0Ke3K-O_apAvd3nPOfYmI21rj1nmJE4mLUOL0uyXMD247oDu22yzz3NZlSnJX5EG7HGfi5_Vw_w4q9vqtjclEA6HXOgebTbFOWw4JQkHNoA1YCIo5EDCBYcdOecbiB1uo-LN4fwDrUzg7:1vdLaO:f9PWmS6ANTtYBOz_Ng2ef6IAMiyDt9SZHmB4zU-ndxI','2026-01-21 04:55:56.900318'),('pnlep5bhib99i64z1sds4nni9i29kpxs','.eJxVjM0OwiAQhN-FsyH8Vzx69xnILixSNZCU9mR8d2nSgx4mmcw3M28WYFtL2DotYU7swiZ2-s0Q4pPqDtID6r3x2Oq6zMj3Cj9o57eW6HU9un8HBXoZa5O0iVmehyRQdgqzEBGNVSiUskI4TVrJbKQHj96B9cOSnwABrQb2-QLkUze6:1wr7wf:QZBLLUHD7YhgxQDOTCWHoFWS8bqfDXUHxZ00GFZjuIY','2026-08-18 05:44:09.893535'),('qws9cyq5d918tdun83z6epv5et95qec4','.eJxVjMsOwiAQRf-FtSGlQ4G6dO83kBmGkaqBpI-V8d-1SRe6veec-1IRt7XEbclznFidlVGn340wPXLdAd-x3ppOra7zRHpX9EEXfW2cn5fD_TsouJRvDV7AimGXTIeCPtAA1vIYYHCQAhGL7yUESSDBoGMYfe5N7ojRCw3q_QHp8jhx:1wkcwW:nLVXp8mDz1i9XzjSro-kiBbkwORYGp7BGnP4s6KLapY','2026-07-31 07:25:08.105943'),('scah8nv0uz5ofc7gr09o3olaauhmeyl2','.eJxVjM0OwiAQhN-FsyH8Vzx69xnILixSNZCU9mR8d2nSgx4mmcw3M28WYFtL2DotYU7swiZ2-s0Q4pPqDtID6r3x2Oq6zMj3Cj9o57eW6HU9un8HBXoZa5O0iVmehyRQdgqzEBGNVSiUskI4TVrJbKQHj96B9cOSnwABrQb2-QLkUze6:1wqjzL:MN0FYy7yyhWPyqG2awjt0Lf4fiR4hBOQomH-TfXdr5Y','2026-08-17 04:09:19.700963'),('sxy5zrj4iieobolnmd92iyzmhn4zpzff','.eJxVjM0OwiAQhN-FsyH8Vzx69xnILixSNZCU9mR8d2nSgx4mmcw3M28WYFtL2DotYU7swiZ2-s0Q4pPqDtID6r3x2Oq6zMj3Cj9o57eW6HU9un8HBXoZa5O0iVmehyRQdgqzEBGNVSiUskI4TVrJbKQHj96B9cOSnwABrQb2-QLkUze6:1wpeeO:wSe_Xrcf1zDDCfa-XE1ZPc4OW5O0q2J-QMW6HB4MnLc','2026-08-14 04:15:12.927133'),('taao5v91pf0adgtoppoojfl4r8t8vn7d','.eJxVjMsOwiAQRf-FtSGlQ4G6dO83kBmGkaqBpI-V8d-1SRe6veec-1IRt7XEbclznFidlVGn340wPXLdAd-x3ppOra7zRHpX9EEXfW2cn5fD_TsouJRvDV7AimGXTIeCPtAA1vIYYHCQAhGL7yUESSDBoGMYfe5N7ojRCw3q_QHp8jhx:1wkbOA:isWtn8FJyK1xWqH9jXnH17ddTnwCCLraXS00EW5n8Q0','2026-07-31 05:45:34.019180'),('tpdoe5pdwnwj0ihxy24jd5repadhqovc','.eJxVjMsOwiAQRf-FtSGlQ4G6dO83kBmGkaqBpI-V8d-1SRe6veec-1IRt7XEbclznFidlVGn340wPXLdAd-x3ppOra7zRHpX9EEXfW2cn5fD_TsouJRvDV7AimGXTIeCPtAA1vIYYHCQAhGL7yUESSDBoGMYfe5N7ojRCw3q_QHp8jhx:1wm0ds:RqWk5xBvlE_kTOsEGxh182HednfUBSEx_LNJTEUyHhQ','2026-08-04 02:55:36.930974'),('wsdzaijftdib49i04ejdov81uhzmhgxb','.eJxVjMsOwiAQRf-FtSGlQ4G6dO83kBmGkaqBpI-V8d-1SRe6veec-1IRt7XEbclznFidlVGn340wPXLdAd-x3ppOra7zRHpX9EEXfW2cn5fD_TsouJRvDV7AimGXTIeCPtAA1vIYYHCQAhGL7yUESSDBoGMYfe5N7ojRCw3q_QHp8jhx:1wmNK6:b3AL7gITCEppfjVqhgJC9I2OFptKzOUpn2AMdKjpOBk','2026-08-05 03:08:42.270898'),('ytgeyjmbg3ss6adxbe839i2vxyi7vr5a','.eJxVjMsOwiAUBf-FtSFcwAZcuvcbCNyHVA1NSrtq_Hdt0oVuz8ycTaW8LjWtnec0krooUKffrWR8ctsBPXK7Txqntsxj0buiD9r1bSJ-XQ_376DmXr-1mEAWBj84fzaRHJGg9RAZGQQYCLwXG9l5A0CmCKKAddYYDEFyUe8P13E34g:1viQJS:vEYxXTm3gLWEvrT5t0LALssvF082Y1zATtyoZ-7XRcQ','2026-02-04 04:59:26.008721');
+/*!40000 ALTER TABLE `django_session` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `rental_rentalproduct`
+--
+
+DROP TABLE IF EXISTS `rental_rentalproduct`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `rental_rentalproduct` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `quantity` int NOT NULL,
+  `is_returned` tinyint(1) NOT NULL,
+  `returned_at` datetime(6) DEFAULT NULL,
+  `before_image` varchar(100) DEFAULT NULL,
+  `after_image` varchar(100) DEFAULT NULL,
+  `is_damaged` tinyint(1) NOT NULL,
+  `extra_charges` double NOT NULL,
+  `lost_charges` double NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `order_id` char(32) NOT NULL,
+  `order_item_id` bigint NOT NULL,
+  `product_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `rental_rentalproduct_order_id_9f0bef56_fk_userhub_order_order_id` (`order_id`),
+  KEY `rental_rentalproduct_product_id_4c63d480_fk_uniformAd` (`product_id`),
+  KEY `rental_rentalproduct_order_item_id_e354f19a_fk_userhub_o` (`order_item_id`),
+  CONSTRAINT `rental_rentalproduct_order_id_9f0bef56_fk_userhub_order_order_id` FOREIGN KEY (`order_id`) REFERENCES `userhub_order` (`order_id`),
+  CONSTRAINT `rental_rentalproduct_order_item_id_e354f19a_fk_userhub_o` FOREIGN KEY (`order_item_id`) REFERENCES `userhub_orderitem` (`id`),
+  CONSTRAINT `rental_rentalproduct_product_id_4c63d480_fk_uniformAd` FOREIGN KEY (`product_id`) REFERENCES `uniformAdmin_product` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rental_rentalproduct`
+--
+
+LOCK TABLES `rental_rentalproduct` WRITE;
+/*!40000 ALTER TABLE `rental_rentalproduct` DISABLE KEYS */;
+INSERT INTO `rental_rentalproduct` VALUES (1,'2026-01-30','2026-02-05',1,0,NULL,'','',0,0,0,'2026-01-30 11:29:09.976587','ded99740a6034cd586467faf7e7d3062',7,17),(2,'2026-01-30','2026-02-05',19,0,NULL,'','',0,0,0,'2026-01-30 11:29:09.982325','ded99740a6034cd586467faf7e7d3062',8,16),(3,'2026-01-30','2026-02-05',2,0,NULL,'','',0,0,0,'2026-01-30 11:29:09.988579','ded99740a6034cd586467faf7e7d3062',9,15),(4,'2026-01-30','2026-02-05',1,0,NULL,'','',0,0,0,'2026-01-30 12:00:55.837483','bb4adada8ca44357939b3fce4493822d',10,17),(5,'2026-01-30','2026-02-05',19,0,NULL,'','',0,0,0,'2026-01-30 12:00:55.843559','bb4adada8ca44357939b3fce4493822d',11,16),(6,'2026-01-30','2026-02-05',2,1,'2026-01-30 12:42:19.255586','','',0,0,0,'2026-01-30 12:00:55.850324','bb4adada8ca44357939b3fce4493822d',12,15),(7,'2026-02-01','2026-02-05',1,0,NULL,'','',0,0,0,'2026-01-31 13:20:20.780862','f90fcd356dab43c6a2bd455dc9819924',13,17),(8,'2026-02-01','2026-02-05',19,0,NULL,'','',0,0,0,'2026-01-31 13:20:20.791104','f90fcd356dab43c6a2bd455dc9819924',14,16),(9,'2026-02-01','2026-02-05',2,0,NULL,'','',0,0,0,'2026-01-31 13:20:20.799671','f90fcd356dab43c6a2bd455dc9819924',15,15),(10,'2026-02-01','2026-02-05',10,0,NULL,'','',0,0,0,'2026-01-31 13:20:20.808531','f90fcd356dab43c6a2bd455dc9819924',16,19),(11,'2026-02-01','2026-02-05',1,0,NULL,'','',0,0,0,'2026-01-31 13:34:03.950390','026b04b7dbf644c894ae3a92b5686e07',17,17),(12,'2026-02-01','2026-02-05',19,0,NULL,'','',0,0,0,'2026-01-31 13:34:03.957290','026b04b7dbf644c894ae3a92b5686e07',18,16),(13,'2026-02-01','2026-02-05',2,0,NULL,'','',0,0,0,'2026-01-31 13:34:03.963572','026b04b7dbf644c894ae3a92b5686e07',19,15),(14,'2026-02-01','2026-02-05',10,0,NULL,'','',0,0,0,'2026-01-31 13:34:03.969398','026b04b7dbf644c894ae3a92b5686e07',20,19),(15,'2026-02-01','2026-02-05',1,0,NULL,'','',0,0,0,'2026-02-03 06:44:26.944286','d36bf13c1d8f43e4a3fb61db041f01f4',21,17),(16,'2026-02-01','2026-02-05',19,0,NULL,'','',0,0,0,'2026-02-03 06:44:26.951658','d36bf13c1d8f43e4a3fb61db041f01f4',22,16),(17,'2026-02-01','2026-02-05',2,0,NULL,'','',0,0,0,'2026-02-03 06:44:26.957904','d36bf13c1d8f43e4a3fb61db041f01f4',23,15),(18,'2026-02-01','2026-02-05',20,0,NULL,'','',0,0,0,'2026-02-03 06:44:26.964984','d36bf13c1d8f43e4a3fb61db041f01f4',24,19),(19,'2026-02-01','2026-02-05',1,0,NULL,'','',0,0,0,'2026-02-03 06:45:13.745600','95fa758e2e0a4d99b5c26e81d91840e7',25,17),(20,'2026-02-01','2026-02-05',19,0,NULL,'','',0,0,0,'2026-02-03 06:45:13.752954','95fa758e2e0a4d99b5c26e81d91840e7',26,16),(21,'2026-02-01','2026-02-05',2,0,NULL,'','',0,0,0,'2026-02-03 06:45:13.759643','95fa758e2e0a4d99b5c26e81d91840e7',27,15),(22,'2026-02-01','2026-02-05',20,0,NULL,'','',0,0,0,'2026-02-03 06:45:13.765303','95fa758e2e0a4d99b5c26e81d91840e7',28,19),(23,'2026-02-01','2026-02-05',1,0,NULL,'','',0,0,0,'2026-02-03 07:25:23.218875','03bbcab8a7744f26b70b12009b45335f',29,17),(24,'2026-02-01','2026-02-05',19,0,NULL,'','',0,0,0,'2026-02-03 07:25:23.228683','03bbcab8a7744f26b70b12009b45335f',30,16),(25,'2026-02-01','2026-02-05',2,0,NULL,'','',0,0,0,'2026-02-03 07:25:23.236105','03bbcab8a7744f26b70b12009b45335f',31,15),(26,'2026-02-01','2026-02-05',20,0,NULL,'','',0,0,0,'2026-02-03 07:25:23.243285','03bbcab8a7744f26b70b12009b45335f',32,19),(27,'2026-02-01','2026-02-05',1,0,NULL,'','',0,0,0,'2026-02-03 07:42:35.306250','571e5fbecba74970855a10f047c67554',33,17),(28,'2026-02-01','2026-02-05',19,0,NULL,'','',0,0,0,'2026-02-03 07:42:35.313966','571e5fbecba74970855a10f047c67554',34,16),(29,'2026-02-01','2026-02-05',2,0,NULL,'','',0,0,0,'2026-02-03 07:42:35.320982','571e5fbecba74970855a10f047c67554',35,15),(30,'2026-02-01','2026-02-05',20,0,NULL,'','',0,0,0,'2026-02-03 07:42:35.328764','571e5fbecba74970855a10f047c67554',36,19),(31,'2026-02-01','2026-02-05',1,0,NULL,'','',0,0,0,'2026-02-03 09:04:39.294179','7cf7b83665c44ad9b423b6a7e5c2eeee',37,17),(32,'2026-02-01','2026-02-05',19,0,NULL,'','',0,0,0,'2026-02-03 09:04:39.300502','7cf7b83665c44ad9b423b6a7e5c2eeee',38,16),(33,'2026-02-01','2026-02-05',2,0,NULL,'','',0,0,0,'2026-02-03 09:04:39.306453','7cf7b83665c44ad9b423b6a7e5c2eeee',39,15),(34,'2026-02-01','2026-02-05',20,0,NULL,'','',0,0,0,'2026-02-03 09:04:39.312429','7cf7b83665c44ad9b423b6a7e5c2eeee',40,19),(35,'2026-02-03','2026-02-07',1,0,NULL,'','',0,0,0,'2026-02-03 09:32:26.478362','c4fd66618e7f44c2a41d878aa712337e',41,17),(36,'2026-02-03','2026-02-07',19,0,NULL,'','',0,0,0,'2026-02-03 09:32:26.485372','c4fd66618e7f44c2a41d878aa712337e',42,16),(37,'2026-02-03','2026-02-07',2,0,NULL,'','',0,0,0,'2026-02-03 09:32:26.492782','c4fd66618e7f44c2a41d878aa712337e',43,15),(38,'2026-02-03','2026-02-07',20,0,NULL,'','',0,0,0,'2026-02-03 09:32:26.499131','c4fd66618e7f44c2a41d878aa712337e',44,19),(39,'2026-02-03','2026-02-07',1,0,NULL,'','',0,0,0,'2026-02-03 09:58:50.055057','8ef501d57b3b4384b0abba1770238ec8',45,17),(40,'2026-02-03','2026-02-07',19,0,NULL,'','',0,0,0,'2026-02-03 09:58:50.063170','8ef501d57b3b4384b0abba1770238ec8',46,16),(41,'2026-02-03','2026-02-07',2,0,NULL,'','',0,0,0,'2026-02-03 09:58:50.069306','8ef501d57b3b4384b0abba1770238ec8',47,15),(42,'2026-02-03','2026-02-07',20,0,NULL,'','',0,0,0,'2026-02-03 09:58:50.075638','8ef501d57b3b4384b0abba1770238ec8',48,19),(43,'2026-02-03','2026-02-07',1,0,NULL,'','',0,0,0,'2026-02-03 10:04:34.453465','e618f3f35fb548458868d1a2849d1994',49,17),(44,'2026-02-03','2026-02-07',19,0,NULL,'','',0,0,0,'2026-02-03 10:04:34.459759','e618f3f35fb548458868d1a2849d1994',50,16),(45,'2026-02-03','2026-02-07',2,0,NULL,'','',0,0,0,'2026-02-03 10:04:34.472777','e618f3f35fb548458868d1a2849d1994',51,15),(46,'2026-02-03','2026-02-07',20,0,NULL,'','',0,0,0,'2026-02-03 10:04:34.480272','e618f3f35fb548458868d1a2849d1994',52,19),(47,'2026-02-03','2026-02-07',1,0,NULL,'','',0,0,0,'2026-02-03 10:33:00.876599','849ed4ab2d49453281716077e6bad2f3',53,17),(48,'2026-02-03','2026-02-07',19,0,NULL,'','',0,0,0,'2026-02-03 10:33:00.883553','849ed4ab2d49453281716077e6bad2f3',54,16),(49,'2026-02-03','2026-02-07',2,0,NULL,'','',0,0,0,'2026-02-03 10:33:00.889727','849ed4ab2d49453281716077e6bad2f3',55,15),(50,'2026-02-03','2026-02-07',20,0,NULL,'','',0,0,0,'2026-02-03 10:33:00.896443','849ed4ab2d49453281716077e6bad2f3',56,19);
+/*!40000 ALTER TABLE `rental_rentalproduct` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `token_blacklist_blacklistedtoken`
+--
+
+DROP TABLE IF EXISTS `token_blacklist_blacklistedtoken`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `token_blacklist_blacklistedtoken` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `blacklisted_at` datetime(6) NOT NULL,
+  `token_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token_id` (`token_id`),
+  CONSTRAINT `token_blacklist_blacklistedtoken_token_id_3cc7fe56_fk` FOREIGN KEY (`token_id`) REFERENCES `token_blacklist_outstandingtoken` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=154 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `token_blacklist_blacklistedtoken`
+--
+
+LOCK TABLES `token_blacklist_blacklistedtoken` WRITE;
+/*!40000 ALTER TABLE `token_blacklist_blacklistedtoken` DISABLE KEYS */;
+INSERT INTO `token_blacklist_blacklistedtoken` VALUES (1,'2026-07-16 06:18:38.045747',141),(2,'2026-07-16 06:18:38.061783',1),(3,'2026-07-16 06:18:38.068660',2),(4,'2026-07-16 06:18:38.075031',3),(5,'2026-07-16 06:18:38.081072',4),(6,'2026-07-16 06:18:38.087193',5),(7,'2026-07-16 06:18:38.093266',6),(8,'2026-07-16 06:18:38.099483',7),(9,'2026-07-16 06:18:38.105718',8),(10,'2026-07-16 06:18:38.111905',9),(11,'2026-07-16 06:18:38.118470',10),(12,'2026-07-16 06:18:38.123986',11),(13,'2026-07-16 06:18:38.129972',12),(14,'2026-07-16 06:18:38.135509',13),(15,'2026-07-16 06:18:38.141095',14),(16,'2026-07-16 06:18:38.146441',15),(17,'2026-07-16 06:18:38.152326',16),(18,'2026-07-16 06:18:38.158398',22),(19,'2026-07-16 06:18:38.164624',23),(20,'2026-07-16 06:18:38.171016',24),(21,'2026-07-16 06:18:38.176996',25),(22,'2026-07-16 06:18:38.183579',26),(23,'2026-07-16 06:18:38.190071',27),(24,'2026-07-16 06:18:38.196280',28),(25,'2026-07-16 06:18:38.202342',29),(26,'2026-07-16 06:18:38.208245',30),(27,'2026-07-16 06:18:38.214341',31),(28,'2026-07-16 06:18:38.220329',32),(29,'2026-07-16 06:18:38.226422',33),(30,'2026-07-16 06:18:38.232386',34),(31,'2026-07-16 06:18:38.238433',35),(32,'2026-07-16 06:18:38.244333',36),(33,'2026-07-16 06:18:38.250381',37),(34,'2026-07-16 06:18:38.256649',38),(35,'2026-07-16 06:18:38.262701',39),(36,'2026-07-16 06:18:38.268640',40),(37,'2026-07-16 06:18:38.277058',41),(38,'2026-07-16 06:18:38.283046',42),(39,'2026-07-16 06:18:38.289553',43),(40,'2026-07-16 06:18:38.295785',44),(41,'2026-07-16 06:18:38.301727',45),(42,'2026-07-16 06:18:38.307665',46),(43,'2026-07-16 06:18:38.313763',47),(44,'2026-07-16 06:18:38.319709',48),(45,'2026-07-16 06:18:38.325737',49),(46,'2026-07-16 06:18:38.331739',50),(47,'2026-07-16 06:18:38.338193',51),(48,'2026-07-16 06:18:38.343994',52),(49,'2026-07-16 06:18:38.350822',53),(50,'2026-07-16 06:18:38.357295',54),(51,'2026-07-16 06:18:38.363300',56),(52,'2026-07-16 06:18:38.369139',57),(53,'2026-07-16 06:18:38.375006',58),(54,'2026-07-16 06:18:38.381662',59),(55,'2026-07-16 06:18:38.387831',60),(56,'2026-07-16 06:18:38.393621',61),(57,'2026-07-16 06:18:38.399868',62),(58,'2026-07-16 06:18:38.405808',63),(59,'2026-07-16 06:18:38.412388',64),(60,'2026-07-16 06:18:38.419379',65),(61,'2026-07-16 06:18:38.425810',66),(62,'2026-07-16 06:18:38.432464',67),(63,'2026-07-16 06:18:38.439409',68),(64,'2026-07-16 06:18:38.445524',69),(65,'2026-07-16 06:18:38.451316',70),(66,'2026-07-16 06:18:38.457386',71),(67,'2026-07-16 06:18:38.463092',72),(68,'2026-07-16 06:18:38.468878',73),(69,'2026-07-16 06:18:38.475003',74),(70,'2026-07-16 06:18:38.481044',75),(71,'2026-07-16 06:18:38.487886',76),(72,'2026-07-16 06:18:38.494067',77),(73,'2026-07-16 06:18:38.499974',78),(74,'2026-07-16 06:18:38.506714',79),(75,'2026-07-16 06:18:38.512764',80),(76,'2026-07-16 06:18:38.519164',82),(77,'2026-07-16 06:18:38.526043',83),(78,'2026-07-16 06:18:38.532018',84),(79,'2026-07-16 06:18:38.538827',85),(80,'2026-07-16 06:18:38.544613',86),(81,'2026-07-16 06:18:38.550498',87),(82,'2026-07-16 06:18:38.557090',88),(83,'2026-07-16 06:18:38.562977',89),(84,'2026-07-16 06:18:38.569334',90),(85,'2026-07-16 06:18:38.575562',91),(86,'2026-07-16 06:18:38.581874',92),(87,'2026-07-16 06:18:38.587746',93),(88,'2026-07-16 06:18:38.594087',94),(89,'2026-07-16 06:18:38.599885',95),(90,'2026-07-16 06:18:38.606243',96),(91,'2026-07-16 06:18:38.611741',97),(92,'2026-07-16 06:18:38.617537',98),(93,'2026-07-16 06:18:38.623223',99),(94,'2026-07-16 06:18:38.629715',100),(95,'2026-07-16 06:18:38.635666',101),(96,'2026-07-16 06:18:38.641885',102),(97,'2026-07-16 06:18:38.647628',103),(98,'2026-07-16 06:18:38.654552',104),(99,'2026-07-16 06:18:38.660537',105),(100,'2026-07-16 06:18:38.666533',106),(101,'2026-07-16 06:18:38.672416',107),(102,'2026-07-16 06:18:38.678435',108),(103,'2026-07-16 06:18:38.684378',109),(104,'2026-07-16 06:18:38.690384',110),(105,'2026-07-16 06:18:38.696377',111),(106,'2026-07-16 06:18:38.702502',112),(107,'2026-07-16 06:18:38.708602',113),(108,'2026-07-16 06:18:38.714605',114),(109,'2026-07-16 06:18:38.720529',115),(110,'2026-07-16 06:18:38.726689',116),(111,'2026-07-16 06:18:38.732565',117),(112,'2026-07-16 06:18:38.738735',118),(113,'2026-07-16 06:18:38.744431',119),(114,'2026-07-16 06:18:38.750669',120),(115,'2026-07-16 06:18:38.756435',121),(116,'2026-07-16 06:18:38.764330',122),(117,'2026-07-16 06:18:38.772617',123),(118,'2026-07-16 06:18:38.779627',124),(119,'2026-07-16 06:18:38.784464',125),(120,'2026-07-16 06:18:38.788554',126),(121,'2026-07-16 06:18:38.792092',127),(122,'2026-07-16 06:18:38.795361',128),(123,'2026-07-16 06:18:38.798345',129),(124,'2026-07-16 06:18:38.801366',130),(125,'2026-07-16 06:18:38.804341',131),(126,'2026-07-16 06:18:38.807962',132),(127,'2026-07-16 06:18:38.811066',133),(128,'2026-07-16 06:18:38.814067',134),(129,'2026-07-16 06:18:38.817291',135),(130,'2026-07-16 06:18:38.820677',136),(131,'2026-07-16 06:18:38.823380',137),(132,'2026-07-16 06:18:38.825915',138),(133,'2026-07-16 06:18:38.828625',139),(134,'2026-07-16 06:18:38.831807',140),(135,'2026-07-16 06:25:16.288350',142),(136,'2026-07-17 04:49:42.317194',145),(137,'2026-07-17 04:49:42.448437',143),(138,'2026-07-17 04:49:42.461645',144),(139,'2026-07-17 09:11:10.655801',146),(140,'2026-08-04 06:25:27.541105',163),(141,'2026-08-04 06:25:27.557856',156),(142,'2026-08-04 06:25:27.567071',157),(143,'2026-08-04 06:25:27.573355',158),(144,'2026-08-04 06:25:27.579963',159),(145,'2026-08-04 06:25:27.586181',160),(146,'2026-08-04 06:25:27.593870',161),(147,'2026-08-04 06:25:27.600454',162),(148,'2026-08-04 07:13:13.608840',164),(149,'2026-08-04 07:17:40.988513',165),(150,'2026-08-05 11:41:00.904974',167),(151,'2026-08-05 11:41:00.949474',166),(152,'2026-08-05 11:41:01.016875',168),(153,'2026-08-05 11:41:01.050978',169);
+/*!40000 ALTER TABLE `token_blacklist_blacklistedtoken` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `token_blacklist_outstandingtoken`
+--
+
+DROP TABLE IF EXISTS `token_blacklist_outstandingtoken`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `token_blacklist_outstandingtoken` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `token` longtext NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `expires_at` datetime(6) NOT NULL,
+  `user_id` bigint DEFAULT NULL,
+  `jti` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token_blacklist_outstandingtoken_jti_hex_d9bdf6f7_uniq` (`jti`),
+  KEY `token_blacklist_outstandingtoken_user_id_idx` (`user_id`),
+  CONSTRAINT `fk_token_blacklist_adminuser` FOREIGN KEY (`user_id`) REFERENCES `uniformAdmin_adminuser` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=171 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `token_blacklist_outstandingtoken`
+--
+
+LOCK TABLES `token_blacklist_outstandingtoken` WRITE;
+/*!40000 ALTER TABLE `token_blacklist_outstandingtoken` DISABLE KEYS */;
+INSERT INTO `token_blacklist_outstandingtoken` VALUES (1,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2ODgyNTQ5MywiaWF0IjoxNzY2MDYwNjkzLCJqdGkiOiI4ZGI3MTIxMzc4Yjc0MDZlOTExMWExNTZiODU3MDU4OSIsInVzZXJfaWQiOiIxIn0.gPKRQWum3y_HlcOAVrlNEsGM3v567Rfoah5aJCeDT1E','2025-12-18 12:24:53.581291','2026-01-19 12:24:53.000000',NULL,'8db7121378b7406e9111a156b8570589'),(2,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2ODgyNTY1OSwiaWF0IjoxNzY2MDYwODU5LCJqdGkiOiIzNWI5YWM4NDNmMmU0MmVmYTY3ZjAyZDI2ZGQzNTNmMiIsInVzZXJfaWQiOiIxIn0.7hbUN2o9-0bTiN5nrbSa_SPwgwjoNgmerpuwS7ac8Vk','2025-12-18 12:27:39.086353','2026-01-19 12:27:39.000000',NULL,'35b9ac843f2e42efa67f02d26dd353f2'),(3,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2ODkwNjgyNCwiaWF0IjoxNzY2MTQyMDI0LCJqdGkiOiIyMjE1YjI4YzYzMzk0NTBhYTdjODY5MDhlZDFmODcxNyIsInVzZXJfaWQiOiIxIn0.kbGc2LB8rfO-xQV7Wx-VznVun_lQuNRavQHcWr6N6jU','2025-12-19 11:00:24.418955','2026-01-20 11:00:24.000000',NULL,'2215b28c6339450aa7c86908ed1f8717'),(4,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2ODk3MjA4MiwiaWF0IjoxNzY2MjA3MjgyLCJqdGkiOiIyOGVhNDliNDkyN2I0MjU1OTY4ZDE5ODUzZTMxYjBmZCIsInVzZXJfaWQiOiIxIn0.smXbG_AQ7AG37PdygBhDCDMITPvXd02tKnGdVljmk00','2025-12-20 05:08:02.709041','2026-01-21 05:08:02.000000',NULL,'28ea49b4927b4255968d19853e31b0fd'),(5,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2OTE0OTQ1MywiaWF0IjoxNzY2Mzg0NjUzLCJqdGkiOiJlOTVmMzdkZjUwZGY0OGJiYTlmMDNhMWI2NTNhMmVjNiIsInVzZXJfaWQiOiIxIn0.Wk8ImouHXbkBsiS3EfSBnv2eUTE2DiMwosqHR_eVwkU','2025-12-22 06:24:13.131390','2026-01-23 06:24:13.000000',NULL,'e95f37df50df48bba9f03a1b653a2ec6'),(6,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3MDUzMDA1OSwiaWF0IjoxNzY3NzY1MjU5LCJqdGkiOiI4NzAyMTJjZDQ1MTk0ZTRiOWQxYTIxNTYyM2Y0YmMyZCIsInVzZXJfaWQiOiIxIn0.gRfMhyeZpDCb1ko42GQHXTIliVDwDhltWkP07b5ftaE','2026-01-07 05:54:19.646260','2026-02-08 05:54:19.000000',NULL,'870212cd45194e4b9d1a215623f4bc2d'),(7,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3MDczMDI5MSwiaWF0IjoxNzY3OTY1NDkxLCJqdGkiOiI0N2ZiNzllNGE0NGQ0ZjkzODE2MmQxNDU3OWI4OGJmMCIsInVzZXJfaWQiOiIxIn0.sFG5hppyan71f6eKcECRHoUt9QtPsakRMl788z0uwNU','2026-01-09 13:31:31.562161','2026-02-10 13:31:31.000000',NULL,'47fb79e4a44d4f938162d14579b88bf0'),(8,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3MDk2MjI4MywiaWF0IjoxNzY4MTk3NDgzLCJqdGkiOiI4OTlhMDgwOTk2MmQ0YTAxYTY2ODYzMWI0YzQ4ODU1MyIsInVzZXJfaWQiOiIxIn0.05JQrIAkucvQWdTct2-QcPOGeCXC1doFnaPaBT97VQY','2026-01-12 05:58:03.430657','2026-02-13 05:58:03.000000',NULL,'899a0809962d4a01a668631b4c488553'),(9,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3MDk4MTMwMCwiaWF0IjoxNzY4MjE2NTAwLCJqdGkiOiJkNGNhMDRhYjgxZWY0ZTNhYTQ1MWUyOTcxNGJkNjRmYiIsInVzZXJfaWQiOiIxIn0.YTcyGLk9r7MQjHf8i9Trtgc4sxtQq_-LVwOCDZHGeTo','2026-01-12 11:15:00.469325','2026-02-13 11:15:00.000000',NULL,'d4ca04ab81ef4e3aa451e29714bd64fb'),(10,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3MTMyOTA5OSwiaWF0IjoxNzY4NTY0Mjk5LCJqdGkiOiIzYTZiYWUxMDIyODM0MDE0YWU2NmI1ODQ2YTgxYzk0ZCIsInVzZXJfaWQiOiIxIn0.1Gcg94YWkbA114H2uwi9J59Szyqaor_9CBZr9Ggxr-o','2026-01-16 11:51:39.583257','2026-02-17 11:51:39.000000',NULL,'3a6bae1022834014ae66b5846a81c94d'),(11,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3MTU3MjYxNiwiaWF0IjoxNzY4ODA3ODE2LCJqdGkiOiJlM2RkYmFlMWFmMzE0NThjYWQ3OWQyZTM2MDVhZmFkMCIsInVzZXJfaWQiOiIxIn0.W96lbwEdQ4OyLunjAdr0_k-kC2KEffw-jqL3dmCuRIM','2026-01-19 07:30:16.775936','2026-02-20 07:30:16.000000',NULL,'e3ddbae1af31458cad79d2e3605afad0'),(12,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3MTkyODY0NiwiaWF0IjoxNzY5MTYzODQ2LCJqdGkiOiI0NGEzMmNmOGFhZDk0OWVhYjI2MmEyMDFjMzU0ZTEzZSIsInVzZXJfaWQiOjF9.HXHyX0x5UhXqMGFlXALdV736B1P7A_i1JfosvEU3C9M','2026-01-23 10:24:06.654126','2026-02-24 10:24:06.000000',NULL,'44a32cf8aad949eab262a201c354e13e'),(13,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3MjM3MTQwMywiaWF0IjoxNzY5NjA2NjAzLCJqdGkiOiI1NTQ4YzA3Y2EwZTg0ZDkzYTkwZDc5ZmIwN2E1YmRjZCIsInVzZXJfaWQiOjF9.Z-pNJeOIMKtp-c1pmqauyWK2VTm_U2xbaVOkWINIeuo','2026-01-28 13:23:23.477104','2026-03-01 13:23:23.000000',NULL,'5548c07ca0e84d93a90d79fb07a5bdcd'),(14,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3MjU0MDYzMSwiaWF0IjoxNzY5Nzc1ODMxLCJqdGkiOiIyNmQ4YTNhNjViNjU0ZjUyOTNmNzA1ZDY5YTgyNzZkOCIsInVzZXJfaWQiOjF9.hUD_xTqGtKXi30J2V_yAtfS6l6brfnntUlwsDeBpzig','2026-01-30 12:23:51.209134','2026-03-03 12:23:51.000000',NULL,'26d8a3a65b654f5293f705d69a8276d8'),(15,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3Mjg2NDM0NywiaWF0IjoxNzcwMDk5NTQ3LCJqdGkiOiIzNGIxZTU3ZGVjNjY0MDNiOTJiNzJjMWJiNzYyYjA4ZiIsInVzZXJfaWQiOjF9.YqOAy5mjoJtlDfZxwjzwt4ldYzkGvOvt1WRaEpK5QWk','2026-02-03 06:19:07.831570','2026-03-07 06:19:07.000000',NULL,'34b1e57dec66403b92b72c1bb762b08f'),(16,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2NDY2OCwiaWF0IjoxNzgzMzk5ODY4LCJqdGkiOiI2MTdhNmY1Nzk5MTE0MDFjYWZhNWRlYWFhMzcxNWRiNiIsInVzZXJfaWQiOjF9.YJhbfx9zpY501MR-M5PTi4dpT7qtiuddxtluxcqyc7w','2026-07-07 04:51:08.746746','2026-08-08 04:51:08.000000',NULL,'617a6f579911401cafa5deaaa3715db6'),(22,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2NzM0NCwiaWF0IjoxNzgzNDAyNTQ0LCJqdGkiOiJiOTFjYmZhNThhN2M0ZGVlOTA2NjE2MmI0ZTU4YmJiMiIsInVzZXJfaWQiOjF9.F4mGTS0r98K4wcMoovMxjLTmCy4xXUYsBt4W_955lnI','2026-07-07 05:35:44.063842','2026-08-08 05:35:44.000000',NULL,'b91cbfa58a7c4dee9066162b4e58bbb2'),(23,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2NzM4MCwiaWF0IjoxNzgzNDAyNTgwLCJqdGkiOiI3ZDNlNDViZTlhMTc0MjBiOTE1ZGJjMjZmZTUyN2M0MCIsInVzZXJfaWQiOjF9.Ktr6GqJFWBuHHJyEu8OKCUvef7TOKX5mCJbon6RvVLo','2026-07-07 05:36:20.280443','2026-08-08 05:36:20.000000',NULL,'7d3e45be9a17420b915dbc26fe527c40'),(24,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2NzM4OCwiaWF0IjoxNzgzNDAyNTg4LCJqdGkiOiJiNjlhZjE5Yzc4ZTg0Y2Y5ODdlOWNlMTVkNGI1YzUxNyIsInVzZXJfaWQiOjF9.9BETceO8JyFbUyFk9XM6ONWdN-DDWJe1M9Tu3w6d7nQ','2026-07-07 05:36:28.086945','2026-08-08 05:36:28.000000',NULL,'b69af19c78e84cf987e9ce15d4b5c517'),(25,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2NzQ1NiwiaWF0IjoxNzgzNDAyNjU2LCJqdGkiOiJjMmZlNjQzZWU1MWI0OThjODIxYmZlNGEyMzM5NzU5ZiIsInVzZXJfaWQiOjF9.7N3qzuQ5h-hkGgXwRzz8l8lr9LNLbzdKJ-SC8q1eGik','2026-07-07 05:37:36.938118','2026-08-08 05:37:36.000000',NULL,'c2fe643ee51b498c821bfe4a2339759f'),(26,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2NzQ5MiwiaWF0IjoxNzgzNDAyNjkyLCJqdGkiOiI5ZTVjOGI5OTdmYWQ0MTlkYTBhOWQyYjZiNDk2OWNhYSIsInVzZXJfaWQiOjF9.fsihfdnmViWuWyRF3IrrWNedBkPPGUoPDPHC-VuQK8s','2026-07-07 05:38:12.054589','2026-08-08 05:38:12.000000',NULL,'9e5c8b997fad419da0a9d2b6b4969caa'),(27,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2NzUxOCwiaWF0IjoxNzgzNDAyNzE4LCJqdGkiOiI2ZjMxZTliYTQ3YzM0MjQ1OTk5MWI4ODU0ZmY0YTUzMyIsInVzZXJfaWQiOjF9.csMbfcRKBTJU36B_zTdr5RzGWn0wrPh_8QiZhxwwgb4','2026-07-07 05:38:38.581086','2026-08-08 05:38:38.000000',NULL,'6f31e9ba47c342459991b8854ff4a533'),(28,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2NzYxOSwiaWF0IjoxNzgzNDAyODE5LCJqdGkiOiIwN2EyY2QyY2M4YzI0YzA4YmUwYzM2YTY3Mjg2YjczYyIsInVzZXJfaWQiOjF9.TSTcaYwY8QU_khmkNHXGO15FT4YO7-EACVf1EYZleXk','2026-07-07 05:40:19.826525','2026-08-08 05:40:19.000000',NULL,'07a2cd2cc8c24c08be0c36a67286b73c'),(29,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2NzY4NiwiaWF0IjoxNzgzNDAyODg2LCJqdGkiOiJkZTAxZDhjMmUxZDk0NjAwOWIwM2NlNTRlODY3NWNkNyIsInVzZXJfaWQiOjF9.LFHODxev_xCCSmEB_p8TQfe1EBEX2zZyvwAUK4YJ6Ck','2026-07-07 05:41:26.070584','2026-08-08 05:41:26.000000',NULL,'de01d8c2e1d946009b03ce54e8675cd7'),(30,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2NzcxNywiaWF0IjoxNzgzNDAyOTE3LCJqdGkiOiIwMGY4ZjAxZGYwNGU0ZjkyYjQ3ZjNjMmUwNDQzMjMxNiIsInVzZXJfaWQiOjF9.j38YSN-dwXQqGXR9RN-DrU9lrxkeyxFtLoAvQdya8dE','2026-07-07 05:41:57.418863','2026-08-08 05:41:57.000000',NULL,'00f8f01df04e4f92b47f3c2e04432316'),(31,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2NzczNCwiaWF0IjoxNzgzNDAyOTM0LCJqdGkiOiI5NGZjYTc4YjViNTA0OTEzYTliMDNiOWU3Y2U3MjQ5NiIsInVzZXJfaWQiOjF9.aCBOfsZX9K4Wk5rXpWQn4RHJWPGaxEehJ65tQJ2N-6Q','2026-07-07 05:42:14.457740','2026-08-08 05:42:14.000000',NULL,'94fca78b5b504913a9b03b9e7ce72496'),(32,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2Nzg1NSwiaWF0IjoxNzgzNDAzMDU1LCJqdGkiOiIxODUxZjMyN2ZlNmI0YzhhYjJhODVkNTczNDIxNzA4MCIsInVzZXJfaWQiOjF9.cJ-XiP1V6TA4uO6D-0S4kfbxdks89GzHI6O2HzAmedQ','2026-07-07 05:44:15.331841','2026-08-08 05:44:15.000000',NULL,'1851f327fe6b4c8ab2a85d5734217080'),(33,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE2OTU0MywiaWF0IjoxNzgzNDA0NzQzLCJqdGkiOiI0Y2EyM2UxOWMzY2E0OWM5OGE0ZmM0OTMzYTdmYWUzYyIsInVzZXJfaWQiOjF9.YpcMPKsVZIGZ_IBDq8nz1tdoVLyP2C1pw3nN3Vl6PlE','2026-07-07 06:12:23.231466','2026-08-08 06:12:23.000000',NULL,'4ca23e19c3ca49c98a4fc4933a7fae3c'),(34,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE3MDgwNiwiaWF0IjoxNzgzNDA2MDA2LCJqdGkiOiJlMzE5OWE5NDRkMzQ0MjBjODE5ZmYyYjcxNmY1NWMzNyIsInVzZXJfaWQiOjF9.dgci4tIDRLGjKL9aUe4dVrQvexZoOwJ1bs0FxCh4fJc','2026-07-07 06:33:26.559527','2026-08-08 06:33:26.000000',NULL,'e3199a944d34420c819ff2b716f55c37'),(35,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE4NDc0OSwiaWF0IjoxNzgzNDE5OTQ5LCJqdGkiOiI2NzU5ODZmYTZiYWE0YTEzYTQ1MjMyYjJiYTczNmI0NCIsInVzZXJfaWQiOjF9.bC5HrS2gzjNkNZGrtpP0-SmFmBMLOqsI1UouFFM04ec','2026-07-07 10:25:49.634012','2026-08-08 10:25:49.000000',NULL,'675986fa6baa4a13a45232b2ba736b44'),(36,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE4NDc4OCwiaWF0IjoxNzgzNDE5OTg4LCJqdGkiOiI0Y2ExZGRjNmQ3Nzg0YzQwYjUzMDg1NGQ3MTk3M2NjZCIsInVzZXJfaWQiOjF9.1cdxA8496Ibp_92gCMvQpk0HjS3Po2y0Vv_2RFBFBos','2026-07-07 10:26:28.942772','2026-08-08 10:26:28.000000',NULL,'4ca1ddc6d7784c40b530854d71973ccd'),(37,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE4NTU0NywiaWF0IjoxNzgzNDIwNzQ3LCJqdGkiOiJkY2E0YmU5ZTFjMWQ0ODg4OTZiNzVkNjBhN2I2NTdiOCIsInVzZXJfaWQiOjF9.B4iFdd8aZ2fkgGNsxMdMxANZJ5lFi9Zx4IESdfHjJB0','2026-07-07 10:39:07.340437','2026-08-08 10:39:07.000000',NULL,'dca4be9e1c1d488896b75d60a7b657b8'),(38,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjE4NTY0MywiaWF0IjoxNzgzNDIwODQzLCJqdGkiOiJhMzY2YTg5YjI4YWE0MWU0YjEwZDNhZDkzODI1MDg0NSIsInVzZXJfaWQiOjF9.oRzhlm1oLwPLcp9blwYaITODHQvnR6bOkdjmnJWEYnc','2026-07-07 10:40:43.713074','2026-08-08 10:40:43.000000',NULL,'a366a89b28aa41e4b10d3ad938250845'),(39,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjIwOTk4OCwiaWF0IjoxNzgzNDQ1MTg4LCJqdGkiOiJmNDg4NzQ1OTQwNzA0OWMzODBmMDE5MmMwN2JkNzViYiIsInVzZXJfaWQiOjF9.ePau4rH4o2F0YwF6k0Dkeo38pDo6-nYHIqz1gz5bZ0Y','2026-07-07 17:26:28.063954','2026-08-08 17:26:28.000000',NULL,'f4887459407049c380f0192c07bd75bb'),(40,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjIxMDk5MywiaWF0IjoxNzgzNDQ2MTkzLCJqdGkiOiIyODA0NmY3NmE1MjI0NjA1YTBjN2VjMWVmM2U5NDY2ZSIsInVzZXJfaWQiOjF9.cTZ-916X4KeqGwBVFupjcBiy8Yd0qxhrRmad15pSstI','2026-07-07 17:43:13.462223','2026-08-08 17:43:13.000000',NULL,'28046f76a5224605a0c7ec1ef3e9466e'),(41,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjI1NDg1MywiaWF0IjoxNzgzNDkwMDUzLCJqdGkiOiIyYWRhYTAxOWRlYjY0MGQzOWZlN2QzOGQyNjg4NmZiMCIsInVzZXJfaWQiOjF9.3HY4kCZPvEbOKHbJqtZS2g-Um_Hu29ITkp5gJXsYRJI','2026-07-08 05:54:13.739021','2026-08-09 05:54:13.000000',NULL,'2adaa019deb640d39fe7d38d26886fb0'),(42,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjI2NDE3MiwiaWF0IjoxNzgzNDk5MzcyLCJqdGkiOiI4MWFmODIyN2IyOTg0YTE2ODgxMWEwMjFiZDk0ODA0NyIsInVzZXJfaWQiOjF9.GIfRnQ24pg_Kyw3MBI2Pat_at1lxIXwex6oemT5PeDw','2026-07-08 08:29:32.720235','2026-08-09 08:29:32.000000',NULL,'81af8227b2984a168811a021bd948047'),(43,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjI2NDU0NiwiaWF0IjoxNzgzNDk5NzQ2LCJqdGkiOiIzMTRhYTNmYmM4N2Q0MWZkOTExZmVmYzliMjMxYjc2ZSIsInVzZXJfaWQiOjF9.uUd5H1F-1m8UlOQeKtNPFo1NleeapELptqMQebHs8pM','2026-07-08 08:35:46.717337','2026-08-09 08:35:46.000000',NULL,'314aa3fbc87d41fd911fefc9b231b76e'),(44,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjI2NDU4NiwiaWF0IjoxNzgzNDk5Nzg2LCJqdGkiOiIyYjk2YzA3ZjhjYWM0ZmI1OWVjODc3MzFjMDdmOWNlNCIsInVzZXJfaWQiOjF9.VYAK3Vwk_4IyYZdg0Lg6dqpisBSB1llMWcogvn9ZCCw','2026-07-08 08:36:26.721693','2026-08-09 08:36:26.000000',NULL,'2b96c07f8cac4fb59ec87731c07f9ce4'),(45,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjI2NDYwMCwiaWF0IjoxNzgzNDk5ODAwLCJqdGkiOiJiNDRjYjJkNzllNTQ0ZTA3YTk4MGY1Y2YwNWFjNjQ2MSIsInVzZXJfaWQiOjF9.-gfuUrJmAhvYoeiMA4tpP8S5Qx_UkajSMKzDSFfcl_w','2026-07-08 08:36:40.107962','2026-08-09 08:36:40.000000',NULL,'b44cb2d79e544e07a980f5cf05ac6461'),(46,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjI2NDYxNiwiaWF0IjoxNzgzNDk5ODE2LCJqdGkiOiJlN2M2ZTRhMjQ3YWI0NjFjOTA1ZTE1ODJmMTJhYjk5YyIsInVzZXJfaWQiOjF9.iUZEUvEhwVz2OTA3IQ1aJ6MDmQHo4_OzOIAceR95R3w','2026-07-08 08:36:56.280049','2026-08-09 08:36:56.000000',NULL,'e7c6e4a247ab461c905e1582f12ab99c'),(47,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjI2NDgyMiwiaWF0IjoxNzgzNTAwMDIyLCJqdGkiOiJkNTQxMmVkMmY0NGQ0MGNiOWVhYTcxNTU2YjdjZmFhMSIsInVzZXJfaWQiOjF9.ODAOE4phCRjEMtSbOnS6kq9dpXRit7abogsVELiuwsk','2026-07-08 08:40:22.524276','2026-08-09 08:40:22.000000',NULL,'d5412ed2f44d40cb9eaa71556b7cfaa1'),(48,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjI3MDM0OSwiaWF0IjoxNzgzNTA1NTQ5LCJqdGkiOiI5YTkwMDI4MjMxYzI0MjIwYTQxOGQ0YjllYzYxYzk3OCIsInVzZXJfaWQiOjF9.Xzxg3nPz2FR1ysR4fkMuEs_rKKMg3XHHOr6AJmy3Js0','2026-07-08 10:12:29.095505','2026-08-09 10:12:29.000000',NULL,'9a90028231c24220a418d4b9ec61c978'),(49,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjMzMDc2NCwiaWF0IjoxNzgzNTY1OTY0LCJqdGkiOiJkZWZlMzMyOGZlYTQ0OWYwYjNmN2M1MTlkMGY5ZjMyNyIsInVzZXJfaWQiOjF9.88pBPj0i2AGZiv51Ktt1wUAUmGaD6kD-qjMA_Ei-yw8','2026-07-09 02:59:24.816820','2026-08-10 02:59:24.000000',NULL,'defe3328fea449f0b3f7c519d0f9f327'),(50,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM0Mzc0MSwiaWF0IjoxNzgzNTc4OTQxLCJqdGkiOiI3NjQwNDllYTg5MDU0ZjQzYWM1MThlZjk3MDJkYzEwZiIsInVzZXJfaWQiOjF9.sGTDug5TeaAB6GwW-IEEMW82VLH1VyOP9hZJba0Tq7g','2026-07-09 06:35:41.747234','2026-08-10 06:35:41.000000',NULL,'764049ea89054f43ac518ef9702dc10f'),(51,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM0NDE0MSwiaWF0IjoxNzgzNTc5MzQxLCJqdGkiOiI4M2EzZWEzYjNkM2Y0MTFmOTNlMWVmMjZkMDI0MjRlYyIsInVzZXJfaWQiOjF9.FxfqSS4UT8bo1GBGGEdoKPvn5RCXZ3b7_GJNuyP8V4E','2026-07-09 06:42:21.299634','2026-08-10 06:42:21.000000',NULL,'83a3ea3b3d3f411f93e1ef26d02424ec'),(52,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM0NDM3NiwiaWF0IjoxNzgzNTc5NTc2LCJqdGkiOiJlN2ZlNWFiMWM3ZjU0NTU2ODJlMTM1ZWQ1ZDdhY2M3MCIsInVzZXJfaWQiOjF9.rv9RcHq7lxQxxPFaEvt26DmXGVz38BglfXJzUSZ2474','2026-07-09 06:46:16.733432','2026-08-10 06:46:16.000000',NULL,'e7fe5ab1c7f5455682e135ed5d7acc70'),(53,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM0NDcyMywiaWF0IjoxNzgzNTc5OTIzLCJqdGkiOiI3N2FkNjVjMmU4OTc0Yjg4YWZhODIxZTQwYjU4NjFmMiIsInVzZXJfaWQiOjF9.KKea3i5tKFaZjfc7OOWcbJipfXrYtyvJjKdIrsdnBv0','2026-07-09 06:52:03.485029','2026-08-10 06:52:03.000000',NULL,'77ad65c2e8974b88afa821e40b5861f2'),(54,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM0NDkzOCwiaWF0IjoxNzgzNTgwMTM4LCJqdGkiOiIwMzdiM2NmMzkyMGY0MWNkOWY0NGRmZmM3ZjU5MmViMiIsInVzZXJfaWQiOjF9.Zoei5wPr2Z9I1XpNn-2bVgIBl5S6G5cHTm0J1BcWDQU','2026-07-09 06:55:38.820334','2026-08-10 06:55:38.000000',NULL,'037b3cf3920f41cd9f44dffc7f592eb2'),(56,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM0NTA3MiwiaWF0IjoxNzgzNTgwMjcyLCJqdGkiOiIyZDg0YTFmMGY2ZmM0Y2Q5YjIwNzc2MGExMmM3YTQ2ZiIsInVzZXJfaWQiOjF9.Ivl9KyugvURcZJITeSVzSjNXsqmFI7YYT0p2KsXT1SI','2026-07-09 06:57:52.503386','2026-08-10 06:57:52.000000',NULL,'2d84a1f0f6fc4cd9b207760a12c7a46f'),(57,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM0NTk4OCwiaWF0IjoxNzgzNTgxMTg4LCJqdGkiOiIyNGJjNDAzMTlmYzM0NTE4YmEyMTliYTc3ZjRhZGJlZiIsInVzZXJfaWQiOjF9.nkAz__SicutzhERcjrbJ7kwfmbXWRFKzphBZ1D0UOIw','2026-07-09 07:13:08.525235','2026-08-10 07:13:08.000000',NULL,'24bc40319fc34518ba219ba77f4adbef'),(58,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM0NjY0NCwiaWF0IjoxNzgzNTgxODQ0LCJqdGkiOiJhN2Y4YTBkY2Y4N2E0MzA5OWQyYjU2ZjI1OTQ2YzI2NSIsInVzZXJfaWQiOjF9.WLRG76dTEcQk7Nj49ZaLfpVxroF58_FlyLr-Saep1qU','2026-07-09 07:24:04.885896','2026-08-10 07:24:04.000000',NULL,'a7f8a0dcf87a43099d2b56f25946c265'),(59,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM1NDU2MCwiaWF0IjoxNzgzNTg5NzYwLCJqdGkiOiI2YTM1NGUxOWJlOGM0NTIzOGM1NGQyYTcxYWZkYzkwZCIsInVzZXJfaWQiOjF9.DOV4VReZ_0_zpp-KDUS480kt_wVKqMflyGIkP-dy_LM','2026-07-09 09:36:00.570195','2026-08-10 09:36:00.000000',NULL,'6a354e19be8c45238c54d2a71afdc90d'),(60,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM1NDgzNCwiaWF0IjoxNzgzNTkwMDM0LCJqdGkiOiIxOGVmNDMxZTJjYTM0ZTBlOWVkMzQ2YzMxOTA0MTJiOCIsInVzZXJfaWQiOjF9.g7MJhIh5BPq35g-mtVWXnd8d1ubUchPUoN1NTWhn8Ac','2026-07-09 09:40:34.265329','2026-08-10 09:40:34.000000',NULL,'18ef431e2ca34e0e9ed346c3190412b8'),(61,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM1NDkxMSwiaWF0IjoxNzgzNTkwMTExLCJqdGkiOiI0ZDBlMTQ2MWE0MGQ0NWRlYmIxMzNjYjc1YjJlMDE3NiIsInVzZXJfaWQiOjF9.u95UhxPGckveM-_saWKbSMti3mFS5tsFrZMx_C7dEWA','2026-07-09 09:41:51.449619','2026-08-10 09:41:51.000000',NULL,'4d0e1461a40d45debb133cb75b2e0176'),(62,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM1NDkyMSwiaWF0IjoxNzgzNTkwMTIxLCJqdGkiOiJjYmYyZGExNDRlYzM0MGI0YTlhNmExNzBiZjc1YWM3ZiIsInVzZXJfaWQiOjF9.yZZ-rxrgMJ4f32SH-KQVhGaKZS3UXhlP9t7syDyo0iY','2026-07-09 09:42:01.541803','2026-08-10 09:42:01.000000',NULL,'cbf2da144ec340b4a9a6a170bf75ac7f'),(63,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM1NTQxMiwiaWF0IjoxNzgzNTkwNjEyLCJqdGkiOiI3OGRkYTEwMWJjNmE0ZDdkYTRlNDNmMTdmYzUyOTRiNyIsInVzZXJfaWQiOjF9.iU3_k1T3VXYkgTMMWCsqS4kvH3YKF6kOYF7m7fM6AIs','2026-07-09 09:50:12.182025','2026-08-10 09:50:12.000000',NULL,'78dda101bc6a4d7da4e43f17fc5294b7'),(64,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM1NTU0NywiaWF0IjoxNzgzNTkwNzQ3LCJqdGkiOiJjY2JmZjhhMGI0OGU0NmQ2OTcxZTI2OWY2ZTkwNWExZiIsInVzZXJfaWQiOjF9.NhAoC-9MTPTLyDHa8U8y_rdjvxLU2xvvlu795ulOqh8','2026-07-09 09:52:27.657262','2026-08-10 09:52:27.000000',NULL,'ccbff8a0b48e46d6971e269f6e905a1f'),(65,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM1NjM5MCwiaWF0IjoxNzgzNTkxNTkwLCJqdGkiOiJiZjUwN2VkNzhmMGY0NjIyOWZkNGIzNzcyNTgxNmI5YiIsInVzZXJfaWQiOjF9.p_7tuGt0w70VxNDuOfXACdzqz_4h4p52jmGdfMUaC-Y','2026-07-09 10:06:30.015545','2026-08-10 10:06:30.000000',NULL,'bf507ed78f0f46229fd4b37725816b9b'),(66,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM1ODQxMiwiaWF0IjoxNzgzNTkzNjEyLCJqdGkiOiJjNmFhN2IxNDJiNDY0NTM2ODEwYWE1NjhlZjZkZjYwOSIsInVzZXJfaWQiOjF9.REB-xljf4I3S54G8kXy3BbLedmUXNFI9tO2seLX9brA','2026-07-09 10:40:12.063868','2026-08-10 10:40:12.000000',NULL,'c6aa7b142b464536810aa568ef6df609'),(67,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM2MDI4OSwiaWF0IjoxNzgzNTk1NDg5LCJqdGkiOiI0OTRjMTBiNTAwYTk0MjMwODYyYmE5MTQxYTlmNGU5MyIsInVzZXJfaWQiOjF9.egT6_NgyhOW1I_kwcXCVjqMIcH6zYLjejt97tdvgsw8','2026-07-09 11:11:29.928055','2026-08-10 11:11:29.000000',NULL,'494c10b500a94230862ba9141a9f4e93'),(68,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM2MTM5NCwiaWF0IjoxNzgzNTk2NTk0LCJqdGkiOiI5YTFhNzIzMWQ1NTU0OWJhOTJmMWFhNjZhYjQyZGFjMSIsInVzZXJfaWQiOjF9.qRX0mvrf69-50m2ccl2hF4Nqhcsgl8uJ13kdq7E8jNI','2026-07-09 11:29:54.332530','2026-08-10 11:29:54.000000',NULL,'9a1a7231d55549ba92f1aa66ab42dac1'),(69,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM2MTYzOCwiaWF0IjoxNzgzNTk2ODM4LCJqdGkiOiJiNjA2NWNmMGFjYmM0MWNkOWZlODE2NGU2MjY5N2Q3MyIsInVzZXJfaWQiOjF9.gEth5CNMU-yMvOMMEaoRtYTLAoyFfmk542f_-0kddEY','2026-07-09 11:33:58.854600','2026-08-10 11:33:58.000000',NULL,'b6065cf0acbc41cd9fe8164e62697d73'),(70,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjM2MTc5MCwiaWF0IjoxNzgzNTk2OTkwLCJqdGkiOiJlYWY1MTE4MDAyODY0NWE4YjIwMmM1MDI1NGQ2ZTg5YSIsInVzZXJfaWQiOjF9.1UySOZlxAI6gXw-E9wE16gvlBGsFwgzYKzHTdpzlFYY','2026-07-09 11:36:30.813723','2026-08-10 11:36:30.000000',NULL,'eaf51180028645a8b202c50254d6e89a'),(71,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQyMjc5NiwiaWF0IjoxNzgzNjU3OTk2LCJqdGkiOiIyNmMyYjg5ZTNmNzE0OTc2OWI0NGRhMTE5ODYxNzg3ZiIsInVzZXJfaWQiOjF9.CEadxmmBJXKpfsYYO9PwWQd9JiqmidyVA-Xr3Mu0ygI','2026-07-10 04:33:16.233260','2026-08-11 04:33:16.000000',NULL,'26c2b89e3f7149769b44da119861787f'),(72,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQyNTk5NCwiaWF0IjoxNzgzNjYxMTk0LCJqdGkiOiI4YTAxNTk4OGZkY2I0YWQyOTZjYTI1Yjk0N2QxYjI2MyIsInVzZXJfaWQiOjF9.7TjOXIUohx5hGpY7yYlovKRvXM_5MMfmU2v_iqBBEdM','2026-07-10 05:26:34.593427','2026-08-11 05:26:34.000000',NULL,'8a015988fdcb4ad296ca25b947d1b263'),(73,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0MjM3NSwiaWF0IjoxNzgzNjc3NTc1LCJqdGkiOiIyODQ4Nzg2ZGQ4MjI0ZjI1YTM5NDk4MDc1MjNmYmYzOCIsInVzZXJfaWQiOjF9.qUvuoxALa5BkaOLWCbMN7MnTd1ltaAlCHGnzdQEplB0','2026-07-10 09:59:35.165090','2026-08-11 09:59:35.000000',NULL,'2848786dd8224f25a3949807523fbf38'),(74,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0MjQ2MCwiaWF0IjoxNzgzNjc3NjYwLCJqdGkiOiJlYjdkMDllOTIxZTE0ZWI4YTNiOTQwNDY3MmEwZjU1OSIsInVzZXJfaWQiOjF9.EEDdVfCgqAYcz9L1rQhnlvqSb71Ky4TTNKOd1L3yHzo','2026-07-10 10:01:00.684967','2026-08-11 10:01:00.000000',NULL,'eb7d09e921e14eb8a3b9404672a0f559'),(75,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0MjU5OCwiaWF0IjoxNzgzNjc3Nzk4LCJqdGkiOiJhZWMzYjc1NDJjYTA0Mjg0ODVlYjc2ZjI2MzI4ZjkzYSIsInVzZXJfaWQiOjF9.bu8NcovTJCc8S5Q3l3II4GRxt3wrQIG4SXUmUnEh9_Q','2026-07-10 10:03:18.870663','2026-08-11 10:03:18.000000',NULL,'aec3b7542ca0428485eb76f26328f93a'),(76,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0Mjc0OSwiaWF0IjoxNzgzNjc3OTQ5LCJqdGkiOiJmYmU1NTNhMzY1MWI0MmY5ODhkYjc2NmEyYWY3ZjdlOSIsInVzZXJfaWQiOjF9.wTjNOlEA1_4IkswxwS6Hp9PaDMJmxNr-tNhul2eULrY','2026-07-10 10:05:49.797556','2026-08-11 10:05:49.000000',NULL,'fbe553a3651b42f988db766a2af7f7e9'),(77,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0Mjc3NSwiaWF0IjoxNzgzNjc3OTc1LCJqdGkiOiI4OTZmZDkwNTMzYzg0MDE0YTMzYmQ4ZDhkNDQ2ODdjYSIsInVzZXJfaWQiOjF9.91RINHmOeaipE_3BnnIHaIgzKY88_ZGc4H8FI7C6FjY','2026-07-10 10:06:15.355255','2026-08-11 10:06:15.000000',NULL,'896fd90533c84014a33bd8d8d44687ca'),(78,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0Mjk1MywiaWF0IjoxNzgzNjc4MTUzLCJqdGkiOiIyMjRkZTllMDE1MDU0MWU2OGIyZTBhYjM5MjUwZDM3NyIsInVzZXJfaWQiOjF9.fFgak-ejE22OqprPyJnprwixSgXbqgvEbGj4SEZOkKc','2026-07-10 10:09:13.029889','2026-08-11 10:09:13.000000',NULL,'224de9e0150541e68b2e0ab39250d377'),(79,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0MzA3OSwiaWF0IjoxNzgzNjc4Mjc5LCJqdGkiOiIxODQyM2MyMDNlZWU0MTEwYTA0YzE3NmNiODcxYjE0MyIsInVzZXJfaWQiOjF9.rVmB1xR7TCZhzRpI7xOeLsfCoWpXOHTg5luVwW8iQic','2026-07-10 10:11:19.368751','2026-08-11 10:11:19.000000',NULL,'18423c203eee4110a04c176cb871b143'),(80,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0MzE0NCwiaWF0IjoxNzgzNjc4MzQ0LCJqdGkiOiI5ZTFmOGQ3MzY2MmI0NzQ3YTkwNWJlNmFkNGNkMzJlNiIsInVzZXJfaWQiOjF9.KUztAaL8oT86aeOFavRnCLPDki2UmOCo2uE5JXDHMBc','2026-07-10 10:12:24.397145','2026-08-11 10:12:24.000000',NULL,'9e1f8d73662b4747a905be6ad4cd32e6'),(82,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NTUxNSwiaWF0IjoxNzgzNjgwNzE1LCJqdGkiOiJjNGI5NGViMTRlYmI0NTk0YTRkNGM2OTE3MmNiNWRlNCIsInVzZXJfaWQiOjF9.I9kJRcPL2qhzCQMzBFlnjUtnerWqyuqraInaS70gTKQ','2026-07-10 10:51:55.736067','2026-08-11 10:51:55.000000',NULL,'c4b94eb14ebb4594a4d4c69172cb5de4'),(83,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NTkyNiwiaWF0IjoxNzgzNjgxMTI2LCJqdGkiOiIyZTdlOWI5NTI2ZTY0OTRlOGM5MmZlNDU1ZDdjZjViYyIsInVzZXJfaWQiOjF9.VwQrLRzVJKKaz9u0Sm67nFmPeU_4dAA8-50o08NRWNA','2026-07-10 10:58:46.882714','2026-08-11 10:58:46.000000',NULL,'2e7e9b9526e6494e8c92fe455d7cf5bc'),(84,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NjE0MiwiaWF0IjoxNzgzNjgxMzQyLCJqdGkiOiJiYzNhMGM5NjQ2YjU0NmVlYWU3MWMwMzVmYTdmN2ZiYiIsInVzZXJfaWQiOjF9.fQ8ZsvZpIezoqmsSbROJ659UC7YnYxTmJ3h06JXsyM0','2026-07-10 11:02:22.988707','2026-08-11 11:02:22.000000',NULL,'bc3a0c9646b546eeae71c035fa7f7fbb'),(85,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NjI4NiwiaWF0IjoxNzgzNjgxNDg2LCJqdGkiOiIwODJiNTE4MDkyYzM0ZWM2OGQ5NTAzZWI1M2JhZTk4MSIsInVzZXJfaWQiOjF9.j0vUHdwm6DYmro4rREMuWh2hjdP2pUrrgp7O50doupA','2026-07-10 11:04:46.683708','2026-08-11 11:04:46.000000',NULL,'082b518092c34ec68d9503eb53bae981'),(86,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NjMyNiwiaWF0IjoxNzgzNjgxNTI2LCJqdGkiOiJhNmIyNTJlMjY5NTU0Y2YyYjA2ODk1NzRiNmJlYzU0OCIsInVzZXJfaWQiOjF9.6sIg8Rub_Dc9BXtskeEzdsazF-9oe5MVwpg4RxsEl2E','2026-07-10 11:05:26.032262','2026-08-11 11:05:26.000000',NULL,'a6b252e269554cf2b0689574b6bec548'),(87,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NjM3MSwiaWF0IjoxNzgzNjgxNTcxLCJqdGkiOiI5YzIxZDhmNmE2Nzk0ZDQ1OTc4ZGRmZWJhODAxYjk0MiIsInVzZXJfaWQiOjF9.3XKG6FsJWy7TMhQlLHk07w0rwNFocYJS8b6B154GNIU','2026-07-10 11:06:11.327977','2026-08-11 11:06:11.000000',NULL,'9c21d8f6a6794d45978ddfeba801b942'),(88,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NjM5NCwiaWF0IjoxNzgzNjgxNTk0LCJqdGkiOiI1NjZmMGMyZjU3MzA0ZWFkYmQyYjkxZjJkNTdhMWI0NiIsInVzZXJfaWQiOjF9.lyWUWo7Yya5yczIIEU-LtpiSfeYzxuRz2JaPfGKpG1o','2026-07-10 11:06:34.557570','2026-08-11 11:06:34.000000',NULL,'566f0c2f57304eadbd2b91f2d57a1b46'),(89,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NjQ4MiwiaWF0IjoxNzgzNjgxNjgyLCJqdGkiOiJjMDEwNTNkMTRmZGY0NmRiOGM5NGI5MGVmZmRkZDYyMiIsInVzZXJfaWQiOjF9.XMJ5W-_k8N_7rYYabMB_0fidDrOJMXUN8PkNDbz7eDw','2026-07-10 11:08:02.568741','2026-08-11 11:08:02.000000',NULL,'c01053d14fdf46db8c94b90effddd622'),(90,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NjY1MywiaWF0IjoxNzgzNjgxODUzLCJqdGkiOiI4ZjNhZTFkOWU0ZjU0ZTllYTgzZGYyOTgxZDJmYjRhMSIsInVzZXJfaWQiOjF9.WHmF_Ew8DZdfm5zfvCMwcuH2Y3mgxiFbcehJdKvoHIU','2026-07-10 11:10:53.219277','2026-08-11 11:10:53.000000',NULL,'8f3ae1d9e4f54e9ea83df2981d2fb4a1'),(91,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NjcwMywiaWF0IjoxNzgzNjgxOTAzLCJqdGkiOiJiZTJmYjg3ZTkxYjY0YzAxODBhZjA0YWRhZTQzOTAxMCIsInVzZXJfaWQiOjF9.r8HVW_AfHEZ1hosER6i8RpR-_GwKNQpZcecPuTlRt1o','2026-07-10 11:11:43.304012','2026-08-11 11:11:43.000000',NULL,'be2fb87e91b64c0180af04adae439010'),(92,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NjgyNSwiaWF0IjoxNzgzNjgyMDI1LCJqdGkiOiJlNDk3Zjg5ZDJlMTM0ZTBiYTA2Njg0YTViZjMzODY3MCIsInVzZXJfaWQiOjF9.mmEMlwoAbvyzcOwtgGUQiVYbNmB_8IkCxsplM7xHQ30','2026-07-10 11:13:45.705817','2026-08-11 11:13:45.000000',NULL,'e497f89d2e134e0ba06684a5bf338670'),(93,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NjkyMiwiaWF0IjoxNzgzNjgyMTIyLCJqdGkiOiIwMzAwNjEwNjM5MWI0MGI0OGM5ZjFiNTNkZTgzN2FkYiIsInVzZXJfaWQiOjF9.bYbva_IIlmkDyBMMwiaySeSQ4zTorp3m-LFTmtjpvaY','2026-07-10 11:15:22.897240','2026-08-11 11:15:22.000000',NULL,'03006106391b40b48c9f1b53de837adb'),(94,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0Njk2MSwiaWF0IjoxNzgzNjgyMTYxLCJqdGkiOiJhZThlYzEzM2VkZDU0YWI4YjBjM2RiMzM5OTIzOTI3NiIsInVzZXJfaWQiOjF9.hBbT6wR6B2X7nkKey6XiLZ0G5yml7jlab6rXMbWGzMo','2026-07-10 11:16:01.725587','2026-08-11 11:16:01.000000',NULL,'ae8ec133edd54ab8b0c3db3399239276'),(95,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjQ0NzExOSwiaWF0IjoxNzgzNjgyMzE5LCJqdGkiOiIxMmUwYWU0OTg0Y2Q0N2ZhODAyODA0OWMyNDVkZTI2NiIsInVzZXJfaWQiOjF9.yINfbYT-FjxAgAr0jjjzmSs3dATt2AotHMyzA8-mAQQ','2026-07-10 11:18:39.193168','2026-08-11 11:18:39.000000',NULL,'12e0ae4984cd47fa8028049c245de266'),(96,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4Mjg1OCwiaWF0IjoxNzgzOTE4MDU4LCJqdGkiOiI2N2NlMWI2MzUwMGM0NjViOGUyN2ExYWE3N2FmMzRkMyIsInVzZXJfaWQiOjF9.R8Ujyunrqb0iG99elhyabF86uN9iJNtfD8EU6h2yVxQ','2026-07-13 04:47:38.898374','2026-08-14 04:47:38.000000',NULL,'67ce1b63500c465b8e27a1aa77af34d3'),(97,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4Mjg5NiwiaWF0IjoxNzgzOTE4MDk2LCJqdGkiOiJiZGYzYjg1MTUzZjI0ZmFjYWZjZjk2Y2M3OTI4YTdhNSIsInVzZXJfaWQiOjF9.mCQk1_C7gtbX30Cv9hvyLenOXZmpQJsytKElue-7Yjs','2026-07-13 04:48:16.344544','2026-08-14 04:48:16.000000',NULL,'bdf3b85153f24facafcf96cc7928a7a5'),(98,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4Mjk1MCwiaWF0IjoxNzgzOTE4MTUwLCJqdGkiOiIxNjMzMTkxZjc5Yjg0NDk4YTk4Y2U2ODFhODBmZTQ0MiIsInVzZXJfaWQiOjF9.ivyc_wLUFYfzcIsiSJQOlPy7KLBN-G3OSGO4ofXurOU','2026-07-13 04:49:10.939490','2026-08-14 04:49:10.000000',NULL,'1633191f79b84498a98ce681a80fe442'),(99,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4MzE2OSwiaWF0IjoxNzgzOTE4MzY5LCJqdGkiOiI3NzA3YjhkN2ViMmQ0MzQ5YTdkZTk4M2Y1YmQxNzRkNSIsInVzZXJfaWQiOjF9.mdfyKIEGBzK6ztOtrLVJvCzDaO-ls5v6nOkesTK0KAM','2026-07-13 04:52:49.460022','2026-08-14 04:52:49.000000',NULL,'7707b8d7eb2d4349a7de983f5bd174d5'),(100,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4MzIyNiwiaWF0IjoxNzgzOTE4NDI2LCJqdGkiOiI3MGZkM2QzMmMxYTQ0NmE0YTMwNDM1MjExOTFlNzkwNiIsInVzZXJfaWQiOjF9.OjLBZtsnOEPg5L6CJGkN5tBmOhEExs-sO4NjKJ-KcaE','2026-07-13 04:53:46.534243','2026-08-14 04:53:46.000000',NULL,'70fd3d32c1a446a4a3043521191e7906'),(101,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4MzMwOCwiaWF0IjoxNzgzOTE4NTA4LCJqdGkiOiJhMWFlZTk2M2UzMDY0YWRmOWJhYzc5NTEzMzQzZDMyNyIsInVzZXJfaWQiOjF9.PC-OQRdoL40FshZRScxNzdbeBI4EylErW99_pMH73oA','2026-07-13 04:55:08.008377','2026-08-14 04:55:08.000000',NULL,'a1aee963e3064adf9bac79513343d327'),(102,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4MzM1MCwiaWF0IjoxNzgzOTE4NTUwLCJqdGkiOiI2ODMyM2I2ZTM0ZTM0ODg1YWJlNWRhMWIzZWFkOTBiMSIsInVzZXJfaWQiOjF9.H5sYWVYnVTvBSDS87Z3MG5en1jMboUuKG9qeNzai2Ko','2026-07-13 04:55:50.489497','2026-08-14 04:55:50.000000',NULL,'68323b6e34e34885abe5da1b3ead90b1'),(103,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4MzQxNSwiaWF0IjoxNzgzOTE4NjE1LCJqdGkiOiIxMTM2Y2ZhMTRmZDA0Y2E5OTgwNmUwMDAyYTE0Njk2MiIsInVzZXJfaWQiOjF9.Mcbw2vVEoLwC6_2LgyIMEiFx3_rY1PITYSQS6hsGVWE','2026-07-13 04:56:55.319674','2026-08-14 04:56:55.000000',NULL,'1136cfa14fd04ca99806e0002a146962'),(104,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4MzQ4OSwiaWF0IjoxNzgzOTE4Njg5LCJqdGkiOiI5ZWVhMWVjYmY1MGY0OGE2OWNjZmFhZTc1OTdhODdiNSIsInVzZXJfaWQiOjF9.oUtwZdaabAoZuULd0TswxCwROCTMRnish6XFYpbbb7Q','2026-07-13 04:58:09.000954','2026-08-14 04:58:09.000000',NULL,'9eea1ecbf50f48a69ccfaae7597a87b5'),(105,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4MzQ5MSwiaWF0IjoxNzgzOTE4NjkxLCJqdGkiOiJiOWU2ZDM5NTIyYzI0N2YyODM2ZjMxOTdkZTczMjc2YiIsInVzZXJfaWQiOjF9.bGxsyQ6mCkq_b_qHZMTRxAfAfHLVIesoksDhA6WDtUk','2026-07-13 04:58:11.357845','2026-08-14 04:58:11.000000',NULL,'b9e6d39522c247f2836f3197de73276b'),(106,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4MzUxNywiaWF0IjoxNzgzOTE4NzE3LCJqdGkiOiJmMTBlYTdjYTFhYmQ0N2U3YmQxN2MzYjI2MzZmMzhlYyIsInVzZXJfaWQiOjF9.HGN1kVAvKEJTZeTZMieJ4NQstjUtAqqEXA2t1WjKspk','2026-07-13 04:58:37.380004','2026-08-14 04:58:37.000000',NULL,'f10ea7ca1abd47e7bd17c3b2636f38ec'),(107,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4MzU0NywiaWF0IjoxNzgzOTE4NzQ3LCJqdGkiOiIzYzFlYjJlNmJkZGU0Mjg0YmEzOTc0MGQ3MzZkOWNkMiIsInVzZXJfaWQiOjF9.bv9Z9b-j9hUtQtQSLxTjUA70e9JhE6lqd_54SGKAULw','2026-07-13 04:59:07.654748','2026-08-14 04:59:07.000000',NULL,'3c1eb2e6bdde4284ba39740d736d9cd2'),(108,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4Mzg4MCwiaWF0IjoxNzgzOTE5MDgwLCJqdGkiOiIwZWE0ZDYwYzk4YjQ0YTNjYTUyN2M2MzM1ZTgzNGU0MCIsInVzZXJfaWQiOjF9.V5cshlFdDBqKm5WckiJuEaOeScsNcmoxkO9gavXU42w','2026-07-13 05:04:40.779036','2026-08-14 05:04:40.000000',NULL,'0ea4d60c98b44a3ca527c6335e834e40'),(109,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4Mzk5NywiaWF0IjoxNzgzOTE5MTk3LCJqdGkiOiI2ZGI0YmVmNjNkYWQ0MGU3YjY2M2NiNWU5MWZiOTcxYSIsInVzZXJfaWQiOjF9.mTCzUXnRAIOEaV3nUOQdsN-pdrxedQJtj2cAFnWKh-s','2026-07-13 05:06:37.034863','2026-08-14 05:06:37.000000',NULL,'6db4bef63dad40e7b663cb5e91fb971a'),(110,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4NDE5OSwiaWF0IjoxNzgzOTE5Mzk5LCJqdGkiOiIxNDAxOGMzN2EzMjA0NDQ2YjEwNGYyNTZmZDhmODVmMSIsInVzZXJfaWQiOjF9.xDc5Wc-GvjPvAKzDoTOSG-ut6mnxb9kwg-jzNgcu7-4','2026-07-13 05:09:59.401723','2026-08-14 05:09:59.000000',NULL,'14018c37a3204446b104f256fd8f85f1'),(111,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4NDIxMywiaWF0IjoxNzgzOTE5NDEzLCJqdGkiOiI1ZGQ4MTZhNWQ1NGQ0YmZjOWEyYWMzNDNiOTU0Nzg0NSIsInVzZXJfaWQiOjF9.O4yWQ0iVw6BkpNlEitqZIc0C1r-nHkxNKv5YAl_QPAI','2026-07-13 05:10:13.104156','2026-08-14 05:10:13.000000',NULL,'5dd816a5d54d4bfc9a2ac343b9547845'),(112,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4NDMzNiwiaWF0IjoxNzgzOTE5NTM2LCJqdGkiOiJlNTczMzJiYzUyNDc0YjgzYTViN2U1OGU3ODkwZjZmNiIsInVzZXJfaWQiOjF9.nouyT6W598zhYM1K9h88r47hHEJftzQznxYnyLXOauc','2026-07-13 05:12:16.354426','2026-08-14 05:12:16.000000',NULL,'e57332bc52474b83a5b7e58e7890f6f6'),(113,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4NDM5MCwiaWF0IjoxNzgzOTE5NTkwLCJqdGkiOiIzYTcwNzQ4ODFjOTY0OWNlOTQ3YzM1NDhlMWFkODFiOSIsInVzZXJfaWQiOjF9.PUGPo0QBTB9zVGBwuEP0wI-4mIiKkeN5WvXCCp26XCY','2026-07-13 05:13:10.815013','2026-08-14 05:13:10.000000',NULL,'3a7074881c9649ce947c3548e1ad81b9'),(114,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY4NDQxMSwiaWF0IjoxNzgzOTE5NjExLCJqdGkiOiI1OGRmMGRmZTA5ZDc0MTNmOWZkMWY2MjNmODk2MWZkYSIsInVzZXJfaWQiOjF9.bd5scDJt0Kfl7Ji1p0a7PNbe9Q-9YoNJOy3VFcVyspI','2026-07-13 05:13:31.458530','2026-08-14 05:13:31.000000',NULL,'58df0dfe09d7413f9fd1f623f8961fda'),(115,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjY5MjM4NywiaWF0IjoxNzgzOTI3NTg3LCJqdGkiOiJhNjgwMjliOTI5YTE0OGIyYmUwZmJkMDgyODI1ZTRjZCIsInVzZXJfaWQiOjF9.RwNcPmID_GdrwhK3bU9fUOpwL6PHNQ6IEKf9iKVgmbE','2026-07-13 07:26:27.900125','2026-08-14 07:26:27.000000',NULL,'a68029b929a148b2be0fbd082825e4cd'),(116,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NjcwOTc5NiwiaWF0IjoxNzgzOTQ0OTk2LCJqdGkiOiI0MWQ2Njk1YjA0Yjk0NDE4YjdmYTI0M2M4Yjk2MWE4MyIsInVzZXJfaWQiOjF9.upvh3TN-KvA2anYx-yGmGQyKRtDHsnf0FeHt1jYPNto','2026-07-13 12:16:36.129416','2026-08-14 12:16:36.000000',NULL,'41d6695b04b94418b7fa243c8b961a83'),(117,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njc3MDkxMywiaWF0IjoxNzg0MDA2MTEzLCJqdGkiOiI3YWJiMTAyM2I1M2Q0NjdjODZhM2FjMmRmNjIxYmI1MyIsInVzZXJfaWQiOjF9.58QIe1wgPpqFIQx1u6LKnsFKSdkqQ0MhqZ6XNN1cdKw','2026-07-14 05:15:13.153141','2026-08-15 05:15:13.000000',NULL,'7abb1023b53d467c86a3ac2df621bb53'),(118,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njc3MDk4OCwiaWF0IjoxNzg0MDA2MTg4LCJqdGkiOiI0NTU5ODZmMzc3Mjc0NWE3OWQ3NTdiMzQzYzc0Yzc1NSIsInVzZXJfaWQiOjF9.MoBmvd8dxy-VgvLhFH-G9vrxKyrIlyRQdhhDIbfqKUQ','2026-07-14 05:16:28.740805','2026-08-15 05:16:28.000000',NULL,'455986f3772745a79d757b343c74c755'),(119,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njc4MzU3MiwiaWF0IjoxNzg0MDE4NzcyLCJqdGkiOiI0MWM2YjZjYjM5MjE0ZWU1YTljNjRmZjU3NTM3YTgxOCIsInVzZXJfaWQiOjF9.RfpwVbUtkqw5o_peWfIyjEHL4eaHSGrBEVOVe_WcRaw','2026-07-14 08:46:12.801145','2026-08-15 08:46:12.000000',NULL,'41c6b6cb39214ee5a9c64ff57537a818'),(120,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njc4MzcwNywiaWF0IjoxNzg0MDE4OTA3LCJqdGkiOiI2NWVkZjRhNDVkNDE0YzQxOWIxN2Y1YWNiNDI3ZDlkNSIsInVzZXJfaWQiOjF9.iul0CvqtmkWDMpD1-9b8f65T7dPPkQe-rXFt3Jt_roo','2026-07-14 08:48:27.870281','2026-08-15 08:48:27.000000',NULL,'65edf4a45d414c419b17f5acb427d9d5'),(121,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njc4NDAwMywiaWF0IjoxNzg0MDE5MjAzLCJqdGkiOiJlOTk1YjFiMWQzNDg0NzY1YTIwYmY1ZWEwOWIwODkxOSIsInVzZXJfaWQiOjF9.iUVmuUGim7HQuZnp1jThcYjtss3JBD_i3Uv_7uLvGPw','2026-07-14 08:53:23.253889','2026-08-15 08:53:23.000000',NULL,'e995b1b1d3484765a20bf5ea09b08919'),(122,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njc4NDMxOCwiaWF0IjoxNzg0MDE5NTE4LCJqdGkiOiJjZjdmMGVmMGQ4YzQ0NTJjYjRjNWVjODQ4MjAyMjU4MiIsInVzZXJfaWQiOjF9.LO7QBkgyLcLZTbJvsbRmwPSbVlmQRVlLp0tA_ACNq8g','2026-07-14 08:58:38.921472','2026-08-15 08:58:38.000000',NULL,'cf7f0ef0d8c4452cb4c5ec8482022582'),(123,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njc4NDU4MiwiaWF0IjoxNzg0MDE5NzgyLCJqdGkiOiI5MzAxNWQ3NTRkMDA0OWRhODg1MWQ3ODk5NDNiNWQxOCIsInVzZXJfaWQiOjF9.AH8j84-yjuKITp01CAoPNXVPtxXn2nCdAIsuR2wDcaE','2026-07-14 09:03:02.965468','2026-08-15 09:03:02.000000',NULL,'93015d754d0049da8851d789943b5d18'),(124,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njc4OTQ5MywiaWF0IjoxNzg0MDI0NjkzLCJqdGkiOiJlMDJkOGIyMjBlNGU0MTNiOTMxNDFhZmI3Yjg1YjY3NSIsInVzZXJfaWQiOjF9.eWzFN56X5z1AFo_NCa0pyGGv6OuolEUz7cElp4RNfhM','2026-07-14 10:24:53.407958','2026-08-15 10:24:53.000000',NULL,'e02d8b220e4e413b93141afb7b85b675'),(125,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njg3MTEwMiwiaWF0IjoxNzg0MTA2MzAyLCJqdGkiOiI4NmM5NGM5MTIwZjc0MzVjOTJmNWVlZWRiYWZkMmZmNyIsInVzZXJfaWQiOjF9.0Wu5LPzKiLEyOjgHBUs8rCtUmyWsg6TAnZkM592e9sY','2026-07-15 09:05:02.156101','2026-08-16 09:05:02.000000',NULL,'86c94c9120f7435c92f5eeedbafd2ff7'),(126,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njg3MTk2NSwiaWF0IjoxNzg0MTA3MTY1LCJqdGkiOiIwYTVjNDczMWU2N2M0NGNiYjA5NGM5ZGU0YTYzMjRlOSIsInVzZXJfaWQiOjF9.Y9K0x6T9o2EEC4i_7q6Vlfs-x5pyoUeOHN5d9HUJu80','2026-07-15 09:19:25.683724','2026-08-16 09:19:25.000000',NULL,'0a5c4731e67c44cbb094c9de4a6324e9'),(127,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njg3MjU5NCwiaWF0IjoxNzg0MTA3Nzk0LCJqdGkiOiIxZWRmNmMwMTFlNDE0ZmQzYWIyYWJiZWE0ZjA5Y2RmMCIsInVzZXJfaWQiOjF9.r3oRuhaidfpLpXk6rZTf_j678x5jfvcjtVCjzdH4SR4','2026-07-15 09:29:54.149624','2026-08-16 09:29:54.000000',NULL,'1edf6c011e414fd3ab2abbea4f09cdf0'),(128,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njg3NDk4OCwiaWF0IjoxNzg0MTEwMTg4LCJqdGkiOiJhZTMyYWYzMmE4MzY0ZmYxYTY4NjA5MjQ5YjQ5ODhmYyIsInVzZXJfaWQiOjF9.8vt84Fm99DIR7LErkIypg1LeSpSUrHmVQ8uGW9uo2M4','2026-07-15 10:09:48.733731','2026-08-16 10:09:48.000000',NULL,'ae32af32a8364ff1a68609249b4988fc'),(129,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NTQ3OCwiaWF0IjoxNzg0MTgwNjc4LCJqdGkiOiJhOGNlYTU2ZDBlN2U0NTkwOGU4ODJlZjFhNmI0NmE2MyIsInVzZXJfaWQiOjF9.fBaCTZjoavAT2iULWNfDxNliAWPmJvmnqoKIgFQWNAQ','2026-07-16 05:44:38.887399','2026-08-17 05:44:38.000000',NULL,'a8cea56d0e7e45908e882ef1a6b46a63'),(130,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NTcxMiwiaWF0IjoxNzg0MTgwOTEyLCJqdGkiOiI4YThhMzJlOTU3N2M0YzQ3ODkxODFlYmNhNGMxMDFlYyIsInVzZXJfaWQiOjF9.K8gJv5jD2xjSU3lEijTnx2bkqZDB2mHdsSErNbxw2cs','2026-07-16 05:48:32.984576','2026-08-17 05:48:32.000000',NULL,'8a8a32e9577c4c4789181ebca4c101ec'),(131,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NTc4OCwiaWF0IjoxNzg0MTgwOTg4LCJqdGkiOiI4YmE4NWNmYTkwZDg0MGY4YjczY2JkNDI4ZTBkZjQxYiIsInVzZXJfaWQiOjF9.ctYElUHh0k0PULeHeuTlFNjfLnz1Ttjqn-Vn7x-UOiw','2026-07-16 05:49:48.075836','2026-08-17 05:49:48.000000',NULL,'8ba85cfa90d840f8b73cbd428e0df41b'),(132,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NjE0OCwiaWF0IjoxNzg0MTgxMzQ4LCJqdGkiOiI0MmEwNDQ5ODgxYTg0ZGUzYTM0NzgyOGFhYTYwOTliZiIsInVzZXJfaWQiOjF9.b-t7AZGQsgiNT81XEBE3e3u9vJb0RrQkjHsQdLMDc2k','2026-07-16 05:55:48.070182','2026-08-17 05:55:48.000000',NULL,'42a0449881a84de3a347828aaa6099bf'),(133,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NjI1MCwiaWF0IjoxNzg0MTgxNDUwLCJqdGkiOiIyMGJjYjg4NzY5MDk0NmFiODU1NmMwMzRiZjUxNjIyNiIsInVzZXJfaWQiOjF9.r8uyDMKihJZqF4wAq2vFqAj7s6Zmz9APmm5hKFHYRsM','2026-07-16 05:57:30.041953','2026-08-17 05:57:30.000000',NULL,'20bcb887690946ab8556c034bf516226'),(134,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NjM2OCwiaWF0IjoxNzg0MTgxNTY4LCJqdGkiOiI3NDZhOGVjYzJmYzk0MmE0YjJlMzY2ZDQ5MDY4MDc5YyIsInVzZXJfaWQiOjF9.ldl4u2SSZMtscl6BAQZezzxm0BdR_xfQ453e0zhtYCM','2026-07-16 05:59:28.598236','2026-08-17 05:59:28.000000',NULL,'746a8ecc2fc942a4b2e366d49068079c'),(135,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NjQyOSwiaWF0IjoxNzg0MTgxNjI5LCJqdGkiOiI3YWFkNTFlMjM5YTM0NWQzOGRiYzU2M2RkYWYyZTIzMyIsInVzZXJfaWQiOjF9.f4PbnshC05ICoBe9q8wkZx96EWnVUmG9Q12_SYFWK24','2026-07-16 06:00:29.972304','2026-08-17 06:00:29.000000',NULL,'7aad51e239a345d38dbc563ddaf2e233'),(136,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NjYxMCwiaWF0IjoxNzg0MTgxODEwLCJqdGkiOiI4ZWFmNmY0ODcyOTI0ODcyYTQ2YjgwMTI4Njk4ZmU3YyIsInVzZXJfaWQiOjF9.wN0I7Kx8Pziu2A2LJ28vsQCYsbSJviaZZpva9qOhj18','2026-07-16 06:03:30.989881','2026-08-17 06:03:30.000000',NULL,'8eaf6f4872924872a46b80128698fe7c'),(137,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NjYzOSwiaWF0IjoxNzg0MTgxODM5LCJqdGkiOiJlYzI2Y2VhZmJlN2I0MjhhODY4ZWY4Y2I0ZDIyOGE1OSIsInVzZXJfaWQiOjF9.3vwVoVPORJ7CJkj0b3RjS_M4QCmh2enT4l7Q-tnmFBI','2026-07-16 06:03:59.324958','2026-08-17 06:03:59.000000',NULL,'ec26ceafbe7b428a868ef8cb4d228a59'),(138,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NjY1NSwiaWF0IjoxNzg0MTgxODU1LCJqdGkiOiIwYzQ2ODNjYTFjZWI0ZjA3ODBiY2U5OWE5NWIyNTU3ZSIsInVzZXJfaWQiOjF9.s-AxA_byN9gdzl1tEoGq2r6A8vdydTthQUuSBLZktiM','2026-07-16 06:04:15.647773','2026-08-17 06:04:15.000000',NULL,'0c4683ca1ceb4f0780bce99a95b2557e'),(139,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NjY4MywiaWF0IjoxNzg0MTgxODgzLCJqdGkiOiI2MzFkZDcwNDNmOWU0YmFiOThhOTNlMDA4Y2IwZDA4YyIsInVzZXJfaWQiOjF9.i_HXTs5mmzi5lWM4fiznrjFnB1FD0utTlTW6RnqUxEs','2026-07-16 06:04:43.182948','2026-08-17 06:04:43.000000',NULL,'631dd7043f9e4bab98a93e008cb0d08c'),(140,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NjcyMSwiaWF0IjoxNzg0MTgxOTIxLCJqdGkiOiJmNmE0NzAwZmQ2YmE0YzdmYjk0ZjM5NjYzNjUwNjYzZCIsInVzZXJfaWQiOjF9.xu3M90wC2YfdjecmLG588QrOynz6YhjyEOdkOiZo2FQ','2026-07-16 06:05:21.657839','2026-08-17 06:05:21.000000',NULL,'f6a4700fd6ba4c7fb94f39663650663d'),(141,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NjkxMywiaWF0IjoxNzg0MTgyMTEzLCJqdGkiOiI2ZmIyYTRmNjcxYzA0ODIyYTE3YjljZGRkZmMyZWFiMSIsInVzZXJfaWQiOjF9.i0wZXnKjMC_5W8EMvUqeNCmHL4NJwBTCtjASKW3Z6TQ','2026-07-16 06:08:33.300248','2026-08-17 06:08:33.000000',NULL,'6fb2a4f671c04822a17b9cdddfc2eab1'),(142,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0NzU4MiwiaWF0IjoxNzg0MTgyNzgyLCJqdGkiOiJkZjk1MWJjNzI2Njg0ZjVkODg2ZmQwYzljNGFmZmY1ZSIsInVzZXJfaWQiOjF9.k9TcgD5fPBJL-xrwPzLo3-YczH-rRPdIBMS-u8H5Bmg','2026-07-16 06:19:42.998945','2026-08-17 06:19:42.000000',NULL,'df951bc726684f5d886fd0c9c4afff5e'),(143,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk0Nzk1MCwiaWF0IjoxNzg0MTgzMTUwLCJqdGkiOiI0NWExZjk0MTJlYWM0YmZhOGEzMmQxZTQ1Y2RiMzZhNSIsInVzZXJfaWQiOjF9.mdnyOz2dCcs1s2rPtnSpHim9ZtJvPIZdJQkcMpUYXws','2026-07-16 06:25:50.339670','2026-08-17 06:25:50.000000',NULL,'45a1f9412eac4bfa8a32d1e45cdb36a5'),(144,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Njk2OTMxMywiaWF0IjoxNzg0MjA0NTEzLCJqdGkiOiI4NWFiNjc2NTgzNmE0MmVjOGJlYmYzNjFiNzQ4MWUzMCIsInVzZXJfaWQiOjF9.rekzqZvt4LLCAjJ91ZTKWAUBsI3qiBGn5P2RJiMhtwM','2026-07-16 12:21:53.225058','2026-08-17 12:21:53.000000',NULL,'85ab6765836a42ec8bebf361b7481e30'),(145,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NDI4OTkwNiwiaWF0IjoxNzg0MjAzNTA2LCJqdGkiOiI5MGRjOWJkNTY3OWQ0YmY3OTY5ZGY5N2I3YzYyZWYzNyIsInVzZXJfaWQiOjEsInJvbGUiOiJhZG1pbiJ9.l8JToMyX7Sk7qf4KBbFjbpb4GYIP0uXAKqiRPH2jmOs',NULL,'2026-07-17 12:05:06.000000',NULL,'90dc9bd5679d4bf7969df97b7c62ef37'),(146,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NDM2NTgzOCwiaWF0IjoxNzg0Mjc5NDM4LCJqdGkiOiJiYzU4N2VmNmI4NmE0MTJmYjI2ZTgyNjExYWRiZjJhZiIsInVzZXJfaWQiOjEsInJvbGUiOiJhZG1pbiJ9.u9Rj87M-vnZQOjh5oJmub7BZ1XXt1DjkitBeoL3qtdg',NULL,'2026-07-18 09:10:38.000000',NULL,'bc587ef6b86a412fb26e82611adbf2af'),(147,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NzA0NDI4OCwiaWF0IjoxNzg0Mjc5NDg4LCJqdGkiOiJiMTdjZTZhN2ViZDE0MTUxYmI0MWEwM2U2YjhiOTNmNCIsInVzZXJfaWQiOjF9.-EEXYz1Uqbd9x-GdTV8uGh48vcNes-NcEWpzs7Zu1bQ','2026-07-17 09:11:28.403304','2026-08-18 09:11:28.000000',NULL,'b17ce6a7ebd14151bb41a03e6b8b93f4'),(148,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NzI4NDU0OSwiaWF0IjoxNzg0NTE5NzQ5LCJqdGkiOiJhZmQ0YTU0N2QzM2Q0MTY2ODZjNTc3MTg4ZjM5Yzg1ZiIsInVzZXJfaWQiOjF9.1Jqt0CY2Sp68fkJeHxGsC1LJZCs-nvAqNxGd_KcLWeY','2026-07-20 03:55:49.301598','2026-08-21 03:55:49.000000',NULL,'afd4a547d33d416686c577188f39c85f'),(149,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NzU2NzYxNiwiaWF0IjoxNzg0ODAyODE2LCJqdGkiOiI0NTYyYTUzODI2NzA0YThmYWUxMGJiMTAzZjZkZGE3OSIsInVzZXJfaWQiOjF9.gOXMDWP4U6QGewjrHCeC8iEVPNCvC_MCxzzO3hZXlOE','2026-07-23 10:33:36.291036','2026-08-24 10:33:36.000000',NULL,'4562a53826704a8fae10bb103f6dda79'),(156,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NzY1MzU1NCwiaWF0IjoxNzg0ODg4NzU0LCJqdGkiOiJmODE0YWE2MjVkYWE0MGE0OGYyODQ0NzA1NDkyZDdmNCIsInVzZXJfaWQiOjd9.dFeos5RVEx3gu0x2uvhso3_tsMxyqVDM42vz7dwkP84','2026-07-24 10:25:54.089503','2026-08-25 10:25:54.000000',7,'f814aa625daa40a48f2844705492d7f4'),(157,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NzY1MzU1OSwiaWF0IjoxNzg0ODg4NzU5LCJqdGkiOiJjMGRlZGViMzE1M2E0YWY2Yjk0NTNmMTk0OTg0MDgyYyIsInVzZXJfaWQiOjd9.4mR6DIHo6I0LaFMTRvoaPhHLBfid1rSE01LkMnlC-lA','2026-07-24 10:25:59.565028','2026-08-25 10:25:59.000000',7,'c0dedeb3153a4af6b9453f194984082c'),(158,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NzY1MzYzNiwiaWF0IjoxNzg0ODg4ODM2LCJqdGkiOiI3MWJhMmVkMTg3M2U0ZmEzOWI2YjY1YjA4NTQ4YTk2ZiIsInVzZXJfaWQiOjd9.WxfrvVrA8Pq2TF4EgGU3DeU7Zd0VJlvvl8g5cGkoPxs','2026-07-24 10:27:16.633318','2026-08-25 10:27:16.000000',7,'71ba2ed1873e4fa39b6b65b08548a96f'),(159,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NzY1Mzc5OCwiaWF0IjoxNzg0ODg4OTk4LCJqdGkiOiI1YTVjZTYxM2Y2NTY0ZjA0YjRiYjc4NDEyNGMyZTdiYSIsInVzZXJfaWQiOjd9.AcffNkReMuyvkYOWeUboW_FhuLijLaEODXc5TQneqMg','2026-07-24 10:29:58.465412','2026-08-25 10:29:58.000000',7,'5a5ce613f6564f04b4bb784124c2e7ba'),(160,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4Nzg4OTEwOSwiaWF0IjoxNzg1MTI0MzA5LCJqdGkiOiJhMzdhNzZhNDIyNWY0YThlYWYwOTFiZjNhZjM0MWI3OCIsInVzZXJfaWQiOjd9.qyYEbeLxVYbg7Uh_Sxtig9fK5AKr-5ey_1C9i-DtURA','2026-07-27 03:51:49.232301','2026-08-28 03:51:49.000000',7,'a37a76a4225f4a8eaf091bf3af341b78'),(161,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4ODMzMTQ5MSwiaWF0IjoxNzg1NTY2NjkxLCJqdGkiOiI1NTY1NzAzYjlmN2Q0ZWM2ODM3ZTNmZTQ0OTllYzcxZSIsInVzZXJfaWQiOjd9.3FQBvPtIXT2yFhiF2qUPcBtYtUY5CyRZ3ydnySo6u2g','2026-08-01 06:44:51.614526','2026-09-02 06:44:51.000000',7,'5565703b9f7d4ec6837e3fe4499ec71e'),(162,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4ODM1NzM3NSwiaWF0IjoxNzg1NTkyNTc1LCJqdGkiOiJjMjVmOTNmMWMzOTM0ODZmYWE1MTBjY2RhMzQ2YzBkOSIsInVzZXJfaWQiOjd9.JEc_J5pEumS9xlJFkBPopV4uZtmvgvQTCdOV8S-j3F8','2026-08-01 13:56:15.939582','2026-09-02 13:56:15.000000',7,'c25f93f1c393486faa510ccda346c0d9'),(163,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4ODU4Njk2MSwiaWF0IjoxNzg1ODIyMTYxLCJqdGkiOiI4YjdmNDIwYmY0ZGY0ZWM1ODQwNGE3OWIzNjY5OWM0NiIsInVzZXJfaWQiOjd9.553A9BUdGlMuOqAWwl49UCcNjxra8hEwQ88rJidxcQY','2026-08-04 05:42:41.280661','2026-09-05 05:42:41.000000',7,'8b7f420bf4df4ec58404a79b36699c46'),(164,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4ODU4OTU2MywiaWF0IjoxNzg1ODI0NzYzLCJqdGkiOiJmYzNmYjZmNWRiY2Q0MTIzOWExNjhiNWJhMTE1Yjg1MSIsInVzZXJfaWQiOjd9.guQa1gE52upEn375KaempDrNgu3ML5EvHsg4IszVjGg','2026-08-04 06:26:03.365060','2026-09-05 06:26:03.000000',7,'fc3fb6f5dbcd41239a168b5ba115b851'),(165,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4ODU5MjQzNSwiaWF0IjoxNzg1ODI3NjM1LCJqdGkiOiJiNDlmZmUxODdhMjk0Y2M5ODg4Y2UxZjRiZTA5MDk2MyIsInVzZXJfaWQiOjd9.wc-cSLusYianhorqkftxWjbwtssoM3sd85B9z_0uCRo','2026-08-04 07:13:55.917873','2026-09-05 07:13:55.000000',7,'b49ffe187a294cc9888ce1f4be090963'),(166,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4ODU5Mjg2OCwiaWF0IjoxNzg1ODI4MDY4LCJqdGkiOiI1MDExNzNmN2VmYWE0Y2FmOWQ4NjE1YjQ5MDIxZDllMyIsInVzZXJfaWQiOjd9.MLCfWHXgeXZai6HozeX1Y7pWoPEu2jywdNCC-KgD9xc','2026-08-04 07:21:08.261024','2026-09-05 07:21:08.000000',7,'501173f7efaa4caf9d8615b49021d9e3'),(167,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4ODY3OTQ1MiwiaWF0IjoxNzg1OTE0NjUyLCJqdGkiOiI2ZThlMWQ5ODVkMzE0MGYyYjEwZmQ1YjQ3M2QwMjdiZCIsInVzZXJfaWQiOjd9.mpJOXfdfuTvpRxfo5J9WtLIVbFkvR4T0Hfz8hNt9tWs','2026-08-05 07:24:12.431590','2026-09-06 07:24:12.000000',7,'6e8e1d985d3140f2b10fd5b473d027bd'),(168,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4ODY3OTgzNSwiaWF0IjoxNzg1OTE1MDM1LCJqdGkiOiJhYmQ1ZTVlN2JiOGQ0YWEyYjc2OWFlYWQ4MWFkZGU2NyIsInVzZXJfaWQiOjd9.9ZsoWKck7DR1rrdPGwir0vkRw2XStklopJjd02p2GTE','2026-08-05 07:30:35.764627','2026-09-06 07:30:35.000000',7,'abd5e5e7bb8d4aa2b769aead81adde67'),(169,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4ODY3OTg1NSwiaWF0IjoxNzg1OTE1MDU1LCJqdGkiOiJiZTZlNTQyM2I2NmM0YzAyOTllM2QzZWVhZjE2MjI0NyIsInVzZXJfaWQiOjd9.Woo7EFnGquJil7dnLq1rcCXsDWzLGbIbOg8UHLbQb98','2026-08-05 07:30:55.003333','2026-09-06 07:30:55.000000',7,'be6e5423b66c4c0299e3d3eeaf162247'),(170,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4ODY5NDg2OCwiaWF0IjoxNzg1OTMwMDY4LCJqdGkiOiIwOTViMGNjNDc2ZTk0YjY1ODE5MzcyNTRjYmY5MTc2MSIsInVzZXJfaWQiOjd9.uYe_H-Ggl9ZXf_srddKYtvh2PvBU5B-HiOiUhtYnVUo','2026-08-05 11:41:08.779377','2026-09-06 11:41:08.000000',7,'095b0cc476e94b6581937254cbf91761');
+/*!40000 ALTER TABLE `token_blacklist_outstandingtoken` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_adminnotification`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_adminnotification`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_adminnotification` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `object_id` varchar(100) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `message` longtext NOT NULL,
+  `priority` varchar(10) NOT NULL,
+  `is_seen` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `content_type_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_adminno_content_type_id_d8d0b9c7_fk_django_co` (`content_type_id`),
+  CONSTRAINT `uniformAdmin_adminno_content_type_id_d8d0b9c7_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_adminnotification`
+--
+
+LOCK TABLES `uniformAdmin_adminnotification` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_adminnotification` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_adminnotification` VALUES (1,'QUOT-2438E5','New Quotation Request: QUOT-2438E5','A new quotation request has been created by ABC Pvt Ltd.','high',0,'2026-01-12 05:52:10.996707',36),(2,'QUOT-FBD899','New Quotation Request: QUOT-FBD899','A new quotation request has been created by Bright Future School.','high',0,'2026-01-12 07:18:47.712171',36),(3,'QUOT-67C510','New Quotation Request: QUOT-67C510','A new quotation request has been created by Bright Future School.','high',0,'2026-01-12 07:42:03.310526',36),(4,'QUOT-458F01','New Quotation Request: QUOT-458F01','A new quotation request has been created by Bright Future School.','high',0,'2026-01-12 09:24:24.403911',36),(5,'QUOT-3D2EEA','New Quotation Request: QUOT-3D2EEA','A new quotation request has been created by Bright Future School.','high',0,'2026-01-12 10:14:51.529896',36),(6,'QUOT-DE833F','New Quotation Request: QUOT-DE833F','A new quotation request has been created by Bright Future School.','high',0,'2026-01-12 11:15:50.282418',36),(7,'243767d6-1aaa-4003-ab38-43b1e7c2943c','Quotation Sent: QUOT-3452D0','Quotation sent to moriji345@gmail.com for signing','high',0,'2026-01-13 09:37:25.636482',36),(8,'293be798-52bf-42e6-a68c-027f3258ba0e','Quotation Sent: QUOT-0AC153','Quotation sent to moriji345@gmail.com for signing','high',0,'2026-01-13 10:30:38.001051',36),(9,'5b64ae50-9b6b-4f25-a0a7-c1a26fb7602d','Quotation Sent: QUOT-DAC150','Quotation sent to moriji345@gmail.com for signing','high',0,'2026-01-13 11:31:24.141361',36),(10,'431683d0-ceda-4eac-b8b7-fc10aeb459b4','Quotation Sent: QUOT-E02037','Quotation sent to moriji345@gmail.com for signing','high',0,'2026-01-13 12:24:45.719617',36),(11,'ee894821-dda7-46d5-8145-d45571277295','Quotation Sent: QUOT-6A6116','Quotation sent to moriji345@gmail.com for signing','high',0,'2026-01-13 12:33:28.683679',36),(12,'82d3e3b1-35f6-4593-b50d-7d8fd76594db','Quotation Sent: QUOT-46062B','Quotation sent to moriji345@gmail.com for signing','high',0,'2026-01-13 12:39:27.288153',36),(13,'ce1dfb21-bfbc-4e1f-b0ae-eb3ba436df2d','Quotation Sent: QUOT-DA0651','Quotation sent to moriji345@gmail.com for signing','high',0,'2026-01-13 12:45:05.145089',36),(14,'44fb0903-f897-4850-8567-fe68c3d7f138','Quotation Sent: QUOT-0B05EF','Quotation sent to moriji345@gmail.com for signing','high',0,'2026-01-13 12:58:47.395549',36),(15,'f5f2cb76-ade3-471d-a3c3-4582e84f39d3','Quotation Sent: QUOT-F4A3C2','Quotation sent to moriji345@gmail.com for signing','high',0,'2026-01-13 13:06:26.952287',36),(16,'c59ce118-1f79-4a6c-8d1a-98f939434461','Quotation Sent: QUOT-6F62F6','Quotation sent to moriji345@gmail.com for signing','high',0,'2026-01-13 13:27:16.696571',36),(17,'2a3567e4-2470-49d0-a1d3-060d8bffd292','Quotation Sent: QUOT-10FDC7','Quotation sent to moriji345@gmail.com for signing','high',0,'2026-01-13 13:49:42.045665',36),(18,'ad120f57-d45c-4306-abfa-621a43e3edd4','Quotation Sent: QUOT-C5DE77','Quotation sent to vijayparmar5056@gmail.com for signing','high',0,'2026-01-13 13:50:47.487084',36),(19,'a41ea628-a733-4fa1-8f5d-3bfc046535b0','Quotation Sent: QUOT-B55366','Quotation sent to sourabh.mori1digiprima@gmail.com for signing','high',0,'2026-01-14 05:53:27.094304',36),(20,'eb1a18f7-8283-44cd-8dc9-0ed6c1b321ad','Quotation Sent: QUOT-03C05A','Quotation sent to kapil.singh@digiprima.com for signing','high',0,'2026-01-14 06:16:01.728174',36),(21,'4868c37a-f9ac-4f23-a8c9-58420aeb1800','Quotation Sent: QUOT-972628','Quotation sent to shwetamori282@gmail.com for signing','high',0,'2026-01-14 09:25:07.128146',36),(22,'f40800b6-bea7-465f-86de-0f5456eb8198','Quotation Sent: QUOT-86B552','Quotation sent to jay01032000@gmail.com for signing','high',0,'2026-01-14 09:39:46.908384',36),(23,'fc80efa4-b03a-4213-bd97-50809da0d6ea','Quotation Sent: QUOT-08E1EF','Quotation sent to morisourabh@gmail.com for signing','high',0,'2026-01-14 09:41:19.763758',36),(24,'09155a85-4fdc-4b92-9047-c740df698c2c','New Quote Request: QUOT-A99CE5','Tesla submitted a quote request.','high',0,'2026-01-15 05:58:46.132028',36),(25,'460b34a7-12fc-4996-81f9-0de679e845db','New Quote Request: QUOT-738632','Tesla submitted a quote request.','high',0,'2026-01-15 10:00:23.795862',36),(26,'d70c0178-5df4-4869-a80a-97186a735e4c','New Quote Request: QUOT-46DE3F','Tesla submitted a quote request.','high',0,'2026-01-15 10:42:14.022805',36),(27,'251f38d6-d531-427c-9654-5a9000eb3e5d','New Quote Request: QUOT-FF44F0','Tesla submitted a quote request.','high',0,'2026-01-15 10:42:38.595568',36),(28,'b56275f3-6a97-47f2-9fcd-15f8f492b0a3','New Quote Request: QUOT-FE3C95','Tesla submitted a quote request.','high',0,'2026-01-15 10:43:50.928729',36),(29,'bb4adada-8ca4-4357-939b-3fce4493822d','New Order created: bb4adada-8ca4-4357-939b-3fce4493822d','A new Order request has been created by rsmoriji345@gmail.com.','high',0,'2026-01-30 12:01:01.521445',34),(30,'f90fcd35-6dab-43c6-a2bd-455dc9819924','New Order created: f90fcd35-6dab-43c6-a2bd-455dc9819924','A new Order request has been created by rsmoriji345@gmail.com.','high',0,'2026-01-31 13:20:26.722233',34),(31,'026b04b7-dbf6-44c8-94ae-3a92b5686e07','New Order created: 026b04b7-dbf6-44c8-94ae-3a92b5686e07','A new Order request has been created by rsmoriji345@gmail.com.','high',0,'2026-01-31 13:34:10.350986',34),(32,'7cf7b836-65c4-4ad9-b423-b6a7e5c2eeee','New Order created: 7cf7b836-65c4-4ad9-b423-b6a7e5c2eeee','A new Order request has been created by rsmoriji345@gmail.com.','high',0,'2026-02-03 09:04:44.893404',34),(33,'8ef501d5-7b3b-4384-b0ab-ba1770238ec8','New Order created: 8ef501d5-7b3b-4384-b0ab-ba1770238ec8','A new Order request has been created by rsmoriji345@gmail.com.','high',0,'2026-02-03 09:58:58.225052',34),(34,'e618f3f3-5fb5-4845-8868-d1a2849d1994','New Order created: e618f3f3-5fb5-4845-8868-d1a2849d1994','A new Order request has been created by rsmoriji345@gmail.com.','high',0,'2026-02-03 10:04:40.044181',34),(35,'849ed4ab-2d49-4532-8171-6077e6bad2f3','New Order created: 849ed4ab-2d49-4532-8171-6077e6bad2f3','A new Order request has been created by morisourabh+1@gmail.com.','high',0,'2026-02-03 10:33:07.106097',34),(36,'f0437366-8f46-45e7-8441-fcbbdafe20e2','New Quotation Request: QUOT-8F5B1A','A new quotation request has been created by digiprima.','high',0,'2026-07-08 05:17:57.184891',36),(37,'d7e33666-ba46-4c5b-ae09-34531f828f6e','New Quotation Request: QUOT-A9B0FA','A new quotation request has been created by digiprima.','high',0,'2026-07-08 05:18:50.214800',36),(38,'b7d5d101-2285-43ec-bc46-75dcddeadca0','New Quotation Request: QUOT-7263DE','A new quotation request has been created by digiprima.','high',0,'2026-07-08 05:22:55.114256',36),(39,'9cd87405-46eb-4f69-b056-058fd753018a','New Quotation Request: QUOT-A6A88C','A new quotation request has been created by digiprima.','high',0,'2026-07-08 05:30:25.712253',36),(40,'5b58204e-ecfb-4d4c-a0d7-e5fc208c4461','New Quotation Request: QUOT-457161','A new quotation request has been created by digiprima.','high',0,'2026-07-08 05:32:52.352426',36),(41,'794daf75-74b8-4764-9f39-d171e57bc29c','New Quotation Request: QUOT-FDE249','A new quotation request has been created by digiprima.','high',0,'2026-07-08 05:51:36.110845',36),(42,'afdf0a45-af80-4c89-af95-6d6ec01a90e6','New Quotation Request: QUOT-A27663','A new quotation request has been created by digiprima.','high',0,'2026-07-08 06:43:37.786692',36),(43,'1cf1d846-77e6-40bb-81f1-4f55636e4717','New Quotation Request: QUOT-B4F12C','A new quotation request has been created by digiprima.','high',0,'2026-07-14 12:17:32.376570',36),(44,'4952d6b9-4fa6-4085-94d6-a8493a36975a','New Quotation Request: QUOT-2CF71C','A new quotation request has been created by digiprima.','high',0,'2026-07-14 12:18:07.703157',36),(45,'91b153f4-a5cc-42dd-a9ae-9709f3b14afa','New Quotation Request: QUOT-D91765','A new quotation request has been created by digiprima.','high',0,'2026-07-15 05:05:05.258856',36),(46,'2384904e-4d13-4554-a868-d424740c9b1c','New Quotation Request: QUOT-7FA854','A new quotation request has been created by digiprima.','high',0,'2026-07-15 05:05:50.461653',36),(47,'7e2263d0-5d0b-45a4-ab0d-461840dc5af7','New Quotation Request: QUOT-FB01F7','A new quotation request has been created by digiprima.','high',0,'2026-07-23 07:10:56.204432',36),(48,'18dfe83c-916e-4428-b535-5c0ab7be957a','New Quotation Request: QUOT-79797F','A new quotation request has been created by digiprima.','high',0,'2026-07-23 07:18:42.748048',36),(49,'b8793480-bc8f-4bde-8c39-f7776591da1b','New Quotation Request: QUOT-43ED7F','A new quotation request has been created by digiprima.','high',0,'2026-07-23 08:38:16.458960',36),(50,'75d227ab-f471-49f9-8401-37677a9a560f','New Quotation Request: QUOT-12EC6C','A new quotation request has been created by digiprimaggg.','high',0,'2026-07-23 08:48:57.361453',36),(51,'e5355037-c93b-4e9a-9e9f-1886c6c1cb9f','New Quotation Request: QUOT-25DAEE','A new quotation request has been created by zudio.','high',0,'2026-07-23 09:27:33.957948',36),(52,'4f12af0b-6a9c-40bd-b20a-752563a22dad','New Quotation Request: QUOT-293C15','A new quotation request has been created by JP.','high',0,'2026-07-23 11:30:42.281106',36),(53,'4ba64569-8375-4801-82ff-77518e5b1574','New Quotation Request: QUOT-F30279','A new quotation request has been created by Brilliant Technology.','high',0,'2026-07-29 10:38:26.374028',36),(54,'b868479d-55eb-4ce1-94bc-6539182b3943','New Quotation Request: QUOT-C6FA06','A new quotation request has been created by digiprima tech.','high',0,'2026-07-30 04:20:43.730837',36),(55,'4340fb4d-3aba-4bd6-8ac1-1ac60e81728b','New Quotation Request: QUOT-8A8A7B','A new quotation request has been created by ubantu.','high',0,'2026-07-30 04:26:24.417071',36),(56,'f03f1364-734a-4ac8-b955-db349e21c186','New Quotation Request: QUOT-B2B590','A new quotation request has been created by digiprima testing.','high',0,'2026-07-31 06:00:25.123907',36),(57,'bc59e80c-4dbb-4977-a0be-ea7a8ff7eaa5','New Quotation Request: QUOT-B4808C','A new quotation request has been created by digiprima tet.','high',0,'2026-08-01 05:15:00.647057',36);
+/*!40000 ALTER TABLE `uniformAdmin_adminnotification` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_adminuser`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_adminuser`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_adminuser` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `password` varchar(128) NOT NULL,
+  `last_login` datetime(6) DEFAULT NULL,
+  `is_superuser` tinyint(1) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `email` varchar(254) NOT NULL,
+  `mobile` varchar(15) DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `is_staff` tinyint(1) NOT NULL,
+  `language` varchar(10) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `role_id` bigint DEFAULT NULL,
+  `company_name` varchar(255) DEFAULT NULL,
+  `tier` varchar(60) DEFAULT NULL,
+  `is_currently_login` tinyint(1) NOT NULL DEFAULT '0',
+  `assigned_sales_rep_id` bigint DEFAULT NULL,
+  `designation` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `mobile` (`mobile`),
+  KEY `uniformAdmin_adminuser_role_id_bab73c92_fk_uniformAdmin_role_id` (`role_id`),
+  KEY `uniformAdmin_adminus_assigned_sales_rep_i_ab4f24b1_fk_uniformAd` (`assigned_sales_rep_id`),
+  CONSTRAINT `uniformAdmin_adminus_assigned_sales_rep_i_ab4f24b1_fk_uniformAd` FOREIGN KEY (`assigned_sales_rep_id`) REFERENCES `uniformAdmin_adminuser` (`id`),
+  CONSTRAINT `uniformAdmin_adminuser_role_id_bab73c92_fk_uniformAdmin_role_id` FOREIGN KEY (`role_id`) REFERENCES `uniformAdmin_role` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_adminuser`
+--
+
+LOCK TABLES `uniformAdmin_adminuser` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_adminuser` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_adminuser` VALUES (2,'pbkdf2_sha256$600000$AT1vDCKhkSv7AZqtovSs6J$I0DUPxaNHF83W34QLp4TCWi9tYDJJrmtvPrasbAXM4E=',NULL,0,'ghanshyam nagar','ghanshyam.nagar@digiprima.com','8888888888',1,0,'en','2026-07-07 04:55:49.991471','2026-08-05 10:45:32.984976',3,'digiprima','bronze',0,10,NULL),(7,'pbkdf2_sha256$600000$cdzyZDIUiudgl643aVc5DR$uM+rvkqyQB/WcCvOlZ/q+8jPuGBYxLKsI5EBxxaN4D8=','2026-08-05 11:41:08.826591',1,'Maqbool','maqboolp435@gmail.com','3456756786',1,1,'en','2026-07-24 07:23:55.505636','2026-08-04 05:57:33.865240',2,NULL,'silver',1,NULL,NULL),(9,'pbkdf2_sha256$600000$t02YO6hlxqvcmFbNDmvjVq$u6nlkku1vMr1rz70aLYmvOybQqbgZOr36XCcq808UhE=',NULL,0,'Jerry Nixon','guxipec@mailinator.com',NULL,1,1,'en','2026-08-05 09:56:37.860987','2026-08-05 09:56:37.861031',6,NULL,'silver',0,NULL,'Est unde aperiam sint libero vitae aute soluta laborum dolore voluptatem quas praesentium elit aut'),(10,'pbkdf2_sha256$600000$83JtpfvEzfc8FJyfnRQT2X$utWm8SPGq96RHbkP7q53DjNJelVIdg1Zz8GPWgyyFPM=',NULL,0,'Colton Faulkner','pirev@mailinator.com',NULL,1,1,'en','2026-08-05 09:57:00.824888','2026-08-05 09:57:00.824907',6,NULL,'silver',0,NULL,'Dolorem consequatur Qui dolore dolor error repudiandae ut ad beatae delectus nostrud quos tempore'),(11,'pbkdf2_sha256$600000$p7nA2Juagsg07Ue0Hj2SwV$9upxaBg29JV4BkTzkXoYqE/4bTRr67IBLT9icSopy7s=',NULL,0,'Neil Logan','pocaluqa@mailinator.com',NULL,1,1,'en','2026-08-05 09:57:39.364105','2026-08-05 09:57:39.364122',6,NULL,'silver',0,NULL,'Quos et sunt eveniet magnam illum excepteur quisquam ipsa ad consequatur beatae'),(12,'pbkdf2_sha256$600000$nUX2NZ2LpDK6DEtWji1ft9$MbU0twpa9SMoojZSNRtf/pfWn9N0XiGDpYgVbSXrvkY=',NULL,0,'maqbool patel','maqbool.patel@digiprima.co',NULL,1,1,'en','2026-08-05 10:34:49.506511','2026-08-05 10:34:49.506529',6,NULL,'silver',0,NULL,'Sales Representative'),(13,'pbkdf2_sha256$600000$nfDTjPokKaTOawmPCAD9pl$1Xt7zISantyhIchUSvKpxPVZJPxojR8XrMIJl3tidN4=',NULL,0,'Inez Russo','bokyci@mailinator.com',NULL,1,1,'en','2026-08-05 10:45:09.529007','2026-08-05 10:45:09.529027',6,NULL,'silver',0,NULL,'Dolore et quisquam consequatur voluptatem expedita nesciunt velit tempora obcaecati quas reprehend');
+/*!40000 ALTER TABLE `uniformAdmin_adminuser` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_adminuser_groups`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_adminuser_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_adminuser_groups` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `adminuser_id` bigint NOT NULL,
+  `group_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniformAdmin_adminuser_g_adminuser_id_group_id_e0a13481_uniq` (`adminuser_id`,`group_id`),
+  KEY `uniformAdmin_adminuser_groups_group_id_c4fc6539_fk_auth_group_id` (`group_id`),
+  CONSTRAINT `uniformAdmin_adminus_adminuser_id_23ab450f_fk_uniformAd` FOREIGN KEY (`adminuser_id`) REFERENCES `uniformAdmin_adminuser` (`id`),
+  CONSTRAINT `uniformAdmin_adminuser_groups_group_id_c4fc6539_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_adminuser_groups`
+--
+
+LOCK TABLES `uniformAdmin_adminuser_groups` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_adminuser_groups` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_adminuser_groups` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_adminuser_user_permissions`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_adminuser_user_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_adminuser_user_permissions` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `adminuser_id` bigint NOT NULL,
+  `permission_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniformAdmin_adminuser_u_adminuser_id_permission__1a3fa0c7_uniq` (`adminuser_id`,`permission_id`),
+  KEY `uniformAdmin_adminus_permission_id_d314770a_fk_auth_perm` (`permission_id`),
+  CONSTRAINT `uniformAdmin_adminus_adminuser_id_5fd885eb_fk_uniformAd` FOREIGN KEY (`adminuser_id`) REFERENCES `uniformAdmin_adminuser` (`id`),
+  CONSTRAINT `uniformAdmin_adminus_permission_id_d314770a_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_adminuser_user_permissions`
+--
+
+LOCK TABLES `uniformAdmin_adminuser_user_permissions` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_adminuser_user_permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_adminuser_user_permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_blog`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_blog`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_blog` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(250) NOT NULL,
+  `slug` varchar(255) DEFAULT NULL,
+  `image` varchar(100) DEFAULT NULL,
+  `description` longtext NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `category_id` bigint NOT NULL,
+  `type` varchar(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_blog_category_id_13632582_fk_uniformAd` (`category_id`),
+  CONSTRAINT `uniformAdmin_blog_category_id_13632582_fk_uniformAd` FOREIGN KEY (`category_id`) REFERENCES `uniformAdmin_category` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_blog`
+--
+
+LOCK TABLES `uniformAdmin_blog` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_blog` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_blog` VALUES (51,'Top Fashion Trends to Watch in 2025','top_fashion_trends_to_watch_in_2025','blog_images/blog4.jpeg','Fashion in 2026 continues to embrace individuality, sustainability, and innovation, blending timeless classics with modern design. Consumers are increasingly choosing clothing that combines style, comfort, and environmental responsibility, making quality and versatility more important than ever. From bold statement pieces to minimalist essentials, this year\'s trends reflect a balance between functionality and personal expression.\r\n\r\nOne of the biggest trends is the growing popularity of sustainable fashion. Brands are focusing on eco-friendly fabrics such as organic cotton, recycled polyester, bamboo, and linen while adopting ethical manufacturing practices. Consumers are investing in durable garments that offer long-term value rather than following fast-fashion cycles.\r\n\r\nOversized tailoring remains a favorite, with relaxed blazers, wide-leg trousers, and structured suits providing both comfort and sophistication. Neutral colors like beige, ivory, charcoal, navy, and olive continue to dominate wardrobes, while vibrant shades such as emerald green, cobalt blue, and burgundy are used as statement accents.\r\n\r\nSmart casual dressing is also evolving, allowing people to transition effortlessly between professional and casual environments. Lightweight knitwear, premium polo shirts, relaxed shirts, and tailored separates create polished yet comfortable looks suitable for everyday wear.\r\n\r\nTechnology is influencing fashion through wrinkle-resistant fabrics, moisture-wicking materials, stretch textiles, and easy-care garments designed for active lifestyles. These innovations improve comfort while maintaining a refined appearance throughout the day.\r\n\r\nAccessories remain an essential part of modern styling. Minimalist watches, leather belts, structured handbags, and clean white sneakers continue to complement both formal and casual outfits. Layering lightweight jackets, overshirts, and tailored outerwear adds versatility across different seasons.\r\n\r\nAs fashion continues to evolve in 2026, the focus remains on confidence, practicality, and sustainability. By choosing timeless essentials, investing in quality craftsmanship, and incorporating a few contemporary trends, you can create a wardrobe that is stylish, functional, and prepared for every occasion.',1,0,'2026-07-07 16:17:44.485816','2026-07-08 04:59:13.503229',1,'uniform'),(52,'How to Build a Minimalist Wardrobe','how_to_build_a_minimalist_wardrobe','blog_images/photo-1445205170230-053b83016050_1.jpeg','A minimalist wardrobe is built around the idea of owning fewer, high-quality clothing pieces that are versatile, timeless, and easy to mix and match. Instead of filling your closet with trendy items that quickly go out of style, a minimalist approach focuses on essential garments that work for multiple occasions. This not only simplifies your daily routine but also saves money, reduces clutter, and encourages more sustainable fashion choices.\r\n\r\nStart by decluttering your wardrobe. Remove clothes that no longer fit, are damaged beyond repair, or haven\'t been worn in the past year. Keep only the pieces that you genuinely enjoy wearing and that complement your personal style. Organizing your wardrobe makes it easier to identify what you already own and what essentials may be missing.\r\n\r\nChoose a neutral color palette such as black, white, navy, gray, beige, and earth tones. Neutral colors pair effortlessly with one another, allowing you to create numerous outfit combinations with fewer items. Add a few accent colors through accessories or seasonal pieces if you want to express your personality.\r\n\r\nInvest in high-quality essentials such as well-fitted T-shirts, dress shirts, blazers, jeans, tailored trousers, sweaters, and comfortable footwear. Quality garments last longer, maintain their appearance, and often provide better comfort than inexpensive alternatives.\r\n\r\nFocus on versatility when shopping. Every new item should coordinate with several pieces already in your wardrobe. This approach helps eliminate unnecessary purchases and ensures that each garment serves multiple purposes, from casual outings to professional meetings.',1,0,'2026-07-07 16:19:59.757274','2026-07-08 04:56:55.234518',2,'uniform'),(53,'Choosing the Perfect Formal Suit','choosing_the_perfect_formal_suit','blog_images/bog2.jpeg','Selecting the perfect formal suit is about more than just appearance—it\'s about finding a combination of style, comfort, and confidence that suits both your personality and the occasion. Whether you\'re attending a business meeting, wedding, formal dinner, or corporate event, the right suit helps you make a lasting first impression.\r\n\r\nThe first step is choosing a suit that fits your body shape. A well-tailored suit should sit comfortably on the shoulders, with sleeves ending just above the wrist and trousers falling neatly over your shoes. Slim-fit suits offer a modern silhouette, while classic-fit styles provide extra comfort for everyday professional wear.\r\n\r\nFabric selection is equally important. Wool is an excellent year-round option because it is breathable, durable, and naturally wrinkle-resistant. For warmer climates, lightweight cotton or linen suits provide greater comfort, while wool blends offer versatility across different seasons.\r\n\r\nColor also plays a significant role in creating the right look. Navy blue remains the most versatile choice, suitable for business meetings, interviews, and weddings. Charcoal grey provides a sophisticated and timeless appearance, while black is traditionally reserved for formal evening events and black-tie occasions.\r\n\r\nAccessories complete the outfit. Pair your suit with a crisp white or light-colored dress shirt, a coordinating tie, polished leather shoes, and a matching belt. A pocket square, cufflinks, and a classic wristwatch can add subtle elegance without overpowering the overall look.\r\n\r\nFinally, invest in quality tailoring. Even an affordable suit can look premium when altered to fit your measurements. Proper care, including using quality hangers, occasional dry cleaning, and steaming instead of excessive ironing, will help maintain the suit\'s shape and extend its lifespan',1,0,'2026-07-07 16:20:45.149437','2026-07-08 04:55:24.293886',3,'uniform'),(54,'Lorem ipsum dolor sit amet, consectetur adipiscing elit.','lorem_ipsum_dolor_sit_amet_consectetur_adipiscing_elit','blog_images/blog1.jpg','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. By placing an order for custom uniforms through KIREIZU UNIFORM, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. By placing an order for custom uniforms through KIREIZU UNIFORM, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.\r\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. By placing an order for custom uniforms through KIREIZU UNIFORM, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. By placing an order for custom uniforms through KIREIZU UNIFORM, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.\r\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. By placing an order for custom uniforms through KIREIZU UNIFORM, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. By placing an order for custom uniforms through KIREIZU UNIFORM, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.\r\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. By placing an order for custom uniforms through KIREIZU UNIFORM, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. By placing an order for custom uniforms through KIREIZU UNIFORM, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.',1,0,'2026-07-08 03:57:43.226431','2026-07-08 04:36:03.110740',1,'uniform'),(55,'Elegant Wedding Table Decoration Ideas','elegant_wedding_table_decoration_ideas','blog_images/table_blog1.png','A beautifully decorated wedding table creates a memorable dining experience and enhances the overall ambiance of your celebration. From luxurious floral centerpieces and elegant table linens to premium dinnerware and candle arrangements, every detail contributes to a sophisticated atmosphere. Whether you\'re planning a classic ballroom wedding, a rustic outdoor ceremony, or a modern reception, selecting the right table style helps reflect your unique theme. Consider coordinating table colors, chair styles, and decorative accents to achieve a cohesive design. Personal touches such as customized place cards, floral runners, and ambient lighting can transform an ordinary table into an unforgettable focal point for your guests.',1,0,'2026-07-08 06:04:24.739090','2026-07-08 06:05:26.786190',32,'table'),(56,'Choosing the Perfect Reception Tables','choosing_the_perfect_reception_tables','blog_images/tb2.jpg','Reception tables are one of the most important elements of any wedding or special event. The right table shape and size should complement your venue while providing comfortable seating for guests. Round tables encourage conversation and create an intimate dining experience, while rectangular banquet tables offer a more contemporary and spacious layout. When selecting reception tables, consider guest capacity, venue dimensions, and decoration styles. High-quality tables combined with elegant linens, centerpieces, and coordinated chairs create a welcoming atmosphere that leaves a lasting impression throughout the event.',1,0,'2026-07-08 06:05:16.972057','2026-07-08 06:05:16.972094',32,'table'),(57,'Rustic Farmhouse Wedding Tables','rustic_farmhouse_wedding_tables','blog_images/tb-3.png','Rustic farmhouse tables have become a popular choice for outdoor weddings and countryside celebrations. Their natural wooden finish adds warmth and character while blending beautifully with floral decorations, greenery, and vintage-inspired décor. These tables are ideal for barn venues, garden receptions, and destination weddings where a relaxed yet elegant atmosphere is desired. Pair farmhouse tables with wooden cross-back chairs, linen runners, and soft candlelight to create a charming dining experience that perfectly complements rustic wedding themes.',1,0,'2026-07-08 06:06:27.133620','2026-07-08 06:06:27.133653',32,'table'),(58,'Modernnn Banquet Table Styling','modernnn_banquet_table_styling','blog_images/most-popular-sport-illustration-free-vector.jpg','Modern banquet tables combine clean lines, elegant finishes, and practical functionality to create sophisticated event spaces. Whether hosting weddings, corporate dinners, or formal receptions, minimalist table settings with neutral color palettes and stylish centerpieces provide a timeless appearance. Adding metallic accents, contemporary dinnerware, and soft lighting enhances the overall presentation while maintaining a luxurious feel. Modern banquet tables are versatile and can easily adapt to different event themes and venue sizes.',1,1,'2026-07-08 06:07:29.035091','2026-07-24 05:05:46.763891',32,'table'),(59,'testing title','testing_title','blog_images/Screenshot_from_2026-07-10_11-51-18.png','testing description',1,1,'2026-07-13 07:41:50.407033','2026-07-13 08:58:28.336027',59,'uniform'),(60,'sid','sid','blog_images/Bottom-1.png','test',1,1,'2026-07-29 06:42:50.324112','2026-07-29 06:44:00.967275',60,'uniform');
+/*!40000 ALTER TABLE `uniformAdmin_blog` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_catalogimage`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_catalogimage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_catalogimage` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `image` varchar(255) NOT NULL,
+  `slug` varchar(255) DEFAULT NULL,
+  `category_id` bigint NOT NULL,
+  `description` varchar(250) DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT '1',
+  `isDeleted` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_category` (`category_id`),
+  KEY `uniformAdmin_catalogimage_slug_a805e150` (`slug`),
+  CONSTRAINT `fk_category` FOREIGN KEY (`category_id`) REFERENCES `uniformAdmin_category` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_catalogimage`
+--
+
+LOCK TABLES `uniformAdmin_catalogimage` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_catalogimage` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_catalogimage` VALUES (13,'Classic Nurse Uniform Set','https://images.unsplash.com/photo-1576091160550-2173dba999ef','classic_nurse_uniform_set',1,'Professional and comfortable medical scrubs designed for nursing and care staff.',1,0,'2026-07-07 05:24:57','2026-07-07 05:24:57'),(14,'Executive Chef Apparel','https://images.unsplash.com/photo-1577219491135-ce391730fb2c','executive_chef_apparel',2,'Durable, high-grade, and breathable chef coats designed for active kitchen environments.',1,0,'2026-07-07 05:24:57','2026-07-07 05:24:57'),(15,'Corporate Office Suit Set','https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d','corporate_office_suit_set',3,'Sleek and polished formal wear options tailored for administrative and customer-facing teams.',1,0,'2026-07-07 05:24:57','2026-07-07 05:24:57'),(17,'test','catalog_images/2c85a390bfc11fad7bf2cd1a2b2c0666266fd29b.png','test',3,'',0,1,'2026-07-07 12:46:53','2026-07-07 12:47:01'),(18,'Test','catalog_images/Screenshot_from_2026-07-10_11-51-18.png','test',59,'',0,1,'2026-07-13 01:37:22','2026-07-13 01:37:35'),(19,'testinggggg','catalog_images/Screenshot_from_2026-07-10_11-51-18_kPjyIBc.png','testinggggg',3,'',0,1,'2026-07-13 01:37:44','2026-07-13 01:39:57'),(20,'update','catalog_images/most-popular-sport-illustration-free-vector_UIJ7ejj.jpg','update',60,'',0,0,'2026-07-13 01:40:45','2026-07-23 23:30:49'),(21,'testing','catalog_images/most-popular-sport-illustration-free-vector_DAAabE2.jpg','testing',59,'',0,1,'2026-07-23 23:31:40','2026-07-23 23:31:51'),(22,'sid','catalog_images/Bottom-1.png','sid',59,'',0,1,'2026-07-29 01:09:15','2026-07-29 01:09:44');
+/*!40000 ALTER TABLE `uniformAdmin_catalogimage` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_category`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_category` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `categoryName` varchar(250) NOT NULL,
+  `slug` varchar(255) DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `order` int unsigned NOT NULL,
+  `categoryImage` varchar(100) DEFAULT NULL,
+  `description` varchar(250) DEFAULT NULL,
+  `type` varchar(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_category_order_b5c3e7e9` (`order`),
+  CONSTRAINT `uniformAdmin_category_chk_1` CHECK ((`order` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_category`
+--
+
+LOCK TABLES `uniformAdmin_category` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_category` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_category` VALUES (1,'Medical & Nursing Care','medical_nursing_care',1,0,'2025-12-15 07:34:12.517544','2026-07-07 06:24:26.043515',1,'category/medicalcategory.png','Comfortable, functional medical uniforms','uniform'),(2,'Food Service & Dining','food_service_dining',1,0,'2025-12-15 07:34:34.040733','2026-07-07 06:26:31.119403',3,'category/Food_Service__Dining.jpg','Hygienic, professional kitchen & serving wear','uniform'),(3,'Office & Back-End Operations','office_back_end_operations',1,0,'2025-12-16 07:22:14.132655','2026-07-07 06:27:56.999615',2,'category/Office__Back-End_Operations.png','Professional corporate branding','uniform'),(23,'Greate Positivity','greate_positivity',0,0,'2026-01-07 12:19:25.197665','2026-07-13 06:14:33.805678',20,'category/natural_place_jw3thkC.jpg','test','uniform'),(24,'Multivitamins Positivity','multivitamins_positivity',0,0,'2026-01-07 12:35:13.972957','2026-01-07 12:35:13.972987',21,'category/group_discussion.jpg',NULL,'uniform'),(32,'Warm Elegance','warm_elegance',1,0,'2026-01-16 12:19:11.084586','2026-07-08 09:00:46.236869',29,'category/warmimage.png','weding Romantic whites and ivories for your special daygroumer for special functions','table'),(59,'Classy Corporate','classy_corporate',1,0,'2026-07-08 05:04:30.664576','2026-07-08 09:03:11.885161',1,'category/classic.png','Professional meeting tables ideal for conferences, seminars, corporate events, and boardroom discussions.','table'),(60,'Olive Chic','olive_chic',1,0,'2026-07-08 08:57:58.647398','2026-07-08 08:58:22.482300',1,'category/cate_table2.png','Modern natural tones with  sophisticated greenery','table'),(61,'Sleeves bb','sleeves_bb',1,1,'2026-07-13 05:23:49.920146','2026-07-13 06:12:28.834502',0,'',NULL,'uniform'),(62,'Pockets','pockets',1,1,'2026-07-13 05:23:49.927076','2026-08-01 09:01:08.754499',1,'',NULL,'uniform'),(63,'Caps','caps',1,1,'2026-07-13 05:23:49.938264','2026-07-13 06:12:46.895348',0,'',NULL,'uniform'),(64,'Testing category','testing_category',1,1,'2026-07-13 06:29:10.552396','2026-07-13 06:51:47.673261',29,'category/Screenshot_from_2026-07-13_11-28-15.png','testing category descriptionnnnnn','uniform'),(65,'testing','testing',1,1,'2026-07-24 03:18:55.824991','2026-07-24 03:19:23.675586',29,'category/most-popular-sport-illustration-free-vector.jpg','nsaknkn','uniform'),(66,'sid','sid',1,1,'2026-07-29 06:34:48.327982','2026-07-29 06:36:40.147432',0,'category/Bottom-1.png','testing','uniform');
+/*!40000 ALTER TABLE `uniformAdmin_category` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_cleaningitem`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_cleaningitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_cleaningitem` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `quantity` int unsigned NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `entered_at` datetime(6) NOT NULL,
+  `expected_done_at` datetime(6) DEFAULT NULL,
+  `resolved_at` datetime(6) DEFAULT NULL,
+  `product_id` bigint NOT NULL,
+  `source_rental_item_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_cleanin_product_id_a3f31faa_fk_uniformAd` (`product_id`),
+  KEY `uniformAdmin_cleanin_source_rental_item_i_e9a0fe65_fk_userhub_r` (`source_rental_item_id`),
+  CONSTRAINT `uniformAdmin_cleanin_product_id_a3f31faa_fk_uniformAd` FOREIGN KEY (`product_id`) REFERENCES `uniformAdmin_product` (`id`),
+  CONSTRAINT `uniformAdmin_cleanin_source_rental_item_i_e9a0fe65_fk_userhub_r` FOREIGN KEY (`source_rental_item_id`) REFERENCES `userhub_rentalitem` (`id`),
+  CONSTRAINT `uniformAdmin_cleaningitem_chk_1` CHECK ((`quantity` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_cleaningitem`
+--
+
+LOCK TABLES `uniformAdmin_cleaningitem` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_cleaningitem` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_cleaningitem` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_colors`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_colors`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_colors` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `colorName` varchar(250) NOT NULL,
+  `colorCode` longtext,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `compatibleFabric` json DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_colors`
+--
+
+LOCK TABLES `uniformAdmin_colors` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_colors` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_colors` VALUES (1,'ASDDADADb','#000000',1,1,'2026-07-07 04:54:34.727234','2026-07-23 11:16:50.614977','[\"polyester\", \"silk\"]'),(2,'testttttt','#7e3e3e',1,0,'2026-07-07 18:02:46.361317','2026-07-23 10:57:04.365096','[\"polyester\", \"silk\"]'),(3,'testing','#d77979',1,1,'2026-07-09 09:14:45.878536','2026-07-09 09:23:36.125565','[\"polyester\"]'),(4,'red','#f80d0d',1,1,'2026-07-23 10:58:51.494771','2026-07-23 11:16:31.718159','[\"silk\"]'),(5,'black','#000000',1,1,'2026-07-23 11:05:52.211094','2026-07-30 06:54:58.347922','[\"polyester\", \"cotton\"]'),(6,'black copy','#000000',1,1,'2026-07-23 11:10:20.679195','2026-07-23 11:10:35.283506','[\"polyester\", \"cotton\"]'),(7,'red copy','#f80d0d',1,1,'2026-07-23 11:10:39.419585','2026-07-23 11:16:23.979806','[\"silk\"]'),(8,'red copy copy','#f80d0d',1,1,'2026-07-23 11:12:25.546927','2026-07-23 11:16:27.839551','[\"silk\"]'),(9,'testttttt​','#7e3e3e',1,1,'2026-07-23 11:17:30.555830','2026-07-23 11:17:38.921249','[\"polyester\", \"silk\"]'),(10,'black​','#000000',1,1,'2026-07-23 11:17:59.944066','2026-07-23 11:19:09.147263','[\"polyester\", \"cotton\"]'),(11,'black​​','#000000',1,1,'2026-07-23 11:18:51.664613','2026-07-23 11:19:05.198447','[\"polyester\", \"cotton\"]'),(12,'black​​​','#000000',1,1,'2026-07-23 11:18:57.444032','2026-07-23 11:19:02.194993','[\"polyester\", \"cotton\"]'),(13,'testttttt​','#7e3e3e',1,1,'2026-07-24 03:01:05.912139','2026-07-24 03:01:13.015330','[\"polyester\", \"silk\"]'),(14,'testttttt​','#7e3e3e',1,1,'2026-07-24 03:38:49.827661','2026-07-24 04:40:57.225365','[\"polyester\", \"silk\"]'),(15,'testttttt​​','#7e3e3e',1,1,'2026-07-24 04:40:49.922516','2026-07-24 04:40:53.628914','[\"polyester\", \"silk\"]'),(16,'test sid','#d31212',1,1,'2026-07-29 06:13:29.848455','2026-07-29 06:14:06.363486','[\"silk\", \"polyester\"]'),(17,'test sid​dharth','#d31212',1,1,'2026-07-29 06:13:57.767525','2026-07-29 06:14:22.282135','[\"silk\", \"polyester\"]'),(18,'black​','#000000',1,1,'2026-07-30 06:54:53.054597','2026-08-04 06:33:47.757259','[\"polyester\", \"cotton\"]'),(19,'black​​','#000000',1,0,'2026-08-04 06:30:40.751885','2026-08-04 06:30:40.751917','[\"polyester\", \"cotton\"]'),(20,'testttttt​','#7e3e3e',1,0,'2026-08-04 06:33:50.363121','2026-08-04 06:33:50.363208','[\"polyester\", \"silk\"]');
+/*!40000 ALTER TABLE `uniformAdmin_colors` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_colors_compatibleFabric`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_colors_compatibleFabric`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_colors_compatibleFabric` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `colors_id` bigint NOT NULL,
+  `fabric_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniformAdmin_colors_comp_colors_id_fabric_id_6f0349c6_uniq` (`colors_id`,`fabric_id`),
+  KEY `uniformAdmin_colors__fabric_id_33bb27c1_fk_uniformAd` (`fabric_id`),
+  CONSTRAINT `uniformAdmin_colors__colors_id_c7b50a24_fk_uniformAd` FOREIGN KEY (`colors_id`) REFERENCES `uniformAdmin_colors` (`id`),
+  CONSTRAINT `uniformAdmin_colors__fabric_id_33bb27c1_fk_uniformAd` FOREIGN KEY (`fabric_id`) REFERENCES `uniformAdmin_fabric` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_colors_compatibleFabric`
+--
+
+LOCK TABLES `uniformAdmin_colors_compatibleFabric` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_colors_compatibleFabric` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_colors_compatibleFabric` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_compensationinvoice`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_compensationinvoice`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_compensationinvoice` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `total_replacement_cost` decimal(10,2) NOT NULL,
+  `total_penalty_cost` decimal(10,2) NOT NULL,
+  `grand_total` decimal(10,2) NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `order_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_compens_order_id_30950d56_fk_userhub_o` (`order_id`),
+  CONSTRAINT `uniformAdmin_compens_order_id_30950d56_fk_userhub_o` FOREIGN KEY (`order_id`) REFERENCES `userhub_order` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_compensationinvoice`
+--
+
+LOCK TABLES `uniformAdmin_compensationinvoice` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_compensationinvoice` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_compensationinvoice` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_compensationinvoiceitem`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_compensationinvoiceitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_compensationinvoiceitem` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `issue_type` varchar(20) NOT NULL,
+  `quantity` int unsigned NOT NULL,
+  `replacement_cost` decimal(10,2) NOT NULL,
+  `penalty_cost` decimal(10,2) NOT NULL,
+  `total_cost` decimal(10,2) NOT NULL,
+  `invoice_id` bigint NOT NULL,
+  `product_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_compens_invoice_id_f77950bf_fk_uniformAd` (`invoice_id`),
+  KEY `uniformAdmin_compens_product_id_db4c6ae6_fk_uniformAd` (`product_id`),
+  CONSTRAINT `uniformAdmin_compens_invoice_id_f77950bf_fk_uniformAd` FOREIGN KEY (`invoice_id`) REFERENCES `uniformAdmin_compensationinvoice` (`id`),
+  CONSTRAINT `uniformAdmin_compens_product_id_db4c6ae6_fk_uniformAd` FOREIGN KEY (`product_id`) REFERENCES `uniformAdmin_product` (`id`),
+  CONSTRAINT `uniformAdmin_compensationinvoiceitem_chk_1` CHECK ((`quantity` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_compensationinvoiceitem`
+--
+
+LOCK TABLES `uniformAdmin_compensationinvoiceitem` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_compensationinvoiceitem` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_compensationinvoiceitem` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_damageditem`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_damageditem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_damageditem` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `quantity` int unsigned NOT NULL,
+  `reason` longtext,
+  `status` varchar(20) NOT NULL,
+  `reported_at` datetime(6) NOT NULL,
+  `resolved_at` datetime(6) DEFAULT NULL,
+  `product_id` bigint NOT NULL,
+  `source_inspection_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_damaged_product_id_f7f5a263_fk_uniformAd` (`product_id`),
+  KEY `uniformAdmin_damaged_source_inspection_id_a5d16f1b_fk_uniformAd` (`source_inspection_id`),
+  CONSTRAINT `uniformAdmin_damaged_product_id_f7f5a263_fk_uniformAd` FOREIGN KEY (`product_id`) REFERENCES `uniformAdmin_product` (`id`),
+  CONSTRAINT `uniformAdmin_damaged_source_inspection_id_a5d16f1b_fk_uniformAd` FOREIGN KEY (`source_inspection_id`) REFERENCES `uniformAdmin_inspectionitem` (`id`),
+  CONSTRAINT `uniformAdmin_damageditem_chk_1` CHECK ((`quantity` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_damageditem`
+--
+
+LOCK TABLES `uniformAdmin_damageditem` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_damageditem` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_damageditem` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_damagephoto`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_damagephoto`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_damagephoto` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `photo` varchar(100) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `inspection_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_damagep_inspection_id_1c0330f2_fk_uniformAd` (`inspection_id`),
+  CONSTRAINT `uniformAdmin_damagep_inspection_id_1c0330f2_fk_uniformAd` FOREIGN KEY (`inspection_id`) REFERENCES `uniformAdmin_inspectionitem` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_damagephoto`
+--
+
+LOCK TABLES `uniformAdmin_damagephoto` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_damagephoto` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_damagephoto` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_dashboardalertread`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_dashboardalertread`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_dashboardalertread` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `alert_type` varchar(50) NOT NULL,
+  `fingerprint` varchar(255) NOT NULL,
+  `read_at` datetime(6) NOT NULL,
+  `admin_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_admin_dashboard_alert_read` (`admin_id`,`alert_type`),
+  CONSTRAINT `uniformAdmin_dashboa_admin_id_6e221570_fk_uniformAd` FOREIGN KEY (`admin_id`) REFERENCES `uniformAdmin_adminuser` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_dashboardalertread`
+--
+
+LOCK TABLES `uniformAdmin_dashboardalertread` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_dashboardalertread` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_dashboardalertread` VALUES (3,'pending_review','66:66','2026-08-05 08:32:27.317243',7),(4,'awaiting_customer','15:0','2026-08-05 08:32:27.331516',7);
+/*!40000 ALTER TABLE `uniformAdmin_dashboardalertread` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_fabric`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_fabric`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_fabric` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `fabricName` varchar(150) NOT NULL,
+  `color` varchar(100) NOT NULL,
+  `materialType` varchar(60) NOT NULL,
+  `pricePerUnit` decimal(10,2) DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `fabricType` varchar(20) NOT NULL,
+  `theme_id` bigint DEFAULT NULL,
+  `category_id` bigint DEFAULT NULL,
+  `subcategory_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `fabricName` (`fabricName`),
+  KEY `uniformAdmin_fabric_theme_id_d7984d56_fk_uniformAd` (`theme_id`),
+  KEY `uniformAdmin_fabric_category_id_a20a27c1_fk_uniformAd` (`category_id`),
+  KEY `uniformAdmin_fabric_subcategory_id_452988f0_fk_uniformAd` (`subcategory_id`),
+  CONSTRAINT `uniformAdmin_fabric_category_id_a20a27c1_fk_uniformAd` FOREIGN KEY (`category_id`) REFERENCES `uniformAdmin_category` (`id`),
+  CONSTRAINT `uniformAdmin_fabric_subcategory_id_452988f0_fk_uniformAd` FOREIGN KEY (`subcategory_id`) REFERENCES `uniformAdmin_subcategory` (`id`),
+  CONSTRAINT `uniformAdmin_fabric_theme_id_d7984d56_fk_uniformAd` FOREIGN KEY (`theme_id`) REFERENCES `uniformAdmin_tabletheme` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_fabric`
+--
+
+LOCK TABLES `uniformAdmin_fabric` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_fabric` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_fabric` VALUES (1,'Cotton White','White','cotton',150.00,0,1,'2025-12-23 10:43:38.304035','2026-07-29 05:50:05.159884','uniform',NULL,NULL,NULL),(2,'Polyester Blue','Blue','polyester',120.50,1,0,'2025-12-23 10:46:23.583331','2025-12-23 10:46:23.583360','uniform',NULL,NULL,NULL),(3,'Silk Premium','Cream','silk',320.00,1,0,'2025-12-23 10:46:45.519978','2025-12-23 10:46:45.520003','uniform',NULL,NULL,NULL),(4,'Visionary Prompting','Cream','silk',320.00,1,0,'2026-01-03 07:12:16.583265','2026-01-03 07:12:16.583319','uniform',NULL,NULL,NULL),(5,'Monitory Terms','#64748B','polyester',320.00,1,0,'2026-01-03 07:14:12.515713','2026-07-07 17:27:08.892847','table',1,NULL,NULL),(6,'Dollar Terms','#D1D5DB','silk',320.00,1,0,'2026-01-03 07:14:50.265730','2026-07-07 17:26:57.249446','uniform',NULL,NULL,NULL),(7,'Cottons','#EF4444','polyester',444.00,0,1,'2026-07-10 06:14:34.166601','2026-07-10 06:18:35.121206','uniform',NULL,NULL,NULL),(8,'test cotton','#87CEEB','cotton',233.00,0,1,'2026-07-10 07:30:22.696722','2026-07-10 08:49:09.775913','uniform',NULL,3,64),(9,'Testtt update','#0F172A','polyester',500.00,1,0,'2026-07-10 08:49:54.236096','2026-07-24 04:32:29.873683','uniform',NULL,3,64),(10,'red','#EF4444','cotton',290.00,0,1,'2026-07-24 04:32:53.856351','2026-07-24 04:33:01.724047','uniform',NULL,62,NULL),(11,'cotton','#FACC15','cotton',250.00,1,0,'2026-07-29 09:19:45.728250','2026-07-29 09:19:45.728318','uniform',NULL,1,5),(12,'cottons fabric','#FACC15','cotton',250.00,1,0,'2026-07-29 11:06:38.105292','2026-08-04 06:47:03.855781','uniform',NULL,1,5),(13,'dsds','#FACC15','cotton',33.00,0,1,'2026-08-05 10:28:46.355568','2026-08-05 10:29:17.578787','uniform',NULL,1,1);
+/*!40000 ALTER TABLE `uniformAdmin_fabric` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_faq`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_faq`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_faq` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_faq`
+--
+
+LOCK TABLES `uniformAdmin_faq` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_faq` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_faq` VALUES (13,'How can I customize the uniform design?',1,0,'2026-07-07 10:51:00.660474','2026-07-07 10:51:00.660506','uniform'),(14,'What fabric materials are available for uniforms?',1,0,'2026-07-07 10:51:00.667016','2026-07-07 10:51:00.667036','uniform'),(15,'What is the standard rental duration for uniforms?',1,0,'2026-07-07 10:51:00.676196','2026-07-07 10:51:00.676215','uniform'),(16,'How are custom uniforms sized?',1,0,'2026-07-07 10:51:00.682278','2026-07-07 10:51:00.682311','uniform'),(17,'Can I rent table linens and accessories?',1,0,'2026-07-07 10:51:00.689724','2026-07-07 10:51:00.689754','table'),(18,'Are there theme options for table settings?',1,0,'2026-07-07 10:51:00.696665','2026-07-07 10:51:00.696691','table'),(19,'What happens if a rented tablecloth is damaged?',1,0,'2026-07-07 10:51:00.701124','2026-07-07 10:51:00.701149','table'),(20,'Do you support B2B bulk orders for events?',1,0,'2026-07-07 10:51:00.707053','2026-07-07 10:51:00.707079','table'),(21,'sdfsd',1,1,'2026-07-13 09:18:46.446279','2026-07-13 09:18:52.059489','uniform'),(22,'test',1,1,'2026-07-13 09:23:41.313741','2026-07-13 09:33:10.493229','uniform'),(23,'new faq important topic',1,1,'2026-07-13 09:43:14.153397','2026-08-05 10:29:57.124989','uniform'),(24,'new 02',1,1,'2026-07-24 05:07:18.338223','2026-07-24 05:10:21.037302','uniform'),(25,'sid test',1,1,'2026-07-29 06:46:34.254542','2026-07-29 06:46:45.098414','uniform'),(26,'new test 2',1,1,'2026-07-29 06:47:17.311977','2026-07-29 06:47:31.843219','uniform'),(27,'jhgf',1,1,'2026-07-29 10:11:13.966718','2026-07-29 10:11:33.104029','uniform');
+/*!40000 ALTER TABLE `uniformAdmin_faq` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_faqdescription`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_faqdescription`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_faqdescription` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `description` longtext NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `faq_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_faqdesc_faq_id_f1132392_fk_uniformAd` (`faq_id`),
+  CONSTRAINT `uniformAdmin_faqdesc_faq_id_f1132392_fk_uniformAd` FOREIGN KEY (`faq_id`) REFERENCES `uniformAdmin_faq` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_faqdescription`
+--
+
+LOCK TABLES `uniformAdmin_faqdescription` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_faqdescription` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_faqdescription` VALUES (25,'You can customize your uniforms by selecting different fabrics, colors, and specific parts like collars, sleeves, pockets, and cuffs using our interactive customization tool.',1,0,'2026-07-07 10:51:00.663175','2026-07-07 10:51:00.663196',13),(26,'Once configured, you can save your custom design as a quotation request or add it directly to your cart.',1,0,'2026-07-07 10:51:00.665075','2026-07-07 10:51:00.665098',13),(27,'We offer premium fabric materials including Cotton, Polyester, Silk, and Linen.',1,0,'2026-07-07 10:51:00.671647','2026-07-07 10:51:00.671674',14),(28,'Each material type is selected for durability, breathability, and professional appearance.',1,0,'2026-07-07 10:51:00.673903','2026-07-07 10:51:00.673934',14),(29,'The standard rental duration depends on your order selection at checkout.',1,0,'2026-07-07 10:51:00.678324','2026-07-07 10:51:00.678345',15),(30,'We also offer a 3-day grace period after the return date before any late fees are applied.',1,0,'2026-07-07 10:51:00.680203','2026-07-07 10:51:00.680227',15),(31,'Custom uniforms are sized based on standard corporate fit charts.',1,0,'2026-07-07 10:51:00.684609','2026-07-07 10:51:00.684638',16),(32,'You can enter specific measurements for each uniform item during the order configuration.',1,0,'2026-07-07 10:51:00.687220','2026-07-07 10:51:00.687258',16),(33,'Yes, we provide table linens, runner cloths, and thematic settings under our Table coordination section.',1,0,'2026-07-07 10:51:00.692031','2026-07-07 10:51:00.692059',17),(34,'These items can be selected to match your specific event requirements.',1,0,'2026-07-07 10:51:00.694250','2026-07-07 10:51:00.694284',17),(35,'Yes, we offer multiple design themes. You can filter and select fabrics, colors, and patterns matching specific Table Themes in the coordination panel.',1,0,'2026-07-07 10:51:00.699263','2026-07-07 10:51:00.699295',18),(36,'A damage fee will be assessed depending on the type and extent of damage (e.g. stains, tears).',1,0,'2026-07-07 10:51:00.703094','2026-07-07 10:51:00.703123',19),(37,'Details regarding damage fee rates are outlined in our rental terms and conditions.',1,0,'2026-07-07 10:51:00.705089','2026-07-07 10:51:00.705118',19),(38,'Absolutely. Event coordinators can submit bulk quotation requests for custom table setups.',1,0,'2026-07-07 10:51:00.709225','2026-07-07 10:51:00.709247',20),(39,'Once approved, you will receive a digital contract which can be signed online.',1,0,'2026-07-07 10:51:00.711090','2026-07-07 10:51:00.711113',20),(40,'fcsdfsdzs',1,1,'2026-07-13 09:18:46.460870','2026-07-13 09:18:46.460969',21),(42,'fsvdfxfvdfx',1,1,'2026-07-13 09:25:00.637456','2026-07-13 09:25:00.637637',22),(46,'cjndjcn',1,1,'2026-07-24 05:10:16.305095','2026-07-24 05:10:16.305131',24),(47,'djcjd',1,1,'2026-07-24 05:10:16.307842','2026-07-24 05:10:16.307887',24),(48,'test',1,1,'2026-07-29 06:46:34.258720','2026-07-29 06:46:34.258782',25),(51,'ndksnkacd k',1,1,'2026-07-29 06:47:27.305535','2026-07-29 06:47:27.305565',26),(52,'nvnvnv',1,1,'2026-07-29 06:47:27.307794','2026-07-29 06:47:27.307816',26),(53,'iouytdyfugi',1,1,'2026-07-29 10:11:13.977177','2026-07-29 10:11:13.977296',27),(54,';ioguy',1,1,'2026-07-29 10:11:13.983164','2026-07-29 10:11:13.983263',27),(56,'fhghghghghg',1,1,'2026-08-05 10:29:54.356678','2026-08-05 10:29:54.356703',23);
+/*!40000 ALTER TABLE `uniformAdmin_faqdescription` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_inspectionitem`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_inspectionitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_inspectionitem` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `returned_qty` int unsigned NOT NULL,
+  `good_qty` int unsigned NOT NULL,
+  `damaged_qty` int unsigned NOT NULL,
+  `notes` longtext,
+  `result` varchar(20) NOT NULL,
+  `inspected_at` datetime(6) NOT NULL,
+  `inspected_by_id` bigint DEFAULT NULL,
+  `order_id` bigint DEFAULT NULL,
+  `rental_item_id` bigint DEFAULT NULL,
+  `missing_qty` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_inspect_inspected_by_id_aed36afd_fk_uniformAd` (`inspected_by_id`),
+  KEY `uniformAdmin_inspect_order_id_c2d9b048_fk_userhub_o` (`order_id`),
+  KEY `uniformAdmin_inspect_rental_item_id_a9f22055_fk_userhub_r` (`rental_item_id`),
+  CONSTRAINT `uniformAdmin_inspect_inspected_by_id_aed36afd_fk_uniformAd` FOREIGN KEY (`inspected_by_id`) REFERENCES `uniformAdmin_adminuser` (`id`),
+  CONSTRAINT `uniformAdmin_inspect_order_id_c2d9b048_fk_userhub_o` FOREIGN KEY (`order_id`) REFERENCES `userhub_order` (`id`),
+  CONSTRAINT `uniformAdmin_inspect_rental_item_id_a9f22055_fk_userhub_r` FOREIGN KEY (`rental_item_id`) REFERENCES `userhub_rentalitem` (`id`),
+  CONSTRAINT `uniformAdmin_inspectionitem_chk_1` CHECK ((`returned_qty` >= 0)),
+  CONSTRAINT `uniformAdmin_inspectionitem_chk_2` CHECK ((`good_qty` >= 0)),
+  CONSTRAINT `uniformAdmin_inspectionitem_chk_3` CHECK ((`damaged_qty` >= 0)),
+  CONSTRAINT `uniformAdmin_inspectionitem_chk_4` CHECK ((`missing_qty` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_inspectionitem`
+--
+
+LOCK TABLES `uniformAdmin_inspectionitem` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_inspectionitem` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_inspectionitem` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_menu`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_menu`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_menu` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `slug` varchar(150) DEFAULT NULL,
+  `icon` varchar(100) DEFAULT NULL,
+  `route` varchar(255) DEFAULT NULL,
+  `order` int unsigned NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `slug` (`slug`),
+  CONSTRAINT `uniformAdmin_menu_chk_1` CHECK ((`order` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_menu`
+--
+
+LOCK TABLES `uniformAdmin_menu` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_menu` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_menu` VALUES (1,'Dashboard','dashboard','Dashboard','/admin-form',1,1,0,'2026-07-10 09:45:00.405566','2026-07-10 11:04:09.680292'),(2,'Product & Specification','product_specification','Product & Specifications','/products',2,1,0,'2026-07-10 09:45:54.000789','2026-07-10 11:03:02.884217'),(3,'Pricing & Quotation','order_manage','Pricing & Quotation','/pricing',4,1,0,'2026-07-10 09:46:15.010226','2026-07-10 11:04:50.449151'),(4,'Content & Media','content_media',NULL,'/contents',3,1,0,'2026-07-10 11:13:08.674176','2026-07-10 11:13:08.674278'),(5,'Customer & Sales Representative','customer_sales_representative',NULL,'/customer',5,1,0,'2026-07-10 11:13:26.539056','2026-07-10 11:13:26.539092'),(6,'PDF & Simulation Configuration','pdf_simulation_configuration',NULL,'/simulation-configuration',6,1,0,'2026-07-10 11:13:34.078094','2026-07-10 11:13:34.078134'),(7,'Reports & Analytics','reports_analytics',NULL,'/reports-analytics',7,1,0,'2026-08-05 11:33:37.935379','2026-08-05 11:33:37.935412'),(8,'System Settings','system_settings',NULL,'/system-settings',8,1,0,'2026-08-05 11:33:37.951272','2026-08-05 11:33:37.951321'),(9,'Quotation Requests','quotation_requests',NULL,'/quotation-requests',9,1,0,'2026-08-05 11:33:37.968285','2026-08-05 11:33:37.968341');
+/*!40000 ALTER TABLE `uniformAdmin_menu` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_parts`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_parts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_parts` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `partName` varchar(150) NOT NULL,
+  `partImage` varchar(100) DEFAULT NULL,
+  `usageTemmpCount` int NOT NULL,
+  `zIndex` int NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `fabric_id` bigint NOT NULL,
+  `partType` varchar(20) NOT NULL,
+  `theme_id` bigint DEFAULT NULL,
+  `category_id` bigint DEFAULT NULL,
+  `subcategory_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_parts_fabric_id_9137442d_fk_uniformAdmin_fabric_id` (`fabric_id`),
+  KEY `uniformAdmin_parts_theme_id_433e1229_fk_uniformAd` (`theme_id`),
+  KEY `uniformAdmin_parts_category_id_8da3eb7d_fk_uniformAd` (`category_id`),
+  KEY `uniformAdmin_parts_subcategory_id_8f2362cb_fk_uniformAd` (`subcategory_id`),
+  CONSTRAINT `uniformAdmin_parts_category_id_8da3eb7d_fk_uniformAd` FOREIGN KEY (`category_id`) REFERENCES `uniformAdmin_category` (`id`),
+  CONSTRAINT `uniformAdmin_parts_fabric_id_9137442d_fk_uniformAdmin_fabric_id` FOREIGN KEY (`fabric_id`) REFERENCES `uniformAdmin_fabric` (`id`),
+  CONSTRAINT `uniformAdmin_parts_subcategory_id_8f2362cb_fk_uniformAd` FOREIGN KEY (`subcategory_id`) REFERENCES `uniformAdmin_subcategory` (`id`),
+  CONSTRAINT `uniformAdmin_parts_theme_id_433e1229_fk_uniformAd` FOREIGN KEY (`theme_id`) REFERENCES `uniformAdmin_tabletheme` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_parts`
+--
+
+LOCK TABLES `uniformAdmin_parts` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_parts` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_parts` VALUES (1,'Left Sleeve','',0,1,1,1,'2025-12-23 10:45:16.799992','2026-07-24 04:34:14.541873',1,'uniform',NULL,61,NULL),(2,'Right Sleeve','',0,2,1,0,'2025-12-23 10:47:20.196613','2026-07-13 05:23:49.925123',2,'uniform',NULL,61,NULL),(3,'Front Pocket','',0,3,1,0,'2025-12-23 10:47:50.823979','2026-07-13 05:23:49.927599',3,'uniform',NULL,62,NULL),(4,'Back Pocket','part_images/thumb-9.jpg',0,3,1,0,'2026-01-03 07:46:41.330183','2026-07-13 05:23:49.929922',3,'uniform',NULL,62,NULL),(5,'Mini Pocket','part_images/most-popular-sport-illustration-free-vector_zV5Isgi.jpg',0,3,1,0,'2026-01-03 07:48:15.806719','2026-07-24 04:34:04.061121',3,'uniform',NULL,62,NULL),(6,'Max Pocket','',0,3,1,0,'2026-01-03 07:48:38.106827','2026-07-13 05:23:49.935191',3,'table',1,62,NULL),(7,'Front','part_images/Screenshot_from_2026-07-10_14-25-43.png',0,22,1,0,'2026-07-10 09:00:02.737115','2026-07-13 05:23:49.939088',9,'uniform',NULL,63,NULL),(8,'Collar front','part_images/Screenshot_from_2026-07-13_11-28-15.png',0,2,1,1,'2026-07-13 06:05:35.689164','2026-07-14 04:59:55.097265',6,'uniform',NULL,NULL,NULL),(9,'Test 1','part_images/Screenshot_from_2026-07-10_11-51-18.png',0,3,1,0,'2026-07-14 04:59:45.724623','2026-07-23 10:54:31.497096',9,'uniform',NULL,NULL,NULL),(10,'rere','part_images/Screenshot_from_2026-07-16_17-46-02.png',0,33,1,1,'2026-07-17 04:38:58.853613','2026-07-20 04:07:08.567141',6,'uniform',NULL,NULL,NULL),(11,'Test 6','part_images/most-popular-sport-illustration-free-vector.jpg',0,3,1,0,'2026-07-23 10:54:54.358193','2026-07-23 10:54:54.358302',6,'uniform',NULL,NULL,NULL),(12,'test farbci modal','part_images/Bottom-1.png',0,1,1,1,'2026-07-29 11:13:53.877185','2026-08-04 06:56:33.151853',11,'uniform',NULL,NULL,NULL),(13,'Right Sleeve Copy','',0,2,1,1,'2026-07-29 11:19:41.093781','2026-07-29 11:20:54.567963',2,'uniform',NULL,NULL,NULL),(14,'parts new test','part_images/admin-signin.png',0,22,1,1,'2026-08-04 06:51:22.982295','2026-08-04 06:56:25.128679',11,'uniform',NULL,NULL,NULL),(15,'premium part','part_images/admin-signin_s6vSHRE.png',0,33,1,1,'2026-08-04 06:56:55.117947','2026-08-04 06:57:50.005481',11,'uniform',NULL,NULL,NULL),(17,'premium part','part_images/admin-signin_d5Q5Spx.png',0,22,1,1,'2026-08-04 07:09:10.900695','2026-08-04 07:15:19.545227',11,'uniform',NULL,3,65),(18,'premium part','part_images/admin-signin_BB1ZGyv.png',0,2,1,1,'2026-08-04 07:09:30.923881','2026-08-04 07:15:16.990110',11,'uniform',NULL,3,64),(19,'Front','part_images/USAflag.jpeg',0,2,1,0,'2026-08-04 07:15:35.001402','2026-08-04 07:15:35.001504',11,'uniform',NULL,59,NULL),(20,'Front (Copy)','part_images/USAflag_9VASzae.jpeg',0,2,1,1,'2026-08-04 09:35:52.515321','2026-08-04 09:36:35.866863',11,'uniform',NULL,59,NULL),(21,'Front (Copy)','part_images/USAflag_qXXCgDE.jpeg',0,2,1,0,'2026-08-04 09:36:42.003301','2026-08-04 09:36:42.003402',11,'uniform',NULL,59,NULL);
+/*!40000 ALTER TABLE `uniformAdmin_parts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_pdfpagetemplate`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_pdfpagetemplate`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_pdfpagetemplate` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `width` decimal(10,2) NOT NULL,
+  `height` decimal(10,2) NOT NULL,
+  `unit` varchar(5) NOT NULL,
+  `tag` varchar(30) NOT NULL,
+  `sort_order` int unsigned NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `uniformAdmin_pdfpagetemplate_chk_1` CHECK ((`sort_order` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_pdfpagetemplate`
+--
+
+LOCK TABLES `uniformAdmin_pdfpagetemplate` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_pdfpagetemplate` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_pdfpagetemplate` VALUES (1,'Standard Report A4',210.00,297.00,'mm','A4',0,1,'2026-08-05 10:06:18.282765','2026-08-05 10:06:18.282821'),(2,'US Letter Brief',8.50,11.00,'in','Letter',1,1,'2026-08-05 10:06:18.282861','2026-08-05 10:06:18.282876'),(3,'Technical Schematic',420.00,297.00,'mm','A4',2,1,'2026-08-05 10:06:18.282902','2026-08-05 10:06:18.282921'),(4,'Custom Canvas',1920.00,1080.00,'px','Custom',3,1,'2026-08-05 10:06:18.282945','2026-08-05 10:06:18.282957');
+/*!40000 ALTER TABLE `uniformAdmin_pdfpagetemplate` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_pricingpackage`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_pricingpackage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_pricingpackage` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `package_name` varchar(150) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `included_services` longtext,
+  `setup_included` tinyint(1) NOT NULL,
+  `max_people` int unsigned NOT NULL,
+  `description` longtext,
+  `is_active` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `uniformAdmin_pricingpackage_chk_1` CHECK ((`max_people` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_pricingpackage`
+--
+
+LOCK TABLES `uniformAdmin_pricingpackage` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_pricingpackage` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_pricingpackage` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_pricingrule`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_pricingrule`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_pricingrule` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `base_price` decimal(10,2) NOT NULL,
+  `rush_order_multiplier` decimal(5,2) NOT NULL,
+  `tiered_pricing_enabled` tinyint(1) NOT NULL,
+  `tax_type` varchar(20) NOT NULL,
+  `tax_rate` decimal(5,2) NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `category_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_pricing_category_id_f95c7f4e_fk_uniformAd` (`category_id`),
+  CONSTRAINT `uniformAdmin_pricing_category_id_f95c7f4e_fk_uniformAd` FOREIGN KEY (`category_id`) REFERENCES `uniformAdmin_category` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_pricingrule`
+--
+
+LOCK TABLES `uniformAdmin_pricingrule` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_pricingrule` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_pricingrule` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_privacypolicy`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_privacypolicy`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_privacypolicy` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `privacyPolicyType` varchar(50) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `slug` varchar(220) NOT NULL,
+  `content` longtext NOT NULL,
+  `language` varchar(10) NOT NULL,
+  `version` varchar(20) NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `title` (`title`),
+  UNIQUE KEY `slug` (`slug`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_privacypolicy`
+--
+
+LOCK TABLES `uniformAdmin_privacypolicy` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_privacypolicy` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_privacypolicy` VALUES (1,'privacy_and_policy','uniform','Privacypolicy','privacypolicy','<p>\r\nAt our company, we are committed to protecting your privacy and ensuring that your\r\npersonal information is handled in a secure and responsible manner. This Privacy\r\nPolicy explains how we collect, use, store, and protect the information you provide\r\nwhile using our website, mobile application, or related services.\r\n</p>\r\n\r\n<h3>5.1 Information We Collect</h3>\r\n\r\n<p>\r\nWe may collect personal information such as your name, email address, phone number,\r\nshipping address, billing address, payment details, and account credentials when you\r\nregister, place an order, or contact our support team. We may also collect technical\r\ninformation including your IP address, browser type, operating system, device\r\ninformation, and website usage statistics.\r\n</p>\r\n\r\n<h3>5.2 How We Use Your Information</h3>\r\n\r\n<p>\r\nYour information is used to provide and improve our services, process transactions,\r\nmanage your account, deliver products, respond to customer inquiries, personalize\r\nyour experience, send important notifications, and comply with applicable legal\r\nrequirements.\r\n</p>\r\n\r\n<h3>5.3 Cookies and Tracking Technologies</h3>\r\n\r\n<p>\r\nWe use cookies and similar technologies to remember your preferences, improve website\r\nperformance, analyze visitor behavior, and provide a better browsing experience.\r\nYou may disable cookies through your browser settings, although some features of the\r\nwebsite may become unavailable.\r\n</p>\r\n\r\n<h3>5.4 Sharing of Information</h3>\r\n\r\n<p>\r\nWe do not sell or rent your personal information. We may share your information with\r\ntrusted third-party service providers such as payment processors, shipping partners,\r\ncloud hosting providers, and analytics services only when necessary to operate our\r\nbusiness or comply with legal obligations.\r\n</p>\r\n\r\n<h3>5.5 Data Security</h3>\r\n\r\n<p>\r\nWe implement industry-standard technical, administrative, and physical safeguards to\r\nprotect your personal information against unauthorized access, disclosure, alteration,\r\nor destruction. While we strive to protect your data, no electronic transmission or\r\nstorage system can be guaranteed to be 100% secure.\r\n</p>\r\n\r\n<h3>5.6 Data Retention</h3>\r\n\r\n<p>\r\nWe retain your personal information only for as long as necessary to fulfill the\r\npurposes outlined in this Privacy Policy, resolve disputes, comply with legal\r\nrequirements, and enforce our agreements.\r\n</p>\r\n\r\n<h3>5.7 Your Rights</h3>\r\n\r\n<p>\r\nDepending on your jurisdiction, you may have the right to access, update, correct,\r\nor delete your personal information, object to certain processing activities,\r\nwithdraw consent where applicable, or request a copy of your personal data by\r\ncontacting our support team.\r\n</p>\r\n\r\n<h3>5.8 Changes to This Privacy Policy</h3>\r\n\r\n<p>\r\nWe reserve the right to update or modify this Privacy Policy at any time to reflect\r\nchanges in our services, legal obligations, or business practices. Any updates will\r\nbe posted on this page along with the revised effective date. Your continued use of\r\nour services after such changes constitutes your acceptance of the updated Privacy\r\nPolicy.\r\n</p>\r\n\r\n<h3>5.9 Contact Us</h3>\r\n\r\n<p>\r\nIf you have any questions, concerns, or requests regarding this Privacy Policy or\r\nour data handling practices, please contact our customer support team through the\r\ncontact information provided on our website. We will make reasonable efforts to\r\nrespond to your inquiry as soon as possible.\r\n</p>','en','1.0',1,0,'2025-12-22 13:15:01.599271','2026-07-13 09:25:25.775201'),(2,'privacy_and_policy','table','Updated Privacy Policy','updated_privacy_policy','<h2>5. Privacy Policy</h2>\r\n\r\n<p>\r\nAt our company, we are committed to protecting your privacy and ensuring that your\r\npersonal information is handled in a secure and responsible manner. This Privacy\r\nPolicy explains how we collect, use, store, and protect the information you provide\r\nwhile using our website, mobile application, or related services.\r\n</p>\r\n\r\n<h3>5.1 Information We Collect</h3>\r\n\r\n<p>\r\nWe may collect personal information such as your name, email address, phone number,\r\nshipping address, billing address, payment details, and account credentials when you\r\nregister, place an order, or contact our support team. We may also collect technical\r\ninformation including your IP address, browser type, operating system, device\r\ninformation, and website usage statistics.\r\n</p>\r\n\r\n<h3>5.2 How We Use Your Information</h3>\r\n\r\n<p>\r\nYour information is used to provide and improve our services, process transactions,\r\nmanage your account, deliver products, respond to customer inquiries, personalize\r\nyour experience, send important notifications, and comply with applicable legal\r\nrequirements.\r\n</p>\r\n\r\n<h3>5.3 Cookies and Tracking Technologies</h3>\r\n\r\n<p>\r\nWe use cookies and similar technologies to remember your preferences, improve website\r\nperformance, analyze visitor behavior, and provide a better browsing experience.\r\nYou may disable cookies through your browser settings, although some features of the\r\nwebsite may become unavailable.\r\n</p>\r\n\r\n<h3>5.4 Sharing of Information</h3>\r\n\r\n<p>\r\nWe do not sell or rent your personal information. We may share your information with\r\ntrusted third-party service providers such as payment processors, shipping partners,\r\ncloud hosting providers, and analytics services only when necessary to operate our\r\nbusiness or comply with legal obligations.\r\n</p>\r\n\r\n<h3>5.5 Data Security</h3>\r\n\r\n<p>\r\nWe implement industry-standard technical, administrative, and physical safeguards to\r\nprotect your personal information against unauthorized access, disclosure, alteration,\r\nor destruction. While we strive to protect your data, no electronic transmission or\r\nstorage system can be guaranteed to be 100% secure.\r\n</p>\r\n\r\n<h3>5.6 Data Retention</h3>\r\n\r\n<p>\r\nWe retain your personal information only for as long as necessary to fulfill the\r\npurposes outlined in this Privacy Policy, resolve disputes, comply with legal\r\nrequirements, and enforce our agreements.\r\n</p>\r\n\r\n<h3>5.7 Your Rights</h3>\r\n\r\n<p>\r\nDepending on your jurisdiction, you may have the right to access, update, correct,\r\nor delete your personal information, object to certain processing activities,\r\nwithdraw consent where applicable, or request a copy of your personal data by\r\ncontacting our support team.\r\n</p>\r\n\r\n<h3>5.8 Changes to This Privacy Policy</h3>\r\n\r\n<p>\r\nWe reserve the right to update or modify this Privacy Policy at any time to reflect\r\nchanges in our services, legal obligations, or business practices. Any updates will\r\nbe posted on this page along with the revised effective date. Your continued use of\r\nour services after such changes constitutes your acceptance of the updated Privacy\r\nPolicy.\r\n</p>\r\n\r\n<h3>5.9 Contact Us</h3>\r\n\r\n<p>\r\nIf you have any questions, concerns, or requests regarding this Privacy Policy or\r\nour data handling practices, please contact our customer support team through the\r\ncontact information provided on our website. We will make reasonable efforts to\r\nrespond to your inquiry as soon as possible.\r\n</p>','en','1.1',1,0,'2025-12-22 13:40:06.919093','2026-07-13 09:17:57.527087'),(4,'terms_and_conditions','uniform','Huge Laws','huge_laws','<p>\r\nWelcome to our website and services. By accessing, browsing, or using our platform,\r\nyou agree to comply with and be bound by these Terms and Conditions. If you do not\r\nagree with any part of these terms, you should discontinue using our services\r\nimmediately.\r\n</p>\r\n\r\n<h3>1. Acceptance of Terms</h3>\r\n\r\n<p>\r\nBy creating an account, placing an order, or using any part of our services, you\r\nconfirm that you have read, understood, and accepted these Terms and Conditions.\r\nThese terms apply to all users, visitors, customers, and others who access or use\r\nour platform.\r\n</p>\r\n\r\n<h3>2. User Responsibilities</h3>\r\n\r\n<p>\r\nYou agree to provide accurate, current, and complete information during registration\r\nand to keep your account information updated. You are responsible for maintaining\r\nthe confidentiality of your account credentials and for all activities that occur\r\nunder your account.\r\n</p>\r\n\r\n<h3>3. Orders and Payments</h3>\r\n\r\n<p>\r\nAll orders are subject to acceptance and availability. We reserve the right to\r\ncancel or refuse any order at our sole discretion. Prices, product availability,\r\nand promotions may change without prior notice. Payments must be completed using\r\nour approved payment methods before an order is processed.\r\n</p>\r\n\r\n<h3>4. Intellectual Property</h3>\r\n\r\n<p>\r\nAll content available on this platform, including text, images, logos, graphics,\r\nsoftware, and trademarks, is the property of the company or its licensors and is\r\nprotected by applicable intellectual property laws. Unauthorized copying,\r\ndistribution, or reproduction is strictly prohibited.\r\n</p>\r\n\r\n<h3>5. Prohibited Activities</h3>\r\n\r\n<p>\r\nUsers must not misuse the platform by attempting unauthorized access, transmitting\r\nmalicious software, violating applicable laws, interfering with website operations,\r\nor engaging in fraudulent or harmful activities. Any such actions may result in the\r\ntermination of your account and legal action where applicable.\r\n</p>\r\n\r\n<h3>6. Limitation of Liability</h3>\r\n\r\n<p>\r\nTo the maximum extent permitted by law, we shall not be liable for any indirect,\r\nincidental, special, consequential, or punitive damages arising from your use of\r\nour services, including loss of data, profits, or business opportunities.\r\n</p>\r\n\r\n<h3>7. Privacy</h3>\r\n\r\n<p>\r\nYour use of our services is also governed by our Privacy Policy, which explains how\r\nwe collect, use, store, and protect your personal information. By using our\r\nservices, you consent to the practices described in our Privacy Policy.\r\n</p>\r\n\r\n<h3>8. Changes to Terms</h3>\r\n\r\n<p>\r\nWe reserve the right to modify or update these Terms and Conditions at any time.\r\nAny changes will become effective immediately upon publication on this page.\r\nContinued use of the platform after such changes constitutes your acceptance of the\r\nupdated Terms and Conditions.\r\n</p>\r\n\r\n<h3>9. Governing Law</h3>\r\n\r\n<p>\r\nThese Terms and Conditions shall be governed by and interpreted in accordance with\r\nthe laws of the applicable jurisdiction. Any disputes arising from the use of our\r\nservices shall be subject to the exclusive jurisdiction of the competent courts.\r\n</p>\r\n\r\n<h3>10. Contact Information</h3>\r\n\r\n<p>\r\nIf you have any questions regarding these Terms and Conditions, please contact our\r\ncustomer support team using the contact details provided on our website. We will\r\nmake reasonable efforts to respond to your inquiries promptly.\r\n</p>','en','1.0',1,0,'2026-01-16 12:37:59.048879','2026-07-13 09:25:48.693886'),(5,'agreement','uniform','Honest and Strict Laws','honest_and_strict_laws','<p>\r\nThis Agreement governs your access to and use of our website, mobile application,\r\nproducts, and related services. By creating an account, accessing our platform,\r\nor using any of our services, you acknowledge that you have read, understood,\r\nand agreed to be bound by the terms set forth in this Agreement.\r\n</p>\r\n\r\n<h3>1. Acceptance of Agreement</h3>\r\n\r\n<p>\r\nBy using our services, you agree to comply with this Agreement and all applicable\r\nlaws and regulations. If you do not agree with any provision of this Agreement,\r\nyou must immediately discontinue the use of our platform and services.\r\n</p>\r\n\r\n<h3>2. User Obligations</h3>\r\n\r\n<p>\r\nYou agree to provide accurate, complete, and up-to-date information when creating\r\nan account or using our services. You are solely responsible for maintaining the\r\nconfidentiality of your login credentials and for all activities performed through\r\nyour account.\r\n</p>\r\n\r\n<h3>3. Services</h3>\r\n\r\n<p>\r\nWe strive to provide reliable and uninterrupted services; however, we do not\r\nguarantee that the platform will always be available or free from errors. We\r\nreserve the right to modify, suspend, or discontinue any feature or service at\r\nour sole discretion without prior notice.\r\n</p>\r\n\r\n<h3>4. Payments and Fees</h3>\r\n\r\n<p>\r\nWhere applicable, users agree to pay all applicable fees, taxes, and charges\r\nassociated with the products or services purchased through our platform. Failure\r\nto make timely payments may result in suspension or termination of services.\r\n</p>\r\n\r\n<h3>5. Intellectual Property</h3>\r\n\r\n<p>\r\nAll content, software, logos, trademarks, graphics, and other materials available\r\non the platform are the exclusive property of the company or its licensors. You\r\nmay not copy, modify, distribute, or reproduce any content without prior written\r\npermission.\r\n</p>\r\n\r\n<h3>6. Confidentiality</h3>\r\n\r\n<p>\r\nBoth parties agree to maintain the confidentiality of any proprietary or sensitive\r\ninformation shared during the use of the services. Such information shall not be\r\ndisclosed to third parties except where required by law or with prior written\r\nconsent.\r\n</p>\r\n\r\n<h3>7. Limitation of Liability</h3>\r\n\r\n<p>\r\nTo the fullest extent permitted by law, the company shall not be liable for any\r\nindirect, incidental, consequential, or special damages arising from the use or\r\ninability to use the platform, including but not limited to loss of profits,\r\nbusiness interruption, or data loss.\r\n</p>\r\n\r\n<h3>8. Termination</h3>\r\n\r\n<p>\r\nWe reserve the right to suspend or terminate your account and access to our\r\nservices at any time if you violate this Agreement, engage in fraudulent activity,\r\nor misuse the platform. Upon termination, your right to use the services will\r\nimmediately cease.\r\n</p>\r\n\r\n<h3>9. Amendments</h3>\r\n\r\n<p>\r\nWe may revise or update this Agreement from time to time. Any modifications will\r\nbe effective upon posting on our website. Your continued use of the services after\r\nsuch changes constitutes your acceptance of the revised Agreement.\r\n</p>\r\n\r\n<h3>10. Governing Law</h3>\r\n\r\n<p>\r\nThis Agreement shall be governed by and interpreted in accordance with the\r\napplicable laws of the jurisdiction in which the company operates. Any disputes\r\narising under this Agreement shall be resolved exclusively in the competent courts\r\nof that jurisdiction.\r\n</p>\r\n\r\n<h3>11. Contact Information</h3>\r\n\r\n<p>\r\nIf you have any questions regarding this Agreement, please contact our customer\r\nsupport team using the contact information provided on our website. We will make\r\nreasonable efforts to respond to your inquiries in a timely manner.\r\n</p>','en','1.0',1,0,'2026-01-16 12:43:43.983672','2026-07-13 09:26:07.758161');
+/*!40000 ALTER TABLE `uniformAdmin_privacypolicy` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_product`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_product`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_product` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `productName` varchar(255) NOT NULL,
+  `slug` varchar(255) DEFAULT NULL,
+  `description` longtext,
+  `productType` varchar(20) DEFAULT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `total_quantity` int unsigned NOT NULL,
+  `available_quantity` int unsigned NOT NULL,
+  `ProductImage` varchar(100) DEFAULT NULL,
+  `discount` int unsigned DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isPopular` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `category_id` bigint DEFAULT NULL,
+  `subcategory_id` bigint DEFAULT NULL,
+  `theme_id` bigint DEFAULT NULL,
+  `type` varchar(30) NOT NULL,
+  `rental_price_per_day` decimal(10,2) NOT NULL,
+  `security_deposit` decimal(10,2) NOT NULL,
+  `color_id` bigint DEFAULT NULL,
+  `fabric_id` bigint DEFAULT NULL,
+  `rfid_tracking_enabled` tinyint(1) NOT NULL,
+  `size` varchar(100) DEFAULT NULL,
+  `style` varchar(50) DEFAULT NULL,
+  `table_shape` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_product_category_id_16f5e06b_fk_uniformAd` (`category_id`),
+  KEY `uniformAdmin_product_subcategory_id_4868f98d_fk_uniformAd` (`subcategory_id`),
+  KEY `uniformAdmin_product_theme_id_9aca1311_fk_uniformAd` (`theme_id`),
+  KEY `uniformAdmin_product_color_id_37046d4a_fk_uniformAdmin_colors_id` (`color_id`),
+  KEY `uniformAdmin_product_fabric_id_4b014faf_fk_uniformAd` (`fabric_id`),
+  CONSTRAINT `uniformAdmin_product_category_id_16f5e06b_fk_uniformAd` FOREIGN KEY (`category_id`) REFERENCES `uniformAdmin_category` (`id`),
+  CONSTRAINT `uniformAdmin_product_color_id_37046d4a_fk_uniformAdmin_colors_id` FOREIGN KEY (`color_id`) REFERENCES `uniformAdmin_colors` (`id`),
+  CONSTRAINT `uniformAdmin_product_fabric_id_4b014faf_fk_uniformAd` FOREIGN KEY (`fabric_id`) REFERENCES `uniformAdmin_fabric` (`id`),
+  CONSTRAINT `uniformAdmin_product_subcategory_id_4868f98d_fk_uniformAd` FOREIGN KEY (`subcategory_id`) REFERENCES `uniformAdmin_subcategory` (`id`),
+  CONSTRAINT `uniformAdmin_product_theme_id_9aca1311_fk_uniformAd` FOREIGN KEY (`theme_id`) REFERENCES `uniformAdmin_tabletheme` (`id`),
+  CONSTRAINT `uniformAdmin_product_chk_1` CHECK ((`total_quantity` >= 0)),
+  CONSTRAINT `uniformAdmin_product_chk_2` CHECK ((`available_quantity` >= 0)),
+  CONSTRAINT `uniformAdmin_product_chk_3` CHECK ((`discount` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_product`
+--
+
+LOCK TABLES `uniformAdmin_product` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_product` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_product` VALUES (1,'Women\'s Classic V-Neck Scrub Top','womens_classic_v_neck_scrub_top','A lightweight and breathable V-neck scrub top designed for healthcare professionals. Features a modern fit with durable, wrinkle-resistant fabric that provides all-day comfort and freedom of movement.','uniform',1499.00,100,100,'product_images/top1.png',10,1,1,0,'2025-12-20 13:06:04.041435','2026-07-08 08:31:22.297866',1,5,NULL,'top',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(2,'Stretch  Scrub','stretch_scrub','Designed with four-way stretch fabric for maximum flexibility and comfort. Perfect for busy healthcare environments where mobility and durability are essential.','uniform',1499.00,100,100,'product_images/top_Tshirt-2.png',10,1,1,0,'2026-01-02 12:59:50.376995','2026-07-08 08:31:32.680649',1,5,NULL,'top',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(3,'Hostel table Cloth','hostel-table-cloth','Complete school uniform set for boys','table',1499.00,100,100,'',10,1,1,0,'2026-01-03 05:28:20.152148','2026-01-03 05:28:20.152178',1,NULL,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(4,'Men\'s Classic V-Neck Scrub','mens_classic_v_neck_scrub','A professional V-neck scrub top designed for doctors, nurses, and healthcare staff. Made from breathable, wrinkle-resistant fabric for maximum comfort throughout long shifts.','uniform',1499.00,100,100,'product_images/top3.jpeg',10,1,1,0,'2026-01-03 05:52:00.539588','2026-07-08 08:31:43.903816',1,5,NULL,'top',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(5,'Classic Straight-Leg Scrub','classic_straight_leg_scrub','Comfortable straight-leg scrub pants featuring an adjustable drawstring waistband, deep side pockets, and breathable fabric for everyday clinical wear','uniform',500.00,100,100,'product_images/Bottom-1.png',10,1,1,0,'2026-01-03 05:58:41.599892','2026-07-24 04:50:17.995095',1,5,NULL,'bottom',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(6,'Hostel table Cloth','hostel-table-cloth','Complete school uniform set for boys','table',1499.00,100,100,'',10,1,1,0,'2026-01-03 06:00:45.325912','2026-01-03 06:00:45.325940',1,NULL,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(7,'Hostel table Cloth','hostel-table-cloth','Complete school uniform set for boys','table',1499.00,100,100,'',10,1,1,0,'2026-01-13 05:03:35.945857','2026-01-13 05:03:35.945895',1,NULL,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(8,'Martiage Clothers','martiage-clothers','Complete school uniform set for boys','table',1499.00,100,100,'',10,1,1,0,'2026-01-13 05:03:54.864679','2026-01-13 05:03:54.864703',1,NULL,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(9,'Vacation Clothes','vacation-clothes','Complete school uniform set for boys','table',1499.00,100,100,'',10,1,1,0,'2026-01-13 05:04:09.891581','2026-01-13 05:04:09.891612',1,NULL,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(10,'Vacation Clothes','vacation-clothes','Complete school uniform set for boys','table',1499.00,100,100,'',10,1,1,0,'2026-01-13 05:04:32.637631','2026-01-13 05:04:32.637659',1,2,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(11,'Billion Clothes','billion-clothes','Complete school uniform set for boys','table',1499.00,100,100,'',10,1,1,0,'2026-01-13 05:04:57.965234','2026-01-13 05:04:57.965257',1,1,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(12,'Harmony Clothes','harmony-clothes','Complete school uniform set for boys','table',1499.00,100,100,'',10,1,1,0,'2026-01-13 05:05:13.762471','2026-01-13 05:05:13.762497',1,1,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(13,'Armeneium Villa','armeneium_villa','Complete school uniform set for boys','table',1499.00,100,100,'',10,1,1,0,'2026-01-19 07:30:51.390983','2026-01-19 07:30:51.391028',1,1,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(14,'Stipulated Time','stipulated_time','\"Complete school uniform set for boys\"','table',1499.00,100,100,'product_images/Lion.jpg',10,1,1,0,'2026-01-19 09:13:24.368158','2026-01-19 09:13:24.368197',1,1,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(15,'update 1','update_1','\"Complete school uniform set for boys\"','uniform',348.00,100,76,'product_images/top_Tshirt-2_Syl3jZ5.png',10,1,1,1,'2026-01-23 10:24:28.391818','2026-07-29 06:23:00.963919',1,2,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(16,'Air conditioner','air_conditioner','\"Complete school uniform set for boys\"','table',1499.00,100,0,'',10,1,1,0,'2026-01-23 10:52:11.177062','2026-02-03 10:33:00.880647',NULL,NULL,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(17,'Gold Accent Wedding Table','gold_accent_wedding_table','Elegant banquet table paired with gold accents, ideal for glamorous wedding receptions and luxury ballroom events','table',1499.00,100,86,'product_images/table_prod_2.png',10,1,1,0,'2026-01-28 13:27:16.125275','2026-07-08 04:31:23.818372',32,31,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(18,'Telivision','telivision','\"Complete school uniform set for boys\"','table',1499.00,100,100,'product_images/TableCloth.jpg',10,1,1,0,'2026-01-29 09:15:56.745625','2026-02-02 10:25:51.343555',NULL,NULL,1,'set',1.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(19,'TableCloth','tablecloth','Table Clothe For Party Event','table',1499.00,100,0,'product_images/product_weding.jpeg',10,1,1,0,'2026-01-31 12:18:29.905172','2026-07-08 04:22:55.389727',32,31,1,'set',800.00,500.00,NULL,NULL,0,NULL,NULL,NULL),(20,'Softdrink Glass','softdrink_glass','Table Clothe For Party Event','table',1499.00,100,100,'',10,1,1,0,'2026-01-31 12:48:19.083713','2026-02-02 09:57:24.238898',NULL,NULL,1,'set',900.00,500.00,NULL,NULL,0,NULL,NULL,NULL),(21,'Softdrink Glass','softdrink_glass','Table Clothe For Party Event','table',1499.00,100,100,'product_images/Glass.jpg',10,1,1,0,'2026-01-31 13:10:07.429805','2026-02-02 09:54:55.082622',NULL,NULL,1,'set',900.00,500.00,NULL,NULL,0,NULL,NULL,NULL),(22,'asasa','asasa','adasdasdads','uniform',18.00,0,0,'',NULL,1,1,1,'2026-07-16 10:06:01.325095','2026-07-16 10:11:05.203343',NULL,NULL,NULL,'set',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(23,'asasaas','asasaas','asdxdsxz dxczcx','uniform',22.00,0,0,'',NULL,1,1,1,'2026-07-16 10:11:25.380206','2026-07-16 10:13:19.096356',NULL,NULL,NULL,'set',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(24,'wwwww','wwwww','wwwwwwwwwwwwwwwwwwwwww','uniform',22.00,0,0,'',NULL,1,1,1,'2026-07-16 10:12:49.884419','2026-07-16 10:13:22.234037',1,NULL,NULL,'set',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(25,'swq','swq','gfv crfdv c','uniform',22.00,0,0,'',NULL,1,1,1,'2026-07-16 10:18:29.223779','2026-07-16 10:42:24.250913',60,NULL,NULL,'set',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(26,'asasas','asasas','trgvd','uniform',2.00,0,0,'',NULL,1,1,1,'2026-07-16 10:40:58.257165','2026-07-16 10:42:21.030530',3,65,NULL,'set',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(27,'asasasa','asasasa','ddddddddd','uniform',11.00,0,0,'product_images/Screenshot_from_2026-07-16_10-43-18.png',NULL,1,1,1,'2026-07-16 10:43:43.821364','2026-07-23 10:39:36.073377',3,64,NULL,'set',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(28,'Tessssssstingggg','tessssssstingggg','dddddddddddddddd','uniform',333.00,0,0,'product_images/carImage.png',NULL,1,1,1,'2026-07-27 12:10:08.159869','2026-07-27 12:12:53.449756',3,64,NULL,'set',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(29,'update','update','\"Complete schtestool uniform set for boys\"','uniform',348.00,0,0,'product_images/most-popular-sport-illustration-free-vector.jpg',NULL,1,1,1,'2026-07-29 06:23:19.791085','2026-07-29 06:23:35.305836',1,2,NULL,'set',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(30,'test 4','test_4','\"Complete school uniform set for boys\"','uniform',348.00,0,0,'product_images/most-popular-sport-illustration-free-vector_jVj195x.jpg',NULL,1,1,1,'2026-07-29 06:23:56.760216','2026-07-29 11:32:16.272794',1,2,NULL,'set',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(31,'test 5','test_5','test','uniform',531.00,0,0,'product_images/Bottom-1_3GtdMGc.png',NULL,1,1,0,'2026-07-29 09:53:56.126491','2026-07-29 09:53:56.149278',1,5,NULL,'set',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(32,'clg uniform','clg_uniform','hhh','uniform',499.00,0,0,'product_images/dummyMap.png',NULL,1,1,0,'2026-07-29 09:56:46.381975','2026-08-01 13:18:36.499302',1,5,NULL,'set',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(33,'test module','test_module','description fo test module','uniform',444.00,0,0,'product_images/category2_1_1.png',NULL,1,1,1,'2026-08-04 05:24:13.086163','2026-08-04 05:25:41.767184',1,2,NULL,'set',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL),(34,'Stewart Salas','stewart_salas','Ipsa eaque itaque a','uniform',982.00,0,0,'product_images/Screenshot_from_2026-08-05_13-02-43.png',NULL,1,1,0,'2026-08-05 08:38:21.037566','2026-08-05 08:38:21.059814',60,NULL,NULL,'top',0.00,0.00,NULL,NULL,0,NULL,NULL,NULL);
+/*!40000 ALTER TABLE `uniformAdmin_product` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_product_parts`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_product_parts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_product_parts` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `product_id` bigint NOT NULL,
+  `parts_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniformAdmin_product_parts_product_id_parts_id_d43f2976_uniq` (`product_id`,`parts_id`),
+  KEY `uniformAdmin_product_parts_id_fb988e29_fk_uniformAd` (`parts_id`),
+  CONSTRAINT `uniformAdmin_product_parts_id_fb988e29_fk_uniformAd` FOREIGN KEY (`parts_id`) REFERENCES `uniformAdmin_parts` (`id`),
+  CONSTRAINT `uniformAdmin_product_product_id_a2b88982_fk_uniformAd` FOREIGN KEY (`product_id`) REFERENCES `uniformAdmin_product` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_product_parts`
+--
+
+LOCK TABLES `uniformAdmin_product_parts` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_product_parts` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_product_parts` VALUES (7,5,7),(6,15,7),(2,25,5),(1,25,9),(3,26,9),(4,27,5),(5,27,7),(8,28,11),(9,29,7),(10,30,6),(11,30,7),(12,31,9),(13,32,9),(14,33,11),(15,34,19);
+/*!40000 ALTER TABLE `uniformAdmin_product_parts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_promocode`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_promocode`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_promocode` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `promocodeName` varchar(150) NOT NULL,
+  `slug` varchar(180) NOT NULL,
+  `promocodeImage` varchar(100) DEFAULT NULL,
+  `description` longtext NOT NULL,
+  `promocodeType` varchar(20) NOT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `started_at` datetime(6) DEFAULT NULL,
+  `ended_at` datetime(6) DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `limit_uses` tinyint(1) NOT NULL,
+  `max_uses` int unsigned DEFAULT NULL,
+  `min_order_value` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `promocodeName` (`promocodeName`),
+  UNIQUE KEY `slug` (`slug`),
+  CONSTRAINT `uniformAdmin_promocode_chk_1` CHECK ((`max_uses` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_promocode`
+--
+
+LOCK TABLES `uniformAdmin_promocode` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_promocode` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_promocode` VALUES (1,'Luxury_Year_2026','new_year_100','promocode/sun.jpg','New Year flat discount','fix_price',100.00,'2025-01-01 00:00:00.000000','2025-01-31 23:59:59.000000',0,0,'2025-12-22 09:08:41.034873','2025-12-22 09:45:42.976473',0,NULL,NULL),(2,'NEW_YEAR_2026','new_year_2026','promocode/galaxy.jpg','New Year flat discount','discount',NULL,'2025-01-01 00:00:00.000000','2025-01-31 23:59:59.000000',0,1,'2025-12-22 09:13:26.420072','2025-12-22 09:49:08.778490',0,NULL,NULL),(3,'Winter_Session_2025','winter_session_2025','promocode/Lion.jpg','Winter Session  discount','discount',NULL,'2025-01-01 00:00:00.000000','2025-01-31 23:59:59.000000',0,0,'2025-12-22 09:17:12.362338','2025-12-22 09:17:12.362351',0,NULL,NULL),(4,'NEWYEAR100','newyear100','promocode/group_discussion.jpg','NEW YEAR 2026 discount','fix_price',400.00,'2025-01-01 00:00:00.000000','2025-01-31 23:59:59.000000',0,0,'2025-12-22 10:31:51.619061','2025-12-22 10:31:51.619075',0,NULL,NULL),(5,'NEWYEAR200','newyear200','promocode/group_discussion_1B0U8VM.jpg','NEW YEAR 2026 discount','discount',20.00,'2025-01-01 00:00:00.000000','2025-01-31 23:59:59.000000',0,0,'2025-12-22 10:32:41.274346','2025-12-22 10:32:41.274357',0,NULL,NULL),(6,'NEWYEAR300','newyear300','promocode/Lion_tET0nPs.jpg','NEW YEAR 2026 discount','discount',50.00,'2025-01-01 00:00:00.000000','2025-01-31 23:59:59.000000',0,0,'2025-12-22 10:44:45.468916','2025-12-22 10:44:45.468927',0,NULL,NULL),(7,'NEWYEAR700','newyear400','promocode/Lion_9JuKHLp.jpg','NEW YEAR 2026 discount','fix_price',590.00,'2025-01-01 00:00:00.000000','2025-01-31 23:59:59.000000',1,0,'2025-12-22 10:50:09.395426','2025-12-23 05:57:19.608266',0,NULL,NULL),(8,'NEWYEAR400n','newyear400n','promocode/Lion_cOucIgA.jpg','NEW YEAR 2026 discount','discount',59.00,'2025-01-01 00:00:00.000000','2025-01-31 23:59:59.000000',1,0,'2025-12-22 11:18:24.311828','2025-12-22 11:18:24.311841',0,NULL,NULL),(9,'NEWYEAR500','newyear500','promocode/Lion_OkduTL4.jpg','NEW YEAR 2026 discount','discount',59.00,NULL,NULL,1,0,'2025-12-23 05:29:33.347387','2025-12-23 05:29:33.347571',0,NULL,NULL),(10,'NEWYEA352','newyea352','','NEW YEAR 2026 discount','discount',59.00,NULL,NULL,1,0,'2026-01-12 12:15:26.189363','2026-01-12 12:15:26.189391',0,NULL,NULL),(11,'serdtf78','serdtf78','','NEW YEAR 2026 discount','discount',59.00,NULL,NULL,1,0,'2026-01-12 12:17:31.921184','2026-01-12 12:17:31.921223',0,NULL,NULL),(12,'yreuij6478','yreuij6478','','NEW YEAR 2026 discount','discount',59.00,NULL,NULL,1,0,'2026-01-12 12:21:34.403327','2026-01-12 12:21:34.403376',0,NULL,NULL),(13,'sdfhgj43567','sdfhgj43567','','NEW YEAR 2026 discount','discount',59.00,NULL,NULL,1,0,'2026-01-12 12:31:09.189127','2026-01-12 12:31:09.189162',0,NULL,NULL),(14,'jsdks56374','jsdks56374','','NEW YEAR 2026 discount','discount',59.00,NULL,NULL,1,0,'2026-01-12 12:34:01.801382','2026-01-12 12:34:01.801414',0,NULL,NULL);
+/*!40000 ALTER TABLE `uniformAdmin_promocode` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_quotationtemplate`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_quotationtemplate`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_quotationtemplate` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(50) NOT NULL,
+  `slug` varchar(50) NOT NULL,
+  `content` longtext NOT NULL,
+  `userType` varchar(50) NOT NULL,
+  `language` varchar(10) NOT NULL,
+  `version` varchar(20) DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `is_deleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `page_size` varchar(20) NOT NULL,
+  `sort_order` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug` (`slug`),
+  CONSTRAINT `uniformAdmin_quotationtemplate_chk_1` CHECK ((`sort_order` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_quotationtemplate`
+--
+
+LOCK TABLES `uniformAdmin_quotationtemplate` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_quotationtemplate` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_quotationtemplate` VALUES (1,'quotation','quotation-default','<h2>QUOTATION #{QUOTATION_ID}</h2>\n\n<p><strong>Date:</strong> {DATE}</p>\n<p><strong>Valid until:</strong> {VALID_DATE}</p>\n\n<p>Dear {CLIENT_NAME},</p>\n\n<p>Thank you for your interest in our products. Based on your requirements,\nwe are pleased to offer the following quotation:</p>\n\n<p>Item: {FABRIC}<br/>\nQuantity: {QUANTITY}<br/>\nUnit Price: {PRICE}</p>\n\n<hr/>\n\n<p>Subtotal: {SUBTOTAL}<br/>\nDiscount: {DISCOUNT}</p>\n\n<hr/>\n\n<p><strong>TOTAL: {TOTAL}</strong></p>\n\n<p><strong>Terms &amp; Conditions:</strong></p>\n\n<ol>\n<li>50% advance payment required.</li>\n<li>Delivery within 14 days of confirmation.</li>\n</ol>\n\n<p>Sincerely,</p>\n<p>Sales Team</p>\n','admin','en',NULL,1,0,'2026-01-12 07:17:18.421411','2026-08-05 10:32:17.274229','Standard quotationcsdcsdcdscsd','A4',0),(2,'quotation','new-one','<h2>{COMPANY_NAME} </h2><p>{COMPANY_ADDRESS}</p><p><strong>Date:</strong> {QUOTE_DATE}</p><p>Dear {CLIENT_NAME},</p><p>Please find below our quotation for {ITEM_TYPE}, quantity {QUANTITY}.</p>','admin','en',NULL,1,1,'2026-08-05 08:55:52.927495','2026-08-05 08:55:58.478071','new one','Letter',1),(3,'quotation','dcsdcsdc','<h2>{COMPANY_NAME} dcsd</h2><p>{COMPANY_ADDRESS}</p><p><strong>Date:</strong> {QUOTE_DATE}</p><p>Dear {CLIENT_NAME},</p><p>Please find below our quotation for {ITEM_TYPE}, quantity {QUANTITY}.</p>','admin','en',NULL,1,0,'2026-08-05 08:56:12.209884','2026-08-05 08:56:12.209919','dcsdcsdc','A4',1),(4,'quotation','asxsasa','\n<div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;\">\n    <div style=\"display:flex;gap:16px;\">\n        <div style=\"width:90px;height:90px;background:#E5E7EB;border-radius:4px;\"></div>\n\n        <div>\n            <h2 style=\"margin:0;font-size:18px;\">{COMPANY_NAME}</h2>\n            <p style=\"margin-top:6px;color:#64748B;\">{COMPANY_ADDRESS}</p>\n        </div>\n    </div>\n\n    <p style=\"margin:0;\">\n        <strong>Date:</strong> {QUOTE_DATE}\n    </p>\n</div>\n\n<p>Dear {CLIENT_NAME},</p>\n\n<p>\nPlease find below our quotation for {ITEM_TYPE}, quantity {QUANTITY}.\n</p>\n','admin','en',NULL,1,1,'2026-08-05 08:57:10.181042','2026-08-05 08:57:24.255272','vvvvvvvvvv','A4',2),(5,'quotation','new-pdf-template-of-mny-own','<h2>{digiprima}</h2><p>{digipirma}</p><p><strong>Date:</strong> {20 aug}</p><p>Dear {abhishek},</p><p>Please find below our quotation for {product}, quantity {7}.</p>','admin','en',NULL,1,1,'2026-08-05 10:30:37.474327','2026-08-05 10:31:10.751580','new pdf template of mny own','A4',2);
+/*!40000 ALTER TABLE `uniformAdmin_quotationtemplate` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_role`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_role`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_role` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(60) NOT NULL,
+  `slug` varchar(255) DEFAULT NULL,
+  `description` longtext,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_role`
+--
+
+LOCK TABLES `uniformAdmin_role` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_role` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_role` VALUES (1,'customer','customer','','2025-12-10 09:27:53.606018','2026-07-17 07:25:52.336482'),(2,'admin','admin','Admin role with full access','2025-12-15 05:58:15.319638','2025-12-15 05:58:15.319744'),(3,'b2b','b2b','Default B2B User','2026-07-07 04:55:49.627111','2026-07-17 07:25:38.169199'),(4,'user','user',NULL,'2026-07-20 07:04:03.120311','2026-07-20 07:04:03.120340'),(5,'b2b_user','b2b_user','Default B2B User','2026-07-24 05:30:11.012139','2026-07-24 05:30:11.012230'),(6,'sales','sales',NULL,'2026-08-05 09:50:07.834641','2026-08-05 09:50:07.834711');
+/*!40000 ALTER TABLE `uniformAdmin_role` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_rolemenupermission`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_rolemenupermission`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_rolemenupermission` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `can_view` tinyint(1) NOT NULL,
+  `can_create` tinyint(1) NOT NULL,
+  `can_update` tinyint(1) NOT NULL,
+  `can_delete` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `menu_id` bigint NOT NULL,
+  `role_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_role_menu_permission` (`role_id`,`menu_id`),
+  KEY `uniformAdmin_rolemen_menu_id_821f29ed_fk_uniformAd` (`menu_id`),
+  CONSTRAINT `uniformAdmin_rolemen_menu_id_821f29ed_fk_uniformAd` FOREIGN KEY (`menu_id`) REFERENCES `uniformAdmin_menu` (`id`),
+  CONSTRAINT `uniformAdmin_rolemen_role_id_9f499ef1_fk_uniformAd` FOREIGN KEY (`role_id`) REFERENCES `uniformAdmin_role` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_rolemenupermission`
+--
+
+LOCK TABLES `uniformAdmin_rolemenupermission` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_rolemenupermission` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_rolemenupermission` VALUES (1,1,1,1,1,'2026-07-10 10:04:51.618437','2026-08-05 10:35:58.512358',1,2),(2,1,1,0,1,'2026-07-10 10:05:10.609064','2026-08-05 10:35:58.520253',3,2),(3,0,1,1,1,'2026-07-10 10:22:55.754807','2026-08-05 10:35:58.527892',2,3),(4,1,0,0,0,'2026-07-10 11:14:27.724693','2026-08-05 10:35:58.513310',2,2),(5,1,1,1,1,'2026-07-10 11:14:49.002945','2026-08-05 10:35:58.511410',6,2),(6,1,1,1,1,'2026-07-10 11:14:57.933421','2026-08-05 10:35:58.510466',5,2),(7,1,1,1,1,'2026-07-10 11:15:05.685648','2026-08-05 10:35:58.509505',4,2),(8,0,0,0,0,'2026-07-17 09:55:56.804536','2026-08-05 10:35:58.475277',4,1),(9,0,0,0,0,'2026-07-17 09:55:56.807374','2026-08-05 10:35:58.479535',5,1),(10,0,0,0,0,'2026-07-17 09:55:56.809886','2026-08-05 10:35:58.484051',6,1),(11,0,0,0,0,'2026-07-17 09:55:56.812400','2026-08-05 10:35:58.488530',1,1),(12,0,0,0,0,'2026-07-17 09:55:56.815059','2026-08-05 10:35:58.492534',2,1),(13,0,0,0,0,'2026-07-17 09:55:56.825685','2026-08-05 10:35:58.503633',3,1),(14,1,0,0,0,'2026-07-17 09:55:58.091049','2026-08-05 10:35:58.523618',4,3),(15,1,0,0,0,'2026-07-17 09:55:58.100898','2026-08-05 10:35:58.524566',5,3),(16,0,0,0,0,'2026-07-17 09:55:58.110725','2026-08-05 10:35:58.525672',6,3),(17,0,0,0,0,'2026-07-17 09:55:58.120466','2026-08-05 10:35:58.526564',1,3),(18,0,0,0,0,'2026-07-17 09:55:58.146891','2026-08-05 10:35:58.535689',3,3),(19,1,0,0,0,'2026-07-27 10:31:57.439352','2026-08-05 10:35:58.542112',4,4),(20,0,0,0,0,'2026-07-27 10:31:57.447086','2026-08-05 10:35:58.543614',5,4),(21,0,0,0,0,'2026-07-27 10:31:57.454015','2026-08-05 10:35:58.544664',6,4),(22,0,0,0,0,'2026-07-27 10:31:57.461412','2026-08-05 10:35:58.546073',1,4),(23,1,0,0,0,'2026-07-27 10:31:57.470816','2026-08-05 10:35:58.547676',2,4),(24,1,0,0,0,'2026-07-27 10:31:57.503139','2026-08-05 10:35:58.559867',3,4),(25,0,0,0,0,'2026-07-27 10:31:57.527480','2026-08-05 10:35:58.570584',4,5),(26,0,0,0,0,'2026-07-27 10:31:57.534036','2026-08-05 10:35:58.572991',5,5),(27,0,0,0,0,'2026-07-27 10:31:57.542652','2026-08-05 10:35:58.577322',6,5),(28,1,0,0,0,'2026-07-27 10:31:57.550705','2026-08-05 10:35:58.580866',1,5),(29,0,0,0,0,'2026-07-27 10:31:57.556674','2026-08-05 10:35:58.582860',2,5),(30,0,0,0,0,'2026-07-27 10:31:57.581768','2026-08-05 10:35:58.590571',3,5),(31,0,0,0,0,'2026-08-05 10:35:58.598344','2026-08-05 10:35:58.598363',4,6),(32,0,0,0,0,'2026-08-05 10:35:58.599587','2026-08-05 10:35:58.599599',5,6),(33,0,0,0,0,'2026-08-05 10:35:58.602358','2026-08-05 10:35:58.602372',6,6),(34,0,0,0,0,'2026-08-05 10:35:58.604310','2026-08-05 10:35:58.604320',1,6),(35,0,0,0,0,'2026-08-05 10:35:58.605616','2026-08-05 10:35:58.605625',2,6),(36,0,0,0,0,'2026-08-05 10:35:58.619861','2026-08-05 10:35:58.619876',3,6),(37,1,0,0,0,'2026-08-05 11:33:37.994086','2026-08-05 11:33:37.994107',7,2),(38,1,0,0,0,'2026-08-05 11:33:38.002919','2026-08-05 11:33:38.002947',8,2),(39,1,0,0,0,'2026-08-05 11:33:38.015279','2026-08-05 11:33:38.015325',9,2);
+/*!40000 ALTER TABLE `uniformAdmin_rolemenupermission` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_rolesubmenupermission`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_rolesubmenupermission`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_rolesubmenupermission` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `can_view` tinyint(1) NOT NULL,
+  `can_create` tinyint(1) NOT NULL,
+  `can_update` tinyint(1) NOT NULL,
+  `can_delete` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `role_id` bigint NOT NULL,
+  `submenu_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_role_submenu_permission` (`role_id`,`submenu_id`),
+  KEY `uniformAdmin_rolesub_submenu_id_bfe159c3_fk_uniformAd` (`submenu_id`),
+  CONSTRAINT `uniformAdmin_rolesub_role_id_804c1b47_fk_uniformAd` FOREIGN KEY (`role_id`) REFERENCES `uniformAdmin_role` (`id`),
+  CONSTRAINT `uniformAdmin_rolesub_submenu_id_bfe159c3_fk_uniformAd` FOREIGN KEY (`submenu_id`) REFERENCES `uniformAdmin_submenu` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_rolesubmenupermission`
+--
+
+LOCK TABLES `uniformAdmin_rolesubmenupermission` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_rolesubmenupermission` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_rolesubmenupermission` VALUES (1,1,1,1,0,'2026-07-10 10:05:32.563468','2026-08-05 10:35:58.522426',2,5),(2,1,0,1,0,'2026-07-10 10:05:57.595575','2026-08-05 10:35:58.521392',2,4),(3,1,0,0,1,'2026-07-10 10:23:25.244917','2026-08-05 10:35:58.532897',3,3),(4,0,0,0,0,'2026-07-17 09:55:56.817803','2026-08-05 10:35:58.495556',1,2),(5,0,0,0,0,'2026-07-17 09:55:56.820614','2026-08-05 10:35:58.497555',1,1),(6,0,0,0,0,'2026-07-17 09:55:56.823314','2026-08-05 10:35:58.500722',1,3),(7,0,0,0,0,'2026-07-17 09:55:56.828180','2026-08-05 10:35:58.506178',1,4),(8,0,0,0,0,'2026-07-17 09:55:56.830606','2026-08-05 10:35:58.508082',1,5),(9,0,0,0,0,'2026-07-17 09:55:57.807066','2026-08-05 10:35:58.514783',2,2),(10,0,0,0,0,'2026-07-17 09:55:57.810507','2026-08-05 10:35:58.515994',2,1),(11,0,0,0,0,'2026-07-17 09:55:57.813808','2026-08-05 10:35:58.518120',2,3),(12,0,0,0,0,'2026-07-17 09:55:58.135129','2026-08-05 10:35:58.528913',3,2),(13,0,0,0,0,'2026-07-17 09:55:58.139733','2026-08-05 10:35:58.530437',3,1),(14,0,0,0,0,'2026-07-17 09:55:58.150078','2026-08-05 10:35:58.538090',3,4),(15,0,0,0,0,'2026-07-17 09:55:58.153077','2026-08-05 10:35:58.539977',3,5),(16,0,0,0,0,'2026-07-27 10:31:57.480740','2026-08-05 10:35:58.550517',4,2),(17,0,0,0,0,'2026-07-27 10:31:57.489383','2026-08-05 10:35:58.554164',4,1),(18,0,0,0,0,'2026-07-27 10:31:57.496075','2026-08-05 10:35:58.557022',4,3),(19,0,0,0,0,'2026-07-27 10:31:57.511124','2026-08-05 10:35:58.563823',4,4),(20,0,0,0,0,'2026-07-27 10:31:57.518698','2026-08-05 10:35:58.566683',4,5),(21,0,0,0,0,'2026-07-27 10:31:57.564747','2026-08-05 10:35:58.585212',5,2),(22,0,0,0,0,'2026-07-27 10:31:57.572121','2026-08-05 10:35:58.587475',5,1),(23,0,0,0,0,'2026-07-27 10:31:57.577396','2026-08-05 10:35:58.589574',5,3),(24,0,0,0,0,'2026-07-27 10:31:57.586886','2026-08-05 10:35:58.593929',5,4),(25,0,0,0,0,'2026-07-27 10:31:57.591728','2026-08-05 10:35:58.595144',5,5),(26,0,0,0,0,'2026-08-05 10:35:58.608897','2026-08-05 10:35:58.608908',6,2),(27,0,0,0,0,'2026-08-05 10:35:58.611901','2026-08-05 10:35:58.611911',6,1),(28,0,0,0,0,'2026-08-05 10:35:58.615858','2026-08-05 10:35:58.615870',6,3),(29,0,0,0,0,'2026-08-05 10:35:58.622957','2026-08-05 10:35:58.622971',6,4),(30,0,0,0,0,'2026-08-05 10:35:58.624155','2026-08-05 10:35:58.624165',6,5);
+/*!40000 ALTER TABLE `uniformAdmin_rolesubmenupermission` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_simulationexportsetting`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_simulationexportsetting`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_simulationexportsetting` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `output_format` varchar(10) NOT NULL,
+  `compression_quality` smallint unsigned NOT NULL,
+  `dpi` smallint unsigned NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `selected_template_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_simulat_selected_template_id_ca39a5ad_fk_uniformAd` (`selected_template_id`),
+  CONSTRAINT `uniformAdmin_simulat_selected_template_id_ca39a5ad_fk_uniformAd` FOREIGN KEY (`selected_template_id`) REFERENCES `uniformAdmin_pdfpagetemplate` (`id`),
+  CONSTRAINT `uniformAdmin_simulationexportsetting_chk_1` CHECK ((`compression_quality` >= 0)),
+  CONSTRAINT `uniformAdmin_simulationexportsetting_chk_2` CHECK ((`dpi` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_simulationexportsetting`
+--
+
+LOCK TABLES `uniformAdmin_simulationexportsetting` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_simulationexportsetting` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_simulationexportsetting` VALUES (1,'png',25,300,'2026-08-05 10:06:18.296350','2026-08-05 10:37:55.048024',1);
+/*!40000 ALTER TABLE `uniformAdmin_simulationexportsetting` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_specialcondition`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_specialcondition`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_specialcondition` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(100) NOT NULL,
+  `condition_type` varchar(20) NOT NULL,
+  `description` longtext,
+  `discount_percentage` decimal(5,2) NOT NULL,
+  `priority_support` tinyint(1) NOT NULL,
+  `net_30_terms` tinyint(1) NOT NULL,
+  `free_samples` tinyint(1) NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `is_deleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `condition_type` (`condition_type`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_specialcondition`
+--
+
+LOCK TABLES `uniformAdmin_specialcondition` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_specialcondition` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_specialcondition` VALUES (2,'DSFDS','enterprise','DSDSFDS',2.20,1,1,1,1,0,'2026-07-10 11:43:53.501583','2026-07-10 11:43:53.501683'),(4,'tttttt','corporate','dfgfdgdfd',44.00,1,1,0,1,0,'2026-07-28 04:57:09.901513','2026-07-28 04:57:09.901557');
+/*!40000 ALTER TABLE `uniformAdmin_specialcondition` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_subcategory`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_subcategory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_subcategory` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `subcategoryImage` varchar(100) DEFAULT NULL,
+  `slug` varchar(255) DEFAULT NULL,
+  `description` longtext,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `category_id` bigint DEFAULT NULL,
+  `type` varchar(20) NOT NULL,
+  `order` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_subcate_category_id_72d57177_fk_uniformAd` (`category_id`),
+  KEY `uniformAdmin_subcategory_order_d842443f` (`order`),
+  CONSTRAINT `uniformAdmin_subcate_category_id_72d57177_fk_uniformAd` FOREIGN KEY (`category_id`) REFERENCES `uniformAdmin_category` (`id`),
+  CONSTRAINT `uniformAdmin_subcategory_chk_1` CHECK ((`order` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_subcategory`
+--
+
+LOCK TABLES `uniformAdmin_subcategory` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_subcategory` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_subcategory` VALUES (1,'Clinical Staff Wear','subcategory/subc3.jpg','clinical_staff_wear','Protective aprons for chefs and kitchen staff\"\r\n• Waist Aprons | Bib Aprons | Full Length\r\n• Multiple Colors | Custom Printing\r\n• Water-Resistant | Easy Clean',1,0,'2025-12-18 07:34:09.284599','2026-07-08 03:14:40.142144',1,'uniform',0),(2,'Professional Lab Coats','subcategory/category2_EHkNUjj.png','professional_lab_coats','Durable, comfortable pants designed for long hours in the kitchen\"\r\n• Classic Checkered | Solid Black | Striped\r\n• Elastic Waist | Drawstring | Traditional\r\n• Stain-Resistant | Quick-Drying',1,0,'2025-12-18 07:35:58.462745','2026-08-01 14:03:09.854115',1,'uniform',0),(5,'Medical Scrubssss','subcategory/4072e5536d26ca2456f1869cc44d876fd55b7bdf.jpg','medical_scrubssss','Professional, heat-resistant jackets for kitchen safety and comfort\"\r\n• Classic Double-Breasted | Euro Style | Slim Fit\r\n• 12+ Colors | Multiple Sizes\r\n• Heat-Resistant Fabrics | Breathable Cotton',1,0,'2025-12-18 09:41:38.899776','2026-07-24 03:18:30.979042',1,'uniform',0),(6,'Restaurant Server','subcategory/food2.jpeg','restaurant_server','Elegant service uniforms with aprons, shirts, and trousers designed to provide a polished dining experience.',1,0,'2025-12-18 10:40:36.066723','2026-07-07 18:01:08.417056',2,'uniform',0),(7,'Executive Chef','subcategory/food1.jpeg','executive_chef','Premium chef uniforms designed for head chefs, featuring breathable fabrics and a professional appearance suitable for commercial kitchens.',1,0,'2025-12-20 10:18:44.222023','2026-07-07 17:59:13.928469',2,'uniform',0),(8,'Barista & Café Staff','subcategory/food3.jpeg','barista_cafe_staff','Modern café uniforms featuring branded aprons, comfortable shirts, and stylish accessories for coffee shops.',1,0,'2025-12-20 10:31:17.944397','2026-07-07 18:02:07.167607',2,'uniform',0),(26,'Football','','football',NULL,1,0,'2026-01-16 12:19:11.113169','2026-01-16 12:19:11.113193',32,'uniform',1),(27,'Cricket','','cricket',NULL,1,0,'2026-01-16 12:19:11.124587','2026-01-16 12:19:11.124613',32,'uniform',2),(28,'Basketball','','basketball',NULL,1,0,'2026-01-16 12:19:11.135576','2026-01-16 12:19:11.135601',32,'uniform',3),(29,'Tennis','','tennis',NULL,1,0,'2026-01-16 12:19:11.148050','2026-01-16 12:19:11.148074',32,'uniform',4),(30,'Badminton','','badminton',NULL,1,0,'2026-01-16 12:19:11.159695','2026-01-16 12:19:11.159731',32,'uniform',5),(31,'wedding','','wedding','',1,0,'2026-01-16 12:19:11.171379','2026-07-08 04:19:58.987441',32,'table',6),(63,'Administrative Staff','subcategory/Administrative_Staff.jpeg','administrative_staff','Professional uniforms designed for front desk and reception personnel, providing a polished first impression.',1,0,'2026-07-07 17:44:03.364616','2026-07-07 17:52:37.310023',3,'uniform',0),(64,'Reception Staff','subcategory/Reception_Staff.jpeg','reception_staff','Professional blazer, dress shirt/blouse, tailored trousers or skirt, and optional neck scarf or tie.',1,0,'2026-07-07 17:51:35.159211','2026-07-07 17:51:35.159238',3,'uniform',0),(65,'IT Support Staff','subcategory/IT_Support_Staff.jpeg','it_support_staff','Branded polo shirt or button-down shirt paired with durable trousers',1,0,'2026-07-07 17:54:31.853468','2026-07-07 17:54:31.853498',3,'uniform',0),(66,'subcategory testing','','subcategory_testing','vyudjfbuwcsdjdnjaks',0,0,'2026-07-13 06:30:47.868724','2026-07-13 06:30:47.868764',64,'uniform',1),(67,'test','','test','dsjkc',0,1,'2026-07-24 03:18:10.503277','2026-07-29 10:00:01.333180',59,'uniform',1),(68,'nkcndsn','','nkcndsn','sdnc',0,1,'2026-07-24 03:19:13.117394','2026-07-24 03:19:21.226119',65,'uniform',1),(69,'111','','111','nvnvn',0,1,'2026-07-24 04:58:13.759981','2026-07-24 04:58:35.674730',1,'uniform',1),(70,'sid','','sid','testing',0,1,'2026-07-29 06:35:19.428401','2026-07-29 06:35:56.835693',66,'uniform',1);
+/*!40000 ALTER TABLE `uniformAdmin_subcategory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_submenu`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_submenu`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_submenu` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `slug` varchar(150) DEFAULT NULL,
+  `route` varchar(255) DEFAULT NULL,
+  `order` int unsigned NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `menu_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_submenu_menu_id_6c21839d_fk_uniformAdmin_menu_id` (`menu_id`),
+  CONSTRAINT `uniformAdmin_submenu_menu_id_6c21839d_fk_uniformAdmin_menu_id` FOREIGN KEY (`menu_id`) REFERENCES `uniformAdmin_menu` (`id`),
+  CONSTRAINT `uniformAdmin_submenu_chk_1` CHECK ((`order` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_submenu`
+--
+
+LOCK TABLES `uniformAdmin_submenu` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_submenu` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_submenu` VALUES (1,'product Manage','product_manage',NULL,2,1,0,'2026-07-10 09:47:43.682430','2026-07-10 09:47:43.682470',2),(2,'Category Manage','category_manage',NULL,1,1,0,'2026-07-10 09:48:01.785166','2026-07-10 09:48:11.010615',2),(3,'pricing','pricing',NULL,3,1,0,'2026-07-10 09:48:39.419248','2026-07-10 09:48:39.419282',2),(4,'oreder details','oreder_details',NULL,0,1,0,'2026-07-10 09:49:03.436650','2026-07-10 09:49:03.436692',3),(5,'invoice','invoice',NULL,4,1,0,'2026-07-10 09:49:34.226404','2026-07-10 09:49:34.226442',3);
+/*!40000 ALTER TABLE `uniformAdmin_submenu` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_systemsettings`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_systemsettings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_systemsettings` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `company_name` varchar(255) NOT NULL,
+  `business_address` longtext,
+  `support_email` varchar(254) DEFAULT NULL,
+  `contact_number` varchar(50) DEFAULT NULL,
+  `default_language` varchar(50) NOT NULL,
+  `default_currency` varchar(50) NOT NULL,
+  `time_zone` varchar(100) NOT NULL,
+  `date_format` varchar(50) NOT NULL,
+  `logo` varchar(100) DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `admin_notification_emails` longtext,
+  `bank_account_name` varchar(150) DEFAULT NULL,
+  `bank_account_number` varchar(50) DEFAULT NULL,
+  `bank_branch` varchar(150) DEFAULT NULL,
+  `bank_name` varchar(150) DEFAULT NULL,
+  `email_footer_note` longtext,
+  `email_reply_to` varchar(254) DEFAULT NULL,
+  `email_sender_address` varchar(254) DEFAULT NULL,
+  `email_sender_name` varchar(150) DEFAULT NULL,
+  `notify_admin_on_new_request` tinyint(1) NOT NULL,
+  `notify_customer_on_registration` tinyint(1) NOT NULL,
+  `notify_customer_on_request_received` tinyint(1) NOT NULL,
+  `notify_customer_on_status_change` tinyint(1) NOT NULL,
+  `payment_terms` longtext,
+  `quotation_validity_days` smallint unsigned NOT NULL,
+  `tax_inclusive` tinyint(1) NOT NULL,
+  `tax_rate` decimal(5,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `uniformAdmin_systemsettings_chk_1` CHECK ((`quotation_validity_days` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_systemsettings`
+--
+
+LOCK TABLES `uniformAdmin_systemsettings` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_systemsettings` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_systemsettings` VALUES (1,'KIREIZ SPACE Co., Ltd.','testing','supportemail@gmail.com','8888888888','Japanese','JPY (¥)','(GMT+09:00) Tokyo','2025/04/22','system/logos/USAflag.jpeg',1,'2026-07-27 10:56:18.791825','2026-08-05 10:39:02.979547',NULL,'','','','',NULL,NULL,NULL,NULL,1,1,1,1,'',30,0,13.50);
+/*!40000 ALTER TABLE `uniformAdmin_systemsettings` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_tabletheme`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_tabletheme`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_tabletheme` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(100) NOT NULL,
+  `description` longtext NOT NULL,
+  `image` varchar(100) NOT NULL,
+  `order` int unsigned DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `category_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_tabletheme_order_e44e7633` (`order`),
+  KEY `uniformAdmin_tableth_category_id_95951d60_fk_uniformAd` (`category_id`),
+  CONSTRAINT `uniformAdmin_tableth_category_id_95951d60_fk_uniformAd` FOREIGN KEY (`category_id`) REFERENCES `uniformAdmin_category` (`id`),
+  CONSTRAINT `uniformAdmin_tabletheme_chk_1` CHECK ((`order` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_tabletheme`
+--
+
+LOCK TABLES `uniformAdmin_tabletheme` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_tabletheme` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_tabletheme` VALUES (1,'Modern Wooden Table','party them','table_themes/sun.jpg',1,1,0,'2026-01-02 13:33:09.430640','2026-01-03 05:26:58.039048',NULL),(2,'Modern Wooden Table','party them','table_themes/sun_7KqU4SN.jpg',1,0,0,'2026-01-02 13:33:25.910978','2026-01-02 13:33:25.911015',NULL),(3,'Highly Profile Table clothes','party them','table_themes/sun_YMnBuR2.jpg',1,0,0,'2026-01-02 13:34:15.663346','2026-01-02 13:34:15.663370',NULL),(4,'Mordanism','party them','table_themes/sun_HJDTDbt.jpg',1,0,0,'2026-01-02 13:47:25.149152','2026-01-02 13:47:25.149182',NULL);
+/*!40000 ALTER TABLE `uniformAdmin_tabletheme` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_template`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_template` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `templateName` varchar(250) NOT NULL,
+  `templateImage` varchar(100) DEFAULT NULL,
+  `partUsageCount` int NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `part_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_template_part_id_053c09fa_fk_uniformAdmin_parts_id` (`part_id`),
+  CONSTRAINT `uniformAdmin_template_part_id_053c09fa_fk_uniformAdmin_parts_id` FOREIGN KEY (`part_id`) REFERENCES `uniformAdmin_parts` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_template`
+--
+
+LOCK TABLES `uniformAdmin_template` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_template` DISABLE KEYS */;
+INSERT INTO `uniformAdmin_template` VALUES (1,'test','template_images/2c85a390bfc11fad7bf2cd1a2b2c0666266fd29b.png',82,1,0,'2026-07-07 18:04:33.846245','2026-07-14 03:51:23.228086',6),(2,'testing','template_images/most-popular-sport-illustration-free-vector.jpg',4,1,0,'2026-07-23 10:40:08.247629','2026-07-23 10:40:16.900685',7),(3,'new1','template_images/most-popular-sport-illustration-free-vector_6gw2H9i.jpg',-3,1,1,'2026-07-24 04:43:38.267854','2026-07-24 04:45:40.610747',9),(4,'sid testing','template_images/most-popular-sport-illustration-free-vector_3YnOtt7.jpg',4,1,1,'2026-07-29 06:15:46.714368','2026-07-29 06:17:38.058596',7);
+/*!40000 ALTER TABLE `uniformAdmin_template` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_themecoverimage`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_themecoverimage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_themecoverimage` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `image` varchar(100) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `theme_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniformAdmin_themeco_theme_id_1f39fec1_fk_uniformAd` (`theme_id`),
+  CONSTRAINT `uniformAdmin_themeco_theme_id_1f39fec1_fk_uniformAd` FOREIGN KEY (`theme_id`) REFERENCES `uniformAdmin_tabletheme` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_themecoverimage`
+--
+
+LOCK TABLES `uniformAdmin_themecoverimage` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_themecoverimage` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_themecoverimage` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uniformAdmin_themeitem`
+--
+
+DROP TABLE IF EXISTS `uniformAdmin_themeitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `uniformAdmin_themeitem` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `section` varchar(50) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `product_id` bigint NOT NULL,
+  `theme_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniformAdmin_themeitem_theme_id_product_id_section_308f7b26_uniq` (`theme_id`,`product_id`,`section`),
+  KEY `uniformAdmin_themeit_product_id_9e81f730_fk_uniformAd` (`product_id`),
+  CONSTRAINT `uniformAdmin_themeit_product_id_9e81f730_fk_uniformAd` FOREIGN KEY (`product_id`) REFERENCES `uniformAdmin_product` (`id`),
+  CONSTRAINT `uniformAdmin_themeit_theme_id_b1c42a4f_fk_uniformAd` FOREIGN KEY (`theme_id`) REFERENCES `uniformAdmin_tabletheme` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uniformAdmin_themeitem`
+--
+
+LOCK TABLES `uniformAdmin_themeitem` WRITE;
+/*!40000 ALTER TABLE `uniformAdmin_themeitem` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uniformAdmin_themeitem` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_cart`
+--
+
+DROP TABLE IF EXISTS `userhub_cart`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_cart` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `is_active` tinyint(1) NOT NULL,
+  `is_delete` datetime(6) NOT NULL,
+  `is_update` date NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `user_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `userhub_cart_user_id_7b4dfe1a_fk_userhub_users_id` (`user_id`),
+  CONSTRAINT `userhub_cart_user_id_7b4dfe1a_fk_userhub_users_id` FOREIGN KEY (`user_id`) REFERENCES `userhub_users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_cart`
+--
+
+LOCK TABLES `userhub_cart` WRITE;
+/*!40000 ALTER TABLE `userhub_cart` DISABLE KEYS */;
+INSERT INTO `userhub_cart` VALUES (1,1,'2026-01-30 07:14:16.924000','2026-01-30','2026-01-30 07:14:16.924000',29);
+/*!40000 ALTER TABLE `userhub_cart` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_cartitem`
+--
+
+DROP TABLE IF EXISTS `userhub_cartitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_cartitem` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `quantity` int unsigned NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `discount` decimal(5,2) NOT NULL,
+  `final_price` decimal(10,2) NOT NULL,
+  `total_price` decimal(10,2) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `deleted_at` datetime(6) DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `cart_id` bigint NOT NULL,
+  `product_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `userhub_cartitem_cart_id_1e916727_fk_userhub_cart_id` (`cart_id`),
+  KEY `userhub_cartitem_product_id_6ccfea68_fk_uniformAdmin_product_id` (`product_id`),
+  CONSTRAINT `userhub_cartitem_cart_id_1e916727_fk_userhub_cart_id` FOREIGN KEY (`cart_id`) REFERENCES `userhub_cart` (`id`),
+  CONSTRAINT `userhub_cartitem_product_id_6ccfea68_fk_uniformAdmin_product_id` FOREIGN KEY (`product_id`) REFERENCES `uniformAdmin_product` (`id`),
+  CONSTRAINT `userhub_cartitem_chk_1` CHECK ((`quantity` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_cartitem`
+--
+
+LOCK TABLES `userhub_cartitem` WRITE;
+/*!40000 ALTER TABLE `userhub_cartitem` DISABLE KEYS */;
+INSERT INTO `userhub_cartitem` VALUES (1,1,1499.00,0.00,0.00,1499.00,'2026-01-30 07:14:16.930000','2026-01-30 07:14:16.930000',NULL,1,1,17),(2,19,1499.00,0.00,0.00,28481.00,'2026-01-30 07:14:54.846000','2026-01-30 07:14:54.846000',NULL,1,1,16),(3,2,1499.00,0.00,0.00,2998.00,'2026-01-30 09:24:17.218000','2026-01-30 09:24:17.218000',NULL,1,1,15),(4,20,1499.00,0.00,0.00,29980.00,'2026-01-31 12:20:47.296000','2026-01-31 12:20:47.296000',NULL,1,1,19);
+/*!40000 ALTER TABLE `userhub_cartitem` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_customerdetails`
+--
+
+DROP TABLE IF EXISTS `userhub_customerdetails`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_customerdetails` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `userName` varchar(255) DEFAULT NULL,
+  `email` varchar(254) NOT NULL,
+  `phone` varchar(15) NOT NULL,
+  `address_line_1` varchar(255) NOT NULL,
+  `address_line_2` varchar(255) NOT NULL,
+  `city` varchar(100) NOT NULL,
+  `postal_code` varchar(10) NOT NULL,
+  `country` varchar(100) NOT NULL,
+  `payment_method` varchar(20) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `isActive` tinyint(1) DEFAULT NULL,
+  `isDeleted` tinyint(1) DEFAULT NULL,
+  `user_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`),
+  CONSTRAINT `userhub_customerdetails_user_id_dd061a0b_fk_userhub_users_id` FOREIGN KEY (`user_id`) REFERENCES `userhub_users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_customerdetails`
+--
+
+LOCK TABLES `userhub_customerdetails` WRITE;
+/*!40000 ALTER TABLE `userhub_customerdetails` DISABLE KEYS */;
+INSERT INTO `userhub_customerdetails` VALUES (1,'Artika','Shukla',NULL,'morisourabh@gmail.com','9876543210','MG Road','Near Metro Station','Bengaluru','560001','India','cod','2026-07-07 10:17:17.411541','2026-07-07 10:17:17.411563',1,0,29),(2,'Smita','Sabarwal',NULL,'morisourabh@gmail.com','9876543210','MG Road','Near Metro Station','Bengaluru','560001','India','cod','2026-07-07 10:17:17.415922','2026-07-07 10:17:17.415947',1,0,31);
+/*!40000 ALTER TABLE `userhub_customerdetails` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_customupdatemodels`
+--
+
+DROP TABLE IF EXISTS `userhub_customupdatemodels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_customupdatemodels` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `config_json` json DEFAULT NULL,
+  `design_specifications` json DEFAULT NULL,
+  `json_file_path` varchar(500) DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `model_info_id` bigint DEFAULT NULL,
+  `user_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `userhub_customupdatemodels_user_id_model_info_id_e007acd7_uniq` (`user_id`,`model_info_id`),
+  KEY `userhub_customupdate_model_info_id_8db433c8_fk_userhub_m` (`model_info_id`),
+  CONSTRAINT `userhub_customupdate_model_info_id_8db433c8_fk_userhub_m` FOREIGN KEY (`model_info_id`) REFERENCES `userhub_modelinfo` (`id`),
+  CONSTRAINT `userhub_customupdatemodels_user_id_406a7e2e_fk_userhub_users_id` FOREIGN KEY (`user_id`) REFERENCES `userhub_users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_customupdatemodels`
+--
+
+LOCK TABLES `userhub_customupdatemodels` WRITE;
+/*!40000 ALTER TABLE `userhub_customupdatemodels` DISABLE KEYS */;
+INSERT INTO `userhub_customupdatemodels` VALUES (1,'{\"size\": \"M\", \"color\": \"grey\", \"material\": \"cotton\"}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-01-23 10:27:27.747000',1,27),(2,'{\"size\": \"M\", \"color\": \"grey\", \"material\": \"cotton\"}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-01-23 11:00:39.678000',2,29),(3,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-14 09:04:23.125443',6,27),(4,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-14 11:09:31.448748',8,27),(7,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-14 11:30:04.879307',13,27),(8,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-14 11:31:17.068115',14,27),(9,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-14 11:31:34.665901',15,27),(10,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-14 11:34:00.748780',16,27),(11,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-14 11:49:56.258846',17,27),(12,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-14 11:51:09.684952',18,27),(13,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-14 11:51:20.116641',19,27),(14,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-14 12:02:37.246736',20,27),(15,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-14 12:03:19.690818',21,27),(16,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-14 12:04:14.121419',22,27),(17,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-15 03:09:59.976255',23,27),(18,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-20 09:41:56.651366',24,27),(19,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-23 06:41:45.653288',25,27),(20,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-23 07:08:02.541483',26,27),(21,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-23 07:09:23.841529',27,27),(22,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-23 09:22:56.399644',28,27),(23,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-23 11:28:48.650287',29,27),(24,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-29 10:36:38.116748',30,44),(25,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-30 04:45:24.085236',31,27),(26,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-30 05:00:48.068661',32,27),(27,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-31 06:57:05.424871',33,27),(28,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-07-31 09:12:39.845079',34,27),(29,'{}','{\"text\": \"My Brand\", \"print_type\": \"embroidery\", \"logo_position\": \"front\"}',NULL,1,0,'2026-08-01 05:04:55.053870',35,27);
+/*!40000 ALTER TABLE `userhub_customupdatemodels` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_favourite`
+--
+
+DROP TABLE IF EXISTS `userhub_favourite`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_favourite` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `is_like` tinyint(1) NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `product_id` bigint NOT NULL,
+  `user_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `userhub_favourite_product_id_user_id_ca3ed602_uniq` (`product_id`,`user_id`),
+  KEY `userhub_favourite_user_id_24df80ee_fk_userhub_users_id` (`user_id`),
+  CONSTRAINT `userhub_favourite_product_id_ff794a38_fk_uniformAdmin_product_id` FOREIGN KEY (`product_id`) REFERENCES `uniformAdmin_product` (`id`),
+  CONSTRAINT `userhub_favourite_user_id_24df80ee_fk_userhub_users_id` FOREIGN KEY (`user_id`) REFERENCES `userhub_users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_favourite`
+--
+
+LOCK TABLES `userhub_favourite` WRITE;
+/*!40000 ALTER TABLE `userhub_favourite` DISABLE KEYS */;
+INSERT INTO `userhub_favourite` VALUES (1,0,1,0,'2025-12-20 13:13:16.158000','2025-12-20 13:13:51.758000',1,19);
+/*!40000 ALTER TABLE `userhub_favourite` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_modelinfo`
+--
+
+DROP TABLE IF EXISTS `userhub_modelinfo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_modelinfo` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `model_file` varchar(100) DEFAULT NULL,
+  `description` longtext,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `product_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `userhub_modelinfo_product_id_797bfc1f` (`product_id`),
+  CONSTRAINT `userhub_modelinfo_product_id_797bfc1f_fk_uniformAdmin_product_id` FOREIGN KEY (`product_id`) REFERENCES `uniformAdmin_product` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_modelinfo`
+--
+
+LOCK TABLES `userhub_modelinfo` WRITE;
+/*!40000 ALTER TABLE `userhub_modelinfo` DISABLE KEYS */;
+INSERT INTO `userhub_modelinfo` VALUES (1,'3d_models/Lion.jpg','fgdfd',1,0,'2026-01-23 10:26:20.448000','2026-01-23 10:26:20.448000',15),(2,'3d_models/Lion_RnK4PAH.jpg',NULL,1,0,'2026-01-23 10:58:59.094000','2026-01-23 10:58:59.094000',16),(5,'','School uniform 3D model',1,0,'2026-07-14 07:03:05.641558','2026-07-14 07:03:05.641610',2),(6,'','School uniform 3D model',1,0,'2026-07-14 09:02:01.134042','2026-07-14 09:02:01.134273',5),(8,'','School uniform 3D model',1,0,'2026-07-14 11:03:05.485702','2026-07-14 11:03:05.485791',5),(9,'','School uniform 3D model',1,0,'2026-07-14 11:16:08.124982','2026-07-14 11:16:08.125075',4),(10,'','School uniform 3D model',1,0,'2026-07-14 11:27:05.163765','2026-07-14 11:27:05.163853',4),(11,'','School uniform 3D model',1,0,'2026-07-14 11:27:15.001931','2026-07-14 11:27:15.001966',4),(12,'','School uniform 3D model',1,0,'2026-07-14 11:29:40.289817','2026-07-14 11:29:40.289851',4),(13,'','School uniform 3D model',1,0,'2026-07-14 11:30:04.105678','2026-07-14 11:30:04.105728',4),(14,'','School uniform 3D model',1,0,'2026-07-14 11:31:16.760586','2026-07-14 11:31:16.760610',4),(15,'','School uniform 3D model',1,0,'2026-07-14 11:31:34.340787','2026-07-14 11:31:34.340869',4),(16,'','School uniform 3D model',1,0,'2026-07-14 11:34:00.330469','2026-07-14 11:34:00.330563',4),(17,'','School uniform 3D model',1,0,'2026-07-14 11:49:55.500208','2026-07-14 11:49:55.500340',4),(18,'','School uniform 3D model',1,0,'2026-07-14 11:51:09.272467','2026-07-14 11:51:09.272546',4),(19,'','School uniform 3D model',1,0,'2026-07-14 11:51:19.308389','2026-07-14 11:51:19.308420',4),(20,'','School uniform 3D model',1,0,'2026-07-14 12:02:36.935551','2026-07-14 12:02:36.935585',2),(21,'','School uniform 3D model',1,0,'2026-07-14 12:03:19.190105','2026-07-14 12:03:19.190197',2),(22,'','School uniform 3D model',1,0,'2026-07-14 12:04:13.345136','2026-07-14 12:04:13.345163',2),(23,'','School uniform 3D model',1,0,'2026-07-15 03:09:58.795186','2026-07-15 03:09:58.795298',1),(24,'','School uniform 3D model',1,0,'2026-07-20 09:41:55.698864','2026-07-20 09:41:55.698903',5),(25,'','School uniform 3D model',1,0,'2026-07-23 06:41:45.125285','2026-07-23 06:41:45.125333',4),(26,'','School uniform 3D model',1,0,'2026-07-23 07:08:02.160791','2026-07-23 07:08:02.160845',5),(27,'','School uniform 3D model',1,0,'2026-07-23 07:09:23.552287','2026-07-23 07:09:23.552388',5),(28,'','School uniform 3D model',1,0,'2026-07-23 09:22:56.174544','2026-07-23 09:22:56.174570',5),(29,'','School uniform 3D model',1,0,'2026-07-23 11:28:47.955124','2026-07-23 11:28:47.955266',5),(30,'','School uniform 3D model',1,0,'2026-07-29 10:36:37.819074','2026-07-29 10:36:37.819112',1),(31,'','School uniform 3D model',1,0,'2026-07-30 04:45:23.475924','2026-07-30 04:45:23.476012',32),(32,'','School uniform 3D model',1,0,'2026-07-30 05:00:47.952554','2026-07-30 05:00:47.952637',32),(33,'','School uniform 3D model',1,0,'2026-07-31 06:57:04.623014','2026-07-31 06:57:04.623060',4),(34,'','School uniform 3D model',1,0,'2026-07-31 09:12:39.004844','2026-07-31 09:12:39.004886',5),(35,'','School uniform 3D model',1,0,'2026-08-01 05:04:54.431671','2026-08-01 05:04:54.431751',4);
+/*!40000 ALTER TABLE `userhub_modelinfo` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_order`
+--
+
+DROP TABLE IF EXISTS `userhub_order`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_order` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `order_id` varchar(100) DEFAULT NULL,
+  `shipping_charge` decimal(10,2) DEFAULT NULL,
+  `tax` decimal(10,2) DEFAULT NULL,
+  `payment_method` varchar(500) DEFAULT NULL,
+  `currency` varchar(10) DEFAULT NULL,
+  `status` varchar(50) NOT NULL,
+  `order_type` varchar(50) NOT NULL,
+  `total_amount` decimal(10,2) NOT NULL,
+  `rental_start_date` date DEFAULT NULL,
+  `rental_end_date` date DEFAULT NULL,
+  `rental_days` int unsigned DEFAULT NULL,
+  `subtotal` decimal(10,2) DEFAULT NULL,
+  `cancel_reason` varchar(50) DEFAULT NULL,
+  `admin_cancel_reason` varchar(255) DEFAULT NULL,
+  `cancelled_by` varchar(20) DEFAULT NULL,
+  `is_paid` tinyint(1) DEFAULT NULL,
+  `is_returned` tinyint(1) DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `is_deleted` tinyint(1) NOT NULL,
+  `is_update` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `cart_id` bigint DEFAULT NULL,
+  `customer_id` bigint DEFAULT NULL,
+  `promocode_id` bigint DEFAULT NULL,
+  `user_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `order_id` (`order_id`),
+  KEY `userhub_order_user_id_87f4b66f_fk_userhub_users_id` (`user_id`),
+  KEY `userhub_order_cart_id_cbc7aa3b_fk_userhub_cart_id` (`cart_id`),
+  KEY `userhub_order_customer_id_559b89a1_fk_userhub_customerdetails_id` (`customer_id`),
+  KEY `userhub_order_promocode_id_8a1bcd34_fk_uniformAdmin_promocode_id` (`promocode_id`),
+  CONSTRAINT `userhub_order_cart_id_cbc7aa3b_fk_userhub_cart_id` FOREIGN KEY (`cart_id`) REFERENCES `userhub_cart` (`id`),
+  CONSTRAINT `userhub_order_customer_id_559b89a1_fk_userhub_customerdetails_id` FOREIGN KEY (`customer_id`) REFERENCES `userhub_customerdetails` (`id`),
+  CONSTRAINT `userhub_order_promocode_id_8a1bcd34_fk_uniformAdmin_promocode_id` FOREIGN KEY (`promocode_id`) REFERENCES `uniformAdmin_promocode` (`id`),
+  CONSTRAINT `userhub_order_user_id_87f4b66f_fk_userhub_users_id` FOREIGN KEY (`user_id`) REFERENCES `userhub_users` (`id`),
+  CONSTRAINT `userhub_order_chk_1` CHECK ((`rental_days` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_order`
+--
+
+LOCK TABLES `userhub_order` WRITE;
+/*!40000 ALTER TABLE `userhub_order` DISABLE KEYS */;
+INSERT INTO `userhub_order` VALUES (1,'026b04b7dbf644c894ae3a92b5686e07',500.00,1330.00,'cod','INR','created','uniform',14630.00,'2026-02-01','2026-02-05',4,12800.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.586384','2026-07-07 10:17:17.586425',1,1,NULL,29),(2,'03bbcab8a7744f26b70b12009b45335f',500.00,1730.00,'cod','INR','created','uniform',19030.00,'2026-02-01','2026-02-05',4,16800.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.593934','2026-07-07 10:17:17.593963',1,1,NULL,29),(3,'31abb42d90494253bad8eb65415b7f48',500.00,63.20,'cod','INR','created','uniform',695.20,'2026-01-30','2026-02-05',6,132.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.600055','2026-07-07 10:17:17.600083',1,1,NULL,29),(4,'571e5fbecba74970855a10f047c67554',500.00,1730.00,'cod','INR','created','uniform',19030.00,'2026-02-01','2026-02-05',4,16800.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.605624','2026-07-07 10:17:17.605653',1,1,NULL,29),(5,'7cf7b83665c44ad9b423b6a7e5c2eeee',500.00,1730.00,'cod','INR','created','uniform',19030.00,'2026-02-01','2026-02-05',4,16800.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.610749','2026-07-07 10:17:17.610776',1,1,NULL,29),(6,'849ed4ab2d49453281716077e6bad2f3',500.00,1730.00,'cod','INR','created','uniform',19030.00,'2026-02-03','2026-02-07',4,16800.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.616284','2026-07-07 10:17:17.616314',1,2,NULL,31),(7,'8ef501d57b3b4384b0abba1770238ec8',500.00,1730.00,'cod','INR','created','uniform',19030.00,'2026-02-03','2026-02-07',4,16800.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.622148','2026-07-07 10:17:17.622179',1,1,NULL,29),(8,'95fa758e2e0a4d99b5c26e81d91840e7',500.00,1730.00,'cod','INR','created','uniform',19030.00,'2026-02-01','2026-02-05',4,16800.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.627501','2026-07-07 10:17:17.627540',1,1,NULL,29),(9,'9e2b60b532084c8d86cd8d4fab88e0dd',500.00,63.20,'cod','INR','created','uniform',695.20,'2026-01-30','2026-02-05',6,132.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.634768','2026-07-07 10:17:17.634811',1,1,NULL,29),(10,'aadcbef0d7624d8a8572a01c8b207605',500.00,63.20,'cod','INR','created','uniform',695.20,'2026-01-30','2026-02-05',6,132.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.641123','2026-07-07 10:17:17.641156',1,1,NULL,29),(11,'bb4adada8ca44357939b3fce4493822d',500.00,63.20,'cod','INR','created','uniform',695.20,'2026-01-30','2026-02-05',6,132.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.647742','2026-07-07 10:17:17.647783',1,1,NULL,29),(12,'c4fd66618e7f44c2a41d878aa712337e',500.00,1730.00,'cod','INR','created','uniform',19030.00,'2026-02-03','2026-02-07',4,16800.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.653892','2026-07-07 10:17:17.653928',1,1,NULL,29),(13,'d36bf13c1d8f43e4a3fb61db041f01f4',500.00,1730.00,'cod','INR','created','uniform',19030.00,'2026-02-01','2026-02-05',4,16800.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.658446','2026-07-07 10:17:17.658467',1,1,NULL,29),(14,'ded99740a6034cd586467faf7e7d3062',500.00,63.20,'cod','INR','pending','uniform',695.20,'2026-01-30','2026-02-05',6,132.00,NULL,NULL,NULL,0,0,1,0,'2026-07-08 07:29:42.142449','2026-07-07 10:17:17.662477',1,1,NULL,29),(15,'e618f3f35fb548458868d1a2849d1994',500.00,1730.00,'cod','INR','created','uniform',19030.00,'2026-02-03','2026-02-07',4,16800.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.669670','2026-07-07 10:17:17.669691',1,1,NULL,29),(16,'f90fcd356dab43c6a2bd455dc9819924',500.00,1330.00,'cod','INR','created','uniform',14630.00,'2026-02-01','2026-02-05',4,12800.00,NULL,NULL,NULL,0,0,1,1,'2026-07-07 10:17:17.674125','2026-07-07 10:17:17.674147',1,1,NULL,29);
+/*!40000 ALTER TABLE `userhub_order` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_orderitem`
+--
+
+DROP TABLE IF EXISTS `userhub_orderitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_orderitem` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `quantity` int unsigned NOT NULL,
+  `rental_days` int unsigned NOT NULL,
+  `price_per_day` decimal(10,2) DEFAULT NULL,
+  `subtotal` decimal(12,2) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `order_id` bigint NOT NULL,
+  `product_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `userhub_orderitem_order_id_46eea4b9_fk_userhub_order_id` (`order_id`),
+  KEY `userhub_orderitem_product_id_47c44e46_fk_uniformAdmin_product_id` (`product_id`),
+  CONSTRAINT `userhub_orderitem_order_id_46eea4b9_fk_userhub_order_id` FOREIGN KEY (`order_id`) REFERENCES `userhub_order` (`id`),
+  CONSTRAINT `userhub_orderitem_product_id_47c44e46_fk_uniformAdmin_product_id` FOREIGN KEY (`product_id`) REFERENCES `uniformAdmin_product` (`id`),
+  CONSTRAINT `userhub_orderitem_chk_1` CHECK ((`quantity` >= 0)),
+  CONSTRAINT `userhub_orderitem_chk_2` CHECK ((`rental_days` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_orderitem`
+--
+
+LOCK TABLES `userhub_orderitem` WRITE;
+/*!40000 ALTER TABLE `userhub_orderitem` DISABLE KEYS */;
+INSERT INTO `userhub_orderitem` VALUES (1,1,1,1499.00,1499.00,'2026-07-07 10:17:17.676492','2026-07-07 10:17:17.676515',9,17),(2,19,1,1499.00,28481.00,'2026-07-07 10:17:17.679062','2026-07-07 10:17:17.679099',9,16),(3,2,1,1499.00,2998.00,'2026-07-07 10:17:17.681410','2026-07-07 10:17:17.681453',9,15),(4,1,1,1499.00,1499.00,'2026-07-07 10:17:17.683880','2026-07-07 10:17:17.683925',10,17),(5,19,1,1499.00,28481.00,'2026-07-07 10:17:17.686221','2026-07-07 10:17:17.686256',10,16),(6,2,1,1499.00,2998.00,'2026-07-07 10:17:17.688656','2026-07-07 10:17:17.688694',10,15),(7,1,1,1499.00,1499.00,'2026-07-07 10:17:17.690999','2026-07-07 10:17:17.691038',14,17),(8,19,1,1499.00,28481.00,'2026-07-07 10:17:17.693370','2026-07-07 10:17:17.693403',14,16),(9,2,1,1499.00,2998.00,'2026-07-07 10:17:17.695469','2026-07-07 10:17:17.695502',14,15),(10,1,1,1499.00,1499.00,'2026-07-07 10:17:17.697442','2026-07-07 10:17:17.697482',11,17),(11,19,1,1499.00,28481.00,'2026-07-07 10:17:17.699878','2026-07-07 10:17:17.699936',11,16),(12,2,1,1499.00,2998.00,'2026-07-07 10:17:17.702043','2026-07-07 10:17:17.702078',11,15),(13,1,1,1499.00,1499.00,'2026-07-07 10:17:17.704350','2026-07-07 10:17:17.704388',16,17),(14,19,1,1499.00,28481.00,'2026-07-07 10:17:17.706778','2026-07-07 10:17:17.706816',16,16),(15,2,1,1499.00,2998.00,'2026-07-07 10:17:17.709494','2026-07-07 10:17:17.709534',16,15),(16,10,1,1499.00,14990.00,'2026-07-07 10:17:17.712593','2026-07-07 10:17:17.712634',16,19),(17,1,1,1499.00,1499.00,'2026-07-07 10:17:17.714867','2026-07-07 10:17:17.714899',1,17),(18,19,1,1499.00,28481.00,'2026-07-07 10:17:17.717130','2026-07-07 10:17:17.717160',1,16),(19,2,1,1499.00,2998.00,'2026-07-07 10:17:17.719176','2026-07-07 10:17:17.719197',1,15),(20,10,1,1499.00,14990.00,'2026-07-07 10:17:17.721290','2026-07-07 10:17:17.721315',1,19),(21,1,1,1499.00,1499.00,'2026-07-07 10:17:17.723374','2026-07-07 10:17:17.723396',13,17),(22,19,1,1499.00,28481.00,'2026-07-07 10:17:17.725488','2026-07-07 10:17:17.725508',13,16),(23,2,1,1499.00,2998.00,'2026-07-07 10:17:17.727337','2026-07-07 10:17:17.727356',13,15),(24,20,1,1499.00,29980.00,'2026-07-07 10:17:17.729518','2026-07-07 10:17:17.729536',13,19),(25,1,1,1499.00,1499.00,'2026-07-07 10:17:17.732409','2026-07-07 10:17:17.732436',8,17),(26,19,1,1499.00,28481.00,'2026-07-07 10:17:17.734646','2026-07-07 10:17:17.734665',8,16),(27,2,1,1499.00,2998.00,'2026-07-07 10:17:17.736952','2026-07-07 10:17:17.736972',8,15),(28,20,1,1499.00,29980.00,'2026-07-07 10:17:17.739047','2026-07-07 10:17:17.739071',8,19),(29,1,1,1499.00,1499.00,'2026-07-07 10:17:17.741279','2026-07-07 10:17:17.741299',2,17),(30,19,1,1499.00,28481.00,'2026-07-07 10:17:17.743645','2026-07-07 10:17:17.743664',2,16),(31,2,1,1499.00,2998.00,'2026-07-07 10:17:17.746169','2026-07-07 10:17:17.746189',2,15),(32,20,1,1499.00,29980.00,'2026-07-07 10:17:17.748046','2026-07-07 10:17:17.748081',2,19),(33,1,1,1499.00,1499.00,'2026-07-07 10:17:17.750255','2026-07-07 10:17:17.750279',4,17),(34,19,1,1499.00,28481.00,'2026-07-07 10:17:17.752202','2026-07-07 10:17:17.752223',4,16),(35,2,1,1499.00,2998.00,'2026-07-07 10:17:17.755181','2026-07-07 10:17:17.755207',4,15),(36,20,1,1499.00,29980.00,'2026-07-07 10:17:17.757239','2026-07-07 10:17:17.757259',4,19),(37,1,1,1499.00,1499.00,'2026-07-07 10:17:17.759540','2026-07-07 10:17:17.759559',5,17),(38,19,1,1499.00,28481.00,'2026-07-07 10:17:17.761628','2026-07-07 10:17:17.761648',5,16),(39,2,1,1499.00,2998.00,'2026-07-07 10:17:17.763585','2026-07-07 10:17:17.763604',5,15),(40,20,1,1499.00,29980.00,'2026-07-07 10:17:17.765509','2026-07-07 10:17:17.765536',5,19),(41,1,1,1499.00,1499.00,'2026-07-07 10:17:17.767666','2026-07-07 10:17:17.767688',12,17),(42,19,1,1499.00,28481.00,'2026-07-07 10:17:17.769810','2026-07-07 10:17:17.769829',12,16),(43,2,1,1499.00,2998.00,'2026-07-07 10:17:17.772131','2026-07-07 10:17:17.772159',12,15),(44,20,1,1499.00,29980.00,'2026-07-07 10:17:17.774309','2026-07-07 10:17:17.774331',12,19),(45,1,1,1499.00,1499.00,'2026-07-07 10:17:17.776443','2026-07-07 10:17:17.776466',7,17),(46,19,1,1499.00,28481.00,'2026-07-07 10:17:17.778691','2026-07-07 10:17:17.778714',7,16),(47,2,1,1499.00,2998.00,'2026-07-07 10:17:17.781362','2026-07-07 10:17:17.781395',7,15),(48,20,1,1499.00,29980.00,'2026-07-07 10:17:17.783395','2026-07-07 10:17:17.783429',7,19),(49,1,1,1499.00,1499.00,'2026-07-07 10:17:17.785820','2026-07-07 10:17:17.785856',15,17),(50,19,1,1499.00,28481.00,'2026-07-07 10:17:17.788389','2026-07-07 10:17:17.788430',15,16),(51,2,1,1499.00,2998.00,'2026-07-07 10:17:17.791153','2026-07-07 10:17:17.791205',15,15),(52,20,1,1499.00,29980.00,'2026-07-07 10:17:17.793651','2026-07-07 10:17:17.793683',15,19),(53,1,1,1499.00,1499.00,'2026-07-07 10:17:17.796361','2026-07-07 10:17:17.796391',6,17),(54,19,1,1499.00,28481.00,'2026-07-07 10:17:17.798903','2026-07-07 10:17:17.798956',6,16),(55,2,1,1499.00,2998.00,'2026-07-07 10:17:17.801456','2026-07-07 10:17:17.801488',6,15),(56,20,1,1499.00,29980.00,'2026-07-07 10:17:17.803879','2026-07-07 10:17:17.803930',6,19);
+/*!40000 ALTER TABLE `userhub_orderitem` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_payment`
+--
+
+DROP TABLE IF EXISTS `userhub_payment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_payment` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `payment_id` varchar(255) NOT NULL,
+  `customer_id` varchar(255) DEFAULT NULL,
+  `payment_method_id` varchar(100) DEFAULT NULL,
+  `payment_status` varchar(20) NOT NULL,
+  `payment_method` varchar(20) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `currency` varchar(10) NOT NULL,
+  `paid_at` datetime(6) DEFAULT NULL,
+  `client_secret` varchar(255) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  `is_delete` datetime(6) DEFAULT NULL,
+  `is_update` date DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `order_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `payment_id` (`payment_id`),
+  KEY `userhub_payment_order_id_f4336956_fk_userhub_order_id` (`order_id`),
+  CONSTRAINT `userhub_payment_order_id_f4336956_fk_userhub_order_id` FOREIGN KEY (`order_id`) REFERENCES `userhub_order` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_payment`
+--
+
+LOCK TABLES `userhub_payment` WRITE;
+/*!40000 ALTER TABLE `userhub_payment` DISABLE KEYS */;
+/*!40000 ALTER TABLE `userhub_payment` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_quotationrequest`
+--
+
+DROP TABLE IF EXISTS `userhub_quotationrequest`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_quotationrequest` (
+  `uuids` char(32) NOT NULL,
+  `quotation_id` varchar(20) DEFAULT NULL,
+  `company_name` varchar(255) DEFAULT NULL,
+  `contact_person` varchar(255) DEFAULT NULL,
+  `email` varchar(254) NOT NULL,
+  `phone_number` varchar(20) DEFAULT NULL,
+  `item_type` varchar(100) DEFAULT NULL,
+  `material` varchar(100) DEFAULT NULL,
+  `size_quantity` longtext,
+  `delivery_date` date NOT NULL,
+  `additional_note` longtext,
+  `agreed_to_terms` tinyint(1) NOT NULL,
+  `agreed_terms_version` varchar(20) DEFAULT NULL,
+  `agreed_at` datetime(6) DEFAULT NULL,
+  `agreed_ip` char(39) DEFAULT NULL,
+  `agreed_user_agent` longtext,
+  `workflow_status` varchar(20) NOT NULL,
+  `quotation_status` varchar(20) NOT NULL,
+  `external_document_id` varchar(255) DEFAULT NULL,
+  `signed_pdf` varchar(100) DEFAULT NULL,
+  `signed_at` datetime(6) DEFAULT NULL,
+  `is_signed` tinyint(1) NOT NULL,
+  `cancelled_by` varchar(10) DEFAULT NULL,
+  `cancel_reason` longtext,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `customupdatemodel_id` bigint DEFAULT NULL,
+  `discount_percent` decimal(5,2) DEFAULT NULL,
+  `last_sent_at` datetime(6) DEFAULT NULL,
+  `sales_rep_id` bigint DEFAULT NULL,
+  `subtotal` decimal(12,2) DEFAULT NULL,
+  `total` decimal(12,2) DEFAULT NULL,
+  `valid_until` date DEFAULT NULL,
+  PRIMARY KEY (`uuids`),
+  UNIQUE KEY `quotation_id` (`quotation_id`),
+  KEY `userhub_quotationreq_customupdatemodel_id_3703ba7f_fk_userhub_c` (`customupdatemodel_id`),
+  KEY `userhub_quotationreq_sales_rep_id_5930c99e_fk_uniformAd` (`sales_rep_id`),
+  CONSTRAINT `userhub_quotationreq_customupdatemodel_id_3703ba7f_fk_userhub_c` FOREIGN KEY (`customupdatemodel_id`) REFERENCES `userhub_customupdatemodels` (`id`),
+  CONSTRAINT `userhub_quotationreq_sales_rep_id_5930c99e_fk_uniformAd` FOREIGN KEY (`sales_rep_id`) REFERENCES `uniformAdmin_adminuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_quotationrequest`
+--
+
+LOCK TABLES `userhub_quotationrequest` WRITE;
+/*!40000 ALTER TABLE `userhub_quotationrequest` DISABLE KEYS */;
+INSERT INTO `userhub_quotationrequest` VALUES ('022b18c3a9c74dda84e7d6137b39448a','QUOT-5303BC','Brilliant Technology','Mihir Tripathii','morisourabh@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','',0,NULL,NULL,NULL,NULL,'SIGNED','approved',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.418305','2026-07-29 08:40:01.095771',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('06aa6329936b4aa59bb856cce6103cbd','QUOT-504418','hello','Aishwarya','moriji345@gmail.com','9876543210','abhishek','cotton','2xl','2026-01-01','hasdks',0,NULL,NULL,NULL,NULL,'SENT','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.420712','2026-07-29 09:08:44.800097',2,NULL,NULL,NULL,NULL,NULL,NULL),('08b9649b4ec74e97806ff5bdb2e59f10','QUOT-E4BD75','school uniform','fdfdd','admin@gmail.com','1234567899','dfdsfgfs','sdf','sdf','2026-01-05','',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.423583','2026-07-07 10:17:17.423599',1,NULL,NULL,NULL,NULL,NULL,NULL),('09155a854fdc4b929047c740df698c2c','QUOT-A99CE5','Tesla','Sourabh Mori','morisourabh@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.425880','2026-07-07 10:17:17.425895',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('18dfe83c916e4428b5355c0ab7be957a','QUOT-79797F','digiprima','Siddharth soni','siddharth.soni@digiprima.co','08878721435','test1','shirt','M 10','2026-07-23','',1,NULL,NULL,NULL,NULL,'SENT','pending','392721c7-893b-8439-8122-9ea0197017ca','',NULL,0,NULL,NULL,1,0,'2026-07-23 07:18:34.845708','2026-07-23 07:18:39.354648',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('1cf1d84677e640bb81f14f55636e4717','QUOT-B4F12C','digiprima','ghanshyam nagar','ghanshyam.nagar@digiprima.com','4444444444','test','test','30','2026-07-13','asdasdasdasd',1,NULL,NULL,NULL,NULL,'SENT','pending','452f24f5-2145-807c-8180-d8d349720e2c','',NULL,0,NULL,NULL,1,0,'2026-07-14 12:17:20.618435','2026-07-14 12:17:27.062307',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('1faf6835d58e4ea8a01d99967b1ab9e8','QUOT-67C510','Bright Future School','Anita Sharma','sourabh.mori1digiprima@gmail.com','1111111111','Sports Uniform','Polyester','S-15, M-20, L-10','2025-02-15','Need logo printed on chest',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.428140','2026-07-07 10:17:17.428157',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('2384904e4d134554a868d424740c9b1c','QUOT-7FA854','digiprima','ghanshyam nagar','ghanshyam.nagar@digiprima.com','08959881547','test','test','30','2026-07-14','',1,NULL,NULL,NULL,NULL,'SENT','pending','78792938-eb15-8445-8092-e61db0770e62','',NULL,0,NULL,NULL,1,0,'2026-07-15 05:05:39.349057','2026-07-15 05:05:45.416986',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('243767d61aaa4003ab3843b1e7c2943c','QUOT-3452D0','Tesla','Elon Musk','moriji345@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.430438','2026-07-07 10:17:17.430457',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('251f38d6d531427c96545a9000eb3e5d','QUOT-FF44F0','Tesla','Sourabh Mori','morisourabh@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.432834','2026-07-07 10:17:17.432870',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('293be79852bf42e6a68c027f3258ba0e','QUOT-0AC153','Tesla','Elon Musk','moriji345@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.435095','2026-07-07 10:17:17.435121',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('2a3567e4247049d0a1d3060d8bffd292','QUOT-10FDC7','Tesla','Vijay Parmar','moriji345@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.438064','2026-07-07 10:17:17.438090',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('2e16ea7be21e4d12ba3e0af055273a3a','QUOT-609A4D','Tesla','Shreya Ghoshal','morisourabh@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'COMPLETED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.440456','2026-07-07 10:17:17.440481',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('2e7cc7bd69094279b36b3adf6130b46c','QUOT-DCE82A','hello','Abhishek Bachhan','adminscaling@gmail.com','9876543210','abhishek','ctton','2xl','2026-01-08','hasdks',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.443160','2026-07-07 10:17:17.443182',2,NULL,NULL,NULL,NULL,NULL,NULL),('3446f59a2a3a411ea1a125f03fdf8034','QUOT-F75350','hello','Aishwarya','moriji345@gmail.com','9876543210','abhishek','cotton','2xl','2026-01-01','hasdks',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.445482','2026-07-07 10:17:17.445504',2,NULL,NULL,NULL,NULL,NULL,NULL),('3675683f23de401c81783b3bd808dc10','QUOT-E946E6','Amazonn Technology','Vishwassss','morisourabh@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'SIGNED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.448154','2026-07-07 10:17:17.448180',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('3ba98ee481ed466091c7b6f111423b63','QUOT-33DB54','Prousepirity Technology','Mihir Tripathii','morisourabh@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'COMPLETED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.450270','2026-07-07 10:17:17.450293',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('3c2e4a032ec844e1a740de64bcb839e0','QUOT-F0F8A3','Tesla','Guru Dutta','sourabh.mori1digiprima@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'COMPLETED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.452354','2026-07-07 10:17:17.452373',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('431683d0ceda4eacb8b7fc10aeb459b4','QUOT-E02037','Tesla','Sourabh Mori','moriji345@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.454430','2026-07-07 10:17:17.454454',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('4340fb4d3aba4bd68ac11ac60e81728b','QUOT-8A8A7B','ubantu','Siddharth soni','siddharth.soni@digiprima.co','08878721435','School Dresss','Cotton','2xl','2026-07-31','testing',1,NULL,NULL,NULL,NULL,'SENT','pending','90c92222-518b-8b29-81b3-c73026771de5','',NULL,0,NULL,NULL,1,0,'2026-07-30 04:26:15.273441','2026-07-30 04:26:20.808626',17,NULL,NULL,NULL,NULL,NULL,NULL),('44fb0903f89748508567fe68c3d7f138','QUOT-0B05EF','Tesla','Radhe Krishna','moriji345@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.456599','2026-07-07 10:17:17.456618',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('460b34a712fc499681f90de679e845db','QUOT-738632','Tesla','Sourabh Mori','morisourabh@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',1,'v1.0','2026-01-15 10:14:25.774164','127.0.0.1','PostmanRuntime/7.49.1','SIGNED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.460206','2026-07-07 10:17:17.460220',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('4868c37af9ac4f23a8c958420aeb1800','QUOT-972628','Tesla','Shweta Mori','shwetamori282@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.462326','2026-07-07 10:17:17.462343',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('4952d6b94fa6408594d6a8493a36975a','QUOT-2CF71C','digiprima','ghanshyam nagar','ghanshyam.nagar@digiprima.com','4444444444','test','test','30','2026-07-13','asdasdasdasd',1,NULL,NULL,NULL,NULL,'SENT','pending','9f1a2406-fc73-8e09-80ca-066bd4780ee3','',NULL,0,NULL,NULL,1,0,'2026-07-14 12:17:57.462747','2026-07-14 12:18:02.484465',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('4ba645698375480182ff77518e5b1574','QUOT-F30279','Brilliant Technology','Mihir Tripathii','morisourabh@gmail.com','1111111111','test','Cotton','20','2026-07-29','asdfghj',1,NULL,NULL,NULL,NULL,'SENT','pending','57432bcc-1095-8c1d-8083-7a3c0c731da0','',NULL,0,NULL,NULL,1,0,'2026-07-29 10:38:17.819100','2026-07-29 10:38:22.977755',24,NULL,NULL,NULL,NULL,NULL,NULL),('4d3fd550e0504f9eb47dfd9d8ba1024c','QUOT-E12F11','Tesla','Sourabh Mori','moriji345@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.464464','2026-07-07 10:17:17.464487',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('4f12af0b6a9c40bdb20a752563a22dad','QUOT-293C15','JP','Siddharth soni','siddharth.soni@digiprima.co','08878721435','test1','t-shirt','M 10','2026-07-23','skjnk',1,NULL,NULL,NULL,NULL,'REQUESTED','cancelled','2a9f201d-d783-85c2-81ff-95efa77c1777','',NULL,0,'user','test cancel',1,0,'2026-07-23 11:30:33.559599','2026-07-29 03:30:46.114203',23,NULL,NULL,NULL,NULL,NULL,NULL),('54c05fde276f466cadf0b02b9f475b9d','QUOT-0D63B5','Tesla','Sourabh Mori','moriji345@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.467398','2026-07-07 10:17:17.467419',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('55c243ed81714c1a835bc72a4b8d17fc','QUOT-AE990C','Prousepirity Technology','Sourabh ji Mori','morisourabh@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'SENT','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.469365','2026-07-07 10:17:17.469385',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('59a614a0058a4490857b84a5b9922284','QUOT-62CEE2','Tesla','Bill Gates','morisourabh@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'COMPLETED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.471421','2026-07-07 10:17:17.471442',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('5b3331f1f4804db29f561f1faa5b2496','QUOT-983F70','Tesla','Sourabh Mori','moriji345@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.473400','2026-07-07 10:17:17.473417',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('5b58204eecfb4d4ca0d7e5fc208c4461','QUOT-457161','digiprima','ghanshyam nagar','ghanshyam.nagar@digiprima.com','08959881547','test','test','30','2026-07-23','test',1,NULL,NULL,NULL,NULL,'SENT','pending','bd502af8-5d1d-8a55-8098-ffdd1a7b0747','',NULL,0,NULL,NULL,1,0,'2026-07-08 05:32:31.198349','2026-07-08 05:32:44.601987',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('5b64ae509b6b4f25a0a7c1a26fb7602d','QUOT-DAC150','Tesla','Sourabh Mori','moriji345@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.475377','2026-07-07 10:17:17.475395',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('5b89b0ec6cee4ebba780a11b2670aa35','QUOT-2438E5','ABC Pvt Ltd','Rahul','rahul@gmail.com','9999999999','School Uniform','Cotton','M-10, L-20','2025-01-30','Need urgent delivery',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.477372','2026-07-07 10:17:17.477390',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('5f343c6855874c9eb4d0599ed5a8f37e','QUOT-257CBB','Prousepirity Technology','Sourabh ji Mori','sourabh.mori1digiprima@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'COMPLETED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.479411','2026-07-07 10:17:17.479432',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('68736ceda0814100878d0abe8fc80ede','QUOT-C5F4D4','Prousepirity Technology','Sourabh ji Mori','sourabh.mori1digiprima@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'SENT','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.481537','2026-07-07 10:17:17.481560',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('71d21bb6fbed4db2b52c4d0b8ad78d88','QUOT-A66265','hello','Abhishek Bachhan','adminscaling@gmail.com','9876543210','abhishek','ctton','2xl','2026-01-08','hasdks',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.484030','2026-07-07 10:17:17.484051',2,NULL,NULL,NULL,NULL,NULL,NULL),('75d227abf47149f9840137677a9a560f','QUOT-12EC6C','digiprimaggg','Siddharth soni','siddharth.soni@digiprima.co','08878721435','test','shirt','20','2026-07-29','iugy',1,NULL,NULL,NULL,NULL,'SENT','pending','6de52c26-6ee4-852e-81b3-e1ad2f751779','',NULL,0,NULL,NULL,1,0,'2026-07-23 08:48:48.885404','2026-07-23 08:48:53.454236',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('781945478b994d8a81cd11411de1b914','QUOT-709554','Amazonn Technology','Midcal Coach','morisourabh@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'SIGNED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.486359','2026-07-07 10:17:17.486388',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('794daf7574b847649f39d171e57bc29c','QUOT-FDE249','digiprima','ghanshyam nagar','ghanshyam.nagar@digiprima.com','08959881547','test','test','30','2026-07-15','test',1,NULL,NULL,NULL,NULL,'REQUESTED','cancelled','f32e2688-e1b7-88dc-80b6-1550d0760750','',NULL,0,'user','test',1,0,'2026-07-08 05:51:26.018460','2026-07-22 10:46:36.840549',1,NULL,NULL,NULL,NULL,NULL,NULL),('7d9ae8fe12414950bed1ade663aad971','QUOT-1F80E8','Apple Technology','Jemimah Rodrigouese','morisourabh@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'COMPLETED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.488841','2026-07-07 10:17:17.488862',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('7e2263d05d0b45a4ab0d461840dc5af7','QUOT-FB01F7','digiprima','Siddharth soni','siddharth.soni@digiprima.co','08878721435','test','t-shirt','L','2026-07-23','test',1,NULL,NULL,NULL,NULL,'SENT','pending','917b2193-eb07-8adc-81a8-16fca07e171e','',NULL,0,NULL,NULL,1,0,'2026-07-23 07:10:47.247082','2026-07-23 07:10:52.143504',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('82d3e3b135f64593b50d7d8fd76594db','QUOT-46062B','Tesla','Jay Hanuman','moriji345@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.491165','2026-07-07 10:17:17.491189',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('833f366f076d48f4919730fab5bd6846','QUOT-8C1CB4','hello','Abhishek','adminscaling@gmail.com','9876543210','abhishek','ctton','2xl','2026-01-08','hasdks',0,NULL,NULL,NULL,NULL,'SENT','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.494248','2026-07-07 10:17:17.494272',2,NULL,NULL,NULL,NULL,NULL,NULL),('83948da90aad40a692ff716b063b8867','QUOT-3A0F31','hello','Abhishek Bachhan','adminscaling@gmail.com','9876543210','abhishek','ctton','2xl','2026-01-08','hasdks',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.496437','2026-07-07 10:17:17.496461',2,NULL,NULL,NULL,NULL,NULL,NULL),('88d90e2b26984915bd3c491f8bc4cec7','QUOT-428538','hello','Aishwarya','moriji345@gmail.com','9876543210','abhishek','cotton','2xl','2026-01-01','hasdks',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.498807','2026-07-07 10:17:17.498836',2,NULL,NULL,NULL,NULL,NULL,NULL),('8e018055b823482fa0acbc570da0064a','QUOT-37D9F2','Tesla','Sourabh Mori','moriji345@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'COMPLETED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.500943','2026-07-07 10:17:17.500966',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('90f10c21b13b4bd69f5345d19635dd53','QUOT-F3F5D3','Tesla','Sourabh Mori','moriji345@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.503299','2026-07-07 10:17:17.503326',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('91b153f4a5cc42dda9ae9709f3b14afa','QUOT-D91765','digiprima','ghanshyam nagar','ghanshyam.nagar@digiprima.com','08959881547','test','test','30','2026-07-23','adADADADAD',1,NULL,NULL,NULL,NULL,'SENT','pending','38402a6f-0f8e-8568-811a-fce49a760e02','',NULL,0,NULL,NULL,1,0,'2026-07-15 05:04:54.749283','2026-07-15 05:05:00.530429',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('9cd8740546eb4f69b056058fd753018a','QUOT-A6A88C','digiprima','ghanshyam nagar','ghanshyam.nagar@digiprima.com','08959881547','test','test','30','2026-07-23','test',1,NULL,NULL,NULL,NULL,'SENT','pending','775024e0-fca6-84d6-8031-d031b7710709','',NULL,0,NULL,NULL,1,0,'2026-07-08 05:30:04.218895','2026-07-08 05:30:18.674947',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('9fd4b1d9dae24a2ba3550298354b35a3','QUOT-049608','Tesla','Sourabh Mori','moriji345@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.505633','2026-07-07 10:17:17.505655',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('a2ece559523c48cf81d0e931cf927d1c','QUOT-FBD899','Bright Future School','Anita Sharma','anita@brightfuture.edu','1111111111','Sports Uniform','Polyester','S-15, M-20, L-10','2025-02-15','Need logo printed on chest',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.508329','2026-07-07 10:17:17.508348',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('a41ea628a7334fa18f5d3bfc046535b0','QUOT-B55366','Tesla','Sourabh Mori','sourabh.mori1digiprima@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'SENT','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.510664','2026-07-07 10:17:17.510683',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('a53b8a0d81ef42e787444c13783f9bdb','QUOT-EFB2F5','hello','Abhishek Bachhan','adminscaling@gmail.com','9876543210','abhishek','ctton','2xl','2026-01-08','hasdks',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.513357','2026-07-07 10:17:17.513376',2,NULL,NULL,NULL,NULL,NULL,NULL),('a6bb2d3f80ef4532acf790b6270ed787','QUOT-5F3DFD','hello','Aishwarya','moriji345@gmail.com','9876543210','abhishek','cotton','2xl','2026-01-01','hasdks',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.515363','2026-07-07 10:17:17.515387',2,NULL,NULL,NULL,NULL,NULL,NULL),('a9957faaa62946eda5e289f14e849605','QUOT-07B913','Prousepirity Technology','Sourabh ji Mori','sourabh.mori1digiprima@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'SIGNED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.517784','2026-07-07 10:17:17.517805',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('ad120f57d45c4306abfa621a43e3edd4','QUOT-C5DE77','Tesla','Vijay Parmar','vijayparmar5056@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','approved',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.520367','2026-07-07 10:17:17.520393',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('afd733737a1c4323854bb49847b11016','QUOT-3D2EEA','Bright Future School','Anita Sharma','sourabh.mori1digiprima@gmail.com','1111111111','Sports Uniform','Polyester','S-15, M-20, L-10','2025-02-15','Need logo printed on chest',0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.522817','2026-07-07 10:17:17.522839',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('afdf0a45af804c89af956d6ec01a90e6','QUOT-A27663','digiprima','ghanshyam nagar','ghanshyam.nagar@digiprima.com','08959881547','test','test','30','2026-07-23','test',1,NULL,NULL,NULL,NULL,'SENT','pending','3a3d2a30-1db6-8432-8007-616e6673070b','',NULL,0,NULL,NULL,1,0,'2026-07-08 06:43:27.859036','2026-07-08 06:43:33.422568',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('b56275f36a9747f29fcd15f8f492b0a3','QUOT-FE3C95','Tesla','Sourabh Mori','moriji345@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',1,'v1.0','2026-01-15 10:44:42.615745','127.0.0.1','PostmanRuntime/7.49.1','SENT','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.525418','2026-07-07 10:17:17.525433',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('b6b22d68019f444781a901ccaa83d402','QUOT-2A1FB0','Tesla','Elon Musk','moriji345@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.527355','2026-07-07 10:17:17.527377',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('b75e633a87dc4a3e8c584c0b0582583e','QUOT-AF6EB6','Tesla','Sourabh Mori','moriji345@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.529530','2026-07-07 10:17:17.529553',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('b7d5d101228543ecbc4675dcddeadca0','QUOT-7263DE','digiprima','ghanshyam nagar','ghanshyam.nagar@digiprima.com','08959881547','test','test','30','2026-07-11','test',1,NULL,NULL,NULL,NULL,'SENT','pending','991f2223-4849-8e8b-8041-cf606b700718','',NULL,0,NULL,NULL,1,0,'2026-07-08 05:22:44.816513','2026-07-08 05:22:50.445449',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('b868479d55eb4ce194bc6539182b3943','QUOT-C6FA06','digiprima tech','Siddharth soni','siddharth.soni@digiprima.co','08878721435','School Dresss','cotton','M-10, L-20','2026-07-29','testing',1,NULL,NULL,NULL,NULL,'SENT','pending','c5922a90-ceef-815f-8160-0397ee741d1f','',NULL,0,NULL,NULL,1,0,'2026-07-30 04:20:34.910811','2026-07-30 04:20:40.109321',3,NULL,NULL,NULL,NULL,NULL,NULL),('b8793480bc8f4bde8c39f7776591da1b','QUOT-43ED7F','digiprima','Siddharth soni','siddharth.soni@digiprima.co','08878721435','test','t-shirt','M 10','2026-07-30','zZ',1,NULL,NULL,NULL,NULL,'SENT','pending','cfc12fdd-6e92-8931-8164-6338927017b4','',NULL,0,NULL,NULL,1,0,'2026-07-23 08:38:07.533541','2026-07-23 08:38:12.614631',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('b997ebb6ed6845b2b5abc7f2fb9ef6d8','QUOT-BFD47E','hello','Abhishek Bachhan','adminscaling@gmail.com','9876543210','abhishek','ctton','2xl','2026-01-08','hasdks',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.532149','2026-07-07 10:17:17.532184',2,NULL,NULL,NULL,NULL,NULL,NULL),('bc59e80c4dbb4977a0beea7a8ff7eaa5','QUOT-B4808C','digiprima tet','Siddharth soni','siddharth.soni@digiprima.co','08878721435','test','Cotton','L','2026-07-31','test',1,NULL,NULL,NULL,NULL,'SENT','sent','197b2571-b6c8-8dd2-8087-b7a013701f95','',NULL,0,NULL,NULL,1,0,'2026-08-01 05:14:51.632464','2026-08-05 10:32:40.423189',29,NULL,'2026-08-05 10:32:40.422696',NULL,NULL,NULL,NULL),('be817ddd324d4063b91f53c92868d5e9','QUOT-458F01','Bright Future School','Anita Sharma','sourabh.mori1digiprima@gmail.com','1111111111','Sports Uniform','Polyester','S-15, M-20, L-10','2025-02-15','Need logo printed on chest',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.534478','2026-07-07 10:17:17.534509',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('c59ce1181f794a6c8d1a98f939434461','QUOT-6F62F6','Tesla','Visionary Mind','moriji345@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','approved',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.537176','2026-07-07 10:17:17.537235',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('c5fd8e72a772418ca6e24f6f817c2e18','QUOT-AD914C','Tesla','Sourabh Mori','moriji345@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.540155','2026-07-07 10:17:17.540196',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('ce1dfb21bfbc4e1fb0aeeb3ba436df2d','QUOT-DA0651','Tesla','Jay SiyaRam','moriji345@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.542602','2026-07-07 10:17:17.542643',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('cf18c2ae8689428388637c0deb855bee','QUOT-E9AF6F','digiprima','ghanshyam nagar','ghanshyam.nagar@digiprima.com','08959881547','test','test','30','2026-07-23','test',1,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-08 05:28:54.315088','2026-07-08 05:28:54.315127',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('d580386322004118949443cd2b1953ec','QUOT-DE833F','Bright Future School','Anita Sharma','moriji345@gmail.com','1111111111','Sports Uniform','Polyester','S-15, M-20, L-10','2025-02-15','Need logo printed on chest',0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.545506','2026-07-07 10:17:17.545546',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('d70c01785df44869a80a97186a735e4c','QUOT-46DE3F','Tesla','Sourabh Mori','morisourabh@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.548505','2026-07-07 10:17:17.548548',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('d7e33666ba464c5bae0934531f828f6e','QUOT-A9B0FA','digiprima','ghanshyam nagar','ghanshyam.nagar@digiprima.com','08959881547','test','test','30','2026-07-15','test',1,NULL,NULL,NULL,NULL,'SENT','pending','52f32904-6451-873b-81b4-c2736d7a07b5','',NULL,0,NULL,NULL,1,0,'2026-07-08 05:18:38.304561','2026-07-08 05:18:44.711215',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('dda1c44127b841449ce9eab685bdd732','QUOT-5DF47E','hello','Abhishek Bachhan','adminscaling@gmail.com','9876543210','abhishek','ctton','2xl','2026-01-08','hasdks',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.551216','2026-07-07 10:17:17.551245',2,NULL,NULL,NULL,NULL,NULL,NULL),('e3a249416cd0410db788988c3b6652ba','QUOT-BDDFC7','Prousepirity Technology','Sourabh ji Mori','morisourabh@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'SIGNED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.554042','2026-07-07 10:17:17.554071',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('e5355037c93b4e9a9e9f1886c6c1cb9f','QUOT-25DAEE','zudio','Siddharth soni','siddharth.soni@digiprima.co','08878721435','test','t-shirt','20','2026-07-23','gjgjh',1,NULL,NULL,NULL,NULL,'REQUESTED','approved','f1c820d4-c0d0-8fb8-802a-f0c15a711749','',NULL,0,'user','cancel test',1,0,'2026-07-23 09:27:25.721892','2026-07-23 11:43:53.571406',22,NULL,NULL,NULL,NULL,NULL,NULL),('eb1a18f7828344cd8dc90ed6c1b321ad','QUOT-03C05A','Tesla','Kapil Singh','kapil.singh@digiprima.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','approved',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.556551','2026-07-07 10:17:17.556576',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('ee894821dda746d58145d45571277295','QUOT-6A6116','Tesla','Shree Ram','moriji345@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.559744','2026-07-07 10:17:17.559768',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('f03f1364734a4ac8b955db349e21c186','QUOT-B2B590','digiprima testing','Siddharth soni','siddharth.soni@digiprima.co','08878721435','test','testing','L-40','2026-08-01','testing',1,NULL,NULL,NULL,NULL,'SENT','pending','6e762336-af15-885a-8020-6351d2771eea','',NULL,0,NULL,NULL,1,0,'2026-07-31 06:00:14.995350','2026-07-31 06:00:21.285639',26,NULL,NULL,NULL,NULL,NULL,NULL),('f04373668f4645e78441fcbbdafe20e2','QUOT-8F5B1A','digiprima','ghanshyam nagar','ghanshyam.nagar@digiprima.com','08959881547','test','test','30','2026-07-15','test',1,NULL,NULL,NULL,NULL,'SENT','pending','50dc2ab1-3e2f-80fb-805b-b0be757107ac','',NULL,0,NULL,NULL,1,0,'2026-07-08 05:17:35.436239','2026-07-08 05:17:44.894720',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('f1f0854aa97245c8b6a4b24bc778b7f9','QUOT-7E7D84','Tesla','Sourabh Mori','moriji345@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'REQUESTED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.561992','2026-07-07 10:17:17.562015',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('f40800b6bea7465f86de0f5456eb8198','QUOT-86B552','Ambitiouse Technology','Jay Prakash Gupta','jay01032000@gmail.com',NULL,'Vaccination for Positivity',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.564568','2026-07-07 10:17:17.564607',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('f5973d7963da4e09bb9872b702411d18','QUOT-26AA35','Tesla','Anushka Sharma','sourabh.mori1digiprima@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'COMPLETED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.567389','2026-07-07 10:17:17.567430',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('f5f2cb76ade3471da3c34582e84f39d3','QUOT-F4A3C2','Tesla','Old Monk','moriji345@gmail.com',NULL,'Uniform',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','sent',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.570245','2026-07-07 10:17:17.570274',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('f9f8f2d1e51848a5b9fb52e9ac6191cf','QUOT-F4BCD5','Apple Technology','Jemimah Rodrigouese','moriji345@gmail.com','1111111111','School Dresss','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'COMPLETED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.572485','2026-07-07 10:17:17.572511',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('faae680ae7d648cf8b7b6509435e65d6','QUOT-024209','Tesla','Sourabh Mori','morisourabh@gmail.com','9999999999','Uniform','Cotton','M-10, L-20','2026-01-20','Urgent delivery',0,NULL,NULL,NULL,NULL,'COMPLETED','pending',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.575196','2026-07-07 10:17:17.575220',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('fc80efa4b03a4213bd9750809da0d6ea','QUOT-08E1EF','Ambitiouse Technology','Sourabh Mori','morisourabh@gmail.com',NULL,'Happiness Positivity',NULL,NULL,'2025-01-15',NULL,0,NULL,NULL,NULL,NULL,'REQUESTED','approved',NULL,'',NULL,0,NULL,NULL,1,0,'2026-07-07 10:17:17.577784','2026-07-07 10:17:17.577812',NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+/*!40000 ALTER TABLE `userhub_quotationrequest` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_refund`
+--
+
+DROP TABLE IF EXISTS `userhub_refund`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_refund` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `refund_amount` decimal(10,2) NOT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `admin_note` longtext,
+  `payment_gateway_id` varchar(100) DEFAULT NULL,
+  `refund_method` varchar(20) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `processed_at` datetime(6) DEFAULT NULL,
+  `currency` varchar(10) NOT NULL,
+  `order_id` bigint NOT NULL,
+  `payment_id` bigint DEFAULT NULL,
+  `user_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `userhub_refund_order_id_4c38f5ab_fk_userhub_order_id` (`order_id`),
+  KEY `userhub_refund_payment_id_ea5d5311_fk_userhub_payment_id` (`payment_id`),
+  KEY `userhub_refund_user_id_c4fcaae8_fk_userhub_users_id` (`user_id`),
+  CONSTRAINT `userhub_refund_order_id_4c38f5ab_fk_userhub_order_id` FOREIGN KEY (`order_id`) REFERENCES `userhub_order` (`id`),
+  CONSTRAINT `userhub_refund_payment_id_ea5d5311_fk_userhub_payment_id` FOREIGN KEY (`payment_id`) REFERENCES `userhub_payment` (`id`),
+  CONSTRAINT `userhub_refund_user_id_c4fcaae8_fk_userhub_users_id` FOREIGN KEY (`user_id`) REFERENCES `userhub_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_refund`
+--
+
+LOCK TABLES `userhub_refund` WRITE;
+/*!40000 ALTER TABLE `userhub_refund` DISABLE KEYS */;
+/*!40000 ALTER TABLE `userhub_refund` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_rental`
+--
+
+DROP TABLE IF EXISTS `userhub_rental`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_rental` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `rental_id` varchar(50) DEFAULT NULL,
+  `rental_date` date NOT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `actual_return_date` date DEFAULT NULL,
+  `shipping_address` longtext NOT NULL,
+  `delivery_time` time(6) DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `shipping_fee` decimal(10,2) NOT NULL,
+  `tax` decimal(10,2) NOT NULL,
+  `discount_amount` decimal(12,2) NOT NULL,
+  `total_amount` decimal(12,2) NOT NULL,
+  `late_fee` decimal(12,2) NOT NULL,
+  `damage_fee` decimal(12,2) NOT NULL,
+  `lost_fee` decimal(12,2) NOT NULL,
+  `grace_period_days` int NOT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `customer_id` bigint NOT NULL,
+  `order_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `rental_id` (`rental_id`),
+  UNIQUE KEY `order_id` (`order_id`),
+  KEY `userhub_rental_customer_id_1e78c11e_fk_userhub_c` (`customer_id`),
+  CONSTRAINT `userhub_rental_customer_id_1e78c11e_fk_userhub_c` FOREIGN KEY (`customer_id`) REFERENCES `userhub_customerdetails` (`id`),
+  CONSTRAINT `userhub_rental_order_id_40ab84b1_fk_userhub_order_id` FOREIGN KEY (`order_id`) REFERENCES `userhub_order` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_rental`
+--
+
+LOCK TABLES `userhub_rental` WRITE;
+/*!40000 ALTER TABLE `userhub_rental` DISABLE KEYS */;
+INSERT INTO `userhub_rental` VALUES (1,'REN-FB2D82','2026-07-07','2026-02-01','2026-02-05',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,1330.00,12800.00,14630.00,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.809594','2026-07-07 10:17:17.809625',1,1),(2,'REN-AF838D','2026-07-07','2026-02-01','2026-02-05',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,1730.00,16800.00,19030.00,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.827447','2026-07-07 10:17:17.827478',1,2),(3,'REN-8BFC06','2026-07-07','2026-01-30','2026-02-05',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,63.20,132.00,695.20,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.843573','2026-07-07 10:17:17.843604',1,3),(4,'REN-CADEF0','2026-07-07','2026-02-01','2026-02-05',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,1730.00,16800.00,19030.00,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.848967','2026-07-07 10:17:17.848994',1,4),(5,'REN-4713E5','2026-07-07','2026-02-01','2026-02-05',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,1730.00,16800.00,19030.00,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.862316','2026-07-07 10:17:17.862337',1,5),(6,'REN-058B2B','2026-07-07','2026-02-03','2026-02-07',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,1730.00,16800.00,19030.00,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.876167','2026-07-07 10:17:17.876188',2,6),(7,'REN-AD0775','2026-07-07','2026-02-03','2026-02-07',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,1730.00,16800.00,19030.00,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.889315','2026-07-07 10:17:17.889337',1,7),(8,'REN-6DA128','2026-07-07','2026-02-01','2026-02-05',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,1730.00,16800.00,19030.00,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.903323','2026-07-07 10:17:17.903343',1,8),(9,'REN-793BDA','2026-07-07','2026-01-30','2026-02-05',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,63.20,132.00,695.20,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.917499','2026-07-07 10:17:17.917522',1,9),(10,'REN-75A0FE','2026-07-07','2026-01-30','2026-02-05',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,63.20,132.00,695.20,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.928399','2026-07-07 10:17:17.928428',1,10),(11,'REN-9A7526','2026-07-07','2026-01-30','2026-02-05',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,63.20,132.00,695.20,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.940617','2026-07-07 10:17:17.940638',1,11),(12,'REN-697F15','2026-07-07','2026-02-03','2026-02-07',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,1730.00,16800.00,19030.00,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.953146','2026-07-07 10:17:17.953168',1,12),(13,'REN-51CB69','2026-07-07','2026-02-01','2026-02-05',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,1730.00,16800.00,19030.00,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.967572','2026-07-07 10:17:17.967597',1,13),(14,'REN-FD62FB','2026-07-07','2026-01-30','2026-02-05',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,63.20,132.00,695.20,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.981113','2026-07-07 10:17:17.981147',1,14),(15,'REN-C30261','2026-07-07','2026-02-03','2026-02-07',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,1730.00,16800.00,19030.00,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:17.993352','2026-07-07 10:17:17.993375',1,15),(16,'REN-E96476','2026-07-07','2026-02-01','2026-02-05',NULL,'MG Road, Near Metro Station, Bengaluru, 560001, India',NULL,'rented',500.00,1330.00,12800.00,14630.00,0.00,0.00,0.00,3,1,0,'2026-07-07 10:17:18.007245','2026-07-07 10:17:18.007267',1,16);
+/*!40000 ALTER TABLE `userhub_rental` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_rentalitem`
+--
+
+DROP TABLE IF EXISTS `userhub_rentalitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_rentalitem` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `quantity` int unsigned NOT NULL,
+  `price_per_day` decimal(10,2) NOT NULL,
+  `subtotal` decimal(12,2) NOT NULL,
+  `returned_quantity` int unsigned NOT NULL,
+  `lost_quantity` int unsigned NOT NULL,
+  `is_returned` tinyint(1) NOT NULL,
+  `is_damaged` tinyint(1) NOT NULL,
+  `is_lost` tinyint(1) NOT NULL,
+  `rfid_tag` varchar(100) DEFAULT NULL,
+  `notes` longtext,
+  `isActive` tinyint(1) NOT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `product_id` bigint NOT NULL,
+  `rental_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `userhub_rentalitem_product_id_dcf0f7fa_fk_uniformAd` (`product_id`),
+  KEY `userhub_rentalitem_rental_id_59bb0dee_fk_userhub_rental_id` (`rental_id`),
+  CONSTRAINT `userhub_rentalitem_product_id_dcf0f7fa_fk_uniformAd` FOREIGN KEY (`product_id`) REFERENCES `uniformAdmin_product` (`id`),
+  CONSTRAINT `userhub_rentalitem_rental_id_59bb0dee_fk_userhub_rental_id` FOREIGN KEY (`rental_id`) REFERENCES `userhub_rental` (`id`),
+  CONSTRAINT `userhub_rentalitem_chk_1` CHECK ((`quantity` >= 0)),
+  CONSTRAINT `userhub_rentalitem_chk_2` CHECK ((`returned_quantity` >= 0)),
+  CONSTRAINT `userhub_rentalitem_chk_3` CHECK ((`lost_quantity` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_rentalitem`
+--
+
+LOCK TABLES `userhub_rentalitem` WRITE;
+/*!40000 ALTER TABLE `userhub_rentalitem` DISABLE KEYS */;
+INSERT INTO `userhub_rentalitem` VALUES (1,1,1499.00,5996.00,0,0,0,0,0,NULL,NULL,1,0,'2026-07-07 10:17:17.813742','2026-07-07 10:17:17.813793',17,1),(2,19,1499.00,113924.00,0,0,0,0,0,NULL,NULL,1,0,'2026-07-07 10:17:17.816463','2026-07-07 10:17:17.816501',16,1),(3,2,1499.00,11992.00,0,0,0,0,0,NULL,NULL,1,0,'2026-07-07 10:17:17.819608','2026-07-07 10:17:17.819641',15,1),(4,10,1499.00,59960.00,0,0,0,0,0,NULL,NULL,1,0,'2026-07-07 10:17:17.822225','2026-07-07 10:17:17.822274',19,1),(5,1,1499.00,5996.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.830141','2026-07-07 10:17:17.830183',17,2),(6,19,1499.00,113924.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.832655','2026-07-07 10:17:17.832695',16,2),(7,2,1499.00,11992.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.835577','2026-07-07 10:17:17.835615',15,2),(8,20,1499.00,119920.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.838297','2026-07-07 10:17:17.838355',19,2),(9,1,1499.00,5996.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.851406','2026-07-07 10:17:17.851436',17,4),(10,19,1499.00,113924.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.854440','2026-07-07 10:17:17.854479',16,4),(11,2,1499.00,11992.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.856243','2026-07-07 10:17:17.856270',15,4),(12,20,1499.00,119920.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.858259','2026-07-07 10:17:17.858282',19,4),(13,1,1499.00,5996.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.864497','2026-07-07 10:17:17.864534',17,5),(14,19,1499.00,113924.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.867275','2026-07-07 10:17:17.867305',16,5),(15,2,1499.00,11992.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.869072','2026-07-07 10:17:17.869096',15,5),(16,20,1499.00,119920.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.871555','2026-07-07 10:17:17.871583',19,5),(17,1,1499.00,5996.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.878276','2026-07-07 10:17:17.878300',17,6),(18,19,1499.00,113924.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.880238','2026-07-07 10:17:17.880260',16,6),(19,2,1499.00,11992.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.882285','2026-07-07 10:17:17.882314',15,6),(20,20,1499.00,119920.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.884620','2026-07-07 10:17:17.884644',19,6),(21,1,1499.00,5996.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.891610','2026-07-07 10:17:17.891634',17,7),(22,19,1499.00,113924.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.894053','2026-07-07 10:17:17.894075',16,7),(23,2,1499.00,11992.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.896492','2026-07-07 10:17:17.896515',15,7),(24,20,1499.00,119920.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.899362','2026-07-07 10:17:17.899392',19,7),(25,1,1499.00,5996.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.905828','2026-07-07 10:17:17.905855',17,8),(26,19,1499.00,113924.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.908332','2026-07-07 10:17:17.908364',16,8),(27,2,1499.00,11992.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.910600','2026-07-07 10:17:17.910623',15,8),(28,20,1499.00,119920.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.913389','2026-07-07 10:17:17.913412',19,8),(29,1,1499.00,8994.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.919828','2026-07-07 10:17:17.919852',17,9),(30,19,1499.00,170886.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.922337','2026-07-07 10:17:17.922360',16,9),(31,2,1499.00,17988.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.924350','2026-07-07 10:17:17.924372',15,9),(32,1,1499.00,8994.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.930830','2026-07-07 10:17:17.930873',17,10),(33,19,1499.00,170886.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.933166','2026-07-07 10:17:17.933195',16,10),(34,2,1499.00,17988.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.935623','2026-07-07 10:17:17.935651',15,10),(35,1,1499.00,8994.00,11,0,1,0,1,NULL,'Condition: good | Return Image: returns/Glass_TczxfK1.jpg',1,0,'2026-07-07 10:17:17.942833','2026-07-07 10:17:17.942857',17,11),(36,19,1499.00,170886.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.945164','2026-07-07 10:17:17.945187',16,11),(37,2,1499.00,17988.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.947969','2026-07-07 10:17:17.948009',15,11),(38,1,1499.00,5996.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.955948','2026-07-07 10:17:17.955977',17,12),(39,19,1499.00,113924.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.958235','2026-07-07 10:17:17.958259',16,12),(40,2,1499.00,11992.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.960755','2026-07-07 10:17:17.960777',15,12),(41,20,1499.00,119920.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.963407','2026-07-07 10:17:17.963430',19,12),(42,1,1499.00,5996.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.969784','2026-07-07 10:17:17.969807',17,13),(43,19,1499.00,113924.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.971956','2026-07-07 10:17:17.971985',16,13),(44,2,1499.00,11992.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.974518','2026-07-07 10:17:17.974546',15,13),(45,20,1499.00,119920.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.976636','2026-07-07 10:17:17.976660',19,13),(46,1,1499.00,8994.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.983833','2026-07-07 10:17:17.983861',17,14),(47,19,1499.00,170886.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.986279','2026-07-07 10:17:17.986304',16,14),(48,2,1499.00,17988.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.988589','2026-07-07 10:17:17.988614',15,14),(49,1,1499.00,5996.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.995627','2026-07-07 10:17:17.995650',17,15),(50,19,1499.00,113924.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:17.997997','2026-07-07 10:17:17.998036',16,15),(51,2,1499.00,11992.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:18.000632','2026-07-07 10:17:18.000660',15,15),(52,20,1499.00,119920.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:18.002918','2026-07-07 10:17:18.002943',19,15),(53,1,1499.00,5996.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:18.009624','2026-07-07 10:17:18.009647',17,16),(54,19,1499.00,113924.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:18.012587','2026-07-07 10:17:18.012611',16,16),(55,2,1499.00,11992.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:18.015227','2026-07-07 10:17:18.015256',15,16),(56,10,1499.00,59960.00,0,0,0,0,0,NULL,'Condition: good',1,0,'2026-07-07 10:17:18.017351','2026-07-07 10:17:18.017375',19,16);
+/*!40000 ALTER TABLE `userhub_rentalitem` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userhub_users`
+--
+
+DROP TABLE IF EXISTS `userhub_users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `userhub_users` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `email` varchar(254) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `userType` varchar(20) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `userName` varchar(255) DEFAULT NULL,
+  `firstName` varchar(100) DEFAULT NULL,
+  `lastName` varchar(100) DEFAULT NULL,
+  `language` varchar(10) NOT NULL,
+  `gender` varchar(20) DEFAULT NULL,
+  `profileImage` varchar(100) DEFAULT NULL,
+  `lastLogin` datetime(6) DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL,
+  `appleID` varchar(255) DEFAULT NULL,
+  `stripeOrderCustomerId` varchar(255) DEFAULT NULL,
+  `isDeleted` tinyint(1) NOT NULL,
+  `loginType` varchar(20) NOT NULL,
+  `email_notifications` tinyint(1) DEFAULT NULL,
+  `push_notifications` tinyint(1) DEFAULT NULL,
+  `is_verify` tinyint(1) NOT NULL,
+  `is_currently_login` tinyint(1) NOT NULL,
+  `createdAt` datetime(6) NOT NULL,
+  `updatedAt` datetime(6) NOT NULL,
+  `role_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `userhub_users_role_id_25b2dacd_fk_uniformAdmin_role_id` (`role_id`),
+  CONSTRAINT `userhub_users_role_id_25b2dacd_fk_uniformAdmin_role_id` FOREIGN KEY (`role_id`) REFERENCES `uniformAdmin_role` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userhub_users`
+--
+
+LOCK TABLES `userhub_users` WRITE;
+/*!40000 ALTER TABLE `userhub_users` DISABLE KEYS */;
+INSERT INTO `userhub_users` VALUES (1,'mrsourabhmori@gmail.com','pbkdf2_sha256$600000$HRk49MotWeD9sm2gCVwqPZ$dRXHAU0DyfBmVFgY/Vnmx+9QAEl4L5fsEffSGlfNp6Q=','uniform','9876543210','Sourabh Mori','Sourabh','Mori','Hinglish','male','profile_Image/sun.jpg',NULL,1,NULL,NULL,0,'app',1,1,1,0,'2025-12-10 09:27:53.612000','2026-07-15 09:12:54.291482',1),(2,'sourabhi@gmail.com','pbkdf2_sha256$600000$SA6XZtiotpd2zvnhrZujnF$PkBmkjfihAvPa1vb5S8cRtll/CLguQWDXx2VOUlygZQ=',NULL,'9876543210','Mr Sourabh Mori','Sourabh','Mori','Hinglish','male','profile_Image/sun_cOvYG71.jpg',NULL,1,NULL,NULL,0,'app',1,1,0,0,'2025-12-10 09:38:05.139000','2026-07-10 10:25:57.994829',1),(3,'sourabh1@gmail.com','pbkdf2_sha256$1000000$S5IOmB4YCIc77hAV49HLAg$7NSCY3UGBKz9NJTKscmX15k0pi/uO4VMz0aILV+3C7w=',NULL,'9876543210','Sourabh S Mori','Sourabh','Mori','Hinglish','male','profile_Image/sun_lTxAxyM.jpg',NULL,1,NULL,NULL,0,'app',1,1,0,0,'2025-12-10 09:58:21.521000','2025-12-10 09:58:21.521000',1),(4,'sourabh19@gmail.com','pbkdf2_sha256$1000000$9FSfxaNFoeoVmK79WilFXE$wrl/snJX2BPCu1lisYq96YZ2goWnb7wpAh7xZeNaPbo=',NULL,'9876543210','Sourabh Moriji','Sourabh','Mori','Hinglish','male','profile_Image/sun_PEXmPyc.jpg',NULL,1,NULL,NULL,0,'app',1,1,0,0,'2025-12-10 10:03:53.832000','2025-12-10 10:03:53.832000',1),(5,'iamsourabh@gmail.com','pbkdf2_sha256$1000000$nNhOD9hvcqc0e0oZ9hh17X$n/8HrZ8H+XpqkPl4bXBGMkd+pHJWISLEr6/XID/vFxs=',NULL,'9876543210','Mori Sourabh','Sourabh','Mori','Hinglish','male','profile_Image/sun_jB2Pii4.jpg','2025-12-11 07:31:31.996000',0,NULL,NULL,1,'app',1,1,0,0,'2025-12-10 10:11:40.600000','2025-12-11 07:37:38.542000',1),(8,'iamsourabh1@gmail.com','pbkdf2_sha256$1000000$STYJzVa5WlZkMTwV6nbMBC$SVgeo2bE4Y31GF4H5SWGVLJWHHzb/X4CrmIRPAYUvQ8=',NULL,'9876543210','Mr Mori Sourabh','sourabh','mori','Hinglish','male','profile_Image/sun_n1pQBK7.jpg','2025-12-12 06:18:36.985000',1,NULL,NULL,0,'app',1,1,0,0,'2025-12-11 09:14:28.581000','2025-12-12 06:22:38.504000',1),(12,'sourabh.mori1digiprima@gmail.com','HappyNewYou@1234','table','9876543210','Mr Sunny Singh','Sourabh','Mori','Hinglish','male','',NULL,1,NULL,NULL,0,'app',1,1,0,0,'2025-12-12 11:18:51.553000','2025-12-12 11:18:51.553000',1),(13,'sourabh.mori1digiprima@gmail.com','HappyNewYou@1234','uniform','9876543210','Mr Sunny Singh','Sourabh','Mori','Hinglish','male','',NULL,1,NULL,NULL,0,'app',1,1,0,0,'2025-12-12 11:20:06.493000','2025-12-12 11:20:06.494000',1),(14,'sourabh.mori4digiprima@gmail.com','pbkdf2_sha256$1000000$0MSvaOfewXkkaJYJsDIt04$OcRK/oBISHP1F9KDHXEY6myxtDeATXVkm6dVeOwZN1g=','uniform','9876543210','Mori Sourabh','Sourabh ji','Mori121','Hinglish','male','profile_Image/Screenshot_from_2025-11-23_19-32-06_9PCE8c5.png','2025-12-12 13:49:21.978000',1,NULL,NULL,0,'app',1,1,0,0,'2025-12-12 13:39:11.860000','2025-12-12 13:49:21.979000',1),(15,'morisourabh@gmail.com','pbkdf2_sha256$1000000$d7qIAaXseRuo2V6hQAUyAp$SC8sqhrdpF265cxWAo1qma1haZzyGtbYmTIMq5X/nr4=','table','9876543210','Mr Sourabh Singh','Sourabh','Mori','Hinglish','male','',NULL,1,NULL,NULL,0,'app',1,1,0,0,'2025-12-19 06:11:07.778000','2025-12-19 06:11:07.778000',1),(16,'morisourabh28@gmail.com','pbkdf2_sha256$1000000$7eEGrU6XfHQO7CbohvTaWh$2klDwkzJpLu6B0FzH5Z9P6jlMagUxoYP+mX7YY/Pl48=','table','9876543210','Mr Sourabh Singh','Sourabh','Mori','Hinglish','male','',NULL,1,NULL,NULL,0,'app',1,1,0,0,'2025-12-19 06:36:33.697000','2025-12-19 06:36:33.697000',1),(17,'morisourabh28@gmail.com','pbkdf2_sha256$1000000$u5hZlKbl5KWtn5k84RolwM$URKB7kAmXxxLItfbNFVEhKQzcLz0t8GSVy1g9woOZ2k=','uniform','9876543210','Mr Sourabh Singh','Sourabh','Mori','Hinglish','male','',NULL,1,NULL,NULL,0,'app',1,1,0,0,'2025-12-19 06:47:23.221000','2025-12-19 06:47:23.221000',1),(18,'mrmoriji1@gmail.com','pbkdf2_sha256$1000000$sbrxNMSs0mQG9RqPgjEcvv$bKj4n4nigecldGIwCu0wwnmwVm2EXllcumKkVinntrM=','uniform','9876543210','Mr Sourabh Singh','Sourabh','Mori','Hinglish','male','','2025-12-19 07:29:34.124000',1,NULL,NULL,0,'app',1,1,1,0,'2025-12-19 06:50:04.044000','2025-12-19 07:38:09.648000',1),(19,'mrmoriji1@gmail.com','pbkdf2_sha256$1000000$P1b3iNdi9HUtriQhT7HbMh$kmiVzKwnfWB0FVvmo6V2o+86UxEPuIE4u2WSe/taXvg=','table','9876543210','Mr Sourabh Singh','Sourabh','Mori','Hinglish','male','','2025-12-20 13:12:15.196000',1,NULL,NULL,0,'app',1,1,1,0,'2025-12-19 09:43:28.728000','2025-12-20 13:12:15.197000',1),(20,'random@gmail.com','pbkdf2_sha256$1000000$zg4VeUqWPRqGANvhVuK1kY$L/8/HrrEm77XoBNXx85h7Dwm7ArOUEdBJrxpRRYTaVs=','uniform',NULL,'David','Mr. Sourabh',NULL,'english',NULL,'','2026-01-05 09:10:50.961000',1,NULL,NULL,0,'app',1,1,1,0,'2026-01-03 10:16:01.260000','2026-01-05 09:47:55.563000',1),(21,'random@gmail.com','pbkdf2_sha256$1000000$hpFnnYDGTQKheymZAM4nJH$z9TW9FU8aU+sgQ/IsLbMt54UHM7LuFwmX7ldhxtG/Qo=',NULL,NULL,'David',NULL,NULL,'english',NULL,'',NULL,1,NULL,NULL,0,'app',1,1,1,0,'2026-01-03 10:16:46.826000','2026-01-03 10:16:46.826000',1),(22,'random@gmail.com','pbkdf2_sha256$1000000$O2BEz1k4e2IdCIlKhgDVyt$qkUsx9YNoU53+xJWRLp0xH0QPzHu1xRcR4Y4GyyikaA=',NULL,NULL,'David',NULL,NULL,'english',NULL,'',NULL,1,NULL,NULL,0,'app',1,1,0,0,'2026-01-03 10:16:58.076000','2026-01-03 10:16:58.076000',1),(23,'random@gmail.com','pbkdf2_sha256$1000000$bL7WsrQlxVfaWmq7QjbtoJ$4jdgFGH3PE1CyyJeOs9Ulu+OWuqlZjkrUcyXvNRWLiI=',NULL,NULL,'David',NULL,NULL,'english',NULL,'',NULL,1,NULL,NULL,0,'app',1,1,1,0,'2026-01-03 10:17:06.733000','2026-01-03 10:17:06.733000',1),(25,'moriji345@gmail.com','pbkdf2_sha256$1000000$NvgTHSOVqlKBPj1uwQwGjK$qIi7SF/ztnEYLGg8xe/IMb4xUVIVQ7oOfnFEAuzOyhw=','uniform',NULL,'David',NULL,NULL,'english',NULL,'','2026-01-07 05:42:01.930000',1,NULL,NULL,0,'app',1,1,1,0,'2026-01-05 12:11:01.554000','2026-01-07 05:42:01.932000',1),(26,'moriji345@gmail.com','pbkdf2_sha256$1000000$FPW5wX9ownlPVYW3kByMH9$x0eb17fKFflhhasPWa9nQjqsHAitWS6vLfL5iCVeWEo=','table',NULL,'Doll',NULL,NULL,'english',NULL,'',NULL,1,NULL,NULL,0,'app',1,1,0,0,'2026-01-06 13:25:48.773000','2026-01-06 13:25:48.773000',1),(27,'ghanshyam.nagar@digiprima.com','pbkdf2_sha256$600000$BoIk5V7q0FonIKpGgqlIh7$/vSYo7U3iMjjvehF0Q/ZSQCm48mHxC80tItkKWrUqow=','uniform','8959881547','ghanshyam','ghanshyam','nagar','english',NULL,'profile_Image/thumb-2_uOpvycX.jpg','2026-08-05 10:56:27.472084',1,NULL,NULL,0,'app',1,1,1,0,'2026-01-07 06:58:54.695000','2026-08-05 10:56:27.475572',1),(28,'mmmoriji345@gmail.com','pbkdf2_sha256$1000000$WDT0PXOjr82BBOCPyG27Ce$zxRtO23nkLsm742rZlSm0HD1rbZ/aI57Kx8h3MAoKzo=','table',NULL,'Tom',NULL,NULL,'english',NULL,'','2026-01-19 13:12:58.952000',1,NULL,NULL,0,'app',1,1,1,0,'2026-01-07 06:59:39.710000','2026-01-19 13:12:58.954000',1),(29,'maqbool.patel@digiprima.co','pbkdf2_sha256$600000$BpOhWfTXlodxmDrwpSMiOl$D8W1sXfOb6yE2Wx2L6EE8JmC4JhMBP8uZLmU0jildyM=','table',NULL,'maqbool',NULL,NULL,'english',NULL,'','2026-07-13 10:38:44.684607',1,NULL,NULL,0,'app',1,1,1,0,'2026-01-20 05:51:56.806000','2026-07-13 10:38:44.685799',1),(30,'rsmoriji345@gmail.com','pbkdf2_sha256$600000$tQVuU4aYCeqitsZopeNhU6$uoPQ5sEqOCQ+VjLqk6m8FpTjnGw+lj1nkqgYrIioGNs=','uniform',NULL,'Ishwar',NULL,NULL,'english',NULL,'','2026-01-20 06:49:19.616000',1,NULL,NULL,0,'app',1,1,1,0,'2026-01-20 06:42:34.268000','2026-01-20 06:49:19.617000',1),(31,'morisourabh+1@gmail.com','pbkdf2_sha256$600000$F6Hv0yYNAPejA4QV8hOyoW$lZ3DCuRp3PsEWEpgd1N4Ed3Y/KM65RqZqpoHlRXlcqs=','table',NULL,'Ritesh',NULL,NULL,'english',NULL,'','2026-02-03 10:17:57.652000',1,NULL,NULL,0,'app',1,1,1,0,'2026-02-03 10:17:17.340000','2026-02-03 10:17:57.653000',1),(32,'ghanshyam1@mailinator.com','pbkdf2_sha256$600000$ncXv2mxgvrT0CtwWH81k7A$GqQukpG7EPfAJtBuSW2yp74nxr3+jqfuWQGcAOwLrnc=','uniform','08959881547',NULL,'ghanshyam','nagar','english',NULL,'','2026-07-07 11:17:05.181007',1,NULL,NULL,0,'app',1,1,0,0,'2026-07-07 10:52:16.431395','2026-07-07 11:17:05.182363',1),(33,'ghanshyam.nagar@digiprima.co','pbkdf2_sha256$600000$n2wpL8CoZZNUFiUjVKOs6v$KHMkbR9JmnFGvcr4/0e+CZKIz3RiiPhI5Wy4kjIP1xQ=','uniform','08959881547',NULL,'ghanshyam','nagar','english',NULL,'','2026-07-09 07:08:35.689948',1,NULL,NULL,0,'app',1,1,0,0,'2026-07-09 07:08:05.035544','2026-07-09 07:08:35.691782',1),(37,'maqboolp4357@gmail.com','pbkdf2_sha256$600000$2Og4JiTKjKSuuxiHW0CFLF$owosKaBRvy6O4uhmgi50rW2TR7khQIJRmBNcnY7l2Yk=','uniform','089598777',NULL,'Maqbool','patel','english',NULL,'',NULL,1,NULL,NULL,0,'app',1,1,0,0,'2026-07-09 10:19:10.621274','2026-07-09 10:19:10.621295',1),(39,'nagarg477@gmail.com','pbkdf2_sha256$600000$TKwGbbY6cBOUap2SCUEGr5$mc0be7gxXsvZgdyRezaHFEzhFvoZNBptQR0JUkkvs+Q=','uniform','08959881547','ghanshyam.nagar@digiprima.com','ghanshyam','nagar','english',NULL,'','2026-07-10 10:02:08.021930',1,NULL,NULL,0,'app',1,1,1,0,'2026-07-09 10:37:05.428595','2026-07-10 10:02:08.023034',1),(43,'siddharth.soni@digiprima.co','pbkdf2_sha256$600000$gYwMPHCuuesNN55znTGDPC$Jckxsl5RHDg/whyQhRdt1A31Wuu0lDw17sVkx+rmI1U=','uniform','8878721435','Soni','sid','soni','english','male','',NULL,1,NULL,NULL,0,'app',1,1,1,0,'2026-07-20 07:29:37.883990','2026-07-29 08:38:47.634710',4),(44,'aastha.patidar@digiprima.co','pbkdf2_sha256$600000$A3npzrC092m3IaByi8NYT3$dP6LOq7jyYGyr5H3lzDV6921EbF2bTqU5WrEYqzBGWU=','uniform','8827723490',NULL,'Aastha','Patidar','english',NULL,'','2026-07-29 10:30:24.595591',1,NULL,NULL,0,'app',1,1,1,0,'2026-07-29 10:28:40.598100','2026-07-29 10:30:24.596606',4);
+/*!40000 ALTER TABLE `userhub_users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping events for database 'uniform_db'
+--
+
+--
+-- Dumping routines for database 'uniform_db'
+--
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-08-06  5:41:16

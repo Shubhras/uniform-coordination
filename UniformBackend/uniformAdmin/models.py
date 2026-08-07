@@ -79,6 +79,21 @@ class AdminUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     mobile = models.CharField(max_length=15, unique=True, null=True, blank=True)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # Job title shown on the Sales Team Performance cards, e.g. "Sales Executive".
+    # Free text because the UI shows several titles under one `sales` role.
+    designation = models.CharField(max_length=100, blank=True, null=True)
+
+    # Which sales rep owns this B2B account. Self-referential because B2B accounts
+    # and sales reps are both AdminUser rows, distinguished by their role.
+    assigned_sales_rep = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_accounts",
+    )
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     language = models.CharField(max_length=10, default="en")
@@ -117,6 +132,47 @@ class SystemSettings(models.Model):
     date_format = models.CharField(max_length=50, default="YYYY/MM/DD")
     
     logo = models.ImageField(upload_to="system/logos/", null=True, blank=True)
+
+    # ---------------- Payment & Billing Terms ----------------
+    # KIREIZ FORM does not process payments (spec: the flow ends at the quotation
+    # request), so there is deliberately no gateway/credential config here. These
+    # are the billing terms printed on quotations and quotation PDFs.
+    payment_terms = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Terms printed on quotations, e.g. '50% advance payment required.'",
+    )
+    quotation_validity_days = models.PositiveSmallIntegerField(
+        default=30,
+        help_text="Default number of days a quotation stays valid.",
+    )
+    tax_rate = models.DecimalField(
+        max_digits=5, decimal_places=2, default=10,
+        help_text="Consumption tax percentage shown on quotations.",
+    )
+    tax_inclusive = models.BooleanField(
+        default=False,
+        help_text="Whether quoted figures already include tax.",
+    )
+    bank_name = models.CharField(max_length=150, blank=True, null=True)
+    bank_branch = models.CharField(max_length=150, blank=True, null=True)
+    bank_account_name = models.CharField(max_length=150, blank=True, null=True)
+    bank_account_number = models.CharField(max_length=50, blank=True, null=True)
+
+    # ---------------- Email & Notifications ----------------
+    # SMTP host/credentials stay in settings/env — they are secrets and must not be
+    # editable from an admin form. Only the presentation and routing live here.
+    email_sender_name = models.CharField(max_length=150, blank=True, null=True)
+    email_sender_address = models.EmailField(blank=True, null=True)
+    email_reply_to = models.EmailField(blank=True, null=True)
+    email_footer_note = models.TextField(blank=True, null=True)
+    # Comma-separated list of admins who receive internal alerts.
+    admin_notification_emails = models.TextField(blank=True, null=True)
+
+    notify_admin_on_new_request = models.BooleanField(default=True)
+    notify_customer_on_registration = models.BooleanField(default=True)
+    notify_customer_on_request_received = models.BooleanField(default=True)
+    notify_customer_on_status_change = models.BooleanField(default=True)
 
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -615,8 +671,20 @@ class QuotationTemplate(models.Model):
         ("email", "Email"),
     )
  
+    PAGE_SIZE_CHOICES = (
+        ("A4", "A4"),
+        ("Letter", "Letter"),
+    )
+
     title = models.CharField(max_length=50,choices=TITLE_CHOICES )
     slug = models.SlugField(unique=True, help_text="example: quotation-default")
+
+    # Display name shown in the admin PDF Template Library, e.g. "Standard quotation".
+    # Free text, unlike `title` which is a fixed category.
+    name = models.CharField(max_length=150, blank=True, default="")
+    page_size = models.CharField(max_length=20, choices=PAGE_SIZE_CHOICES, default="A4")
+    # Drives the drag-to-reorder order in the template library.
+    sort_order = models.PositiveIntegerField(default=0)
 
     content = models.TextField(help_text="Use placeholders like {CLIENT_NAME}, {ITEM_TYPE}")
  
@@ -786,3 +854,120 @@ class RoleSubMenuPermission(models.Model):
                 name="unique_role_submenu_permission"
             )
         ]
+
+
+class DashboardAlertRead(models.Model):
+    """
+    Tracks which dashboard Active Alerts an admin has marked as read.
+
+    The alerts are computed live from quotation counts, so there is no alert row to
+    flag. Instead we store the fingerprint of what the alert said when it was
+    dismissed. If the underlying numbers later change, the fingerprint no longer
+    matches and the alert surfaces again — which is what a dashboard alert should do.
+    """
+
+    admin = models.ForeignKey(
+        AdminUser,
+        on_delete=models.CASCADE,
+        related_name="dashboard_alert_reads",
+    )
+    alert_type = models.CharField(max_length=50)
+    fingerprint = models.CharField(max_length=255)
+    read_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["admin", "alert_type"],
+                name="unique_admin_dashboard_alert_read",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.admin_id} - {self.alert_type}"
+
+
+class PdfPageTemplate(models.Model):
+    """
+    Page-format presets for simulation/PDF exports (A4, Letter, custom canvas...).
+
+    Distinct from QuotationTemplate: that stores HTML *content*, this describes the
+    physical page the output is rendered onto.
+    """
+
+    UNIT_CHOICES = (
+        ("mm", "Millimetres"),
+        ("in", "Inches"),
+        ("px", "Pixels"),
+    )
+
+    name = models.CharField(max_length=150)
+    width = models.DecimalField(max_digits=10, decimal_places=2)
+    height = models.DecimalField(max_digits=10, decimal_places=2)
+    unit = models.CharField(max_length=5, choices=UNIT_CHOICES, default="mm")
+    # Short badge shown on the card, e.g. "A4", "Letter", "Custom".
+    tag = models.CharField(max_length=30, blank=True, default="")
+    sort_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+
+    @property
+    def dimension_label(self):
+        def trim(value):
+            # 210.00 -> "210", 8.50 -> "8.5"
+            return f"{value.normalize():f}".rstrip("0").rstrip(".") if value else "0"
+
+        return f"{trim(self.width)} × {trim(self.height)} {self.unit}"
+
+    def __str__(self):
+        return f"{self.name} ({self.dimension_label})"
+
+
+class SimulationExportSetting(models.Model):
+    """
+    Singleton holding the admin's export configuration for simulation output.
+    Only one row should ever exist (pk forced to 1).
+    """
+
+    FORMAT_CHOICES = (
+        ("pdf", "PDF"),
+        ("png", "PNG"),
+        ("jpg", "JPG"),
+    )
+
+    DPI_CHOICES = (
+        (72, "72 DPI (Screen)"),
+        (150, "150 DPI (Web High Quality)"),
+        (300, "300 DPI (Print)"),
+    )
+
+    selected_template = models.ForeignKey(
+        PdfPageTemplate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="export_settings",
+    )
+    output_format = models.CharField(max_length=10, choices=FORMAT_CHOICES, default="pdf")
+    compression_quality = models.PositiveSmallIntegerField(default=50)
+    dpi = models.PositiveSmallIntegerField(choices=DPI_CHOICES, default=72)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Simulation Export Setting"
+        verbose_name_plural = "Simulation Export Settings"
+
+    def save(self, *args, **kwargs):
+        # Enforce singleton, same pattern as SystemSettings above.
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.output_format} @ {self.dpi} DPI"

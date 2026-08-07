@@ -345,6 +345,28 @@ class SystemSettingsSerializer(serializers.ModelSerializer):
             'time_zone',
             'date_format',
             'logo',
+
+            # Payment & Billing Terms tab
+            'payment_terms',
+            'quotation_validity_days',
+            'tax_rate',
+            'tax_inclusive',
+            'bank_name',
+            'bank_branch',
+            'bank_account_name',
+            'bank_account_number',
+
+            # Email & Notifications tab
+            'email_sender_name',
+            'email_sender_address',
+            'email_reply_to',
+            'email_footer_note',
+            'admin_notification_emails',
+            'notify_admin_on_new_request',
+            'notify_customer_on_registration',
+            'notify_customer_on_request_received',
+            'notify_customer_on_status_change',
+
             'updated_at',
         ]
         read_only_fields = ['updated_at']
@@ -352,6 +374,7 @@ class SystemSettingsSerializer(serializers.ModelSerializer):
 
 class CustomerListSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
+    role = serializers.CharField(source="role.role_name", read_only=True)
 
     class Meta:
         model = Users
@@ -369,6 +392,7 @@ class CustomerListSerializer(serializers.ModelSerializer):
             "is_verify",
             "isActive",
             "profileImage",
+            "role",
             "createdAt",
         ]
 
@@ -1997,6 +2021,13 @@ class QuotationRequestUpdateSerializer(serializers.ModelSerializer):
 
             "quotation_status",
             "workflow_status",
+
+            # Admin-entered quotation figures (manual quoting, no auto-calculation)
+            "valid_until",
+            "sales_rep",
+            "subtotal",
+            "discount_percent",
+            "total",
 
             "cancel_reason",
             "cancelled_by",

@@ -8,9 +8,10 @@ import { useState } from "react";
 import HaederPage from "../../header/HaederPage";
 
 /**
- * EmailVerificationPage Component
- * 
- * Displays registration confirmation, masked user email address, and email verification prompt popup.
+ * EmailVerificationPage Component.
+ * Displays email verification instructions and masked registered email to the user.
+ *
+ * @returns {JSX.Element} Email verification prompt component.
  */
 const EmailVerificationPage = () => {
     const router = useRouter();
@@ -19,7 +20,7 @@ const EmailVerificationPage = () => {
     const email = searchParams.get("email");
 
     /**
-     * Opens external email client in a new tab for verification.
+     * Opens external email client (Gmail) in a new browser tab.
      */
     const verifyUserEmail = async () => {
         window.open("https://mail.google.com/", "_blank");
@@ -93,4 +94,3 @@ const EmailVerificationPage = () => {
 };
 
 export default EmailVerificationPage;
-

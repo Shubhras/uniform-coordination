@@ -6,17 +6,32 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiGetBlogDetail } from "@/services/BlogService";
 
+/**
+ * Formats an ISO date string into YYYY-MM-DD format.
+ *
+ * @param {string} date - ISO date string to format.
+ * @returns {string} Formatted date string.
+ */
 const formatDate = (date) => {
   if (!date) return "";
   return new Date(date).toISOString().split("T")[0];
 };
 
+/**
+ * SingleBlogSection Component.
+ * Fetches and displays full blog article details (title, date, hero image, and HTML description) based on blog ID from URL params.
+ *
+ * @returns {JSX.Element} Single blog article detail view section.
+ */
 const SingleBlogSection = () => {
   const { id } = useParams();
   const [blogData, setBlogData] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    /**
+     * Fetches detailed blog article data by ID.
+     */
     const fetchBlog = async () => {
       setLoading(true);
       try {
@@ -39,15 +54,6 @@ const SingleBlogSection = () => {
     if (id) fetchBlog();
   }, [id]);
 
-  // if (!blogData) {
-  //   return (
-  //     <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
-  //       <div className="py-20 text-center text-gray-500">
-  //         Blog not found
-  //       </div>
-  //     </section>
-  //   );
-  // }
   return (
     <section className="relative w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 py-20 md:py-24">
       <div className="bg-[#F5F7FB] rounded-3xl px-1 md:px-10 lg:px-8 py-10 md:py-8">
