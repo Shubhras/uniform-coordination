@@ -154,7 +154,7 @@ class AdminProcessInspectionAPIView(APIView):
                             reason=notes,
                             status="pending"
                         )
-                
+                inspection.is_reviewed = True
                 inspection.save()
                 
                 # Return good items to available stock
