@@ -88,7 +88,7 @@ const UniformSingle = () => {
                         </h2>
                         <div className="w-20 h-1 bg-[#7B3C1D] mx-auto mt-2 rounded-full" />
                         {singleProductData?.category?.categoryName && (
-                            <p className="text-[#8B5A3C] mt-2 text-sm font-medium">
+                            <p className="text-[#8B5A3C] mt-2 text-[15px] font-medium">
                                 Category: {singleProductData.category.categoryName} {singleProductData.subcategory?.name ? `| ${singleProductData.subcategory.name}` : ''}
                             </p>
                         )}
@@ -97,7 +97,7 @@ const UniformSingle = () => {
                     {/* Main Content */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                         {/* Left Info Card */}
-                        <div className="order-2 lg:order-1 bg-white border border-[#E8E0D9] rounded-[20px] md:p-8 p-5 flex flex-col h-full shadow-sm">
+                        <div className="order-2 lg:order-1 bg-white border border-[#E8E0D9] rounded-[20px] md:p-8 p-5 flex flex-col shadow-sm">
                             {loading && (
                                 <div className="flex justify-center items-center py-20">
                                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7B3C1D]"></div>
@@ -121,13 +121,13 @@ const UniformSingle = () => {
 
                                         <div className="flex flex-wrap items-center gap-4 text-sm mt-1">
                                             <div>
-                                                <span className="text-[#6B7280]">Price: </span>
-                                                <span className="text-[#7B3C1D] font-bold text-lg">${singleProductData.price}</span>
+                                                <span className="text-[#6B7280] text-[15px]">Price: </span>
+                                                <span className="text-[#7B3C1D] font-bold text-[19px]">${singleProductData.price}</span>
                                             </div>
                                             {singleProductData.rental_price_per_day && (
                                                 <div className="border-l border-gray-300 pl-4">
-                                                    <span className="text-[#6B7280]">Rental: </span>
-                                                    <span className="text-[#1C2C56] font-semibold">${singleProductData.rental_price_per_day} <span className="text-xs font-normal text-gray-500">/ day</span></span>
+                                                    <span className="text-[#6B7280] text-[15px]">Rental: </span>
+                                                    <span className="text-[#1C2C56] font-semibold text-[19px]">${singleProductData.rental_price_per_day} <span className="text-xs font-normal text-gray-500">/ day</span></span>
                                                 </div>
                                             )}
                                             {singleProductData.discount > 0 && (
@@ -151,7 +151,7 @@ const UniformSingle = () => {
                                             <h4 className="text-[#2C1810] font-semibold mb-1">
                                                 Description
                                             </h4>
-                                            <p className="text-[#6B7280] text-sm leading-relaxed">
+                                            <p className="text-[#6B7280] text-[16px] leading-relaxed">
                                                 {singleProductData.description || 'No description available'}
                                             </p>
                                         </div>
@@ -164,38 +164,38 @@ const UniformSingle = () => {
                                             <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs sm:text-sm">
                                                 {singleProductData.fabric_details?.name && (
                                                     <div>
-                                                        <span className="text-gray-500">Fabric: </span>
-                                                        <span className="font-medium text-gray-800">{singleProductData.fabric_details.name}</span>
+                                                        <span className="text-gray-500 text-[15px]">Fabric: </span>
+                                                        <span className="font-medium text-gray-800 text-[15px]">{singleProductData.fabric_details.name}</span>
                                                     </div>
                                                 )}
                                                 {singleProductData.color_details?.name && (
                                                     <div>
-                                                        <span className="text-gray-500">Color: </span>
-                                                        <span className="font-medium text-gray-800">{singleProductData.color_details.name}</span>
+                                                        <span className="text-gray-500 text-[15px]">Color: </span>
+                                                        <span className="font-medium text-gray-800 text-[15px]">{singleProductData.color_details.name}</span>
                                                     </div>
                                                 )}
                                                 {singleProductData.size && (
                                                     <div>
-                                                        <span className="text-gray-500">Size: </span>
-                                                        <span className="font-medium text-gray-800">{singleProductData.size}</span>
+                                                        <span className="text-gray-500 text-[15px]">Size: </span>
+                                                        <span className="font-medium text-gray-800 text-[15px]">{singleProductData.size}</span>
                                                     </div>
                                                 )}
                                                 {singleProductData.style && (
                                                     <div>
-                                                        <span className="text-gray-500">Style: </span>
-                                                        <span className="font-medium text-gray-800 capitalize">{singleProductData.style}</span>
+                                                        <span className="text-gray-500 text-[15px]">Style: </span>
+                                                        <span className="font-medium text-gray-800 capitalize text-[15px]">{singleProductData.style}</span>
                                                     </div>
                                                 )}
                                                 {singleProductData.table_shape && (
                                                     <div>
-                                                        <span className="text-gray-500">Shape: </span>
-                                                        <span className="font-medium text-gray-800 capitalize">{singleProductData.table_shape}</span>
+                                                        <span className="text-gray-500 text-[15px]">Shape: </span>
+                                                        <span className="font-medium text-gray-800 capitalize text-[15px]">{singleProductData.table_shape}</span>
                                                     </div>
                                                 )}
                                                 {singleProductData.productType && (
                                                     <div>
-                                                        <span className="text-gray-500">Type: </span>
-                                                        <span className="font-medium text-gray-800 capitalize">{singleProductData.productType}</span>
+                                                        <span className="text-gray-500 text-[15px]">Type: </span>
+                                                        <span className="font-medium text-gray-800 capitalize text-[15px]">{singleProductData.productType}</span>
                                                     </div>
                                                 )}
                                             </div>
