@@ -1,7 +1,8 @@
 {
   "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
-  "/(public-pages)/theme-management/page": "app/(public-pages)/theme-management/page.js",
+  "/(public-pages)/simulation-assets/page": "app/(public-pages)/simulation-assets/page.js",
   "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js",
-  "/(public-pages)/theme-management/addTheme/page": "app/(public-pages)/theme-management/addTheme/page.js",
-  "/(public-pages)/theme-management/edit/[id]/page": "app/(public-pages)/theme-management/edit/[id]/page.js"
+  "/(public-pages)/reports-analytics/page": "app/(public-pages)/reports-analytics/page.js",
+  "/(public-pages)/inventory-management/page": "app/(public-pages)/inventory-management/page.js",
+  "/(public-pages)/orders/page": "app/(public-pages)/orders/page.js"
 }

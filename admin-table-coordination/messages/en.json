@@ -313,7 +313,8 @@
             "hexCode":"HEX Code",
             "compatibleFabric":"Compatible Fabrics",
             "enterColorname":"Enter Color Name",
-            "selectFabric":"Select compatible fabrics"
+            "selectFabric":"Select compatible fabrics",
+            "colorPlaceholder":"Select Color"
 
         }
     },
@@ -376,12 +377,14 @@
         "grid":"Grid",
         "list":"List",
         "preview":"Preview",
+        "notheme":"No Theme Found",
 
         "addtheme":{
         "addNewTheme":"Add New Theme",
         "basicInfo":"Basic Information",
         "themeName":"THEME NAME",
         "shortDescription":"Short Description",
+        "descriptionPlaceholder":"Enter Short Description",
         "themeImage":"Theme Images",
         "thumbnail":"THUMBNAIL",
         "browseFile":"Browse Files",
@@ -392,7 +395,379 @@
         "floral":"Floral & Decor",
         "seating":"Seating",
         "addtionalElements":"Additional Elements",
-        "additem":"Add Item"
+        "additem":"Add Item",
+        "previewTheme":"Preview Theme",
+        "items":"items",
+        "addInvItems":"Add Inventory Items",
+        "searchInven":"Search Inventory",
+        "reuslts":"results",
+        "addSelected":"Add Selected",
+        "selectItems":"Select items to include",
+        "itemsIncludedTheme":"Items Included In This Theme",
+        "itemsTotal":"items Total",
+        "back":"Back",
+        "noSelected":"No items Selected",
+        "editTheme":"Edit Theme",
+        "updateTheme":"Update Theme",
+        "presetLook":"Preset Look",
+        "deleteTheme":"Delete Theme",
+        "deletethemeContent":"Deleting this theme will remove it from all over the platform. This action cannot be undone. This action cannot be undone"        }
+    },
+    "inventoryManagement":{
+        "inventoryLists":{
+            "invenotyrTitle":"Inventory Management",
+            "inventoryContent":"Track inventory, stock status, and product availability.",
+            "inventoryLists":"Inventory Lists",
+            "searchProducts":"Search Products...",
+            "allCategories":"All Categories",
+            "allFabrics":"All Fabrics",
+            "productName":"Product Name",
+            "total":"Total",
+            "available":"Available",
+            "onRent":"On Rent",
+            "cleaning":"Cleaning",
+            "inspect":"Inspect",
+            "addProduct":"Add Product",
+            "noProducts":"No products found"
+        },
+        "addProduct":{
+            "productNAME":"PRODUCT NAME",
+            "productPlaceholder":"Enter Product Name",
+            "tableShape":"TABLE SHAPE",
+            "style":"STYLE",
+            "tableSize":"TABLE SIZE",
+            "rentalPrice":"Rental Price / Day",
+            "stockQuantity":"STOCK QUANTITY",
+            "rfid":"RFID Tracking",
+            "rfidContent":"Enable asset tracking via RFID tags",
+            "publishTheme":"Publish Theme",
+            "productImage":"Product Image"
+        },
+        "inspectionQueue":{
+            "inspection":"Inspection Queue",
+            "orderId":"Order ID",
+            "returnedQty":"Returned Qty",
+            "returnedDate":"Returned Date",
+            "noInspection":"No inspection records found."
+        },
+        "damagedItems":{
+            "noDamageIem":"No damaged items found."
+        },
+        "cleaningItems":{
+            "noCleaning":"No damaged items found."
+        }
+    },
+
+    "orderRetals":{
+        "viewOrder":{
+        "orderTitle":"Order & Rentals",
+        "orderContent":"Manage rental orders, deliveries and returns.",
+        "allRoles":"All Roles",
+        "customerName":"Customer Name",
+        "role":"Role",
+        "rentalPeriod":"Rental Period",
+        "amount":"Amount",
+        "view":"View",
+        "orderid":"OrderId",
+        "orderDetails":"Order & Rental Details",
+        "customer":"CUSTOMER",
+        "shippingAdd":"SHIPPING ADDRESS",
+        "rentalDates":"RENTAL DATES",
+        "markAsShipped":"Mark as Shipped?",
+        "markAsDeliver":"Mark as Delivered?",
+        "markAsReturned":"Mark as Returned?",
+        "markAsProcess":"Mark as Process Return?",
+        "updateStatus":"Update Status?",
+        "youarAbout":"You are about to mark order",
+        "inventoryText":"Inventory will be updated and the item(s) will be sent for quality inspection before restocking.",
+        "markShipped":"Mark Shipped",
+        "markDeliver":"Mark Delivered",
+        "markReturned":"Mark Returned",
+        "pending":"Pending",
+        "orderItems":"Ordered Items",
+        "item":"Item",
+        "qty":"Qty",
+        "days":"Days",
+        "unitPrice":"Unit Price",
+        "subtotal":"Subtotal",
+        "paymentSummary":"PAYMENT SUMMARY",
+        "totalItems":"Total Items",
+        "shipping":"Shipping",
+        "promoDiscount":"Promo Discount",
+        "deliveryFee":"Delivery Fee",
+        "rentalSubtotal":"Rental Subtotal",
+        "paymentMethod":"PAYMENT METHOD",
+        "na":"N/A",
+        "paymentDate":"PAYMENT DATE",
+        "viewTimeline":"View Timeline"
+        },
+        "timeline":{
+            "rentalTimeline":"Rental Timeline",
+            "orderConfirmed":"Order Confirmed",
+            "paymentReceived":"Payment Received",
+            "orderCreated":"Order Created",
+            "shipped":"Shipped",
+            "dispatched":"Dispatched",
+            "delivered":"Delivered",
+            "deliveredDesc":"Items delivered successfully",
+            "returned":"Returned",
+            "returnedDesc":"Items received and logged for inspection",
+            "completed":"Completed",
+            "pending":"Pending",
+            "orderSummary":"Order Summary",
+            "company":"Company",
+            "type":"Type",
+            "progress":"Progress",
+            "of":"of",
+            "stepsCompleted":"steps completed"
+        },
+        "processReturn":{
+            "processReturn":"Process Return",
+            "continueInspection":"Continue Inspection",
+            "lateFee":"Late Fee",
+            "generate":"Generate Compensation",
+            "itemsChecklist":"Return Item Checklist",
+            "missing":"MISSING",
+            "rented":"RENTED",
+            "damaged":"DAMAGED",
+            "late":"Late",
+            "returned":"RETURNED",
+            "returnOverdue":"Return overdue by 3 days",
+            "missinDamaged":"Missing or damaged items detected",
+            "actual":"Actual",
+            "expected":"Expected"
+        }
+    },
+    "pricingPackages":{
+        "pricingRules":{
+            "pricePackage":"Pricing & Package",
+            "ppContent":"Manage rental rates, late fees, shipping charges, and promotional discounts.",
+            "pricingRule":"Pricing Rules",
+            "editPrice":"Edit Pricing Rules",
+            "pricingFormula":"Rental Pricing Formula",
+            "pricingFormulaContent":"Formula used for rental price calculation",
+            "lateFee":"Late Fee Formula",
+            "lateFeeContent":"Formula used to calculate late fee",
+            "lateFeeRate":"LATE FEE RATE",
+            "formula":"FORMULA",
+            "day":"day",
+            "gracePeriod":"Grace Period",
+            "graceContent":"Days after the event before late fees begin to apply",
+            "clienttext":"Clients have ",
+            "dayspost":"days post-event to return all rental items without penalty.",
+            "flatRound":"Flat Round Trip Shipping Fee",
+            "flatRoundContent":"Fixed delivery and pickup charge applied once per event",
+            "perEvent":"per event",
+            "consumptionTax":"Consumption Tax",
+            "consumpTaxContent":"Sales tax applied to all taxable rental transactions",
+            "enabled":"Enabled",
+            "lateFeeConfig":"Late Fee Configuration",
+            "define":"Define how late fees are calculated and applied",
+            "descriptiveFormula":"Descriptive formula label shown to staff in invoices",
+            "perday":"per day",
+            "returnDelivery":"Return & Delivery Settings",
+            "deliveryContent":"Configure grace period and shipping fee",
+            "taxSetting":"Tax Settings",
+            "taxsettingContent":"Configure consumption tax on rental transactions",
+            "enableTax":"Enable Consumption Tax",
+            "applySales":"Apply sales tax to all taxable transactions",
+            "saveRule":"Save Rule"
+        },
+        "promotions":{
+            "promotion":"Promotions",
+            "allTypes":"All Types",
+            "promotionName":"Promotion Name",
+            "value":"Value",
+            "validity":"Validity",
+            "createPromotions":"Create Promotions",
+            "promotionType":"Promotion Type",
+            "discountValue":"Discount Value",
+            "startDate":"START DATE",
+            "endDate":"END DATE",
+            "activeStatus":"Active Status",
+            "promoImmediately":"Enable or disable this promotion immediately"
+        }
+    },
+
+    "contractPolicies":{
+        "title":"Contracts & Policies",
+        "subHeading":"Manage rental agreements, digital signatures, and compensation policies.",
+        "searchby":"Search by Contract Id...",
+        "contractId":"Contract ID",
+        "sentDate":"Sent Date",
+        "signedDate":"Signed Date",
+        "companyInfo":"COMPANY INFORMATION",
+        "contactPerson":"CONTACT PERSON",
+        "businessEmail":"BUSINESS EMAIL",
+        "phone":"PHONE NUMBER",
+        "companyAdd":"COMPANY ADDRESS",
+        "userType":"USER TYPE",
+        "ordercontract":"ORDER & CONTRACT INFORMATION",
+        "orderDate":"ORDER DATE",
+        "contractid":"CONTRACT ID",
+        "awaitingSign":"Awaiting Signature",
+        "contractStatus":"Contract Status",
+        "downloadContract":"Download Contract PDF",
+        "rentalInfo":"RENTAL INFORMATION",
+        "rentalStart":"RENTAL START",
+        "rentalEnd":"RENTAL END",
+        "venuType":"VENUE TYPE",
+        "venuName":"VENUE NAME",
+        "customerNotes":"CUSTOMER NOTES",
+        "none":"none",
+        "requestedItems":"Requested Items",
+        "itemsforDay":"1 items for 8 days rental period",
+        "requested":"REQUESTED",
+        "unitPerDay":"Unit Rate/Day",
+
+        "viewStatus":{
+            "viewStatus":"View Status",
+            "signatureTimeline":"Signature Timeline",
+            "contract":"Contract",
+            "generated":"Generated",
+            "sentVia":"Sent via CloudSign",
+            "viewBy":"Viewed by Recipient",
+            "signed":"Signed",
+            "activityHistory":"Activity History",
+            "allContract":"All contract events",
+            "contractSent":"Contract sent via CloudSign",
+            "document":"Document ID",
+            "statusSummary":"Status Summary",
+            "currentStatus":"CURRENT STATUS",
+            "cloudSign":"CLOUDSIGN",
+            "contractValue":"CONTRACT VALUE",
+            "generatedOn":"GENERATED ON",
+            "documents":"Documents",
+            "contractPdf":"Contract PDF",
+            "signedPDF":"SIGNED PDF"
+        }
+        
+    },
+    "notifications":{
+        "title":"Notifications",
+        "subtitle":"All transactional notifications sent by KIREIZ SPACE",
+        "searchby":"Search by ID,recipient,order...",
+        "recipient":"Recipient",
+        "email":"Email",
+        "sentAt":"Sent At",
+        "viewAllNotify":"View All Notification",
+        "signOut":"Sign Out"
+    },
+    "userPermissions":{
+        "users":{
+        "title":"Users & Permissions",
+        "subtitle":"Manage user accounts, roles, permissions, and access across the platform.",
+        "users":"Users",
+        "fullName":"FULL NAME",
+        "role":"Role",
+        "registration":"Registration Date",
+        "userDetails":"User Details",
+        "inactive":"Inactive",
+        "active":"Active"
+        },
+        "permissions":{
+            "permission":"Permissions",
+            "feature":"Feature / Capability",
+            "saveChanges":"Save Changes"
+        }
+    },
+
+    "simulationAssets":{
+        "simulationStructure":{
+        "simulationStructure":"Simulation Structure",
+        "tile":"Simulation Assets",
+        "subtitle":"Track inventory, stock status, and product availability.",
+        "defineLine":"Define the categories and attributes that appear in the simulation tool."
+        },
+        "productVisibility":{
+            "title":"Product Visibility",
+            "subtitle":"Choose which inventory items will be available in the simulation",
+            "catFabric":"Category Fabric",
+            "showIn":"Show in Simulation",
+            "style":"Style"
+        },
+        "previewSimulation":{
+            "title":"Preview Simulation",
+            "sustitle":"Choose which inventory items will be available in the simulation"
+        }
+    },
+    "reportAnalytics":{
+        "title":"Reports & Analytics",
+        "subtitle":"Track inventory, stock status, and product availability.",
+        "exportData":"Export Data",
+        "totalRevenue":"TOTAL REVENUE",
+        "totalOrder":"TOTAL ORDERS",
+        "activeRental":"ACTIVE RENTALS",
+        "inventoryItems":"INVENTORY ITEMS",
+        "lateReturn":"LATE RETURNS",
+        "customers":"CUSTOMERS",
+        "customerGrowth":"Customer Growth (Last 6 Months)",
+        "avgGrowth":"avg growth",
+        "customerSegment":"Customer Segments",
+        "topRented":"Top Rented Categories",
+        "inventoryStatus":"Inventory Status",
+        "rented":"Rented",
+        "maintenance":"Maintenance"
+    },
+
+    "systemSettings":{
+        "generalSetting":{
+            "system":"System Settings",
+            "systemSubtitle":"Manage your company identity, regional preferences, and default configurations.",
+            "title":"General Settings",
+            "businessAdd":"Business Address",
+            "supportEmail":"Support Email",
+            "contactNo":"Contact Number",
+            "defaultLang":"Default Language",
+            "defaultCurrency":"Default Currency",
+            "timeZone":"Time Zone",
+            "dateFormat":"Date Format",
+            "logo":"Logo",
+            "edit":"Edit",
+            "saveChanges":"Save Changes"
+        },
+        "paymentSetting":{
+            "title":"Payment Settings"
+        },
+        "emailNotifications":{
+            "title":"Email & Notifications"
+        }
+    },
+
+    "aiAutomation":{
+        "termAssistant":{
+            "title":"FAQ / Terms Assistant",
+            "subtitle":"Ask questions based on company FAQs and Terms of Service",
+            "aiAutomatin":"AI & Automation",
+            "setUp":"Set up and monitor AI-driven assistants for search, FAQs, and customer service.",
+            "cancelPolicy":"Cancellation policy?",
+            "deliverySchedule":"Delivery schedule?",
+            "deposit":"Deposit & refund?",
+            "damageliability":"Damage liability?",
+            "askAbout":"Ask about company policies, terms, or FAQ's"
+        },
+        "orderDelivery":{
+            "title":"Order & Delivery",
+            "deliveryInjury":"Order & Delivery Inquiry",
+            "subtitle":"Read-only order lookup — no editing permitted",
+            "readOnlyMode":"Read-only mode — this tool does not modify any order data",
+            "search":"Search",
+            "eg":"e.g. ORD-KRZ-2024-0847"
+        },
+        "productSearch":{
+            "productSearch":"Product Search",
+            "title":"Natural Language Product Search",
+            "subtitle":"Describe what you need — AI converts your query into structured filters",
+            "languateQuery":"Start with a natural language query",
+            "describetheProduct":"Describe the product you need — size, color, occasion, quantity — and our AI will handle the rest.",
+            "aiSearch":"AI Search"
+        },
+        "draftGenerator":{
+            "draftGenerator":"Draft Generator",
+            "title":"Draft Response Generator",
+            "subtitle":"AI-assisted reply drafts for customer inquiries — review, edit, and approve before sending.",
+            "placeholder":"Type the customer inquiry here...Example: I want to rent 20 round tables for my wedding event next month. Please share pricing and availability.",
+            "submit":"Submit"
         }
     }
 
