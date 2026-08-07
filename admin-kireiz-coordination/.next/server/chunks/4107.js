@@ -1,0 +1,1 @@
+exports.id=4107,exports.ids=[4107],exports.modules={34107:function(e){e.exports={name:"en",weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_"),ordinal:function(e){var r=["th","st","nd","rd"],_=e%100;return"["+e+(r[(_-20)%10]||r[_]||r[0])+"]"}}}};
