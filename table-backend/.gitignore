@@ -14,7 +14,7 @@ env/
 venv/
 ENV/
 env.bak/
-
+localenv/
 # Django
 *.log
 *.pot
