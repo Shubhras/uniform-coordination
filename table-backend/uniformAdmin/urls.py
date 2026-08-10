@@ -189,6 +189,7 @@ urlpatterns = [
 
     #<-------------------Dashboardes------------------------------->
     path("admindesh/",AdminDashAPIView.as_view(),name="admin-dash-info"),
+    path("admindesh/mark-alerts-reviewed/", MarkAlertsReviewedAPIView.as_view(), name="mark-alerts-reviewed"),
     path("reports-analytics/", ReportsAnalyticsAPIView.as_view(), name="reports-analytics"),
 
     #<-------------------Homepage------------------------------->

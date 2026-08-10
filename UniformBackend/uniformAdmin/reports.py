@@ -54,6 +54,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from uniformAdmin.auth import IsAdminUserJWT
+from uniformAdmin.currency import get_currency
 from uniformAdmin.models import AdminUser, Category, Fabric, Parts, Product, Template
 from userhub.models import QuotationRequest, Users
 
@@ -261,6 +262,8 @@ def build_analytics(months=DEFAULT_MONTHS):
 
     return {
         "range_months": months,
+        # Single source for the symbol so the UI never hardcodes one.
+        "currency": get_currency(),
         "stats": {
             "total_requests": total_requests,
             "pending_review": pending_review,

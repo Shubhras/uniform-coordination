@@ -1410,6 +1410,37 @@ class AdminNotificationDeleteAPIView(APIView):
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class MarkAlertsReviewedAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["Admin Dashboard"],
+        summary="Mark all active alerts as reviewed",
+        description="Mark all pending inspections and late rentals as reviewed, so they are not shown on the dashboard.",
+        responses={
+            200: OpenApiResponse(description="All alerts marked as reviewed"),
+            500: OpenApiResponse(description="Failed to mark alerts as reviewed"),
+        }
+    )
+    def post(self, request):
+        try:
+            from userhub.models import Rental
+            InspectionItem.objects.filter(result='pending').update(is_reviewed=True)
+            Rental.objects.filter(status='late', isDeleted=False, isActive=True).update(is_reviewed=True)
+            
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "All alerts marked as reviewed"
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Failed to mark alerts as reviewed",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class AdminDashAPIView(APIView):
     # permission_classes = [IsAdministrator]
     permission_classes  =[IsAuthenticated]    #need to remove after take clone 
@@ -1545,6 +1576,26 @@ class AdminDashAPIView(APIView):
                 weekly_result[item["day"]] = item["value"]
 
             weekly_data = [{"label": DAY_MAP[d], "value": weekly_result[d]} for d in range(1, 8)]
+
+            # Orders Weekly
+            from userhub.models import Order
+            orders_weekly_result = {i: 0 for i in range(1, 8)}
+            orders_week_qs = (
+                Order.objects
+                .filter(
+                    is_deleted=False,
+                    created_at__date__gte=start_of_week.date(),
+                    created_at__date__lte=end_of_week.date()
+                )
+                .annotate(day=ExtractWeekDay("created_at"))
+                .values("day")
+                .annotate(value=Count("id"))
+            )
+            for item in orders_week_qs:
+                orders_weekly_result[item["day"]] = item["value"]
+
+            orders_weekly_data = [{"label": DAY_MAP[d], "value": orders_weekly_result[d]} for d in range(1, 8)]
+
             # Monthly
             monthly_result = {i: 0 for i in range(1, 6)}
             month_qs = (
@@ -1662,8 +1713,8 @@ class AdminDashAPIView(APIView):
                 for item in most_rented_themes_qs
             ]
             
-            items_waiting_inspection = InspectionItem.objects.filter(result='pending').count()
-            late_returns = Rental.objects.filter(status='late', isDeleted=False, isActive=True).count()
+            items_waiting_inspection = InspectionItem.objects.filter(result='pending', is_reviewed=False).count()
+            late_returns = Rental.objects.filter(status='late', isDeleted=False, isActive=True, is_reviewed=False).count()
             
             active_alerts = {
                 "high": {
@@ -1696,6 +1747,7 @@ class AdminDashAPIView(APIView):
                     "Pending_Orders": pending_orders,
                     "Most_Rented_Theme": most_rented_themes,
                     "Requests_This_Week": yearly_data,
+                    "Orders_This_Week": orders_weekly_data,
                     "Active_Alerts": active_alerts,
                 }
             }, status=status.HTTP_200_OK)
