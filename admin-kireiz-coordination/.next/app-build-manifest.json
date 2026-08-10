@@ -11,30 +11,50 @@
       "static/chunks/main-app.js",
       "static/chunks/app/not-found.js"
     ],
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
+    ],
     "/(public-pages)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/layout.js"
     ],
-    "/(public-pages)/customer/page": [
+    "/(public-pages)/admin-form/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/customer/page.js"
+      "static/chunks/app/(public-pages)/admin-form/page.js"
     ],
-    "/_not-found/page": [
+    "/(public-pages)/products/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/(public-pages)/products/page.js"
+    ],
+    "/(public-pages)/contents/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/contents/page.js"
+    ],
+    "/(public-pages)/contents/add-template/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/contents/add-template/page.js"
     ],
     "/(public-pages)/pricing/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/pricing/page.js"
     ],
-    "/(public-pages)/contents/page": [
+    "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/contents/page.js"
+      "static/chunks/app/_not-found/page.js"
+    ],
+    "/(public-pages)/customer/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/customer/page.js"
     ],
     "/(public-pages)/simulation-configuration/page": [
       "static/chunks/webpack.js",
@@ -55,16 +75,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/quotation-requests/page.js"
-    ],
-    "/(public-pages)/customer/view/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/customer/view/[id]/page.js"
-    ],
-    "/(public-pages)/notifications/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/notifications/page.js"
     ]
   }
 }
