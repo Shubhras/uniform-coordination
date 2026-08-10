@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiArrowLeft } from "react-icons/fi";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "@/components/ui/toast";
@@ -13,6 +14,9 @@ import {
 import { apiGetSalesReps } from "@/services/SalesRepService";
 
 const EditQuotation = () => {
+  const t = useTranslations(
+    "customerSalesRep.quotationHistory.editQuotationPage",
+  );
   const router = useRouter();
   const { id } = useParams();
 
@@ -30,39 +34,39 @@ const EditQuotation = () => {
     const newErrors = {};
 
     if (!formData.company_name.trim()) {
-      newErrors.company_name = "Company name is required*";
+      newErrors.company_name = t("validation.companyNameRequired");
     }
 
     if (!formData.contact_person.trim()) {
-      newErrors.contact_person = "Contact person is required*";
+      newErrors.contact_person = t("validation.contactPersonRequired");
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required*";
+      newErrors.email = t("validation.emailRequired");
     }
 
     if (!formData.phone_number.trim()) {
-      newErrors.phone_number = "Phone number is required*";
+      newErrors.phone_number = t("validation.phoneRequired");
     }
 
     if (!formData.item_type.trim()) {
-      newErrors.item_type = "Item type is required*";
+      newErrors.item_type = t("validation.itemTypeRequired");
     }
 
     if (!formData.material.trim()) {
-      newErrors.material = "Material is required*";
+      newErrors.material = t("validation.materialRequired");
     }
 
     if (!formData.size_quantity.trim()) {
-      newErrors.size_quantity = "Size & Quantity is required*";
+      newErrors.size_quantity = t("validation.sizeQuantityRequired");
     }
 
     if (!formData.delivery_date) {
-      newErrors.delivery_date = "Delivery date is required*";
+      newErrors.delivery_date = t("validation.deliveryDateRequired");
     }
 
     if (!formData.quotation_status) {
-      newErrors.quotation_status = "Quotation status is required*";
+      newErrors.quotation_status = t("validation.quotationStatusRequired");
     }
 
     setErrors(newErrors);
@@ -122,7 +126,7 @@ const EditQuotation = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Failed to fetch quotation details.");
+      toast.error(t("fetchFailed"));
     } finally {
       setLoading(false);
     }
@@ -192,19 +196,19 @@ const EditQuotation = () => {
       const res = await apiUpdateQuotation(accessToken, id, payload);
 
       toast.push(
-        <Notification title="Success" type="success">
-          {res?.message || "Updated successfully"}
+        <Notification title={t("successTitle")} type="success">
+          {res?.message || t("updateSuccess")}
         </Notification>,
       );
 
       if (res?.status) {
         router.push("/customer");
       } else {
-        toast.error(res?.message || "Failed to update quotation.");
+        toast.error(res?.message || t("updateFailed"));
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something went wrong.");
+      toast.error(t("genericError"));
     } finally {
       setSaving(false);
     }
@@ -400,13 +404,13 @@ const EditQuotation = () => {
               onChange={handleChange}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 bg-white outline-none focus:ring-2 focus:ring-[#1C2C56]"
             >
-              <option value="">Select Status</option>
-              <option value="pending">Pending</option>
-              <option value="sent">Sent</option>
-              <option value="approved">Approved</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="accepted">Accepted</option>
-              <option value="received">Received</option>
+              <option value="">{t("selectStatus")}</option>
+              <option value="pending">{t("statusPending")}</option>
+              <option value="sent">{t("statusSent")}</option>
+              <option value="approved">{t("statusApproved")}</option>
+              <option value="cancelled">{t("statusCancelled")}</option>
+              <option value="accepted">{t("statusAccepted")}</option>
+              <option value="received">{t("statusReceived")}</option>
             </select>
             {errors.quotation_status && (
               <p className="text-red-500 text-sm mt-1">
@@ -555,7 +559,7 @@ const EditQuotation = () => {
           onClick={handleSubmit}
           className="px-6 py-3 rounded-xl bg-[#1C2C56] text-white hover:bg-[#162347] transition disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {saving ? "Saving..." : t("saveChanges")}
+          {saving ? t("saving") : t("saveChanges")}
         </button>
       </div>
     </div>

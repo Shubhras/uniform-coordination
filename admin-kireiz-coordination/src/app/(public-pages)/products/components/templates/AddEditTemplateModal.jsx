@@ -230,7 +230,7 @@ const AddEditTemplateModal = ({
 
       toast.push(
         <Notification title={t("successTitle")} type="success">
-          {response?.message || "Saved successfully"}
+          {response?.message || tm("saveSuccess")}
         </Notification>,
       );
 

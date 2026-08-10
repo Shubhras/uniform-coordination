@@ -281,10 +281,16 @@ const QuotationHistory = () => {
                 : "bg-gray-100 text-gray-700"
       }`}
                         >
-                          {t(
-                            `statusFilter.${(q.quotation_status || "").toLowerCase()}`,
-                            { defaultValue: q.quotation_status },
-                          )}
+                          {(() => {
+                            // next-intl has no defaultValue option — an unmapped
+                            // status would render the raw key path, so probe first.
+                            const statusKey = `statusFilter.${(
+                              q.quotation_status || ""
+                            ).toLowerCase()}`;
+                            return t.has(statusKey)
+                              ? t(statusKey)
+                              : q.quotation_status;
+                          })()}
                         </span>
                       </td>
 

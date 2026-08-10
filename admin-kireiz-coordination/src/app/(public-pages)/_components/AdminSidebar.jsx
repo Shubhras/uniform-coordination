@@ -153,7 +153,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
                         transition-colors duration-200
                         ${collapsed ? "absolute -right-3.5 top-5 bg-white border border-[#E2E8F0] shadow-sm" : ""}
                     `}
-          aria-label="Toggle sidebar"
+          aria-label={t("toggleSidebar")}
         >
           {collapsed ? (
             <FiChevronRight size={14} />
@@ -233,7 +233,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
       {!collapsed && (
         <div className="p-4 border-t border-[#E2E8F0]">
           <div className="bg-gradient-to-r from-[#EEF2FF] to-[#F0F9FF] rounded-lg p-3">
-            <p className="text-xs text-[#64748B] font-medium">KF Admin Panel</p>
+            <p className="text-xs text-[#64748B] font-medium">{t("kfAdminPanel")}</p>
             <p className="text-[10px] text-[#94A3B8] mt-0.5">v1.2.1</p>
           </div>
         </div>

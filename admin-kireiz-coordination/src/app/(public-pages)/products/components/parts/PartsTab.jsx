@@ -169,7 +169,7 @@ const PartsTab = () => {
 
       toast.push(
         <Notification title={t("successTitle")} type="success">
-          {response?.message || "Part deleted successfully."}
+          {response?.message || t("deleteSuccess")}
         </Notification>,
       );
       setDeleteDialogOpen(false);
@@ -213,7 +213,7 @@ const PartsTab = () => {
 
       toast.push(
         <Notification title={t("successTitle")} type="success">
-          {response?.message || "Part duplicated successfully."}
+          {response?.message || t("duplicateSuccess")}
         </Notification>,
       );
 
@@ -223,7 +223,7 @@ const PartsTab = () => {
 
       toast.push(
         <Notification title={t("errorTitle")} type="danger">
-          {error?.response?.data?.message || "Failed to duplicate part."}
+          {error?.response?.data?.message || t("duplicateFailed")}
         </Notification>,
       );
     } finally {
