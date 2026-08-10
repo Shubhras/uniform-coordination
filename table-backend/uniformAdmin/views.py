@@ -1517,12 +1517,12 @@ class AdminDashAPIView(APIView):
             previous_month_start = previous_month_end.replace(day=1)
 
             current_month_b2b = AdminUser.objects.filter(
-                role__role_name="b2b_user",
+                role__role_name__in=["b2b", "b2b_user"],
                 created_at__gte=current_month_start
             ).count()
 
             previous_month_b2b = AdminUser.objects.filter(
-                role__role_name="b2b_user",
+                role__role_name__in=["b2b", "b2b_user"],
                 created_at__gte=previous_month_start,
                 created_at__lte=previous_month_end
             ).count()
@@ -2307,8 +2307,8 @@ class AdminOrderListAPIView(APIView):
             customer_type = request.query_params.get("customer_type")  # 'b2b' or 'b2c'
 
             # Aggregate Counts BEFORE filtering by status/search/etc so the tabs always show total numbers
-            b2b_orders = orders.filter(user__role__role_name="b2b_user")
-            b2c_orders = orders.exclude(user__role__role_name="b2b_user")
+            b2b_orders = orders.filter(user__role__role_name__in=["b2b", "b2b_user"])
+            b2c_orders = orders.exclude(user__role__role_name__in=["b2b", "b2b_user"])
             
             b2b_counts = {
                 "pending": b2b_orders.filter(status="pending").count(),
@@ -2328,9 +2328,9 @@ class AdminOrderListAPIView(APIView):
 
             # Apply customer_type filter for the list
             if customer_type == "b2b":
-                orders = orders.filter(user__role__role_name="b2b_user")
+                orders = orders.filter(user__role__role_name__in=["b2b", "b2b_user"])
             elif customer_type == "b2c":
-                orders = orders.exclude(user__role__role_name="b2b_user")
+                orders = orders.exclude(user__role__role_name__in=["b2b", "b2b_user"])
 
             if search:
                 orders = orders.filter(

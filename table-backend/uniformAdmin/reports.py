@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
+import csv
+from django.http import HttpResponse
 from django.db.models import Sum, Count, Q, F
 from django.utils import timezone
 import calendar
@@ -141,7 +143,7 @@ class ReportsAnalyticsAPIView(APIView):
                     })
 
             # B. Customer Segments
-            b2b_cust = users_qs.filter(role__role_name='b2b_user').count()
+            b2b_cust = users_qs.filter(role__role_name__in=['b2b', 'b2b_user']).count()
             b2c_cust = total_customers - b2b_cust
 
             b2b_pct = round((b2b_cust / total_customers * 100), 1) if total_customers > 0 else 0.0
@@ -212,6 +214,101 @@ class ReportsAnalyticsAPIView(APIView):
                 "status": False,
                 "statusCode": 500,
                 "message": "Something went wrong on the server.",
+                "error": str(e),
+                "trace": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ExportReportsAnalyticsAPIView(APIView):
+    permission_classes = [IsAdministrator]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        try:
+            # We call ReportsAnalyticsAPIView internally to reuse the same filtering & query logic
+            report_view = ReportsAnalyticsAPIView()
+            response = report_view.get(request)
+            if response.status_code != 200:
+                return response
+
+            data = response.data.get('data', {})
+            kpi = data.get('kpi', {})
+            customer_growth = data.get('customer_growth', [])
+            customer_segments = data.get('customer_segments', [])
+            top_rented_categories = data.get('top_rented_categories', [])
+            inventory_status = data.get('inventory_status', [])
+
+            # Create the HttpResponse object with appropriate CSV headers
+            response_csv = HttpResponse(content_type='text/csv')
+            # UTF-8 BOM so Excel handles any Japanese character encoding nicely
+            response_csv.write('\ufeff'.encode('utf8'))
+            
+            timestamp = timezone.now().strftime('%Y%m%d_%H%M%S')
+            response_csv['Content-Disposition'] = f'attachment; filename="reports_analytics_export_{timestamp}.csv"'
+
+            writer = csv.writer(response_csv)
+
+            # Document Metadata Header
+            writer.writerow(['Reports & Analytics Summary Export'])
+            writer.writerow(['Generated At', timezone.now().strftime('%Y-%m-%d %H:%M:%S')])
+            product_type = request.query_params.get('type', 'all')
+            writer.writerow(['Product Type Filter', product_type.capitalize()])
+            
+            start_date = request.query_params.get('start_date')
+            end_date = request.query_params.get('end_date')
+            if start_date and end_date:
+                writer.writerow(['Date Range', f'{start_date} to {end_date}'])
+            else:
+                writer.writerow(['Date Range', 'All Time'])
+            writer.writerow([])  # empty separator line
+
+            # KPI Section
+            writer.writerow(['--- KPI METRICS ---'])
+            writer.writerow(['Metric', 'Value'])
+            writer.writerow(['Total Revenue', f"¥{kpi.get('total_revenue', 0.0):,.2f}"])
+            writer.writerow(['Total Orders', kpi.get('total_orders', 0)])
+            writer.writerow(['Active Rentals', kpi.get('active_rentals', 0)])
+            writer.writerow(['Inventory Items', kpi.get('inventory_items', 0)])
+            writer.writerow(['Late Returns', kpi.get('late_returns', 0)])
+            writer.writerow(['Total Customers', kpi.get('total_customers', 0)])
+            writer.writerow([])
+
+            # Customer Growth
+            writer.writerow(['--- CUSTOMER GROWTH (LAST 6 MONTHS) ---'])
+            writer.writerow(['Month', 'Cumulative Customers'])
+            for grow in customer_growth:
+                writer.writerow([grow.get('label', ''), grow.get('value', 0)])
+            writer.writerow([])
+
+            # Customer Segments
+            writer.writerow(['--- CUSTOMER SEGMENTS ---'])
+            writer.writerow(['Segment', 'Count', 'Percentage'])
+            for seg in customer_segments:
+                writer.writerow([seg.get('label', ''), seg.get('count', 0), f"{seg.get('percentage', 0.0)}%"])
+            writer.writerow([])
+
+            # Top Rented Categories
+            writer.writerow(['--- TOP RENTED CATEGORIES ---'])
+            writer.writerow(['Category', 'Total Rented Count'])
+            for cat in top_rented_categories:
+                writer.writerow([cat.get('label', ''), cat.get('count', 0)])
+            writer.writerow([])
+
+            # Inventory Status
+            writer.writerow(['--- INVENTORY STATUS ---'])
+            writer.writerow(['Status', 'Count', 'Percentage'])
+            for inv in inventory_status:
+                writer.writerow([inv.get('label', ''), inv.get('count', 0), f"{inv.get('percentage', 0.0)}%"])
+
+            # Use raw bytes output by encoding response stream
+            return response_csv
+
+        except Exception as e:
+            import traceback
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Failed to generate report export CSV.",
                 "error": str(e),
                 "trace": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

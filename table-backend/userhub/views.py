@@ -2964,3 +2964,77 @@ class DocuSignWebhookAPIView(APIView):
         except QuotationRequest.DoesNotExist:
             return Response({"statusCode":400,"status":False,"message": "Quotation not found"}, status=400)
 
+
+from userhub.authentication import CustomUserJWTAuthentication as RealCustomUserJWTAuthentication
+
+class ToggleProductFavouriteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [RealCustomUserJWTAuthentication]
+
+    def post(self, request):
+        product_id = request.data.get("product_id")
+        if not product_id:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "product_id is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        product = get_object_or_404(Product, id=product_id, isDeleted=False)
+        fav, created = Favourite.objects.get_or_create(product=product, user=request.user)
+        
+        if created:
+            fav.is_like = True
+        else:
+            fav.is_like = not fav.is_like
+        
+        fav.isDeleted = False
+        fav.isActive = True
+        fav.save()
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "message": "Product favourite toggled successfully.",
+            "data": {
+                "product_id": product.id,
+                "is_favourite": fav.is_like
+            }
+        }, status=status.HTTP_200_OK)
+
+
+class ToggleThemeFavouriteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [RealCustomUserJWTAuthentication]
+
+    def post(self, request):
+        theme_id = request.data.get("theme_id")
+        if not theme_id:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "theme_id is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        theme = get_object_or_404(TableTheme, id=theme_id, isDeleted=False)
+        fav, created = ThemeFavourite.objects.get_or_create(theme=theme, user=request.user)
+        
+        if created:
+            fav.is_like = True
+        else:
+            fav.is_like = not fav.is_like
+        
+        fav.isDeleted = False
+        fav.isActive = True
+        fav.save()
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "message": "Theme favourite toggled successfully.",
+            "data": {
+                "theme_id": theme.id,
+                "is_favourite": fav.is_like
+            }
+        }, status=status.HTTP_200_OK)
+

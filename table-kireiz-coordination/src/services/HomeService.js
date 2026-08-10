@@ -18,13 +18,16 @@ export async function apiGetHomeData(params = {}) {
  * Fetches browse by theme catalog items list.
  * 
  * @param {Object} [params={}] - Optional query parameters.
+ * @param {string} [token] - Optional user authentication Bearer token.
  * @returns {Promise<Object>} API response with table themes list.
  */
-export async function apiGetBrowseByThemeData(params = {}) {
+export async function apiGetBrowseByThemeData(params = {}, token = null) {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {}
     return ApiService.fetchDataWithAxios({
         url: '/v1/space/uniformAdmin/tabletheme/get-list/',
         method: 'get',
         params,
+        headers,
     })
 }
 
