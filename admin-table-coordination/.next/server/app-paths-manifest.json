@@ -1,4 +1,8 @@
 {
-  "/page": "app/page.js",
-  "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js"
+  "/(public-pages)/notifications/page": "app/(public-pages)/notifications/page.js",
+  "/(public-pages)/contracts-policies/page": "app/(public-pages)/contracts-policies/page.js",
+  "/(public-pages)/simulation-assets/page": "app/(public-pages)/simulation-assets/page.js",
+  "/(public-pages)/inventory-management/page": "app/(public-pages)/inventory-management/page.js",
+  "/(public-pages)/orders/page": "app/(public-pages)/orders/page.js",
+  "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js"
 }
