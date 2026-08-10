@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
@@ -12,6 +13,7 @@ import {
 } from "@/services/PermissionService";
 
 const Permission = () => {
+  const t = useTranslations("customerSalesRep.permission");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -143,11 +145,10 @@ const Permission = () => {
         {/* Header */}
         <div className="mb-6">
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            Role Permissions
+            {t("title")}
           </h2>
           <p className="text-[#486284] text-sm mt-1">
-            Configure access levels for different system roles. Admin
-            permissions are locked for security.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -157,7 +158,7 @@ const Permission = () => {
             <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <tr className="text-[#486284]">
                 <th className="text-left px-5 py-3 font-medium">
-                  Feature / Capability
+                  {t("featureCapability")}
                 </th>
 
                 {roles.map((role) => (
@@ -220,7 +221,7 @@ const Permission = () => {
         {/* Footer Buttons */}
         <div className="flex justify-end gap-3 mt-6">
           <button className="border border-[#CBD5E1] text-[#486284] px-4 py-2 rounded-md text-sm">
-            Cancel
+            {t("cancel")}
           </button>
 
           <Button
@@ -228,7 +229,7 @@ const Permission = () => {
             loading={saving}
             className="bg-[#1C4FA8] h-9 text-white px-5 py-2 rounded-md text-sm font-medium"
           >
-            Save Changes
+            {t("saveChanges")}
           </Button>
         </div>
       </div>

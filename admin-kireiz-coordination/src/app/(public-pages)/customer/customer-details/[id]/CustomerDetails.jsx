@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiArrowLeft } from "react-icons/fi";
 import { useRouter, useParams } from "next/navigation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetCustomersDetails } from "@/services/B2BAccountService";
+import { formatDate } from "@/utils/formatDate";
 
 const CustomerDetails = () => {
+  const t = useTranslations("customerSalesRep.customerDetails");
   const router = useRouter();
   const { id } = useParams();
   const { session } = useCurrentSession();
@@ -56,7 +59,7 @@ const CustomerDetails = () => {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-semibold text-[#1C2C56]">
-                Customer Details
+                {t("pageTitle")}
               </h1>
 
               <span
@@ -66,7 +69,7 @@ const CustomerDetails = () => {
                     : "bg-red-100 text-red-700"
                 }`}
               >
-                {customer?.isActive ? "Active" : "Inactive"}
+                {customer?.isActive ? t("statusActive") : t("statusInactive")}
               </span>
             </div>
 
@@ -80,7 +83,9 @@ const CustomerDetails = () => {
       {/* ================= COMPANY INFO ================= */}
 
       <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
-        <h3 className="text-[16px] font-semibold mb-5">Customer Information</h3>
+        <h3 className="text-[16px] font-semibold mb-5">
+          {t("customerInformation")}
+        </h3>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Customer */}
@@ -92,7 +97,7 @@ const CustomerDetails = () => {
               </div>
 
               <div>
-                <p className="text-[14px] text-[#374151]">Customer Name</p>
+                <p className="text-[14px] text-[#374151]">{t("customerName")}</p>
 
                 <h4 className="font-semibold mt-1">
                   {customer?.full_name || "-"}
@@ -101,7 +106,7 @@ const CustomerDetails = () => {
             </div>
 
             <div className="mt-6">
-              <p className="text-[14px] text-[#374151]">Phone Number</p>
+              <p className="text-[14px] text-[#374151]">{t("phoneNumber")}</p>
 
               <p className="mt-1">{customer?.phone || "-"}</p>
             </div>
@@ -111,7 +116,7 @@ const CustomerDetails = () => {
 
           <div>
             <div>
-              <p className="text-[14px] text-[#374151]">First Name</p>
+              <p className="text-[14px] text-[#374151]">{t("firstName")}</p>
 
               <h4 className="font-semibold mt-1">
                 {customer?.firstName || "-"}
@@ -119,7 +124,7 @@ const CustomerDetails = () => {
             </div>
 
             <div className="mt-6">
-              <p className="text-[14px] text-[#374151]">Last Name</p>
+              <p className="text-[14px] text-[#374151]">{t("lastName")}</p>
 
               <p className="mt-1">{customer?.lastName || "-"}</p>
             </div>
@@ -129,13 +134,13 @@ const CustomerDetails = () => {
 
           <div>
             <div>
-              <p className="text-[14px] text-[#374151]">Email</p>
+              <p className="text-[14px] text-[#374151]">{t("email")}</p>
 
               <p className="mt-1">{customer?.email || "-"}</p>
             </div>
 
             <div className="mt-6">
-              <p className="text-[14px] text-[#374151]">User Type</p>
+              <p className="text-[14px] text-[#374151]">{t("userType")}</p>
 
               <span className="inline-flex items-center rounded-full px-4 py-1.5 text-sm font-semibold bg-blue-100 text-blue-700 capitalize">
                 {customer?.userType || "-"}
@@ -147,36 +152,38 @@ const CustomerDetails = () => {
       {/* ================= QUOTATION INFORMATION ================= */}
 
       <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
-        <h3 className="text-[16px] font-semibold mb-5">Account Information</h3>
+        <h3 className="text-[16px] font-semibold mb-5">
+          {t("accountInformation")}
+        </h3>
 
         <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
           <div>
-            <p className="text-[14px] text-[#374151]">Customer ID</p>
+            <p className="text-[14px] text-[#374151]">{t("customerId")}</p>
             <p className="mt-1 font-medium">{customer?.id}</p>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Username</p>
+            <p className="text-[14px] text-[#374151]">{t("username")}</p>
             <p className="mt-1">{customer?.userName || "-"}</p>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Role</p>
+            <p className="text-[14px] text-[#374151]">{t("role")}</p>
             <p className="mt-1 capitalize">{customer?.role_name || "-"}</p>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Language</p>
+            <p className="text-[14px] text-[#374151]">{t("language")}</p>
             <p className="mt-1 capitalize">{customer?.language || "-"}</p>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Login Type</p>
+            <p className="text-[14px] text-[#374151]">{t("loginType")}</p>
             <p className="mt-1 capitalize">{customer?.loginType || "-"}</p>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Email Verified</p>
+            <p className="text-[14px] text-[#374151]">{t("emailVerified")}</p>
 
             <span
               className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
@@ -185,12 +192,14 @@ const CustomerDetails = () => {
                   : "bg-red-100 text-red-700"
               }`}
             >
-              {customer?.is_verify ? "Verified" : "Not Verified"}
+              {customer?.is_verify ? t("verified") : t("notVerified")}
             </span>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Email Notifications</p>
+            <p className="text-[14px] text-[#374151]">
+              {t("emailNotifications")}
+            </p>
 
             <span
               className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
@@ -199,12 +208,14 @@ const CustomerDetails = () => {
                   : "bg-red-100 text-red-700"
               }`}
             >
-              {customer?.email_notifications ? "Enabled" : "Disabled"}
+              {customer?.email_notifications ? t("enabled") : t("disabled")}
             </span>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Push Notifications</p>
+            <p className="text-[14px] text-[#374151]">
+              {t("pushNotifications")}
+            </p>
 
             <span
               className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
@@ -213,12 +224,12 @@ const CustomerDetails = () => {
                   : "bg-red-100 text-red-700"
               }`}
             >
-              {customer?.push_notifications ? "Enabled" : "Disabled"}
+              {customer?.push_notifications ? t("enabled") : t("disabled")}
             </span>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Account Status</p>
+            <p className="text-[14px] text-[#374151]">{t("accountStatus")}</p>
 
             <span
               className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
@@ -227,37 +238,31 @@ const CustomerDetails = () => {
                   : "bg-red-100 text-red-700"
               }`}
             >
-              {customer?.isActive ? "Active" : "Inactive"}
+              {customer?.isActive ? t("statusActive") : t("statusInactive")}
             </span>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Last Login</p>
+            <p className="text-[14px] text-[#374151]">{t("lastLogin")}</p>
 
             <p className="mt-1">
-              {customer?.lastLogin
-                ? new Date(customer.lastLogin).toLocaleString()
-                : "-"}
+              {customer?.lastLogin ? formatDate(customer.lastLogin) : "-"}
             </p>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Created On</p>
+            <p className="text-[14px] text-[#374151]">{t("createdOn")}</p>
 
             <p className="mt-1">
-              {customer?.createdAt
-                ? new Date(customer.createdAt).toLocaleString()
-                : "-"}
+              {customer?.createdAt ? formatDate(customer.createdAt) : "-"}
             </p>
           </div>
 
           <div>
-            <p className="text-[14px] text-[#374151]">Updated On</p>
+            <p className="text-[14px] text-[#374151]">{t("updatedOn")}</p>
 
             <p className="mt-1">
-              {customer?.updatedAt
-                ? new Date(customer.updatedAt).toLocaleString()
-                : "-"}
+              {customer?.updatedAt ? formatDate(customer.updatedAt) : "-"}
             </p>
           </div>
         </div>

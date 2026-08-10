@@ -1,9 +1,12 @@
 "use client";
 
 import Dialog from "@/components/ui/Dialog";
+import { useTranslations } from "next-intl";
 import { FiX, FiMail, FiPhone, FiMessageSquare, FiSend } from "react-icons/fi";
 
 const ViewB2BModal = ({ isOpen, onClose, account }) => {
+  const t = useTranslations("customerSalesRep.b2bAccounts.viewAccountModal");
+
   if (!isOpen || !account) return null;
 
   return (
@@ -18,7 +21,7 @@ const ViewB2BModal = ({ isOpen, onClose, account }) => {
         {/* Header */}
         <div className="px-6 pt-6 pb-5 text-center">
           <p className="text-[11px] uppercase tracking-wider text-[#B8C2D0] font-semibold">
-            Your Sales Representative
+            {t("salesRepTitle")}
           </p>
 
           <div className="relative w-20 h-20 mx-auto mt-4">
@@ -53,7 +56,7 @@ const ViewB2BModal = ({ isOpen, onClose, account }) => {
             </div>
 
             <div>
-              <p className="text-xs text-gray-400">Email</p>
+              <p className="text-xs text-gray-400">{t("email")}</p>
               <p className="text-sm text-[#364152]">{account.email}</p>
             </div>
           </div>
@@ -64,7 +67,7 @@ const ViewB2BModal = ({ isOpen, onClose, account }) => {
             </div>
 
             <div>
-              <p className="text-xs text-gray-400">Phone</p>
+              <p className="text-xs text-gray-400">{t("phone")}</p>
               <p className="text-sm text-[#364152]">{account.mobile || "-"}</p>
             </div>
           </div>
@@ -75,7 +78,7 @@ const ViewB2BModal = ({ isOpen, onClose, account }) => {
           <div className="flex gap-3">
             <button className="flex-1 h-11 rounded-lg bg-[#1C4FA8] text-white flex items-center justify-center gap-2">
               <FiMessageSquare size={17} />
-              Message
+              {t("message")}
             </button>
 
             <button className="w-11 h-11 rounded-lg bg-[#F1F5F9] flex items-center justify-center">
@@ -88,7 +91,7 @@ const ViewB2BModal = ({ isOpen, onClose, account }) => {
           </div>
 
           <p className="text-center text-xs text-gray-400 mt-4">
-            Available Mon–Fri, 9am – 5pm EST
+            {t("availability")}
           </p>
         </div>
       </div>

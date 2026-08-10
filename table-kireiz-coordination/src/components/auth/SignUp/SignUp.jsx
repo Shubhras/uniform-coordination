@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Alert from "@/components/ui/Alert";
 import SignUpForm from "./SignUpForm";
 import ActionLink from "@/components/shared/ActionLink";
@@ -9,6 +10,7 @@ import SplitSignup from "@/components/layouts/AuthLayout/SplitSignup";
 
 export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
   const [message, setMessage] = useTimeOutMessage();
+  const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
   const mode = useTheme((state) => state.mode);
 
@@ -32,6 +34,7 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
           <SignUpForm
             onSignUp={onSignUp}
             setMessage={setMessage}
+            isTermsAccepted={isTermsAccepted}
             termConditionHint={
               <>
                 <div className="mb-6 mt-0 flex justify-between items-center">
@@ -39,6 +42,8 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
                     <div className="relative w-5 h-5 shrink-0 flex items-center justify-center">
                       <input
                         type="checkbox"
+                        checked={isTermsAccepted}
+                        onChange={(e) => setIsTermsAccepted(e.target.checked)}
                         className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded bg-white checked:bg-[#8a5a75] checked:border-[#8a5a75] cursor-pointer transition-all m-0"
                       />
                       <svg
@@ -79,7 +84,10 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
               <p className="text-base">or</p>
               <div className="border-t border-gray-200 dark:border-gray-800 flex-1 " />
             </div>
-            <OauthSignIn setMessage={setMessage} onOauthSignIn={onOauthSignIn} />
+            <OauthSignIn
+              setMessage={setMessage}
+              onOauthSignIn={onOauthSignIn}
+            />
           </div>
         </div>
       </SplitSignup>

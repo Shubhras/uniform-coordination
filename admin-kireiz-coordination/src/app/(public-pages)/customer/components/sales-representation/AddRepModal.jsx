@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiX } from "react-icons/fi";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
@@ -14,17 +15,22 @@ import { apiCreateSalesRep } from "@/services/SalesRepService";
 // maxLength mirrors the DB column widths — MySQL errors on overflow rather than
 // truncating, so it's better to stop it at the input.
 const FIELDS = [
-    { name: "name", label: "Full Name", type: "text", maxLength: 255 },
-    { name: "email", label: "Email", type: "email", maxLength: 254 },
+    { name: "name", labelKey: "fullNameLabel", type: "text", maxLength: 255 },
+    { name: "email", labelKey: "emailLabel", type: "email", maxLength: 254 },
     {
         name: "mobile",
-        label: "Mobile (optional)",
+        labelKey: "mobileLabel",
         type: "tel",
         maxLength: 15,
         autoComplete: "off",
     },
-    { name: "designation", label: "Designation", type: "text", maxLength: 100 },
-    { name: "password", label: "Password", type: "password" },
+    {
+        name: "designation",
+        labelKey: "designationLabel",
+        type: "text",
+        maxLength: 100,
+    },
+    { name: "password", labelKey: "passwordLabel", type: "password" },
 ];
 
 const notify = (title, type, message) =>
@@ -35,6 +41,7 @@ const notify = (title, type, message) =>
     );
 
 const AddRepModal = ({ accessToken, onClose, onCreated }) => {
+    const t = useTranslations("customerSalesRep.salesRepresentation.addRepModal");
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -49,7 +56,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated }) => {
 
     const submit = async () => {
         if (!form.name.trim() || !form.email.trim() || !form.password) {
-            notify("Required", "warning", "Name, email and password are required");
+            notify(t("requiredTitle"), "warning", t("requiredFields"));
             return;
         }
 
@@ -57,22 +64,21 @@ const AddRepModal = ({ accessToken, onClose, onCreated }) => {
             setSaving(true);
             const res = await apiCreateSalesRep(accessToken, form);
             if (res?.status) {
-                notify("Success", "success", "Representative added");
+                notify(t("successTitle"), "success", t("addSuccess"));
                 onCreated?.();
             } else {
                 notify(
-                    "Error",
+                    t("errorTitle"),
                     "danger",
-                    res?.message || "Could not add representative",
+                    res?.message || t("addFailed"),
                 );
             }
         } catch (error) {
             console.error("Failed to create rep:", error);
             notify(
-                "Error",
+                t("errorTitle"),
                 "danger",
-                error?.response?.data?.message ||
-                    "Could not add representative",
+                error?.response?.data?.message || t("addFailed"),
             );
         } finally {
             setSaving(false);
@@ -84,7 +90,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated }) => {
             <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
                 <div className="flex items-start justify-between mb-5">
                     <h3 className="text-lg font-semibold text-[#1C2C56]">
-                        Add Representative
+                        {t("modalTitle")}
                     </h3>
                     <button
                         onClick={onClose}
@@ -98,7 +104,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated }) => {
                     {FIELDS.map((field) => (
                         <div key={field.name}>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                {field.label}
+                                {t(field.labelKey)}
                             </label>
                             <input
                                 type={field.type}
@@ -118,14 +124,14 @@ const AddRepModal = ({ accessToken, onClose, onCreated }) => {
                         onClick={onClose}
                         className="px-4 py-2 rounded-lg text-sm border border-gray-300 text-gray-600"
                     >
-                        Cancel
+                        {t("cancel")}
                     </button>
                     <button
                         onClick={submit}
                         disabled={saving}
                         className="px-4 py-2 rounded-lg text-sm bg-[#1C4FA8] text-white disabled:opacity-50"
                     >
-                        {saving ? "Saving..." : "Add Representative"}
+                        {saving ? t("saving") : t("submit")}
                     </button>
                 </div>
             </div>

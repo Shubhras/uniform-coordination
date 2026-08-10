@@ -1,6 +1,10 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 const RecentlyCards = ({ data }) => {
+  const t = useTranslations("dashboard");
+
   const recentProducts = data?.Recently_update_product_color_part || [];
 
   const salesReps = data?.Pending_Sales_Representation_Action || {};
@@ -14,7 +18,7 @@ const RecentlyCards = ({ data }) => {
     <div className="h-[420px] flex flex-col gap-2">
       <div className="flex-1 bg-[#E6E6FA] border border-[#ececec] rounded-xl shadow-md border border-gray-200 p-5">
         <h3 className="text-[#1C2C56] text-[14px] font-semibold">
-          Pending Sales Representative Actions
+          {t("salesRepActions.pendingSalesRepActions")}
         </h3>
 
         <div className="mt-4 space-y-4 text-sm text-[#475569]">
@@ -28,14 +32,16 @@ const RecentlyCards = ({ data }) => {
               </div>
             ))
           ) : (
-            <p className="text-[#94A3B8] text-center py-2">No active reps</p>
+            <p className="text-[#94A3B8] text-center py-2">
+              {t("salesRepActions.noActiveReps")}
+            </p>
           )}
         </div>
       </div>
 
       <div className="flex-1 bg-[#E6E6FA] border border-[#ececec] rounded-xl shadow-md border border-gray-200 p-5">
         <h3 className="text-[#1C2C56] text-[14px] font-semibold">
-          Recently Updated Products / Colour Parts
+          {t("recentlyUpdated.recentlyUpdatedProducts")}
         </h3>
 
         <div className="mt-4 space-y-4 text-sm text-[#475569]">
@@ -57,7 +63,9 @@ const RecentlyCards = ({ data }) => {
               </div>
             ))
           ) : (
-            <p className="text-[#94A3B8] text-center py-2">No recent updates</p>
+            <p className="text-[#94A3B8] text-center py-2">
+              {t("recentlyUpdated.noRecentUpdates")}
+            </p>
           )}
         </div>
       </div>

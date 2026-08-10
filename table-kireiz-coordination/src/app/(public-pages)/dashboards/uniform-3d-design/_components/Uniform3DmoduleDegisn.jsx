@@ -836,7 +836,7 @@ const Uniform3DmoduleDegisn = () => {
                 type="submit"
                 variant="solid"
                 loading={isSubmitting || isSaving}
-                className="w-full ml-10 mt-7 bg-[#A0522D] hover:bg-[#A0522D] text-white py-3" onClick={handleUniformDesignResult}
+                className="ml-10 mt-7 bg-[#A0522D] hover:bg-[#A0522D] text-[16px] text-white py-1 px-5" onClick={handleUniformDesignResult}
               >
                 Confirm Design
               </Button>

@@ -21,11 +21,10 @@ const TABS = ["By Category", "By Color", "By Material", "By Function"];
  * Available product function types for filtering.
  */
 export const PRODUCT_TYPES = [
-  { key: "tablecloth", label: "Tablecloth" },
-  { key: "napkin", label: "Napkin" },
-  { key: "runner", label: "Runner" },
-  { key: "chair_cover", label: "Chair Cover" },
-  { key: "background", label: "Background" },
+  { key: "premium", label: "Premium" },
+  { key: "standard", label: "Standard" },
+  { key: "luxury", label: "Luxury" },
+  { key: "classic", label: "Classic" },
 ];
 
 /**
@@ -235,15 +234,15 @@ const BrowseCards = () => {
         ref={filterRef}
         className="flex flex-wrap gap-2 sm:gap-3 items-center pt-6 relative"
       >
-        <h4 className="text-sm font-medium whitespace-nowrap">Filters :</h4>
+        <h4 className="text-[15px] font-medium whitespace-nowrap">Filters :</h4>
         {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 sm:px-5 py-2 rounded-full font-medium text-xs sm:text-sm transition whitespace-nowrap
+            className={`px-4 sm:px-5 py-2 rounded-lg font-medium text-xs sm:text-sm transition whitespace-nowrap
                             ${
                               activeTab === tab
-                                ? "bg-[#A0614D] text-white shadow"
+                                ? "bg-[#A0522D] text-white shadow"
                                 : "text-[#6B7280] hover:bg-[#ead7c5]"
                             }`}
           >
@@ -259,18 +258,18 @@ const BrowseCards = () => {
             setActiveTab("");
             setRefresh((prev) => prev + 1);
           }}
-          className="px-4 sm:px-5 py-2 rounded-xl font-medium text-xs sm:text-sm transition whitespace-nowrap text-white bg-[#A0522D] hover:bg-[#8B4513]"
+          className="px-4 sm:px-5 py-2 rounded-lg font-medium text-xs sm:text-sm transition whitespace-nowrap text-[#A0522D] border border-[#A0522D] hover:bg-[#A0522D] hover:text-white"
         >
           Reset
         </button>
         {/* Dropdown: By Category */}
         {activeTab === "By Category" && (
           <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
-            <div className="flex md:flex-row flex-col flex-wrap gap-3">
+            <div className="flex md:flex-row flex-col flex-wrap gap-4">
               {categoryData.map((cat) => (
                 <label
                   key={cat.id}
-                  className="flex items-center gap-2 text-sm cursor-pointer"
+                  className="flex items-center gap-1 text-sm cursor-pointer text-[15px]"
                 >
                   <input
                     type="radio"
@@ -305,7 +304,7 @@ const BrowseCards = () => {
                     className="sr-only"
                   />
                   <div
-                    className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-300 flex items-center justify-center"
+                    className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg border border-gray-300 flex items-center justify-center"
                     style={{ backgroundColor: c.colorCode }}
                   >
                     {selectedColor === c.id && (
@@ -334,11 +333,11 @@ const BrowseCards = () => {
         {/* Dropdown: By Material */}
         {activeTab === "By Material" && (
           <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
-            <div className="flex md:flex-row flex-col flex-wrap gap-3">
+            <div className="flex md:flex-row flex-col flex-wrap gap-4">
               {materialData.map((mat) => (
                 <label
                   key={mat.id}
-                  className="flex items-center gap-2 text-sm cursor-pointer"
+                  className="flex items-center gap-1 text-sm cursor-pointer text-[15px]"
                 >
                   <input
                     type="radio"
@@ -357,11 +356,11 @@ const BrowseCards = () => {
         {/* Dropdown: By Function */}
         {activeTab === "By Function" && (
           <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
-            <div className="flex md:flex-row flex-col flex-wrap gap-3">
+            <div className="flex md:flex-row flex-col flex-wrap gap-4">
               {PRODUCT_TYPES.map((fun) => (
                 <label
                   key={fun.key}
-                  className="flex items-center gap-2 text-sm cursor-pointer"
+                  className="flex items-center gap-1 text-sm cursor-pointer text-[15px]"
                 >
                   <input
                     type="radio"

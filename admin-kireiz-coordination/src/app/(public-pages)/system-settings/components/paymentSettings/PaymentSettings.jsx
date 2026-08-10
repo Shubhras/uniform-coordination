@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiSave, FiInfo } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
@@ -10,50 +11,6 @@ import {
   apiUpdateSystemSettings,
 } from "@/services/SystemSettings";
 
-/*
- * DESIGN NOTE — no Figma for this tab, and it deliberately does NOT configure a
- * payment gateway. KIREIZ FORM does not process payments: the spec states the
- * platform "does not directly handle payment processing, concluding its described
- * flow with the quotation request", and quotations are priced manually by an admin.
- *
- * What an admin does need is the billing wording that appears ON a quotation —
- * payment terms, tax treatment, validity, and bank transfer details. That is what
- * this tab manages. Gateway credentials belong to KIREIZ SPACE, not here.
- */
-
-const FIELDS = [
-  {
-    name: "quotation_validity_days",
-    label: "Quotation Validity (days)",
-    type: "number",
-    min: 1,
-    max: 365,
-    hint: "Default validity period suggested when quoting.",
-  },
-  {
-    name: "tax_rate",
-    label: "Consumption Tax (%)",
-    type: "number",
-    step: "0.01",
-    min: 0,
-    max: 100,
-  },
-  { name: "bank_name", label: "Bank Name", type: "text", maxLength: 150 },
-  { name: "bank_branch", label: "Branch", type: "text", maxLength: 150 },
-  {
-    name: "bank_account_name",
-    label: "Account Holder",
-    type: "text",
-    maxLength: 150,
-  },
-  {
-    name: "bank_account_number",
-    label: "Account Number",
-    type: "text",
-    maxLength: 50,
-  },
-];
-
 const notify = (title, type, message) =>
   toast.push(
     <Notification title={title} type={type}>
@@ -62,12 +19,46 @@ const notify = (title, type, message) =>
   );
 
 const PaymentSettings = () => {
+  const t = useTranslations("systemSettings.paymentSettings");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const fields = [
+    {
+      name: "quotation_validity_days",
+      label: t("quotationValidityLabel"),
+      type: "number",
+      min: 1,
+      max: 365,
+      hint: t("quotationValidityHint"),
+    },
+    {
+      name: "tax_rate",
+      label: t("consumptionTaxLabel"),
+      type: "number",
+      step: "0.01",
+      min: 0,
+      max: 100,
+    },
+    { name: "bank_name", label: t("bankNameLabel"), type: "text", maxLength: 150 },
+    { name: "bank_branch", label: t("branchLabel"), type: "text", maxLength: 150 },
+    {
+      name: "bank_account_name",
+      label: t("accountHolderLabel"),
+      type: "text",
+      maxLength: 150,
+    },
+    {
+      name: "bank_account_number",
+      label: t("accountNumberLabel"),
+      type: "text",
+      maxLength: 50,
+    },
+  ];
 
   const load = useCallback(async () => {
     if (!accessToken) {
@@ -93,7 +84,7 @@ const PaymentSettings = () => {
       }
     } catch (error) {
       console.error("Failed to load payment settings:", error);
-      notify("Error", "danger", "Could not load payment settings");
+      notify(t("errorTitle"), "danger", t("loadError"));
     } finally {
       setLoading(false);
     }
@@ -121,18 +112,17 @@ const PaymentSettings = () => {
         quotation_validity_days: Number(form.quotation_validity_days) || 30,
         tax_rate: Number(form.tax_rate) || 0,
       });
-      // This endpoint replies with `success`, not `status`.
       if (res?.success) {
-        notify("Success", "success", "Payment settings saved");
+        notify(t("successTitle"), "success", t("saveSuccess"));
       } else {
-        notify("Error", "danger", res?.message || "Could not save settings");
+        notify(t("errorTitle"), "danger", res?.message || t("saveError"));
       }
     } catch (error) {
       console.error("Failed to save payment settings:", error);
       notify(
-        "Error",
+        t("errorTitle"),
         "danger",
-        error?.response?.data?.message || "Could not save settings",
+        error?.response?.data?.message || t("saveError"),
       );
     } finally {
       setSaving(false);
@@ -154,43 +144,40 @@ const PaymentSettings = () => {
 
   return (
     <div className="mt-5">
-      {/* Why there is no gateway config here */}
+      {/* Info banner */}
       <div className="flex gap-3 bg-blue-50 border border-blue-200 rounded-lg p-4 mb-5">
         <FiInfo className="text-blue-600 mt-0.5 flex-shrink-0" size={16} />
         <p className="text-xs text-blue-900">
-          KIREIZ FORM does not process payments — the customer journey ends at a
-          quotation request. These settings control the billing terms shown{" "}
-          <strong>on quotations and quotation PDFs</strong>, not a payment
-          gateway.
+          {t("infoBanner")}
         </p>
       </div>
 
       <div className="border border-[#E2E8F0] rounded-xl p-6">
         <h2 className="text-lg font-semibold text-[#1C2C56]">
-          Payment &amp; Billing Terms
+          {t("sectionTitle")}
         </h2>
         <p className="text-sm text-[#64748B] mt-1">
-          Printed on quotations sent to customers.
+          {t("sectionSubtitle")}
         </p>
 
         {/* Payment terms */}
         <div className="mt-6">
           <label className="block text-sm font-medium text-[#1C2C56] mb-2">
-            Payment Terms
+            {t("paymentTermsLabel")}
           </label>
           <textarea
             name="payment_terms"
             value={form.payment_terms}
             onChange={change}
             rows={3}
-            placeholder="e.g. 50% advance payment required. Balance due on delivery."
+            placeholder={t("paymentTermsPlaceholder")}
             className="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]/30"
           />
         </div>
 
         {/* Numeric + bank fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
-          {FIELDS.map((field) => (
+          {fields.map((field) => (
             <div key={field.name}>
               <label className="block text-sm font-medium text-[#1C2C56] mb-2">
                 {field.label}
@@ -223,7 +210,7 @@ const PaymentSettings = () => {
             className="w-4 h-4 accent-[#1C4FA8]"
           />
           <span className="text-sm text-[#1C2C56]">
-            Quoted figures already include tax
+            {t("quotedFiguresIncludeTax")}
           </span>
         </label>
 
@@ -235,7 +222,7 @@ const PaymentSettings = () => {
             disabled={saving}
             className="border border-[#CBD5E1] text-[#486284] px-4 py-2 rounded-lg text-sm disabled:opacity-50"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             type="button"
@@ -244,7 +231,7 @@ const PaymentSettings = () => {
             className="flex items-center gap-2 bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
           >
             <FiSave size={15} />
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? t("saving") : t("saveChanges")}
           </button>
         </div>
       </div>

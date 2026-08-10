@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import signOut from "@/server/actions/auth/handleSignOut";
@@ -22,6 +23,7 @@ import India from "../../../assets/indaimages.jpeg";
 import Japan from "../../../assets/japanflag.png";
 
 const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
+  const t = useTranslations("adminTopHeader");
   const { session } = useCurrentSession();
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -77,7 +79,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
     }
   };
 
-  const userName = session?.user?.name || "Admin";
+  const userName = session?.user?.name || t("admin");
   const userEmail = session?.user?.email || "";
 
   return (
@@ -96,7 +98,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
       <button
         onClick={onMobileMenuToggle}
         className="lg:hidden text-[#64748B] hover:text-[#1C2C56] p-2 rounded-lg hover:bg-[#F1F5F9] transition-colors"
-        aria-label="Open menu"
+        aria-label={t("openMenu")}
       >
         <FiMenu size={22} />
       </button>
@@ -223,7 +225,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
                   className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1C2C56] transition-colors"
                 >
                   <FiUser size={16} />
-                  <span>My Profile</span>
+                  <span>{t("myProfile")}</span>
                 </button>
                 <button
                   onClick={() => {
@@ -234,7 +236,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
                 >
                   {/* <FiSettings size={16} /> */}
                   <FiLock size={16} />
-                  <span>Change Password</span>
+                  <span>{t("changePassword")}</span>
                 </button>
               </div>
 
@@ -245,7 +247,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
                   className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-500 hover:bg-[#F8FAFC] hover:text-[#1C2C56] transition-colors"
                 >
                   <FiLogOut size={16} />
-                  <span>Sign Out</span>
+                  <span>{t("signOut")}</span>
                 </button>
               </div>
             </div>

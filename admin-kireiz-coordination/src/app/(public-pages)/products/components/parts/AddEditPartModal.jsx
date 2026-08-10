@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import { FiCheckCircle } from "react-icons/fi";
@@ -19,26 +20,8 @@ import {
   apiGetCategoryList,
   apiGetSubcategoryList,
 } from "@/services/CategoryService";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-
-const validationSchema = z.object({
-  partName: z.string().trim().min(1, {
-    message: "Part name is required",
-  }),
-
-  category: z.any().refine((val) => val !== null, {
-    message: "Category is required",
-  }),
-
-  fabric: z.any().refine((val) => val !== null, {
-    message: "Fabric is required",
-  }),
-
-  zIndex: z.string().trim().min(1, {
-    message: "Z-Index is required",
-  }),
-  subcategory: z.any().optional(),
-});
 
 const AddEditPartModal = ({
   isOpen,
@@ -47,6 +30,8 @@ const AddEditPartModal = ({
   initialData,
   onSaveSuccess,
 }) => {
+  const t = useTranslations("productSpecification.parts");
+  const tm = useTranslations("productSpecification.parts.uploadPartModal");
   const fileInputRef = useRef(null);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -58,28 +43,38 @@ const AddEditPartModal = ({
   const [loadingSubcategories, setLoadingSubcategories] = useState(false);
 
   // Form fields
-  const [partName, setPartName] = useState("");
-  const [category, setCategory] = useState(null);
-  const [fabric, setFabric] = useState(null);
-  const [zIndex, setZIndex] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [validated, setValidated] = useState(false);
 
-  // Fabric options from API
+  // Fabrics
   const [fabricOptions, setFabricOptions] = useState([]);
-  const [loadingFabrics, setLoadingFabrics] = useState(false);
 
-  // Save state
+  // States
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [imageError, setImageError] = useState("");
+
+  const validationSchema = z.object({
+    partName: z.string().trim().min(1, {
+      message: tm("validation.nameRequired"),
+    }),
+    category: z.any().refine((val) => val !== null, {
+      message: tm("validation.categoryRequired"),
+    }),
+    fabric: z.any().optional(),
+    zIndex: z.string().trim().min(1, {
+      message: "z-Index is required",
+    }),
+    subcategory: z.any().optional(),
+  });
 
   const {
     control,
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(validationSchema),
@@ -88,12 +83,12 @@ const AddEditPartModal = ({
       category: null,
       subcategory: null,
       fabric: null,
-      zIndex: "",
+      zIndex: "1",
     },
   });
+
   const selectedCategory = watch("category");
 
-  /* ---------- SELECT STYLES ---------- */
   const selectStyles = {
     control: (base, state) => ({
       ...base,
@@ -116,434 +111,276 @@ const AddEditPartModal = ({
     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
   };
 
-  /* ---------- FETCH FABRICS ---------- */
-  // useEffect(() => {
-  //   if (!isOpen || !accessToken) return;
-
-  //   const fetchFabrics = async () => {
-  //     setLoadingFabrics(true);
-  //     try {
-  //       const response = await apiGetFabricList(accessToken, 1, 100);
-  //       if (response?.status && response?.data) {
-  //         const options = response.data
-  //           .filter((f) => f.isActive && !f.isDeleted)
-  //           .map((f) => ({
-  //             value: f.id,
-  //             label: f.fabricName,
-  //           }));
-  //         setFabricOptions(options);
-  //       }
-  //     } catch (err) {
-  //       console.error("Failed to load fabrics:", err);
-  //     } finally {
-  //       setLoadingFabrics(false);
-  //     }
-  //   };
-
-  //   fetchFabrics();
-  // }, [isOpen, accessToken]);
+  /* ---------- FETCH CATEGORIES ---------- */
   useEffect(() => {
-    if (!isOpen || !accessToken) return;
+    if (!isOpen) return;
 
     const fetchCategories = async () => {
-      setLoadingCategories(true);
-
       try {
-        const response = await apiGetCategoryList(accessToken);
-
-        if (response?.status && response?.data) {
-          const options = response.data.map((item) => ({
-            value: item.id,
-            label: item.categoryName,
+        setLoadingCategories(true);
+        const res = await apiGetCategoryList();
+        if (res?.status && res?.data) {
+          const opts = res.data.map((c) => ({
+            value: c.id,
+            label: c.categoryName,
           }));
-
-          setCategoryOptions(options);
+          setCategoryOptions(opts);
         }
       } catch (err) {
-        console.error(err);
+        console.error("Failed to load categories:", err);
       } finally {
         setLoadingCategories(false);
       }
     };
 
-    const fetchSubcategories = async () => {
-      setLoadingSubcategories(true);
-
-      try {
-        const response = await apiGetSubcategoryList(accessToken);
-
-        if (response?.status && response?.data) {
-          const options = response.data.map((item) => ({
-            value: item.id,
-            label: item.name,
-          }));
-
-          setSubcategoryOptions(options);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingSubcategories(false);
-      }
-    };
-
-    const fetchFabrics = async () => {
-      setLoadingFabrics(true);
-      const page = 1;
-      const pageSize = 100;
-      const search = "";
-      try {
-        const response = await apiGetFabricList(page);
-
-        if (response?.status && response?.data) {
-          const options = response.data
-            .filter((f) => f.isActive && !f.isDeleted)
-            .map((f) => ({
-              value: f.id,
-              label: f.fabricName,
-            }));
-
-          setFabricOptions(options);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingFabrics(false);
-      }
-    };
-
     fetchCategories();
-    fetchFabrics();
-  }, [isOpen, accessToken]);
+  }, [isOpen]);
 
+  /* ---------- FETCH SUBCATEGORIES ---------- */
   useEffect(() => {
-    if (!selectedCategory?.value || !accessToken) {
+    if (!isOpen) return;
+
+    if (!selectedCategory?.value) {
       setSubcategoryOptions([]);
+      setValue("subcategory", null);
       return;
     }
 
     const fetchSubcategories = async () => {
-      setLoadingSubcategories(true);
-
       try {
-        const response = await apiGetSubcategoryList(
-          accessToken,
-          selectedCategory.value,
-        );
-
-        if (response?.status && response?.data) {
-          const options = response.data.map((item) => ({
-            value: item.id,
-            label: item.name,
+        setLoadingSubcategories(true);
+        const res = await apiGetSubcategoryList(selectedCategory.value);
+        if (res?.status && res?.data) {
+          const opts = res.data.map((sc) => ({
+            value: sc.id,
+            label: sc.name,
           }));
-
-          setSubcategoryOptions(options);
+          setSubcategoryOptions(opts);
         }
       } catch (err) {
-        console.error(err);
+        console.error("Failed to load subcategories:", err);
       } finally {
         setLoadingSubcategories(false);
       }
     };
 
     fetchSubcategories();
-  }, [selectedCategory, accessToken]);
+  }, [selectedCategory, isOpen, setValue]);
 
-  /* ---------- RESET / PREFILL ---------- */
+  /* ---------- FETCH FABRICS ---------- */
   useEffect(() => {
     if (!isOpen) return;
 
-    // if (mode === "edit" && initialData) {
-    //   setPartName(initialData.partName || "");
-    //   setCategory(
-    //     categoryOptions.find((c) => c.value === initialData.category) || null,
-    //   );
-    //   setZIndex(initialData.zIndex?.toString() || "");
-    //   setImageFile(null);
+    const fetchFabrics = async () => {
+      try {
+        const response = await apiGetFabricList(1, 100);
+        if (response?.status && response?.data) {
+          const options = response.data.map((f) => ({
+            value: f.id,
+            label: f.fabricName,
+          }));
+          setFabricOptions(options);
+        }
+      } catch (err) {
+        console.error("Failed to load fabrics:", err);
+      }
+    };
 
-    //   if (initialData.partImage) {
-    //     const imgUrl = initialData.partImage.startsWith("http")
-    //       ? initialData.partImage
-    //       : `${API_BASE}${initialData.partImage}`;
-    //     setPreview(imgUrl);
-    //   } else {
-    //     setPreview(null);
-    //   }
-    //   setValidated(!!initialData.partImage);
+    fetchFabrics();
+  }, [isOpen]);
 
-    //   // Pre-select fabric
-    //   if (initialData.fabric) {
-    //     // fabric is an ID from API response
-    //     setFabric({
-    //       value: initialData.fabric,
-    //       label: `Fabric #${initialData.fabric}`,
-    //     });
-    //   } else {
-    //     setFabric(null);
-    //   }
-    // }
+  /* ---------- PREFILL ON EDIT ---------- */
+  useEffect(() => {
+    if (!isOpen) return;
+
     if (mode === "edit" && initialData) {
+      const catObj = initialData.category
+        ? {
+            value: initialData.category.id || initialData.category,
+            label: initialData.category.categoryName || initialData.category,
+          }
+        : null;
+
+      const subcatObj = initialData.subcategory
+        ? {
+            value: initialData.subcategory.id || initialData.subcategory,
+            label: initialData.subcategory.name || initialData.subcategory,
+          }
+        : null;
+
+      const fabricObj = initialData.fabric
+        ? {
+            value: initialData.fabric.id || initialData.fabric,
+            label: initialData.fabric.fabricName || initialData.fabric,
+          }
+        : null;
+
       reset({
         partName: initialData.partName || "",
-        category: initialData.category
-          ? {
-              value: initialData.category.id,
-              label: initialData.category.categoryName,
-            }
-          : null,
-        fabric:
-          fabricOptions.find((f) => f.value === initialData.fabric) || null,
-        zIndex: initialData.zIndex?.toString() || "",
+        category: catObj,
+        subcategory: subcatObj,
+        fabric: fabricObj,
+        zIndex: String(initialData.zIndex ?? 1),
       });
-
-      setImageFile(null);
 
       if (initialData.partImage) {
         const imgUrl = initialData.partImage.startsWith("http")
           ? initialData.partImage
           : `${API_BASE}${initialData.partImage}`;
-
         setPreview(imgUrl);
       } else {
         setPreview(null);
       }
 
-      setValidated(!!initialData.partImage);
+      setImageFile(null);
+      setValidated(false);
     } else {
-      // RESET for add mode
-      // setPartName("");
-      // setCategory(null);
-      // setFabric(null);
-      // setZIndex("");
       reset({
         partName: "",
         category: null,
+        subcategory: null,
         fabric: null,
-        zIndex: "",
+        zIndex: "1",
       });
-
-      setImageFile(null);
-      setPreview(null);
-      setValidated(false);
       setImageFile(null);
       setPreview(null);
       setValidated(false);
     }
+
     setError("");
-  }, [mode, initialData, isOpen]);
+    setImageError("");
+  }, [mode, initialData, isOpen, reset]);
 
-  // Update fabric label once fabricOptions load (for edit mode)
-  useEffect(() => {
-    if (mode === "edit" && initialData?.fabric && fabricOptions.length > 0) {
-      const match = fabricOptions.find((f) => f.value === initialData.fabric);
-      if (match) {
-        // setFabric(match);
-        reset((prev) => ({
-          ...prev,
-          fabric: match,
-        }));
-      }
-    }
-  }, [fabricOptions, mode, initialData]);
-
-  useEffect(() => {
-    if (mode !== "edit" || !initialData) return;
-
-    if (categoryOptions.length) {
-      const cat = categoryOptions.find(
-        (x) => x.value === initialData.category?.id,
-      );
-
-      if (cat) {
-        reset((values) => ({
-          ...values,
-          category: cat,
-        }));
-      }
-    }
-
-    if (fabricOptions.length) {
-      const fabric = fabricOptions.find((x) => x.value === initialData.fabric);
-
-      if (fabric) {
-        reset((values) => ({
-          ...values,
-          fabric,
-        }));
-      }
-    }
-  }, [categoryOptions, fabricOptions]);
-
-  /* ---------- FILE HANDLERS ---------- */
-
-  const MAX_FILE_SIZE = 2 * 1024 * 1024;
-
-  // const handleFile = (file) => {
-  //   if (!file) return;
-
-  //   setImageFile(file);
-  //   setPreview(URL.createObjectURL(file));
-  //   setValidated(true);
-  // };
-
-  const handleFile = (file) => {
+  /* ---------- IMAGE HANDLERS ---------- */
+  const processFile = (file) => {
+    setImageError("");
     if (!file) return;
 
-    // File size validation
-    if (file.size > MAX_FILE_SIZE) {
-      // setError("Image size should not exceed 2 MB");
-      setImageError("Image size should not exceed 2 MB");
-      setImageFile(null);
-      setPreview(null);
-      setValidated(false);
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-
+    if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
+      setImageError("Only PNG, JPG, JPEG files are allowed.");
       return;
     }
 
-    setImageError("");
-    setImageFile(file);
-    setPreview(URL.createObjectURL(file));
-    setValidated(true);
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      if (img.width > 1000 || img.height > 1000) {
+        setImageError("Maximum dimension allowed is 1000x1000px.");
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+
+      setImageFile(file);
+      setPreview(objectUrl);
+      setValidated(true);
+    };
+
+    img.onerror = () => {
+      setImageError("Invalid image file.");
+      URL.revokeObjectURL(objectUrl);
+    };
+
+    img.src = objectUrl;
+  };
+
+  const handleBrowse = (e) => {
+    const file = e.target.files?.[0];
+    processFile(file);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
-    handleFile(e.dataTransfer.files[0]);
-  };
-
-  const handleBrowse = (e) => {
-    handleFile(e.target.files[0]);
+    const file = e.dataTransfer.files?.[0];
+    processFile(file);
   };
 
   /* ---------- SAVE ---------- */
-  const handleSave = async (values) => {
-    // Validation
-    // if (!partName.trim()) {
-    //   setError("Part name is required");
-    //   return;
-    // }
-    // if (!category) {
-    //   setError("Category is required");
-    //   return;
-    // }
+  const onSubmit = handleSubmit(async (values) => {
+    setError("");
 
-    // setError("");
+    if (mode === "add" && !imageFile) {
+      setError(tm("validation.imageRequired"));
+      return;
+    }
 
     setSaving(true);
 
     try {
       const formData = new FormData();
+      formData.append("partName", values.partName.trim());
+      formData.append("category", values.category?.value || "");
 
-      formData.append("partName", values.partName);
-      formData.append("category_id", values.category.value);
+      if (values.subcategory?.value) {
+        formData.append("subcategory", values.subcategory.value);
+      }
 
-      if (values.fabric) {
+      if (values.fabric?.value) {
         formData.append("fabric", values.fabric.value);
       }
-      if (values.subcategory) {
-        formData.append("subcategory_id", values.subcategory.value);
-      }
 
-      if (values.zIndex) {
-        formData.append("zIndex", values.zIndex);
-      }
+      formData.append("zIndex", parseInt(values.zIndex, 10));
 
       if (imageFile) {
         formData.append("partImage", imageFile);
       }
 
-      // if (mode === "edit" && initialData?.id) {
-      //   await apiUpdatePart(accessToken, initialData.id, formData);
-      // } else {
-      //   await apiCreatePart(accessToken, formData);
-      // }
-      // if (!imageFile && !preview) {
-      //   setError("Part image is required");
-      //   return;
-      // }
-
-      if (!imageFile && !preview) {
-        setError("Part image is required");
-        return;
-      }
-
-      const response =
-        mode === "edit" && initialData?.id
-          ? await apiUpdatePart(accessToken, initialData.id, formData)
-          : await apiCreatePart(accessToken, formData);
-
-      if (!response?.status) {
-        toast.push(
-          <Notification title="Error" type="danger">
-            {response.message}
-          </Notification>,
-        );
-        return;
+      let response;
+      if (mode === "edit" && initialData?.id) {
+        response = await apiUpdatePart(accessToken, initialData.id, formData);
+      } else {
+        response = await apiCreatePart(accessToken, formData);
       }
 
       toast.push(
-        <Notification title="Success" type="success">
-          {response?.message}
+        <Notification title={t("successTitle")} type="success">
+          {response?.message || tm("saveSuccess")}
         </Notification>,
       );
 
-      onSaveSuccess?.();
-      onClose?.();
+      if (onSaveSuccess) onSaveSuccess();
     } catch (err) {
-      const message =
-        typeof err?.response?.data?.message === "object"
-          ? Object.values(err.response.data.message).flat().join(", ")
-          : err?.response?.data?.message || "Failed to save part.";
-
-      toast.push(
-        <Notification title="Error" type="danger">
-          {message}
-        </Notification>,
+      console.error("Save failed:", err);
+      setError(
+        err?.response?.data?.message || tm("saveFailed"),
       );
     } finally {
       setSaving(false);
     }
-  };
+  });
 
   return (
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
       onRequestClose={onClose}
-      className="w-full md:min-w-[620px] mx-auto"
+      className="w-full md:min-w-[650px] mx-auto"
+      contentClassName="!p-0 !h-auto"
     >
-      <Form onSubmit={handleSubmit(handleSave)}>
+      <Form onSubmit={onSubmit}>
         <div className="flex flex-col">
-          <div className="border-b px-6 py-4 flex justify-between items-center">
+          {/* Header */}
+          <div className="border-b px-6 py-4">
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              {mode === "edit" ? "Edit Part" : "Upload New Part"}
+              {mode === "edit" ? tm("editModalTitle") : tm("modalTitle")}
             </h2>
           </div>
 
-          {/* Error */}
+          {/* Error Alert */}
           {error && (
-            <div className="mx-5 mt-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-md">
+            <div className="mx-6 mt-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-md">
               {error}
             </div>
           )}
 
-          <div className="md:px-5 py-5 space-y-5 overflow-y-auto max-h-[70vh]">
+          {/* Body */}
+          <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
             {/* Part Name */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Part Name<span className="text-red-500">*</span>
+                {tm("partNameLabel")}<span className="text-red-500">*</span>
               </label>
-              {/* <input
-              type="text"
-              value={partName}
-              onChange={(e) => setPartName(e.target.value)}
-              placeholder="Eg:- Premium Collar"
-              className="mt-1 w-full border border-[#E2E8F0] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-            /> */}
+
               <FormItem
                 invalid={Boolean(errors.partName)}
                 errorMessage={errors.partName?.message}
@@ -552,28 +389,16 @@ const AddEditPartModal = ({
                   name="partName"
                   control={control}
                   render={({ field }) => (
-                    <Input placeholder="Eg:- Premium Collar" {...field} />
+                    <Input placeholder={tm("partNamePlaceholder")} {...field} />
                   )}
                 />
               </FormItem>
             </div>
 
-            {/* Category */}
-            <div>
-              <label className="text-[#1C2C56] text-base font-medium">
-                Category<span className="text-red-500">*</span>
-              </label>
-              {/* <Select
-              options={categoryOptions}
-              value={category}
-              onChange={setCategory}
-              styles={selectStyles}
-              placeholder="Select Category"
-              menuPortalTarget={typeof document !== "undefined" ? document.body : null}
-              menuPosition="fixed"
-              className="mt-1"
-            /> */}
+            {/* Category & Subcategory */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormItem
+                label={tm("categoryLabel")}
                 invalid={Boolean(errors.category)}
                 errorMessage={errors.category?.message}
               >
@@ -584,12 +409,14 @@ const AddEditPartModal = ({
                     <Select
                       {...field}
                       options={categoryOptions}
-                      styles={selectStyles}
                       value={field.value}
-                      onChange={field.onChange}
-                      placeholder="Select Category"
+                      onChange={(val) => {
+                        field.onChange(val);
+                        setValue("subcategory", null);
+                      }}
+                      styles={selectStyles}
+                      placeholder={tm("categoryPlaceholder")}
                       isLoading={loadingCategories}
-                      isClearable
                       menuPortalTarget={
                         typeof document !== "undefined" ? document.body : null
                       }
@@ -599,7 +426,7 @@ const AddEditPartModal = ({
                 />
               </FormItem>
 
-              <FormItem label="Subcategory">
+              <FormItem label={tm("subcategoryLabel")}>
                 <Controller
                   name="subcategory"
                   control={control}
@@ -610,7 +437,7 @@ const AddEditPartModal = ({
                       value={field.value}
                       onChange={field.onChange}
                       styles={selectStyles}
-                      placeholder="Select Subcategory"
+                      placeholder={tm("subcategoryPlaceholder")}
                       isLoading={loadingSubcategories}
                       isClearable
                       menuPortalTarget={
@@ -623,10 +450,10 @@ const AddEditPartModal = ({
               </FormItem>
             </div>
 
-            {/* Fabric (from API) */}
+            {/* Fabric */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Fabric
+                {tm("fabricLabel")}
               </label>
               <FormItem
                 invalid={Boolean(errors.fabric)}
@@ -642,7 +469,7 @@ const AddEditPartModal = ({
                       styles={selectStyles}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Select Fabric"
+                      placeholder={tm("fabricPlaceholder")}
                       isClearable
                     />
                   )}
@@ -653,22 +480,8 @@ const AddEditPartModal = ({
             {/* z-Index */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                z-Index
+                {tm("zIndexLabel")}
               </label>
-              {/* <input
-              type="number"
-              value={zIndex}
-              onChange={(e) => setZIndex(e.target.value)}
-              placeholder="Eg:- 1"
-              className="mt-1 w-full border border-[#E2E8F0] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-            /> */}
-              {/* <Controller
-                name="zIndex"
-                control={control}
-                render={({ field }) => (
-                  <Input type="number" placeholder="Eg:- 1" {...field} />
-                )}
-              /> */}
               <FormItem
                 invalid={Boolean(errors.zIndex)}
                 errorMessage={errors.zIndex?.message}
@@ -677,7 +490,7 @@ const AddEditPartModal = ({
                   name="zIndex"
                   control={control}
                   render={({ field }) => (
-                    <Input type="number" placeholder="Eg:- 1" {...field} />
+                    <Input type="number" placeholder={tm("zIndexPlaceholder")} {...field} />
                   )}
                 />
               </FormItem>
@@ -686,7 +499,7 @@ const AddEditPartModal = ({
             {/* Upload Image */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Upload Image
+                {tm("uploadImageLabel")}
               </label>
 
               <button
@@ -694,7 +507,7 @@ const AddEditPartModal = ({
                 className="w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm mt-2"
                 onClick={() => fileInputRef.current.click()}
               >
-                Upload image
+                {tm("uploadImageButton")}
               </button>
               {imageError && (
                 <p className="text-red-500 text-sm mt-1">{imageError}</p>
@@ -705,20 +518,20 @@ const AddEditPartModal = ({
                 onDragOver={(e) => e.preventDefault()}
                 className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
               >
-                Drag & Drop your image file here
+                {tm("dragDropText")}
                 <br />
-                or{" "}
+                {tm("orText")}{" "}
                 <span
                   className="text-[#1C2C56] underline cursor-pointer"
                   onClick={() => fileInputRef.current.click()}
                 >
-                  click to browse here
+                  {tm("clickToBrowse")}
                 </span>
                 <p className="text-xs mt-2 text-[#64748B]">
-                  PNG, JPG, JPEG files
+                  {tm("allowedFormats")}
                 </p>
                 <p className="text-xs mt-2 text-[#64748B]">
-                  Maximum dimension 1000×1000px
+                  {tm("maxDimension")}
                 </p>
               </div>
 
@@ -730,10 +543,11 @@ const AddEditPartModal = ({
                 onChange={handleBrowse}
               />
             </div>
+            
             {validated && (
-              <div className="mb-2 flex items-center gap-2 text-sm text-green-600 font-medium">
+              <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
                 <FiCheckCircle className="text-green-600" size={16} />
-                <span>Image validated successfully</span>
+                <span>{tm("imageValidated")}</span>
               </div>
             )}
 
@@ -746,11 +560,6 @@ const AddEditPartModal = ({
                 />
               </div>
             )}
-            {!imageFile && !preview && error === "Part image is required" && (
-              <p className="text-red-500 text-sm mt-1">
-                Part image is required
-              </p>
-            )}
           </div>
 
           {/* Footer */}
@@ -762,7 +571,7 @@ const AddEditPartModal = ({
               disabled={saving}
               className="bg-blue-100 rounded-lg"
             >
-              Cancel
+              {tm("cancel")}
             </Button>
 
             <Button
@@ -770,10 +579,9 @@ const AddEditPartModal = ({
               variant="solid"
               size="sm"
               className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
-              // onClick={handleSave}
               loading={saving}
             >
-              {mode === "edit" ? "Update" : "Save"}
+              {mode === "edit" ? tm("update") : tm("save")}
             </Button>
           </div>
         </div>

@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   FiSearch,
   FiEdit2,
   FiTrash2,
   FiChevronLeft,
   FiChevronRight,
-  FiX,
+  FiX, FiPlus
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
@@ -18,6 +19,7 @@ import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
 
 const FabricsTab = () => {
+  const t = useTranslations("productSpecification.fabrics");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -58,8 +60,6 @@ const FabricsTab = () => {
   // Fetch fabrics
   const fetchFabrics = useCallback(
     async (page = 1) => {
-      // if (!accessToken) return;
-
       try {
         setLoading(true);
         const response = await apiGetFabricList(
@@ -96,7 +96,7 @@ const FabricsTab = () => {
       await apiDeleteFabric(accessToken, fabricToDelete.id);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={t("successTitle")} type="success">
           Fabric deleted successfully.
         </Notification>,
       );
@@ -118,57 +118,28 @@ const FabricsTab = () => {
     fetchFabrics(currentPage);
   };
 
-  // Filter by search
-  const filteredFabrics = fabrics.filter(
-    (f) =>
-      f.fabricName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.color?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.materialType?.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
-  // Page navigation
-  const goToPage = (page) => {
-    if (page >= 1 && page <= pagination.total_pages) {
-      setCurrentPage(page);
-    }
-  };
-
-  // Generate page numbers
-  const getPageNumbers = () => {
-    const pages = [];
-    const total = pagination.total_pages;
-
-    if (total <= 5) {
-      for (let i = 1; i <= total; i++) pages.push(i);
-    } else {
-      if (currentPage <= 3) {
-        pages.push(1, 2, 3, 4, "...", total);
-      } else if (currentPage >= total - 2) {
-        pages.push(1, "...", total - 3, total - 2, total - 1, total);
-      } else {
-        pages.push(
-          1,
-          "...",
-          currentPage - 1,
-          currentPage,
-          currentPage + 1,
-          "...",
-          total,
-        );
-      }
-    }
-    return pages;
-  };
+  // Local filter fallback
+  const filteredFabrics = useMemo(() => {
+    if (!searchQuery) return fabrics;
+    const query = searchQuery.toLowerCase();
+    return fabrics.filter(
+      (f) =>
+        f.fabricName?.toLowerCase().includes(query) ||
+        f.color?.toLowerCase().includes(query) ||
+        f.materialType?.toLowerCase().includes(query),
+    );
+  }, [fabrics, searchQuery]);
 
   return (
-    <div className="bg-white rounded-xl shadow md:p-6 p-3">
-      <div className="flex justify-between sm:flex-row flex-col items-start mb-4 gap-2">
+    <div className="bg-[#F4F7FC] rounded-xl shadow md:p-6 p-4">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            Fabric Library
+            {t("title")}
           </h2>
-          <p className="text-base text-[#486284]">
-            {pagination.total_items} fabrics total
+          <p className="text-[#64748B] text-sm">
+            {t("totalCount", { count: pagination.total_items || fabrics.length })}
           </p>
         </div>
 
@@ -177,9 +148,10 @@ const FabricsTab = () => {
             setEditFabric(null);
             setOpenAdd(true);
           }}
-          className="bg-[#1C4FA8] text-white px-4 py-2 font-medium rounded-md text-sm"
+          className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-[#163F86] transition-colors"
         >
-          + Add New Fabric
+          <FiPlus size={14} />
+          {t("addNew")}
         </button>
       </div>
 
@@ -191,7 +163,7 @@ const FabricsTab = () => {
         />
         <input
           type="text"
-          placeholder="Search Fabrics..."
+          placeholder={t("searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm"
@@ -213,14 +185,14 @@ const FabricsTab = () => {
         <table className="w-full text-base">
           <thead className="bg-[#1C4FA80F] text-[#486284]">
             <tr>
-              <th className="text-left px-5 py-4 font-medium">Fabric Name</th>
-              <th className="text-left px-5 py-4 font-medium">Color</th>
-              <th className="text-left px-5 py-4 font-medium">Material</th>
+              <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.fabricName")}</th>
+              <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.color")}</th>
+              <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.material")}</th>
               <th className="text-left px-5 py-4 font-medium">
-                Price per Unit
+                {t("tableHeaders.pricePerUnit")}
               </th>
-              <th className="text-left px-5 py-4 font-medium">Status</th>
-              <th className="text-right px-5 py-4 font-medium">Actions</th>
+              <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.status")}</th>
+              <th className="text-right px-5 py-4 font-medium">{t("tableHeaders.actions")}</th>
             </tr>
           </thead>
 
@@ -242,7 +214,7 @@ const FabricsTab = () => {
             ) : filteredFabrics.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-10 text-[#64748B]">
-                  No fabrics found
+                  {t("noData")}
                 </td>
               </tr>
             ) : (
@@ -275,13 +247,12 @@ const FabricsTab = () => {
 
                   <td className="px-5 py-4">
                     <span
-                      className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        fabric.isActive
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-600"
-                      }`}
+                      className={`text-xs font-medium px-2 py-1 rounded-full ${fabric.isActive
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-600"
+                        }`}
                     >
-                      {fabric.isActive ? "Active" : "Inactive"}
+                      {fabric.isActive ? t("addFabricModal.statusActive") : t("addFabricModal.statusInactive")}
                     </span>
                   </td>
 
@@ -347,8 +318,8 @@ const FabricsTab = () => {
           setFabricToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Fabric"
-        message="Are you sure you want to delete this fabric? This action cannot be undone."
+        title={t("deleteDialog.title")}
+        message={t("deleteDialog.message")}
         itemName={fabricToDelete?.fabricName}
         loading={deleteLoading}
       />

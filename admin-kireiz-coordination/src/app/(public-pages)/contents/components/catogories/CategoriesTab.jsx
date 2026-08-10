@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   FiSearch,
   FiPlus,
@@ -37,6 +38,7 @@ const SubcategoryList = ({
   onDelete,
   onAdd,
 }) => {
+  const t = useTranslations("contentMedia.categories.subcategories");
   const [subcategories, setSubcategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
@@ -93,7 +95,7 @@ const SubcategoryList = ({
     <div className="space-y-2">
       {subcategories.length === 0 && (
         <p className="text-sm text-[#94A3B8] text-center py-2">
-          No subcategories found
+          {t("noData")}
         </p>
       )}
 
@@ -158,7 +160,7 @@ const SubcategoryList = ({
           className="bg-[#1C4FA8] text-white text-sm px-5 py-2 rounded-md font-medium inline-flex items-center gap-2"
         >
           <FiPlus size={14} />
-          Add Subcategory
+          {t("addNew")}
         </button>
       </div>
     </div>
@@ -167,6 +169,7 @@ const SubcategoryList = ({
 
 /* ---------- MAIN COMPONENT ---------- */
 const CategoriesTab = () => {
+  const t = useTranslations("contentMedia.categories");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -242,7 +245,7 @@ const CategoriesTab = () => {
           deleteTarget.item.id,
         );
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={t("successTitle")} type="success">
             {response?.message}
           </Notification>,
         );
@@ -354,11 +357,9 @@ const CategoriesTab = () => {
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              Product Categories
+              {t("title")}
             </h2>
-            <p className="text-base text-[#486284]">
-              Manage and organize your product categories
-            </p>
+            <p className="text-base text-[#486284]">{t("subtitle")}</p>
           </div>
 
           <div className="flex gap-3">
@@ -374,7 +375,7 @@ const CategoriesTab = () => {
               }}
             >
               <FiPlus size={16} />
-              Add Category
+              {t("addNew")}
             </button>
           </div>
         </div>
@@ -386,7 +387,7 @@ const CategoriesTab = () => {
           />
           <input
             type="text"
-            placeholder="Search Categories..."
+            placeholder={t("searchPlaceholder")}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -408,9 +409,7 @@ const CategoriesTab = () => {
         {loading ? (
           <ListSkeleton />
         ) : categories.length === 0 ? (
-          <div className="text-center py-16 text-[#94A3B8]">
-            No categories found
-          </div>
+          <div className="text-center py-16 text-[#94A3B8]">{t("noData")}</div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="categoryList">
@@ -561,10 +560,14 @@ const CategoriesTab = () => {
         onConfirm={handleDeleteConfirm}
         title={
           deleteTarget?.type === "subcategory"
-            ? "Delete Subcategory"
-            : "Delete Category"
+            ? t("deleteDialog.subcategoryTitle")
+            : t("deleteDialog.categoryTitle")
         }
-        message={`Are you sure you want to delete this ${deleteTarget?.type || "item"}? This action cannot be undone.`}
+        message={
+          deleteTarget?.type === "subcategory"
+            ? t("deleteDialog.subcategoryMessage")
+            : t("deleteDialog.categoryMessage")
+        }
         itemName={
           deleteTarget?.type === "subcategory"
             ? deleteTarget?.item?.name

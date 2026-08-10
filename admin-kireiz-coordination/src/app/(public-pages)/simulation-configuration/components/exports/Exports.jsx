@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Select from "react-select";
 import { FiFileText, FiImage, FiDownload, FiSave } from "react-icons/fi";
 import LivePreview from "../LivePreview";
@@ -12,6 +13,7 @@ const FORMAT_ICONS = {
 };
 
 const Exports = ({ config, loading, saving, onSave, onReset }) => {
+    const t = useTranslations("pdfSimulationConfig.exports");
     const exportConfig = config?.export;
 
     // Local draft — nothing is written until Save, so Cancel can discard it.
@@ -26,11 +28,23 @@ const Exports = ({ config, loading, saving, onSave, onReset }) => {
         setDpi(exportConfig.dpi);
     }, [exportConfig]);
 
-    const formatOptions = exportConfig?.format_options || [
-        { value: "pdf", label: "pdf" },
-        { value: "png", label: "png" },
-        { value: "jpg", label: "jpg" },
-    ];
+    const formatOptions = (
+        exportConfig?.format_options || [
+            { value: "pdf", label: "pdf" },
+            { value: "png", label: "png" },
+            { value: "jpg", label: "jpg" },
+        ]
+    ).map((item) => ({
+        ...item,
+        label:
+            item.value === "pdf"
+                ? t("formatPdf")
+                : item.value === "png"
+                ? t("formatPng")
+                : item.value === "jpg"
+                ? t("formatJpg")
+                : item.label,
+    }));
 
     const dpiOptions = exportConfig?.dpi_options || [];
     const selectedDpiOption =
@@ -61,10 +75,10 @@ const Exports = ({ config, loading, saving, onSave, onReset }) => {
         <div className="bg-white rounded-2xl shadow p-6">
             {/* Header */}
             <h1 className="text-2xl font-semibold text-[#1C2C56]">
-                Export Configuration
+                {t("title")}
             </h1>
             <p className="text-sm text-[#64748B] mt-1">
-                Configure output settings for generated documents.
+                {t("subtitle")}
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
@@ -73,7 +87,7 @@ const Exports = ({ config, loading, saving, onSave, onReset }) => {
                     {/* Output Format */}
                     <div>
                         <p className="text-sm font-medium text-[#1C2C56] mb-4">
-                            Output Format
+                            {t("outputFormat")}
                         </p>
 
                         <div className="flex gap-4">
@@ -104,7 +118,7 @@ const Exports = ({ config, loading, saving, onSave, onReset }) => {
                     <div className="mt-8">
                         <div className="flex justify-between items-center">
                             <p className="text-sm font-medium text-[#1C2C56]">
-                                Compression Quality
+                                {t("compressionQuality")}
                             </p>
                             <span className="text-green-600 text-sm font-medium">
                                 {quality} %
@@ -122,15 +136,15 @@ const Exports = ({ config, loading, saving, onSave, onReset }) => {
                         />
 
                         <div className="flex justify-between text-xs text-gray-400 mt-1">
-                            <span>Smaller File</span>
-                            <span>Better Quality</span>
+                            <span>{t("smallerFile")}</span>
+                            <span>{t("betterQuality")}</span>
                         </div>
                     </div>
 
                     {/* DPI SELECT */}
                     <div className="mt-8">
                         <p className="text-sm font-medium text-[#1C2C56] mb-3">
-                            Target Resolution (DPI)
+                            {t("targetResolution")}
                         </p>
 
                         <Select
@@ -139,6 +153,7 @@ const Exports = ({ config, loading, saving, onSave, onReset }) => {
                             options={dpiOptions}
                             isDisabled={loading}
                             instanceId="export-dpi"
+                            placeholder={t("selectPlaceholder")}
                             className="text-sm"
                             styles={{
                                 control: (base) => ({
@@ -162,7 +177,7 @@ const Exports = ({ config, loading, saving, onSave, onReset }) => {
                         className="mt-8 w-full flex items-center justify-center gap-2 bg-[#1C4FA8] text-white py-3 rounded-xl text-sm font-medium transition disabled:opacity-50"
                     >
                         <FiDownload />
-                        {saving ? "Saving..." : "Save Export Preset"}
+                        {saving ? t("saving") : t("saveExportPreset")}
                     </button>
 
                     {/* Bottom Buttons */}
@@ -173,7 +188,7 @@ const Exports = ({ config, loading, saving, onSave, onReset }) => {
                             disabled={loading || saving}
                             className="border border-[#CBD5E1] px-4 py-2 rounded-lg text-sm text-[#486284] hover:bg-gray-50 transition disabled:opacity-50"
                         >
-                            Cancel
+                            {t("cancel")}
                         </button>
 
                         <button
@@ -183,7 +198,7 @@ const Exports = ({ config, loading, saving, onSave, onReset }) => {
                             className="flex items-center gap-2 bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
                         >
                             <FiSave />
-                            {saving ? "Saving..." : "Save Changes"}
+                            {saving ? t("saving") : t("saveChanges")}
                         </button>
                     </div>
                 </div>
