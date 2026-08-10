@@ -393,7 +393,7 @@
         "parts": {
             "title": "Part Images Library",
             "totalCount": "{count} parts total",
-            "addNew": "+ Upload New Part",
+            "addNew": "Upload New Part",
             "searchPlaceholder": "Search Parts...",
             "allCategories": "All Categories",
             "reset": "Reset",
@@ -459,7 +459,7 @@
         "colors": {
             "title": "Color Palette",
             "totalCount": "{count} colors available",
-            "addNew": "+ Add Color",
+            "addNew": "Add Color",
             "searchPlaceholder": "Search Colors...",
             "noData": "No colors found",
             "showingRange": "Showing ",
@@ -499,7 +499,7 @@
         "template": {
             "title": "Template Gallery",
             "totalCount": "{count} templates available",
-            "addNew": "+ Create Template",
+            "addNew": "Create Template",
             "searchPlaceholder": "Search Templates...",
             "allCategories": "All Categories",
             "reset": "Reset",
@@ -547,7 +547,7 @@
         "products": {
             "title": "Product Creation",
             "totalCount": "{count} products available",
-            "addNew": "+ Add Product",
+            "addNew": "Add Product",
             "searchPlaceholder": "Search Products...",
             "allCategories": "All Categories",
             "reset": "Reset",
@@ -558,6 +558,9 @@
                 "title": "Delete Product",
                 "message": "Are you sure you want to delete this product? This action cannot be undone."
             },
+            "edit": "Edit",
+            "delete": "Delete",
+            "deleteSuccess": "Product deleted successfully.",
             "addProductModal": {
                 "modalTitle": "Add Product",
                 "editModalTitle": "Edit Product",
@@ -681,7 +684,7 @@
         "catalogImages": {
             "title": "Catalog Images",
             "subtitle": "Upload and manage catalog photography",
-            "addNew": "+ Upload Image",
+            "addNew": "Upload Image",
             "searchPlaceholder": "Search Catalog...",
             "noData": "No catalog images found",
             "showingRange": "Showing ",
@@ -721,7 +724,7 @@
             "title": "Blog",
             "subtitle": "Manage your blog posts",
             "arrangeOrder": "Arrange Order",
-            "addNew": "+ Add Blog",
+            "addNew": "Add Blog",
             "searchPlaceholder": "Search Blog Posts...",
             "noData": "No blog posts found",
             "showingRange": "Showing ",
@@ -1194,7 +1197,7 @@
             "title": "Territory & Account Assignment",
             "subtitle": "Drag accounts to assign them to sales representatives.",
             "searchPlaceholder": "Search...",
-            "addRepresentative": "+ Add Representative",
+            "addRepresentative": "Add Representative",
             "noData": "No sales representatives yet",
             "noDataSubtitle": "Add representatives under the Sales Representation tab to assign accounts to them."
         },
@@ -1533,6 +1536,11 @@
         "myProfile": "My Profile",
         "changePassword": "Change Password",
         "signOut": "Sign Out"
+    },
+    "deleteConfirmDialog": {
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "deleting": "Deleting..."
     },
     "notificationPopup": {
         "title": "Notifications",
