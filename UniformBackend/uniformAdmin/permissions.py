@@ -419,9 +419,10 @@ ADMIN_MENU_SEED = [
     {"name": "Pricing & Quotation", "slug": "order_manage", "route": "/pricing", "order": 4},
     {"name": "Customer & Sales Representative", "slug": "customer_sales_representative", "route": "/customer", "order": 5},
     {"name": "PDF & Simulation Configuration", "slug": "pdf_simulation_configuration", "route": "/simulation-configuration", "order": 6},
-    {"name": "Reports & Analytics", "slug": "reports_analytics", "route": "/reports-analytics", "order": 7},
-    {"name": "System Settings", "slug": "system_settings", "route": "/system-settings", "order": 8},
-    {"name": "Quotation Requests", "slug": "quotation_requests", "route": "/quotation-requests", "order": 9},
+    {"name": "Simulation Assets", "slug": "simulation_assets", "route": "/simulation-assets", "order": 7},
+    {"name": "Reports & Analytics", "slug": "reports_analytics", "route": "/reports-analytics", "order": 8},
+    {"name": "System Settings", "slug": "system_settings", "route": "/system-settings", "order": 9},
+    {"name": "Quotation Requests", "slug": "quotation_requests", "route": "/quotation-requests", "order": 10},
 ]
 
 
