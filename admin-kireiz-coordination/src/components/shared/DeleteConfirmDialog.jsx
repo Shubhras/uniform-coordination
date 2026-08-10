@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { FiAlertTriangle } from "react-icons/fi";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
@@ -12,7 +13,12 @@ const DeleteConfirmDialog = ({
     message = "Are you sure you want to delete this item? This action cannot be undone.",
     itemName = "",
     loading = false,
+    cancelText,
+    deleteText,
+    deletingText,
 }) => {
+    const t = useTranslations("deleteConfirmDialog");
+
     return (
         <Dialog
             isOpen={isOpen}
@@ -54,7 +60,7 @@ const DeleteConfirmDialog = ({
                         disabled={loading}
                         className="px-6 bg-blue-100 rounded-lg"
                     >
-                        Cancel
+                        {cancelText || t("cancel")}
                     </Button>
 
                     <button
@@ -62,7 +68,7 @@ const DeleteConfirmDialog = ({
                         disabled={loading}
                         className="bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white px-6 py-2 rounded-md text-sm font-medium transition-colors"
                     >
-                        {loading ? "Deleting..." : "Delete"}
+                        {loading ? (deletingText || t("deleting")) : (deleteText || t("delete"))}
                     </button>
                 </div>
             </div>

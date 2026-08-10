@@ -230,7 +230,7 @@ const ColorsTab = () => {
 
           <button
             onClick={handleAddColor}
-            className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm flex items-center gap-2"
+            className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-[#163F86] transition-colors"
           >
             <FiPlus size={14} />
             {t("addNew")}
