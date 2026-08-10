@@ -1,0 +1,53 @@
+{
+  "app/(auth-pages)/reset-password/page.jsx -> ./_components/ResetPasswordClient": {
+    "id": 34425,
+    "files": [
+      "static/chunks/ee560e2c-db7ad29566c1bae6.js",
+      "static/chunks/66ec4792-3d5626275eab433c.js",
+      "static/chunks/c916193b-ae82faa328f870f4.js",
+      "static/chunks/6148-339fdb93dbd4903e.js",
+      "static/chunks/1083-245d054936d22599.js",
+      "static/chunks/3464-ababd612cf1d87b9.js",
+      "static/chunks/6874-22d4c938d1dbdf66.js",
+      "static/chunks/137-e15195c731ae915e.js",
+      "static/chunks/8938-e9ab4b3c09905568.js",
+      "static/chunks/4023.9f82a7c43a07ab62.js"
+    ]
+  },
+  "app/(public-pages)/dashboards/uniform-3d-design/_components/Uniform3DmoduleDegisn.jsx -> @google/model-viewer": {
+    "id": 94709,
+    "files": [
+      "static/chunks/b536a0f1.95ed59c92e3c99c7.js",
+      "static/chunks/bd904a5c.ae8ecd8741ad4c11.js",
+      "static/chunks/4709.0aa24b9cb300d9ca.js"
+    ]
+  },
+  "components/template/MobileNav.jsx -> @/components/template/VerticalMenuContent": {
+    "id": 5737,
+    "files": []
+  },
+  "i18n/dateLocales.js -> dayjs/locale/ar": {
+    "id": 82091,
+    "files": [
+      "static/chunks/2091.c02ba27c1e36e42c.js"
+    ]
+  },
+  "i18n/dateLocales.js -> dayjs/locale/en": {
+    "id": 32107,
+    "files": [
+      "static/chunks/2107.2c8ad896f1ad6a36.js"
+    ]
+  },
+  "i18n/dateLocales.js -> dayjs/locale/es": {
+    "id": 37060,
+    "files": [
+      "static/chunks/7060.8fb2dedea4216262.js"
+    ]
+  },
+  "i18n/dateLocales.js -> dayjs/locale/zh": {
+    "id": 70350,
+    "files": [
+      "static/chunks/350.440cee4726f528dc.js"
+    ]
+  }
+}
