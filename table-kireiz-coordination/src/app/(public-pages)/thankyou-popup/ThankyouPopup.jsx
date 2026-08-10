@@ -154,9 +154,9 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
                         {/* ORDER ITEMS LIST */}
                         {orderItems.length > 0 && (
                             <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
-                                <h4 className="font-semibold text-[#111827] mb-3 border-b pb-2">
+                                <h5 className="font-semibold text-[#111827] mb-3 border-b pb-2">
                                     Items Ordered ({orderItems.length})
-                                </h4>
+                                </h5>
                                 <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
                                     {orderItems.map((item, idx) => {
                                         const itemName = item.product_name || item.name || `Item ${idx + 1}`
@@ -167,13 +167,13 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
                                         return (
                                             <div key={idx} className="flex justify-between items-center text-sm py-1 border-b border-gray-50 last:border-0">
                                                 <div>
-                                                    <p className="font-medium text-gray-800">{itemName}</p>
-                                                    <p className="text-xs text-gray-500">
+                                                    <p className="font-medium text-[15px] text-gray-800">{itemName}</p>
+                                                    <p className="text-[14px] text-gray-500">
                                                         Qty: {qty} {pricePerDay ? `(¥${Number(pricePerDay).toLocaleString()}/day)` : ''}
                                                     </p>
                                                 </div>
-                                                <span className="font-semibold text-gray-800">
-                                                    ¥{Number(price).toLocaleString()}
+                                                <span className="font-semibold text-gray-800 text-[15px]">
+                                                    ${Number(price).toLocaleString()}
                                                 </span>
                                             </div>
                                         )
@@ -187,9 +187,9 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
 
                             {/* RENTAL SUMMARY */}
                             <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
-                                <h4 className="font-semibold text-[#111827] mb-3 border-b pb-2">
+                                <h5 className="font-semibold text-[#111827] mb-3 border-b pb-2">
                                     Rental Summary
-                                </h4>
+                                </h5>
 
                                 <div className="text-sm text-[#374151] space-y-2">
                                     <p className="flex justify-between">
@@ -209,39 +209,39 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
 
                             {/* ORDER SUMMARY */}
                             <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
-                                <h4 className="font-semibold text-[#111827] mb-3 border-b pb-2">
+                                <h5 className="font-semibold text-[#111827] mb-3 border-b pb-2">
                                     Order Summary
-                                </h4>
+                                </h5>
 
                                 <div className="text-sm text-[#374151] space-y-2">
                                     {subtotal !== undefined && subtotal !== null && (
                                         <div className="flex justify-between">
                                             <span className="text-gray-500">Subtotal:</span>
-                                            <span>¥{Number(subtotal).toLocaleString()}</span>
+                                            <span>${Number(subtotal).toLocaleString()}</span>
                                         </div>
                                     )}
                                     {shipping !== undefined && shipping !== null && (
                                         <div className="flex justify-between">
                                             <span className="text-gray-500">Shipping:</span>
-                                            <span>¥{Number(shipping).toLocaleString()}</span>
+                                            <span>${Number(shipping).toLocaleString()}</span>
                                         </div>
                                     )}
                                     {discount !== undefined && discount !== null && Number(discount) > 0 && (
                                         <div className="flex justify-between text-green-600">
                                             <span>Discount:</span>
-                                            <span>-¥{Number(discount).toLocaleString()}</span>
+                                            <span>-${Number(discount).toLocaleString()}</span>
                                         </div>
                                     )}
                                     {tax !== undefined && tax !== null && (
                                         <div className="flex justify-between">
                                             <span className="text-gray-500">Tax:</span>
-                                            <span>¥{Number(tax).toLocaleString()}</span>
+                                            <span>${Number(tax).toLocaleString()}</span>
                                         </div>
                                     )}
                                     {totalAmount !== undefined && totalAmount !== null && (
                                         <div className="flex justify-between font-semibold text-base text-[#111827] border-t pt-2 mt-1">
                                             <span>Total:</span>
-                                            <span className="text-[#8B4513]">¥{Number(totalAmount).toLocaleString()}</span>
+                                            <span className="text-[#8B4513]">${Number(totalAmount).toLocaleString()}</span>
                                         </div>
                                     )}
                                 </div>

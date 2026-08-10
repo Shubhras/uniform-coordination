@@ -17,11 +17,10 @@ const TABS = ["By Category", "By Color", "By Material", "By Function"];
  * Available product function types for filtering.
  */
 export const PRODUCT_TYPES = [
-  { key: "tablecloth", label: "Tablecloth" },
-  { key: "napkin", label: "Napkin" },
-  { key: "runner", label: "Runner" },
-  { key: "chair_cover", label: "Chair Cover" },
-  { key: "background", label: "Background" },
+  { key: "premium", label: "Premium" },
+  { key: "standard", label: "Standard" },
+  { key: "luxury", label: "Luxury" },
+  { key: "classic", label: "Classic" },
 ];
 
 /**
@@ -197,10 +196,10 @@ const BrowseCards = () => {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 sm:px-5 py-2 rounded-full font-medium text-xs sm:text-sm transition whitespace-nowrap
+            className={`px-4 sm:px-5 py-2 rounded-lg font-medium text-xs sm:text-sm transition whitespace-nowrap
                             ${
                               activeTab === tab
-                                ? "bg-[#A0614D] text-white shadow"
+                                ? "bg-[#A0522D] text-white shadow"
                                 : "text-[#6B7280] hover:bg-[#ead7c5]"
                             }`}
           >
@@ -216,7 +215,7 @@ const BrowseCards = () => {
             setActiveTab("");
             setRefresh((prev) => prev + 1);
           }}
-          className="px-4 sm:px-5 py-2 rounded-xl font-medium text-xs sm:text-sm transition whitespace-nowrap text-white bg-[#A0522D] hover:bg-[#8B4513]"
+          className="px-4 sm:px-5 py-2 rounded-lg font-medium text-xs sm:text-sm transition whitespace-nowrap text-[#A0522D] border border-[#A0522D] hover:bg-[#A0522D] hover:text-white"
         >
           Reset
         </button>
