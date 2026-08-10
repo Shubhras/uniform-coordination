@@ -46,35 +46,20 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/pricing/page.js"
     ],
-    "/_not-found/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
-    ],
     "/(public-pages)/customer/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/customer/page.js"
     ],
-    "/(public-pages)/simulation-configuration/page": [
+    "/(public-pages)/customer/customer-edit/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/simulation-configuration/page.js"
+      "static/chunks/app/(public-pages)/customer/customer-edit/[id]/page.js"
     ],
-    "/(public-pages)/reports-analytics/page": [
+    "/(public-pages)/customer/customer-details/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/reports-analytics/page.js"
-    ],
-    "/(public-pages)/system-settings/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/system-settings/page.js"
-    ],
-    "/(public-pages)/quotation-requests/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/quotation-requests/page.js"
+      "static/chunks/app/(public-pages)/customer/customer-details/[id]/page.js"
     ]
   }
 }
