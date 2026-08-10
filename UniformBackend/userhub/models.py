@@ -206,9 +206,11 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.order_id:
-            prefix = "ORD"
-            uid = uuid.uuid4().hex[:6].upper()
-            self.order_id = f"{prefix}-{uid}"
+            # Sales Order running code per client feedback (2026-08-06):
+            # SOyy-00001, e.g. SO26-00001.
+            from uniformAdmin.models import DocumentCounter
+
+            self.order_id = DocumentCounter.next_code("SO")
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -508,9 +510,12 @@ class QuotationRequest(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.quotation_id:
-            prefix = "QUOT"
-            uid = uuid.uuid4().hex[:6].upper()
-            self.quotation_id = f"{prefix}-{uid}"
+            # Automated running code per client feedback (2026-08-06):
+            # QUOyy-00001, e.g. QUO26-00001. Was a random UUID fragment (QUOT-B4808C),
+            # which gave no ordering and no readable sequence.
+            from uniformAdmin.models import DocumentCounter
+
+            self.quotation_id = DocumentCounter.next_code("QUO")
         super().save(*args, **kwargs)
 
 

@@ -84,11 +84,12 @@ const ThemeDetails = () => {
         }
     }, [idParam, themeIdParam, selectedThemeId])
 
-    const totalItems = theme ? theme.items.reduce(
-        (count, section) => count + section.items.length,
-        0,
-    ) : 0;
-
+    const totalItems = theme?.theme_items
+    ? Object.values(theme.theme_items).reduce(
+        (count, products) => count + products.length,
+        0
+        )
+    : 0;
     /**
      * Toggles open/close state of an accordion section by index.
      * 
@@ -177,7 +178,7 @@ const ThemeDetails = () => {
                     <button
                         type="button"
                         onClick={handleCustomizeClick}
-                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-4 py-2 rounded-md bg-[#A0614D] border border-white text-white"
+                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white"
                     >
                         Customize in Canva
                     </button>
@@ -257,11 +258,11 @@ const ThemeDetails = () => {
 
                     <div>
                         <div className="flex items-center justify-between mb-3 py-4 sm:py-5">
-                            <h3 className="text-[#7B3C1D] font-semibold text-sm sm:text-base">
+                            <h3 className="text-[#7B3C1D] font-semibold text-[20px] sm:text-[20px]">
                                 Items Included in This Theme
                             </h3>
-                            <span className="text-[10px] sm:text-xs text-[#8B5A3C] px-2 py-1 shadow-sm rounded-full">
-                                {theme.packageLabel || `${totalItems} items total`}
+                            <span className="text-[14px] sm:text-xs text-[#8B5A3C] px-2 py-1 shadow-sm rounded-full">
+                              {`${totalItems} items total`}
                             </span>
                         </div>
 

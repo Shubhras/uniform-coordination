@@ -127,7 +127,8 @@ class SystemSettings(models.Model):
     contact_number = models.CharField(max_length=50, blank=True, null=True)
     
     default_language = models.CharField(max_length=50, default="Japanese")
-    default_currency = models.CharField(max_length=50, default="JPY (¥)")
+    # Client feedback 2026-08-06: system currency is USD globally.
+    default_currency = models.CharField(max_length=50, default="USD ($)")
     time_zone = models.CharField(max_length=100, default="(GMT+09:00) Tokyo")
     date_format = models.CharField(max_length=50, default="YYYY/MM/DD")
     
@@ -248,6 +249,14 @@ class Parts(models.Model):
     usageTemmpCount = models.IntegerField(default=0)
     theme = models.ForeignKey('TableTheme',on_delete=models.SET_NULL,null=True,blank=True,related_name="parts")
     zIndex = models.IntegerField(default=0)
+
+    # --- Canvas simulation layer registration ---
+    # Pixel offset of this part image from the canvas origin. Every layered-canvas
+    # approach needs this regardless of how colour is applied (pre-rendered image
+    # swap vs. tinting a mask), so it is safe to model before that decision lands.
+    offsetX = models.IntegerField(default=0)
+    offsetY = models.IntegerField(default=0)
+
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -971,3 +980,75 @@ class SimulationExportSetting(models.Model):
 
     def __str__(self):
         return f"{self.output_format} @ {self.dpi} DPI"
+
+
+class DocumentCounter(models.Model):
+    """
+    Running number source for automated document codes (QUOyy-00001, SOyy-00001).
+
+    A dedicated counter row per (doc_type, year) rather than deriving the next
+    number from MAX(existing) at insert time: two concurrent requests reading the
+    same MAX would both claim the same number. Callers take a row lock via
+    next_code(), so the sequence is safe under concurrency.
+
+    The year is part of the key, so numbering restarts at 00001 each calendar year.
+    """
+
+    doc_type = models.CharField(max_length=10, help_text="QUO, SO, ...")
+    year = models.PositiveSmallIntegerField(help_text="4-digit year")
+    last_number = models.PositiveIntegerField(default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["doc_type", "year"], name="unique_document_counter"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.doc_type}{str(self.year)[-2:]} @ {self.last_number}"
+
+    @classmethod
+    def next_code(cls, doc_type, when=None, width=5):
+        """
+        Reserve and return the next code, e.g. next_code("QUO") -> 'QUO26-00001'.
+
+        Must be called inside a transaction for the lock to hold; it opens its own
+        atomic block so callers don't have to.
+        """
+        from django.db import transaction
+        from django.utils.timezone import now as _now
+
+        moment = when or _now()
+        year = moment.year
+
+        with transaction.atomic():
+            counter, _ = cls.objects.get_or_create(
+                doc_type=doc_type, year=year, defaults={"last_number": 0}
+            )
+            # Lock this counter row so concurrent callers queue instead of racing.
+            counter = cls.objects.select_for_update().get(pk=counter.pk)
+            counter.last_number += 1
+            counter.save(update_fields=["last_number", "updated_at"])
+            number = counter.last_number
+
+        return f"{doc_type}{str(year)[-2:]}-{number:0{width}d}"
+
+    @classmethod
+    def sync_from_existing(cls, doc_type, year, highest):
+        """
+        Raise a counter so it never re-issues a code that already exists.
+
+        Needed after importing a dump: the rows arrive but the counter table may be
+        behind (or empty), which would otherwise cause duplicate-key errors.
+        """
+        counter, _ = cls.objects.get_or_create(
+            doc_type=doc_type, year=year, defaults={"last_number": 0}
+        )
+        if highest > counter.last_number:
+            counter.last_number = highest
+            counter.save(update_fields=["last_number", "updated_at"])
+        return counter
