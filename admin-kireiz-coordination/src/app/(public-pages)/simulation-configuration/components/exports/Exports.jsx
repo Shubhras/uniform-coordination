@@ -28,11 +28,23 @@ const Exports = ({ config, loading, saving, onSave, onReset }) => {
         setDpi(exportConfig.dpi);
     }, [exportConfig]);
 
-    const formatOptions = exportConfig?.format_options || [
-        { value: "pdf", label: "pdf" },
-        { value: "png", label: "png" },
-        { value: "jpg", label: "jpg" },
-    ];
+    const formatOptions = (
+        exportConfig?.format_options || [
+            { value: "pdf", label: "pdf" },
+            { value: "png", label: "png" },
+            { value: "jpg", label: "jpg" },
+        ]
+    ).map((item) => ({
+        ...item,
+        label:
+            item.value === "pdf"
+                ? t("formatPdf")
+                : item.value === "png"
+                ? t("formatPng")
+                : item.value === "jpg"
+                ? t("formatJpg")
+                : item.label,
+    }));
 
     const dpiOptions = exportConfig?.dpi_options || [];
     const selectedDpiOption =
@@ -165,7 +177,7 @@ const Exports = ({ config, loading, saving, onSave, onReset }) => {
                         className="mt-8 w-full flex items-center justify-center gap-2 bg-[#1C4FA8] text-white py-3 rounded-xl text-sm font-medium transition disabled:opacity-50"
                     >
                         <FiDownload />
-                        {saving ? "Saving..." : t("saveExportPreset")}
+                        {saving ? t("saving") : t("saveExportPreset")}
                     </button>
 
                     {/* Bottom Buttons */}
@@ -186,7 +198,7 @@ const Exports = ({ config, loading, saving, onSave, onReset }) => {
                             className="flex items-center gap-2 bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
                         >
                             <FiSave />
-                            {saving ? "Saving..." : t("saveChanges")}
+                            {saving ? t("saving") : t("saveChanges")}
                         </button>
                     </div>
                 </div>

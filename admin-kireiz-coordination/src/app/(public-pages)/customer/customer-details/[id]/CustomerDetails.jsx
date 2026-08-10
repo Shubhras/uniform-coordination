@@ -6,6 +6,7 @@ import { FiArrowLeft } from "react-icons/fi";
 import { useRouter, useParams } from "next/navigation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetCustomersDetails } from "@/services/B2BAccountService";
+import { formatDate } from "@/utils/formatDate";
 
 const CustomerDetails = () => {
   const t = useTranslations("customerSalesRep.customerDetails");
@@ -245,9 +246,7 @@ const CustomerDetails = () => {
             <p className="text-[14px] text-[#374151]">{t("lastLogin")}</p>
 
             <p className="mt-1">
-              {customer?.lastLogin
-                ? new Date(customer.lastLogin).toLocaleString()
-                : "-"}
+              {customer?.lastLogin ? formatDate(customer.lastLogin) : "-"}
             </p>
           </div>
 
@@ -255,9 +254,7 @@ const CustomerDetails = () => {
             <p className="text-[14px] text-[#374151]">{t("createdOn")}</p>
 
             <p className="mt-1">
-              {customer?.createdAt
-                ? new Date(customer.createdAt).toLocaleString()
-                : "-"}
+              {customer?.createdAt ? formatDate(customer.createdAt) : "-"}
             </p>
           </div>
 
@@ -265,9 +262,7 @@ const CustomerDetails = () => {
             <p className="text-[14px] text-[#374151]">{t("updatedOn")}</p>
 
             <p className="mt-1">
-              {customer?.updatedAt
-                ? new Date(customer.updatedAt).toLocaleString()
-                : "-"}
+              {customer?.updatedAt ? formatDate(customer.updatedAt) : "-"}
             </p>
           </div>
         </div>

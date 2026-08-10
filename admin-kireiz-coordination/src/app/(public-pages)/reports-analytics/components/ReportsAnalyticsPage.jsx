@@ -389,16 +389,14 @@ const ReportsAnalyticsPage = () => {
                   ? "—"
                   : `${stats.avg_response_days} d`
               }
-              hint={`Based on ${stats.responded_sample} sent quote${
-                stats.responded_sample === 1 ? "" : "s"
-              }`}
+              hint={`Based on ${stats.responded_sample} sent quote${stats.responded_sample === 1 ? "" : "s"
+                }`}
             />
             <StatCard
               label={t("stats.customers")}
               value={num(stats.customers)}
-              hint={`${stats.b2b_accounts} B2B account${
-                stats.b2b_accounts === 1 ? "" : "s"
-              }`}
+              hint={`${stats.b2b_accounts} B2B account${stats.b2b_accounts === 1 ? "" : "s"
+                }`}
             />
           </div>
 

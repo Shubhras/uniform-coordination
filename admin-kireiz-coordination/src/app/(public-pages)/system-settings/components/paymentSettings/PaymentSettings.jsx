@@ -84,7 +84,7 @@ const PaymentSettings = () => {
       }
     } catch (error) {
       console.error("Failed to load payment settings:", error);
-      notify("Error", "danger", "Could not load payment settings");
+      notify(t("errorTitle"), "danger", t("loadError"));
     } finally {
       setLoading(false);
     }
@@ -113,16 +113,16 @@ const PaymentSettings = () => {
         tax_rate: Number(form.tax_rate) || 0,
       });
       if (res?.success) {
-        notify("Success", "success", "Payment settings saved");
+        notify(t("successTitle"), "success", t("saveSuccess"));
       } else {
-        notify("Error", "danger", res?.message || "Could not save settings");
+        notify(t("errorTitle"), "danger", res?.message || t("saveError"));
       }
     } catch (error) {
       console.error("Failed to save payment settings:", error);
       notify(
-        "Error",
+        t("errorTitle"),
         "danger",
-        error?.response?.data?.message || "Could not save settings",
+        error?.response?.data?.message || t("saveError"),
       );
     } finally {
       setSaving(false);
@@ -231,7 +231,7 @@ const PaymentSettings = () => {
             className="flex items-center gap-2 bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
           >
             <FiSave size={15} />
-            {saving ? "Saving..." : t("saveChanges")}
+            {saving ? t("saving") : t("saveChanges")}
           </button>
         </div>
       </div>
