@@ -45,6 +45,10 @@
         "app/(public-pages)/orders/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f076feff6bc3716ece5958a7f83e0b71257123d29%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22001032977ab7c85642a222c39106b67452b1790449%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240efb85c480df3cd3f6bd45f43e320c57715c6867e%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%2200c9750379485f541b5c089c97f107489e4ea363eb%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240a0472364ab76acc28c4a24546de752b2e5611893%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
+        },
+        "app/(public-pages)/reports-analytics/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f076feff6bc3716ece5958a7f83e0b71257123d29%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22001032977ab7c85642a222c39106b67452b1790449%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240efb85c480df3cd3f6bd45f43e320c57715c6867e%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%2200c9750379485f541b5c089c97f107489e4ea363eb%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240a0472364ab76acc28c4a24546de752b2e5611893%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
         }
       },
       "layer": {
@@ -58,7 +62,8 @@
         "app/(public-pages)/simulation-assets/page": "rsc",
         "app/(public-pages)/inventory-management/page": "rsc",
         "app/(public-pages)/contents/page": "rsc",
-        "app/(public-pages)/orders/page": "rsc"
+        "app/(public-pages)/orders/page": "rsc",
+        "app/(public-pages)/reports-analytics/page": "rsc"
       }
     },
     "001032977ab7c85642a222c39106b67452b1790449": {
@@ -106,6 +111,10 @@
         "app/(public-pages)/orders/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f076feff6bc3716ece5958a7f83e0b71257123d29%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22001032977ab7c85642a222c39106b67452b1790449%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240efb85c480df3cd3f6bd45f43e320c57715c6867e%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%2200c9750379485f541b5c089c97f107489e4ea363eb%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240a0472364ab76acc28c4a24546de752b2e5611893%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
+        },
+        "app/(public-pages)/reports-analytics/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f076feff6bc3716ece5958a7f83e0b71257123d29%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22001032977ab7c85642a222c39106b67452b1790449%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240efb85c480df3cd3f6bd45f43e320c57715c6867e%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%2200c9750379485f541b5c089c97f107489e4ea363eb%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240a0472364ab76acc28c4a24546de752b2e5611893%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
         }
       },
       "layer": {
@@ -119,7 +128,8 @@
         "app/(public-pages)/simulation-assets/page": "rsc",
         "app/(public-pages)/inventory-management/page": "rsc",
         "app/(public-pages)/contents/page": "rsc",
-        "app/(public-pages)/orders/page": "rsc"
+        "app/(public-pages)/orders/page": "rsc",
+        "app/(public-pages)/reports-analytics/page": "rsc"
       }
     },
     "40efb85c480df3cd3f6bd45f43e320c57715c6867e": {
@@ -167,6 +177,10 @@
         "app/(public-pages)/orders/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f076feff6bc3716ece5958a7f83e0b71257123d29%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22001032977ab7c85642a222c39106b67452b1790449%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240efb85c480df3cd3f6bd45f43e320c57715c6867e%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%2200c9750379485f541b5c089c97f107489e4ea363eb%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240a0472364ab76acc28c4a24546de752b2e5611893%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
+        },
+        "app/(public-pages)/reports-analytics/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f076feff6bc3716ece5958a7f83e0b71257123d29%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22001032977ab7c85642a222c39106b67452b1790449%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240efb85c480df3cd3f6bd45f43e320c57715c6867e%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%2200c9750379485f541b5c089c97f107489e4ea363eb%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240a0472364ab76acc28c4a24546de752b2e5611893%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
         }
       },
       "layer": {
@@ -180,7 +194,8 @@
         "app/(public-pages)/simulation-assets/page": "rsc",
         "app/(public-pages)/inventory-management/page": "rsc",
         "app/(public-pages)/contents/page": "rsc",
-        "app/(public-pages)/orders/page": "rsc"
+        "app/(public-pages)/orders/page": "rsc",
+        "app/(public-pages)/reports-analytics/page": "rsc"
       }
     },
     "00c9750379485f541b5c089c97f107489e4ea363eb": {
@@ -228,6 +243,10 @@
         "app/(public-pages)/orders/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f076feff6bc3716ece5958a7f83e0b71257123d29%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22001032977ab7c85642a222c39106b67452b1790449%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240efb85c480df3cd3f6bd45f43e320c57715c6867e%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%2200c9750379485f541b5c089c97f107489e4ea363eb%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240a0472364ab76acc28c4a24546de752b2e5611893%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
+        },
+        "app/(public-pages)/reports-analytics/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f076feff6bc3716ece5958a7f83e0b71257123d29%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22001032977ab7c85642a222c39106b67452b1790449%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240efb85c480df3cd3f6bd45f43e320c57715c6867e%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%2200c9750379485f541b5c089c97f107489e4ea363eb%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240a0472364ab76acc28c4a24546de752b2e5611893%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
         }
       },
       "layer": {
@@ -241,7 +260,8 @@
         "app/(public-pages)/simulation-assets/page": "rsc",
         "app/(public-pages)/inventory-management/page": "rsc",
         "app/(public-pages)/contents/page": "rsc",
-        "app/(public-pages)/orders/page": "rsc"
+        "app/(public-pages)/orders/page": "rsc",
+        "app/(public-pages)/reports-analytics/page": "rsc"
       }
     },
     "40a0472364ab76acc28c4a24546de752b2e5611893": {
@@ -289,6 +309,10 @@
         "app/(public-pages)/orders/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f076feff6bc3716ece5958a7f83e0b71257123d29%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22001032977ab7c85642a222c39106b67452b1790449%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240efb85c480df3cd3f6bd45f43e320c57715c6867e%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%2200c9750379485f541b5c089c97f107489e4ea363eb%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240a0472364ab76acc28c4a24546de752b2e5611893%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
+        },
+        "app/(public-pages)/reports-analytics/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f076feff6bc3716ece5958a7f83e0b71257123d29%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22001032977ab7c85642a222c39106b67452b1790449%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240efb85c480df3cd3f6bd45f43e320c57715c6867e%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%2200c9750379485f541b5c089c97f107489e4ea363eb%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240a0472364ab76acc28c4a24546de752b2e5611893%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
         }
       },
       "layer": {
@@ -302,7 +326,8 @@
         "app/(public-pages)/simulation-assets/page": "rsc",
         "app/(public-pages)/inventory-management/page": "rsc",
         "app/(public-pages)/contents/page": "rsc",
-        "app/(public-pages)/orders/page": "rsc"
+        "app/(public-pages)/orders/page": "rsc",
+        "app/(public-pages)/reports-analytics/page": "rsc"
       }
     },
     "7f2e4172999e81d827777fbcf9dfac2eb75a1ac5d3": {
@@ -338,6 +363,10 @@
         "app/(public-pages)/orders/page": {
           "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f2e4172999e81d827777fbcf9dfac2eb75a1ac5d3%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
           "async": false
+        },
+        "app/(public-pages)/reports-analytics/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-table-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f2e4172999e81d827777fbcf9dfac2eb75a1ac5d3%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
         }
       },
       "layer": {
@@ -348,7 +377,8 @@
         "app/(public-pages)/simulation-assets/page": "action-browser",
         "app/(public-pages)/inventory-management/page": "action-browser",
         "app/(public-pages)/contents/page": "action-browser",
-        "app/(public-pages)/orders/page": "action-browser"
+        "app/(public-pages)/orders/page": "action-browser",
+        "app/(public-pages)/reports-analytics/page": "action-browser"
       }
     },
     "7fd13eef4d899c48b128988b8cdea35d917d6a2978": {
