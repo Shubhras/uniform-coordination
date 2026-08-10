@@ -1,0 +1,8 @@
+{
+  "/(public-pages)/browse-by-theme/page": "app/(public-pages)/browse-by-theme/page.js",
+  "/(public-pages)/theme-details/page": "app/(public-pages)/theme-details/page.js",
+  "/(public-pages)/table-form/page": "app/(public-pages)/table-form/page.js",
+  "/(public-pages)/cart-summary/page": "app/(public-pages)/cart-summary/page.js",
+  "/(protected-pages)/profile/my-profile/page": "app/(protected-pages)/profile/my-profile/page.js",
+  "/(public-pages)/dashboards/uniform-3d-design/page": "app/(public-pages)/dashboards/uniform-3d-design/page.js"
+}
