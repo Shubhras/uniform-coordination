@@ -1,6 +1,8 @@
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated 
 from django.conf import settings
+from django.db import transaction
+from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,7 +10,7 @@ from .models import *
 from .serializers import *
 from uniformAdmin.fabric import IsAdministrator
 import stripe
-from uniformAdmin.auth import *
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from .utils import generate_payment_pdf,generate_payment_pdf, send_payment_success_email, send_payment_failed_email
 import json
 from django.views.decorators.csrf import csrf_exempt

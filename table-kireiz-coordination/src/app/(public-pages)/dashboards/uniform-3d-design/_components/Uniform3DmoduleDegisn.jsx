@@ -19,7 +19,7 @@ import { apiModelInfoCreate, apiSaveDesign } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
-import { apiGetProductDetailsById } from '@/services/ProductService'
+import { apiGetProductDetailsById, apiGetSimulationCategories, apiGetSimulationOptions } from '@/services/ProductService'
 import { apiGetSindleThemeDetails } from '@/services/HomeService'
 /**
  * Uniform3DmoduleDegisn Component
@@ -27,6 +27,139 @@ import { apiGetSindleThemeDetails } from '@/services/HomeService'
  * Handles the 3D table customization workflow, including product and theme
  * loading, design configuration, model creation, and design saving.
  */
+const ATTRIBUTE_OPTIONS = {
+  "Fabric": [
+    { name: "Crushed Velvet", img: "/img/table-form/tablecloth/fabric1.png" },
+    { name: "Damask Linen", img: "/img/table-form/tablecloth/fabric2.png" },
+    { name: "Gingham Cotton", img: "/img/table-form/tablecloth/fabric3.png" },
+    { name: "Raw Silk Dupioni", img: "/img/table-form/tablecloth/fabric4.png" },
+  ],
+  "Material": [
+    { name: "Porcelain", img: "/img/table-form/tableware/porcelain.png" },
+    { name: "Bone China", img: "/img/table-form/tableware/bone-china.png" },
+    { name: "Glass", img: "/img/table-form/tableware/glass.png" },
+    { name: "Crystal", img: "/img/table-form/tableware/crystal.png" },
+    { name: "Silk", img: "/img/table-form/decor/silk.png" },
+    { name: "Satin", img: "/img/table-form/decor/satin.png" },
+    { name: "Lace", img: "/img/table-form/decor/lace.png" },
+    { name: "Velvet", img: "/img/table-form/decor/velvet.png" },
+  ],
+  "Style": [
+    { name: "Round", img: "/img/table-form/table-style/style-round.png" },
+    { name: "Square", img: "/img/table-form/table-style/style-square.png" },
+    { name: "Rectangle", img: "/img/table-form/table-style/style-rectangle.png" },
+    { name: "Oval", img: "/img/table-form/table-style/style-oval.png" },
+    { name: "Floral Arrangement", img: "/img/table-form/centre-pieces/style-floral-arrangement.png" },
+    { name: "Candle Centerpiece", img: "/img/table-form/centre-pieces/style-candle-centerpiece.png" },
+    { name: "Fruit Bowl", img: "/img/table-form/centre-pieces/style-fruit-bowl.png" },
+    { name: "Modern Sculpture", img: "/img/table-form/centre-pieces/style-modern-sculpture.png" },
+  ],
+  "Item Type": [
+    { name: "Chair Sash", img: "/img/table-form/decor/type-chair-sash.png" },
+    { name: "Table Runner", img: "/img/table-form/decor/type-table-runner.png" },
+    { name: "Place Cards", img: "/img/table-form/decor/type-place-cards.png" },
+    { name: "Menu Cards", img: "/img/table-form/decor/type-menu-cards.png" },
+  ],
+  "Set Type": [
+    { name: "Formal Dinner", img: "/img/table-form/tableware/set-formal-dinner.png" },
+    { name: "Casual Dining", img: "/img/table-form/tableware/set-casual-dining.png" },
+    { name: "Buffet Style", img: "/img/table-form/tableware/set-buffet-style.png" },
+    { name: "Banquet", img: "/img/table-form/tableware/set-banquet.png" },
+  ],
+  "Fit Type": [
+    { name: "Standard Fit", img: "/img/table-form/table-style/style-round.png" },
+    { name: "Loose Drape", img: "/img/table-form/table-style/style-square.png" },
+  ],
+  "Stretch": [
+    { name: "Yes", img: "/img/table-form/table-style/style-round.png" },
+    { name: "No", img: "/img/table-form/table-style/style-square.png" },
+  ],
+  "Fold Style": [
+    { name: "Classic Fold", img: "/img/table-form/table-style/style-round.png" },
+    { name: "Pocket Fold", img: "/img/table-form/table-style/style-square.png" },
+  ],
+  "Color": [
+    { name: "White", img: "/img/table-form/color-table/color-white.png" },
+    { name: "Ivory", img: "/img/table-form/color-table/color-ivory.png" },
+    { name: "Taupe", img: "/img/table-form/color-table/color-taupe.png" },
+    { name: "Blush", img: "/img/table-form/color-table/color-blush.png" },
+    { name: "Burgundy", img: "/img/table-form/color-table/color-burgundy.png" },
+    { name: "Gold", img: "/img/table-form/centre-pieces/color-gold.png" },
+    { name: "Silver", img: "/img/table-form/centre-pieces/color-silver.png" },
+    { name: "Crystal", img: "/img/table-form/centre-pieces/color-crystal.png" },
+    { name: "Rose Gold", img: "/img/table-form/centre-pieces/color-rose-gold.png" },
+    { name: "Navy", img: "/img/table-form/decor/color-navy.png" },
+    { name: "Champagne", img: "/img/table-form/napkins/color-champagne.png" },
+    { name: "Dusty Rose", img: "/img/table-form/napkins/color-dusty-rose.png" },
+    { name: "Peach", img: "/img/table-form/napkins/color-peach.png" },
+    { name: "Coral", img: "/img/table-form/napkins/color-coral.png" },
+    { name: "Beige", img: "/img/table-form/chair-cover/color-beige.png" },
+  ],
+  "Size": [
+    { name: "Standard", img: "/img/table-form/table-style/style-round.png" },
+    { name: "Large", img: "/img/table-form/table-style/style-square.png" },
+    { name: "Oversized", img: "/img/table-form/table-style/style-rectangle.png" },
+  ],
+  "Pattern": [
+    { name: "Plain", img: "/img/table-form/tablecloth/fabric1.png" },
+    { name: "Striped", img: "/img/table-form/tablecloth/fabric2.png" },
+    { name: "Damask", img: "/img/table-form/tablecloth/fabric3.png" },
+  ],
+  "Closure": [
+    { name: "Bow Tie", img: "/img/table-form/chair-cover/color-white.png" },
+    { name: "Spandex Band", img: "/img/table-form/chair-cover/color-ivory.png" },
+    { name: "Knot", img: "/img/table-form/chair-cover/color-beige.png" },
+  ],
+  "Trim": [
+    { name: "Lace Border", img: "/img/table-form/tablecloth/fabric1.png" },
+    { name: "Satin Edge", img: "/img/table-form/tablecloth/fabric2.png" },
+    { name: "No Trim", img: "/img/table-form/tablecloth/fabric3.png" },
+  ],
+  "Height": [
+    { name: "Low Profile", img: "/img/table-form/centre-pieces/style-floral-arrangement.png" },
+    { name: "Medium Height", img: "/img/table-form/centre-pieces/style-candle-centerpiece.png" },
+    { name: "Tall & Elegant", img: "/img/table-form/centre-pieces/style-modern-sculpture.png" },
+  ],
+  "Flowers": [
+    { name: "Roses", img: "/img/table-form/tablecloth/fabric1.png" },
+    { name: "Lilies", img: "/img/table-form/tablecloth/fabric2.png" },
+    { name: "Mixed Bouquet", img: "/img/table-form/tablecloth/fabric3.png" },
+  ],
+  "Base Type": [
+    { name: "Glass Vase", img: "/img/table-form/centre-pieces/color-crystal.png" },
+    { name: "Gold Pedestal", img: "/img/table-form/centre-pieces/color-gold.png" },
+    { name: "Silver Stand", img: "/img/table-form/centre-pieces/color-silver.png" },
+  ],
+  "Finish": [
+    { name: "Glossy", img: "/img/table-form/tablecloth/fabric1.png" },
+    { name: "Matte", img: "/img/table-form/tablecloth/fabric2.png" },
+  ],
+  "Collection": [
+    { name: "Classic Collection", img: "/img/table-form/tablecloth/fabric1.png" },
+    { name: "Modern Collection", img: "/img/table-form/tablecloth/fabric2.png" },
+  ],
+  "Pieces": [
+    { name: "3-Piece Set", img: "/img/table-form/tablecloth/fabric1.png" },
+    { name: "5-Piece Set", img: "/img/table-form/tablecloth/fabric2.png" },
+  ],
+  "Placement": [
+    { name: "Center Alignment", img: "/img/table-form/tablecloth/fabric1.png" },
+    { name: "Side Alignment", img: "/img/table-form/tablecloth/fabric2.png" },
+  ],
+  "Table Centrepiece": [
+    { name: "Beige", img: "/img/table-form/centre-piece/beige.png" },
+    { name: "Navy", img: "/img/table-form/centre-piece/navy.png" },
+    { name: "Green", img: "/img/table-form/centre-piece/green.png" },
+  ],
+};
+
+const ATTRIBUTE_API_MAPPING = {
+  "Fabric": "fabrics",
+  "Color": "colors",
+  "Style": "styles",
+  "Size": "sizes"
+};
+
 const Uniform3DmoduleDegisn = () => {
   const searchParams = useSearchParams()
   // product id
@@ -37,6 +170,9 @@ const Uniform3DmoduleDegisn = () => {
   const { data: session } = useSession();
   const [tableSitting, setTableSitting] = useState(6)
   const [categoryView, setCategoryView] = useState("list"); // list | tablecloths
+  const [simulationCategories, setSimulationCategories] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState({});
+  const [categoryOptions, setCategoryOptions] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter()
@@ -63,41 +199,7 @@ const Uniform3DmoduleDegisn = () => {
   const [tableShape, setTableShape] = useState("Circle");
   const [tableScale, setTableScale] = useState(300);
 
-  // Category-specific states
-  const [tablecloth, setTablecloth] = useState({
-    fabric: "Crushed Velvet",
-    style: "Round",
-    color: "Beige"
-  });
 
-  const [napkins, setNapkins] = useState({
-    fabric: "Crushed Velvet",
-    color: "White"
-  });
-
-  const [chairCovers, setChairCovers] = useState({
-    fabric: "Crushed Velvet",
-    color: null,
-    centrePiece: null
-  });
-
-  const [centrePieces, setCentrePieces] = useState({
-    fabric: "Crushed Velvet",
-    style: "Round",
-    color: "Beige"
-  });
-
-  const [tableware, setTableware] = useState({
-    fabric: "Crushed Velvet",
-    style: "Round",
-    color: "Beige"
-  });
-
-  const [additionalDecor, setAdditionalDecor] = useState({
-    fabric: "Crushed Velvet",
-    style: "Round",
-    color: "Beige"
-  });
 
   function onIconClick(key) {
     setActive(prev => {
@@ -107,6 +209,90 @@ const Uniform3DmoduleDegisn = () => {
       return key
     })
   }
+
+  useEffect(() => {
+    const fetchSimulationCategories = async () => {
+      try {
+        const res = await apiGetSimulationCategories()
+        if (res && res.status === true && Array.isArray(res.data)) {
+          setSimulationCategories(res.data)
+          
+          // Pre-populate default selected options for attributes
+          const initialOptions = {}
+          res.data.forEach(cat => {
+            initialOptions[cat.name] = {}
+            cat.attributes.forEach(attr => {
+              if (attr.enabled) {
+                // Pick the first option by default
+                const options = ATTRIBUTE_OPTIONS[attr.attribute] || [];
+                if (options.length > 0) {
+                  initialOptions[cat.name][attr.attribute] = options[0].name;
+                }
+              }
+            })
+          })
+          setSelectedOptions(initialOptions)
+        }
+      } catch (error) {
+        console.error("Error fetching simulation categories:", error)
+      }
+    }
+    fetchSimulationCategories()
+  }, [])
+
+  // Fetch options dynamically when a category is selected or table shape changes
+  useEffect(() => {
+    if (categoryView && categoryView !== "list") {
+      const fetchOptions = async () => {
+        try {
+          const res = await apiGetSimulationOptions(categoryView, tableShape);
+          if (res && res.status === true && res.data) {
+            setCategoryOptions(prev => ({
+              ...prev,
+              [categoryView]: res.data
+            }));
+
+            // Pre-populate selections for this category if not already present
+            const selectedCat = simulationCategories.find(c => c.name === categoryView);
+            if (selectedCat) {
+              setSelectedOptions(prev => {
+                const currentCatOptions = prev[categoryView] || {};
+                let updated = false;
+
+                selectedCat.attributes.forEach(attr => {
+                  if (attr.enabled && !currentCatOptions[attr.attribute]) {
+                    const attrKey = ATTRIBUTE_API_MAPPING[attr.attribute];
+                    const dynamicOptions = res.data[attrKey] || [];
+                    if (dynamicOptions.length > 0) {
+                      currentCatOptions[attr.attribute] = dynamicOptions[0].label;
+                      updated = true;
+                    } else {
+                      const staticOpts = ATTRIBUTE_OPTIONS[attr.attribute] || [];
+                      if (staticOpts.length > 0) {
+                        currentCatOptions[attr.attribute] = staticOpts[0].name;
+                        updated = true;
+                      }
+                    }
+                  }
+                });
+
+                if (updated) {
+                  return {
+                    ...prev,
+                    [categoryView]: currentCatOptions
+                  };
+                }
+                return prev;
+              });
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching options for category ${categoryView}:`, error);
+        }
+      };
+      fetchOptions();
+    }
+  }, [categoryView, tableShape, simulationCategories]);
 
   useEffect(() => {
     import('@google/model-viewer').catch((err) => {
@@ -439,28 +625,14 @@ const Uniform3DmoduleDegisn = () => {
 
               {categoryView === "list" && (
                 <div className="space-y-3 w-full">
-                  {[
-                    { name: "Tablecloths", icon: "/img/table-form/category/tablecloths.png" },
-                    { name: "Napkins", icon: "/img/table-form/category/napkins.png" },
-                    { name: "Chair Covers", icon: "/img/table-form/category/chair-cover.png" },
-                    { name: "Centre Pieces", icon: "/img/table-form/category/centre-pieces.png" },
-                    { name: "Tableware", icon: "/img/table-form/category/tableware.png" },
-                    { name: "Additional Decor", icon: "/img/table-form/category/centre-pieces.png" },
-                  ].map(item => (
+                  {simulationCategories.map(item => (
                     <button
                       key={item.name}
-                      onClick={() => {
-                        if (item.name === "Tablecloths") setCategoryView("tablecloths")
-                        if (item.name === "Napkins") setCategoryView("napkins")
-                        if (item.name === "Chair Covers") setCategoryView("chairCovers")
-                        if (item.name === "Centre Pieces") setCategoryView("centrePieces")
-                        if (item.name === "Tableware") setCategoryView("tableware")
-                        if (item.name === "Additional Decor") setCategoryView("additionalDecor")
-                      }}
+                      onClick={() => setCategoryView(item.name)}
                       className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-lg text-sm"
                     >
                       <div className="flex items-center gap-3">
-                        <img src={item.icon} className="w-6 h-6" />
+                        <img src={item.icon} className="w-6 h-6 object-contain" />
                         <span>{item.name}</span>
                       </div>
                       <IoIosArrowForward />
@@ -469,581 +641,103 @@ const Uniform3DmoduleDegisn = () => {
                 </div>
               )}
 
-              {/* TABLECLOTHS DETAIL - Updated */}
-              {categoryView === "tablecloths" && (
-                <div className="space-y-6">
-                  {/* HEADER */}
-                  <button
-                    onClick={() => setCategoryView("list")}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[#A0522D] text-white text-sm"
-                  >
-                    <div className="flex items-center gap-2">
-                      <img src="/img/table-form/category/tablecloths.png" className="w-5 h-5" />
-                      <span>Tablecloths</span>
-                    </div>
-                    <IoIosArrowForward />
-                  </button>
+              {categoryView !== "list" && (() => {
+                const selectedCat = simulationCategories.find(c => c.name === categoryView);
+                if (!selectedCat) return null;
 
-                  {/* FABRIC */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Fabric</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        { name: "Crushed Velvet", img: "/img/table-form/tablecloth/fabric1.png" },
-                        { name: "Damask Linen", img: "/img/table-form/tablecloth/fabric2.png" },
-                        { name: "Gingham Cotton", img: "/img/table-form/tablecloth/fabric3.png" },
-                        { name: "Raw Silk Dupioni", img: "/img/table-form/tablecloth/fabric4.png" },
-                      ].map(item => (
-                        <button
-                          key={item.name}
-                          onClick={() => setTablecloth(prev => ({ ...prev, fabric: item.name }))}
-                          className="relative"
-                        >
-                          <img
-                            src={item.img}
-                            className="rounded-sm object-cover border w-full h-[70px]"
-                          />
-                          {tablecloth.fabric === item.name && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{item.name}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                return (
+                  <div className="space-y-6">
+                    {/* HEADER */}
+                    <button
+                      onClick={() => setCategoryView("list")}
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[#A0522D] text-white text-sm"
+                    >
+                      <div className="flex items-center gap-2">
+                        <img src={selectedCat.icon} className="w-5 h-5 object-contain" />
+                        <span>{selectedCat.name}</span>
+                      </div>
+                      <IoIosArrowForward />
+                    </button>
 
-                  {/* STYLE */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Style</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {["Round", "Square", "Rectangle", "Oval"].map(s => (
-                        <button
-                          key={s}
-                          onClick={() => setTablecloth(prev => ({ ...prev, style: s }))}
-                          className="relative flex flex-col items-center"
-                        >
-                          <div className="rounded-sm w-full h-[60px] overflow-hidden border flex items-center justify-center">
-                            <img
-                              src={`/img/table-form/table-style/style-${s.toLowerCase()}.png`}
-                              className="w-full h-full object-cover object-center"
-                              alt={s}
-                            />
+                    {selectedCat.attributes
+                      .filter(attr => attr.enabled)
+                      .sort((a, b) => Number(a.order) - Number(b.order))
+                      .map(attr => {
+                        const attrName = attr.attribute;
+                        const attrKey = ATTRIBUTE_API_MAPPING[attrName];
+                        
+                        // Extract dynamic options from the API response
+                        const apiOptionsList = attrKey && categoryOptions[selectedCat.name]?.[attrKey]
+                          ? categoryOptions[selectedCat.name][attrKey]
+                          : [];
+
+                        // Map options from API structure or fall back to static ATTRIBUTE_OPTIONS
+                        const options = apiOptionsList.length > 0
+                          ? apiOptionsList.map(opt => ({
+                              name: opt.label,
+                              img: opt.image || null,
+                              colorCode: opt.colorCode || null
+                            }))
+                          : (ATTRIBUTE_OPTIONS[attrName] || []).map(opt => ({
+                              name: opt.name,
+                              img: opt.img || null,
+                              colorCode: opt.colorCode || null
+                            }));
+
+                        return (
+                          <div key={attrName}>
+                            <p className="text-xs font-semibold text-[#1C2C56] mb-2">{attrName}</p>
+                            <div className="grid grid-cols-3 gap-3">
+                              {options.map(opt => {
+                                const isSelected = selectedOptions[selectedCat.name]?.[attrName] === opt.name;
+                                return (
+                                  <button
+                                    key={opt.name}
+                                    onClick={() => {
+                                      setSelectedOptions(prev => ({
+                                        ...prev,
+                                        [selectedCat.name]: {
+                                          ...(prev[selectedCat.name] || {}),
+                                          [attrName]: opt.name
+                                        }
+                                      }));
+                                    }}
+                                    className="relative flex flex-col items-center"
+                                  >
+                                    <div className="rounded-sm w-full h-[70px] overflow-hidden border flex items-center justify-center bg-white">
+                                      {opt.colorCode ? (
+                                        <div
+                                          className="w-full h-full border border-gray-200"
+                                          style={{ backgroundColor: opt.colorCode }}
+                                        />
+                                      ) : opt.img ? (
+                                        <img
+                                          src={opt.img}
+                                          className="w-full h-full object-cover"
+                                          alt={opt.name}
+                                        />
+                                      ) : (
+                                        <div className="text-[10px] text-gray-400 text-center px-1">
+                                          {opt.name}
+                                        </div>
+                                      )}
+                                    </div>
+                                    {isSelected && (
+                                      <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
+                                        ✓
+                                      </span>
+                                    )}
+                                    <p className="text-[10px] mt-1 text-center font-medium text-gray-700">{opt.name}</p>
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </div>
-                          {tablecloth.style === s && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{s}</p>
-                        </button>
-                      ))}
-                    </div>
+                        );
+                      })}
                   </div>
-
-                  {/* COLOR */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Color</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {["White", "Ivory", "Taupe", "Blush", "Burgundy"].map((c, i) => (
-                        <button
-                          key={`${c}-${i}`}
-                          onClick={() => setTablecloth(prev => ({ ...prev, color: c }))}
-                          className="relative flex flex-col items-center"
-                        >
-                          <div className="rounded-sm w-full h-[60px] overflow-hidden border flex items-center justify-center">
-                            <img
-                              src={`/img/table-form/color-table/color-${c.toLowerCase()}.png`}
-                              className="w-full h-full object-cover object-center"
-                              alt={c}
-                            />
-                          </div>
-                          {tablecloth.color === c && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{c}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* NAPKINS DETAIL - Updated */}
-              {categoryView === "napkins" && (
-                <div className="space-y-6">
-                  {/* HEADER */}
-                  <button
-                    onClick={() => setCategoryView("list")}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[#A0522D] text-white text-sm"
-                  >
-                    <div className="flex items-center gap-2">
-                      <img src="/img/table-form/category/napkins.png" className="w-5 h-5" />
-                      <span>Napkins</span>
-                    </div>
-                    <IoIosArrowForward />
-                  </button>
-
-                  {/* FABRIC */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Fabric</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        { name: "Crushed Velvet", img: "/img/table-form/tablecloth/fabric1.png" },
-                        { name: "Damask Linen", img: "/img/table-form/tablecloth/fabric2.png" },
-                        { name: "Gingham Cotton", img: "/img/table-form/tablecloth/fabric3.png" },
-                        { name: "Raw Silk Dupioni", img: "/img/table-form/tablecloth/fabric4.png" },
-                      ].map(item => (
-                        <button
-                          key={item.name}
-                          onClick={() => setNapkins(prev => ({ ...prev, fabric: item.name }))}
-                          className="relative"
-                        >
-                          <img src={item.img} className="rounded-sm object-cover border w-full h-[70px]" />
-                          {napkins.fabric === item.name && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{item.name}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* COLOR */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Color</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {["White", "Ivory", "Champagne", "Gold", "Blush", "Dusty Rose", "Peach", "Coral"].map((c, i) => (
-                        <button
-                          key={`${c}-${i}`}
-                          onClick={() => setNapkins(prev => ({ ...prev, color: c }))}
-                          className="relative flex flex-col items-center"
-                        >
-                          <div className="rounded-sm w-full h-[60px] overflow-hidden border flex items-center justify-center">
-                            <img
-                              src={`/img/table-form/napkins/color-${c.toLowerCase().replace(" ", "-")}.png`}
-                              className="w-full h-full object-cover object-center"
-                              alt={c}
-                            />
-                          </div>
-                          {napkins.color === c && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{c}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* CENTRE PIECES DETAIL */}
-              {categoryView === "centrePieces" && (
-                <div className="space-y-6">
-                  {/* HEADER */}
-                  <button
-                    onClick={() => setCategoryView("list")}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[#A0522D] text-white text-sm"
-                  >
-                    <div className="flex items-center gap-2">
-                      <img src="/img/table-form/category/centre-pieces.png" className="w-5 h-5" />
-                      <span>Centre Pieces</span>
-                    </div>
-                    <IoIosArrowForward />
-                  </button>
-
-                  {/* FABRIC */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Fabric</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        { name: "Crushed Velvet", img: "/img/table-form/tablecloth/fabric1.png" },
-                        { name: "Damask Linen", img: "/img/table-form/tablecloth/fabric2.png" },
-                        { name: "Gingham Cotton", img: "/img/table-form/tablecloth/fabric3.png" },
-                        { name: "Raw Silk Dupioni", img: "/img/table-form/tablecloth/fabric4.png" },
-                      ].map(item => (
-                        <button
-                          key={item.name}
-                          onClick={() => setCentrePieces(prev => ({ ...prev, fabric: item.name }))}
-                          className="relative"
-                        >
-                          <img src={item.img} className="rounded-sm object-cover border w-full h-[70px]" />
-                          {centrePieces.fabric === item.name && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{item.name}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* STYLE */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Style</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {["Floral Arrangement", "Candle Centerpiece", "Fruit Bowl", "Modern Sculpture"].map(s => (
-                        <button
-                          key={s}
-                          onClick={() => setCentrePieces(prev => ({ ...prev, style: s }))}
-                          className="relative flex flex-col items-center"
-                        >
-                          <div className="rounded-sm w-full h-[60px] overflow-hidden border flex items-center justify-center">
-                            <img
-                              src={`/img/table-form/centre-pieces/style-${s.toLowerCase().replace(" ", "-")}.png`}
-                              className="w-full h-full object-cover object-center"
-                              alt={s}
-                            />
-                          </div>
-                          {centrePieces.style === s && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{s}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* COLOR */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Color</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {["Gold", "Silver", "Crystal", "White", "Ivory", "Rose Gold"].map((c, i) => (
-                        <button
-                          key={`${c}-${i}`}
-                          onClick={() => setCentrePieces(prev => ({ ...prev, color: c }))}
-                          className="relative flex flex-col items-center"
-                        >
-                          <div className="rounded-sm w-full h-[60px] overflow-hidden border flex items-center justify-center">
-                            <img
-                              src={`/img/table-form/centre-pieces/color-${c.toLowerCase()}.png`}
-                              className="w-full h-full object-cover object-center"
-                              alt={c}
-                            />
-                          </div>
-                          {centrePieces.color === c && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{c}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TABLEWARE DETAIL */}
-              {categoryView === "tableware" && (
-                <div className="space-y-6">
-                  {/* HEADER */}
-                  <button
-                    onClick={() => setCategoryView("list")}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[#A0522D] text-white text-sm"
-                  >
-                    <div className="flex items-center gap-2">
-                      <img src="/img/table-form/category/tableware.png" className="w-5 h-5" />
-                      <span>Tableware</span>
-                    </div>
-                    <IoIosArrowForward />
-                  </button>
-
-                  {/* FABRIC - Actually for tableware this should be "Material" */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Material</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        { name: "Porcelain", img: "/img/table-form/tableware/porcelain.png" },
-                        { name: "Bone China", img: "/img/table-form/tableware/bone-china.png" },
-                        { name: "Glass", img: "/img/table-form/tableware/glass.png" },
-                        { name: "Crystal", img: "/img/table-form/tableware/crystal.png" },
-                      ].map(item => (
-                        <button
-                          key={item.name}
-                          onClick={() => setTableware(prev => ({ ...prev, fabric: item.name }))}
-                          className="relative"
-                        >
-                          <img src={item.img} className="rounded-sm object-cover border w-full h-[70px]" />
-                          {tableware.fabric === item.name && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{item.name}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* STYLE - For tableware, this could be "Set Type" */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Set Type</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {["Formal Dinner", "Casual Dining", "Buffet Style", "Banquet"].map(s => (
-                        <button
-                          key={s}
-                          onClick={() => setTableware(prev => ({ ...prev, style: s }))}
-                          className="relative flex flex-col items-center"
-                        >
-                          <div className="rounded-sm w-full h-[60px] overflow-hidden border flex items-center justify-center">
-                            <img
-                              src={`/img/table-form/tableware/set-${s.toLowerCase().replace(" ", "-")}.png`}
-                              className="w-full h-full object-cover object-center"
-                              alt={s}
-                            />
-                          </div>
-                          {tableware.style === s && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{s}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* COLOR */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Color</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {["White", "Ivory", "Gold Trim", "Silver Trim", "Platinum", "Champagne"].map((c, i) => (
-                        <button
-                          key={`${c}-${i}`}
-                          onClick={() => setTableware(prev => ({ ...prev, color: c }))}
-                          className="relative flex flex-col items-center"
-                        >
-                          <div className="rounded-sm w-full h-[60px] overflow-hidden border flex items-center justify-center">
-                            <img
-                              src={`/img/table-form/tableware/color-${c.toLowerCase().replace(" ", "-")}.png`}
-                              className="w-full h-full object-cover object-center"
-                              alt={c}
-                            />
-                          </div>
-                          {tableware.color === c && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{c}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ADDITIONAL DECOR DETAIL */}
-              {categoryView === "additionalDecor" && (
-                <div className="space-y-6">
-                  {/* HEADER */}
-                  <button
-                    onClick={() => setCategoryView("list")}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[#A0522D] text-white text-sm"
-                  >
-                    <div className="flex items-center gap-2">
-                      <img src="/img/table-form/category/centre-pieces.png" className="w-5 h-5" />
-                      <span>Additional Decor</span>
-                    </div>
-                    <IoIosArrowForward />
-                  </button>
-
-                  {/* FABRIC - For decor, this could be "Material" */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Material</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        { name: "Silk", img: "/img/table-form/decor/silk.png" },
-                        { name: "Satin", img: "/img/table-form/decor/satin.png" },
-                        { name: "Lace", img: "/img/table-form/decor/lace.png" },
-                        { name: "Velvet", img: "/img/table-form/decor/velvet.png" },
-                      ].map(item => (
-                        <button
-                          key={item.name}
-                          onClick={() => setAdditionalDecor(prev => ({ ...prev, fabric: item.name }))}
-                          className="relative"
-                        >
-                          <img src={item.img} className="rounded-sm object-cover border w-full h-[70px]" />
-                          {additionalDecor.fabric === item.name && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{item.name}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* STYLE - For decor, this could be "Item Type" */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Item Type</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {["Chair Sash", "Table Runner", "Place Cards", "Menu Cards"].map(s => (
-                        <button
-                          key={s}
-                          onClick={() => setAdditionalDecor(prev => ({ ...prev, style: s }))}
-                          className="relative flex flex-col items-center"
-                        >
-                          <div className="rounded-sm w-full h-[60px] overflow-hidden border flex items-center justify-center">
-                            <img
-                              src={`/img/table-form/decor/type-${s.toLowerCase().replace(" ", "-")}.png`}
-                              className="w-full h-full object-cover object-center"
-                              alt={s}
-                            />
-                          </div>
-                          {additionalDecor.style === s && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{s}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* COLOR */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Color</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {["Gold", "Silver", "White", "Ivory", "Blush", "Navy"].map((c, i) => (
-                        <button
-                          key={`${c}-${i}`}
-                          onClick={() => setAdditionalDecor(prev => ({ ...prev, color: c }))}
-                          className="relative flex flex-col items-center"
-                        >
-                          <div className="rounded-sm w-full h-[60px] overflow-hidden border flex items-center justify-center">
-                            <img
-                              src={`/img/table-form/decor/color-${c.toLowerCase()}.png`}
-                              className="w-full h-full object-cover object-center"
-                              alt={c}
-                            />
-                          </div>
-                          {additionalDecor.color === c && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{c}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* CHAIR COVERS DETAIL - Updated */}
-              {categoryView === "chairCovers" && (
-                <div className="space-y-6">
-                  {/* HEADER */}
-                  <button
-                    onClick={() => setCategoryView("list")}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[#A0522D] text-white text-sm"
-                  >
-                    <div className="flex items-center gap-2">
-                      <img src="/img/table-form/category/chair-cover.png" className="w-5 h-5" />
-                      <span>Chair Covers</span>
-                    </div>
-                    <IoIosArrowForward />
-                  </button>
-
-                  {/* FABRIC */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Fabric</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        { name: "Crushed Velvet", img: "/img/table-form/tablecloth/fabric1.png" },
-                        { name: "Damask Linen", img: "/img/table-form/tablecloth/fabric2.png" },
-                        { name: "Gingham Cotton", img: "/img/table-form/tablecloth/fabric3.png" },
-                        { name: "Raw Silk Dupioni", img: "/img/table-form/tablecloth/fabric4.png" },
-                      ].map(item => (
-                        <button
-                          key={item.name}
-                          onClick={() => setChairCovers(prev => ({ ...prev, fabric: item.name }))}
-                          className="relative"
-                        >
-                          <img src={item.img} className="rounded-sm object-cover border w-full h-[70px]" />
-                          {chairCovers.fabric === item.name && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{item.name}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* COLOR */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Chair Cover Rentals</p>
-                    <div className="grid grid-cols-4 gap-3">
-                      {[
-                        { name: "White", img: "/img/table-form/chair-cover/color-white.png" },
-                        { name: "Ivory", img: "/img/table-form/chair-cover/color-ivory.png" },
-                        { name: "Beige", img: "/img/table-form/chair-cover/color-beige.png" },
-                        { name: "Gold", img: "/img/table-form/chair-cover/color-gold.png" },
-                      ].map(item => (
-                        <button
-                          key={item.name}
-                          onClick={() => setChairCovers(prev => ({ ...prev, color: item.name }))}
-                          className="relative flex flex-col items-center"
-                        >
-                          <div className="w-full h-[80px] rounded-sm overflow-hidden border">
-                            <img src={item.img} className="w-full h-full object-cover" alt={item.name} />
-                          </div>
-                          {chairCovers.color === item.name && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center">{item.name}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* TABLE CENTREPIECE */}
-                  <div>
-                    <p className="text-xs font-semibold text-[#1C2C56] mb-2">Table Centrepiece</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        { name: "Beige", img: "/img/table-form/centre-piece/beige.png" },
-                        { name: "Navy", img: "/img/table-form/centre-piece/navy.png" },
-                        { name: "Green", img: "/img/table-form/centre-piece/green.png" },
-                      ].map(item => (
-                        <button
-                          key={item.name}
-                          onClick={() => setChairCovers(prev => ({ ...prev, centrePiece: item.name }))}
-                          className="relative flex flex-col items-center"
-                        >
-                          <div className="w-full h-[70px] rounded-sm overflow-hidden border">
-                            <img src={item.img} className="w-full h-full object-cover" alt={item.name} />
-                          </div>
-                          {chairCovers.centrePiece === item.name && (
-                            <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                              ✓
-                            </span>
-                          )}
-                          <p className="text-[10px] mt-1 text-center uppercase">{item.name}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
           )}
         </div>

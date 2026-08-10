@@ -1,0 +1,9 @@
+{
+  "/(public-pages)/inventory-management/page": "app/(public-pages)/inventory-management/page.js",
+  "/(public-pages)/theme-management/page": "app/(public-pages)/theme-management/page.js",
+  "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js",
+  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
+  "/(public-pages)/system-settings/page": "app/(public-pages)/system-settings/page.js",
+  "/(public-pages)/users-permissions/page": "app/(public-pages)/users-permissions/page.js",
+  "/(public-pages)/simulation-assets/page": "app/(public-pages)/simulation-assets/page.js"
+}

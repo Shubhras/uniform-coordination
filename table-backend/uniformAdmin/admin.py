@@ -236,6 +236,9 @@ class RoleSubMenuPermissionAdmin(admin.ModelAdmin):
     )
 
 
+from django.contrib import admin
+from .models import SystemSettings
+
 
 @admin.register(SystemSettings)
 class SystemSettingsAdmin(admin.ModelAdmin):
@@ -245,53 +248,129 @@ class SystemSettingsAdmin(admin.ModelAdmin):
         "contact_number",
         "default_language",
         "default_currency",
+        "time_zone",
         "is_active",
         "updated_at",
     )
 
-    readonly_fields = ("created_at", "updated_at")
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+    )
 
     fieldsets = (
         ("Company Information", {
             "fields": (
                 "company_name",
                 "business_address",
-                "logo",
-            )
-        }),
-        ("Contact Information", {
-            "fields": (
                 "support_email",
                 "contact_number",
-            )
+                "logo",
+            ),
         }),
+
         ("Regional Settings", {
             "fields": (
                 "default_language",
                 "default_currency",
                 "time_zone",
                 "date_format",
-            )
+            ),
         }),
-        ("Status", {
-            "fields": ("is_active",)
-        }),
-        ("Timestamps", {
+
+        ("SMTP Settings", {
             "fields": (
+                "email_host",
+                "email_port",
+                "email_username",
+                "email_password",
+                "email_use_tls",
+                "email_from_address",
+                "email_from_name",
+            ),
+        }),
+
+        ("Email Notifications", {
+            "fields": (
+                "email_notify_registration",
+                "email_notify_order_placed",
+                "email_notify_payment_success",
+                "email_notify_payment_failure",
+                "email_notify_shipping",
+                "email_notify_return_received",
+                "email_notify_return_overdue",
+                "email_notify_late_fee",
+            ),
+        }),
+
+        ("Payment Gateway", {
+            "fields": (
+                "payment_enable_kakebarai",
+                "payment_enable_credit_card",
+                "payment_enable_paypay",
+                "payment_enable_conbini",
+                "payment_enable_bank_transfer",
+                "payment_enable_applepay",
+                "payment_enable_googlepay",
+            ),
+        }),
+
+        ("Stripe Configuration", {
+            "fields": (
+                "stripe_publishable_key",
+                "stripe_secret_key",
+                "stripe_webhook_secret",
+            ),
+        }),
+
+        ("Bank Transfer", {
+            "fields": (
+                "bank_name",
+                "bank_branch",
+                "bank_account_number",
+                "bank_account_holder",
+            ),
+        }),
+
+        ("Status & Timestamps", {
+            "fields": (
+                "is_active",
                 "created_at",
                 "updated_at",
-            )
+            ),
         }),
     )
 
-    def has_add_permission(self, request):
-        # Allow only one SystemSettings object
-        return not SystemSettings.objects.exists()
-
     def has_delete_permission(self, request, obj=None):
-        # Prevent deletion from admin
+        # Prevent deletion from Django Admin
         return False
 
+
+
+from django.contrib import admin
+from .models import SimulationStructure
+
+
+@admin.register(SimulationStructure)
+class SimulationStructureAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "category",
+        "created_at",
+        "updated_at",
+    )
+    search_fields = (
+        "category__categoryName",
+    )
+    list_filter = (
+        "created_at",
+        "updated_at",
+    )
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+    )
+    
 @admin.register(Parts)
 class PartsAdmin(admin.ModelAdmin):
     list_display = ("id",
