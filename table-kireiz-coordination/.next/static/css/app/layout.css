@@ -1794,9 +1794,6 @@
   .max-w-2xl {
     max-width: var(--container-2xl);
   }
-  .max-w-3xl {
-    max-width: var(--container-3xl);
-  }
   .max-w-4xl {
     max-width: var(--container-4xl);
   }
@@ -3738,10 +3735,6 @@
     --tw-leading: 1.15;
     line-height: 1.15;
   }
-  .leading-\[1\.45\] {
-    --tw-leading: 1.45;
-    line-height: 1.45;
-  }
   .leading-relaxed {
     --tw-leading: var(--leading-relaxed);
     line-height: var(--leading-relaxed);
@@ -3974,9 +3967,6 @@
   }
   .text-\[\#64748B\] {
     color: #64748B;
-  }
-  .text-\[\#111111\] {
-    color: #111111;
   }
   .text-\[\#111827\] {
     color: #111827;
