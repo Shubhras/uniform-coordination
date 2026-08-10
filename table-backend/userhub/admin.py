@@ -35,6 +35,66 @@ class UsersAdminForm(forms.ModelForm):
         return user
 
 
+
+
+
+@admin.register(Favourite)
+class FavouriteAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "product",
+        "is_like",
+        "isActive",
+        "isDeleted",
+        "created_at",
+        "updated_at",
+    )
+
+    list_filter = (
+        "is_like",
+        "isActive",
+        "isDeleted",
+        "created_at",
+    )
+
+    search_fields = (
+        "user__email",
+        "user__userName",
+        "product__name",
+    )
+
+    ordering = ("-created_at",)
+
+
+@admin.register(ThemeFavourite)
+class ThemeFavouriteAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "theme",
+        "is_like",
+        "isActive",
+        "isDeleted",
+        "created_at",
+        "updated_at",
+    )
+
+    list_filter = (
+        "is_like",
+        "isActive",
+        "isDeleted",
+        "created_at",
+    )
+
+    search_fields = (
+        "user__email",
+        "user__userName",
+        "theme__name",
+    )
+
+    ordering = ("-created_at",)
+
 class ContractAuditLogInline(admin.TabularInline):
     model = ContractAuditLog
     extra = 0

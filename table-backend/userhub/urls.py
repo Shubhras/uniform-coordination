@@ -15,7 +15,8 @@ urlpatterns = [
     path("reset-password/", ResetPasswordAPIView.as_view(), name="reset_password"),
     path("update-password/", UpdatePasswordAPIView.as_view(), name="update-password"),
     path("verify-user/", VerifyUserAPIView.as_view(), name="verify-user"),
-    # path('favourite/toggle/', ToggleFavouriteAPIView.as_view(), name='toggle-favourite'),
+    path('favourite/toggle/', ToggleProductFavouriteAPIView.as_view(), name='toggle-product-favourite'),
+    path('theme/favourite/toggle/', ToggleThemeFavouriteAPIView.as_view(), name='toggle-theme-favourite'),
 
 
     #<-------------------Model_Info------------------------------->

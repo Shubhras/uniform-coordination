@@ -2,10 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { FaRegHeart } from "react-icons/fa6";
+import { FaRegHeart, FaHeart } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { apiGetBrowseByThemeData } from "@/services/HomeService";
 import { apiGetCategories } from "@/services/CategoryService";
+import { apiToggleThemeFavourite } from "@/services/AuthProfileService";
 
 /**
  * ThemeCards Component
@@ -14,11 +18,49 @@ import { apiGetCategories } from "@/services/CategoryService";
  * Supports category tab filtering, loading indicators, empty states, and navigation to theme details.
  */
 const ThemeCards = () => {
+  const { data: session } = useSession();
   const [themeCards, setThemeCards] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  const handleToggleFavourite = async (themeId) => {
+    if (!session?.accessToken) {
+      toast.push(
+        <Notification title="Authentication Required" type="warning">
+          Please sign in to add themes to your favorites list.
+        </Notification>
+      );
+      router.push("/sign-in");
+      return;
+    }
+
+    try {
+      const response = await apiToggleThemeFavourite(session.accessToken, themeId);
+      if (response && response.status === true) {
+        setThemeCards(prevThemes =>
+          prevThemes.map(t =>
+            t.id === themeId
+              ? { ...t, is_favourite: response.data.is_favourite }
+              : t
+          )
+        );
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.data.is_favourite ? "Added to favorites." : "Removed from favorites."}
+          </Notification>
+        );
+      }
+    } catch (error) {
+      console.error("Error toggling theme favorite:", error);
+      toast.push(
+        <Notification title="Error" type="danger">
+          Failed to toggle favorite status.
+        </Notification>
+      );
+    }
+  };
 
   /**
    * Effect hook to fetch themes filtered by the selected category ID.
@@ -33,7 +75,7 @@ const ThemeCards = () => {
           ordering: "",
           page: 1,
           page_size: 10,
-        });
+        }, session?.accessToken);
         if (
           response &&
           response.results &&
@@ -53,7 +95,7 @@ const ThemeCards = () => {
     };
 
     fetchThemes();
-  }, [selectedCategoryId]);
+  }, [selectedCategoryId, session?.accessToken]);
 
   /**
    * Effect hook to fetch categories list for filter pill buttons.
@@ -204,10 +246,26 @@ const ThemeCards = () => {
                     </button>
                   </div>
                   <div className="absolute right-3 top-3">
-                    <FaRegHeart
-                      size={20}
-                      className="text-black group-hover:text-white transition cursor-pointer hover:text-red-500"
-                    />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleFavourite(item.id);
+                      }}
+                      className="p-1.5 rounded-full bg-white/80 hover:bg-white transition shadow-sm flex items-center justify-center"
+                      title={item.is_favourite ? "Remove from favorites" : "Add to favorites"}
+                    >
+                      {item.is_favourite ? (
+                        <FaHeart
+                          size={18}
+                          className="text-red-500 cursor-pointer"
+                        />
+                      ) : (
+                        <FaRegHeart
+                          size={18}
+                          className="text-black cursor-pointer hover:text-red-500 transition"
+                        />
+                      )}
+                    </button>
                   </div>
                 </div>
                 {/* Theme Details */}
