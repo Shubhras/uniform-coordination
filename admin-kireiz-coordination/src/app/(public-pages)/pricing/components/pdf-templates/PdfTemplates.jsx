@@ -73,10 +73,11 @@ const fallbackStatus = {
 
 const PAGE_SIZE = 10;
 
-const money = (value) =>
+// Symbol comes from SystemSettings via the API — never hardcoded.
+const formatMoney = (value, symbol = "$") =>
     value === null || value === undefined
         ? "—"
-        : `$ ${Number(value).toLocaleString(undefined, {
+        : `${symbol} ${Number(value).toLocaleString(undefined, {
               minimumFractionDigits: 2,
           })}`;
 
@@ -90,6 +91,9 @@ const notify = (title, type, message) =>
 const PdfTemplates = () => {
     const { session } = useCurrentSession();
     const accessToken = session?.user?.accessToken;
+
+    const [currencySymbol, setCurrencySymbol] = useState("$");
+    const money = (value) => formatMoney(value, currencySymbol);
 
     const [quotations, setQuotations] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
@@ -114,6 +118,7 @@ const PdfTemplates = () => {
                 const rows = res.data || [];
                 setQuotations(rows);
                 setTotalItems(res.count || 0);
+                if (res.currency?.symbol) setCurrencySymbol(res.currency.symbol);
                 // Keep the first row open like the original design did.
                 setExpandedId((prev) => prev ?? rows[0]?.id ?? null);
             }

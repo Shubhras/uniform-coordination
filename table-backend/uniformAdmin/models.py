@@ -809,6 +809,7 @@ class InspectionItem(models.Model):
     missing_qty = models.PositiveIntegerField(default=0)
     notes = models.TextField(blank=True, null=True)
     result = models.CharField(max_length=20, choices=RESULT_CHOICES, default="pending")
+    is_reviewed = models.BooleanField(default=False)
     inspected_at = models.DateTimeField(auto_now_add=True)
     inspected_by = models.ForeignKey(AdminUser, on_delete=models.SET_NULL, null=True, blank=True)
 

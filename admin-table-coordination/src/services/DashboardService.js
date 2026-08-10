@@ -9,3 +9,13 @@ export async function apiGetDashboard(accessToken) {
         },
     })
 }
+
+export async function apiMarkAlertsReviewed(accessToken) {
+    return ApiService.fetchDataWithAxios({
+        url: '/v1/space/uniformAdmin/admindesh/mark-alerts-reviewed/',
+        method: 'post',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    })
+}

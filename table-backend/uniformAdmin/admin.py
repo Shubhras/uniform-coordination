@@ -236,6 +236,62 @@ class RoleSubMenuPermissionAdmin(admin.ModelAdmin):
     )
 
 
+
+@admin.register(SystemSettings)
+class SystemSettingsAdmin(admin.ModelAdmin):
+    list_display = (
+        "company_name",
+        "support_email",
+        "contact_number",
+        "default_language",
+        "default_currency",
+        "is_active",
+        "updated_at",
+    )
+
+    readonly_fields = ("created_at", "updated_at")
+
+    fieldsets = (
+        ("Company Information", {
+            "fields": (
+                "company_name",
+                "business_address",
+                "logo",
+            )
+        }),
+        ("Contact Information", {
+            "fields": (
+                "support_email",
+                "contact_number",
+            )
+        }),
+        ("Regional Settings", {
+            "fields": (
+                "default_language",
+                "default_currency",
+                "time_zone",
+                "date_format",
+            )
+        }),
+        ("Status", {
+            "fields": ("is_active",)
+        }),
+        ("Timestamps", {
+            "fields": (
+                "created_at",
+                "updated_at",
+            )
+        }),
+    )
+
+    def has_add_permission(self, request):
+        # Allow only one SystemSettings object
+        return not SystemSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        # Prevent deletion from admin
+        return False
+
 @admin.register(Parts)
 class PartsAdmin(admin.ModelAdmin):
     list_display = ("id",

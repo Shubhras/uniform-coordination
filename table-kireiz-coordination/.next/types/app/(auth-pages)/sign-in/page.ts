@@ -1,4 +1,4 @@
-// File: /home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/table-kireiz-coordination/src/app/(auth-pages)/sign-in/page.jsx
+// File: /home/digi-35/Desktop/Uniform/uniform-coordination/table-kireiz-coordination/src/app/(auth-pages)/sign-in/page.jsx
 import * as entry from '../../../../../src/app/(auth-pages)/sign-in/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
