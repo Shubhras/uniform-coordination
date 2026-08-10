@@ -57,7 +57,7 @@ const SystemSettings = () => {
       <h1 className="text-[28px] font-semibold leading-tight text-[#2A211D]">
         {t("pageTitle")}
       </h1>
-      <p className="mt-1 text-[13px] text-[#B29D8C]">
+      <p className="mt-1 text-[13px] text-[#64748B]">
         {t("pageSubtitle")}
       </p>
 
