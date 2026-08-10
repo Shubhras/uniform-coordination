@@ -269,20 +269,20 @@ const MyProfile = () => {
             <Button
               onClick={() => router.push("/profile/personal-information")}
               size="sm"
-              className="flex rounded-lg items-center gap-2 border border-[#7D7D7D] text-[#515254]"
+              className="flex rounded-lg items-center gap-2 border border-[#7D7D7D] text-[#515254] font-medium"
             >
               <FiEdit2 /> Edit Profile
             </Button>
             <Button
               onClick={() => router.push("/profile/change-password")}
               size="sm"
-              className="flex items-center rounded-lg gap-2 border border-[#7D7D7D] text-[#515254]"
+              className="flex items-center rounded-lg gap-2 border border-[#7D7D7D] text-[#515254] font-medium"
             >
               <FiLock /> Change Password
             </Button>
             <Button
               size="sm"
-              className="flex items-center rounded-lg gap-2 border border-[#7D7D7D] text-[#515254]"
+              className="flex items-center rounded-lg gap-2 border border-[#7D7D7D] text-[#515254] font-medium"
             >
               <FiMail /> Verify Email
             </Button>

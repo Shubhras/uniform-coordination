@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import {
   FiSearch,
   FiPlus,
@@ -24,6 +25,7 @@ const INVISIBLE_DUPLICATE_CHAR = "\u200B";
 const INVISIBLE_TEXT_REGEX = /[\u200B-\u200D\uFEFF]/g;
 
 const ColorsTab = () => {
+  const t = useTranslations("productSpecification.colors");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -43,6 +45,14 @@ const ColorsTab = () => {
   const [pageSize, setPageSize] = useState(10);
   const [duplicatingId, setDuplicatingId] = useState(null);
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    page_size: 10,
+    total_pages: 1,
+    total_items: 0,
+  });
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
@@ -52,44 +62,43 @@ const ColorsTab = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    page_size: 10,
-    total_pages: 1,
-    total_items: 0,
-  });
+  const getVisibleColorName = (name) => {
+    if (!name) return "";
+    return name.replace(INVISIBLE_TEXT_REGEX, "").trim();
+  };
 
   /* ---------- FETCH COLORS ---------- */
-  const fetchColors = useCallback(async () => {
-    if (!accessToken) return;
+  const fetchColors = useCallback(
+    async (page = 1) => {
+      if (!accessToken) return;
 
-    try {
-      setLoading(true);
-      const response = await apiGetColorsList(
-        accessToken,
-        currentPage,
-        pageSize,
-        debouncedSearch,
-      );
+      try {
+        setLoading(true);
+        const response = await apiGetColorsList(
+          accessToken,
+          page,
+          pageSize,
+          debouncedSearch,
+        );
 
-      if (response?.status && response?.data) {
-        setColors(response.data);
-        if (response.pagination) {
-          setPagination(response.pagination);
+        if (response?.status && response?.data) {
+          setColors(response.data);
+          if (response.pagination) {
+            setPagination(response.pagination);
+          }
         }
+      } catch (error) {
+        console.error("Failed to fetch colors:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to fetch colors:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [accessToken, currentPage, pageSize, debouncedSearch]);
+    },
+    [accessToken, pageSize, debouncedSearch]
+  );
 
   useEffect(() => {
     fetchColors(currentPage);
-  }, [fetchColors]);
+  }, [fetchColors, currentPage]);
 
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
@@ -97,11 +106,11 @@ const ColorsTab = () => {
 
     try {
       setDeleteLoading(true);
-      const response = await apiDeleteColor(accessToken, colorToDelete.id);
+      await apiDeleteColor(accessToken, colorToDelete.id);
 
       toast.push(
-        <Notification title="Success" type="success">
-          {response?.message || "Colors deleted successfully."}
+        <Notification title={t("successTitle")} type="success">
+          {t("deleteSuccess")}
         </Notification>,
       );
 
@@ -138,75 +147,32 @@ const ColorsTab = () => {
     fetchColors(currentPage);
   };
 
-  const getVisibleColorName = (name = "") =>
-    String(name).replace(INVISIBLE_TEXT_REGEX, "");
-
-  const getDuplicateColorName = (name = "") => {
-    const baseName = String(name);
-    const existingNames = new Set(
-      colors.map((item) => item.colorName).filter(Boolean),
-    );
-
-    if (!existingNames.has(baseName)) {
-      return baseName;
-    }
-
-    let duplicateName = `${baseName}${INVISIBLE_DUPLICATE_CHAR}`;
-    while (existingNames.has(duplicateName)) {
-      duplicateName += INVISIBLE_DUPLICATE_CHAR;
-    }
-
-    return duplicateName;
-  };
-
+  /* ---------- DUPLICATE COLOR ---------- */
   const handleDuplicateColor = async (color) => {
-    if (!accessToken || !color) return;
-
-    const payload = {
-      colorName: getDuplicateColorName(color.colorName),
-      colorCode: color.colorCode,
-      compatibleFabric: color.compatibleFabric || [],
-    };
+    if (!accessToken || duplicatingId || !color) return;
 
     try {
       setDuplicatingId(color.id);
-      const response = await apiCreateColor(accessToken, payload);
 
-      if (!response?.status) {
-        const message =
-          typeof response?.message === "string"
-            ? response.message
-            : response?.message?.colorName?.[0] ||
-              "Failed to duplicate color. Please try again.";
+      const cleanColorName = getVisibleColorName(color.colorName);
+      const duplicatePayload = {
+        colorName: `${cleanColorName}${INVISIBLE_DUPLICATE_CHAR}`,
+        colorCode: color.colorCode,
+        compatibleFabric: color.compatibleFabric || [],
+      };
 
+      const response = await apiCreateColor(accessToken, duplicatePayload);
+
+      if (response?.status) {
         toast.push(
-          <Notification title="Error" type="danger">
-            {message}
+          <Notification title={t("successTitle")} type="success">
+            {response.message || t("duplicateSuccess")}
           </Notification>,
         );
-        return;
+        fetchColors(currentPage);
       }
-
-      toast.push(
-        <Notification title="Success" type="success">
-          {response?.message || "Color duplicated successfully."}
-        </Notification>,
-      );
-
-      fetchColors(currentPage);
     } catch (error) {
       console.error("Failed to duplicate color:", error);
-      const message =
-        typeof error?.response?.data?.message === "string"
-          ? error.response.data.message
-          : error?.response?.data?.message?.colorName?.[0] ||
-            "Failed to duplicate color. Please try again.";
-
-      toast.push(
-        <Notification title="Error" type="danger">
-          {message}
-        </Notification>,
-      );
     } finally {
       setDuplicatingId(null);
     }
@@ -221,13 +187,6 @@ const ColorsTab = () => {
     const g = (bigint >> 8) & 255;
     const b = bigint & 255;
     return `rgb(${r}, ${g}, ${b})`;
-  };
-
-  /* ---------- PAGINATION ---------- */
-  const goToPage = (page) => {
-    if (page >= 1 && page <= pagination.total_pages) {
-      setCurrentPage(page);
-    }
   };
 
   /* ---------- SKELETON ---------- */
@@ -262,19 +221,19 @@ const ColorsTab = () => {
         <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              Color Palette
+              {t("title")}
             </h2>
             <p className="text-sm text-[#486284]">
-              {pagination.total_items} colors available
+              {t("totalCount", { count: pagination.total_items || colors.length })}
             </p>
           </div>
 
           <button
             onClick={handleAddColor}
-            className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm flex items-center gap-2"
+            className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-[#163F86] transition-colors"
           >
             <FiPlus size={14} />
-            Add Color
+            {t("addNew")}
           </button>
         </div>
 
@@ -285,7 +244,7 @@ const ColorsTab = () => {
           />
           <input
             type="text"
-            placeholder="Search Colors..."
+            placeholder={t("searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm"
@@ -305,7 +264,7 @@ const ColorsTab = () => {
           <CardSkeleton />
         ) : colors.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
-            No colors found
+            {t("noData")}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -328,12 +287,11 @@ const ColorsTab = () => {
                     {color.colorCode} &nbsp; {hexToRgb(color.colorCode)}
                   </p>
 
-                  {/* Compatible Fabrics from API */}
                   {color.compatibleFabric &&
                     color.compatibleFabric.length > 0 && (
                       <div className="mt-3">
                         <p className="text-xs text-[#486284] mb-1">
-                          Compatible Fabrics:
+                          {t("compatibleFabrics")}:
                         </p>
                         <div className="flex gap-2 flex-wrap">
                           {color.compatibleFabric.map((fabric, index) => (
@@ -353,7 +311,7 @@ const ColorsTab = () => {
                       onClick={() => handleEditColor(color)}
                       className="flex-1 bg-[#1C4FA8] text-white text-xs py-1.5 rounded-md"
                     >
-                      Edit
+                      {t("edit")}
                     </button>
 
                     <button
@@ -363,8 +321,7 @@ const ColorsTab = () => {
                       }}
                       className="flex-1 border border-red-200 text-red-500 text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                     >
-                      {/* <FiTrash2 size={12} /> */}
-                      Delete
+                      {t("delete")}
                     </button>
                     <button
                       onClick={() => handleDuplicateColor(color)}
@@ -372,8 +329,8 @@ const ColorsTab = () => {
                       className="flex-1 border border-gray-300 text-[#91A1B6] text-xs py-1.5 rounded-md disabled:opacity-60"
                     >
                       {duplicatingId === color.id
-                        ? "Duplicating..."
-                        : "Duplicate"}
+                        ? t("duplicating")
+                        : t("duplicate")}
                     </button>
                   </div>
                 </div>
@@ -396,7 +353,6 @@ const ColorsTab = () => {
         </div>
       </div>
 
-      {/* Modals */}
       <AddEditColorModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -412,8 +368,8 @@ const ColorsTab = () => {
           setColorToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Color"
-        message="Are you sure you want to delete this color? This action cannot be undone."
+        title={t("deleteDialog.title")}
+        message={t("deleteDialog.message")}
         itemName={getVisibleColorName(colorToDelete?.colorName)}
         loading={deleteLoading}
       />

@@ -1,12 +1,16 @@
 import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
-import { FaRegHeart } from "react-icons/fa6";
+import { FaRegHeart, FaHeart } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Button from "@/components/ui/Button";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { apiGetCategories } from "@/services/CategoryService";
 import { apiGetMaterialList } from "@/services/CategoryService";
 import { apiGetColorList } from "@/services/CategoryService";
 import { apiGetBrowseByColorProductData } from "@/services/ProductService";
+import { apiToggleProductFavourite } from "@/services/AuthProfileService";
 
 /**
  * Filter tab navigation options for product categorization.
@@ -17,11 +21,10 @@ const TABS = ["By Category", "By Color", "By Material", "By Function"];
  * Available product function types for filtering.
  */
 export const PRODUCT_TYPES = [
-  { key: "tablecloth", label: "Tablecloth" },
-  { key: "napkin", label: "Napkin" },
-  { key: "runner", label: "Runner" },
-  { key: "chair_cover", label: "Chair Cover" },
-  { key: "background", label: "Background" },
+  { key: "premium", label: "Premium" },
+  { key: "standard", label: "Standard" },
+  { key: "luxury", label: "Luxury" },
+  { key: "classic", label: "Classic" },
 ];
 
 /**
@@ -31,11 +34,49 @@ export const PRODUCT_TYPES = [
  * (Category, Color swatch, Material fabric, Function type) and canvas preview navigation.
  */
 const BrowseCards = () => {
+  const { data: session } = useSession();
   const [selectedColor, setSelectedColor] = useState(null);
   const [activeTab, setActiveTab] = useState("");
   const router = useRouter();
   const filterRef = useRef(null);
   const [categoryData, setCategoryData] = useState([]);
+
+  const handleToggleFavourite = async (productId) => {
+    if (!session?.accessToken) {
+      toast.push(
+        <Notification title="Authentication Required" type="warning">
+          Please sign in to add products to your favorites list.
+        </Notification>
+      );
+      router.push("/sign-in");
+      return;
+    }
+
+    try {
+      const response = await apiToggleProductFavourite(session.accessToken, productId);
+      if (response && response.status === true) {
+        setBrowseByColorProduct(prevProducts =>
+          prevProducts.map(p =>
+            p.id === productId
+              ? { ...p, is_favourite: response.data.is_favourite }
+              : p
+          )
+        );
+        toast.push(
+          <Notification title="Success" type="success">
+            {response.data.is_favourite ? "Added to favorites." : "Removed from favorites."}
+          </Notification>
+        );
+      }
+    } catch (error) {
+      console.error("Error toggling product favorite:", error);
+      toast.push(
+        <Notification title="Error" type="danger">
+          Failed to toggle favorite status.
+        </Notification>
+      );
+    }
+  };
   const [materialData, setMaterialData] = useState([]);
   const [colorData, setColorData] = useState([]);
   const [browseByColorProduct, setBrowseByColorProduct] = useState([]);
@@ -135,7 +176,7 @@ const BrowseCards = () => {
           type: selectedType,
           page: 1,
           page_size: 10,
-        });
+        }, session?.accessToken);
 
         if (
           response &&
@@ -161,6 +202,7 @@ const BrowseCards = () => {
     selectedColor,
     selectedType,
     refresh,
+    session?.accessToken,
   ]);
 
   /**
@@ -197,10 +239,10 @@ const BrowseCards = () => {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 sm:px-5 py-2 rounded-full font-medium text-xs sm:text-sm transition whitespace-nowrap
+            className={`px-4 sm:px-5 py-2 rounded-lg font-medium text-xs sm:text-sm transition whitespace-nowrap
                             ${
                               activeTab === tab
-                                ? "bg-[#A0614D] text-white shadow"
+                                ? "bg-[#A0522D] text-white shadow"
                                 : "text-[#6B7280] hover:bg-[#ead7c5]"
                             }`}
           >
@@ -216,7 +258,7 @@ const BrowseCards = () => {
             setActiveTab("");
             setRefresh((prev) => prev + 1);
           }}
-          className="px-4 sm:px-5 py-2 rounded-xl font-medium text-xs sm:text-sm transition whitespace-nowrap text-white bg-[#A0522D] hover:bg-[#8B4513]"
+          className="px-4 sm:px-5 py-2 rounded-lg font-medium text-xs sm:text-sm transition whitespace-nowrap text-[#A0522D] border border-[#A0522D] hover:bg-[#A0522D] hover:text-white"
         >
           Reset
         </button>
@@ -400,10 +442,23 @@ const BrowseCards = () => {
                   >
                     Preview in Canvas
                   </button>
-                  <FaRegHeart
-                    size={20}
-                    className="text-black cursor-pointer hover:text-red-500 transition"
-                  />
+                  <button
+                    onClick={() => handleToggleFavourite(item.id)}
+                    className="p-1 rounded-full hover:bg-gray-100 transition"
+                    title={item.is_favourite ? "Remove from favorites" : "Add to favorites"}
+                  >
+                    {item.is_favourite ? (
+                      <FaHeart
+                        size={20}
+                        className="text-red-500 cursor-pointer"
+                      />
+                    ) : (
+                      <FaRegHeart
+                        size={20}
+                        className="text-black cursor-pointer hover:text-red-500 transition"
+                      />
+                    )}
+                  </button>
                 </div>
               </div>
             </div>

@@ -16,6 +16,9 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import Spinner from "@/components/ui/Spinner";
 import Pagination from "@/components/ui/Pagination";
 import { apiGetCategoryList } from "@/services/CategoryService";
+import { apiToggleProductVisibility } from "@/services/SimulationService";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 
 const selectStyles = {
   control: (base) => ({
@@ -61,6 +64,46 @@ const ProductVisibility = () => {
   const accessToken = session?.user?.accessToken;
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryList, setCategoryList] = useState([]);
+
+  const handleVisibilityToggle = async (productId, currentShow) => {
+    if (!accessToken) return;
+    try {
+      // Optimistic update
+      setInventoryData((prev) =>
+        prev.map((p) => (p.id === productId ? { ...p, show: !currentShow } : p))
+      );
+
+      const res = await apiToggleProductVisibility(accessToken, productId, !currentShow);
+      if (res?.status) {
+        toast.push(
+          <Notification title="Success" type="success">
+            {res.message || "Product visibility updated."}
+          </Notification>
+        );
+      } else {
+        // Revert optimistic update
+        setInventoryData((prev) =>
+          prev.map((p) => (p.id === productId ? { ...p, show: currentShow } : p))
+        );
+        toast.push(
+          <Notification title="Error" type="danger">
+            {res?.message || "Failed to update product visibility."}
+          </Notification>
+        );
+      }
+    } catch (err) {
+      console.error("Error toggling product visibility", err);
+      // Revert optimistic update
+      setInventoryData((prev) =>
+        prev.map((p) => (p.id === productId ? { ...p, show: currentShow } : p))
+      );
+      toast.push(
+        <Notification title="Error" type="danger">
+          An error occurred while updating product visibility.
+        </Notification>
+      );
+    }
+  };
 
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -258,8 +301,8 @@ const ProductVisibility = () => {
                       <input
                         type="checkbox"
                         checked={product.show}
-                        readOnly
-                        className="h-4 w-4 rounded border-[#DFC8B7] text-[#B56735] accent-[#B56735]"
+                        onChange={() => handleVisibilityToggle(product.id, product.show)}
+                        className="h-4 w-4 rounded border-[#DFC8B7] text-[#B56735] accent-[#B56735] cursor-pointer"
                       />
                     </td>
                     <td className="px-4 py-2 text-[#7D6C63]">

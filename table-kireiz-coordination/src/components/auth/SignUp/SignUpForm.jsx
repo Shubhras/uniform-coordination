@@ -34,7 +34,7 @@ const validationSchema = z.object({
 });
 
 const SignUpForm = (props) => {
-  const { onSignUp, className, setMessage, termConditionHint } = props;
+  const { onSignUp, className, setMessage, termConditionHint,isTermsAccepted } = props;
 
   const [isSubmitting, setSubmitting] = useState(false);
 
@@ -156,6 +156,7 @@ const SignUpForm = (props) => {
         <Button
           block
           loading={isSubmitting}
+          disabled={!isTermsAccepted}
           variant="solid"
           type="submit"
           className="bg-[#A0522D] hover:bg-[#A0522D] text-white"

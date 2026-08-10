@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import {
   FiEdit2,
   FiPlus,
@@ -38,6 +39,7 @@ const formatDate = (isoDate) => {
 };
 
 const BlogTab = () => {
+  const t = useTranslations("contentMedia.blog");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -109,7 +111,7 @@ const BlogTab = () => {
       const response = await apiDeleteBlog(accessToken, postToDelete.id);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={t("successTitle")} type="success">
           {response?.message}
         </Notification>,
       );
@@ -178,13 +180,13 @@ const BlogTab = () => {
       <div className="bg-[#F4F7FC] rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
-            <h2 className="text-2xl font-semibold text-[#1C2C56]">Blog</h2>
-            <p className="text-base text-[#486284]">Manage your blog posts</p>
+            <h2 className="text-2xl font-semibold text-[#1C2C56]">{t("title")}</h2>
+            <p className="text-base text-[#486284]">{t("subtitle")}</p>
           </div>
 
           <div className="flex gap-3">
             <button className="border border-[#CBD5E1] text-[#1C2C56] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
-              Arrange Order
+              {t("arrangeOrder")}
             </button>
 
             <button
@@ -195,7 +197,7 @@ const BlogTab = () => {
               }}
             >
               <FiPlus size={16} />
-              Add Blog
+              {t("addNew")}
             </button>
           </div>
         </div>
@@ -207,7 +209,7 @@ const BlogTab = () => {
           />
           <input
             type="text"
-            placeholder="Search Blog Posts..."
+            placeholder={t("searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none"
@@ -227,7 +229,7 @@ const BlogTab = () => {
           <CardSkeleton />
         ) : filteredPosts.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
-            No blog posts found
+            {t("noData")}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -317,8 +319,8 @@ const BlogTab = () => {
           setPostToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Blog Post"
-        message="Are you sure you want to delete this blog post? This action cannot be undone."
+        title={t("deleteDialog.title")}
+        message={t("deleteDialog.message")}
         itemName={postToDelete?.title}
         loading={deleteLoading}
       />

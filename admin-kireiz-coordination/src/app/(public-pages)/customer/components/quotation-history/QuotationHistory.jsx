@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { FiSearch, FiEye, FiDownload, FiX, FiEdit2 } from "react-icons/fi";
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -9,6 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Pagination from "@/components/ui/Pagination";
 
 const QuotationHistory = () => {
+  const t = useTranslations("customerSalesRep.quotationHistory");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const router = useRouter();
@@ -21,18 +23,17 @@ const QuotationHistory = () => {
   const [pageSize, setPageSize] = useState(10);
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const statusOptions = [
-    { value: "", label: "All Status" },
-    { value: "Pending", label: "Pending" },
-    { value: "Approved", label: "Approved" },
-    { value: "Sent", label: "Sent" },
-    { value: "Cancelled", label: "Cancelled" },
-  ];
+  const statusOptions = useMemo(
+    () => [
+      { value: "", label: t("statusFilter.allStatus") },
+      { value: "Pending", label: t("statusFilter.pending") },
+      { value: "Approved", label: t("statusFilter.approved") },
+      { value: "Sent", label: t("statusFilter.sent") },
+      { value: "Cancelled", label: t("statusFilter.cancelled") },
+    ],
+    [t],
+  );
 
-  // Seed the filter from ?status= so the dashboard's Active Alerts can deep-link
-  // into a pre-filtered list. Matched case-insensitively because the API/DB use
-  // lowercase ("pending") while these options are capitalised. Unknown or missing
-  // values fall back to "All Status".
   const statusFromUrl = searchParams.get("status") || "";
   const initialStatus =
     statusOptions.find(
@@ -113,12 +114,12 @@ const QuotationHistory = () => {
       <table className="w-full text-sm text-left">
         <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
           <tr>
-            <th className="px-5 py-3 font-medium">Quote ID</th>
-            <th className="px-5 py-3 font-medium">Company</th>
-            <th className="px-5 py-3 font-medium">Contact Person</th>
-            <th className="px-5 py-3 font-medium">Item Type</th>
-            <th className="px-5 py-3 font-medium">Status</th>
-            <th className="px-5 py-3 font-medium">Actions</th>
+            <th className="px-5 py-3 font-medium">{t("tableHeaders.quoteId")}</th>
+            <th className="px-5 py-3 font-medium">{t("tableHeaders.company")}</th>
+            <th className="px-5 py-3 font-medium">{t("tableHeaders.contactPerson")}</th>
+            <th className="px-5 py-3 font-medium">{t("tableHeaders.itemType")}</th>
+            <th className="px-5 py-3 font-medium">{t("tableHeaders.status")}</th>
+            <th className="px-5 py-3 font-medium">{t("tableHeaders.actions")}</th>
           </tr>
         </thead>
 
@@ -165,16 +166,16 @@ const QuotationHistory = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-xl font-semibold text-[#1C2C56]">
-              Quotation History
+              {t("title")}
             </h1>
             <p className="text-[#486284] text-sm">
-              Manage discount tiers and corporate rules
+              {t("subtitle")}
             </p>
           </div>
 
           <button className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium transition">
             <FiDownload />
-            Export CSV
+            {t("exportCsv")}
           </button>
         </div>
 
@@ -184,7 +185,7 @@ const QuotationHistory = () => {
             <FiSearch className="absolute left-3 top-2.5 text-gray-500" />
             <input
               type="text"
-              placeholder="Search..."
+              placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 border border-[#00345F] rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-300"
@@ -223,7 +224,7 @@ const QuotationHistory = () => {
             }}
             className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-white bg-[#1C4FA8] hover:bg-[#163F86] transition-colors"
           >
-            Reset
+            {t("reset")}
           </button>
         </div>
 
@@ -235,12 +236,12 @@ const QuotationHistory = () => {
             <table className="w-full text-sm text-left">
               <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
                 <tr>
-                  <th className="px-5 py-3">Quote ID</th>
-                  <th className="px-5 py-3">Company</th>
-                  <th className="px-5 py-3">Contact Person</th>
-                  <th className="px-5 py-3">Item Type</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3">Actions</th>
+                  <th className="px-5 py-3">{t("tableHeaders.quoteId")}</th>
+                  <th className="px-5 py-3">{t("tableHeaders.company")}</th>
+                  <th className="px-5 py-3">{t("tableHeaders.contactPerson")}</th>
+                  <th className="px-5 py-3">{t("tableHeaders.itemType")}</th>
+                  <th className="px-5 py-3">{t("tableHeaders.status")}</th>
+                  <th className="px-5 py-3">{t("tableHeaders.actions")}</th>
                 </tr>
               </thead>
 
@@ -280,7 +281,16 @@ const QuotationHistory = () => {
                 : "bg-gray-100 text-gray-700"
       }`}
                         >
-                          {q.quotation_status}
+                          {(() => {
+                            // next-intl has no defaultValue option — an unmapped
+                            // status would render the raw key path, so probe first.
+                            const statusKey = `statusFilter.${(
+                              q.quotation_status || ""
+                            ).toLowerCase()}`;
+                            return t.has(statusKey)
+                              ? t(statusKey)
+                              : q.quotation_status;
+                          })()}
                         </span>
                       </td>
 
@@ -309,7 +319,7 @@ const QuotationHistory = () => {
                 ) : (
                   <tr>
                     <td colSpan={6} className="text-center py-8 text-gray-500">
-                      No quotations found
+                      {t("noData")}
                     </td>
                   </tr>
                 )}

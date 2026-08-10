@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Tabs from "./components/Tabs";
 import CategoriesTab from "./components/catogories/CategoriesTab";
 import CatelogImagesTab from "./components/catelog-images/CatelogImagesTab";
@@ -9,6 +10,7 @@ import FaqTab from "./components/faq/FaqTab";
 import PdfTemplatesTab from "./components/pdf-templates/PdfTemplatesTab";
 
 const ContentMediaPage = () => {
+    const t = useTranslations("contentMedia");
     const [activeTab, setActiveTab] = useState("Categories");
 
     const renderTab = () => {
@@ -32,13 +34,14 @@ const ContentMediaPage = () => {
         <div className="px-5 md:px-8 lg:px-12 py-8 bg-white min-h-screen">
             {/* Page Header */}
             <p className="text-sm text-[#486284] mb-2">
-                Admin Dashboard / <span className="text-[#1C2C56]">Content & Media </span>
+                {t("breadcrumbDashboard")} /{" "}
+                <span className="text-[#1C2C56]">{t("breadcrumbCurrent")}</span>
             </p>
             <h1 className="text-2xl font-semibold text-[#1C2C56]">
-                Content & Media
+                {t("pageTitle")}
             </h1>
             <p className="text-base font-medium text-[#64748B]">
-                Manage fabrics, parts, colors, options, and templates
+                {t("pageSubtitle")}
             </p>
 
             {/* Tabs */}

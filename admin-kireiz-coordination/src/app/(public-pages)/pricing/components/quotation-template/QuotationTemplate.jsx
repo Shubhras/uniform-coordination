@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiSave, FiRotateCcw } from "react-icons/fi";
 import RichTextEditor from "@/components/shared/RichTextEditor";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -39,6 +40,7 @@ const notify = (title, type, message) =>
   );
 
 const QuotationTemplate = () => {
+  const t = useTranslations("pricingQuotation.quotationTemplate");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -65,11 +67,11 @@ const QuotationTemplate = () => {
       }
     } catch (error) {
       console.error("Failed to load quotation template:", error);
-      notify("Error", "danger", "Could not load the quotation template");
+      notify(t("errorTitle"), "danger", t("loadFailed"));
     } finally {
       setLoading(false);
     }
-  }, [accessToken]);
+  }, [accessToken, t]);
 
   useEffect(() => {
     loadTemplate();
@@ -88,7 +90,7 @@ const QuotationTemplate = () => {
   const handleSave = async () => {
     if (saving || !content.trim()) {
       if (!content.trim()) {
-        notify("Required", "warning", "Template content cannot be empty");
+        notify(t("requiredTitle"), "warning", t("emptyContent"));
       }
       return;
     }
@@ -97,13 +99,13 @@ const QuotationTemplate = () => {
       setSaving(true);
       const res = await apiSaveActiveQuotationTemplate(accessToken, { content });
       if (res?.status) {
-        notify("Success", "success", "Quotation template saved");
+        notify(t("successTitle"), "success", t("saveSuccess"));
       } else {
-        notify("Error", "danger", res?.message || "Could not save template");
+        notify(t("errorTitle"), "danger", res?.message || t("saveFailed"));
       }
     } catch (error) {
       console.error("Failed to save quotation template:", error);
-      notify("Error", "danger", "Could not save the template");
+      notify(t("errorTitle"), "danger", t("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -120,13 +122,13 @@ const QuotationTemplate = () => {
       if (res?.status && res.data) {
         setContent(res.data.content || "");
         setEditorKey((k) => k + 1);
-        notify("Success", "success", "Template reset to default");
+        notify(t("successTitle"), "success", t("resetSuccess"));
       } else {
-        notify("Error", "danger", res?.message || "Could not reset template");
+        notify(t("errorTitle"), "danger", res?.message || t("resetFailed"));
       }
     } catch (error) {
       console.error("Failed to reset quotation template:", error);
-      notify("Error", "danger", "Could not reset the template");
+      notify(t("errorTitle"), "danger", t("resetFailed"));
     } finally {
       setResetting(false);
     }
@@ -138,12 +140,10 @@ const QuotationTemplate = () => {
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            Quotation Templates
+            {t("title")}
           </h2>
 
-          <p className="text-sm text-gray-500 mt-1">
-            Design and preview your quote layouts
-          </p>
+          <p className="text-sm text-gray-500 mt-1">{t("subtitle")}</p>
         </div>
 
         <div className="flex gap-3">
@@ -154,7 +154,7 @@ const QuotationTemplate = () => {
             className="border border-gray-300 text-[#91A1B6] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 disabled:opacity-50 flex items-center gap-2"
           >
             <FiRotateCcw size={15} />
-            {resetting ? "Resetting..." : "Reset Default"}
+            {resetting ? t("resetting") : t("resetDefault")}
           </button>
 
           <button
@@ -163,7 +163,7 @@ const QuotationTemplate = () => {
             disabled={loading || saving}
             className="bg-[#1C4FA8] text-[#FFFFFF] px-3 py-2 rounded-md text-sm fw-500 flex items-center gap-2 disabled:opacity-50"
           >
-            <FiSave size={16} /> {saving ? "Saving..." : "Save Template"}
+            <FiSave size={16} /> {saving ? t("saving") : t("saveTemplate")}
           </button>
         </div>
       </div>
@@ -173,16 +173,22 @@ const QuotationTemplate = () => {
         {/* LEFT — editor */}
         <div className="border rounded-xl bg-white overflow-hidden">
           <div className="px-4 py-2 border-b flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-gray-500 mr-1">Variables:</span>
+            <span className="text-xs text-gray-500 mr-1">
+              {t("variablesLabel")}
+            </span>
 
             {VARIABLES.map((item) => (
               <button
                 key={item}
                 type="button"
-                title="Copy to clipboard"
+                title={t("copyToClipboard")}
                 onClick={() => {
                   navigator.clipboard?.writeText(item);
-                  notify("Copied", "info", `${item} copied to clipboard`);
+                  notify(
+                    t("copiedTitle"),
+                    "info",
+                    t("copiedMessage", { variable: item }),
+                  );
                 }}
                 className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
               >
@@ -216,7 +222,7 @@ const QuotationTemplate = () => {
               />
             ) : (
               <p className="text-sm text-gray-400 text-center mt-20">
-                Start typing on the left to see a preview here.
+                {t("previewPlaceholder")}
               </p>
             )}
           </div>

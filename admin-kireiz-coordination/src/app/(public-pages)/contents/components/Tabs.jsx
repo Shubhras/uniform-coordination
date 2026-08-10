@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import {
     FiLayers,
     FiGrid,
@@ -6,28 +9,32 @@ import {
     FiPackage,
 } from "react-icons/fi";
 
+// `key` is the stable identity used by the page's switch and by ?tab= links, so
+// it must never be translated. Only `labelKey` drives what the admin sees.
 const tabs = [
-    { label: "Categories", icon: FiLayers },
-    { label: "Catelog Images", icon: FiGrid },
-    { label: "Blog", icon: FiDroplet },
-    { label: "FAQ", icon: FiFileText },
-    { label: "PDF Templates", icon: FiPackage },
+    { key: "Categories", labelKey: "categories", icon: FiLayers },
+    { key: "Catelog Images", labelKey: "catalogImages", icon: FiGrid },
+    { key: "Blog", labelKey: "blog", icon: FiDroplet },
+    { key: "FAQ", labelKey: "faq", icon: FiFileText },
+    { key: "PDF Templates", labelKey: "pdfTemplates", icon: FiPackage },
 ];
 
 const Tabs = ({ activeTab, setActiveTab }) => {
+    const t = useTranslations("contentMedia.tabs");
+
     return (
         <div className="flex gap-6 border-b border-[#90A3BF9C] mt-6 overflow-x-auto">
-            {tabs.map(({ label, icon: Icon }) => (
+            {tabs.map(({ key, labelKey, icon: Icon }) => (
                 <button
-                    key={label}
-                    onClick={() => setActiveTab(label)}
-                    className={`pb-3 text-base font-medium flex items-center gap-2 whitespace-nowrap ${activeTab === label
+                    key={key}
+                    onClick={() => setActiveTab(key)}
+                    className={`pb-3 text-base font-medium flex items-center gap-2 whitespace-nowrap ${activeTab === key
                             ? "text-[#1C2C56] border-b-4 border-[#1C2C56]"
                             : "text-[#64748B]"
                         }`}
                 >
                     <Icon size={16} />
-                    {label}
+                    {t(labelKey)}
                 </button>
             ))}
         </div>

@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { useMenuPermissions } from "@/components/shared/MenuPermissionProvider";
 import Image from "next/image";
 import {
@@ -19,63 +20,65 @@ import {
   FiImage,
 } from "react-icons/fi";
 
+// labelKey resolves against the "adminSidebar" namespace in messages/<locale>.json
+// so the menu follows the language picked in the top header.
 const sidebarMenu = [
   {
-    label: "Dashboard",
+    labelKey: "dashboard",
     icon: FiGrid,
     path: "/admin-form",
     slug: "dashboard",
   },
   {
-    label: "Product & Specification",
+    labelKey: "productSpecification",
     icon: FiPackage,
     path: "/products",
     slug: "product_specification", // Changed back to products so it hides properly
   },
   {
-    label: "Content & Media",
+    labelKey: "contentMedia",
     icon: FiImage,
     path: "/contents",
     slug: "content_media",
   },
   {
-    label: "Pricing & Quotation",
+    labelKey: "pricingQuotation",
     icon: FiDollarSign,
     path: "/pricing",
     slug: "order_manage",
   },
   {
-    label: "Customer & Sales Representative",
+    labelKey: "customerSalesRepresentative",
     icon: FiUsers,
     path: "/customer",
     slug: "customer_sales_representative",
   },
   {
-    label: "PDF & Simulation Configuration",
+    labelKey: "pdfSimulationConfiguration",
     icon: FiSettings,
     path: "/simulation-configuration",
     slug: "pdf_simulation_configuration",
   },
   {
-    label: "Simulation Assets",
+    labelKey: "simulationAssets",
     icon: FiImage,
     path: "/simulation-assets",
     slug: "simulation_assets",
   },
   {
-    label: "Reports & Analytics",
+    labelKey: "reportsAnalytics",
     icon: FiBarChart2,
     path: "/reports-analytics",
     slug: "reports_analytics",
   },
   {
-    label: "System Settings",
+    labelKey: "systemSettings",
     icon: FiSliders,
     path: "/system-settings",
     slug: "system_settings",
   },
   {
-    label: "Quotation Requests",
+    labelKey: "quotationRequests",
     icon: FiFileText,
     path: "/quotation-requests",
     slug: "quotation_requests",
@@ -86,6 +89,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
+  const t = useTranslations("adminSidebar");
   // Provider seeds from the JWT then refreshes from my-permissions/, so an admin
   // editing permissions no longer has to log out for the sidebar to update.
   const { canView } = useMenuPermissions();
@@ -149,7 +153,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
                         transition-colors duration-200
                         ${collapsed ? "absolute -right-3.5 top-5 bg-white border border-[#E2E8F0] shadow-sm" : ""}
                     `}
-          aria-label="Toggle sidebar"
+          aria-label={t("toggleSidebar")}
         >
           {collapsed ? (
             <FiChevronRight size={14} />
@@ -171,12 +175,13 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
 
             const Icon = item.icon;
             const active = isActive(item.path);
+            const label = t(item.labelKey);
 
             return (
               <li key={item.path}>
                 <button
                   onClick={() => router.push(item.path)}
-                  title={collapsed ? item.label : undefined}
+                  title={collapsed ? label : undefined}
                   className={`
                                         group relative flex items-center gap-3 w-full
                                         rounded-lg text-sm font-medium
@@ -196,7 +201,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
                                         `}
                   />
                   {!collapsed && (
-                    <span className="truncate leading-snug">{item.label}</span>
+                    <span className="truncate leading-snug">{label}</span>
                   )}
 
                   {/* Tooltip on collapsed */}
@@ -213,7 +218,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
                                             shadow-lg
                                         "
                     >
-                      {item.label}
+                      {label}
                       <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 bg-[#1C2C56] rotate-45" />
                     </div>
                   )}
@@ -228,7 +233,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
       {!collapsed && (
         <div className="p-4 border-t border-[#E2E8F0]">
           <div className="bg-gradient-to-r from-[#EEF2FF] to-[#F0F9FF] rounded-lg p-3">
-            <p className="text-xs text-[#64748B] font-medium">KF Admin Panel</p>
+            <p className="text-xs text-[#64748B] font-medium">{t("kfAdminPanel")}</p>
             <p className="text-[10px] text-[#94A3B8] mt-0.5">v1.2.1</p>
           </div>
         </div>

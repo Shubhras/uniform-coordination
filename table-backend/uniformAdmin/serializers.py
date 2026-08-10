@@ -760,6 +760,21 @@ class TableThemeSerializer(serializers.ModelSerializer):
     )
     cover_images = ThemeCoverImageSerializer(many=True, read_only=True)
     theme_items = serializers.SerializerMethodField(read_only=True)
+    is_favourite = serializers.SerializerMethodField(read_only=True)
+
+    def get_is_favourite(self, obj):
+        request = self.context.get('request')
+        if request and request.user and request.user.is_authenticated:
+            from userhub.models import Users
+            if isinstance(request.user, Users):
+                from userhub.models import ThemeFavourite
+                return ThemeFavourite.objects.filter(
+                    theme=obj,
+                    user=request.user,
+                    is_like=True,
+                    isDeleted=False
+                ).exists()
+        return False
 
     class Meta:
         model = TableTheme
@@ -776,7 +791,8 @@ class TableThemeSerializer(serializers.ModelSerializer):
             'is_active',
             'isDeleted',
             'created_at',
-            'updated_at'
+            'updated_at',
+            'is_favourite'
         ]
 
     def create(self, validated_data):
@@ -856,6 +872,7 @@ class PartsMiniSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     isActive = serializers.BooleanField(required=False, default=True)
+    show = serializers.BooleanField(source='show_in_simulation', required=False, default=True)
  
     category = CategoryMiniSerializer(read_only=True)
     subcategory = SubCategoryMiniSerializer(read_only=True)
@@ -898,6 +915,21 @@ class ProductSerializer(serializers.ModelSerializer):
     # )
     fabric_details = serializers.SerializerMethodField(read_only=True)
     color_details = serializers.SerializerMethodField(read_only=True)
+    is_favourite = serializers.SerializerMethodField(read_only=True)
+
+    def get_is_favourite(self, obj):
+        request = self.context.get('request')
+        if request and request.user and request.user.is_authenticated:
+            from userhub.models import Users
+            if isinstance(request.user, Users):
+                from userhub.models import Favourite
+                return Favourite.objects.filter(
+                    product=obj,
+                    user=request.user,
+                    is_like=True,
+                    isDeleted=False
+                ).exists()
+        return False
  
     class Meta:
         model = Product
@@ -907,8 +939,10 @@ class ProductSerializer(serializers.ModelSerializer):
             
             # New specific attributes
             "table_shape", "style", "fabric", "color", "size", "rfid_tracking_enabled",
+            "show",
             "fabric_details",
             "color_details",
+            "is_favourite",
 
             # READ
             "category", "subcategory", "parts", "ProductImage",
@@ -1335,6 +1369,41 @@ class SystemSettingsSerializer(serializers.ModelSerializer):
             "time_zone",
             "date_format",
             "logo",
+            
+            "email_host",
+            "email_port",
+            "email_username",
+            "email_password",
+            "email_use_tls",
+            "email_from_address",
+            "email_from_name",
+
+            "email_notify_registration",
+            "email_notify_order_placed",
+            "email_notify_payment_success",
+            "email_notify_payment_failure",
+            "email_notify_shipping",
+            "email_notify_return_received",
+            "email_notify_return_overdue",
+            "email_notify_late_fee",
+
+            "payment_enable_kakebarai",
+            "payment_enable_credit_card",
+            "payment_enable_paypay",
+            "payment_enable_conbini",
+            "payment_enable_bank_transfer",
+            "payment_enable_applepay",
+            "payment_enable_googlepay",
+
+            "stripe_publishable_key",
+            "stripe_secret_key",
+            "stripe_webhook_secret",
+
+            "bank_name",
+            "bank_branch",
+            "bank_account_number",
+            "bank_account_holder",
+
             "updated_at",
         ]
         read_only_fields = ["updated_at"]

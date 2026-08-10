@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { FiDownload } from "react-icons/fi";
 import { toast } from "@/components/ui/toast";
@@ -11,15 +12,7 @@ import {
 } from "@/services/ReportsService";
 
 /*
- * DESIGN NOTE — no Figma exists for this screen, so the metric set is chosen to
- * match what KIREIZ FORM actually stores. See uniformAdmin/reports.py for the
- * full reasoning. In short, the previous tiles (Active Rentals, Inventory Items,
- * Late Returns, Top Rented Categories, Inventory Status, B2B-vs-B2C segments)
- * were KIREIZ SPACE rental metrics that have no source on this platform, so they
- * are replaced by the quotation funnel FORM does have.
- *
- * Anything the backend cannot derive comes back as null and renders as "—"
- * rather than a placeholder number.
+ * DESIGN NOTE — metric set chosen to match KIREIZ FORM backend data.
  */
 
 // Status colours reused across the donut and the legend.
@@ -33,8 +26,7 @@ const STATUS_COLORS = {
   Unknown: "#94A3B8",
 };
 
-// Symbol comes from SystemSettings via the API — never hardcoded, so changing the
-// system currency doesn't need a code change.
+// Symbol comes from SystemSettings via the API — never hardcoded
 const formatMoney = (value, symbol = "$") =>
   value === null || value === undefined
     ? "—"
@@ -53,7 +45,7 @@ const notify = (title, type, message) =>
 /* ---------------- small chart primitives (no chart lib needed) ---------------- */
 
 // SVG donut built from arcs so segment angles and the centre hole are exact.
-function DonutChart({ segments, size = 180, thickness = 32 }) {
+function DonutChart({ segments, size = 180, thickness = 32, requestsText = "requests" }) {
   const total = segments.reduce((sum, s) => sum + s.value, 0);
   if (!total) {
     return (
@@ -79,7 +71,6 @@ function DonutChart({ segments, size = 180, thickness = 32 }) {
     const end = angle + sweep;
     angle = end;
 
-    // A full circle can't be drawn with a single arc — nudge it closed.
     const drawEnd = sweep >= 360 ? end - 0.01 : end;
 
     const x1 = center + radius * Math.cos(toRad(start));
@@ -120,7 +111,7 @@ function DonutChart({ segments, size = 180, thickness = 32 }) {
         className="fill-[#64748B]"
         style={{ fontSize: 10 }}
       >
-        requests
+        {requestsText}
       </text>
     </svg>
   );
@@ -219,6 +210,7 @@ const Panel = ({ title, subtitle, right, children }) => (
 const MONTH_OPTIONS = [3, 6, 12];
 
 const ReportsAnalyticsPage = () => {
+  const t = useTranslations("reportsAnalytics");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -226,6 +218,13 @@ const ReportsAnalyticsPage = () => {
   const [months, setMonths] = useState(6);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+
+  const getFilterLabel = (m) => {
+    if (m === 3) return t("dateRangeFilter.last3Months");
+    if (m === 6) return t("dateRangeFilter.last6Months");
+    if (m === 12) return t("dateRangeFilter.last12Months");
+    return `Last ${m} months`;
+  };
 
   const fetchAnalytics = useCallback(async () => {
     if (!accessToken) {
@@ -249,7 +248,6 @@ const ReportsAnalyticsPage = () => {
     fetchAnalytics();
   }, [fetchAnalytics]);
 
-  // type: quotations | customers | products | sales | fabrics
   const handleExport = async (type = "quotations") => {
     if (exporting) return;
 
@@ -276,7 +274,6 @@ const ReportsAnalyticsPage = () => {
     }
   };
 
-  // Small download button for a panel header.
   const ExportButton = ({ type }) => (
     <button
       type="button"
@@ -302,10 +299,10 @@ const ReportsAnalyticsPage = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-[#1C2C56]">
-            Reports &amp; Analytics
+            {t("pageTitle")}
           </h1>
           <p className="text-sm text-[#64748B]">
-            Quotation funnel, customers and catalog usage.
+            {t("pageSubtitle")}
           </p>
         </div>
 
@@ -318,7 +315,7 @@ const ReportsAnalyticsPage = () => {
           >
             {MONTH_OPTIONS.map((m) => (
               <option key={m} value={m}>
-                Last {m} months
+                {getFilterLabel(m)}
               </option>
             ))}
           </select>
@@ -330,7 +327,7 @@ const ReportsAnalyticsPage = () => {
             className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
           >
             <FiDownload size={15} />
-            {exporting === "quotations" ? "Exporting..." : "Export Quotations"}
+            {exporting === "quotations" ? t("exporting") : t("exportQuotations")}
           </button>
         </div>
       </div>
@@ -354,54 +351,52 @@ const ReportsAnalyticsPage = () => {
           {/* Stat tiles */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard
-              label="Total Requests"
+              label={t("stats.totalRequests")}
               value={num(stats.total_requests)}
             />
             <StatCard
-              label="Pending Review"
+              label={t("stats.pendingReview")}
               value={num(stats.pending_review)}
               accent="text-amber-600"
-              hint="Awaiting an admin quote"
+              hint={t("stats.awaitingAdminQuote")}
             />
             <StatCard
-              label="Sent"
+              label={t("stats.sent")}
               value={num(stats.sent)}
               accent="text-blue-600"
-              hint="Awaiting customer reply"
+              hint={t("stats.awaitingCustomerReply")}
             />
             <StatCard
-              label="Won"
+              label={t("stats.won")}
               value={num(stats.won)}
               accent="text-green-600"
               hint={`${stats.win_rate}% win rate`}
             />
             <StatCard
-              label="Quoted Value (Won)"
+              label={t("stats.quotedValue")}
               value={money(stats.quoted_value)}
-              hint="From admin-entered totals"
+              hint={t("stats.adminEnteredTotals")}
             />
             <StatCard
-              label="Open Pipeline"
+              label={t("stats.openPipeline")}
               value={money(stats.pipeline_value)}
-              hint="Pending + sent"
+              hint={t("stats.pendingPlusSent")}
             />
             <StatCard
-              label="Avg. Response"
+              label={t("stats.avgResponse")}
               value={
                 stats.avg_response_days === null
                   ? "—"
                   : `${stats.avg_response_days} d`
               }
-              hint={`Based on ${stats.responded_sample} sent quote${
-                stats.responded_sample === 1 ? "" : "s"
-              }`}
+              hint={`Based on ${stats.responded_sample} sent quote${stats.responded_sample === 1 ? "" : "s"
+                }`}
             />
             <StatCard
-              label="Customers"
+              label={t("stats.customers")}
               value={num(stats.customers)}
-              hint={`${stats.b2b_accounts} B2B account${
-                stats.b2b_accounts === 1 ? "" : "s"
-              }`}
+              hint={`${stats.b2b_accounts} B2B account${stats.b2b_accounts === 1 ? "" : "s"
+                }`}
             />
           </div>
 
@@ -409,16 +404,16 @@ const ReportsAnalyticsPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-6">
             <div className="lg:col-span-2">
               <Panel
-                title={`Quotation Requests (Last ${data.range_months} Months)`}
-                subtitle="New requests received per month"
+                title={`${t("panels.monthlyTrend")} (Last ${data.range_months} Months)`}
+                subtitle={t("panels.monthlySubtitle")}
               >
                 <BarChart data={charts.quotation_trend} />
               </Panel>
             </div>
 
-            <Panel title="Status Distribution" subtitle="All quotation requests">
+            <Panel title={t("panels.statusDistribution")} subtitle={t("panels.statusSubtitle")}>
               <div className="flex flex-col items-center gap-4">
-                <DonutChart segments={charts.status_distribution} />
+                <DonutChart segments={charts.status_distribution} requestsText={t("requests")} />
                 <div className="w-full space-y-1.5">
                   {charts.status_distribution.map((s) => (
                     <div
@@ -433,7 +428,9 @@ const ReportsAnalyticsPage = () => {
                               STATUS_COLORS[s.label] || "#94A3B8",
                           }}
                         />
-                        {s.label}
+                        {t.has(`statusLabels.${s.label}`)
+                          ? t(`statusLabels.${s.label}`)
+                          : s.label}
                       </span>
                       <span className="text-[#1C2C56] font-medium">
                         {s.value} ({s.percentage}%)
@@ -448,29 +445,29 @@ const ReportsAnalyticsPage = () => {
           {/* Row 2 — industries + fabrics */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
             <Panel
-              title="Top Industries"
-              subtitle="By quotation request volume"
+              title={t("panels.topIndustries")}
+              subtitle={t("panels.topIndustriesSubtitle")}
             >
               <RankedBars
                 rows={charts.top_industries}
-                emptyLabel="No categorised requests yet"
+                emptyLabel={t("noData")}
               />
             </Panel>
 
             <Panel
-              title="Top Fabrics"
-              subtitle="By parts using each fabric"
+              title={t("panels.topFabrics")}
+              subtitle={t("panels.topFabricsSubtitle")}
               right={<ExportButton type="fabrics" />}
             >
-              <RankedBars rows={charts.top_fabrics} color="#0EA5E9" />
+              <RankedBars rows={charts.top_fabrics} color="#0EA5E9" emptyLabel={t("noData")} />
             </Panel>
           </div>
 
-          {/* Row 3 — top customers + top products (plan: Customer / Product Reports) */}
+          {/* Row 3 — top customers + top products */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
             <Panel
-              title="Top Customers"
-              subtitle="By quotation request volume"
+              title={t("panels.topCustomers")}
+              subtitle={t("panels.topCustomersSubtitle")}
               right={<ExportButton type="customers" />}
             >
               {charts.top_customers?.length ? (
@@ -484,7 +481,7 @@ const ReportsAnalyticsPage = () => {
                         {c.label}
                       </span>
                       <span className="text-xs text-[#64748B] flex-shrink-0">
-                        {c.value} request{c.value === 1 ? "" : "s"} · {c.won} won
+                        {c.value} {t("requests")} · {c.won} won
                         {c.amount !== null ? ` · ${money(c.amount)}` : ""}
                       </span>
                     </div>
@@ -492,20 +489,20 @@ const ReportsAnalyticsPage = () => {
                 </div>
               ) : (
                 <p className="text-sm text-gray-400 py-8 text-center">
-                  No named companies on requests yet
+                  {t("noData")}
                 </p>
               )}
             </Panel>
 
             <Panel
-              title="Top Products"
-              subtitle="By quotation request volume"
+              title={t("panels.topProducts")}
+              subtitle={t("panels.topProductsSubtitle")}
               right={<ExportButton type="products" />}
             >
               <RankedBars
                 rows={charts.top_products}
                 color="#8B5CF6"
-                emptyLabel="No requests linked to a product yet"
+                emptyLabel={t("noData")}
               />
             </Panel>
           </div>
@@ -513,15 +510,15 @@ const ReportsAnalyticsPage = () => {
           {/* Row 4 — customer growth + sales reps */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
             <Panel
-              title={`Customer Growth (Last ${data.range_months} Months)`}
-              subtitle="New uniform-platform customers per month"
+              title={`${t("panels.customerGrowth")} (Last ${data.range_months} Months)`}
+              subtitle={t("panels.customerGrowthSubtitle")}
             >
               <BarChart data={charts.customer_growth} color="#10B981" />
             </Panel>
 
             <Panel
-              title="Sales Rep Performance"
-              subtitle="Quotations assigned vs won"
+              title={t("panels.salesRepPerformance")}
+              subtitle={t("panels.salesRepPerformanceSubtitle")}
               right={<ExportButton type="sales" />}
             >
               {charts.sales_leaderboard.length ? (
@@ -543,7 +540,7 @@ const ReportsAnalyticsPage = () => {
                 </div>
               ) : (
                 <p className="text-sm text-gray-400 py-8 text-center">
-                  No quotations assigned to a sales rep yet
+                  {t("noData")}
                 </p>
               )}
             </Panel>
@@ -552,16 +549,16 @@ const ReportsAnalyticsPage = () => {
           {/* Catalog snapshot */}
           <div className="mt-5">
             <Panel
-              title="Catalog Snapshot"
-              subtitle="Current published catalog size"
+              title={t("panels.catalogSnapshot")}
+              subtitle={t("panels.catalogSnapshotSubtitle")}
             >
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {[
-                  ["Products", catalog.products],
-                  ["Categories", catalog.categories],
-                  ["Fabrics", catalog.fabrics],
-                  ["Parts", catalog.parts],
-                  ["Templates", catalog.templates],
+                  [t("catalog.products"), catalog.products],
+                  [t("catalog.categories"), catalog.categories],
+                  [t("catalog.fabrics"), catalog.fabrics],
+                  [t("catalog.parts"), catalog.parts],
+                  [t("catalog.templates"), catalog.templates],
                 ].map(([label, value]) => (
                   <div key={label} className="text-center">
                     <p className="text-xl font-semibold text-[#1C2C56]">

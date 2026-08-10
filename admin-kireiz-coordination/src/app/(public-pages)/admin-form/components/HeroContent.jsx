@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { useRouter } from "next/navigation";
 
 const HeroContent = ({ data }) => {
   const { session } = useCurrentSession();
   const router = useRouter();
+  const t = useTranslations("dashboard");
 
   const userName = session?.user?.name || session?.user?.email || "Admin";
 
@@ -29,26 +31,26 @@ const HeroContent = ({ data }) => {
             className="bg-[#1C2C56] text-white px-4 py-2 rounded-md text-sm font-medium"
             onClick={() => router.push("/products?tab=Products")}
           >
-            Upload Product
+            {t("quickActionsTop.uploadProduct")}
           </button>
 
           <button
             className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
             onClick={() => router.push("/products?tab=Template")}
           >
-            Create Template
+            {t("quickActionsTop.createTemplate")}
           </button>
 
           <button className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
             onClick={() => router.push("/quotation-requests")}>
-            View Quotation
+            {t("quickActionsTop.viewQuotation")}
           </button>
 
           <button
             className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
             onClick={() => router.push("/profile")}
           >
-            View Profile
+            {t("quickActionsTop.viewProfile")}
           </button>
         </div>
 
@@ -57,12 +59,13 @@ const HeroContent = ({ data }) => {
           {/* LEFT TEXT */}
           <div className="flex-1">
             <h1 className="text-xl md:text-2xl font-semibold text-[#1E293B]">
-              Welcome to Dashboard! {userName}!
+              {t("welcomeTitle", { name: userName })}
             </h1>
 
             <p className="mt-2 text-sm text-[#64748B] max-w-md">
-              You have {data?.Pending_quotes?.total ?? 0} pending quotes. Check
-              your dashboard for the latest updates.
+              {t("welcomeSubtitle", {
+                count: data?.Pending_quotes?.total ?? 0,
+              })}
             </p>
           </div>
 
