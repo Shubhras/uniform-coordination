@@ -241,6 +241,18 @@
             "changeLog": "Changelog"
         }
     },
+    "adminSidebar": {
+        "dashboard": "Dashboard",
+        "productSpecification": "Product & Specification",
+        "contentMedia": "Content & Media",
+        "pricingQuotation": "Pricing & Quotation",
+        "customerSalesRepresentative": "Customer & Sales Representative",
+        "pdfSimulationConfiguration": "PDF & Simulation Configuration",
+        "simulationAssets": "Simulation Assets",
+        "reportsAnalytics": "Reports & Analytics",
+        "systemSettings": "System Settings",
+        "quotationRequests": "Quotation Requests"
+    },
     "dashboard": {
         "welcomeTitle": "Welcome to Dashboard",
         "welcomeSubtitle": "You have  pending quotes. Check your dashboard for the latest updates.",
