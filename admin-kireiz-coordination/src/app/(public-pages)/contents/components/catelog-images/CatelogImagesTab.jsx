@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   FiSearch,
   FiPlus,
@@ -23,6 +24,7 @@ import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
 
 const CatelogImagesTab = () => {
+  const t = useTranslations("contentMedia.catalogImages");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -63,8 +65,6 @@ const CatelogImagesTab = () => {
         );
 
         if (response?.status && response?.data) {
-          console.log("afsgvegf", response.data);
-          console.log(response.data[0]);
           setImages(response.data);
           if (response.pagination) {
             setPagination(response.pagination);
@@ -84,7 +84,7 @@ const CatelogImagesTab = () => {
         setLoading(false);
       }
     },
-    [accessToken],
+    [accessToken, pageSize],
   );
 
   useEffect(() => {
@@ -103,7 +103,7 @@ const CatelogImagesTab = () => {
       );
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={t("successTitle")} type="success">
           {response?.message}
         </Notification>,
       );
@@ -184,24 +184,20 @@ const CatelogImagesTab = () => {
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-6">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              Catalog Images
+              {t("title")}
             </h2>
             <p className="text-base text-[#486284]">
-              Upload and manage catalog photography
+              {t("subtitle")}
             </p>
           </div>
 
           <div className="flex gap-3">
-            {/* <button className="border border-[#CBD5E1] text-[#1C2C56] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
-              Bulk Edit
-            </button> */}
-
             <button
               onClick={handleAdd}
               className="bg-[#1C4FA8] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
             >
               <FiPlus size={16} />
-              Upload Image
+              {t("addNew")}
             </button>
           </div>
         </div>
@@ -214,7 +210,7 @@ const CatelogImagesTab = () => {
           />
           <input
             type="text"
-            placeholder="Search Catalog..."
+            placeholder={t("searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none"
@@ -235,7 +231,7 @@ const CatelogImagesTab = () => {
           <CardSkeleton />
         ) : filteredImages.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
-            No catalog images found
+            {t("noData")}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
@@ -288,7 +284,7 @@ const CatelogImagesTab = () => {
             >
               <FiImage className="text-[#64748B]" size={28} />
               <p className="text-sm font-medium text-[#1C2C56] mt-2">
-                Add New Image
+                {t("addCatalogImageModal.modalTitle")}
               </p>
             </div>
           </div>
@@ -352,8 +348,8 @@ const CatelogImagesTab = () => {
           setItemToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Catalog Image"
-        message="Are you sure you want to delete this catalog image? This action cannot be undone."
+        title={t("deleteDialog.title")}
+        message={t("deleteDialog.message")}
         itemName={itemToDelete?.name}
         loading={deleteLoading}
       />

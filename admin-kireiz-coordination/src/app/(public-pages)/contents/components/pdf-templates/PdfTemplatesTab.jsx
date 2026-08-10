@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { FiGrid, FiEdit2, FiPlus, FiTrash2 } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -22,6 +23,7 @@ const notify = (title, type, message) =>
 
 const PdfTemplatesTab = () => {
   const router = useRouter();
+  const t = useTranslations("contentMedia.pdfTemplates");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -43,11 +45,11 @@ const PdfTemplatesTab = () => {
       }
     } catch (error) {
       console.error("Failed to load PDF templates:", error);
-      notify("Error", "danger", "Could not load PDF templates");
+      notify(t("errorTitle"), "danger", t("loadFailed"));
     } finally {
       setLoading(false);
     }
-  }, [accessToken]);
+  }, [accessToken, t]);
 
   useEffect(() => {
     fetchTemplates();
@@ -74,7 +76,7 @@ const PdfTemplatesTab = () => {
     } catch (error) {
       console.error("Failed to save template order:", error);
       setTemplates(previous);
-      notify("Error", "danger", "Could not save the new order");
+      notify(t("errorTitle"), "danger", t("reorderFailed"));
     }
   };
 
@@ -85,12 +87,16 @@ const PdfTemplatesTab = () => {
       setDeletingId(template.id);
       const res = await apiDeletePdfTemplate(accessToken, template.id);
       if (res?.status) {
-        notify("Success", "success", `"${template.name}" deleted`);
+        notify(
+          t("successTitle"),
+          "success",
+          t("deleteSuccess", { name: template.name }),
+        );
         await fetchTemplates();
       }
     } catch (error) {
       console.error("Failed to delete template:", error);
-      notify("Error", "danger", "Could not delete the template");
+      notify(t("errorTitle"), "danger", t("deleteFailed"));
     } finally {
       setDeletingId(null);
     }
@@ -102,11 +108,9 @@ const PdfTemplatesTab = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            PDF Template Library
+            {t("title")}
           </h2>
-          <p className="text-base text-[#486284]">
-            Manage your catalog templates
-          </p>
+          <p className="text-base text-[#486284]">{t("subtitle")}</p>
         </div>
 
         <button
@@ -114,7 +118,7 @@ const PdfTemplatesTab = () => {
           className="bg-[#1C4FA8] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
         >
           <FiPlus size={16} />
-          Add Template
+          {t("addNew")}
         </button>
       </div>
 
@@ -134,12 +138,8 @@ const PdfTemplatesTab = () => {
 
       {!loading && templates.length === 0 && (
         <div className="bg-white border border-dashed border-[#CBD5E1] rounded-lg py-12 text-center">
-          <p className="text-base font-medium text-[#1C2C56]">
-            No PDF templates yet
-          </p>
-          <p className="text-sm text-[#64748B] mt-1">
-            Create your first template to get started.
-          </p>
+          <p className="text-base font-medium text-[#1C2C56]">{t("noData")}</p>
+          <p className="text-sm text-[#64748B] mt-1">{t("noDataSubtitle")}</p>
         </div>
       )}
 
@@ -186,7 +186,7 @@ const PdfTemplatesTab = () => {
 
                         <div className="flex items-center gap-3">
                           <button
-                            title="Edit template"
+                            title={t("editTemplateTooltip")}
                             className="text-[#1C2C56] hover:text-[#0F172A]"
                             onClick={() =>
                               router.push(
@@ -198,7 +198,7 @@ const PdfTemplatesTab = () => {
                           </button>
 
                           <button
-                            title="Delete template"
+                            title={t("deleteTemplateTooltip")}
                             disabled={deletingId === template.id}
                             className="text-[#94A3B8] hover:text-red-500 disabled:opacity-40"
                             onClick={() => handleDelete(template)}

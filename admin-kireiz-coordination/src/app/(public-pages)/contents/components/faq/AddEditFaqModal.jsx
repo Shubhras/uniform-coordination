@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
@@ -12,16 +13,21 @@ import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiCreateFaq, apiUpdateFaq } from "@/services/FaqService";
 
-const faqSchema = z.object({
-  title: z.string().trim().min(1, "Title is required"),
-  descriptions: z
-    .array(
-      z.object({
-        description: z.string().trim().min(1, "Description is required"),
-      }),
-    )
-    .min(1, "At least one description is required"),
-});
+// Built per-render from the active locale so validation errors are translated too.
+const buildFaqSchema = (t) =>
+  z.object({
+    title: z.string().trim().min(1, t("validation.titleRequired")),
+    descriptions: z
+      .array(
+        z.object({
+          description: z
+            .string()
+            .trim()
+            .min(1, t("validation.descriptionRequired")),
+        }),
+      )
+      .min(1, t("validation.atLeastOneDescription")),
+  });
 
 const AddEditFaqModal = ({
   isOpen,
@@ -30,6 +36,10 @@ const AddEditFaqModal = ({
   initialData,
   onSaveSuccess,
 }) => {
+  const t = useTranslations("contentMedia.faq");
+  const tm = useTranslations("contentMedia.faq.createFaqModal");
+  const faqSchema = useMemo(() => buildFaqSchema(tm), [tm]);
+
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -150,7 +160,7 @@ const AddEditFaqModal = ({
           : await apiCreateFaq(accessToken, payload);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={t("successTitle")} type="success">
           {response?.message}
         </Notification>,
       );
@@ -163,9 +173,7 @@ const AddEditFaqModal = ({
 
       onSaveSuccess?.();
     } catch (err) {
-      setError(
-        err?.response?.data?.message || "Failed to save FAQ. Please try again.",
-      );
+      setError(err?.response?.data?.message || tm("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -181,7 +189,7 @@ const AddEditFaqModal = ({
       <div className="flex flex-col">
         <div className="border-b p-2 flex justify-between items-center">
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            {mode === "edit" ? "Edit FAQ" : "Create FAQ"}
+            {mode === "edit" ? tm("editModalTitle") : tm("modalTitle")}
           </h2>
         </div>
 
@@ -196,7 +204,8 @@ const AddEditFaqModal = ({
           {/* Title */}
           <div>
             <label className="text-[#1C2C56] text-base font-medium">
-              Title<span className="text-red-500">*</span>
+              {tm("titleLabel")}
+              <span className="text-red-500">*</span>
             </label>
             <Controller
               name="title"
@@ -205,7 +214,7 @@ const AddEditFaqModal = ({
                 <input
                   {...field}
                   type="text"
-                  placeholder="Type your question"
+                  placeholder={tm("titlePlaceholder")}
                   className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                 />
               )}
@@ -222,7 +231,8 @@ const AddEditFaqModal = ({
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-[#1C2C56] text-base font-medium">
-                Descriptions<span className="text-red-500">*</span>
+                {tm("descriptionsLabel")}
+                <span className="text-red-500">*</span>
               </label>
               <button
                 type="button"
@@ -230,7 +240,7 @@ const AddEditFaqModal = ({
                 className="text-[#1C2C56] text-sm font-medium flex items-center gap-1 hover:text-[#0F172A]"
               >
                 <FiPlus size={14} />
-                Add More
+                {tm("addMore")}
               </button>
             </div>
 
@@ -244,7 +254,7 @@ const AddEditFaqModal = ({
                       render={({ field }) => (
                         <textarea
                           {...field}
-                          placeholder="Type Description"
+                          placeholder={tm("descriptionPlaceholder")}
                           className="flex-1 border rounded-md px-3 py-2 text-sm h-[80px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                         />
                       )}
@@ -280,7 +290,7 @@ const AddEditFaqModal = ({
             disabled={saving}
             className="bg-blue-100 rounded-lg"
           >
-            Cancel
+            {tm("cancel")}
           </Button>
 
           <Button
@@ -293,7 +303,7 @@ const AddEditFaqModal = ({
             disabled={saving}
             className="bg-blue-100 rounded-lg"
           >
-            Save & Add Another
+            {tm("saveAndAddAnother")}
           </Button>
 
           <Button
@@ -306,7 +316,7 @@ const AddEditFaqModal = ({
             )}
             loading={saving}
           >
-            {mode === "edit" ? "Update" : "Save"}
+            {mode === "edit" ? tm("update") : tm("save")}
           </Button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import { useForm, Controller } from "react-hook-form";
@@ -42,6 +43,8 @@ const AddEditFabricModal = ({
   initialData,
   onSaveSuccess,
 }) => {
+  const t = useTranslations("productSpecification.fabrics");
+  const tm = useTranslations("productSpecification.fabrics.addFabricModal");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -77,9 +80,6 @@ const AddEditFabricModal = ({
             label: item.categoryName,
             type: item.type,
           })) || [];
-
-        console.log("asdasdads", options);
-        setCategoryOptions(options);
 
         setCategoryOptions(options);
       } catch (err) {
@@ -120,24 +120,24 @@ const AddEditFabricModal = ({
 
   const validationSchema = z.object({
     fabricName: z.string().trim().min(1, {
-      message: "Fabric name is required",
+      message: tm("validation.nameRequired"),
     }),
 
     materialType: z.any().refine((val) => val !== null, {
-      message: "Material type is required",
+      message: tm("validation.materialRequired"),
     }),
 
     price: z
       .string()
       .trim()
       .min(1, {
-        message: "Price is required",
+        message: tm("validation.priceRequired"),
       })
       .refine((val) => !isNaN(Number(val)), {
-        message: "Enter a valid price",
+        message: tm("validation.priceInvalid"),
       }),
     category: z.any().refine((val) => val !== null, {
-      message: "Category is required",
+      message: tm("validation.categoryRequired"),
     }),
   });
 
@@ -188,20 +188,6 @@ const AddEditFabricModal = ({
     if (!isOpen) return;
 
     if (mode === "edit" && initialData) {
-      //   setFabricName(initialData.fabricName || "");
-      //   setSelectedColor(initialData.color || "#87CEEB");
-      //   setPrice(initialData.pricePerUnit || "");
-      //   setActive(initialData.isActive ?? true);
-
-      //   const mat = materialOptions.find(
-      //     (o) => o.value === initialData.materialType,
-      //   );
-      //   setMaterialType(mat || null);
-
-      //   const cat = categoryOptions.find(
-      //     (o) => o.value === initialData.fabricType,
-      //   );
-      //   setCategory(cat || null);
       const mat = materialOptions.find(
         (o) => o.value === initialData.materialType,
       );
@@ -221,8 +207,6 @@ const AddEditFabricModal = ({
       setSelectedColor(initialData.color || "#87CEEB");
       setSubCategory(null);
       setActive(initialData.isActive ?? true);
-
-      setSubCategory(null);
     } else {
       reset({
         fabricName: "",
@@ -260,21 +244,6 @@ const AddEditFabricModal = ({
   }, [subCategoryOptions, mode, initialData]);
 
   const handleSave = async (values) => {
-    // Validation
-
-    // if (!fabricName.trim()) {
-    //   setError("Fabric name is required");
-    //   return;
-    // }
-    // if (!materialType) {
-    //   setError("Material type is required");
-    //   return;
-    // }
-    // if (!price || isNaN(Number(price))) {
-    //   setError("Valid price is required");
-    //   return;
-    // }
-
     setError("");
     setSaving(true);
 
@@ -282,14 +251,9 @@ const AddEditFabricModal = ({
       fabricName: values.fabricName.trim(),
       color: selectedColor,
       materialType: values.materialType.value,
-      //   pricePerUnit: values.Number(price),
       pricePerUnit: Number(values.price),
       isActive: active,
     };
-
-    // if (category) {
-    //   payload.fabricType = category.value;
-    // }
 
     if (category) {
       payload.category_id = category.value;
@@ -309,7 +273,7 @@ const AddEditFabricModal = ({
         );
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={t("successTitle")} type="success">
             {response?.message || "Fabric updated successfully"}
           </Notification>,
         );
@@ -317,7 +281,7 @@ const AddEditFabricModal = ({
         const response = await apiCreateFabric(accessToken, payload);
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={t("successTitle")} type="success">
             {response?.message || "Fabric created successfully"}
           </Notification>,
         );
@@ -329,33 +293,26 @@ const AddEditFabricModal = ({
     } catch (err) {
       toast.push(
         <Notification title="Error" type="danger">
-          {err?.response?.data?.message || "Failed to save fabric."}
+          {err?.response?.data?.message || tm("saveFailed")}
         </Notification>,
       );
       setError(
-        err?.response?.data?.message ||
-          "Failed to save fabric. Please try again.",
+        err?.response?.data?.message || tm("saveFailed"),
       );
     } finally {
       setSaving(false);
     }
   };
 
-  const handleSaveAndAdd = async () => {
-    // Same save logic but keep model open and reset form
-    if (!fabricName.trim() || !materialType || !price || isNaN(Number(price))) {
-      setError("Fabric name, material type, and valid price are required");
-      return;
-    }
-
+  const handleSaveAndAdd = async (values) => {
     setError("");
     setSaving(true);
 
     const payload = {
-      fabricName: fabricName.trim(),
+      fabricName: values.fabricName.trim(),
       color: selectedColor,
-      materialType: materialType.value,
-      pricePerUnit: Number(price),
+      materialType: values.materialType.value,
+      pricePerUnit: Number(values.price),
       isActive: active,
     };
 
@@ -368,14 +325,16 @@ const AddEditFabricModal = ({
       payload.subcategory_id = subCategory.value;
     }
 
-    // if (category) {
-    //   payload.fabricType = category.value;
-    // }
-
     try {
       await apiCreateFabric(accessToken, payload);
 
-      // Reset form for next entry
+      reset({
+        fabricName: "",
+        materialType: null,
+        price: "",
+        category: null,
+      });
+
       setFabricName("");
       setSelectedColor("#87CEEB");
       setMaterialType(null);
@@ -384,16 +343,13 @@ const AddEditFabricModal = ({
       setSubCategory(null);
       setActive(true);
 
-      // Notify parent to refresh list
       if (onSaveSuccess) {
-        // Don't close modal — so we call fetchFabrics but keep modal open
-        // We'll just trigger a custom event or pass a refresh function
+        onSaveSuccess();
       }
     } catch (err) {
       console.error("Fabric save error:", err);
       setError(
-        err?.response?.data?.message ||
-          "Failed to save fabric. Please try again.",
+        err?.response?.data?.message || tm("saveFailed"),
       );
     } finally {
       setSaving(false);
@@ -406,14 +362,13 @@ const AddEditFabricModal = ({
       onClose={onClose}
       onRequestClose={onClose}
       className="w-full md:min-w-[720px] mx-auto"
-      // contentClassName="!p-0 !h-auto"
     >
       <Form onSubmit={handleSubmit(handleSave)}>
         <div className="flex flex-col">
           {/* HEADER */}
           <div className="border-b px-6 py-4 flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              {mode === "edit" ? "Edit Fabric" : "Add New Fabric"}
+              {mode === "edit" ? tm("editModalTitle") : tm("modalTitle")}
             </h2>
           </div>
 
@@ -429,7 +384,7 @@ const AddEditFabricModal = ({
             {/* Fabric Name */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Fabric Name<span className="text-red-500">*</span>
+                {tm("fabricNameLabel")}<span className="text-red-500">*</span>
               </label>
               <FormItem
                 className="mt-1"
@@ -440,7 +395,7 @@ const AddEditFabricModal = ({
                   name="fabricName"
                   control={control}
                   render={({ field }) => (
-                    <Input placeholder="Eg:- Cotton Canvas" {...field} />
+                    <Input placeholder={tm("fabricNamePlaceholder")} {...field} />
                   )}
                 />
               </FormItem>
@@ -449,7 +404,7 @@ const AddEditFabricModal = ({
             {/* Color */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Color<span className="text-red-500">*</span>
+                {tm("colorLabel")}<span className="text-red-500">*</span>
               </label>
 
               <div className="flex gap-3 mt-1">
@@ -468,6 +423,7 @@ const AddEditFabricModal = ({
                 {colors.map((color) => (
                   <button
                     key={color}
+                    type="button"
                     onClick={() => setSelectedColor(color)}
                     className={`w-6 h-6 rounded border-[0.5px] ${selectedColor === color ? "ring-2 ring-[#1C2C56] ring-offset-1" : ""}`}
                     style={{ backgroundColor: color }}
@@ -481,31 +437,22 @@ const AddEditFabricModal = ({
                   style={{ backgroundColor: selectedColor }}
                 />
                 <div>
-                  <p className="text-sm font-medium">Preview</p>
+                  <p className="text-sm font-medium">{tm("colorPreview")}</p>
                   <p className="text-xs text-gray-500">{selectedColor}</p>
                 </div>
               </div>
 
               <p className="text-xs text-gray-500 mt-1">
-                Choose a color or enter a HEX code
+                {tm("colorHelpText")}
               </p>
             </div>
 
             {/* Material Type */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Material Type<span className="text-red-500">*</span>
+                {tm("materialTypeLabel")}<span className="text-red-500">*</span>
               </label>
-              {/* <Select
-                            options={materialOptions}
-                            styles={selectStyles}
-                            value={materialType}
-                            onChange={setMaterialType}
-                            placeholder="Select Material Type"
-                            menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                            menuPosition="fixed"
-                            className="mt-1"
-                        /> */}
+
               <FormItem
                 invalid={Boolean(errors.materialType)}
                 errorMessage={errors.materialType?.message}
@@ -521,7 +468,7 @@ const AddEditFabricModal = ({
                       styles={selectStyles}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Select Material Type"
+                      placeholder={tm("materialTypePlaceholder")}
                     />
                   )}
                 />
@@ -531,16 +478,9 @@ const AddEditFabricModal = ({
             {/* Price */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Price Per Unit<span className="text-red-500">*</span>
+                {tm("pricePerUnitLabel")}<span className="text-red-500">*</span>
               </label>
-              {/* <input
-                            type="number"
-                            step="0.01"
-                            value={price}
-                            onChange={(e) => setPrice(e.target.value)}
-                            placeholder="Eg:- 250.50"
-                            className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-                        /> */}
+
               <FormItem
                 invalid={Boolean(errors.price)}
                 errorMessage={errors.price?.message}
@@ -550,7 +490,7 @@ const AddEditFabricModal = ({
                   name="price"
                   control={control}
                   render={({ field }) => (
-                    <Input type="number" placeholder="Eg:- 250.50" {...field} />
+                    <Input type="number" placeholder={tm("pricePerUnitPlaceholder")} {...field} />
                   )}
                 />
               </FormItem>
@@ -559,20 +499,9 @@ const AddEditFabricModal = ({
             {/* Category */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Category
+                {tm("categoryLabel")}
               </label>
-              {/* <Select
-                options={categoryOptions}
-                styles={selectStyles}
-                value={category}
-                onChange={setCategory}
-                placeholder="Select Category"
-                menuPortalTarget={
-                  typeof document !== "undefined" ? document.body : null
-                }
-                menuPosition="fixed"
-                className="mt-1"
-              /> */}
+
               <FormItem
                 invalid={Boolean(errors.category)}
                 errorMessage={errors.category?.message}
@@ -591,7 +520,7 @@ const AddEditFabricModal = ({
                         field.onChange(value);
                         setCategory(value);
                       }}
-                      placeholder="Select Category"
+                      placeholder={tm("categoryPlaceholder")}
                       menuPortalTarget={
                         typeof document !== "undefined" ? document.body : null
                       }
@@ -605,14 +534,14 @@ const AddEditFabricModal = ({
             {/* Sub Category */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Sub Category
+                {tm("subCategoryLabel")}
               </label>
               <Select
                 options={subCategoryOptions}
                 styles={selectStyles}
                 value={subCategory}
                 onChange={setSubCategory}
-                placeholder="Select Sub Category"
+                placeholder={tm("subCategoryPlaceholder")}
                 menuPortalTarget={
                   typeof document !== "undefined" ? document.body : null
                 }
@@ -624,7 +553,7 @@ const AddEditFabricModal = ({
             {/* Status */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Status
+                {tm("statusLabel")}
               </label>
               <div className="flex items-center gap-3 mt-2">
                 <button
@@ -637,7 +566,7 @@ const AddEditFabricModal = ({
                   />
                 </button>
                 <span className="text-sm text-[#1C2C56]">
-                  {active ? "Active" : "Inactive"}
+                  {active ? tm("statusActive") : "Inactive"}
                 </span>
               </div>
             </div>
@@ -652,19 +581,19 @@ const AddEditFabricModal = ({
               disabled={saving}
               className="bg-blue-100 rounded-lg"
             >
-              Cancel
+              {tm("cancel")}
             </Button>
 
             {mode === "add" && (
               <Button
                 variant="plain"
                 size="sm"
-                onClick={handleSaveAndAdd}
+                type="button"
+                onClick={handleSubmit(handleSaveAndAdd)}
                 disabled={saving}
-                // className="bg-blue-100 rounded-lg text-[#F2F5FA]"
                 className="disabled:text-gray-400 disabled:cursor-not-allowed bg-blue-100 rounded-lg"
               >
-                {saving ? "Saving..." : "Save & Add Another"}
+                {tm("saveAndAddAnother")}
               </Button>
             )}
 
@@ -673,10 +602,9 @@ const AddEditFabricModal = ({
               variant="solid"
               size="sm"
               className="bg-[#1C4FA8] px-6 hover:bg-[#163F86] text-white py-2 rounded-md"
-              // onClick={handleSave}
               loading={saving}
             >
-              {mode === "edit" ? "Update" : "Save"}
+              {mode === "edit" ? tm("update") : tm("save")}
             </Button>
           </div>
         </div>

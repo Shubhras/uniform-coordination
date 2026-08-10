@@ -254,8 +254,8 @@
         "quotationRequests": "見積依頼"
     },
     "dashboard": {
-        "welcomeTitle": "ダッシュボードへようこそ",
-        "welcomeSubtitle": "保留中の見積依頼があります。最新情報はダッシュボードでご確認ください。",
+        "welcomeTitle": "{name}さん、ダッシュボードへようこそ！",
+        "welcomeSubtitle": "保留中の見積が{count}件あります。最新情報はダッシュボードでご確認ください。",
         "quickActionsTop": {
             "uploadProduct": "商品をアップロード",
             "createTemplate": "テンプレートを作成",
@@ -266,11 +266,13 @@
             "pendingQuotes": "保留中の見積",
             "totalTemplates": "テンプレート総数",
             "b2bUsers": "B2Bユーザー",
-            "upFromYesterday": "昨日より増加"
+            "upFromYesterday": "昨日より増加",
+            "downFromYesterday": "昨日より減少"
         },
         "quoteStatus": {
             "quoteStatusDistribution": "見積ステータスの内訳",
-            "total": "合計"
+            "total": "合計",
+            "noData": "データなし"
         },
         "quotationVolume": {
             "quotationVolume": "見積件数",
@@ -301,6 +303,9 @@
         "activeAlerts": {
             "activeAlerts": "有効なアラート",
             "markAllRead": "すべて既読にする",
+            "marking": "処理中...",
+            "allCaughtUp": "すべて確認済みです",
+            "allCaughtUpDesc": "新しいアラートは見積の動きに応じてここに表示されます。",
             "priorityHigh": "高",
             "priorityMedium": "中",
             "quotesPendingReview": "{count}件の見積が確認待ち - {overdue}件が期限超過",
@@ -326,6 +331,7 @@
             "totalCount": "生地 合計{count}件",
             "addNew": "新しい生地を追加",
             "searchPlaceholder": "生地を検索...",
+            "successTitle": "成功",
             "tableHeaders": {
                 "fabricName": "生地名",
                 "color": "カラー",
@@ -336,8 +342,13 @@
             },
             "noData": "生地が見つかりません",
             "showingRange": "表示中",
+            "deleteDialog": {
+                "title": "生地を削除",
+                "message": "この生地を削除してもよろしいですか？この操作は取り消せません。"
+            },
             "addFabricModal": {
                 "modalTitle": "新しい生地を追加",
+                "editModalTitle": "生地を編集",
                 "fabricNameLabel": "生地名",
                 "fabricNamePlaceholder": "例: コットンキャンバス",
                 "colorLabel": "カラー",
@@ -361,7 +372,14 @@
                 "statusActive": "有効",
                 "cancel": "キャンセル",
                 "saveAndAddAnother": "保存して続けて追加",
-                "save": "保存"
+                "save": "保存",
+                "update": "更新",
+                "saveFailed": "生地の保存に失敗しました。もう一度お試しください。",
+                "validation": {
+                    "nameRequired": "生地名は必須です",
+                    "priceRequired": "価格は必須です",
+                    "categoryRequired": "カテゴリーは必須です"
+                }
             }
         },
         "parts": {
@@ -373,6 +391,7 @@
             "reset": "リセット",
             "gridView": "グリッド",
             "listView": "リスト",
+            "successTitle": "成功",
             "tableHeaders": {
                 "preview": "プレビュー",
                 "partName": "パーツ名",
@@ -383,8 +402,13 @@
             },
             "noData": "パーツが見つかりません",
             "showingRange": "表示中",
+            "deleteDialog": {
+                "title": "パーツを削除",
+                "message": "このパーツを削除してもよろしいですか？この操作は取り消せません。"
+            },
             "uploadPartModal": {
                 "modalTitle": "新しいパーツをアップロード",
+                "editModalTitle": "パーツを編集",
                 "partNameLabel": "パーツ名",
                 "partNamePlaceholder": "例: プレミアムカラー（襟）",
                 "categoryLabel": "カテゴリー",
@@ -401,7 +425,16 @@
                 "orText": "または",
                 "clickToBrowse": "クリックしてファイルを選択",
                 "allowedFormats": "PNG、JPG、JPEGファイル",
-                "maxDimension": "最大サイズ 1000×1000px"
+                "maxDimension": "最大サイズ 1000×1000px",
+                "cancel": "キャンセル",
+                "save": "保存",
+                "update": "更新",
+                "saveFailed": "パーツの保存に失敗しました。もう一度お試しください。",
+                "validation": {
+                    "nameRequired": "パーツ名は必須です",
+                    "categoryRequired": "カテゴリーは必須です",
+                    "imageRequired": "画像は必須です"
+                }
             }
         },
         "colors": {
@@ -411,8 +444,14 @@
             "searchPlaceholder": "カラーを検索...",
             "noData": "カラーが見つかりません",
             "showingRange": "表示中 ",
+            "successTitle": "成功",
+            "deleteDialog": {
+                "title": "カラーを削除",
+                "message": "このカラーを削除してもよろしいですか？この操作は取り消せません。"
+            },
             "addColorModal": {
                 "modalTitle": "新しいカラーを追加",
+                "editModalTitle": "カラーを編集",
                 "colorNameLabel": "カラー名",
                 "colorNamePlaceholder": "カラー名を入力",
                 "colorLabel": "カラー",
@@ -420,7 +459,13 @@
                 "compatibleFabricsLabel": "対応する生地",
                 "compatibleFabricsPlaceholder": "対応する生地を選択...",
                 "cancel": "キャンセル",
-                "save": "保存"
+                "save": "保存",
+                "update": "更新",
+                "saveFailed": "カラーの保存に失敗しました。もう一度お試しください。",
+                "validation": {
+                    "nameRequired": "カラー名は必須です",
+                    "hexRequired": "HEXコードは必須です"
+                }
             }
         },
         "template": {
@@ -432,8 +477,18 @@
             "reset": "リセット",
             "noData": "テンプレートが見つかりません",
             "showingRange": "表示中 ",
+            "successTitle": "成功",
+            "deleteDialog": {
+                "title": "テンプレートを削除",
+                "message": "このテンプレートを削除してもよろしいですか？この操作は取り消せません。"
+            },
+            "previewModal": {
+                "title": "テンプレートのプレビュー",
+                "close": "閉じる"
+            },
             "createTemplateModal": {
                 "modalTitle": "テンプレートを作成",
+                "editModalTitle": "テンプレートを編集",
                 "templateNameLabel": "テンプレート名",
                 "templateNamePlaceholder": "テンプレート名を入力",
                 "partLabel": "パーツ",
@@ -450,20 +505,31 @@
                 "allowedFormats": "PNG、JPG、JPEGファイル",
                 "maxDimension": "最大サイズ 1000×1000px",
                 "cancel": "キャンセル",
-                "save": "保存"
+                "save": "保存",
+                "update": "更新",
+                "saveFailed": "テンプレートの保存に失敗しました。もう一度お試しください。",
+                "validation": {
+                    "nameRequired": "テンプレート名は必須です"
+                }
             }
         },
         "products": {
             "title": "商品作成",
             "totalCount": "{count}件の商品が利用可能",
             "addNew": "+ 商品を追加",
-            "searchPlaceholder": "テンプレートを検索...",
+            "searchPlaceholder": "商品を検索...",
             "allCategories": "すべてのカテゴリー",
             "reset": "リセット",
             "noData": "商品が見つかりません",
             "showingRange": "表示中 ",
+            "successTitle": "成功",
+            "deleteDialog": {
+                "title": "商品を削除",
+                "message": "この商品を削除してもよろしいですか？この操作は取り消せません。"
+            },
             "addProductModal": {
                 "modalTitle": "商品を追加",
+                "editModalTitle": "商品を編集",
                 "productImageLabel": "商品画像",
                 "uploadImageButton": "画像をアップロード",
                 "dragDropText": "画像ファイルをここにドラッグ＆ドロップ",
@@ -487,7 +553,14 @@
                 "typePlaceholder": "タイプを選択",
                 "cancel": "キャンセル",
                 "saveAndAddAnother": "保存して続けて追加",
-                "save": "保存"
+                "save": "保存",
+                "update": "更新",
+                "saveFailed": "商品の保存に失敗しました。もう一度お試しください。",
+                "validation": {
+                    "nameRequired": "商品名は必須です",
+                    "priceRequired": "価格は必須です",
+                    "categoryRequired": "カテゴリーは必須です"
+                }
             }
         }
     },
@@ -506,7 +579,7 @@
         "categories": {
             "title": "商品カテゴリー",
             "subtitle": "商品カテゴリーの管理と整理",
-            "addNew": "+ カテゴリーを追加",
+            "addNew": "カテゴリを追加",
             "searchPlaceholder": "カテゴリーを検索...",
             "noData": "カテゴリーが見つかりません",
             "showingRange": "表示中 ",
@@ -525,7 +598,50 @@
                 "descriptionPlaceholder": "説明を入力",
                 "cancel": "キャンセル",
                 "saveAndAddAnother": "保存して続けて追加",
-                "save": "保存"
+                "save": "保存",
+                "editModalTitle": "カテゴリを編集",
+                "update": "更新",
+                "previewAlt": "プレビュー",
+                "saveFailed": "カテゴリを保存できませんでした。もう一度お試しください。",
+                "validation": {
+                    "nameRequired": "カテゴリ名は必須です",
+                    "descriptionRequired": "説明は必須です",
+                    "imageRequired": "画像は必須です",
+                    "onlyImages": "画像ファイルのみアップロードできます",
+                    "maxSize": "画像サイズは2MB以下にしてください"
+                },
+                "imageValidated": "画像を確認しました"
+            },
+            "successTitle": "成功",
+            "subcategories": {
+                "noData": "サブカテゴリが見つかりません",
+                "addNew": "サブカテゴリを追加"
+            },
+            "deleteDialog": {
+                "categoryTitle": "カテゴリを削除",
+                "subcategoryTitle": "サブカテゴリを削除",
+                "categoryMessage": "このカテゴリを削除してもよろしいですか？この操作は取り消せません。",
+                "subcategoryMessage": "このサブカテゴリを削除してもよろしいですか？この操作は取り消せません。"
+            },
+            "addSubcategoryModal": {
+                "modalTitle": "サブカテゴリを追加",
+                "editModalTitle": "サブカテゴリを編集",
+                "nameLabel": "名称",
+                "namePlaceholder": "例: メディカルスクラブ",
+                "categoryLabel": "カテゴリ",
+                "categoryPlaceholder": "カテゴリを選択...",
+                "loadingCategories": "カテゴリを読み込み中...",
+                "noCategories": "カテゴリが見つかりません",
+                "imageLabel": "画像",
+                "uploadImageButton": "画像をアップロード",
+                "previewAlt": "プレビュー",
+                "descriptionLabel": "説明",
+                "descriptionPlaceholder": "サブカテゴリの説明...",
+                "cancel": "キャンセル",
+                "save": "保存",
+                "update": "更新",
+                "nameRequired": "サブカテゴリ名は必須です",
+                "saveFailed": "サブカテゴリを保存できませんでした。もう一度お試しください。"
             }
         },
         "catalogImages": {
@@ -535,8 +651,14 @@
             "searchPlaceholder": "カタログを検索...",
             "noData": "カタログ画像が見つかりません",
             "showingRange": "表示中 ",
+            "successTitle": "成功",
+            "deleteDialog": {
+                "title": "カタログ画像を削除",
+                "message": "このカタログ画像を削除してもよろしいですか？この操作は取り消せません。"
+            },
             "addCatalogImageModal": {
                 "modalTitle": "カタログ画像を追加",
+                "editModalTitle": "カタログ画像を編集",
                 "nameLabel": "名称",
                 "namePlaceholder": "カタログ名を入力",
                 "categoryLabel": "カテゴリー",
@@ -549,7 +671,15 @@
                 "allowedFormats": "JPG、PNG、WEBPファイル",
                 "maxDimension": "最大サイズ 1000×1000px",
                 "cancel": "キャンセル",
-                "save": "保存"
+                "save": "保存",
+                "update": "更新",
+                "saveFailed": "カタログ画像の保存に失敗しました。もう一度お試しください。",
+                "validation": {
+                    "nameRequired": "名前は必須です",
+                    "categoryRequired": "カテゴリーは必須です",
+                    "imageRequired": "画像は必須です",
+                    "maxSize": "画像サイズは2MBを超えてはなりません"
+                }
             }
         },
         "blog": {
@@ -560,8 +690,14 @@
             "searchPlaceholder": "ブログ記事を検索...",
             "noData": "ブログ記事が見つかりません",
             "showingRange": "表示中 ",
+            "successTitle": "成功",
+            "deleteDialog": {
+                "title": "ブログを削除",
+                "message": "このブログ記事を削除してもよろしいですか？この操作は取り消せません。"
+            },
             "createBlogModal": {
                 "modalTitle": "ブログを作成",
+                "editModalTitle": "ブログを編集",
                 "titleLabel": "タイトル",
                 "titlePlaceholder": "ブログのタイトルを入力",
                 "categoryLabel": "カテゴリー",
@@ -577,13 +713,22 @@
                 "descriptionPlaceholder": "説明を入力",
                 "cancel": "キャンセル",
                 "saveAndAddAnother": "保存して続けて追加",
-                "save": "保存"
+                "save": "保存",
+                "update": "更新",
+                "saveFailed": "ブログの保存に失敗しました。もう一度お試しください。",
+                "validation": {
+                    "titleRequired": "タイトルは必須です",
+                    "categoryRequired": "カテゴリーは必須です",
+                    "descriptionRequired": "説明は必須です",
+                    "imageRequired": "画像は必須です",
+                    "maxSize": "画像サイズは2MBを超えてはなりません"
+                }
             }
         },
         "faq": {
             "title": "よくある質問",
             "subtitle": "よくある質問の管理",
-            "addNew": "+ FAQを追加",
+            "addNew": "FAQを追加",
             "noData": "FAQが見つかりません",
             "createFaqModal": {
                 "modalTitle": "FAQを作成",
@@ -594,13 +739,27 @@
                 "descriptionPlaceholder": "説明を入力",
                 "cancel": "キャンセル",
                 "saveAndAddAnother": "保存して続けて追加",
-                "save": "保存"
+                "save": "保存",
+                "editModalTitle": "FAQを編集",
+                "update": "更新",
+                "saveFailed": "FAQを保存できませんでした。もう一度お試しください。",
+                "validation": {
+                    "titleRequired": "タイトルは必須です",
+                    "descriptionRequired": "説明は必須です",
+                    "atLeastOneDescription": "説明を1つ以上入力してください"
+                }
+            },
+            "sectionHeading": "デザインとコーディネートの流れについて",
+            "successTitle": "成功",
+            "deleteDialog": {
+                "title": "FAQを削除",
+                "message": "このFAQを削除してもよろしいですか？この操作は取り消せません。"
             }
         },
         "pdfTemplates": {
             "title": "PDFテンプレートライブラリ",
             "subtitle": "カタログテンプレートの管理",
-            "addNew": "+ テンプレートを追加",
+            "addNew": "テンプレートを追加",
             "noData": "PDFテンプレートはまだありません",
             "noDataSubtitle": "最初のテンプレートを作成して始めましょう。",
             "addPdfTemplatePage": {
@@ -610,17 +769,38 @@
                 "templateNamePlaceholder": "例: 標準見積書",
                 "pageSizeLabel": "ページサイズ",
                 "pageSizeA4": "A4",
-                "placeholderHelperText": "{CLIENT_NAME}、{ITEM_TYPE}、{QUANTITY} などのプレースホルダーを使用してください。見積書の生成時に自動で入力されます。ライブラリでは、異なるプレースホルダーの数を「カスタマイズ可能な項目」として数えます。",
+                "placeholderHelperText": "<code>'{CLIENT_NAME}'</code>、<code>'{ITEM_TYPE}'</code>、<code>'{QUANTITY}'</code> のようなプレースホルダーを使用してください。見積作成時に自動で置き換えられます。ライブラリでは異なるプレースホルダーの数を「カスタマイズ可能な項目」として数えます。",
                 "cancel": "キャンセル",
-                "saveTemplate": "テンプレートを保存"
-            }
+                "saveTemplate": "テンプレートを保存",
+                "editPageTitle": "PDFテンプレートを編集",
+                "pageSizeLetter": "レター",
+                "saving": "保存中...",
+                "errorTitle": "エラー",
+                "successTitle": "成功",
+                "requiredTitle": "入力必須",
+                "nameRequired": "テンプレート名を入力してください",
+                "emptyContent": "テンプレートの内容を空にはできません",
+                "notFound": "テンプレートが見つかりません",
+                "loadFailed": "テンプレートを読み込めませんでした",
+                "saveFailed": "テンプレートを保存できませんでした",
+                "createSuccess": "テンプレートを作成しました",
+                "updateSuccess": "テンプレートを更新しました"
+            },
+            "errorTitle": "エラー",
+            "successTitle": "成功",
+            "loadFailed": "PDFテンプレートを読み込めませんでした",
+            "reorderFailed": "新しい並び順を保存できませんでした",
+            "deleteSuccess": "「{name}」を削除しました",
+            "deleteFailed": "テンプレートを削除できませんでした",
+            "editTemplateTooltip": "テンプレートを編集",
+            "deleteTemplateTooltip": "テンプレートを削除"
         }
     },
     "pricingQuotation": {
         "breadcrumbDashboard": "管理ダッシュボード",
         "breadcrumbCurrent": "価格設定",
         "pageTitle": "価格設定",
-        "pageSubtitle": "価格設定とテンプレートの管理",
+        "pageSubtitle": "価格設定とテンプレートを管理します",
         "tabs": {
             "quotationTemplate": "見積テンプレート",
             "unitPrice": "単価",
@@ -629,60 +809,135 @@
         },
         "quotationTemplate": {
             "title": "見積テンプレート",
-            "subtitle": "見積レイアウトのデザインとプレビュー",
+            "subtitle": "見積書のレイアウトを作成・プレビューします",
             "resetDefault": "初期設定に戻す",
+            "resetting": "リセット中...",
             "saveTemplate": "テンプレートを保存",
+            "saving": "保存中...",
             "variablesLabel": "変数:",
-            "previewPlaceholder": "左側に入力すると、ここにプレビューが表示されます。"
+            "previewPlaceholder": "左側に入力するとここにプレビューが表示されます。",
+            "copyToClipboard": "クリップボードにコピー",
+            "errorTitle": "エラー",
+            "successTitle": "成功",
+            "requiredTitle": "入力必須",
+            "copiedTitle": "コピーしました",
+            "copiedMessage": "{variable} をクリップボードにコピーしました",
+            "loadFailed": "見積テンプレートを読み込めませんでした",
+            "emptyContent": "テンプレートの内容を空にはできません",
+            "saveSuccess": "見積テンプレートを保存しました",
+            "saveFailed": "テンプレートを保存できませんでした",
+            "resetSuccess": "テンプレートを初期設定に戻しました",
+            "resetFailed": "テンプレートをリセットできませんでした"
         },
         "unitPrice": {
             "title": "単価",
-            "totalCount": "合計{count}件",
+            "totalCount": "全{count}件",
             "export": "エクスポート",
+            "exporting": "エクスポート中...",
             "csv": "CSV",
             "excel": "Excel",
             "pdf": "PDF",
             "noData": "単価データが見つかりません",
-            "showingRange": "表示中"
+            "showingRange": "表示中",
+            "table": {
+                "type": "種別",
+                "itemName": "品目名",
+                "unit": "単位",
+                "basePrice": "基本価格",
+                "bulk": "まとめ買い (10個以上)",
+                "action": "操作"
+            }
         },
         "specialConditions": {
             "title": "特別条件",
-            "subtitle": "割引ティアと法人ルールの管理",
+            "subtitle": "割引区分と法人向けルールを管理します",
             "addNew": "条件を追加",
             "noData": "特別条件が見つかりません",
+            "off": "割引",
+            "editConditions": "条件を編集",
+            "conditionTypes": {
+                "corporate": "法人標準",
+                "wholesale": "卸売パートナー",
+                "enterprise": "グローバル企業"
+            },
+            "deleteDialog": {
+                "title": "条件を削除",
+                "message": "この特別条件を削除してもよろしいですか？この操作は取り消せません。"
+            },
             "addConditionModal": {
                 "modalTitle": "条件を追加",
+                "editModalTitle": "条件を編集",
                 "titleLabel": "タイトル",
                 "titlePlaceholder": "例: 卸売パートナー",
                 "conditionTypeLabel": "条件の種類",
                 "conditionTypePlaceholder": "条件の種類を選択",
                 "descriptionLabel": "説明",
-                "descriptionPlaceholder": "条件の内容を記入",
+                "descriptionPlaceholder": "条件の内容を入力してください",
                 "discountPercentageLabel": "割引率",
                 "discountPercentagePlaceholder": "例: 15.00",
                 "featuresLabel": "特典",
                 "featurePrioritySupport": "優先サポート",
-                "featureNet30Terms": "30日以内支払い条件",
+                "featureNet30Terms": "30日後払い",
                 "featureFreeSamples": "無料サンプル",
                 "cancel": "キャンセル",
-                "save": "保存"
+                "save": "保存",
+                "update": "更新",
+                "saveFailed": "保存できませんでした。もう一度お試しください。",
+                "validation": {
+                    "titleRequired": "タイトルは必須です",
+                    "conditionTypeRequired": "条件の種類は必須です",
+                    "descriptionRequired": "説明は必須です",
+                    "discountRequired": "割引率は必須です",
+                    "discountRange": "割引率は0から100の間で入力してください"
+                }
             }
         },
         "quotationHistory": {
             "title": "見積履歴",
-            "subtitle": "送信済み提案の追跡と管理",
-            "totalCount": "提案 合計{count}件",
+            "subtitle": "送信済みの提案を追跡・管理します",
+            "totalCount": "全{count}件の提案",
+            "loadingProposals": "提案を読み込み中...",
             "statusApproved": "承認済み",
             "statusPending": "保留中",
             "statusSent": "送信済み",
             "noData": "見積はまだありません",
-            "noDataSubtitle": "顧客からの見積依頼がここに表示されます。"
+            "noDataSubtitle": "顧客からの見積依頼がここに表示されます。",
+            "statuses": {
+                "approved": "承認済み",
+                "accepted": "受諾済み",
+                "pending": "保留中",
+                "received": "受信済み",
+                "sent": "送信済み",
+                "cancelled": "キャンセル済み",
+                "unknown": "不明"
+            },
+            "quoteDetails": "見積詳細",
+            "created": "作成日:",
+            "validUntil": "有効期限:",
+            "salesRep": "営業担当:",
+            "unassigned": "未割当",
+            "summary": "サマリー",
+            "subtotal": "小計:",
+            "discount": "割引 ({percent}%):",
+            "total": "合計:",
+            "itemsCount": "{count}点",
+            "downloadPdf": "PDFをダウンロード",
+            "working": "処理中...",
+            "resendQuote": "見積を再送",
+            "sending": "送信中...",
+            "lastSent": "最終送信:",
+            "errorTitle": "エラー",
+            "successTitle": "成功",
+            "loadFailed": "見積履歴を読み込めませんでした",
+            "pdfFailed": "PDFを生成できませんでした",
+            "resendSuccess": "見積を再送しました",
+            "resendFailed": "見積を再送できませんでした"
         }
     },
     "customerSalesRep": {
         "breadcrumbDashboard": "管理ダッシュボード",
-        "breadcrumbCurrent": "顧客",
-        "pageTitle": "顧客",
+        "breadcrumbCurrent": "顧客と営業担当",
+        "pageTitle": "顧客と営業担当",
         "pageSubtitle": "顧客アカウントと関係性の管理",
         "tabs": {
             "b2bAccounts": "B2Bアカウント",
@@ -705,8 +960,21 @@
             "addNew": "アカウントを追加",
             "noData": "アカウントが見つかりません",
             "showingRange": "表示中 ",
+            "tableHeaders": {
+                "company": "会社名",
+                "contactPerson": "担当者",
+                "contactInfo": "連絡先情報",
+                "tier": "ティア",
+                "status": "ステータス",
+                "actions": "操作"
+            },
+            "deleteDialog": {
+                "title": "アカウントを削除",
+                "message": "このB2Bアカウントを削除してもよろしいですか？この操作は取り消せません。"
+            },
             "addAccountModal": {
                 "modalTitle": "新しいアカウントを追加",
+                "editModalTitle": "アカウントを編集",
                 "nameLabel": "氏名",
                 "namePlaceholder": "氏名を入力",
                 "companyNameLabel": "会社名",
@@ -718,8 +986,17 @@
                 "tierPlaceholder": "ティアを選択",
                 "passwordLabel": "パスワード",
                 "passwordPlaceholder": "パスワードを入力",
+                "leaveBlankPassword": "現在のパスワードを保持する場合は空欄",
                 "cancel": "キャンセル",
-                "createAccount": "アカウントを作成"
+                "createAccount": "アカウントを作成",
+                "updateAccount": "更新"
+            },
+            "viewAccountModal": {
+                "salesRepTitle": "担当営業者",
+                "email": "メール",
+                "phone": "電話番号",
+                "message": "メッセージ",
+                "availability": "営業時間: 月〜金、9:00〜17:00 EST"
             }
         },
         "customers": {
@@ -753,6 +1030,13 @@
             },
             "noData": "見積が見つかりません",
             "showingRange": "表示中 ",
+            "statusFilter": {
+                "allStatus": "すべてのステータス",
+                "pending": "保留中",
+                "approved": "承認済み",
+                "sent": "送信済み",
+                "cancelled": "キャンセル済み"
+            },
             "editQuotationPage": {
                 "pageTitle": "見積を編集",
                 "pageSubtitle": "見積情報の更新",
@@ -778,10 +1062,36 @@
                 "totalLabel": "合計",
                 "totalHint": "未入力の場合は「小計 − 割引額」が適用されます。",
                 "activeQuotationLabel": "有効な見積",
-                "additionalNoteSection": "備考",
-                "additionalNotePlaceholder": "備考を入力...",
+                "additionalNoteSection": "補足事項",
+                "additionalNotePlaceholder": "補足事項を入力...",
                 "cancel": "キャンセル",
                 "saveChanges": "変更を保存"
+            },
+            "viewQuotationPage": {
+                "pageTitle": "見積詳細",
+                "newBadge": "新規",
+                "quotationUuid": "見積 UUID",
+                "companyInfoSection": "会社情報",
+                "companyLabel": "会社名",
+                "phoneNumberLabel": "電話番号",
+                "contactPersonLabel": "担当者",
+                "companyAddressLabel": "会社住所",
+                "businessEmailLabel": "メールアドレス",
+                "quotationStatusLabel": "見積ステータス",
+                "quotationInfoSection": "見積情報",
+                "quoteIdLabel": "見積 ID",
+                "itemTypeLabel": "商品種別",
+                "materialLabel": "素材",
+                "sizeQuantityLabel": "サイズ・数量",
+                "deliveryDateLabel": "納期",
+                "statusLabel": "ステータス",
+                "activeStatus": "有効",
+                "inactiveStatus": "無効",
+                "termsAcceptedLabel": "利用規約の同意",
+                "yes": "はい",
+                "no": "いいえ",
+                "createdOnLabel": "作成日時",
+                "updatedOnLabel": "更新日時"
             }
         },
         "salesRepresentation": {
@@ -877,7 +1187,68 @@
             "last6Months": "過去6か月",
             "last12Months": "過去12か月"
         },
-        "exportQuotations": "見積をエクスポート"
+        "exportQuotations": "見積をエクスポート",
+        "exporting": "エクスポート中...",
+        "noData": "データなし",
+        "requests": "件",
+        "stats": {
+            "totalQuotations": "総見積数",
+            "totalRequests": "総依頼数",
+            "pendingReview": "レビュー待ち",
+            "sent": "送信済み",
+            "won": "成約",
+            "quotedValue": "見積金額 (成約)",
+            "openPipeline": "未決済パイプライン",
+            "avgResponse": "平均対応日数",
+            "customers": "顧客",
+            "quotationValue": "見積総額",
+            "approvedValue": "承認済金額",
+            "conversionRate": "成約率",
+            "totalCustomers": "総顧客数",
+            "activeCustomers": "アクティブ顧客",
+            "b2bAccounts": "B2Bアカウント",
+            "salesReps": "営業担当",
+            "adminEnteredTotals": "管理者入力の合計より",
+            "awaitingAdminQuote": "管理者見積待ち",
+            "awaitingCustomerReply": "顧客の返答待ち",
+            "pendingPlusSent": "保留 + 送信済み"
+        },
+        "panels": {
+            "statusDistribution": "ステータス分布",
+            "statusSubtitle": "ステータス別の見積内訳",
+            "monthlyTrend": "月別推移",
+            "monthlySubtitle": "月別の見積提出数",
+            "topIndustries": "主要業界",
+            "topIndustriesSubtitle": "見積依頼ボリューム順",
+            "topProducts": "人気商品",
+            "topProductsSubtitle": "最も見積もられた商品",
+            "topFabrics": "人気生地",
+            "topFabricsSubtitle": "最も選択された生地オプション",
+            "topCustomers": "主要顧客",
+            "topCustomersSubtitle": "見積ボリューム順",
+            "customerGrowth": "顧客の成長",
+            "customerGrowthSubtitle": "月別の新規顧客登録数",
+            "salesRepPerformance": "営業担当パフォーマンス",
+            "salesRepPerformanceSubtitle": "割り当て済み vs 成約見積",
+            "catalogSnapshot": "カタログスナップショット",
+            "catalogSnapshotSubtitle": "公開中カタログサイズ"
+        },
+        "catalog": {
+            "products": "商品",
+            "categories": "カテゴリ",
+            "fabrics": "生地",
+            "parts": "パーツ",
+            "templates": "テンプレート"
+        },
+        "statusLabels": {
+            "Pending": "保留中",
+            "Received": "受信済み",
+            "Sent": "送信済み",
+            "Approved": "承認済み",
+            "Accepted": "受諾済み",
+            "Cancelled": "キャンセル済み",
+            "Unknown": "不明"
+        }
     },
     "systemSettings": {
         "pageTitle": "システム設定",
@@ -944,10 +1315,34 @@
             "notifyQuotationStatusChange": "見積ステータスの変更（顧客宛）",
             "notifyQuotationStatusChangeHint": "依頼が「受付 → 見積中 → 提出済み → 成約／不成約」と進むたびに送信されます。",
             "adminNotificationRecipientsLabel": "管理者通知の宛先",
-            "adminNotificationRecipientsPlaceholder": "admin@example.com, sales@example.com",
-            "adminNotificationRecipientsHint": "カンマ区切りで入力してください。上記の社内通知に使用されます。",
+            "adminRecipientsPlaceholder": "admin@example.com, sales@example.com",
+            "adminRecipientsHint": "カンマ区切り。上記のアラート送信用。",
             "cancel": "キャンセル",
             "saveChanges": "変更を保存"
+        }
+    },
+    "notificationsPage": {
+        "pageTitle": "通知",
+        "pageSubtitle": "アラートやアクティビティの最新情報を確認できます",
+        "markAllRead": "すべて既読にする",
+        "noNotifications": "通知はありません",
+        "pageRange": "ページ {current} / {total}",
+        "tabs": {
+            "all": "すべて",
+            "high": "高優先度",
+            "medium": "中優先度",
+            "low": "低優先度"
+        },
+        "priority": {
+            "high": "高",
+            "medium": "中",
+            "low": "低"
+        },
+        "time": {
+            "justNow": "たった今",
+            "mAgo": "{count}分前",
+            "hAgo": "{count}時間前",
+            "dAgo": "{count}日前"
         }
     },
     "quotationRequests": {

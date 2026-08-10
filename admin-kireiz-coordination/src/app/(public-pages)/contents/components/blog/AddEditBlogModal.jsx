@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Select from "react-select";
@@ -18,24 +19,6 @@ import {
   apiUpdateBlog,
   apiGetBlogCategoryList,
 } from "@/services/BlogService";
-
-const validationSchema = z.object({
-  title: z.string().trim().min(1, "Title is required"),
-
-  category: z
-    .object({
-      value: z.any(),
-      label: z.string(),
-    })
-    .nullable()
-    .refine((val) => val !== null, {
-      message: "Category is required",
-    }),
-
-  description: z.string().trim().min(1, "Description is required"),
-
-  image: z.any().optional(),
-});
 
 const selectStyles = {
   control: (base, state) => ({
@@ -59,6 +42,34 @@ const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
+const getValidationSchema = (mode, tm) =>
+  z
+    .object({
+      title: z.string().trim().min(1, tm("validation.titleRequired")),
+
+      category: z
+        .object({
+          value: z.any(),
+          label: z.string(),
+        })
+        .nullable()
+        .refine((val) => val !== null, {
+          message: tm("validation.categoryRequired"),
+        }),
+
+      description: z
+        .string()
+        .trim()
+        .min(1, tm("validation.descriptionRequired")),
+
+      image: z.any().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (mode === "add" && !data.image) {
+        // Image required check in add mode if passed via form
+      }
+    });
+
 const AddEditBlogModal = ({
   isOpen,
   onClose,
@@ -66,6 +77,8 @@ const AddEditBlogModal = ({
   initialData,
   onSaveSuccess,
 }) => {
+  const t = useTranslations("contentMedia.blog");
+  const tm = useTranslations("contentMedia.blog.createBlogModal");
   const fileInputRef = useRef(null);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -74,6 +87,11 @@ const AddEditBlogModal = ({
   const [validated, setValidated] = useState(false);
   const [imageError, setImageError] = useState("");
   const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
+
+  const validationSchema = useMemo(
+    () => getValidationSchema(mode, tm),
+    [mode, tm],
+  );
 
   // Category options from API
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -129,29 +147,6 @@ const AddEditBlogModal = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    // if (mode === "edit" && initialData) {
-    //   setTitle(initialData.title || "");
-    //   setDescription(initialData.description || "");
-    //   setPreview(initialData.image || null);
-    //   setImageFile(null);
-    //   setValidated(Boolean(initialData.image));
-
-    //   if (initialData.categoryName) {
-    //     setCategory({
-    //       value: initialData.category || initialData.id,
-    //       label: initialData.categoryName,
-    //     });
-    //   } else {
-    //     setCategory(null);
-    //   }
-    // } else {
-    //   setTitle("");
-    //   setCategory(null);
-    //   setDescription("");
-    //   setImageFile(null);
-    //   setPreview(null);
-    //   setValidated(false);
-    // }
     if (mode === "edit" && initialData) {
       setPreview(initialData.image_url || null);
       setValidated(Boolean(initialData.image_url));
@@ -179,8 +174,7 @@ const AddEditBlogModal = ({
     }
 
     setError("");
-    setError("");
-  }, [mode, initialData, isOpen]);
+  }, [mode, initialData, isOpen, reset]);
 
   // Resolve category label once options load (edit mode)
   useEffect(() => {
@@ -196,7 +190,7 @@ const AddEditBlogModal = ({
         setValue("category", match);
       }
     }
-  }, [categoryOptions, mode, initialData]);
+  }, [categoryOptions, mode, initialData, setValue]);
 
   /* ---------- FILE HANDLERS ---------- */
   const handleFile = (file) => {
@@ -209,7 +203,7 @@ const AddEditBlogModal = ({
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setImageError("Image size should not exceed 2 MB");
+      setImageError(tm("validation.maxSize"));
       setImageFile(null);
       setPreview(null);
       setValidated(false);
@@ -248,9 +242,12 @@ const AddEditBlogModal = ({
 
   /* ---------- RESET FORM ---------- */
   const resetForm = () => {
-    setTitle("");
-    setCategory(null);
-    setDescription("");
+    reset({
+      title: "",
+      category: null,
+      description: "",
+      image: null,
+    });
     setImageFile(null);
     setPreview(null);
     setValidated(false);
@@ -261,7 +258,7 @@ const AddEditBlogModal = ({
   /* ---------- SAVE ---------- */
   const handleSave = async (values, { keepOpen = false } = {}) => {
     if (!imageFile && !preview) {
-      setImageError("Image is required");
+      setImageError(tm("validation.imageRequired"));
       return;
     }
 
@@ -283,26 +280,19 @@ const AddEditBlogModal = ({
         formData.append("image", imageFile);
       }
 
-      // if (mode === "edit" && initialData?.id) {
-      //   await apiUpdateBlog(accessToken, initialData.id, formData);
-      // } else {
-      //   await apiCreateBlog(accessToken, formData);
-      // }
-
       const response =
         mode === "edit" && initialData?.id
           ? await apiUpdateBlog(accessToken, initialData.id, formData)
           : await apiCreateBlog(accessToken, formData);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={t("successTitle")} type="success">
           {response?.message}
         </Notification>,
       );
 
       if (keepOpen && mode !== "edit") {
         resetForm();
-        // Re-fetch list in background
         if (onSaveSuccess) onSaveSuccess();
         return;
       }
@@ -313,8 +303,7 @@ const AddEditBlogModal = ({
     } catch (err) {
       console.error("Blog save error:", err);
       setError(
-        err?.response?.data?.message ||
-          "Failed to save blog. Please try again.",
+        err?.response?.data?.message || tm("saveFailed"),
       );
     } finally {
       setSaving(false);
@@ -331,7 +320,7 @@ const AddEditBlogModal = ({
       <div className="flex flex-col">
         <div className="border-b p-2 flex justify-between items-center">
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            {mode === "edit" ? "Edit Blog" : "Create Blog"}
+            {mode === "edit" ? tm("editModalTitle") : tm("modalTitle")}
           </h2>
         </div>
 
@@ -345,16 +334,8 @@ const AddEditBlogModal = ({
         <div className="md:px-5 py-5 space-y-5 overflow-y-auto max-h-[70vh]">
           {/* Title */}
           <div>
-            {/* <input
-              type="text"
-              placeholder="Type blog title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-            /> */}
-
             <FormItem
-              label="Title"
+              label={tm("titleLabel")}
               invalid={!!errors.title}
               errorMessage={errors.title?.message}
             >
@@ -362,7 +343,7 @@ const AddEditBlogModal = ({
                 name="title"
                 control={control}
                 render={({ field }) => (
-                  <Input placeholder="Type blog title" {...field} />
+                  <Input placeholder={tm("titlePlaceholder")} {...field} />
                 )}
               />{" "}
             </FormItem>
@@ -370,25 +351,8 @@ const AddEditBlogModal = ({
 
           {/* Category (React Select from API) */}
           <div>
-            {/* <label className="text-[#1C2C56] text-base font-medium">
-              Category<span className="text-red-500">*</span>
-            </label>
-            <Select
-              options={categoryOptions}
-              value={category}
-              onChange={setCategory}
-              styles={selectStyles}
-              placeholder="Select category..."
-              isLoading={loadingCategories}
-              loadingMessage={() => "Loading categories..."}
-              noOptionsMessage={() => "No categories found"}
-              isClearable
-              menuPortalTarget={typeof document !== "undefined" ? document.body : null}
-              menuPosition="fixed"
-              className="mt-1"
-            /> */}
             <FormItem
-              label="Category"
+              label={tm("categoryLabel")}
               invalid={!!errors.category}
               errorMessage={errors.category?.message}
             >
@@ -402,7 +366,9 @@ const AddEditBlogModal = ({
                     styles={selectStyles}
                     value={field.value}
                     onChange={field.onChange}
-                    placeholder="Select Category"
+                    placeholder={tm("categoryPlaceholder")}
+                    isLoading={loadingCategories}
+                    isClearable
                   />
                 )}
               />
@@ -412,15 +378,16 @@ const AddEditBlogModal = ({
           {/* Image */}
           <div>
             <label className="text-[#1C2C56] text-base font-medium">
-              Image<span className="text-red-500">*</span>
+              {tm("imageLabel")}<span className="text-red-500">*</span>
             </label>
 
             <button
+              type="button"
               className="w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm mt-2 flex items-center justify-center gap-2"
               onClick={() => fileInputRef.current?.click()}
             >
               <FiUpload size={16} />
-              Upload image
+              {tm("uploadImageButton")}
             </button>
 
             <div
@@ -428,20 +395,20 @@ const AddEditBlogModal = ({
               onDragOver={(event) => event.preventDefault()}
               className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
             >
-              Drag & Drop your image here
+              {tm("dragDropText")}
               <br />
-              or{" "}
+              {tm("orText")}{" "}
               <span
                 className="text-[#1C2C56] underline cursor-pointer"
                 onClick={() => fileInputRef.current?.click()}
               >
-                click to browse here
+                {tm("clickToBrowse")}
               </span>
               <p className="text-xs mt-2 text-[#64748B]">
-                JPG, PNG, or WEBP files
+                {tm("allowedFormats")}
               </p>
               <p className="text-xs mt-2 text-[#64748B]">
-                Recommended size 1200×800px
+                {tm("recommendedSize")}
               </p>
             </div>
 
@@ -476,17 +443,8 @@ const AddEditBlogModal = ({
 
           {/* Description */}
           <div>
-            {/* <label className="text-[#1C2C56] text-base font-medium">
-              Description<span className="text-red-500">*</span>
-            </label>
-            <textarea
-              placeholder="Type blog description..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 w-full border rounded-md px-3 py-2 text-sm h-[150px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-            /> */}
             <FormItem
-              label="Description"
+              label={tm("descriptionLabel")}
               invalid={!!errors.description}
               errorMessage={errors.description?.message}
             >
@@ -497,7 +455,7 @@ const AddEditBlogModal = ({
                   <textarea
                     {...field}
                     className="mt-1 w-full border rounded-md px-3 py-2 h-[150px]"
-                    placeholder="Type Description"
+                    placeholder={tm("descriptionPlaceholder")}
                   />
                 )}
               />
@@ -513,28 +471,29 @@ const AddEditBlogModal = ({
             disabled={saving}
             className="bg-blue-100 rounded-lg"
           >
-            Cancel
+            {tm("cancel")}
           </Button>
 
-          <Button
-            variant="plain"
-            size="sm"
-            onClick={handleSubmit(handleSave)}
-            disabled={saving}
-            className="bg-blue-100 rounded-lg"
-          >
-            Save & Add Another
-          </Button>
+          {mode !== "edit" && (
+            <Button
+              variant="plain"
+              size="sm"
+              onClick={handleSubmit((values) => handleSave(values, { keepOpen: true }))}
+              disabled={saving}
+              className="bg-blue-100 rounded-lg"
+            >
+              {tm("saveAndAddAnother")}
+            </Button>
+          )}
 
           <Button
             variant="solid"
             size="sm"
             className="bg-[#1C4FA8] px-6 hover:bg-[#1C4FA8] text-white py-2 rounded-md"
-            // onClick={() => handleSave({ keepOpen: false })}
-            onClick={handleSubmit(handleSave)}
+            onClick={handleSubmit((values) => handleSave(values, { keepOpen: false }))}
             loading={saving}
           >
-            {mode === "edit" ? "Update" : "Save"}
+            {mode === "edit" ? tm("update") : tm("save")}
           </Button>
         </div>
       </div>

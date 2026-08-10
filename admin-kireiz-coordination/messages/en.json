@@ -254,8 +254,8 @@
         "quotationRequests": "Quotation Requests"
     },
     "dashboard": {
-        "welcomeTitle": "Welcome to Dashboard",
-        "welcomeSubtitle": "You have  pending quotes. Check your dashboard for the latest updates.",
+        "welcomeTitle": "Welcome to Dashboard! {name}!",
+        "welcomeSubtitle": "You have {count} pending quotes. Check your dashboard for the latest updates.",
         "quickActionsTop": {
             "uploadProduct": "Upload Product",
             "createTemplate": "Create Template",
@@ -266,11 +266,13 @@
             "pendingQuotes": "Pending Quotes",
             "totalTemplates": "Total Templates",
             "b2bUsers": "B2B Users",
-            "upFromYesterday": "Up from yesterday"
+            "upFromYesterday": "Up from yesterday",
+            "downFromYesterday": "Down from yesterday"
         },
         "quoteStatus": {
             "quoteStatusDistribution": "Quote Status Distribution",
-            "total": "Total"
+            "total": "Total",
+            "noData": "No Data"
         },
         "quotationVolume": {
             "quotationVolume": "Quotation Volume",
@@ -301,6 +303,9 @@
         "activeAlerts": {
             "activeAlerts": "Active Alerts",
             "markAllRead": "Mark All Read",
+            "marking": "Marking...",
+            "allCaughtUp": "You're all caught up",
+            "allCaughtUpDesc": "New alerts will appear here as quotation activity comes in.",
             "priorityHigh": "HIGH",
             "priorityMedium": "MEDIUM",
             "quotesPendingReview": "{count} quotes pending review - {overdue} overdue",
@@ -326,6 +331,7 @@
             "totalCount": "{count} fabrics total",
             "addNew": "Add New Fabric",
             "searchPlaceholder": "Search Fabrics...",
+            "successTitle": "Success",
             "tableHeaders": {
                 "fabricName": "Fabric Name",
                 "color": "Color",
@@ -336,8 +342,13 @@
             },
             "noData": "No fabrics found",
             "showingRange": "Showing",
+            "deleteDialog": {
+                "title": "Delete Fabric",
+                "message": "Are you sure you want to delete this fabric? This action cannot be undone."
+            },
             "addFabricModal": {
                 "modalTitle": "Add New Fabric",
+                "editModalTitle": "Edit Fabric",
                 "fabricNameLabel": "Fabric Name",
                 "fabricNamePlaceholder": "Eg:- Cotton Canvas",
                 "colorLabel": "Color",
@@ -361,7 +372,14 @@
                 "statusActive": "Active",
                 "cancel": "Cancel",
                 "saveAndAddAnother": "Save & Add Another",
-                "save": "Save"
+                "save": "Save",
+                "update": "Update",
+                "saveFailed": "Failed to save fabric. Please try again.",
+                "validation": {
+                    "nameRequired": "Fabric name is required",
+                    "priceRequired": "Price is required",
+                    "categoryRequired": "Category is required"
+                }
             }
         },
         "parts": {
@@ -373,6 +391,7 @@
             "reset": "Reset",
             "gridView": "Grid",
             "listView": "List",
+            "successTitle": "Success",
             "tableHeaders": {
                 "preview": "Preview",
                 "partName": "Part Name",
@@ -383,8 +402,13 @@
             },
             "noData": "No parts found",
             "showingRange": "Showing",
+            "deleteDialog": {
+                "title": "Delete Part",
+                "message": "Are you sure you want to delete this part? This action cannot be undone."
+            },
             "uploadPartModal": {
                 "modalTitle": "Upload New Part",
+                "editModalTitle": "Edit Part",
                 "partNameLabel": "Part Name",
                 "partNamePlaceholder": "Eg:- Premium Collar",
                 "categoryLabel": "Category",
@@ -401,7 +425,16 @@
                 "orText": "or",
                 "clickToBrowse": "click to browse here",
                 "allowedFormats": "PNG, JPG, JPEG files",
-                "maxDimension": "Maximum dimension 1000×1000px"
+                "maxDimension": "Maximum dimension 1000×1000px",
+                "cancel": "Cancel",
+                "save": "Save",
+                "update": "Update",
+                "saveFailed": "Failed to save part. Please try again.",
+                "validation": {
+                    "nameRequired": "Part name is required",
+                    "categoryRequired": "Category is required",
+                    "imageRequired": "Image is required"
+                }
             }
         },
         "colors": {
@@ -411,8 +444,14 @@
             "searchPlaceholder": "Search Colors...",
             "noData": "No colors found",
             "showingRange": "Showing ",
+            "successTitle": "Success",
+            "deleteDialog": {
+                "title": "Delete Color",
+                "message": "Are you sure you want to delete this color? This action cannot be undone."
+            },
             "addColorModal": {
                 "modalTitle": "Add New Color",
+                "editModalTitle": "Edit Color",
                 "colorNameLabel": "Color Name",
                 "colorNamePlaceholder": "Enter color name",
                 "colorLabel": "Color",
@@ -420,7 +459,13 @@
                 "compatibleFabricsLabel": "Compatible Fabrics",
                 "compatibleFabricsPlaceholder": "Select compatible fabrics...",
                 "cancel": "Cancel",
-                "save": "Save"
+                "save": "Save",
+                "update": "Update",
+                "saveFailed": "Failed to save color. Please try again.",
+                "validation": {
+                    "nameRequired": "Color name is required",
+                    "hexRequired": "HEX code is required"
+                }
             }
         },
         "template": {
@@ -432,8 +477,18 @@
             "reset": "Reset",
             "noData": "No templates found",
             "showingRange": "Showing ",
+            "successTitle": "Success",
+            "deleteDialog": {
+                "title": "Delete Template",
+                "message": "Are you sure you want to delete this template? This action cannot be undone."
+            },
+            "previewModal": {
+                "title": "Preview Template",
+                "close": "Close"
+            },
             "createTemplateModal": {
                 "modalTitle": "Create Template",
+                "editModalTitle": "Edit Template",
                 "templateNameLabel": "Template Name",
                 "templateNamePlaceholder": "Enter template name",
                 "partLabel": "Part",
@@ -450,20 +505,31 @@
                 "allowedFormats": "PNG, JPG, JPEG files",
                 "maxDimension": "Maximum dimension 1000×1000px",
                 "cancel": "Cancel",
-                "save": "Save"
+                "save": "Save",
+                "update": "Update",
+                "saveFailed": "Failed to save template. Please try again.",
+                "validation": {
+                    "nameRequired": "Template name is required"
+                }
             }
         },
         "products": {
             "title": "Product Creation",
             "totalCount": "{count} products available",
             "addNew": "+ Add Product",
-            "searchPlaceholder": "Search Templates...",
+            "searchPlaceholder": "Search Products...",
             "allCategories": "All Categories",
             "reset": "Reset",
             "noData": "No products found",
             "showingRange": "Showing ",
+            "successTitle": "Success",
+            "deleteDialog": {
+                "title": "Delete Product",
+                "message": "Are you sure you want to delete this product? This action cannot be undone."
+            },
             "addProductModal": {
                 "modalTitle": "Add Product",
+                "editModalTitle": "Edit Product",
                 "productImageLabel": "Product Image",
                 "uploadImageButton": "Upload Image",
                 "dragDropText": "Drag & Drop your image file here",
@@ -487,7 +553,14 @@
                 "typePlaceholder": "Select Type",
                 "cancel": "Cancel",
                 "saveAndAddAnother": "Save & Add Another",
-                "save": "Save"
+                "save": "Save",
+                "update": "Update",
+                "saveFailed": "Failed to save product. Please try again.",
+                "validation": {
+                    "nameRequired": "Product name is required",
+                    "priceRequired": "Price is required",
+                    "categoryRequired": "Category is required"
+                }
             }
         }
     },
@@ -506,7 +579,7 @@
         "categories": {
             "title": "Product Categories",
             "subtitle": "Manage and organize your product categories",
-            "addNew": "+ Add Category",
+            "addNew": "Add Category",
             "searchPlaceholder": "Search Categories...",
             "noData": "No categories found",
             "showingRange": "Showing ",
@@ -525,7 +598,50 @@
                 "descriptionPlaceholder": "Type Description",
                 "cancel": "Cancel",
                 "saveAndAddAnother": "Save & Add Another",
-                "save": "Save"
+                "save": "Save",
+                "editModalTitle": "Edit Category",
+                "update": "Update",
+                "previewAlt": "Preview",
+                "saveFailed": "Failed to save category. Please try again.",
+                "validation": {
+                    "nameRequired": "Category name is required",
+                    "descriptionRequired": "Description is required",
+                    "imageRequired": "Image is required",
+                    "onlyImages": "Only image files are allowed",
+                    "maxSize": "Image size should not exceed 2 MB"
+                },
+                "imageValidated": "Image validated successfully"
+            },
+            "successTitle": "Success",
+            "subcategories": {
+                "noData": "No subcategories found",
+                "addNew": "Add Subcategory"
+            },
+            "deleteDialog": {
+                "categoryTitle": "Delete Category",
+                "subcategoryTitle": "Delete Subcategory",
+                "categoryMessage": "Are you sure you want to delete this category? This action cannot be undone.",
+                "subcategoryMessage": "Are you sure you want to delete this subcategory? This action cannot be undone."
+            },
+            "addSubcategoryModal": {
+                "modalTitle": "Add Subcategory",
+                "editModalTitle": "Edit Subcategory",
+                "nameLabel": "Name",
+                "namePlaceholder": "Eg:- Medical Scrubs",
+                "categoryLabel": "Category",
+                "categoryPlaceholder": "Select category...",
+                "loadingCategories": "Loading categories...",
+                "noCategories": "No categories found",
+                "imageLabel": "Image",
+                "uploadImageButton": "Upload Image",
+                "previewAlt": "Preview",
+                "descriptionLabel": "Description",
+                "descriptionPlaceholder": "Subcategory description...",
+                "cancel": "Cancel",
+                "save": "Save",
+                "update": "Update",
+                "nameRequired": "Subcategory name is required",
+                "saveFailed": "Failed to save subcategory. Please try again."
             }
         },
         "catalogImages": {
@@ -535,8 +651,14 @@
             "searchPlaceholder": "Search Catalog...",
             "noData": "No catalog images found",
             "showingRange": "Showing ",
+            "successTitle": "Success",
+            "deleteDialog": {
+                "title": "Delete Catalog Image",
+                "message": "Are you sure you want to delete this catalog image? This action cannot be undone."
+            },
             "addCatalogImageModal": {
                 "modalTitle": "Add Catalog Image",
+                "editModalTitle": "Edit Catalog Image",
                 "nameLabel": "Name",
                 "namePlaceholder": "Enter catalog name",
                 "categoryLabel": "Category",
@@ -549,7 +671,15 @@
                 "allowedFormats": "JPG, PNG, or WEBP files",
                 "maxDimension": "Maximum dimension 1000×1000px",
                 "cancel": "Cancel",
-                "save": "Save"
+                "save": "Save",
+                "update": "Update",
+                "saveFailed": "Failed to save catalog image. Please try again.",
+                "validation": {
+                    "nameRequired": "Name is required",
+                    "categoryRequired": "Category is required",
+                    "imageRequired": "Image is required",
+                    "maxSize": "Image size should not exceed 2 MB"
+                }
             }
         },
         "blog": {
@@ -560,8 +690,14 @@
             "searchPlaceholder": "Search Blog Posts...",
             "noData": "No blog posts found",
             "showingRange": "Showing ",
+            "successTitle": "Success",
+            "deleteDialog": {
+                "title": "Delete Blog",
+                "message": "Are you sure you want to delete this blog post? This action cannot be undone."
+            },
             "createBlogModal": {
                 "modalTitle": "Create Blog",
+                "editModalTitle": "Edit Blog",
                 "titleLabel": "Title",
                 "titlePlaceholder": "Type blog title",
                 "categoryLabel": "Category",
@@ -577,13 +713,22 @@
                 "descriptionPlaceholder": "Type Description",
                 "cancel": "Cancel",
                 "saveAndAddAnother": "Save & Add Another",
-                "save": "Save"
+                "save": "Save",
+                "update": "Update",
+                "saveFailed": "Failed to save blog post. Please try again.",
+                "validation": {
+                    "titleRequired": "Title is required",
+                    "categoryRequired": "Category is required",
+                    "descriptionRequired": "Description is required",
+                    "imageRequired": "Image is required",
+                    "maxSize": "Image size should not exceed 2 MB"
+                }
             }
         },
         "faq": {
             "title": "FAQ's",
             "subtitle": "Manage frequently asked questions",
-            "addNew": "+ Add FAQ",
+            "addNew": "Add FAQ",
             "noData": "No FAQs found",
             "createFaqModal": {
                 "modalTitle": "Create FAQ",
@@ -594,13 +739,27 @@
                 "descriptionPlaceholder": "Type Description",
                 "cancel": "Cancel",
                 "saveAndAddAnother": "Save & Add Another",
-                "save": "Save"
+                "save": "Save",
+                "editModalTitle": "Edit FAQ",
+                "update": "Update",
+                "saveFailed": "Failed to save FAQ. Please try again.",
+                "validation": {
+                    "titleRequired": "Title is required",
+                    "descriptionRequired": "Description is required",
+                    "atLeastOneDescription": "At least one description is required"
+                }
+            },
+            "sectionHeading": "About design and coordination flow",
+            "successTitle": "Success",
+            "deleteDialog": {
+                "title": "Delete FAQ",
+                "message": "Are you sure you want to delete this FAQ? This action cannot be undone."
             }
         },
         "pdfTemplates": {
             "title": "PDF Template Library",
             "subtitle": "Manage your catalog templates",
-            "addNew": "+ Add Template",
+            "addNew": "Add Template",
             "noData": "No PDF templates yet",
             "noDataSubtitle": "Create your first template to get started.",
             "addPdfTemplatePage": {
@@ -610,10 +769,31 @@
                 "templateNamePlaceholder": "e.g. Standard quotation",
                 "pageSizeLabel": "Page Size",
                 "pageSizeA4": "A4",
-                "placeholderHelperText": "Use placeholders like {CLIENT_NAME}, {ITEM_TYPE}, {QUANTITY} — these get filled in when a quotation is generated. The library counts distinct placeholders as \"customizable fields\".",
+                "placeholderHelperText": "Use placeholders like <code>'{CLIENT_NAME}'</code>, <code>'{ITEM_TYPE}'</code>, <code>'{QUANTITY}'</code> — these get filled in when a quotation is generated. The library counts distinct placeholders as \"customizable fields\".",
                 "cancel": "Cancel",
-                "saveTemplate": "Save Template"
-            }
+                "saveTemplate": "Save Template",
+                "editPageTitle": "Edit PDF Template",
+                "pageSizeLetter": "Letter",
+                "saving": "Saving...",
+                "errorTitle": "Error",
+                "successTitle": "Success",
+                "requiredTitle": "Required",
+                "nameRequired": "Please enter a template name",
+                "emptyContent": "Template content cannot be empty",
+                "notFound": "Template not found",
+                "loadFailed": "Could not load the template",
+                "saveFailed": "Could not save the template",
+                "createSuccess": "Template created",
+                "updateSuccess": "Template updated"
+            },
+            "errorTitle": "Error",
+            "successTitle": "Success",
+            "loadFailed": "Could not load PDF templates",
+            "reorderFailed": "Could not save the new order",
+            "deleteSuccess": "\"{name}\" deleted",
+            "deleteFailed": "Could not delete the template",
+            "editTemplateTooltip": "Edit template",
+            "deleteTemplateTooltip": "Delete template"
         }
     },
     "pricingQuotation": {
@@ -631,27 +811,62 @@
             "title": "Quotation Templates",
             "subtitle": "Design and preview your quote layouts",
             "resetDefault": "Reset Default",
+            "resetting": "Resetting...",
             "saveTemplate": "Save Template",
+            "saving": "Saving...",
             "variablesLabel": "Variables:",
-            "previewPlaceholder": "Start typing on the left to see a preview here."
+            "previewPlaceholder": "Start typing on the left to see a preview here.",
+            "copyToClipboard": "Copy to clipboard",
+            "errorTitle": "Error",
+            "successTitle": "Success",
+            "requiredTitle": "Required",
+            "copiedTitle": "Copied",
+            "copiedMessage": "{variable} copied to clipboard",
+            "loadFailed": "Could not load the quotation template",
+            "emptyContent": "Template content cannot be empty",
+            "saveSuccess": "Quotation template saved",
+            "saveFailed": "Could not save the template",
+            "resetSuccess": "Template reset to default",
+            "resetFailed": "Could not reset the template"
         },
         "unitPrice": {
             "title": "Unit Price",
             "totalCount": "{count} items total",
             "export": "Export",
+            "exporting": "Exporting...",
             "csv": "CSV",
             "excel": "Excel",
             "pdf": "PDF",
             "noData": "No unit price data found",
-            "showingRange": "Showing"
+            "showingRange": "Showing",
+            "table": {
+                "type": "Type",
+                "itemName": "Item Name",
+                "unit": "Unit",
+                "basePrice": "Base Price",
+                "bulk": "Bulk (10+)",
+                "action": "Action"
+            }
         },
         "specialConditions": {
             "title": "Special Conditions",
             "subtitle": "Manage discount tiers and corporate rules",
             "addNew": "Add Condition",
             "noData": "No special conditions found",
+            "off": "OFF",
+            "editConditions": "Edit Conditions",
+            "conditionTypes": {
+                "corporate": "Corporate Standard",
+                "wholesale": "Wholesale Partner",
+                "enterprise": "Global Enterprise"
+            },
+            "deleteDialog": {
+                "title": "Delete Condition",
+                "message": "Are you sure you want to delete this special condition? This action cannot be undone."
+            },
             "addConditionModal": {
                 "modalTitle": "Add Condition",
+                "editModalTitle": "Edit Condition",
                 "titleLabel": "Title",
                 "titlePlaceholder": "e.g. Wholesale Partner",
                 "conditionTypeLabel": "Condition Type",
@@ -665,24 +880,64 @@
                 "featureNet30Terms": "Net 30 Terms",
                 "featureFreeSamples": "Free Samples",
                 "cancel": "Cancel",
-                "save": "Save"
+                "save": "Save",
+                "update": "Update",
+                "saveFailed": "Failed to save. Please try again.",
+                "validation": {
+                    "titleRequired": "Title is required",
+                    "conditionTypeRequired": "Condition Type is required",
+                    "descriptionRequired": "Description is required",
+                    "discountRequired": "Discount Percentage is required",
+                    "discountRange": "Discount must be between 0 and 100"
+                }
             }
         },
         "quotationHistory": {
             "title": "Quotation History",
             "subtitle": "Track and manage sent proposals",
             "totalCount": "{count} total proposals",
+            "loadingProposals": "Loading proposals...",
             "statusApproved": "Approved",
             "statusPending": "Pending",
             "statusSent": "Sent",
             "noData": "No quotations yet",
-            "noDataSubtitle": "Customer quotation requests will appear here."
+            "noDataSubtitle": "Customer quotation requests will appear here.",
+            "statuses": {
+                "approved": "Approved",
+                "accepted": "Accepted",
+                "pending": "Pending",
+                "received": "Received",
+                "sent": "Sent",
+                "cancelled": "Cancelled",
+                "unknown": "Unknown"
+            },
+            "quoteDetails": "Quote Details",
+            "created": "Created:",
+            "validUntil": "Valid Until:",
+            "salesRep": "Sales Rep:",
+            "unassigned": "Unassigned",
+            "summary": "Summary",
+            "subtotal": "Subtotal:",
+            "discount": "Discount ({percent}%):",
+            "total": "Total:",
+            "itemsCount": "{count} Items",
+            "downloadPdf": "Download PDF",
+            "working": "Working...",
+            "resendQuote": "Resend Quote",
+            "sending": "Sending...",
+            "lastSent": "Last sent:",
+            "errorTitle": "Error",
+            "successTitle": "Success",
+            "loadFailed": "Could not load quotation history",
+            "pdfFailed": "Could not generate the PDF",
+            "resendSuccess": "Quotation resent",
+            "resendFailed": "Could not resend the quotation"
         }
     },
     "customerSalesRep": {
         "breadcrumbDashboard": "Admin Dashboard",
-        "breadcrumbCurrent": "Customer",
-        "pageTitle": "Customer",
+        "breadcrumbCurrent": "Customer & Sales Representative",
+        "pageTitle": "Customer & Sales Representative",
         "pageSubtitle": "Manage customer accounts and relationships",
         "tabs": {
             "b2bAccounts": "B2B Accounts",
@@ -705,8 +960,21 @@
             "addNew": "Add Account",
             "noData": "No accounts found",
             "showingRange": "Showing ",
+            "tableHeaders": {
+                "company": "Company",
+                "contactPerson": "Contact Person",
+                "contactInfo": "Contact Info",
+                "tier": "Tier",
+                "status": "Status",
+                "actions": "Actions"
+            },
+            "deleteDialog": {
+                "title": "Delete Account",
+                "message": "Are you sure you want to delete this B2B account? This action cannot be undone."
+            },
             "addAccountModal": {
                 "modalTitle": "Add New Account",
+                "editModalTitle": "Edit Account",
                 "nameLabel": "Name",
                 "namePlaceholder": "Enter name",
                 "companyNameLabel": "Company Name",
@@ -718,8 +986,17 @@
                 "tierPlaceholder": "Select Tier",
                 "passwordLabel": "Password",
                 "passwordPlaceholder": "Enter password",
+                "leaveBlankPassword": "Leave blank to keep current",
                 "cancel": "Cancel",
-                "createAccount": "Create Account"
+                "createAccount": "Create Account",
+                "updateAccount": "Update"
+            },
+            "viewAccountModal": {
+                "salesRepTitle": "Your Sales Representative",
+                "email": "Email",
+                "phone": "Phone",
+                "message": "Message",
+                "availability": "Available Mon–Fri, 9am – 5pm EST"
             }
         },
         "customers": {
@@ -753,6 +1030,13 @@
             },
             "noData": "No quotations found",
             "showingRange": "Showing ",
+            "statusFilter": {
+                "allStatus": "All Status",
+                "pending": "Pending",
+                "approved": "Approved",
+                "sent": "Sent",
+                "cancelled": "Cancelled"
+            },
             "editQuotationPage": {
                 "pageTitle": "Edit Quotation",
                 "pageSubtitle": "Update quotation information",
@@ -782,6 +1066,32 @@
                 "additionalNotePlaceholder": "Enter additional notes...",
                 "cancel": "Cancel",
                 "saveChanges": "Save Changes"
+            },
+            "viewQuotationPage": {
+                "pageTitle": "Quotation Details",
+                "newBadge": "NEW",
+                "quotationUuid": "Quotation UUID",
+                "companyInfoSection": "Company Information",
+                "companyLabel": "Company",
+                "phoneNumberLabel": "Phone Number",
+                "contactPersonLabel": "Contact Person",
+                "companyAddressLabel": "Company Address",
+                "businessEmailLabel": "Business Email",
+                "quotationStatusLabel": "Quotation Status",
+                "quotationInfoSection": "Quotation Information",
+                "quoteIdLabel": "Quote ID",
+                "itemTypeLabel": "Item Type",
+                "materialLabel": "Material",
+                "sizeQuantityLabel": "Size & Quantity",
+                "deliveryDateLabel": "Delivery Date",
+                "statusLabel": "Status",
+                "activeStatus": "Active",
+                "inactiveStatus": "Inactive",
+                "termsAcceptedLabel": "Terms Accepted",
+                "yes": "Yes",
+                "no": "No",
+                "createdOnLabel": "Created On",
+                "updatedOnLabel": "Updated On"
             }
         },
         "salesRepresentation": {
@@ -877,7 +1187,68 @@
             "last6Months": "Last 6 months",
             "last12Months": "Last 12 months"
         },
-        "exportQuotations": "Export Quotations"
+        "exportQuotations": "Export Quotations",
+        "exporting": "Exporting...",
+        "noData": "No data",
+        "requests": "requests",
+        "stats": {
+            "totalQuotations": "Total Quotations",
+            "totalRequests": "Total Requests",
+            "pendingReview": "Pending Review",
+            "sent": "Sent",
+            "won": "Won",
+            "quotedValue": "Quoted Value (Won)",
+            "openPipeline": "Open Pipeline",
+            "avgResponse": "Avg. Response",
+            "customers": "Customers",
+            "quotationValue": "Quotation Value",
+            "approvedValue": "Approved Value",
+            "conversionRate": "Conversion Rate",
+            "totalCustomers": "Total Customers",
+            "activeCustomers": "Active Customers",
+            "b2bAccounts": "B2B Accounts",
+            "salesReps": "Sales Reps",
+            "adminEnteredTotals": "From admin-entered totals",
+            "awaitingAdminQuote": "Awaiting an admin quote",
+            "awaitingCustomerReply": "Awaiting customer reply",
+            "pendingPlusSent": "Pending + sent"
+        },
+        "panels": {
+            "statusDistribution": "Status Distribution",
+            "statusSubtitle": "Breakdown of quotations by status",
+            "monthlyTrend": "Monthly Trend",
+            "monthlySubtitle": "Quotations submitted per month",
+            "topIndustries": "Top Industries",
+            "topIndustriesSubtitle": "By quotation request volume",
+            "topProducts": "Top Products",
+            "topProductsSubtitle": "Most quoted items",
+            "topFabrics": "Top Fabrics",
+            "topFabricsSubtitle": "Most selected fabric options",
+            "topCustomers": "Top Customers",
+            "topCustomersSubtitle": "By quotation volume",
+            "customerGrowth": "Customer Growth",
+            "customerGrowthSubtitle": "New uniform-platform customers per month",
+            "salesRepPerformance": "Sales Rep Performance",
+            "salesRepPerformanceSubtitle": "Quotations assigned vs won",
+            "catalogSnapshot": "Catalog Snapshot",
+            "catalogSnapshotSubtitle": "Current published catalog size"
+        },
+        "catalog": {
+            "products": "Products",
+            "categories": "Categories",
+            "fabrics": "Fabrics",
+            "parts": "Parts",
+            "templates": "Templates"
+        },
+        "statusLabels": {
+            "Pending": "Pending",
+            "Received": "Received",
+            "Sent": "Sent",
+            "Approved": "Approved",
+            "Accepted": "Accepted",
+            "Cancelled": "Cancelled",
+            "Unknown": "Unknown"
+        }
     },
     "systemSettings": {
         "pageTitle": "System Settings",
@@ -944,10 +1315,34 @@
             "notifyQuotationStatusChange": "Quotation status change (to customer)",
             "notifyQuotationStatusChangeHint": "Sent as a request moves through Received → Quoting → Submitted → Agreed/Declined.",
             "adminNotificationRecipientsLabel": "Admin Notification Recipients",
-            "adminNotificationRecipientsPlaceholder": "admin@example.com, sales@example.com",
-            "adminNotificationRecipientsHint": "Comma-separated. Used for the internal alerts above.",
+            "adminRecipientsPlaceholder": "admin@example.com, sales@example.com",
+            "adminRecipientsHint": "Comma-separated. Used for the internal alerts above.",
             "cancel": "Cancel",
             "saveChanges": "Save Changes"
+        }
+    },
+    "notificationsPage": {
+        "pageTitle": "Notifications",
+        "pageSubtitle": "Stay updated with alerts and activities",
+        "markAllRead": "Mark All Read",
+        "noNotifications": "No notifications found",
+        "pageRange": "Page {current} of {total}",
+        "tabs": {
+            "all": "All",
+            "high": "High priority",
+            "medium": "Medium priority",
+            "low": "Low priority"
+        },
+        "priority": {
+            "high": "High",
+            "medium": "Medium",
+            "low": "Low"
+        },
+        "time": {
+            "justNow": "Just now",
+            "mAgo": "{count}m ago",
+            "hAgo": "{count}h ago",
+            "dAgo": "{count}d ago"
         }
     },
     "quotationRequests": {

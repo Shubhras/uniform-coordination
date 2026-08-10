@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiSave, FiLock } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
@@ -22,51 +23,6 @@ import {
  * plus the internal alert to admins on a new request.
  */
 
-const SENDER_FIELDS = [
-  {
-    name: "email_sender_name",
-    label: "Sender Name",
-    type: "text",
-    maxLength: 150,
-    placeholder: "KIREIZ FORM",
-    hint: "Shown as the From name on outgoing email.",
-  },
-  {
-    name: "email_sender_address",
-    label: "Sender Address",
-    type: "email",
-    placeholder: "no-reply@example.com",
-  },
-  {
-    name: "email_reply_to",
-    label: "Reply-To Address",
-    type: "email",
-    placeholder: "sales@example.com",
-    hint: "Where customer replies land.",
-  },
-];
-
-const TOGGLES = [
-  {
-    name: "notify_admin_on_new_request",
-    label: "New quotation request (to admin)",
-    hint: "Alerts the addresses below when a customer submits a request.",
-  },
-  {
-    name: "notify_customer_on_registration",
-    label: "Registration confirmation (to customer)",
-  },
-  {
-    name: "notify_customer_on_request_received",
-    label: "Request received confirmation (to customer)",
-  },
-  {
-    name: "notify_customer_on_status_change",
-    label: "Quotation status change (to customer)",
-    hint: "Sent as a request moves through Received → Quoting → Submitted → Agreed/Declined.",
-  },
-];
-
 const notify = (title, type, message) =>
   toast.push(
     <Notification title={title} type={type}>
@@ -75,12 +31,58 @@ const notify = (title, type, message) =>
   );
 
 const EmailNotifications = () => {
+  const t = useTranslations("systemSettings.emailNotifications");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const senderFields = [
+    {
+      name: "email_sender_name",
+      label: t("senderNameLabel"),
+      type: "text",
+      maxLength: 150,
+      placeholder: t("senderNamePlaceholder"),
+      hint: t("senderNameHint"),
+    },
+    {
+      name: "email_sender_address",
+      label: t("senderAddressLabel"),
+      type: "email",
+      placeholder: t("senderAddressPlaceholder"),
+    },
+    {
+      name: "email_reply_to",
+      label: t("replyToAddressLabel"),
+      type: "email",
+      placeholder: t("replyToAddressPlaceholder"),
+      hint: t("replyToAddressHint"),
+    },
+  ];
+
+  const toggles = [
+    {
+      name: "notify_admin_on_new_request",
+      label: t("notifyNewQuotationRequest"),
+      hint: t("notifyNewQuotationRequestHint"),
+    },
+    {
+      name: "notify_customer_on_registration",
+      label: t("notifyRegistrationConfirmation"),
+    },
+    {
+      name: "notify_customer_on_request_received",
+      label: t("notifyRequestReceivedConfirmation"),
+    },
+    {
+      name: "notify_customer_on_status_change",
+      label: t("notifyQuotationStatusChange"),
+      hint: t("notifyQuotationStatusChangeHint"),
+    },
+  ];
 
   const load = useCallback(async () => {
     if (!accessToken) {
@@ -98,13 +100,14 @@ const EmailNotifications = () => {
           email_sender_address: d.email_sender_address || "",
           email_reply_to: d.email_reply_to || "",
           email_footer_note: d.email_footer_note || "",
-          admin_notification_emails: d.admin_notification_emails || "",
-          notify_admin_on_new_request: !!d.notify_admin_on_new_request,
-          notify_customer_on_registration: !!d.notify_customer_on_registration,
+          notify_admin_on_new_request: d.notify_admin_on_new_request ?? true,
+          notify_customer_on_registration:
+            d.notify_customer_on_registration ?? true,
           notify_customer_on_request_received:
-            !!d.notify_customer_on_request_received,
+            d.notify_customer_on_request_received ?? true,
           notify_customer_on_status_change:
-            !!d.notify_customer_on_status_change,
+            d.notify_customer_on_status_change ?? true,
+          admin_notification_emails: d.admin_notification_emails || "",
         });
       }
     } catch (error) {
@@ -185,14 +188,14 @@ const EmailNotifications = () => {
       {/* Sender identity */}
       <div className="border border-[#E2E8F0] rounded-xl p-6">
         <h2 className="text-lg font-semibold text-[#1C2C56]">
-          Sender Identity
+          {t("senderIdentitySection")}
         </h2>
         <p className="text-sm text-[#64748B] mt-1">
-          How outgoing notification emails appear to recipients.
+          {t("senderIdentitySubtitle")}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
-          {SENDER_FIELDS.map((field) => (
+          {senderFields.map((field) => (
             <div key={field.name}>
               <label className="block text-sm font-medium text-[#1C2C56] mb-2">
                 {field.label}
@@ -215,14 +218,14 @@ const EmailNotifications = () => {
 
         <div className="mt-5">
           <label className="block text-sm font-medium text-[#1C2C56] mb-2">
-            Email Footer / Signature
+            {t("emailFooterLabel")}
           </label>
           <textarea
             name="email_footer_note"
             value={form.email_footer_note}
             onChange={change}
             rows={3}
-            placeholder="Appended to the bottom of notification emails."
+            placeholder={t("emailFooterPlaceholder")}
             className="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]/30"
           />
         </div>
@@ -231,8 +234,7 @@ const EmailNotifications = () => {
         <div className="flex gap-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg p-4 mt-5">
           <FiLock className="text-[#64748B] mt-0.5 flex-shrink-0" size={15} />
           <p className="text-xs text-[#64748B]">
-            SMTP host, port and password are not editable here by design — they
-            are credentials and stay in server environment configuration.
+            {t("smtpNoticeText")}
           </p>
         </div>
       </div>
@@ -240,14 +242,14 @@ const EmailNotifications = () => {
       {/* Notification routing */}
       <div className="border border-[#E2E8F0] rounded-xl p-6">
         <h2 className="text-lg font-semibold text-[#1C2C56]">
-          Notifications
+          {t("notificationsSection")}
         </h2>
         <p className="text-sm text-[#64748B] mt-1">
-          Choose which emails the system sends.
+          {t("notificationsSubtitle")}
         </p>
 
         <div className="mt-6 space-y-1">
-          {TOGGLES.map((toggle) => (
+          {toggles.map((toggle) => (
             <label
               key={toggle.name}
               className="flex items-start gap-3 py-3 border-b border-[#F1F5F9] last:border-0 cursor-pointer"
@@ -275,18 +277,18 @@ const EmailNotifications = () => {
 
         <div className="mt-6">
           <label className="block text-sm font-medium text-[#1C2C56] mb-2">
-            Admin Notification Recipients
+            {t("adminRecipientsLabel")}
           </label>
           <input
             type="text"
             name="admin_notification_emails"
             value={form.admin_notification_emails}
             onChange={change}
-            placeholder="admin@example.com, sales@example.com"
+            placeholder={t("adminRecipientsPlaceholder")}
             className="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]/30"
           />
           <p className="text-xs text-[#94A3B8] mt-1">
-            Comma-separated. Used for the internal alerts above.
+            {t("adminRecipientsHint")}
           </p>
         </div>
 
@@ -298,7 +300,7 @@ const EmailNotifications = () => {
             disabled={saving}
             className="border border-[#CBD5E1] text-[#486284] px-4 py-2 rounded-lg text-sm disabled:opacity-50"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             type="button"
@@ -307,7 +309,7 @@ const EmailNotifications = () => {
             className="flex items-center gap-2 bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
           >
             <FiSave size={15} />
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? "Saving..." : t("saveChanges")}
           </button>
         </div>
       </div>
