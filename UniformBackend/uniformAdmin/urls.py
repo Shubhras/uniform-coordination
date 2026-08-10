@@ -22,6 +22,7 @@ from .quotation_history import *
 from .sales_reps import *
 from .simulation_config import *
 from .reports import *
+from .simulation_assets import *
 
 
 
@@ -213,6 +214,11 @@ urlpatterns = [
     # Reports & Analytics
     path("reports/analytics/",ReportsAnalyticsAPIView.as_view(),name="reports-analytics"),
     path("reports/export/",ReportsExportAPIView.as_view(),name="reports-export"),
+
+    # Simulation Assets (canvas layer registration)
+    path("simulation-assets/",SimulationAssetListAPIView.as_view(),name="simulation-assets-list"),
+    path("simulation-assets/reorder/",SimulationAssetReorderAPIView.as_view(),name="simulation-assets-reorder"),
+    path("simulation-assets/<int:pk>/update/",SimulationAssetUpdateAPIView.as_view(),name="simulation-assets-update"),
     path("pdf-templates/<int:pk>/",PdfTemplateDetailAPIView.as_view(),name="pdf-template-detail"),
     path("pdf-templates/<int:pk>/update/",PdfTemplateUpdateAPIView.as_view(),name="pdf-template-update"),
     path("pdf-templates/<int:pk>/delete/",PdfTemplateDeleteAPIView.as_view(),name="pdf-template-delete"),

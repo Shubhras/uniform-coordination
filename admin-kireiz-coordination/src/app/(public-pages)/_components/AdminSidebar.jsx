@@ -57,6 +57,12 @@ const sidebarMenu = [
     slug: "pdf_simulation_configuration",
   },
   {
+    label: "Simulation Assets",
+    icon: FiImage,
+    path: "/simulation-assets",
+    slug: "simulation_assets",
+  },
+  {
     label: "Reports & Analytics",
     icon: FiBarChart2,
     path: "/reports-analytics",

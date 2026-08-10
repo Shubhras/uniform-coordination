@@ -33,10 +33,12 @@ const STATUS_COLORS = {
   Unknown: "#94A3B8",
 };
 
-const money = (value) =>
+// Symbol comes from SystemSettings via the API — never hardcoded, so changing the
+// system currency doesn't need a code change.
+const formatMoney = (value, symbol = "$") =>
   value === null || value === undefined
     ? "—"
-    : `¥${Number(value).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+    : `${symbol}${Number(value).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
 const num = (value) =>
   value === null || value === undefined ? "—" : Number(value).toLocaleString();
@@ -286,6 +288,9 @@ const ReportsAnalyticsPage = () => {
       <FiDownload size={15} />
     </button>
   );
+
+  const currencySymbol = data?.currency?.symbol || "$";
+  const money = (value) => formatMoney(value, currencySymbol);
 
   const stats = data?.stats;
   const charts = data?.charts;

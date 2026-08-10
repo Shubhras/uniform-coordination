@@ -24,6 +24,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from uniformAdmin.auth import IsAdminUserJWT
+from uniformAdmin.currency import get_currency
 from uniformAdmin.models import QuotationTemplate
 from userhub.models import QuotationRequest
 
@@ -166,6 +167,7 @@ class QuotationHistoryListAPIView(APIView):
                 "statusCode": 200,
                 "message": "Quotation history fetched successfully",
                 "count": total_count,
+                "currency": get_currency(),
                 "page": page,
                 "page_size": page_size,
                 "data": [serialize_history_row(q) for q in rows],

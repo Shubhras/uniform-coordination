@@ -581,8 +581,13 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             )
         return value
     def create(self, validated_data):
-        if not validated_data.get("quotation_id"):
-            validated_data["quotation_id"] = f"QUOT-{uuid.uuid4().hex[:6].upper()}"
+        # Deliberately does NOT generate quotation_id.
+        #
+        # This used to set QUOT-{uuid hex}, which pre-empted the model's save() and
+        # meant the automated QUOyy-00001 running code never applied. Leave the field
+        # unset so QuotationRequest.save() -> DocumentCounter.next_code("QUO") is the
+        # single source for document numbers.
+        validated_data.pop("quotation_id", None)
         return super().create(validated_data)
     
     
