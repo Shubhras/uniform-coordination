@@ -126,7 +126,7 @@ const AddEditProductModal = ({
 }) => {
   const t = useTranslations("productSpecification.products");
   const tm = useTranslations("productSpecification.products.addProductModal");
-  const fileRef = useRef(null);
+  const fileInputRef = useRef(null);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const isEdit = Boolean(initialData);
@@ -359,8 +359,8 @@ const AddEditProductModal = ({
       setImageValidated(false);
       setError("");
 
-      if (fileRef.current) {
-        fileRef.current.value = "";
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
     }
   }, [isOpen, initialData, isEdit, reset]);
@@ -387,7 +387,7 @@ const AddEditProductModal = ({
 
       setImageFile(file);
       setPreview(objectUrl);
-      setValidated(true);
+      setImageValidated(true);
     };
 
     img.onerror = () => {
@@ -505,7 +505,7 @@ const AddEditProductModal = ({
             {imageError && (
               <p className="text-red-500 text-sm mt-1">{imageError}</p>
             )}
-            {validated && (
+            {imageValidated && (
               <div className="mb-2 flex items-center gap-2 text-sm text-green-600 font-medium">
                 <FiCheckCircle className="text-green-600" size={16} />
                 <span>{tm("imageValidated")}</span>

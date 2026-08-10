@@ -8,7 +8,7 @@ import {
   FiTrash2,
   FiChevronLeft,
   FiChevronRight,
-  FiX,
+  FiX, FiPlus
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
@@ -148,8 +148,9 @@ const FabricsTab = () => {
             setEditFabric(null);
             setOpenAdd(true);
           }}
-          className="bg-[#1C4FA8] text-white px-4 py-2 font-medium rounded-md text-sm"
+          className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-[#163F86] transition-colors"
         >
+          <FiPlus size={14} />
           {t("addNew")}
         </button>
       </div>
@@ -246,11 +247,10 @@ const FabricsTab = () => {
 
                   <td className="px-5 py-4">
                     <span
-                      className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        fabric.isActive
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-600"
-                      }`}
+                      className={`text-xs font-medium px-2 py-1 rounded-full ${fabric.isActive
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-600"
+                        }`}
                     >
                       {fabric.isActive ? t("addFabricModal.statusActive") : t("addFabricModal.statusInactive")}
                     </span>

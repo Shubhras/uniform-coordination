@@ -6,7 +6,7 @@ import {
   FiTrash2,
   FiChevronLeft,
   FiChevronRight,
-  FiSearch,
+  FiSearch, FiPlus,
   FiX,
 } from "react-icons/fi";
 import Select from "react-select";
@@ -168,7 +168,7 @@ const ProductsTab = () => {
       await apiDeleteProduct(accessToken, productToDelete.id);
       toast.push(
         <Notification title={t("successTitle")} type="success">
-          Product deleted successfully.
+          {t("deleteSuccess")}
         </Notification>,
       );
       setDeleteDialogOpen(false);
@@ -255,8 +255,9 @@ const ProductsTab = () => {
 
         <button
           onClick={handleAdd}
-          className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium"
+          className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-[#163F86] transition-colors"
         >
+          <FiPlus size={14} />
           {t("addNew")}
         </button>
       </div>
@@ -347,7 +348,7 @@ const ProductsTab = () => {
                     onClick={() => handleEdit(item)}
                     className="flex-1 bg-[#1C4FA8] text-white text-xs py-2 rounded-md"
                   >
-                    Edit
+                    {t("edit")}
                   </button>
                   <button
                     onClick={() => {
@@ -357,7 +358,7 @@ const ProductsTab = () => {
                     className="flex-1 border border-red-200 text-red-500 text-xs py-2 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                   >
                     <FiTrash2 size={12} />
-                    Delete
+                    {t("delete")}
                   </button>
                 </div>
               </div>

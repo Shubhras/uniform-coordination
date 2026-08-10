@@ -49,10 +49,10 @@ const AddEditFabricModal = ({
   const accessToken = session?.user?.accessToken;
 
   const materialOptions = [
-    { value: "cotton", label: "Cotton" },
-    { value: "polyester", label: "Polyester" },
-    { value: "silk", label: "Silk" },
-    { value: "linen", label: "Linen" },
+    { value: "cotton", label: tm("materialTypeOptions.cotton") },
+    { value: "polyester", label: tm("materialTypeOptions.polyester") },
+    { value: "silk", label: tm("materialTypeOptions.silk") },
+    { value: "linen", label: tm("materialTypeOptions.linen") },
   ];
 
   const [fabricName, setFabricName] = useState("");
@@ -566,7 +566,7 @@ const AddEditFabricModal = ({
                   />
                 </button>
                 <span className="text-sm text-[#1C2C56]">
-                  {active ? tm("statusActive") : "Inactive"}
+                  {active ? tm("statusActive") : tm("statusInactive")}
                 </span>
               </div>
             </div>

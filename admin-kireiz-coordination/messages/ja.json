@@ -393,7 +393,7 @@
         "parts": {
             "title": "パーツ画像ライブラリ",
             "totalCount": "パーツ 合計{count}件",
-            "addNew": "+ 新しいパーツをアップロード",
+            "addNew": "新しいパーツをアップロード",
             "searchPlaceholder": "パーツを検索...",
             "allCategories": "すべてのカテゴリー",
             "reset": "リセット",
@@ -459,7 +459,7 @@
         "colors": {
             "title": "カラーパレット",
             "totalCount": "{count}色が利用可能",
-            "addNew": "+ カラーを追加",
+            "addNew": "カラーを追加",
             "searchPlaceholder": "カラーを検索...",
             "noData": "カラーが見つかりません",
             "showingRange": "表示中 ",
@@ -499,7 +499,7 @@
         "template": {
             "title": "テンプレートギャラリー",
             "totalCount": "{count}件のテンプレートが利用可能",
-            "addNew": "+ テンプレートを作成",
+            "addNew": "テンプレートを作成",
             "searchPlaceholder": "テンプレートを検索...",
             "allCategories": "すべてのカテゴリー",
             "reset": "リセット",
@@ -547,7 +547,7 @@
         "products": {
             "title": "商品作成",
             "totalCount": "{count}件の商品が利用可能",
-            "addNew": "+ 商品を追加",
+            "addNew": "商品を追加",
             "searchPlaceholder": "商品を検索...",
             "allCategories": "すべてのカテゴリー",
             "reset": "リセット",
@@ -558,6 +558,9 @@
                 "title": "商品を削除",
                 "message": "この商品を削除してもよろしいですか？この操作は取り消せません。"
             },
+            "edit": "編集",
+            "delete": "削除",
+            "deleteSuccess": "商品が正常に削除されました。",
             "addProductModal": {
                 "modalTitle": "商品を追加",
                 "editModalTitle": "商品を編集",
@@ -681,7 +684,7 @@
         "catalogImages": {
             "title": "カタログ画像",
             "subtitle": "カタログ写真のアップロードと管理",
-            "addNew": "+ 画像をアップロード",
+            "addNew": "画像をアップロード",
             "searchPlaceholder": "カタログを検索...",
             "noData": "カタログ画像が見つかりません",
             "showingRange": "表示中 ",
@@ -721,7 +724,7 @@
             "title": "ブログ",
             "subtitle": "ブログ記事の管理",
             "arrangeOrder": "並び順を変更",
-            "addNew": "+ ブログを追加",
+            "addNew": "ブログを追加",
             "searchPlaceholder": "ブログ記事を検索...",
             "noData": "ブログ記事が見つかりません",
             "showingRange": "表示中 ",
@@ -1194,7 +1197,7 @@
             "title": "テリトリー・アカウント割り当て",
             "subtitle": "アカウントをドラッグして営業担当者に割り当てます。",
             "searchPlaceholder": "検索...",
-            "addRepresentative": "+ 担当者を追加",
+            "addRepresentative": "担当者を追加",
             "noData": "営業担当者はまだいません",
             "noDataSubtitle": "「営業担当」タブで担当者を追加すると、アカウントを割り当てできます。"
         },
@@ -1533,6 +1536,11 @@
         "myProfile": "マイプロフィール",
         "changePassword": "パスワード変更",
         "signOut": "サインアウト"
+    },
+    "deleteConfirmDialog": {
+        "cancel": "キャンセル",
+        "delete": "削除",
+        "deleting": "削除中..."
     },
     "notificationPopup": {
         "title": "通知",
