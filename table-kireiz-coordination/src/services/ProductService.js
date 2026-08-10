@@ -32,13 +32,16 @@ export async function apiGetProduct({ id, ...params }) {
  * Fetches browse by color product catalog list.
  * 
  * @param {Object} [params={}] - Optional query parameters for filtering by color or category.
+ * @param {string} [token] - Optional user authentication Bearer token.
  * @returns {Promise<Object>} API response with product items.
  */
-export async function apiGetBrowseByColorProductData(params = {}) {
+export async function apiGetBrowseByColorProductData(params = {}, token = null) {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
   return ApiService.fetchDataWithAxios({
     url: '/v1/space/uniformAdmin/product/list/?productType=table',
     method: 'get',
     params,
+    headers,
   })
 }
 
@@ -67,6 +70,36 @@ export async function apiGetProductDetailsById(id) {
     url: `/v1/space/uniformAdmin/product/get/${id}/`,
     method: "get",
   });
+}
+
+/**
+ * Fetches dynamic simulation categories and structures.
+ * 
+ * @returns {Promise<Object>} API response with list of categories and attribute structures.
+ */
+export async function apiGetSimulationCategories() {
+  return ApiService.fetchDataWithAxios({
+    url: '/v1/space/uniformAdmin/simulation/categories/',
+    method: 'get',
+  })
+}
+
+/**
+ * Fetches dynamic options for a specific simulation category.
+ * 
+ * @param {string} categoryName - Category name to filter by.
+ * @param {string} [tableShape] - Optional table shape to filter by.
+ * @returns {Promise<Object>} API response with list of fabrics, colors, styles, sizes.
+ */
+export async function apiGetSimulationOptions(categoryName, tableShape = "") {
+  return ApiService.fetchDataWithAxios({
+    url: '/v1/space/uniformAdmin/simulation/options/',
+    method: 'get',
+    params: {
+      category_name: categoryName,
+      table_shape: tableShape
+    }
+  })
 }
 
 

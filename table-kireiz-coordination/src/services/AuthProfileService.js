@@ -123,3 +123,39 @@ export async function apiSimulationExportPdf(token, id) {
 //     },
 //   });
 // }
+
+/**
+ * Toggles favorite status of a product.
+ * 
+ * @param {string} token - User authentication Bearer token.
+ * @param {string|number} productId - Target product ID.
+ * @returns {Promise<Object>} API response with status and toggled state.
+ */
+export async function apiToggleProductFavourite(token, productId) {
+    return ApiService.fetchDataWithAxios({
+        url: '/v1/space/userhub/favourite/toggle/',
+        method: 'post',
+        data: { product_id: productId },
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    })
+}
+
+/**
+ * Toggles favorite status of a table theme.
+ * 
+ * @param {string} token - User authentication Bearer token.
+ * @param {string|number} themeId - Target theme ID.
+ * @returns {Promise<Object>} API response with status and toggled state.
+ */
+export async function apiToggleThemeFavourite(token, themeId) {
+    return ApiService.fetchDataWithAxios({
+        url: '/v1/space/userhub/theme/favourite/toggle/',
+        method: 'post',
+        data: { theme_id: themeId },
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    })
+}

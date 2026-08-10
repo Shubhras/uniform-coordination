@@ -1,4 +1,0 @@
-{
-  "/(public-pages)/table-form/page": "app/(public-pages)/table-form/page.js",
-  "/(protected-pages)/profile/my-profile/page": "app/(protected-pages)/profile/my-profile/page.js"
-}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiGetReportAnalytics } from "@/services//ReportAnalytics";
+import { apiGetReportAnalytics, apiExportReportAnalytics } from "@/services//ReportAnalytics";
 import { FiDownload } from "react-icons/fi";
 
 const inventoryColors = {
@@ -29,10 +29,36 @@ function DonutChart({
   const innerRadius = radius - thickness;
   const center = size / 2;
 
+  if (total === 0) {
+    return (
+      <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
+        <circle
+          cx={center}
+          cy={center}
+          r={(radius + innerRadius) / 2}
+          fill="none"
+          stroke="#F4EAE3"
+          strokeWidth={thickness}
+        />
+        <text
+          x={center}
+          y={center}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize="11"
+          fontWeight={500}
+          fill="#B3A096"
+        >
+          No Data
+        </text>
+      </svg>
+    );
+  }
+
   let cumulativeAngle = -90; // start at 12 o'clock
 
   const arcs = segments.map((seg) => {
-    const angle = (seg.value / total) * 360;
+    const angle = Math.min((seg.value / total) * 360, 359.99);
     const startAngle = cumulativeAngle;
     const endAngle = cumulativeAngle + angle;
     cumulativeAngle = endAngle;
@@ -116,39 +142,49 @@ const ReportsAnalyticsPage = () => {
   const accessToken = session?.user?.accessToken;
 
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [tooltip, setTooltip] = useState(null);
 
-  const chartWidth = 340;
+  const chartWidth = 600;
   const chartLeftPad = 34;
   const chartRightPad = 16;
   const plotWidth = chartWidth - chartLeftPad - chartRightPad;
 
+  const getNiceMaxValue = (max) => {
+    if (max <= 10) return 10;
+    if (max <= 50) return 50;
+    if (max <= 100) return 100;
+    const order = Math.pow(10, Math.floor(Math.log10(max)));
+    const candidates = [order, order * 2, order * 5, order * 10];
+    return candidates.find((c) => c >= max) || max;
+  };
+
   const summaryCards = [
     {
       label: "TOTAL REVENUE",
-      value: `${reportData?.kpi?.total_revenue ?? 0}`,
+      value: `¥${Number(reportData?.kpi?.total_revenue ?? 0).toLocaleString()}`,
     },
     {
       label: "TOTAL ORDERS",
-      value: reportData?.kpi?.total_orders ?? 0,
+      value: (reportData?.kpi?.total_orders ?? 0).toLocaleString(),
     },
     {
       label: "ACTIVE RENTALS",
-      value: reportData?.kpi?.active_rentals ?? 0,
+      value: (reportData?.kpi?.active_rentals ?? 0).toLocaleString(),
     },
     {
       label: "INVENTORY ITEMS",
-      value: reportData?.kpi?.inventory_items ?? 0,
+      value: (reportData?.kpi?.inventory_items ?? 0).toLocaleString(),
     },
     {
       label: "LATE RETURNS",
-      value: reportData?.kpi?.late_returns ?? 0,
+      value: (reportData?.kpi?.late_returns ?? 0).toLocaleString(),
       valueClass: "text-[#E4574E]",
     },
     {
       label: "CUSTOMERS",
-      value: reportData?.kpi?.total_customers ?? 0,
+      value: (reportData?.kpi?.total_customers ?? 0).toLocaleString(),
     },
   ];
 
@@ -165,14 +201,30 @@ const ReportsAnalyticsPage = () => {
     })) || [];
 
   const maxValue =
-    Math.max(...growthPoints.map((item) => item.value), 100) || 100;
+    Math.max(...growthPoints.map((item) => item.value), 5) || 5;
+  const niceMaxValue = getNiceMaxValue(maxValue);
   const chartTop = 24;
   const chartBottom = 165;
   const plotHeight = chartBottom - chartTop;
 
-  const yForValue = (value) => chartBottom - (value / maxValue) * plotHeight;
+  const yForValue = (value) => chartBottom - (value / niceMaxValue) * plotHeight;
+  const yTicks = Array.from({ length: 6 }, (_, i) => Math.round((niceMaxValue / 5) * i));
+
   const maxBarValue =
-    Math.max(...categoryBars.map((item) => item.value), 100) || 100;
+    Math.max(...categoryBars.map((item) => item.value), 5) || 5;
+  const niceBarMaxValue = getNiceMaxValue(maxBarValue);
+  const barTicks = Array.from({ length: 5 }, (_, i) => Math.round((niceBarMaxValue / 4) * i));
+
+  const getGrowthText = () => {
+    if (growthPoints.length < 2) return "0% growth";
+    const firstVal = growthPoints[0].value;
+    const lastVal = growthPoints[growthPoints.length - 1].value;
+    if (firstVal === 0) {
+      return lastVal > 0 ? "+100% growth" : "0% growth";
+    }
+    const pct = ((lastVal - firstVal) / firstVal) * 100;
+    return `${pct >= 0 ? "+" : ""}${pct.toFixed(0)}% growth`;
+  };
 
   const stepX =
     growthPoints.length > 1 ? plotWidth / (growthPoints.length - 1) : plotWidth;
@@ -202,6 +254,25 @@ const ReportsAnalyticsPage = () => {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+      const blob = await apiExportReportAnalytics(accessToken, "table");
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `reports_analytics_export_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to export report:", err);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   useEffect(() => {
     if (accessToken) {
       getReportAnalytics();
@@ -222,10 +293,12 @@ const ReportsAnalyticsPage = () => {
 
         <button
           type="button"
-          className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-[#A0522D] px-4 text-[13px] font-medium text-white"
+          disabled={exporting}
+          onClick={handleExport}
+          className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-[#A0522D] hover:bg-[#854122] disabled:opacity-50 px-4 text-[13px] font-medium text-white transition-colors duration-150"
         >
-          <FiDownload size={14} />
-          Export Data
+          <FiDownload size={14} className={exporting ? "animate-bounce" : ""} />
+          {exporting ? "Exporting..." : "Export Data"}
         </button>
       </div>
 
@@ -253,16 +326,16 @@ const ReportsAnalyticsPage = () => {
             <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
               Customer Growth (Last 6 Months)
             </h2>
-            <p className="text-[11px] text-[#C0ADA0]">+12% avg growth</p>
+            <p className="text-[11px] text-[#C0ADA0]">{getGrowthText()}</p>
           </div>
 
           <div className="mt-5 overflow-x-auto">
             <div className="min-w-[520px]">
               <svg
                 viewBox={`0 0 ${chartWidth} 190`}
-                className="h-[190px] w-full"
+                className="w-full h-auto"
               >
-                {[0, 200, 400, 600, 800, 1000].map((value) => (
+                {yTicks.map((value) => (
                   <line
                     key={value}
                     x1={chartLeftPad}
@@ -303,7 +376,7 @@ const ReportsAnalyticsPage = () => {
                     </text>
                   </g>
                 ))}
-                {[0, 200, 400, 600, 800, 1000].map((label) => (
+                {yTicks.map((label) => (
                   <text
                     key={label}
                     x={chartLeftPad - 8}
@@ -312,7 +385,7 @@ const ReportsAnalyticsPage = () => {
                     fontSize="10"
                     fill="#B3A096"
                   >
-                    {label}
+                    {label.toLocaleString()}
                   </text>
                 ))}
               </svg>
@@ -378,7 +451,7 @@ const ReportsAnalyticsPage = () => {
                 <div className="h-5 w-full rounded-[3px] bg-[#F4EAE3]">
                   <div
                     className="h-5 rounded-[3px] bg-[#B56735]"
-                    style={{ width: `${(item.value / maxBarValue) * 100}%` }}
+                    style={{ width: `${(item.value / niceBarMaxValue) * 100}%` }}
                   />
                 </div>
               </div>
@@ -386,11 +459,9 @@ const ReportsAnalyticsPage = () => {
           </div>
 
           <div className="mt-4 flex justify-between pl-[126px] pr-1 text-[10px] text-[#B3A096]">
-            <span>0</span>
-            <span>100</span>
-            <span>200</span>
-            <span>300</span>
-            <span>400</span>
+            {barTicks.map((tick) => (
+              <span key={tick}>{tick.toLocaleString()}</span>
+            ))}
           </div>
         </div>
 
