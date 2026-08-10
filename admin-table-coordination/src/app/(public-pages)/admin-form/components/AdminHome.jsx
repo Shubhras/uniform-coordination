@@ -32,27 +32,27 @@ const AdminHome = () => {
 
   const accessToken = session?.user?.accessToken;
 
+  const fetchDashboard = async (silent = false) => {
+    if (!accessToken) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      if (!silent) setLoading(true);
+      const response = await apiGetDashboard(accessToken);
+      if (response?.data) {
+        setDashboardData(response.data);
+      }
+    } catch (err) {
+      console.error("Dashboard fetch error:", err);
+      setError(err?.message || "Failed to load dashboard data");
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchDashboard = async () => {
-      if (!accessToken) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const response = await apiGetDashboard(accessToken);
-        if (response?.data) {
-          setDashboardData(response.data);
-        }
-      } catch (err) {
-        console.error("Dashboard fetch error:", err);
-        setError(err?.message || "Failed to load dashboard data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDashboard();
   }, [accessToken]);
 
@@ -66,7 +66,7 @@ const AdminHome = () => {
       <DashboardStats data={dashboardData} />
       <div className='mt-5 px-5 md:px-8 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-5'>
         <MostUsedIndustriesChart data={dashboardData} />
-        <QuotationRequestsChart data={dashboardData} />
+        <QuotationRequestsChart chartData={dashboardData?.Orders_This_Week} />
       </div>
       {/* <div className=' mt-5 px-5 md:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 gap-5'>
         <RecentlyCards data={dashboardData} />
@@ -74,8 +74,8 @@ const AdminHome = () => {
       </div> */}
       <div className="mt-5 px-5 md:px-8 lg:px-8">
         <QuickActionsCard />
-    </div>
-      <ActiveAlerts data={dashboardData} />
+      </div>
+      <ActiveAlerts data={dashboardData} onRefresh={() => fetchDashboard(true)} />
     </main>
   );
 };

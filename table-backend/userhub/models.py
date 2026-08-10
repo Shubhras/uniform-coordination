@@ -259,6 +259,7 @@ class Rental(models.Model):
     grace_period_days = models.IntegerField(default=3)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
+    is_reviewed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

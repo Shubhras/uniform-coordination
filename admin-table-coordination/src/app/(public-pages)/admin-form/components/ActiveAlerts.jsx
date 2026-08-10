@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { FiAlertTriangle, FiClock } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { apiMarkAlertsReviewed } from "@/services/DashboardService";
 
 const defaultAlerts = [
   {
@@ -28,8 +30,10 @@ const iconMap = {
   clock: FiClock,
 };
 
-const ActiveAlerts = ({ data }) => {
+const ActiveAlerts = ({ data, onRefresh }) => {
   const router = useRouter();
+  const { session } = useCurrentSession();
+  const accessToken = session?.user?.accessToken;
   const [isCleared, setIsCleared] = useState(false);
   const apiAlerts = data?.Active_Alerts;
 
@@ -48,10 +52,20 @@ const ActiveAlerts = ({ data }) => {
     }
   }, [alertsSignature]);
 
-  const handleMarkAllRead = () => {
+  const handleMarkAllRead = async () => {
     setIsCleared(true);
     if (typeof window !== "undefined") {
       localStorage.setItem("dashboard_alerts_cleared_signature", alertsSignature);
+    }
+    if (accessToken) {
+      try {
+        await apiMarkAlertsReviewed(accessToken);
+        if (onRefresh) {
+          onRefresh();
+        }
+      } catch (err) {
+        console.error("Failed to mark alerts as reviewed:", err);
+      }
     }
   };
 
@@ -65,7 +79,7 @@ const ActiveAlerts = ({ data }) => {
             action: "Review Now",
             icon: "alert",
             color: "text-red-500",
-            count: apiAlerts.high?.count,
+            count: apiAlerts.high?.count || 0,
             path: "/inventory-management?tab=Inspection Queue",
           },
           {
@@ -74,10 +88,10 @@ const ActiveAlerts = ({ data }) => {
             action: "View Details",
             icon: "clock",
             color: "text-orange-500",
-            count: apiAlerts.medium?.count,
+            count: apiAlerts.medium?.count || 0,
             path: "/orders",
           },
-        ]
+        ].filter(alert => alert.count > 0)
       : defaultAlerts;
 
   const alertCount = isCleared

@@ -177,3 +177,109 @@ class ReportsAnalyticsAPITestCase(APITestCase):
         for g in growth:
             self.assertEqual(g["value"], 0)
 
+
+from uniformAdmin.models import InspectionItem
+
+class AdminDashboardAlertsTestCase(APITestCase):
+
+    def setUp(self):
+        # Create roles
+        self.admin_role = Role.objects.create(role_name="admin")
+        self.customer_role = Role.objects.create(role_name="customer")
+
+        # Create admin user
+        self.admin_user = AdminUser.objects.create(
+            name="Admin User",
+            email="admin@example.com",
+            role=self.admin_role,
+            is_staff=True,
+            is_superuser=True
+        )
+        self.admin_user.set_password("adminpass")
+        self.admin_user.save()
+
+        # Create customer user
+        self.customer = Users.objects.create(
+            email="customer@example.com",
+            role=self.customer_role,
+            userType="table"
+        )
+        self.customer.set_password("custpass")
+        self.customer.save()
+
+        # Create customer details
+        self.customer_details = CustomerDetails.objects.create(
+            user=self.customer,
+            first_name="Jane",
+            last_name="Doe",
+            email="customer@example.com",
+            phone="123456789"
+        )
+
+        # Create order
+        self.order = Order.objects.create(
+            user=self.customer,
+            customer=self.customer_details,
+            total_amount=Decimal("1200.00"),
+            order_type="table",
+            status="delivered"
+        )
+
+        # Create Rental
+        self.rental = Rental.objects.create(
+            order=self.order,
+            customer=self.customer_details,
+            start_date=timezone.now().date(),
+            end_date=timezone.now().date() + timedelta(days=2),
+            status="late",
+            total_amount=Decimal("1200.00")
+        )
+        self.rental_item = RentalItem.objects.create(
+            rental=self.rental,
+            product=Product.objects.create(
+                productName="Cloth",
+                productType="table",
+                price=Decimal("10.00"),
+                total_quantity=10,
+                available_quantity=10
+            ),
+            quantity=1,
+            price_per_day=Decimal("10.00")
+        )
+
+        # Create InspectionItem
+        self.inspection = InspectionItem.objects.create(
+            rental_item=self.rental_item,
+            order=self.order,
+            returned_qty=1,
+            result="pending"
+        )
+
+    def test_dashboard_alerts_and_mark_reviewed(self):
+        self.client.force_authenticate(user=self.admin_user)
+
+        # Get dashboard alerts count initially
+        response = self.client.get(reverse("admin-dash-info"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        active_alerts = response.data.get("data", {}).get("Active_Alerts", {})
+        self.assertEqual(active_alerts.get("high", {}).get("count"), 1)
+        self.assertEqual(active_alerts.get("medium", {}).get("count"), 1)
+
+        # Verify Orders_This_Week
+        orders_this_week = response.data.get("data", {}).get("Orders_This_Week", [])
+        self.assertEqual(len(orders_this_week), 7)
+        total_orders = sum(item["value"] for item in orders_this_week)
+        self.assertEqual(total_orders, 1)
+
+        # Call mark-alerts-reviewed API view
+        mark_response = self.client.post(reverse("mark-alerts-reviewed"))
+        self.assertEqual(mark_response.status_code, status.HTTP_200_OK)
+
+        # Get dashboard alerts count again, should be 0
+        response2 = self.client.get(reverse("admin-dash-info"))
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        active_alerts2 = response2.data.get("data", {}).get("Active_Alerts", {})
+        self.assertEqual(active_alerts2.get("high", {}).get("count"), 0)
+        self.assertEqual(active_alerts2.get("medium", {}).get("count"), 0)
+
+
