@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   FiTrash2,
   FiChevronLeft,
@@ -21,6 +22,7 @@ import Pagination from "@/components/ui/Pagination";
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 const ProductsTab = () => {
+  const t = useTranslations("productSpecification.products");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -43,24 +45,22 @@ const ProductsTab = () => {
   }, [searchQuery]);
 
   const [categoryOptions, setCategoryOptions] = useState([
-    { value: "", label: "All Categories" },
+    { value: "", label: t("allCategories") },
   ]);
 
   const [selectedCategory, setSelectedCategory] = useState({
     value: "",
-    label: "All Categories",
+    label: t("allCategories"),
   });
 
   const selectStyles = {
-    control: (base) => ({
+    control: (base, state) => ({
       ...base,
       minHeight: "40px",
       borderRadius: "6px",
-      borderColor: "#E2E8F0",
+      borderColor: state.isFocused ? "#1C2C56" : "#E2E8F0",
       boxShadow: "none",
-      "&:hover": {
-        borderColor: "#1C2C56",
-      },
+      "&:hover": { borderColor: "#1C2C56" },
     }),
     option: (base, state) => ({
       ...base,
@@ -93,22 +93,45 @@ const ProductsTab = () => {
     total_items: 0,
   });
 
-  /* ---------- FETCH ---------- */
+  /* ---------- FETCH CATEGORIES ---------- */
+  useEffect(() => {
+    const fetchCategories = async () => {
+      if (!accessToken) return;
+      try {
+        const response = await apiFabricCategoryList(accessToken, 1, 100);
+        if (response?.status && response?.data) {
+          const opts = [
+            { value: "", label: t("allCategories") },
+            ...response.data.map((c) => ({
+              value: c.id,
+              label: c.categoryName,
+            })),
+          ];
+          setCategoryOptions(opts);
+        }
+      } catch (err) {
+        console.error("Failed to load categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, [accessToken, t]);
+
+  /* ---------- FETCH PRODUCTS ---------- */
   const fetchProducts = useCallback(
     async (page = 1) => {
       if (!accessToken) return;
 
       try {
         setLoading(true);
+        const catValue = selectedCategory?.value || "";
+
         const response = await apiGetProductList(accessToken, {
           page,
           pageSize,
           productType: "uniform",
           search: debouncedSearch,
-          categoryId: selectedCategory?.value,
-          // subcategoryId: selectedSubcategory?.value,
-          // type: selectedType?.value,
-          // ordering: selectedOrdering?.value,
+          categoryId: catValue,
         });
 
         if (response?.status && response?.data) {
@@ -142,10 +165,10 @@ const ProductsTab = () => {
 
     try {
       setDeleteLoading(true);
-      const response = await apiDeleteProduct(accessToken, productToDelete.id);
+      await apiDeleteProduct(accessToken, productToDelete.id);
       toast.push(
-        <Notification title="Success" type="success">
-          {response?.message}
+        <Notification title={t("successTitle")} type="success">
+          Product deleted successfully.
         </Notification>,
       );
       setDeleteDialogOpen(false);
@@ -179,54 +202,23 @@ const ProductsTab = () => {
     fetchProducts(currentPage);
   };
 
-  /* ---------- IMAGE URL ---------- */
+  /* ---------- FILTER ---------- */
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery) return products;
+    const query = searchQuery.toLowerCase();
+    return products.filter(
+      (item) =>
+        item.productName?.toLowerCase().includes(query) ||
+        item.description?.toLowerCase().includes(query),
+    );
+  }, [products, searchQuery]);
+
+  /* ---------- HELPERS ---------- */
   const getImageUrl = (path) => {
-    if (!path) return null;
+    if (!path) return "/img/admin/products/product-1.png";
     if (path.startsWith("http")) return path;
     return `${API_BASE}${path}`;
   };
-
-  /* ---------- PAGINATION ---------- */
-  const goToPage = (page) => {
-    if (page >= 1 && page <= pagination.total_pages) {
-      setCurrentPage(page);
-    }
-  };
-
-  const filteredProducts = products.filter((item) => {
-    const query = searchQuery.toLowerCase().trim();
-
-    return (
-      item.productName?.toLowerCase().includes(query) ||
-      item.description?.toLowerCase().includes(query)
-    );
-  });
-  const fetchCategories = useCallback(async () => {
-    if (!accessToken) return;
-
-    try {
-      const res = await apiFabricCategoryList(accessToken, 1, 100);
-
-      if (res?.status && res?.data) {
-        const options = [
-          { value: "", label: "All Categories" },
-          ...res.data.map((item) => ({
-            value: item.id,
-            label: item.categoryName,
-          })),
-        ];
-
-        setCategoryOptions(options);
-        setSelectedCategory(options[0]);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }, [accessToken]);
-
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
 
   /* ---------- SKELETON ---------- */
   const CardSkeleton = () => (
@@ -254,10 +246,10 @@ const ProductsTab = () => {
       <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
         <div>
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            Product Creation
+            {t("title")}
           </h2>
           <p className="text-sm text-[#486284]">
-            {pagination.total_items || products.length} products available
+            {t("totalCount", { count: pagination.total_items || products.length })}
           </p>
         </div>
 
@@ -265,7 +257,7 @@ const ProductsTab = () => {
           onClick={handleAdd}
           className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium"
         >
-          + Add Product
+          {t("addNew")}
         </button>
       </div>
 
@@ -277,7 +269,7 @@ const ProductsTab = () => {
           />
           <input
             type="text"
-            placeholder="Search Templates..."
+            placeholder={t("searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm"
@@ -314,7 +306,7 @@ const ProductsTab = () => {
           }}
           className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-white bg-[#1C4FA8] hover:bg-[#163F86] transition-colors"
         >
-          Reset
+          {t("reset")}
         </button>
       </div>
 
@@ -322,11 +314,11 @@ const ProductsTab = () => {
         <CardSkeleton />
       ) : filteredProducts.length === 0 ? (
         <div className="text-center py-16 text-[#94A3B8]">
-          No products found
+          {t("noData")}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {products.map((item) => (
+          {filteredProducts.map((item) => (
             <div
               key={item.id}
               className="border border-[#E2E8F0] rounded-xl bg-white hover:shadow-md transition flex flex-col"
@@ -403,8 +395,8 @@ const ProductsTab = () => {
           setProductToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Product"
-        message="Are you sure you want to delete this product? This action cannot be undone."
+        title={t("deleteDialog.title")}
+        message={t("deleteDialog.message")}
         itemName={productToDelete?.productName}
         loading={deleteLoading}
       />

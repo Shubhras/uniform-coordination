@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
-import { FiX } from "react-icons/fi";
 
 export default function PreviewTemplateDialog({ isOpen, onClose, template }) {
+  const t = useTranslations("productSpecification.template");
+  const tm = useTranslations("productSpecification.template.previewModal");
   if (!template) return null;
 
   return (
@@ -19,7 +21,7 @@ export default function PreviewTemplateDialog({ isOpen, onClose, template }) {
         {/* Header */}
         <div className="flex items-center justify-between border-b px-6 py-4">
           <h2 className="text-xl font-semibold text-[#1C2C56]">
-            Template Preview
+            {tm("title")}
           </h2>
         </div>
 
@@ -94,7 +96,7 @@ export default function PreviewTemplateDialog({ isOpen, onClose, template }) {
             onClick={onClose}
             className="bg-blue-100 rounded-lg"
           >
-            Close
+            {tm("close")}
           </Button>
         </div>
       </div>

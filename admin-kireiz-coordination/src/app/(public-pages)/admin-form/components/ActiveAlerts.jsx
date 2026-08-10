@@ -3,21 +3,27 @@
 import { useState } from "react";
 import { FiAlertTriangle, FiClock, FiCheckCircle } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiMarkDashboardAlertsRead } from "@/services/DashboardService";
 
+// Fallback alerts carry message keys instead of literal text, so they translate
+// with the rest of the card. Alerts from the API arrive pre-worded and are
+// rendered as-is.
 const defaultAlerts = [
     {
         level: "HIGH",
-        message: "5 quotes pending review - 2 overdue",
-        action: "Review Now",
+        messageKey: "quotesPendingReview",
+        messageValues: { count: 5, overdue: 2 },
+        actionKey: "reviewNow",
         icon: "alert",
         color: "text-red-500",
     },
     {
         level: "MEDIUM",
-        message: "3 Quotation request - Contact customers required",
-        action: "View Details",
+        messageKey: "quotationRequestContact",
+        messageValues: { count: 3 },
+        actionKey: "viewDetails",
         icon: "clock",
         color: "text-orange-500",
     },
@@ -26,6 +32,12 @@ const defaultAlerts = [
 const iconMap = {
     alert: FiAlertTriangle,
     clock: FiClock,
+};
+
+// alert.level is a fixed enum on both the API and the fallbacks.
+const levelKeyMap = {
+    HIGH: "priorityHigh",
+    MEDIUM: "priorityMedium",
 };
 
 // alert.type comes from the admindesh API. QuotationHistory seeds its status
@@ -39,6 +51,7 @@ const FALLBACK_ROUTE = "/quotation-requests";
 
 const ActiveAlerts = ({ data, onAlertsRead }) => {
     const router = useRouter();
+    const t = useTranslations("dashboard.activeAlerts");
     const { session } = useCurrentSession();
     const accessToken = session?.user?.accessToken;
 
@@ -75,7 +88,7 @@ const ActiveAlerts = ({ data, onAlertsRead }) => {
                 <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-2">
                         <h3 className="text-[#1C2C56] font-semibold">
-                            Active Alerts
+                            {t("activeAlerts")}
                         </h3>
                         <span className="bg-[#E0E7FF] text-[#1C2C56] text-xs font-medium px-2 py-0.5 rounded-full">
                             {alertCount}
@@ -89,7 +102,7 @@ const ActiveAlerts = ({ data, onAlertsRead }) => {
                             disabled={marking}
                             className="text-sm text-[#1C2C56] hover:underline disabled:opacity-50"
                         >
-                            {marking ? "Marking..." : "Mark All Read"}
+                            {marking ? t("marking") : t("markAllRead")}
                         </button>
                     )}
                 </div>
@@ -99,10 +112,10 @@ const ActiveAlerts = ({ data, onAlertsRead }) => {
                     <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
                         <FiCheckCircle className="text-green-500" size={28} />
                         <p className="text-sm font-medium text-[#1C2C56]">
-                            You&apos;re all caught up
+                            {t("allCaughtUp")}
                         </p>
                         <p className="text-xs text-[#64748B]">
-                            New alerts will appear here as quotation activity comes in.
+                            {t("allCaughtUpDesc")}
                         </p>
                     </div>
                 )}
@@ -112,6 +125,15 @@ const ActiveAlerts = ({ data, onAlertsRead }) => {
                     {visibleAlerts.map((alert, index) => {
                         const Icon = iconMap[alert.icon] || (alert.level === 'HIGH' ? FiAlertTriangle : FiClock);
                         const color = alert.color || (alert.level === 'HIGH' ? 'text-red-500' : 'text-orange-500');
+
+                        const levelKey = levelKeyMap[alert.level];
+                        const levelLabel = levelKey ? t(levelKey) : alert.level;
+                        const messageLabel = alert.messageKey
+                            ? t(alert.messageKey, alert.messageValues)
+                            : alert.message;
+                        const actionLabel = alert.actionKey
+                            ? t(alert.actionKey)
+                            : alert.action;
 
                         return (
                             <div
@@ -124,10 +146,10 @@ const ActiveAlerts = ({ data, onAlertsRead }) => {
 
                                     <div>
                                         <p className="text-sm font-semibold text-[#1C2C56]">
-                                            {alert.level}
+                                            {levelLabel}
                                         </p>
                                         <p className="text-sm text-[#64748B]">
-                                            {alert.message}
+                                            {messageLabel}
                                         </p>
                                     </div>
                                 </div>
@@ -150,7 +172,7 @@ const ActiveAlerts = ({ data, onAlertsRead }) => {
       w-fit
       hover:opacity-90
     ">
-                                        {alert.action}
+                                        {actionLabel}
                                     </button>
                                 </div>
                             </div>

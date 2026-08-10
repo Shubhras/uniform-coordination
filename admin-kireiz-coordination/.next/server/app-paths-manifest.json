@@ -1,7 +1,7 @@
 {
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js",
-  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
   "/(public-pages)/system-settings/page": "app/(public-pages)/system-settings/page.js",
-  "/(auth-pages)/sign-in/page": "app/(auth-pages)/sign-in/page.js"
+  "/(public-pages)/quotation-requests/page": "app/(public-pages)/quotation-requests/page.js",
+  "/(public-pages)/customer/view/[id]/page": "app/(public-pages)/customer/view/[id]/page.js",
+  "/(public-pages)/customer/page": "app/(public-pages)/customer/page.js",
+  "/(public-pages)/notifications/page": "app/(public-pages)/notifications/page.js"
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiSearch, FiUserPlus, FiMail, FiX } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
@@ -24,6 +25,8 @@ const notify = (title, type, message) =>
     );
 
 const SalesRepresentation = () => {
+    const t = useTranslations("customerSalesRep.salesRepresentation");
+    const tStatus = useTranslations("customerSalesRep.statusFilter");
     const { session } = useCurrentSession();
     const accessToken = session?.user?.accessToken;
 
@@ -48,8 +51,14 @@ const SalesRepresentation = () => {
 
         try {
             setLoading(true);
-            const res = await apiGetSalesReps(accessToken, debouncedSearch);
-            if (res?.status) setReps(res.data || []);
+            const response = await apiGetSalesReps(accessToken, {
+                search: debouncedSearch,
+            });
+            if (response?.status && Array.isArray(response.data)) {
+                setReps(response.data);
+            } else if (Array.isArray(response)) {
+                setReps(response);
+            }
         } catch (error) {
             console.error("Failed to load sales reps:", error);
             notify("Error", "danger", "Could not load sales representatives");
@@ -64,11 +73,11 @@ const SalesRepresentation = () => {
 
     const openProfile = async (rep) => {
         try {
-            const res = await apiGetSalesRepProfile(accessToken, rep.id);
-            if (res?.status) setProfile(res.data);
+            const data = await apiGetSalesRepProfile(accessToken, rep.id);
+            setProfile(data?.data || data || rep);
         } catch (error) {
-            console.error("Failed to load profile:", error);
-            notify("Error", "danger", "Could not load the profile");
+            console.error("Failed to fetch rep profile:", error);
+            setProfile(rep);
         }
     };
 
@@ -78,10 +87,10 @@ const SalesRepresentation = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-xl font-semibold text-[#1C2C56]">
-                        Sales Team Performance
+                        {t("title")}
                     </h1>
                     <p className="text-[#486284] text-sm">
-                        Track clients, revenue and win rate per representative
+                        {t("subtitle")}
                     </p>
                 </div>
 
@@ -90,7 +99,7 @@ const SalesRepresentation = () => {
                     className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium transition"
                 >
                     <FiUserPlus />
-                    Add Representative
+                    {t("addRepresentative")}
                 </button>
             </div>
 
@@ -100,7 +109,7 @@ const SalesRepresentation = () => {
                 <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search..."
+                    placeholder={t("searchPlaceholder")}
                     className="w-full pl-9 pr-3 py-2 border border-[#00345F] rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-300"
                 />
             </div>
@@ -125,12 +134,12 @@ const SalesRepresentation = () => {
                     <p className="text-base font-medium text-[#1C2C56]">
                         {debouncedSearch
                             ? "No representatives match that search"
-                            : "No sales representatives yet"}
+                            : t("noData")}
                     </p>
                     <p className="text-sm text-[#64748B] mt-1">
                         {debouncedSearch
                             ? "Try a different name or email."
-                            : 'Use "Add Representative" to create the first one.'}
+                            : t("noDataSubtitle")}
                     </p>
                 </div>
             )}
@@ -166,7 +175,7 @@ const SalesRepresentation = () => {
                                             : "bg-gray-200 text-gray-600"
                                     }`}
                                 >
-                                    {rep.is_active ? "Active" : "Inactive"}
+                                    {rep.is_active ? tStatus("active") : tStatus("inactive")}
                                 </span>
                             </div>
 

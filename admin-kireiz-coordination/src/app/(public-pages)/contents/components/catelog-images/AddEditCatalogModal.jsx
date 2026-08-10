@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Select from "react-select";
@@ -18,22 +19,6 @@ import {
   apiUpdateCatalogImage,
 } from "@/services/CatalogService";
 import { apiGetCategoryList } from "@/services/CategoryService";
-
-const catalogSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
-
-  category: z
-    .object({
-      value: z.any(),
-      label: z.string(),
-    })
-    .nullable()
-    .refine((val) => val !== null, {
-      message: "Category is required",
-    }),
-
-  image: z.any().optional(),
-});
 
 const selectStyles = {
   control: (base, state) => ({
@@ -64,6 +49,8 @@ const AddEditCatalogModal = ({
   initialData,
   onSaveSuccess,
 }) => {
+  const t = useTranslations("contentMedia.catalogImages");
+  const tm = useTranslations("contentMedia.catalogImages.addCatalogImageModal");
   const fileRef = useRef(null);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -83,6 +70,22 @@ const AddEditCatalogModal = ({
   const [validated, setValidated] = useState(false);
 
   const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
+
+  const catalogSchema = z.object({
+    name: z.string().trim().min(1, tm("validation.nameRequired")),
+
+    category: z
+      .object({
+        value: z.any(),
+        label: z.string(),
+      })
+      .nullable()
+      .refine((val) => val !== null, {
+        message: tm("validation.categoryRequired"),
+      }),
+
+    image: z.any().optional(),
+  });
 
   const {
     control,
@@ -140,8 +143,6 @@ const AddEditCatalogModal = ({
         image: null,
       });
     } else {
-      // setName("");
-      // setCategory(null);
       setImageFile(null);
       setValidated(false);
       setImageError("");
@@ -153,7 +154,7 @@ const AddEditCatalogModal = ({
       });
     }
     setError("");
-  }, [mode, initialData, isOpen]);
+  }, [mode, initialData, isOpen, reset]);
 
   // Resolve category label once options load (edit mode)
   useEffect(() => {
@@ -170,7 +171,7 @@ const AddEditCatalogModal = ({
         setValue("category", match);
       }
     }
-  }, [categoryOptions, mode, initialData]);
+  }, [categoryOptions, mode, initialData, setValue]);
 
   /* ---------- FILE HANDLER ---------- */
   const handleFile = (file) => {
@@ -183,7 +184,7 @@ const AddEditCatalogModal = ({
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setImageError("Image size should not exceed 2 MB");
+      setImageError(tm("validation.maxSize"));
       setImageFile(null);
       setPreview(null);
       setValidated(false);
@@ -214,13 +215,10 @@ const AddEditCatalogModal = ({
   /* ---------- SAVE ---------- */
   const handleSave = async (values) => {
     if (mode === "add" && !imageFile) {
-      setImageError("Image is required");
+      setImageError(tm("validation.imageRequired"));
       return;
     }
 
-    // if (imageFile) {
-    //   formData.append("image", imageFile);
-    // }
     setError("");
     setSaving(true);
 
@@ -235,19 +233,13 @@ const AddEditCatalogModal = ({
         formData.append("image", imageFile);
       }
 
-      // if (mode === "edit" && initialData?.id) {
-      //   await apiUpdateCatalogImage(accessToken, initialData.id, formData);
-      // } else {
-      //   await apiCreateCatalogImage(accessToken, formData);
-      // }
-
       const response =
         mode === "edit" && initialData?.id
           ? await apiUpdateCatalogImage(accessToken, initialData.id, formData)
           : await apiCreateCatalogImage(accessToken, formData);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={t("successTitle")} type="success">
           {response?.message}
         </Notification>,
       );
@@ -258,7 +250,7 @@ const AddEditCatalogModal = ({
     } catch (err) {
       console.error("Catalog save error:", err);
       setError(
-        err?.response?.data?.message || "Failed to save. Please try again.",
+        err?.response?.data?.message || tm("saveFailed"),
       );
     } finally {
       setSaving(false);
@@ -281,7 +273,7 @@ const AddEditCatalogModal = ({
         <div className="flex flex-col">
           <div className="border-b px-6 py-4">
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              {mode === "edit" ? "Edit Catalog Image" : "Add Catalog Image"}
+              {mode === "edit" ? tm("editModalTitle") : tm("modalTitle")}
             </h2>
           </div>
 
@@ -296,14 +288,8 @@ const AddEditCatalogModal = ({
             {/* Name */}
             <div>
               <label className="text-base font-medium text-[#1C2C56]">
-                Name<span className="text-red-500">*</span>
+                {tm("nameLabel")}<span className="text-red-500">*</span>
               </label>
-              {/* <input
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Enter catalog name"
-                            className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-                        /> */}
               <FormItem
                 invalid={Boolean(errors.name)}
                 errorMessage={errors.name?.message}
@@ -312,7 +298,7 @@ const AddEditCatalogModal = ({
                   name="name"
                   control={control}
                   render={({ field }) => (
-                    <Input placeholder="Enter catalog name" {...field} />
+                    <Input placeholder={tm("namePlaceholder")} {...field} />
                   )}
                 />
               </FormItem>
@@ -321,22 +307,8 @@ const AddEditCatalogModal = ({
             {/* Category (React Select from API) */}
             <div>
               <label className="text-base font-medium text-[#1C2C56]">
-                Category
+                {tm("categoryLabel")}
               </label>
-              {/* <Select
-                            options={categoryOptions}
-                            value={category}
-                            onChange={setCategory}
-                            styles={selectStyles}
-                            placeholder="Select category..."
-                            isLoading={loadingCategories}
-                            loadingMessage={() => "Loading categories..."}
-                            noOptionsMessage={() => "No categories found"}
-                            isClearable
-                            menuPortalTarget={typeof document !== "undefined" ? document.body : null}
-                            menuPosition="fixed"
-                            className="mt-1"
-                        /> */}
               <FormItem
                 invalid={Boolean(errors.category)}
                 errorMessage={errors.category?.message}
@@ -351,10 +323,8 @@ const AddEditCatalogModal = ({
                       styles={selectStyles}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Select category"
+                      placeholder={tm("categoryPlaceholder")}
                       isLoading={loadingCategories}
-                      loadingMessage={() => "Loading categories..."}
-                      noOptionsMessage={() => "No categories found"}
                       isClearable
                       menuPortalTarget={
                         typeof document !== "undefined" ? document.body : null
@@ -368,8 +338,8 @@ const AddEditCatalogModal = ({
 
             {/* Image Upload */}
             <div>
-              <label className="text-base font-medium text-[#1C2C56]">
-                Image<span className="text-red-500">*</span>
+              <label className="text-[#1C2C56] text-base font-medium">
+                {tm("imageLabel")}<span className="text-red-500">*</span>
               </label>
 
               <button
@@ -378,7 +348,7 @@ const AddEditCatalogModal = ({
                 className="mt-2 w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm flex items-center justify-center gap-2"
               >
                 <FiUpload size={16} />
-                Upload Image
+                {tm("uploadImageButton")}
               </button>
               {imageError && (
                 <p className="text-red-500 text-sm mt-1">{imageError}</p>
@@ -389,20 +359,20 @@ const AddEditCatalogModal = ({
                 onDragOver={(e) => e.preventDefault()}
                 className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
               >
-                Drag & Drop your image file here
+                {tm("dragDropText")}
                 <br />
-                or{" "}
+                {tm("orText")}{" "}
                 <span
                   className="text-[#1C2C56] underline cursor-pointer"
                   onClick={() => fileRef.current.click()}
                 >
-                  click to browse here
+                  {tm("clickToBrowse")}
                 </span>
                 <p className="text-xs mt-2 text-[#64748B]">
-                  JPG, PNG, or WEBP files
+                  {tm("allowedFormats")}
                 </p>
                 <p className="text-xs mt-2 text-[#64748B]">
-                  Maximum dimension 1000×1000px
+                  {tm("maxDimension")}
                 </p>
               </div>
 
@@ -440,17 +410,16 @@ const AddEditCatalogModal = ({
               disabled={saving}
               className="bg-blue-100 rounded-lg"
             >
-              Cancel
+              {tm("cancel")}
             </Button>
             <Button
               variant="solid"
               size="sm"
               className="bg-[#1C4FA8] px-6 hover:bg-[#1C4FA8] text-white py-2 rounded-md"
-              //   onClick={handleSave}
               onClick={handleSubmit(handleSave)}
               loading={saving}
             >
-              {mode === "edit" ? "Update" : "Save"}
+              {mode === "edit" ? tm("update") : tm("save")}
             </Button>
           </div>
         </div>

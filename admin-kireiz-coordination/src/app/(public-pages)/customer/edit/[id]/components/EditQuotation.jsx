@@ -179,30 +179,25 @@ const EditQuotation = () => {
         size_quantity: formData.size_quantity,
         delivery_date: formData.delivery_date,
         additional_note: formData.additional_note,
-        quotation_status: formData.quotation_status,
-        // workflow_status: formData.workflow_status,
-        isActive: formData.isActive,
-
-        // Send null rather than "" for the optional figures — DRF rejects an
-        // empty string on DecimalField/DateField, but accepts null.
-        valid_until: formData.valid_until || null,
-        subtotal: formData.subtotal === "" ? null : formData.subtotal,
+        ...formData,
+        sales_rep: formData.sales_rep ? Number(formData.sales_rep) : null,
+        subtotal: formData.subtotal === "" ? null : Number(formData.subtotal),
         discount_percent:
-          formData.discount_percent === "" ? null : formData.discount_percent,
-        total: formData.total === "" ? null : formData.total,
-        sales_rep: formData.sales_rep === "" ? null : Number(formData.sales_rep),
+          formData.discount_percent === ""
+            ? 0
+            : Number(formData.discount_percent),
+        total: formData.total === "" ? null : Number(formData.total),
       };
 
       const res = await apiUpdateQuotation(accessToken, id, payload);
 
       toast.push(
         <Notification title="Success" type="success">
-          {res?.message}
+          {res?.message || "Updated successfully"}
         </Notification>,
       );
 
       if (res?.status) {
-        // toast.success(res?.message);
         router.push("/customer");
       } else {
         toast.error(res?.message || "Failed to update quotation.");
@@ -214,10 +209,9 @@ const EditQuotation = () => {
       setSaving(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-[#F8F9FB] p-6">
-      {/* ================= Header ================= */}
-
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <button
@@ -229,29 +223,25 @@ const EditQuotation = () => {
 
           <div>
             <h1 className="text-2xl font-semibold text-[#1C2C56]">
-              Edit Quotation
+              {t("pageTitle")}
             </h1>
 
             <p className="text-sm text-gray-500 mt-1">
-              Update quotation information
+              {t("pageSubtitle")}
             </p>
           </div>
         </div>
       </div>
 
-      {/* ================= Company Information ================= */}
-
       <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
         <h2 className="text-lg font-semibold text-[#1C2C56] mb-6">
-          Company Information
+          {t("companyInfoSection")}
         </h2>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {/* Company */}
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Company Name
+              {t("companyNameLabel")}
             </label>
 
             <input
@@ -266,11 +256,9 @@ const EditQuotation = () => {
             )}
           </div>
 
-          {/* Contact */}
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Contact Person
+              {t("contactPersonLabel")}
             </label>
 
             <input
@@ -287,11 +275,9 @@ const EditQuotation = () => {
             )}
           </div>
 
-          {/* Email */}
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+              {t("emailLabel")}
             </label>
 
             <input
@@ -306,11 +292,9 @@ const EditQuotation = () => {
             )}
           </div>
 
-          {/* Phone */}
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Phone Number
+              {t("phoneNumberLabel")}
             </label>
 
             <input
@@ -327,19 +311,15 @@ const EditQuotation = () => {
         </div>
       </div>
 
-      {/* ================= Quotation Details ================= */}
-
       <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
         <h2 className="text-lg font-semibold text-[#1C2C56] mb-6">
-          Quotation Details
+          {t("quotationDetailsSection")}
         </h2>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {/* Item Type */}
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Item Type
+              {t("itemTypeLabel")}
             </label>
 
             <input
@@ -354,11 +334,9 @@ const EditQuotation = () => {
             )}
           </div>
 
-          {/* Material */}
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Material
+              {t("materialLabel")}
             </label>
 
             <input
@@ -373,11 +351,9 @@ const EditQuotation = () => {
             )}
           </div>
 
-          {/* Size Quantity */}
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Size & Quantity
+              {t("sizeQuantityLabel")}
             </label>
 
             <input
@@ -394,11 +370,9 @@ const EditQuotation = () => {
             )}
           </div>
 
-          {/* Delivery Date */}
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Delivery Date
+              {t("deliveryDateLabel")}
             </label>
 
             <input
@@ -406,7 +380,7 @@ const EditQuotation = () => {
               name="delivery_date"
               value={formData.delivery_date}
               onChange={handleChange}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C4FA8]"
             />
             {errors.delivery_date && (
               <p className="text-red-500 text-sm mt-1">
@@ -415,11 +389,9 @@ const EditQuotation = () => {
             )}
           </div>
 
-          {/* Quotation Status */}
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Quotation Status
+              {t("quotationStatusLabel")}
             </label>
 
             <select
@@ -443,10 +415,9 @@ const EditQuotation = () => {
             )}
           </div>
 
-          {/* Sales Representative */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Sales Representative
+              {t("salesRepresentativeLabel")}
             </label>
             <select
               name="sales_rep"
@@ -454,7 +425,7 @@ const EditQuotation = () => {
               onChange={handleChange}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 bg-white outline-none focus:ring-2 focus:ring-[#1C2C56]"
             >
-              <option value="">Unassigned</option>
+              <option value="">{t("unassigned")}</option>
               {salesReps.map((rep) => (
                 <option key={rep.id} value={rep.id}>
                   {rep.name} — {rep.designation}
@@ -463,16 +434,14 @@ const EditQuotation = () => {
             </select>
             {salesReps.length === 0 && (
               <p className="text-xs text-gray-500 mt-1">
-                No representatives yet — add them under Customer &amp; Sales
-                Representative → Sales Representation.
+                {t("noRepresentativesHint")}
               </p>
             )}
           </div>
 
-          {/* Valid Until */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Valid Until
+              {t("validUntilLabel")}
             </label>
             <input
               type="date"
@@ -483,10 +452,9 @@ const EditQuotation = () => {
             />
           </div>
 
-          {/* Subtotal */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Subtotal
+              {t("subtotalLabel")}
             </label>
             <input
               type="number"
@@ -500,10 +468,9 @@ const EditQuotation = () => {
             />
           </div>
 
-          {/* Discount % */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Discount (%)
+              {t("discountPercentLabel")}
             </label>
             <input
               type="number"
@@ -517,15 +484,13 @@ const EditQuotation = () => {
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Discount amount is calculated from subtotal &times; this
-              percentage.
+              {t("discountHint")}
             </p>
           </div>
 
-          {/* Total */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Total
+              {t("totalLabel")}
             </label>
             <input
               type="number"
@@ -538,31 +503,9 @@ const EditQuotation = () => {
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Leave blank to fall back to subtotal minus discount.
+              {t("totalHint")}
             </p>
           </div>
-
-          {/* Workflow Status */}
-
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Workflow Status
-            </label>
-
-            <select
-              name="workflow_status"
-              value={formData.workflow_status}
-              onChange={handleChange}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 bg-white outline-none focus:ring-2 focus:ring-[#1C2C56]"
-            >
-              <option value="">Select Workflow</option>
-              <option value="PENDING">Pending</option>
-              <option value="PROCESSING">Processing</option>
-              <option value="COMPLETED">Completed</option>
-            </select>
-          </div> */}
-
-          {/* Active */}
 
           <div className="md:col-span-2">
             <label className="flex items-center gap-3 cursor-pointer">
@@ -575,18 +518,16 @@ const EditQuotation = () => {
               />
 
               <span className="text-sm font-medium text-gray-700">
-                Active Quotation
+                {t("activeQuotationLabel")}
               </span>
             </label>
           </div>
         </div>
       </div>
 
-      {/* ================= Additional Note ================= */}
-
       <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
         <h2 className="text-lg font-semibold text-[#1C2C56] mb-6">
-          Additional Note
+          {t("additionalNoteSection")}
         </h2>
 
         <textarea
@@ -594,12 +535,10 @@ const EditQuotation = () => {
           name="additional_note"
           value={formData.additional_note}
           onChange={handleChange}
-          placeholder="Enter additional notes..."
+          placeholder={t("additionalNotePlaceholder")}
           className="w-full rounded-xl border border-gray-300 px-4 py-3 resize-none outline-none focus:ring-2 focus:ring-[#1C2C56]"
         />
       </div>
-
-      {/* ================= Action Buttons ================= */}
 
       <div className="flex items-center justify-end gap-4 pb-6">
         <button
@@ -607,7 +546,7 @@ const EditQuotation = () => {
           onClick={() => router.back()}
           className="px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition"
         >
-          Cancel
+          {t("cancel")}
         </button>
 
         <button
@@ -616,7 +555,7 @@ const EditQuotation = () => {
           onClick={handleSubmit}
           className="px-6 py-3 rounded-xl bg-[#1C2C56] text-white hover:bg-[#162347] transition disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {saving ? "Saving..." : "Save Changes"}
+          {saving ? "Saving..." : t("saveChanges")}
         </button>
       </div>
     </div>

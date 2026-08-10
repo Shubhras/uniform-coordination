@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useRouter, useSearchParams } from "next/navigation";
 import Tabs from "./components/Tabs";
 import PdfTemplates from "./components/pdf-templates/PdfTemplates";
 import Exports from "./components/exports/Exports";
@@ -20,13 +22,33 @@ const notify = (title, type, message) =>
     );
 
 const SimulationConfigurationPage = () => {
+    const t = useTranslations("pdfSimulationConfig");
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const { session } = useCurrentSession();
     const accessToken = session?.user?.accessToken;
 
-    const [activeTab, setActiveTab] = useState("PDF Template");
+    const tabFromUrl = searchParams.get("tab");
+    const [activeTab, setActiveTab] = useState(
+        tabFromUrl === "exports" ? "Exports" : "PDF Template",
+    );
     const [config, setConfig] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        if (tabFromUrl === "exports") {
+            setActiveTab("Exports");
+        } else if (tabFromUrl === "pdf-template") {
+            setActiveTab("PDF Template");
+        }
+    }, [tabFromUrl]);
+
+    const handleTabChange = (tabName) => {
+        setActiveTab(tabName);
+        const slug = tabName === "Exports" ? "exports" : "pdf-template";
+        router.push(`/simulation-configuration?tab=${slug}`, { scroll: false });
+    };
 
     const fetchConfig = useCallback(async () => {
         if (!accessToken) {
@@ -50,8 +72,6 @@ const SimulationConfigurationPage = () => {
         fetchConfig();
     }, [fetchConfig]);
 
-    // Both tabs save through here. The response carries the recomputed preview,
-    // so one round trip keeps everything (including the size estimate) in sync.
     const saveConfig = async (payload, successMessage) => {
         if (saving) return false;
 
@@ -100,17 +120,17 @@ const SimulationConfigurationPage = () => {
     return (
         <div className="px-5 md:px-8 lg:px-12 py-8 bg-white min-h-screen">
             <p className="text-sm text-[#486284] mb-2">
-                Admin Dashboard /{" "}
-                <span className="text-[#1C2C56]">Simulation Configuration</span>
+                {t("breadcrumbDashboard")} /{" "}
+                <span className="text-[#1C2C56]">{t("breadcrumbCurrent")}</span>
             </p>
             <h1 className="text-2xl font-semibold text-[#1C2C56]">
-                Simulation Configuration
+                {t("pageTitle")}
             </h1>
             <p className="text-base font-medium text-[#64748B]">
-                Configure simulation settings and exports
+                {t("pageSubtitle")}
             </p>
 
-            <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+            <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
 
             <div className="mt-6">{renderTab()}</div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import { FiUpload } from "react-icons/fi";
@@ -24,6 +25,8 @@ const AddEditCategoryModal = ({
   initialData,
   onSaveSuccess,
 }) => {
+  const t = useTranslations("contentMedia.categories");
+  const tm = useTranslations("contentMedia.categories.createCategoryModal");
   const fileInputRef = useRef(null);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -35,9 +38,9 @@ const AddEditCategoryModal = ({
   const [validated, setValidated] = useState(false);
 
    const categorySchema = z.object({
-    categoryName: z.string().trim().min(1, "Category name is required"),
+    categoryName: z.string().trim().min(1, tm("validation.nameRequired")),
 
-    description: z.string().trim().min(1, "Description is required"),
+    description: z.string().trim().min(1, tm("validation.descriptionRequired")),
 
     // image: z.any().refine((file) => file instanceof File, {
     //   message: "Image is required",
@@ -46,7 +49,7 @@ const AddEditCategoryModal = ({
       mode === "edit"
         ? z.any().optional()
         : z.any().refine((file) => file instanceof File, {
-            message: "Image is required",
+            message: tm("validation.imageRequired"),
           }),
   });
 
@@ -107,13 +110,13 @@ const AddEditCategoryModal = ({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setImageError("Only image files are allowed");
+      setImageError(tm("validation.onlyImages"));
       setValidated(false);
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      setImageError("Image size should not exceed 2 MB");
+      setImageError(tm("validation.maxSize"));
       setImageFile(null);
       setPreview(null);
       setValidated(false);
@@ -192,7 +195,7 @@ const AddEditCategoryModal = ({
           : await apiCreateCategory(accessToken, formData);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={t("successTitle")} type="success">
           {response?.message}
         </Notification>,
       );
@@ -208,10 +211,7 @@ const AddEditCategoryModal = ({
       }
     } catch (err) {
       console.error("Category save error:", err);
-      setError(
-        err?.response?.data?.message ||
-          "Failed to save category. Please try again.",
-      );
+      setError(err?.response?.data?.message || tm("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -228,7 +228,7 @@ const AddEditCategoryModal = ({
         <div className="flex flex-col">
           <div className="border-b p-2 flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              {mode === "edit" ? "Edit Category" : "Create Category"}
+              {mode === "edit" ? tm("editModalTitle") : tm("modalTitle")}
             </h2>
           </div>
 
@@ -243,7 +243,8 @@ const AddEditCategoryModal = ({
             {/* Category Name */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Name<span className="text-red-500">*</span>
+                {tm("nameLabel")}
+                <span className="text-red-500">*</span>
               </label>
               {/* <input
               type="text"
@@ -259,7 +260,7 @@ const AddEditCategoryModal = ({
                   name="categoryName"
                   control={control}
                   render={({ field }) => (
-                    <Input placeholder="Eg:- Medical Surgeon" {...field} />
+                    <Input placeholder={tm("namePlaceholder")} {...field} />
                   )}
                 />
               </FormItem>
@@ -268,7 +269,8 @@ const AddEditCategoryModal = ({
             {/* Image */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Image<span className="text-red-500">*</span>
+                {tm("imageLabel")}
+                <span className="text-red-500">*</span>
               </label>
 
               <button
@@ -277,7 +279,7 @@ const AddEditCategoryModal = ({
                 onClick={() => fileInputRef.current.click()}
               >
                 <FiUpload size={16} />
-                Upload image
+                {tm("uploadImageButton")}
               </button>
               {imageError && (
                 <p className="text-red-500 text-sm mt-1">{imageError}</p>
@@ -288,20 +290,20 @@ const AddEditCategoryModal = ({
                 onDragOver={(e) => e.preventDefault()}
                 className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
               >
-                Drag & Drop your image file here
+                {tm("dragDropText")}
                 <br />
-                or{" "}
+                {tm("orText")}{" "}
                 <span
                   className="text-[#1C2C56] underline cursor-pointer"
                   onClick={() => fileInputRef.current.click()}
                 >
-                  click to browse here
+                  {tm("clickToBrowse")}
                 </span>
                 <p className="text-xs mt-2 text-[#64748B]">
-                  JPG, PNG, or WEBP files
+                  {tm("allowedFormats")}
                 </p>
                 <p className="text-xs mt-2 text-[#64748B]">
-                  Maximum dimension 1000×1000px
+                  {tm("maxDimension")}
                 </p>
               </div>
 
@@ -328,14 +330,14 @@ const AddEditCategoryModal = ({
 
             {validated && (
               <p className="text-sm text-green-600 flex items-center gap-1">
-                ✔ Image validated successfully
+                ✔ {tm("imageValidated")}
               </p>
             )}
             {preview && (
               <div className="flex justify-center">
                 <img
                   src={preview}
-                  alt="Preview"
+                  alt={tm("previewAlt")}
                   className="w-32 h-32 object-contain rounded-lg shadow"
                 />
               </div>
@@ -344,7 +346,7 @@ const AddEditCategoryModal = ({
             {/* Description */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Description
+                {tm("descriptionLabel")}
               </label>
               {/* <textarea
               placeholder="type....."
@@ -363,7 +365,7 @@ const AddEditCategoryModal = ({
                   render={({ field }) => (
                     <textarea
                       {...field}
-                      placeholder="Type Description"
+                      placeholder={tm("descriptionPlaceholder")}
                       className="mt-1 w-full border rounded-md px-3 py-2 text-sm h-[90px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                     />
                   )}
@@ -380,7 +382,7 @@ const AddEditCategoryModal = ({
               disabled={saving}
               className="bg-blue-100 rounded-lg"
             >
-              Cancel
+              {tm("cancel")}
             </Button>
 
             <Button
@@ -393,7 +395,7 @@ const AddEditCategoryModal = ({
               disabled={saving}
               className="bg-blue-100 rounded-lg"
             >
-              Save & Add Another
+              {tm("saveAndAddAnother")}
             </Button>
 
             <Button
@@ -406,7 +408,7 @@ const AddEditCategoryModal = ({
               )}
               loading={saving}
             >
-              {mode === "edit" ? "Update" : "Save"}
+              {mode === "edit" ? tm("update") : tm("save")}
             </Button>
           </div>
         </div>

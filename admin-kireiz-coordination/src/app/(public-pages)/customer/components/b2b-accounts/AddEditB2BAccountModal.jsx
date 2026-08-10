@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Select from "react-select";
@@ -74,6 +75,7 @@ const AddEditB2BAccountModal = ({
   initialData,
   onSaveSuccess,
 }) => {
+  const t = useTranslations("customerSalesRep.b2bAccounts.addAccountModal");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -147,11 +149,6 @@ const AddEditB2BAccountModal = ({
         payload.password = values.password.trim();
       }
 
-      // if (mode === "edit" && initialData?.id) {
-      //   await apiUpdateB2BAccount(accessToken, initialData.id, payload);
-      // } else {
-      //   await apiCreateB2BAccount(accessToken, payload);
-      // }
       const response =
         mode === "edit" && initialData?.id
           ? await apiUpdateB2BAccount(accessToken, initialData.id, payload)
@@ -172,52 +169,6 @@ const AddEditB2BAccountModal = ({
       setSaving(false);
     }
   };
-  // const handleSave = async () => {
-  //     if (!name.trim()) {
-  //         setError("Name is required");
-  //         return;
-  //     }
-  //     if (!email.trim()) {
-  //         setError("Email is required");
-  //         return;
-  //     }
-  //     if (mode === "add" && !password.trim()) {
-  //         setError("Password is required for new accounts");
-  //         return;
-  //     }
-
-  //     setError("");
-  //     setSaving(true);
-
-  //     try {
-  //         const payload = {
-  //             name: name.trim(),
-  //             company_name: companyName.trim(),
-  //             email: email.trim(),
-  //             mobile: mobile.trim(),
-  //             tier: tier?.value || "",
-  //         };
-
-  //         if (password.trim()) {
-  //             payload.password = password.trim();
-  //         }
-
-  //         if (mode === "edit" && initialData?.id) {
-  //             await apiUpdateB2BAccount(accessToken, initialData.id, payload);
-  //         } else {
-  //             await apiCreateB2BAccount(accessToken, payload);
-  //         }
-
-  //         if (onSaveSuccess) {
-  //             onSaveSuccess();
-  //         }
-  //     } catch (err) {
-  //         console.error("B2B account save error:", err);
-  //         setError(err?.response?.data?.message || "Failed to save account. Please try again.");
-  //     } finally {
-  //         setSaving(false);
-  //     }
-  // };
 
   return (
     <Dialog
@@ -230,7 +181,7 @@ const AddEditB2BAccountModal = ({
         {/* Header */}
         <div className="border-b p-3 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-[#1C2C56]">
-            {mode === "edit" ? "Edit Account" : "Add New Account"}
+            {mode === "edit" ? t("editModalTitle") : t("modalTitle")}
           </h2>
         </div>
 
@@ -246,7 +197,7 @@ const AddEditB2BAccountModal = ({
           {/* Name */}
           <div>
             <label className="text-[#1C2C56] text-sm font-medium">
-              Name<span className="text-red-500">*</span>
+              {t("nameLabel")}<span className="text-red-500">*</span>
             </label>
             <FormItem
               invalid={Boolean(errors.name)}
@@ -258,7 +209,7 @@ const AddEditB2BAccountModal = ({
                 render={({ field }) => (
                   <input
                     {...field}
-                    placeholder="Enter name"
+                    placeholder={t("namePlaceholder")}
                     className="mt-1 w-full border rounded-md px-3 py-2 text-sm"
                   />
                 )}
@@ -269,14 +220,8 @@ const AddEditB2BAccountModal = ({
           {/* Company Name */}
           <div>
             <label className="text-[#1C2C56] text-sm font-medium">
-              Company Name
+              {t("companyNameLabel")}
             </label>
-            {/* <input
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              placeholder="e.g. HP Pvt Ltd"
-              className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-            /> */}
             <FormItem
               invalid={Boolean(errors.companyName)}
               errorMessage={errors.companyName?.message}
@@ -287,7 +232,7 @@ const AddEditB2BAccountModal = ({
                 render={({ field }) => (
                   <input
                     {...field}
-                    placeholder="e.g. HP Pvt Ltd"
+                    placeholder={t("companyNamePlaceholder")}
                     className="mt-1 w-full border rounded-md px-3 py-2 text-sm"
                   />
                 )}
@@ -299,7 +244,7 @@ const AddEditB2BAccountModal = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-[#1C2C56] text-sm font-medium">
-                Email<span className="text-red-500">*</span>
+                {t("emailLabel")}<span className="text-red-500">*</span>
               </label>
               <FormItem
                 invalid={Boolean(errors.email)}
@@ -311,7 +256,7 @@ const AddEditB2BAccountModal = ({
                   render={({ field }) => (
                     <input
                       {...field}
-                      placeholder="john@example.com"
+                      placeholder={t("emailPlaceholder")}
                       className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                     />
                   )}
@@ -321,7 +266,7 @@ const AddEditB2BAccountModal = ({
 
             <div>
               <label className="text-[#1C2C56] text-sm font-medium">
-                Mobile<span className="text-red-500">*</span>
+                {t("mobileLabel")}<span className="text-red-500">*</span>
               </label>
               <FormItem
                 invalid={Boolean(errors.mobile)}
@@ -353,12 +298,12 @@ const AddEditB2BAccountModal = ({
 
           {/* Tier Select */}
           <div>
-            <label className="text-[#1C2C56] text-sm font-medium">Tier</label>
+            <label className="text-[#1C2C56] text-sm font-medium">{t("tierLabel")}</label>
             <Select
               value={tier}
               onChange={setTier}
               options={tierOptions}
-              placeholder="Select Tier"
+              placeholder={t("tierPlaceholder")}
               styles={selectStyles}
               menuPortalTarget={
                 typeof document !== "undefined" ? document.body : null
@@ -370,17 +315,10 @@ const AddEditB2BAccountModal = ({
           {/* Password */}
           <div>
             <label className="text-[#1C2C56] text-sm font-medium">
-              Password
+              {t("passwordLabel")}
               {mode === "add" && <span className="text-red-500">*</span>}
             </label>
             <div className="relative mt-1">
-              {/* <input
-                                type={showPassword ? "text" : "password"}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder={mode === "edit" ? "Leave blank to keep current" : "Enter password"}
-                                className="w-full border rounded-md px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
-                            /> */}
               <FormItem
                 invalid={Boolean(errors.password)}
                 errorMessage={errors.password?.message}
@@ -394,8 +332,8 @@ const AddEditB2BAccountModal = ({
                       type={showPassword ? "text" : "password"}
                       placeholder={
                         mode === "edit"
-                          ? "Leave blank to keep current"
-                          : "Enter password"
+                          ? t("leaveBlankPassword")
+                          : t("passwordPlaceholder")
                       }
                       className="w-full border rounded-md px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                     />
@@ -412,7 +350,7 @@ const AddEditB2BAccountModal = ({
             </div>
             {mode === "edit" && (
               <p className="text-xs text-[#94A3B8] mt-1">
-                Leave blank to keep the current password
+                {t("leaveBlankPassword")}
               </p>
             )}
           </div>
@@ -421,18 +359,16 @@ const AddEditB2BAccountModal = ({
         {/* Footer */}
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
           <Button variant="plain" onClick={onClose} size="sm" disabled={saving}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             variant="solid"
             size="sm"
             className="bg-[#1C4FA8] px-6 hover:bg-[#1C2C56] text-white py-2 rounded-md"
-            // onClick={handleSave}
             onClick={handleSubmit(onSubmit)}
             loading={saving}
           >
-            {/* {mode === "edit" ? "Update" : "Save"} */}
-            {mode === "edit" ? "Update" : "Create Account"}
+            {mode === "edit" ? t("updateAccount") : t("createAccount")}
           </Button>
         </div>
       </div>
