@@ -251,7 +251,9 @@
         "simulationAssets": "シミュレーション素材",
         "reportsAnalytics": "レポートと分析",
         "systemSettings": "システム設定",
-        "quotationRequests": "見積依頼"
+        "quotationRequests": "見積依頼",
+        "kfAdminPanel": "KF管理パネル",
+        "toggleSidebar": "サイドバー切り替え"
     },
     "dashboard": {
         "welcomeTitle": "{name}さん、ダッシュボードへようこそ！",
@@ -378,8 +380,14 @@
                 "validation": {
                     "nameRequired": "生地名は必須です",
                     "priceRequired": "価格は必須です",
-                    "categoryRequired": "カテゴリーは必須です"
-                }
+                    "categoryRequired": "カテゴリーは必須です",
+                    "materialRequired": "素材の種類は必須です",
+                    "priceInvalid": "有効な価格を入力してください"
+                },
+                "statusInactive": "無効",
+                "errorTitle": "エラー",
+                "updateSuccess": "生地を更新しました",
+                "createSuccess": "生地を作成しました"
             }
         },
         "parts": {
@@ -434,8 +442,19 @@
                     "nameRequired": "パーツ名は必須です",
                     "categoryRequired": "カテゴリーは必須です",
                     "imageRequired": "画像は必須です"
-                }
-            }
+                },
+                "imageValidated": "画像を確認しました",
+                "saveSuccess": "保存しました"
+            },
+            "edit": "編集",
+            "delete": "削除",
+            "duplicate": "複製",
+            "duplicating": "複製中...",
+            "errorTitle": "エラー",
+            "templates": "テンプレート",
+            "deleteSuccess": "パーツを削除しました。",
+            "duplicateSuccess": "パーツを複製しました。",
+            "duplicateFailed": "パーツを複製できませんでした。"
         },
         "colors": {
             "title": "カラーパレット",
@@ -465,8 +484,17 @@
                 "validation": {
                     "nameRequired": "カラー名は必須です",
                     "hexRequired": "HEXコードは必須です"
-                }
-            }
+                },
+                "saveSuccess": "保存しました"
+            },
+            "edit": "編集",
+            "delete": "削除",
+            "duplicate": "複製",
+            "duplicating": "複製中...",
+            "compatibleFabrics": "対応生地",
+            "deleteSuccess": "カラーを削除しました",
+            "duplicateSuccess": "カラーを複製しました",
+            "errorTitle": "エラー"
         },
         "template": {
             "title": "テンプレートギャラリー",
@@ -510,7 +538,10 @@
                 "saveFailed": "テンプレートの保存に失敗しました。もう一度お試しください。",
                 "validation": {
                     "nameRequired": "テンプレート名は必須です"
-                }
+                },
+                "statusInactive": "無効",
+                "imageValidated": "画像を確認しました",
+                "saveSuccess": "保存しました"
             }
         },
         "products": {
@@ -559,8 +590,11 @@
                 "validation": {
                     "nameRequired": "商品名は必須です",
                     "priceRequired": "価格は必須です",
-                    "categoryRequired": "カテゴリーは必須です"
-                }
+                    "categoryRequired": "カテゴリーは必須です",
+                    "imageRequired": "画像は必須です"
+                },
+                "imageValidated": "画像を確認しました",
+                "saveSuccess": "保存しました"
             }
         }
     },
@@ -679,7 +713,8 @@
                     "categoryRequired": "カテゴリーは必須です",
                     "imageRequired": "画像は必須です",
                     "maxSize": "画像サイズは2MBを超えてはなりません"
-                }
+                },
+                "imageValidated": "画像を確認しました"
             }
         },
         "blog": {
@@ -722,7 +757,8 @@
                     "descriptionRequired": "説明は必須です",
                     "imageRequired": "画像は必須です",
                     "maxSize": "画像サイズは2MBを超えてはなりません"
-                }
+                },
+                "imageValidated": "画像を確認しました"
             }
         },
         "faq": {
@@ -793,7 +829,8 @@
             "deleteSuccess": "「{name}」を削除しました",
             "deleteFailed": "テンプレートを削除できませんでした",
             "editTemplateTooltip": "テンプレートを編集",
-            "deleteTemplateTooltip": "テンプレートを削除"
+            "deleteTemplateTooltip": "テンプレートを削除",
+            "reorderFailedRaw": "並び替えに失敗しました"
         }
     },
     "pricingQuotation": {
@@ -1065,7 +1102,30 @@
                 "additionalNoteSection": "補足事項",
                 "additionalNotePlaceholder": "補足事項を入力...",
                 "cancel": "キャンセル",
-                "saveChanges": "変更を保存"
+                "saveChanges": "変更を保存",
+                "saving": "保存中...",
+                "selectStatus": "ステータスを選択",
+                "statusPending": "保留中",
+                "statusSent": "送信済み",
+                "statusCancelled": "キャンセル済み",
+                "statusAccepted": "受諾済み",
+                "statusReceived": "受信済み",
+                "successTitle": "成功",
+                "updateSuccess": "更新しました",
+                "fetchFailed": "見積詳細を取得できませんでした。",
+                "updateFailed": "見積を更新できませんでした。",
+                "genericError": "エラーが発生しました。",
+                "validation": {
+                    "companyNameRequired": "会社名は必須です*",
+                    "contactPersonRequired": "担当者名は必須です*",
+                    "emailRequired": "メールアドレスは必須です*",
+                    "phoneRequired": "電話番号は必須です*",
+                    "itemTypeRequired": "アイテム種別は必須です*",
+                    "materialRequired": "素材は必須です*",
+                    "sizeQuantityRequired": "サイズ・数量は必須です*",
+                    "deliveryDateRequired": "納品日は必須です*",
+                    "quotationStatusRequired": "見積ステータスは必須です*"
+                }
             },
             "viewQuotationPage": {
                 "pageTitle": "見積詳細",
@@ -1111,6 +1171,23 @@
                 "passwordLabel": "パスワード",
                 "cancel": "キャンセル",
                 "addRepresentative": "担当者を追加"
+            },
+            "addRepModal": {
+                "modalTitle": "営業担当者を追加",
+                "fullNameLabel": "氏名",
+                "emailLabel": "メールアドレス",
+                "mobileLabel": "携帯電話（任意）",
+                "designationLabel": "役職",
+                "passwordLabel": "パスワード",
+                "cancel": "キャンセル",
+                "submit": "営業担当者を追加",
+                "saving": "保存中...",
+                "requiredTitle": "入力必須",
+                "successTitle": "成功",
+                "errorTitle": "エラー",
+                "requiredFields": "氏名、メールアドレス、パスワードは必須です",
+                "addSuccess": "営業担当者を追加しました",
+                "addFailed": "営業担当者を追加できませんでした"
             }
         },
         "assignments": {
@@ -1134,6 +1211,84 @@
             },
             "cancel": "キャンセル",
             "saveChanges": "変更を保存"
+        },
+        "customerDetails": {
+            "pageTitle": "顧客詳細",
+            "statusActive": "有効",
+            "statusInactive": "無効",
+            "customerInformation": "顧客情報",
+            "customerName": "顧客名",
+            "phoneNumber": "電話番号",
+            "firstName": "名",
+            "lastName": "姓",
+            "email": "メールアドレス",
+            "userType": "ユーザー種別",
+            "accountInformation": "アカウント情報",
+            "customerId": "顧客ID",
+            "username": "ユーザー名",
+            "role": "ロール",
+            "language": "言語",
+            "loginType": "ログイン方法",
+            "emailVerified": "メール認証",
+            "verified": "認証済み",
+            "notVerified": "未認証",
+            "emailNotifications": "メール通知",
+            "pushNotifications": "プッシュ通知",
+            "enabled": "有効",
+            "disabled": "無効",
+            "accountStatus": "アカウント状態",
+            "lastLogin": "最終ログイン",
+            "createdOn": "作成日時",
+            "updatedOn": "更新日時"
+        },
+        "editCustomer": {
+            "pageTitle": "顧客を編集",
+            "pageSubtitle": "顧客情報を更新します",
+            "uploadImage": "画像をアップロード",
+            "profileAlt": "プロフィール",
+            "usernameLabel": "ユーザー名",
+            "firstNameLabel": "名",
+            "lastNameLabel": "姓",
+            "emailLabel": "メールアドレス",
+            "phoneLabel": "電話番号",
+            "userTypeLabel": "ユーザー種別",
+            "genderLabel": "性別",
+            "languageLabel": "言語",
+            "selectPlaceholder": "選択してください",
+            "userTypeOptions": {
+                "uniform": "ユニフォーム",
+                "vendor": "ベンダー",
+                "admin": "管理者"
+            },
+            "genderOptions": {
+                "male": "男性",
+                "female": "女性",
+                "other": "その他"
+            },
+            "languageOptions": {
+                "english": "英語",
+                "hindi": "ヒンディー語"
+            },
+            "emailVerified": "メール認証済み",
+            "active": "有効",
+            "emailNotifications": "メール通知",
+            "pushNotifications": "プッシュ通知",
+            "cancel": "キャンセル",
+            "update": "顧客を更新",
+            "updating": "更新中...",
+            "successTitle": "成功",
+            "errorTitle": "エラー",
+            "updateSuccess": "顧客情報を更新しました",
+            "updateFailed": "顧客情報を更新できませんでした",
+            "validation": {
+                "firstNameRequired": "名は必須です*",
+                "lastNameRequired": "姓は必須です*",
+                "emailRequired": "メールアドレスは必須です*",
+                "phoneRequired": "電話番号は必須です*",
+                "userTypeRequired": "ユーザー種別は必須です*",
+                "genderRequired": "性別は必須です*",
+                "languageRequired": "言語は必須です*"
+            }
         }
     },
     "pdfSimulationConfig": {
@@ -1371,5 +1526,21 @@
         },
         "noData": "見積が見つかりません",
         "showingRange": "{from}–{to}件を表示"
+    },
+    "adminTopHeader": {
+        "openMenu": "メニューを開く",
+        "admin": "管理者",
+        "myProfile": "マイプロフィール",
+        "changePassword": "パスワード変更",
+        "signOut": "サインアウト"
+    },
+    "notificationPopup": {
+        "title": "通知",
+        "noNotifications": "通知はありません",
+        "viewAll": "すべての通知を表示",
+        "justNow": "たった今",
+        "mAgo": "{count}分前",
+        "hAgo": "{count}時間前",
+        "dAgo": "{count}日前"
     }
 }

@@ -277,7 +277,7 @@ const EmailNotifications = () => {
 
         <div className="mt-6">
           <label className="block text-sm font-medium text-[#1C2C56] mb-2">
-            {t("adminRecipientsLabel")}
+            {t("adminNotificationRecipientsLabel")}
           </label>
           <input
             type="text"

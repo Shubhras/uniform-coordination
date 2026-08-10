@@ -274,7 +274,7 @@ const AddEditFabricModal = ({
 
         toast.push(
           <Notification title={t("successTitle")} type="success">
-            {response?.message || "Fabric updated successfully"}
+            {response?.message || tm("updateSuccess")}
           </Notification>,
         );
       } else {
@@ -282,7 +282,7 @@ const AddEditFabricModal = ({
 
         toast.push(
           <Notification title={t("successTitle")} type="success">
-            {response?.message || "Fabric created successfully"}
+            {response?.message || tm("createSuccess")}
           </Notification>,
         );
       }
@@ -292,7 +292,7 @@ const AddEditFabricModal = ({
       }
     } catch (err) {
       toast.push(
-        <Notification title="Error" type="danger">
+        <Notification title={tm("errorTitle")} type="danger">
           {err?.response?.data?.message || tm("saveFailed")}
         </Notification>,
       );
@@ -437,13 +437,13 @@ const AddEditFabricModal = ({
                   style={{ backgroundColor: selectedColor }}
                 />
                 <div>
-                  <p className="text-sm font-medium">{tm("colorPreview")}</p>
+                  <p className="text-sm font-medium">{tm("previewLabel")}</p>
                   <p className="text-xs text-gray-500">{selectedColor}</p>
                 </div>
               </div>
 
               <p className="text-xs text-gray-500 mt-1">
-                {tm("colorHelpText")}
+                {tm("colorHelperText")}
               </p>
             </div>
 

@@ -251,7 +251,9 @@
         "simulationAssets": "Simulation Assets",
         "reportsAnalytics": "Reports & Analytics",
         "systemSettings": "System Settings",
-        "quotationRequests": "Quotation Requests"
+        "quotationRequests": "Quotation Requests",
+        "kfAdminPanel": "KF Admin Panel",
+        "toggleSidebar": "Toggle sidebar"
     },
     "dashboard": {
         "welcomeTitle": "Welcome to Dashboard! {name}!",
@@ -378,8 +380,14 @@
                 "validation": {
                     "nameRequired": "Fabric name is required",
                     "priceRequired": "Price is required",
-                    "categoryRequired": "Category is required"
-                }
+                    "categoryRequired": "Category is required",
+                    "materialRequired": "Material type is required",
+                    "priceInvalid": "Enter a valid price"
+                },
+                "statusInactive": "Inactive",
+                "errorTitle": "Error",
+                "updateSuccess": "Fabric updated successfully",
+                "createSuccess": "Fabric created successfully"
             }
         },
         "parts": {
@@ -434,8 +442,19 @@
                     "nameRequired": "Part name is required",
                     "categoryRequired": "Category is required",
                     "imageRequired": "Image is required"
-                }
-            }
+                },
+                "imageValidated": "Image validated successfully",
+                "saveSuccess": "Saved successfully"
+            },
+            "edit": "Edit",
+            "delete": "Delete",
+            "duplicate": "Duplicate",
+            "duplicating": "Duplicating...",
+            "errorTitle": "Error",
+            "templates": "templates",
+            "deleteSuccess": "Part deleted successfully.",
+            "duplicateSuccess": "Part duplicated successfully.",
+            "duplicateFailed": "Failed to duplicate part."
         },
         "colors": {
             "title": "Color Palette",
@@ -465,8 +484,17 @@
                 "validation": {
                     "nameRequired": "Color name is required",
                     "hexRequired": "HEX code is required"
-                }
-            }
+                },
+                "saveSuccess": "Saved successfully"
+            },
+            "edit": "Edit",
+            "delete": "Delete",
+            "duplicate": "Duplicate",
+            "duplicating": "Duplicating...",
+            "compatibleFabrics": "Compatible Fabrics",
+            "deleteSuccess": "Color deleted successfully",
+            "duplicateSuccess": "Color duplicated successfully",
+            "errorTitle": "Error"
         },
         "template": {
             "title": "Template Gallery",
@@ -510,7 +538,10 @@
                 "saveFailed": "Failed to save template. Please try again.",
                 "validation": {
                     "nameRequired": "Template name is required"
-                }
+                },
+                "statusInactive": "Inactive",
+                "imageValidated": "Image validated successfully",
+                "saveSuccess": "Saved successfully"
             }
         },
         "products": {
@@ -559,8 +590,11 @@
                 "validation": {
                     "nameRequired": "Product name is required",
                     "priceRequired": "Price is required",
-                    "categoryRequired": "Category is required"
-                }
+                    "categoryRequired": "Category is required",
+                    "imageRequired": "Image is required"
+                },
+                "imageValidated": "Image validated successfully",
+                "saveSuccess": "Saved successfully"
             }
         }
     },
@@ -679,7 +713,8 @@
                     "categoryRequired": "Category is required",
                     "imageRequired": "Image is required",
                     "maxSize": "Image size should not exceed 2 MB"
-                }
+                },
+                "imageValidated": "Image validated successfully"
             }
         },
         "blog": {
@@ -722,7 +757,8 @@
                     "descriptionRequired": "Description is required",
                     "imageRequired": "Image is required",
                     "maxSize": "Image size should not exceed 2 MB"
-                }
+                },
+                "imageValidated": "Image validated successfully"
             }
         },
         "faq": {
@@ -793,7 +829,8 @@
             "deleteSuccess": "\"{name}\" deleted",
             "deleteFailed": "Could not delete the template",
             "editTemplateTooltip": "Edit template",
-            "deleteTemplateTooltip": "Delete template"
+            "deleteTemplateTooltip": "Delete template",
+            "reorderFailedRaw": "Reorder failed"
         }
     },
     "pricingQuotation": {
@@ -1065,7 +1102,30 @@
                 "additionalNoteSection": "Additional Note",
                 "additionalNotePlaceholder": "Enter additional notes...",
                 "cancel": "Cancel",
-                "saveChanges": "Save Changes"
+                "saveChanges": "Save Changes",
+                "saving": "Saving...",
+                "selectStatus": "Select Status",
+                "statusPending": "Pending",
+                "statusSent": "Sent",
+                "statusCancelled": "Cancelled",
+                "statusAccepted": "Accepted",
+                "statusReceived": "Received",
+                "successTitle": "Success",
+                "updateSuccess": "Updated successfully",
+                "fetchFailed": "Failed to fetch quotation details.",
+                "updateFailed": "Failed to update quotation.",
+                "genericError": "Something went wrong.",
+                "validation": {
+                    "companyNameRequired": "Company name is required*",
+                    "contactPersonRequired": "Contact person is required*",
+                    "emailRequired": "Email is required*",
+                    "phoneRequired": "Phone number is required*",
+                    "itemTypeRequired": "Item type is required*",
+                    "materialRequired": "Material is required*",
+                    "sizeQuantityRequired": "Size & Quantity is required*",
+                    "deliveryDateRequired": "Delivery date is required*",
+                    "quotationStatusRequired": "Quotation status is required*"
+                }
             },
             "viewQuotationPage": {
                 "pageTitle": "Quotation Details",
@@ -1111,6 +1171,23 @@
                 "passwordLabel": "Password",
                 "cancel": "Cancel",
                 "addRepresentative": "Add Representative"
+            },
+            "addRepModal": {
+                "modalTitle": "Add Representative",
+                "fullNameLabel": "Full Name",
+                "emailLabel": "Email",
+                "mobileLabel": "Mobile (optional)",
+                "designationLabel": "Designation",
+                "passwordLabel": "Password",
+                "cancel": "Cancel",
+                "submit": "Add Representative",
+                "saving": "Saving...",
+                "requiredTitle": "Required",
+                "successTitle": "Success",
+                "errorTitle": "Error",
+                "requiredFields": "Name, email and password are required",
+                "addSuccess": "Representative added",
+                "addFailed": "Could not add representative"
             }
         },
         "assignments": {
@@ -1134,6 +1211,84 @@
             },
             "cancel": "Cancel",
             "saveChanges": "Save Changes"
+        },
+        "customerDetails": {
+            "pageTitle": "Customer Details",
+            "statusActive": "Active",
+            "statusInactive": "Inactive",
+            "customerInformation": "Customer Information",
+            "customerName": "Customer Name",
+            "phoneNumber": "Phone Number",
+            "firstName": "First Name",
+            "lastName": "Last Name",
+            "email": "Email",
+            "userType": "User Type",
+            "accountInformation": "Account Information",
+            "customerId": "Customer ID",
+            "username": "Username",
+            "role": "Role",
+            "language": "Language",
+            "loginType": "Login Type",
+            "emailVerified": "Email Verified",
+            "verified": "Verified",
+            "notVerified": "Not Verified",
+            "emailNotifications": "Email Notifications",
+            "pushNotifications": "Push Notifications",
+            "enabled": "Enabled",
+            "disabled": "Disabled",
+            "accountStatus": "Account Status",
+            "lastLogin": "Last Login",
+            "createdOn": "Created On",
+            "updatedOn": "Updated On"
+        },
+        "editCustomer": {
+            "pageTitle": "Edit Customer",
+            "pageSubtitle": "Update customer details",
+            "uploadImage": "Upload Image",
+            "profileAlt": "profile",
+            "usernameLabel": "Username",
+            "firstNameLabel": "First Name",
+            "lastNameLabel": "Last Name",
+            "emailLabel": "Email",
+            "phoneLabel": "Phone",
+            "userTypeLabel": "User Type",
+            "genderLabel": "Gender",
+            "languageLabel": "Language",
+            "selectPlaceholder": "Select",
+            "userTypeOptions": {
+                "uniform": "Uniform",
+                "vendor": "Vendor",
+                "admin": "Admin"
+            },
+            "genderOptions": {
+                "male": "Male",
+                "female": "Female",
+                "other": "Other"
+            },
+            "languageOptions": {
+                "english": "English",
+                "hindi": "Hindi"
+            },
+            "emailVerified": "Email Verified",
+            "active": "Active",
+            "emailNotifications": "Email Notifications",
+            "pushNotifications": "Push Notifications",
+            "cancel": "Cancel",
+            "update": "Update Customer",
+            "updating": "Updating...",
+            "successTitle": "Success",
+            "errorTitle": "Error",
+            "updateSuccess": "Customer updated successfully",
+            "updateFailed": "Failed to update customer",
+            "validation": {
+                "firstNameRequired": "First name is required*",
+                "lastNameRequired": "Last name is required*",
+                "emailRequired": "Email is required*",
+                "phoneRequired": "Phone number is required*",
+                "userTypeRequired": "User type is required*",
+                "genderRequired": "Gender is required*",
+                "languageRequired": "Language is required*"
+            }
         }
     },
     "pdfSimulationConfig": {
@@ -1371,5 +1526,21 @@
         },
         "noData": "No quotations found",
         "showingRange": "Showing {from}–{to}"
+    },
+    "adminTopHeader": {
+        "openMenu": "Open menu",
+        "admin": "Admin",
+        "myProfile": "My Profile",
+        "changePassword": "Change Password",
+        "signOut": "Sign Out"
+    },
+    "notificationPopup": {
+        "title": "Notifications",
+        "noNotifications": "No notifications",
+        "viewAll": "View all Notification",
+        "justNow": "Just now",
+        "mAgo": "{count}m ago",
+        "hAgo": "{count}h ago",
+        "dAgo": "{count}d ago"
     }
 }

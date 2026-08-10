@@ -72,7 +72,7 @@ const PdfTemplatesTab = () => {
         accessToken,
         items.map((t) => t.id),
       );
-      if (!res?.status) throw new Error(res?.message || "Reorder failed");
+      if (!res?.status) throw new Error(res?.message || t("reorderFailedRaw"));
     } catch (error) {
       console.error("Failed to save template order:", error);
       setTemplates(previous);

@@ -430,7 +430,9 @@ const ReportsAnalyticsPage = () => {
                               STATUS_COLORS[s.label] || "#94A3B8",
                           }}
                         />
-                        {t(`statusLabels.${s.label}`, { defaultValue: s.label })}
+                        {t.has(`statusLabels.${s.label}`)
+                          ? t(`statusLabels.${s.label}`)
+                          : s.label}
                       </span>
                       <span className="text-[#1C2C56] font-medium">
                         {s.value} ({s.percentage}%)
