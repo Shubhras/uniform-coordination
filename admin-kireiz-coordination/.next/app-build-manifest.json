@@ -80,6 +80,21 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/quotation-requests/page.js"
+    ],
+    "/(auth-pages)/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(auth-pages)/layout.js"
+    ],
+    "/(auth-pages)/sign-in/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(auth-pages)/sign-in/page.js"
+    ],
+    "/(auth-pages)/forgot-password/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(auth-pages)/forgot-password/page.js"
     ]
   }
 }
