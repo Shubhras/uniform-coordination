@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Select from "react-select";
@@ -123,6 +124,8 @@ const AddEditProductModal = ({
   initialData,
   onSaveSuccess,
 }) => {
+  const t = useTranslations("productSpecification.products");
+  const tm = useTranslations("productSpecification.products.addProductModal");
   const fileRef = useRef(null);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -446,7 +449,7 @@ const AddEditProductModal = ({
 
       toast.push(
         <Notification title={t("successTitle")} type="success">
-          {response?.message || "Saved successfully"}
+          {response?.message || tm("saveSuccess")}
         </Notification>,
       );
 
@@ -505,7 +508,7 @@ const AddEditProductModal = ({
             {validated && (
               <div className="mb-2 flex items-center gap-2 text-sm text-green-600 font-medium">
                 <FiCheckCircle className="text-green-600" size={16} />
-                <span>Image validated successfully</span>
+                <span>{tm("imageValidated")}</span>
               </div>
             )}
             <div

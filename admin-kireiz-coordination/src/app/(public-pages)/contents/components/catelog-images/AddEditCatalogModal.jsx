@@ -387,7 +387,7 @@ const AddEditCatalogModal = ({
             {validated && (
               <div className="mb-2 flex items-center gap-2 text-sm text-green-600 font-medium">
                 <FiCheckCircle className="text-green-600" size={16} />
-                <span>Image validated successfully</span>
+                <span>{tm("imageValidated")}</span>
               </div>
             )}
 

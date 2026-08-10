@@ -3,12 +3,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { IoNotificationsOutline } from 'react-icons/io5'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import { apiGetNotificationList } from '@/services/NotificationService'
 
 const priorityOrder = { high: 0, medium: 1, low: 2 }
 
-const timeAgo = (dateString) => {
+const timeAgo = (dateString, t) => {
     if (!dateString) return ''
     const now = new Date()
     const date = new Date(dateString)
@@ -17,10 +18,10 @@ const timeAgo = (dateString) => {
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
 
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins}m ago`
-    if (diffHours < 24) return `${diffHours}h ago`
-    if (diffDays < 7) return `${diffDays}d ago`
+    if (diffMins < 1) return t('justNow')
+    if (diffMins < 60) return t('mAgo', { count: diffMins })
+    if (diffHours < 24) return t('hAgo', { count: diffHours })
+    if (diffDays < 7) return t('dAgo', { count: diffDays })
     return date.toLocaleDateString()
 }
 
@@ -32,6 +33,7 @@ const priorityDot = {
 
 const NotificationPopup = ({ onClose }) => {
     const router = useRouter()
+    const t = useTranslations('notificationPopup')
     const { session } = useCurrentSession()
     const accessToken = session?.user?.accessToken
 
@@ -85,7 +87,7 @@ const NotificationPopup = ({ onClose }) => {
                         <IoNotificationsOutline size={16} className="text-white" />
                     </div>
                     <h3 className="text-base font-semibold text-[#1C2C56]">
-                        Notifications
+                        {t('title')}
                     </h3>
                 </div>
                 {unseenCount > 0 && (
@@ -115,7 +117,7 @@ const NotificationPopup = ({ onClose }) => {
                 ) : topNotifications.length === 0 ? (
                     <div className="px-5 py-8 text-center">
                         <IoNotificationsOutline size={28} className="mx-auto mb-2 text-[#CBD5E1]" />
-                        <p className="text-sm text-[#94A3B8]">No notifications</p>
+                        <p className="text-sm text-[#94A3B8]">{t('noNotifications')}</p>
                     </div>
                 ) : (
                     topNotifications.map((item) => (
@@ -147,7 +149,7 @@ const NotificationPopup = ({ onClose }) => {
                                         {item.message}
                                     </p>
                                     <p className="text-[11px] text-[#94A3B8] mt-0.5">
-                                        {timeAgo(item.created_at)}
+                                        {timeAgo(item.created_at, t)}
                                     </p>
                                 </div>
                             </div>
@@ -162,7 +164,7 @@ const NotificationPopup = ({ onClose }) => {
                     onClick={handleViewAll}
                     className="w-full text-center border border-[#1C2C56] text-[#1C2C56] rounded-lg py-2 text-sm font-medium hover:bg-[#F8FAFC] transition-colors"
                 >
-                    View all Notification
+                    {t('viewAll')}
                 </button>
             </div>
         </div>

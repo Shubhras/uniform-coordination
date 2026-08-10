@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiArrowLeft, FiUpload } from "react-icons/fi";
 import { useRouter, useParams } from "next/navigation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -12,6 +13,7 @@ import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 
 const EditCustomer = () => {
+  const t = useTranslations("customerSalesRep.editCustomer");
   const router = useRouter();
   const { id } = useParams();
 
@@ -28,31 +30,31 @@ const EditCustomer = () => {
     const newErrors = {};
 
     if (!formData.firstName.trim()) {
-      newErrors.firstName = "First name is required*";
+      newErrors.firstName = t("validation.firstNameRequired");
     }
 
     if (!formData.lastName.trim()) {
-      newErrors.lastName = "Last name is required*";
+      newErrors.lastName = t("validation.lastNameRequired");
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required*";
+      newErrors.email = t("validation.emailRequired");
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required*";
+      newErrors.phone = t("validation.phoneRequired");
     }
 
     if (!formData.userType) {
-      newErrors.userType = "User type is required*";
+      newErrors.userType = t("validation.userTypeRequired");
     }
 
     if (!formData.gender) {
-      newErrors.gender = "Gender is required*";
+      newErrors.gender = t("validation.genderRequired");
     }
 
     if (!formData.language) {
-      newErrors.language = "Language is required*";
+      newErrors.language = t("validation.languageRequired");
     }
 
     setErrors(newErrors);
@@ -183,8 +185,8 @@ const EditCustomer = () => {
 
       if (res?.status) {
         toast.push(
-          <Notification title="Success" type="success">
-            {res?.message || "Customer updated successfully"}
+          <Notification title={t("successTitle")} type="success">
+            {res?.message || t("updateSuccess")}
           </Notification>,
         );
 
@@ -194,8 +196,8 @@ const EditCustomer = () => {
       console.log(error);
 
       toast.push(
-        <Notification title="Error" type="danger">
-          {error?.response?.data?.message || "Failed to update customer"}
+        <Notification title={t("errorTitle")} type="danger">
+          {error?.response?.data?.message || t("updateFailed")}
         </Notification>,
       );
     } finally {
@@ -226,10 +228,10 @@ const EditCustomer = () => {
 
           <div>
             <h1 className="text-2xl font-semibold text-[#1C2C56]">
-              Edit Customer
+              {t("pageTitle")}
             </h1>
 
-            <p className="text-gray-500 text-sm">Update customer details</p>
+            <p className="text-gray-500 text-sm">{t("pageSubtitle")}</p>
           </div>
         </div>
       </div>
@@ -243,7 +245,7 @@ const EditCustomer = () => {
             {preview ? (
               <img
                 src={preview}
-                alt="profile"
+                alt={t("profileAlt")}
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -257,7 +259,7 @@ const EditCustomer = () => {
           <div>
             <label className="cursor-pointer bg-[#1C4FA8] text-white px-5 py-2.5 rounded-md flex items-center gap-2 text-sm w-fit hover:bg-[#163d84] transition">
               <FiUpload size={16} />
-              Upload Image
+              {t("uploadImage")}
               <input
                 type="file"
                 hidden
@@ -272,7 +274,7 @@ const EditCustomer = () => {
 
         <div className="grid md:grid-cols-2 gap-5">
           <div>
-            <label className="text-sm font-medium">Username</label>
+            <label className="text-sm font-medium">{t("usernameLabel")}</label>
 
             <input
               type="text"
@@ -284,7 +286,7 @@ const EditCustomer = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium">First Name</label>
+            <label className="text-sm font-medium">{t("firstNameLabel")}</label>
 
             <input
               type="text"
@@ -299,7 +301,7 @@ const EditCustomer = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Last Name</label>
+            <label className="text-sm font-medium">{t("lastNameLabel")}</label>
 
             <input
               type="text"
@@ -314,7 +316,7 @@ const EditCustomer = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Email</label>
+            <label className="text-sm font-medium">{t("emailLabel")}</label>
 
             <input
               type="email"
@@ -329,7 +331,7 @@ const EditCustomer = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Phone</label>
+            <label className="text-sm font-medium">{t("phoneLabel")}</label>
 
             <input
               type="text"
@@ -344,7 +346,7 @@ const EditCustomer = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium">User Type</label>
+            <label className="text-sm font-medium">{t("userTypeLabel")}</label>
 
             <select
               name="userType"
@@ -352,10 +354,10 @@ const EditCustomer = () => {
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 mt-1"
             >
-              <option value="">Select</option>
-              <option value="uniform">Uniform</option>
-              <option value="vendor">Vendor</option>
-              <option value="admin">Admin</option>
+              <option value="">{t("selectPlaceholder")}</option>
+              <option value="uniform">{t("userTypeOptions.uniform")}</option>
+              <option value="vendor">{t("userTypeOptions.vendor")}</option>
+              <option value="admin">{t("userTypeOptions.admin")}</option>
             </select>
             {errors.userType && (
               <p className="text-red-500 text-xs mt-1">{errors.userType}</p>
@@ -363,7 +365,7 @@ const EditCustomer = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Gender</label>
+            <label className="text-sm font-medium">{t("genderLabel")}</label>
 
             <select
               name="gender"
@@ -371,10 +373,10 @@ const EditCustomer = () => {
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 mt-1"
             >
-              <option value="">Select</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="">{t("selectPlaceholder")}</option>
+              <option value="male">{t("genderOptions.male")}</option>
+              <option value="female">{t("genderOptions.female")}</option>
+              <option value="other">{t("genderOptions.other")}</option>
             </select>
             {errors.gender && (
               <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
@@ -382,7 +384,7 @@ const EditCustomer = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Language</label>
+            <label className="text-sm font-medium">{t("languageLabel")}</label>
 
             <select
               name="language"
@@ -390,8 +392,8 @@ const EditCustomer = () => {
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 mt-1"
             >
-              <option value="english">English</option>
-              <option value="hindi">Hindi</option>
+              <option value="english">{t("languageOptions.english")}</option>
+              <option value="hindi">{t("languageOptions.hindi")}</option>
             </select>
           </div>
         </div>
@@ -406,7 +408,7 @@ const EditCustomer = () => {
               checked={formData.is_verify}
               onChange={handleChange}
             />
-            Email Verified
+            {t("emailVerified")}
           </label>
 
           <label className="flex items-center gap-3">
@@ -416,7 +418,7 @@ const EditCustomer = () => {
               checked={formData.isActive}
               onChange={handleChange}
             />
-            Active
+            {t("active")}
           </label>
 
           <label className="flex items-center gap-3">
@@ -426,7 +428,7 @@ const EditCustomer = () => {
               checked={formData.email_notifications}
               onChange={handleChange}
             />
-            Email Notifications
+            {t("emailNotifications")}
           </label>
 
           <label className="flex items-center gap-3">
@@ -436,7 +438,7 @@ const EditCustomer = () => {
               checked={formData.push_notifications}
               onChange={handleChange}
             />
-            Push Notifications
+            {t("pushNotifications")}
           </label>
         </div>
 
@@ -448,7 +450,7 @@ const EditCustomer = () => {
             onClick={() => router.back()}
             className="px-5 py-2 border rounded-lg"
           >
-            Cancel
+            {t("cancel")}
           </button>
 
           <button
@@ -457,7 +459,7 @@ const EditCustomer = () => {
             disabled={submitLoading}
             className="bg-[#1C4FA8] text-white px-6 py-2 rounded-lg"
           >
-            {submitLoading ? "Updating..." : "Update Customer"}
+            {submitLoading ? t("updating") : t("update")}
           </button>
         </div>
       </div>
