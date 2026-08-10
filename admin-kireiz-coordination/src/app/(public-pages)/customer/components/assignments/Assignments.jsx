@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { FiGrid, FiSearch, FiUserPlus, FiUser } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -20,6 +21,7 @@ const notify = (title, type, message) =>
     );
 
 const Assignments = () => {
+    const t = useTranslations("customerSalesRep.assignments");
     const { session } = useCurrentSession();
     const accessToken = session?.user?.accessToken;
 
@@ -101,10 +103,10 @@ const Assignments = () => {
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-semibold text-[#1C2C56]">
-                        Territory &amp; Account Assignment
+                        {t("title")}
                     </h1>
                     <p className="text-sm text-[#486284]">
-                        Drag accounts to assign them to sales representatives.
+                        {t("subtitle")}
                     </p>
                 </div>
 
@@ -113,7 +115,7 @@ const Assignments = () => {
                     className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium"
                 >
                     <FiUserPlus size={16} />
-                    Add Representative
+                    {t("addRepresentative")}
                 </button>
             </div>
 
@@ -123,7 +125,7 @@ const Assignments = () => {
                 <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search..."
+                    placeholder={t("searchPlaceholder")}
                     className="w-full pl-9 pr-3 py-2 border border-[#00345F] rounded-md text-sm focus:outline-none"
                 />
             </div>
@@ -146,11 +148,10 @@ const Assignments = () => {
             {!loading && repColumns.length === 0 && (
                 <div className="border border-dashed border-[#CBD5E1] rounded-xl py-12 text-center mb-5">
                     <p className="text-base font-medium text-[#1C2C56]">
-                        No sales representatives yet
+                        {t("noData")}
                     </p>
                     <p className="text-sm text-[#64748B] mt-1">
-                        Add representatives under the Sales Representation tab to
-                        assign accounts to them.
+                        {t("noDataSubtitle")}
                     </p>
                 </div>
             )}

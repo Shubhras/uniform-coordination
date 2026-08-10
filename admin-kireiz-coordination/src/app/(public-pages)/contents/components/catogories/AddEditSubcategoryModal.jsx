@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Select from "react-select";
@@ -44,6 +45,8 @@ const AddEditSubcategoryModal = ({
   onSaveSuccess,
   defaultCategoryId,
 }) => {
+  const t = useTranslations("contentMedia.categories");
+  const tm = useTranslations("contentMedia.categories.addSubcategoryModal");
   const fileRef = useRef(null);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -150,7 +153,7 @@ const AddEditSubcategoryModal = ({
   /* ---------- SAVE ---------- */
   const handleSave = async () => {
     if (!name.trim()) {
-      setError("Subcategory name is required");
+      setError(tm("nameRequired"));
       return;
     }
 
@@ -182,7 +185,7 @@ const AddEditSubcategoryModal = ({
           : await apiCreateSubcategory(accessToken, formData);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={t("successTitle")} type="success">
           {response?.message}
         </Notification>,
       );
@@ -192,10 +195,7 @@ const AddEditSubcategoryModal = ({
       }
     } catch (err) {
       console.error("Subcategory save error:", err);
-      setError(
-        err?.response?.data?.message ||
-          "Failed to save subcategory. Please try again.",
-      );
+      setError(err?.response?.data?.message || tm("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -212,7 +212,7 @@ const AddEditSubcategoryModal = ({
       <div className="flex flex-col">
         <div className="border-b px-6 py-4">
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            {mode === "edit" ? "Edit Subcategory" : "Add Subcategory"}
+            {mode === "edit" ? tm("editModalTitle") : tm("modalTitle")}
           </h2>
         </div>
 
@@ -227,12 +227,13 @@ const AddEditSubcategoryModal = ({
           {/* Name */}
           <div>
             <label className="text-base font-medium text-[#1C2C56]">
-              Name<span className="text-red-500">*</span>
+              {tm("nameLabel")}
+              <span className="text-red-500">*</span>
             </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Eg:- Medical Scrubs"
+              placeholder={tm("namePlaceholder")}
               className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
             />
           </div>
@@ -240,17 +241,18 @@ const AddEditSubcategoryModal = ({
           {/* Category (React Select from API) */}
           <div>
             <label className="text-base font-medium text-[#1C2C56]">
-              Category<span className="text-red-500">*</span>
+              {tm("categoryLabel")}
+              <span className="text-red-500">*</span>
             </label>
             <Select
               options={categoryOptions}
               value={category}
               onChange={setCategory}
               styles={selectStyles}
-              placeholder="Select category..."
+              placeholder={tm("categoryPlaceholder")}
               isLoading={loadingCategories}
-              loadingMessage={() => "Loading categories..."}
-              noOptionsMessage={() => "No categories found"}
+              loadingMessage={() => tm("loadingCategories")}
+              noOptionsMessage={() => tm("noCategories")}
               isClearable
               menuPortalTarget={
                 typeof document !== "undefined" ? document.body : null
@@ -263,7 +265,7 @@ const AddEditSubcategoryModal = ({
           {/* Image Upload */}
           <div>
             <label className="text-base font-medium text-[#1C2C56]">
-              Image
+              {tm("imageLabel")}
             </label>
 
             <button
@@ -271,7 +273,7 @@ const AddEditSubcategoryModal = ({
               className="mt-2 w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm flex items-center justify-center gap-2"
             >
               <FiUpload size={16} />
-              Upload Image
+              {tm("uploadImageButton")}
             </button>
 
             <input
@@ -287,7 +289,7 @@ const AddEditSubcategoryModal = ({
             <div className="flex justify-center">
               <img
                 src={preview}
-                alt="Preview"
+                alt={tm("previewAlt")}
                 className="w-32 h-32 object-cover rounded-lg shadow"
               />
             </div>
@@ -296,13 +298,13 @@ const AddEditSubcategoryModal = ({
           {/* Description */}
           <div>
             <label className="text-base font-medium text-[#1C2C56]">
-              Description
+              {tm("descriptionLabel")}
             </label>
             <textarea
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Subcategory description..."
+              placeholder={tm("descriptionPlaceholder")}
               className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
             />
           </div>
@@ -310,7 +312,7 @@ const AddEditSubcategoryModal = ({
 
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
           <Button variant="plain" onClick={onClose} size="sm" disabled={saving}>
-            Cancel
+            {tm("cancel")}
           </Button>
           <Button
             variant="solid"
@@ -319,7 +321,7 @@ const AddEditSubcategoryModal = ({
             onClick={handleSave}
             loading={saving}
           >
-            {mode === "edit" ? "Update" : "Save"}
+            {mode === "edit" ? tm("update") : tm("save")}
           </Button>
         </div>
       </div>

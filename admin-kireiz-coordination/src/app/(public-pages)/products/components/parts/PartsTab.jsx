@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   FiSearch,
   FiEdit2,
@@ -28,6 +29,7 @@ import Pagination from "@/components/ui/Pagination";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 const PartsTab = () => {
+  const t = useTranslations("productSpecification.parts");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -70,20 +72,20 @@ const PartsTab = () => {
   });
 
   const [categoryOptions, setCategoryOptions] = useState([
-    { value: "", label: "All Categories" },
+    { value: "", label: t("allCategories") },
   ]);
 
   const [category, setCategory] = useState({
     value: "",
-    label: "All Categories",
+    label: t("allCategories"),
   });
   /* ---------- SELECT STYLES ---------- */
   const selectStyles = {
-    control: (base) => ({
+    control: (base, state) => ({
       ...base,
-      minHeight: "40px",
+      minHeight: "38px",
       borderRadius: "6px",
-      borderColor: "#00345F",
+      borderColor: state.isFocused ? "#1C2C56" : "#00345F",
       boxShadow: "none",
       "&:hover": { borderColor: "#1C2C56" },
     }),
@@ -94,25 +96,48 @@ const PartsTab = () => {
         : state.isFocused
           ? "#EEF2FF"
           : "white",
-      color: state.isSelected ? "white" : "#1C2C56",
+      color: state.isSelected ? "white" : "#1E293B",
       fontSize: "14px",
     }),
     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
   };
 
+  /* ---------- FETCH CATEGORIES ---------- */
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await apiFabricCategoryList();
+        if (response?.status && response?.data) {
+          const opts = [
+            { value: "", label: t("allCategories") },
+            ...response.data.map((c) => ({
+              value: c.id,
+              label: c.categoryName,
+            })),
+          ];
+          setCategoryOptions(opts);
+        }
+      } catch (err) {
+        console.error("Failed to load categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, [t]);
+
   /* ---------- FETCH PARTS ---------- */
   const fetchParts = useCallback(
     async (page = 1) => {
-      if (!accessToken) return;
-
       try {
         setLoading(true);
+        const catValue = category?.value || "";
+
         const response = await apiGetPartsList(
           accessToken,
           page,
           pageSize,
           debouncedSearch,
-          category?.value,
+          catValue,
         );
 
         if (response?.status && response?.data) {
@@ -134,44 +159,16 @@ const PartsTab = () => {
     fetchParts(currentPage);
   }, [fetchParts, currentPage, pageSize]);
 
-  const fetchCategories = useCallback(async () => {
-    if (!accessToken) return;
-
-    try {
-      const res = await apiFabricCategoryList(accessToken, 1, 100);
-
-      if (res?.status && res?.data) {
-        const options = [
-          { value: "", label: "All Categories" },
-          ...res.data.map((item) => ({
-            value: item.id,
-            label: item.categoryName,
-          })),
-        ];
-
-        setCategoryOptions(options);
-        setCategory(options[0]);
-      }
-    } catch (err) {
-      console.error("Category fetch failed:", err);
-    }
-  }, [accessToken]);
-
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
-
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
     if (!partToDelete || !accessToken) return;
 
     try {
       setDeleteLoading(true);
-      // await apiDeletePart(accessToken, partToDelete.id);
       const response = await apiDeletePart(accessToken, partToDelete.id);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={t("successTitle")} type="success">
           {response?.message || "Part deleted successfully."}
         </Notification>,
       );
@@ -215,7 +212,7 @@ const PartsTab = () => {
       const response = await apiCreateDuplicateParts(accessToken, part.id);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={t("successTitle")} type="success">
           {response?.message || "Part duplicated successfully."}
         </Notification>,
       );
@@ -225,7 +222,7 @@ const PartsTab = () => {
       console.error("Duplicate failed:", error);
 
       toast.push(
-        <Notification title="Error" type="danger">
+        <Notification title={t("errorTitle")} type="danger">
           {error?.response?.data?.message || "Failed to duplicate part."}
         </Notification>,
       );
@@ -235,20 +232,15 @@ const PartsTab = () => {
   };
 
   /* ---------- FILTERING ---------- */
-  const filteredParts = parts.filter((p) => {
+  const filteredParts = useMemo(() => {
+    if (!searchQuery) return parts;
     const q = searchQuery.toLowerCase();
-
-    return (
-      p.partName?.toLowerCase().includes(q) ||
-      p.category?.categoryName?.toLowerCase().includes(q)
+    return parts.filter(
+      (p) =>
+        p.partName?.toLowerCase().includes(q) ||
+        p.category?.categoryName?.toLowerCase().includes(q),
     );
-  });
-  /* ---------- PAGINATION ---------- */
-  const goToPage = (page) => {
-    if (page >= 1 && page <= pagination.total_pages) {
-      setCurrentPage(page);
-    }
-  };
+  }, [parts, searchQuery]);
 
   /* ---------- IMAGE URL ---------- */
   const getImageUrl = (path) => {
@@ -284,10 +276,10 @@ const PartsTab = () => {
       <div className="flex justify-between sm:flex-row flex-col items-start mb-4 gap-2">
         <div>
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            Part Images Library
+            {t("title")}
           </h2>
           <p className="text-base text-[#486284]">
-            {pagination.total_items} parts total
+            {t("totalCount", { count: pagination.total_items || parts.length })}
           </p>
         </div>
 
@@ -296,7 +288,7 @@ const PartsTab = () => {
           className="bg-[#1C4FA8] text-white px-4 py-2 font-medium rounded-md text-sm flex items-center gap-2"
         >
           <FiPlus size={14} />
-          Upload New Part
+          {t("addNew")}
         </button>
       </div>
 
@@ -308,7 +300,7 @@ const PartsTab = () => {
           />
           <input
             type="text"
-            placeholder="Search Parts..."
+            placeholder={t("searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm"
@@ -344,7 +336,7 @@ const PartsTab = () => {
           }}
           className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-white bg-[#1C4FA8] hover:bg-[#163F86] transition-colors"
         >
-          Reset
+          {t("reset")}
         </button>
 
         <div className="ml-auto flex border rounded-md overflow-hidden">
@@ -354,7 +346,7 @@ const PartsTab = () => {
               view === "grid" ? "bg-[#EEF2FF] text-[#1C2C56]" : "text-[#486284]"
             }`}
           >
-            Grid
+            {t("gridView")}
           </button>
           <button
             onClick={() => setView("list")}
@@ -362,7 +354,7 @@ const PartsTab = () => {
               view === "list" ? "bg-[#EEF2FF] text-[#1C2C56]" : "text-[#486284]"
             }`}
           >
-            List
+            {t("listView")}
           </button>
         </div>
       </div>
@@ -372,7 +364,7 @@ const PartsTab = () => {
         (loading ? (
           <GridSkeleton />
         ) : filteredParts.length === 0 ? (
-          <div className="text-center py-16 text-[#94A3B8]">No parts found</div>
+          <div className="text-center py-16 text-[#94A3B8]">{t("noData")}</div>
         ) : (
           <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredParts.map((part) => (
@@ -386,23 +378,12 @@ const PartsTab = () => {
                     alt={part.partName}
                     className="w-full h-full object-cover mb-3 rounded"
                   />
-
-                  {/* Status badge */}
-                  {/* <span className={`absolute top-2 right-2 text-[10px] px-2 py-0.5 rounded-full font-medium ${part.isActive
-                                            ? "bg-green-100 text-green-700"
-                                            : "bg-red-100 text-red-600"
-                                            }`}>
-                                            {part.isActive ? "Active" : "Inactive"}
-                                        </span> */}
                 </div>
 
                 <div className="p-3">
                   <h3 className="text-sm font-semibold text-[#1C2C56]">
                     {part.partName}
                   </h3>
-                  {/* <p className="text-xs text-[#486284] capitalize">
-                    {part.category} · z-index: {part.zIndex}
-                  </p> */}
                   <p className="text-xs text-[#486284] capitalize">
                     {part.category?.categoryName} · z-index: {part.zIndex}
                   </p>
@@ -412,7 +393,7 @@ const PartsTab = () => {
                       onClick={() => handleEdit(part)}
                       className="flex-1 bg-[#1C4FA8] text-white text-xs py-1.5 rounded-md"
                     >
-                      Edit
+                      {t("edit")}
                     </button>
                     <button
                       onClick={() => handleDuplicatePart(part)}
@@ -420,8 +401,8 @@ const PartsTab = () => {
                       className="flex-1 border border-[#1C4FA8] text-[#1C4FA8] text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-[#EEF2FF] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {duplicatingId === part.id
-                        ? "Duplicating..."
-                        : "Duplicate"}
+                        ? t("duplicating")
+                        : t("duplicate")}
                     </button>
                     <button
                       onClick={() => {
@@ -431,7 +412,7 @@ const PartsTab = () => {
                       className="flex-1 border border-red-200 text-red-500 text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                     >
                       <FiTrash2 size={12} />
-                      Delete
+                      {t("delete")}
                     </button>
                   </div>
                 </div>
@@ -446,13 +427,12 @@ const PartsTab = () => {
           <table className="w-full text-sm">
             <thead className="bg-[#F1F5F9] text-[#486284]">
               <tr>
-                <th className="text-left px-5 py-4 font-medium">Preview</th>
-                <th className="text-left px-5 py-4 font-medium">Part Name</th>
-                <th className="text-left px-5 py-4 font-medium">Category</th>
-                <th className="text-left px-5 py-4 font-medium">Usage</th>
-                <th className="text-left px-5 py-4 font-medium">z-index</th>
-                {/* <th className="text-left px-5 py-4 font-medium">Status</th> */}
-                <th className="text-right px-5 py-4 font-medium">Actions</th>
+                <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.preview")}</th>
+                <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.partName")}</th>
+                <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.category")}</th>
+                <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.usage")}</th>
+                <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.zIndex")}</th>
+                <th className="text-right px-5 py-4 font-medium">{t("tableHeaders.actions")}</th>
               </tr>
             </thead>
 
@@ -473,7 +453,7 @@ const PartsTab = () => {
               ) : filteredParts.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-10 text-[#64748B]">
-                    No parts found
+                    {t("noData")}
                   </td>
                 </tr>
               ) : (
@@ -492,24 +472,14 @@ const PartsTab = () => {
                     </td>
 
                     <td className="px-4 py-3 text-[#486284] capitalize">
-                      {/* {part.category} */}
                       {part.category?.categoryName}
                     </td>
 
                     <td className="px-4 py-3 text-[#1C2C56]">
-                      {part.usageTemmpCount} Templates
+                      {part.usageTemmpCount} {t("templates")}
                     </td>
 
                     <td className="px-4 py-3 text-[#486284]">{part.zIndex}</td>
-
-                    {/* <td className="px-4 py-3">
-                                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${part.isActive
-                                                    ? "bg-green-100 text-green-700"
-                                                    : "bg-red-100 text-red-600"
-                                                }`}>
-                                                {part.isActive ? "Active" : "Inactive"}
-                                            </span>
-                                        </td> */}
 
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-3 text-[#1C2C56]">
@@ -524,7 +494,7 @@ const PartsTab = () => {
                           className="p-1.5 rounded hover:bg-[#EEF2FF] disabled:opacity-60 disabled:cursor-not-allowed"
                           onClick={() => handleDuplicatePart(part)}
                           disabled={duplicatingId === part.id}
-                          title="Duplicate"
+                          title={t("duplicate")}
                         >
                           <FiCopy size={14} />
                         </button>
@@ -579,8 +549,8 @@ const PartsTab = () => {
           setPartToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Part"
-        message="Are you sure you want to delete this part? This action cannot be undone."
+        title={t("deleteDialog.title")}
+        message={t("deleteDialog.message")}
         itemName={partToDelete?.partName}
         loading={deleteLoading}
       />

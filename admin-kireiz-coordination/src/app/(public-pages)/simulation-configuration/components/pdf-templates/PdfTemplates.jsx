@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiFileText, FiCheck } from "react-icons/fi";
 import LivePreview from "../LivePreview";
 
 const PdfTemplates = ({ config, loading, saving, onSave, onReset }) => {
+    const t = useTranslations("pdfSimulationConfig.pdfTemplate");
     const templates = config?.templates || [];
 
-    // Local draft so the selection can be changed and then cancelled without
-    // writing to the server on every click.
     const [selected, setSelected] = useState(null);
 
     useEffect(() => {
@@ -32,7 +32,7 @@ const PdfTemplates = ({ config, loading, saving, onSave, onReset }) => {
         <div className="bg-white rounded-xl shadow md:p-6 p-3">
             {/* Header */}
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-                PDF Templates
+                {t("title")}
             </h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
@@ -40,10 +40,12 @@ const PdfTemplates = ({ config, loading, saving, onSave, onReset }) => {
                 <div className="lg:col-span-2">
                     <div className="flex justify-between items-center mb-4">
                         <p className="text-sm font-medium text-[#1C2C56]">
-                            Select Template
+                            {t("selectTemplate")}
                         </p>
                         <span className="text-xs text-[#64748B]">
-                            {loading ? "…" : `${templates.length} available`}
+                            {loading
+                                ? "…"
+                                : t("availableCount", { count: templates.length })}
                         </span>
                     </div>
 
@@ -65,20 +67,20 @@ const PdfTemplates = ({ config, loading, saving, onSave, onReset }) => {
                     {!loading && templates.length === 0 && (
                         <div className="border border-dashed border-[#CBD5E1] rounded-xl py-12 text-center">
                             <p className="text-base font-medium text-[#1C2C56]">
-                                No page templates configured
+                                {t("noData")}
                             </p>
                         </div>
                     )}
 
                     {!loading && templates.length > 0 && (
                         <div className="grid grid-cols-2 gap-4">
-                            {templates.map((t) => {
-                                const isActive = selected === t.id;
+                            {templates.map((tItem) => {
+                                const isActive = selected === tItem.id;
 
                                 return (
                                     <div
-                                        key={t.id}
-                                        onClick={() => setSelected(t.id)}
+                                        key={tItem.id}
+                                        onClick={() => setSelected(tItem.id)}
                                         className={`relative rounded-xl border p-4 cursor-pointer transition
                     ${
                         isActive
@@ -103,18 +105,18 @@ const PdfTemplates = ({ config, loading, saving, onSave, onReset }) => {
 
                                         {/* Title */}
                                         <h4 className="mt-3 text-sm font-semibold text-[#1C2C56]">
-                                            {t.name}
+                                            {tItem.name}
                                         </h4>
 
                                         {/* Dimension */}
                                         <p className="text-xs text-[#486284] mt-1">
-                                            {t.dimension}
+                                            {tItem.dimension}
                                         </p>
 
                                         {/* Tag */}
-                                        {t.tag && (
+                                        {tItem.tag && (
                                             <span className="inline-block mt-2 text-xs bg-[#F1F5F9] text-[#486284] px-2 py-0.5 rounded">
-                                                {t.tag}
+                                                {tItem.tag}
                                             </span>
                                         )}
 
@@ -138,7 +140,7 @@ const PdfTemplates = ({ config, loading, saving, onSave, onReset }) => {
                             disabled={loading || saving}
                             className="border border-[#CBD5E1] text-[#486284] px-4 py-2 rounded-md text-sm disabled:opacity-50"
                         >
-                            Cancel
+                            {t("cancel")}
                         </button>
 
                         <button
@@ -147,7 +149,7 @@ const PdfTemplates = ({ config, loading, saving, onSave, onReset }) => {
                             disabled={loading || saving || !isDirty}
                             className="bg-[#1C4FA8] text-white px-5 py-2 rounded-md text-sm font-medium disabled:opacity-50"
                         >
-                            {saving ? "Saving..." : "Save Changes"}
+                            {saving ? "Saving..." : t("saveChanges")}
                         </button>
                     </div>
                 </div>

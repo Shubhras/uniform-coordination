@@ -209,7 +209,7 @@ const UniformSingle = () => {
                         <div className="order-1 lg:order-2 relative flex justify-center">
                             <div className="relative z-10">
                                 <Image
-                                    src={singleProductData?.ProductImage || '/img/table-form/3d-table.png'}
+                                    src={singleProductData?.ProductImage}
                                     alt="Uniform"
                                     width={450}
                                     height={800}

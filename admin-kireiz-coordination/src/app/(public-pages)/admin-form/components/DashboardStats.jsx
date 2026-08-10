@@ -1,7 +1,10 @@
 "use client";
 import { FiTrendingUp, FiTrendingDown } from "react-icons/fi";
+import { useTranslations } from "next-intl";
 
 const DashboardStats = ({ data }) => {
+  const t = useTranslations("dashboard.stats");
+
   // Map API response fields
   const recentProducts = data?.Recently_update_product_color_part || [];
 
@@ -64,7 +67,7 @@ const DashboardStats = ({ data }) => {
         {/* CARD 3 — Pending Quotes */}
         <div className="bg-[#F4F7FC] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
-            <p className="text-[20px] opacity-90 text-[#1C2C56] font-semibold">Pending Quotes</p>
+            <p className="text-[20px] opacity-90 text-[#1C2C56] font-semibold">{t("pendingQuotes")}</p>
             <h2 className="text-3xl font-semibold mt-2">
               {pendingQuotes}
             </h2>
@@ -77,7 +80,7 @@ const DashboardStats = ({ data }) => {
                 <span className="font-medium text-green-400">
                   {quoteChange}%
                 </span>
-                <span className="text-[#486284]">Up from yesterday</span>
+                <span className="text-[#486284]">{t("upFromYesterday")}</span>
               </>
             ) : (
               <>
@@ -85,14 +88,14 @@ const DashboardStats = ({ data }) => {
                 <span className="font-medium text-red-400">
                   {Math.abs(quoteChange)}%
                 </span>
-                <span className="text-[#486284]">Down from yesterday</span>
+                <span className="text-[#486284]">{t("downFromYesterday")}</span>
               </>
             )}
           </div>
         </div>
         <div className="bg-[#F4F7FC] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
-            <p className="text-[20px] opacity-90 text-[#1C2C56] font-semibold">Total Templates</p>
+            <p className="text-[20px] opacity-90 text-[#1C2C56] font-semibold">{t("totalTemplates")}</p>
             <h2 className="text-3xl font-semibold mt-2 text-[#1C2C56]">
               {templates}
             </h2>
@@ -102,7 +105,7 @@ const DashboardStats = ({ data }) => {
         {/* B2B Users */}
         <div className="bg-[#F4F7FC] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
-            <p className="text-[20px] opacity-90 text-[#1C2C56] font-semibold">B2B Users</p>
+            <p className="text-[20px] opacity-90 text-[#1C2C56] font-semibold">{t("b2bUsers")}</p>
             <h2 className="text-3xl font-semibold mt-2">
               {b2bUsers}
             </h2>
@@ -116,7 +119,7 @@ const DashboardStats = ({ data }) => {
                   <span className="text-green-400 font-medium">
                     {b2bChange}%
                   </span>
-                  <span className="text-[#486284]">Up from yesterday</span>
+                  <span className="text-[#486284]">{t("upFromYesterday")}</span>
                 </>
               ) : (
                 <>
@@ -124,7 +127,7 @@ const DashboardStats = ({ data }) => {
                   <span className="text-red-400 font-medium">
                     {Math.abs(b2bChange)}%
                   </span>
-                  <span className="text-[#486284]">Down from yesterday</span>
+                  <span className="text-[#486284]">{t("downFromYesterday")}</span>
                 </>
               )}
             </div>

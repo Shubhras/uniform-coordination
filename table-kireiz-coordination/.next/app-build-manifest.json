@@ -11,65 +11,30 @@
       "static/chunks/main-app.js",
       "static/chunks/app/not-found.js"
     ],
-    "/(auth-pages)/layout": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(auth-pages)/layout.js"
-    ],
-    "/(auth-pages)/sign-in/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(auth-pages)/sign-in/page.js"
-    ],
-    "/(public-pages)/browse-by-color/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/browse-by-color/page.js"
-    ],
-    "/(public-pages)/dashboards/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/dashboards/layout.js"
-    ],
-    "/(public-pages)/dashboards/uniform-single/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/dashboards/uniform-single/[id]/page.js"
-    ],
-    "/_not-found/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
-    ],
-    "/(public-pages)/dashboards/uniform-3d-design/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/dashboards/uniform-3d-design/[id]/page.js"
-    ],
-    "/(public-pages)/browse-by-theme/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/browse-by-theme/page.js"
+      "static/chunks/app/page.js"
     ],
     "/(public-pages)/table-form/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/table-form/page.js"
     ],
-    "/(public-pages)/theme-details/page": [
+    "/(public-pages)/browse-by-color/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/theme-details/page.js"
+      "static/chunks/app/(public-pages)/browse-by-color/page.js"
     ],
-    "/(public-pages)/dashboards/uniform-3d-design/page": [
+    "/(public-pages)/browse-by-theme/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/dashboards/uniform-3d-design/page.js"
+      "static/chunks/app/(public-pages)/browse-by-theme/page.js"
     ],
-    "/(public-pages)/cart-summary/page": [
+    "/(public-pages)/faq/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/cart-summary/page.js"
+      "static/chunks/app/(public-pages)/faq/page.js"
     ]
   }
 }

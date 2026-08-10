@@ -4,6 +4,7 @@ import Button from '@/components/ui/Button'
 import Upload from '@/components/ui/Upload'
 import Input from '@/components/ui/Input'
 import Select, { Option as DefaultOption } from '@/components/ui/Select'
+import { useRouter } from 'next/navigation'
 import Avatar from '@/components/ui/Avatar'
 import { Form, FormItem } from '@/components/ui/Form'
 import NumericInput from '@/components/shared/NumericInput'
@@ -32,9 +33,12 @@ const validationSchema = z.object({
         .min(1, { message: 'Email required' })
         .email({ message: 'Invalid email' }),
     //dialCode: z.string().min(1, { message: 'Please select your country code' }),
-    phoneNumber: z
+      phoneNumber: z
         .string()
-        .min(1, { message: 'Please input your mobile number' }),
+        .min(1, { message: 'Phone number is required' })
+        .regex(/^\d{10}$/, {
+            message: 'Phone number must be exactly 10 digits',
+        }),
     position: z.string().min(1, { message: 'Position required' }),
     //img: z.string(),
     img: z.any().optional(),
@@ -77,7 +81,7 @@ const CustomControl = ({ children, ...props }) => {
 }
 
 const PersonalInformation = () => {
-
+    const router = useRouter()
     const { data: session } = useSession()
     const [loading, setLoading] = useState(false)
     const {
@@ -187,7 +191,7 @@ const PersonalInformation = () => {
                 </Notification>,
             )
             //console.log('Profile updated successfully')
-
+          router.back()
         } catch (error) {
             console.error('Profile update failed:', error)
 
@@ -380,6 +384,7 @@ const PersonalInformation = () => {
                             </FormItem> */}
 
                             <FormItem
+                            label="Phone Number"
                                 className="w-full"
                                 invalid={Boolean(errors.phoneNumber)}
                                 errorMessage={errors.phoneNumber?.message}
@@ -391,6 +396,11 @@ const PersonalInformation = () => {
                                         <NumericInput
                                             placeholder="Phone Number"
                                             {...field}
+                                             maxLength={10}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                                                field.onChange(value)
+                                            }}
                                         />
                                     )}
                                 />

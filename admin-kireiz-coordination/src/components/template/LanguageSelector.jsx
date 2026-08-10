@@ -7,6 +7,7 @@ import withHeaderItem from "@/utils/hoc/withHeaderItem";
 import { HiCheck } from "react-icons/hi";
 import { setLocale } from "@/server/actions/locale";
 import { useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { FiChevronDown } from "react-icons/fi";
 
 const languageList = [
@@ -16,6 +17,7 @@ const languageList = [
 
 const _LanguageSelector = ({ className }) => {
   const locale = useLocale();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
   const selectLangFlag = useMemo(() => {
@@ -24,6 +26,10 @@ const _LanguageSelector = ({ className }) => {
 
   const handleUpdateLocale = async (locale) => {
     await setLocale(locale);
+    // The server action only writes the cookie; refresh re-runs the root layout
+    // so LocaleProvider receives the new messages and every useTranslations
+    // consumer (sidebar, header, pages) re-renders in the picked language.
+    router.refresh();
   };
 
   const selectedLang = useMemo(() => {
