@@ -7,7 +7,7 @@ from rest_framework import status
 import os
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
 from reportlab.lib.styles import getSampleStyleSheet,ParagraphStyle
 from reportlab.lib.enums import TA_CENTER 
 from reportlab.lib.enums import TA_RIGHT, TA_CENTER,TA_LEFT
@@ -541,8 +541,13 @@ def generate_quotation_pdf(quotation, request):
     ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
     ]))
 
-
-    elements.append(logo_table)
+    logo_path = os.path.join(settings.BASE_DIR, "../admin-table-coordination/public/img/logo/sidebar-logo.png")
+    if os.path.exists(logo_path):
+        logo_img = Image(logo_path, width=120, height=60)
+        logo_img.hAlign = "LEFT"
+        elements.append(logo_img)
+    else:
+        elements.append(logo_table)
     elements.append(Spacer(1, 20))
 
     # Custom Styles
@@ -626,6 +631,201 @@ def generate_quotation_pdf(quotation, request):
 
     doc.build(elements)
 
+    return file_path
+
+
+def generate_contract_pdf(contract, request):
+    file_name = f"contract_{contract.contract_id}.pdf"
+    file_path = os.path.join(settings.MEDIA_ROOT, "exports", file_name)
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    doc = SimpleDocTemplate(
+        file_path,
+        pagesize=A4,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=40
+    )
+    styles = getSampleStyleSheet()
+    elements = []
+     
+    # LOGO STYLES (SAFE & TESTED)
+    logo_text_style = ParagraphStyle(
+        "LogoText",
+        fontSize=14,
+        fontName="Helvetica-Bold",
+        textColor=colors.HexColor("#0B3C5D"),
+        leading=16
+    )
+    logo_tagline_style = ParagraphStyle(
+        "LogoTagline",
+        fontSize=9,
+        textColor=colors.HexColor("#0B3C5D"),
+        leading=2
+    )
+    
+    #<--------------LOGO LEFT TEXT------------->
+    left_logo_block = Table(
+        [
+            [RoundedKFBox()],
+            [Paragraph("Cleanliness and Trust.", logo_tagline_style)],
+        ],
+        colWidths=[100]
+    )
+    left_logo_block.setStyle(TableStyle([
+        ("ALIGN", (0, 1), (0, 1), "CENTER"),
+        ("TOPPADDING", (0, 1), (0, 1), 4),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+
+   #<-----------------LOGO RIGHT TEXT-----------------> 
+    right_logo_text = Table(
+        [   [Spacer(1, 8)],
+            [Paragraph("KIREIZ", logo_text_style)],
+            [Paragraph("FORM", logo_text_style)],
+        ],
+        colWidths=[140]
+    )
+    right_logo_text.setStyle(TableStyle([
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+
+    #<----------------------MAIN LOGO----------------->
+    logo_table = Table(
+        [
+            [left_logo_block, right_logo_text],
+        ],
+        colWidths=[55, 440]
+    )
+    logo_table.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+
+    logo_path = os.path.join(settings.BASE_DIR, "../admin-table-coordination/public/img/logo/sidebar-logo.png")
+    if os.path.exists(logo_path):
+        logo_img = Image(logo_path, width=120, height=60)
+        logo_img.hAlign = "LEFT"
+        elements.append(logo_img)
+    else:
+        elements.append(logo_table)
+    elements.append(Spacer(1, 20))
+
+    # Custom Styles
+    title_style = ParagraphStyle(
+        "TitleStyle",
+        parent=styles["Title"],
+        fontSize=20,
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#2E4053"),
+        spaceAfter=20
+    )
+    section_style = ParagraphStyle(
+        "SectionStyle",
+        parent=styles["Heading2"],
+        fontSize=14,
+        textColor=colors.HexColor("#1F618D"),
+        spaceBefore=20,
+        spaceAfter=10
+    )
+
+    # Title
+    elements.append(Paragraph("Rental Agreement / Contract", title_style))
+    elements.append(Spacer(1, 12))
+
+    # Contract Details Section
+    elements.append(Paragraph("Contract Details", section_style))
+
+    data = [
+        ["Contract ID", contract.contract_id],
+        ["Order ID", contract.order.order_id if contract.order else "N/A"],
+        ["Company Name", contract.company_name or "N/A"],
+        ["Contact Person", contract.contact_person or "N/A"],
+        ["Email", contract.email],
+        ["Phone Number", contract.phone_number or "N/A"],
+        ["Delivery/Start Date", str(contract.delivery_date) if contract.delivery_date else "N/A"],
+        ["Additional Note", contract.additional_note or "None"],
+    ]
+    table = Table(data, colWidths=[160, 320])
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.whitesmoke),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("FONT", (1, 0), (1, -1), "Helvetica"),
+        ("FONTSIZE", (0, 0), (-1, -1), 11),
+        ("ALIGN", (0, 0), (0, -1), "LEFT"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+    ]))
+
+    elements.append(table)
+
+    # If there is an associated order, list its items!
+    if contract.order:
+        elements.append(Paragraph("Order Items", section_style))
+        item_data = [["ProductName", "Quantity", "Price Per Day", "Subtotal"]]
+        for item in contract.order.items.all():
+            item_data.append([
+                item.product.productName,
+                str(item.quantity),
+                f"¥{item.price_per_day}",
+                f"¥{item.subtotal}"
+            ])
+        item_table = Table(item_data, colWidths=[200, 70, 100, 110])
+        item_table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#EAEDED")),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 10),
+            ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ]))
+        elements.append(item_table)
+
+        # Order totals
+        elements.append(Spacer(1, 10))
+        total_data = [
+            ["Subtotal", f"¥{contract.order.subtotal}"],
+            ["Tax", f"¥{contract.order.tax}"],
+            ["Shipping Charge", f"¥{contract.order.shipping_charge}"],
+            ["Total Amount", f"¥{contract.order.total_amount}"],
+        ]
+        total_table = Table(total_data, colWidths=[380, 100])
+        total_table.setStyle(TableStyle([
+            ("ALIGN", (0, 0), (-1, -1), "RIGHT"),
+            ("FONT", (0, -1), (-1, -1), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 10),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(total_table)
+
+    # Footer
+    elements.append(Spacer(1, 50))  
+    elements.append(
+        Paragraph(
+            f"Generated on: {datetime.now().strftime('%d %b %Y, %I:%M %p')}",
+            ParagraphStyle(
+                "FooterStyle",
+                parent=styles["Normal"],
+                fontSize=9,
+                alignment=TA_RIGHT,
+                textColor=colors.grey
+            )
+        )
+    )
+
+    doc.build(elements)
     return file_path
 
 
@@ -741,7 +941,13 @@ def generate_payment_pdf(payment, user, request=None):
         ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
     ]))
 
-    elements.append(logo_table)
+    logo_path = os.path.join(settings.BASE_DIR, "../admin-table-coordination/public/img/logo/sidebar-logo.png")
+    if os.path.exists(logo_path):
+        logo_img = Image(logo_path, width=120, height=60)
+        logo_img.hAlign = "LEFT"
+        elements.append(logo_img)
+    else:
+        elements.append(logo_table)
     elements.append(Spacer(1, 20))
 
     # Title

@@ -115,13 +115,12 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
               <span
                 className={`px-3 py-1 rounded-lg border text-xs font-semibold capitalize
-    ${
-      order?.status === "completed"
-        ? "bg-[#E9F9F0] text-[#22A06B] border-[#22A06B]"
-        : order?.status === "pending"
-          ? "bg-[#FFF4E5] text-[#BB4D00] border-[#FEE685]"
-          : "bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]"
-    }`}
+    ${order?.status === "completed"
+                    ? "bg-[#E9F9F0] text-[#22A06B] border-[#22A06B]"
+                    : order?.status === "pending"
+                      ? "bg-[#FFF4E5] text-[#BB4D00] border-[#FEE685]"
+                      : "bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]"
+                  }`}
               >
                 {order?.status}
               </span>
@@ -303,6 +302,16 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
               </div>
 
               <div className="flex justify-between">
+                <span className="text-[#7A6E66]">Shipping</span>
+                <span>{order?.payment_summary?.shipping_charge || 0}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-[#7A6E66]">Promo Discount</span>
+                <span>{order?.payment_summary?.promo_amount || 0}</span>
+              </div>
+
+              <div className="flex justify-between">
                 <span className="text-[#7A6E66]">Subtotal</span>
                 <span>
                   {order?.payment_summary?.currency}{" "}
@@ -352,15 +361,14 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                 </p>
 
                 <span
-                  className={`px-3 py-1 rounded-md text-[11px] font-semibold uppercase ${
-                    order?.payment_summary?.payment_status === "success"
-                      ? "bg-[#EAF9F0] text-[#22A06B] border border-[#B7E8C9]"
-                      : "bg-[#FEE2E2] text-[#DC2626]"
-                  }`}
+                  className={`px-3 py-1 rounded-md text-[11px] font-semibold uppercase ${order?.payment_summary?.payment_status === "success"
+                    ? "bg-[#EAF9F0] text-[#22A06B] border border-[#B7E8C9]"
+                    : "bg-[#FEE2E2] text-[#DC2626]"
+                    }`}
                 >
                   {order?.payment_summary?.payment_status === "success"
                     ? "PAID"
-                    : order?.payment_summary?.payment_status}
+                    : order?.payment_summary?.payment_status || "UNPAID"}
                 </span>
               </div>
 

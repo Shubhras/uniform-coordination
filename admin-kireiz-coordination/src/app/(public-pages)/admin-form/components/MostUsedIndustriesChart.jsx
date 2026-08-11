@@ -1,6 +1,10 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 const MostUsedIndustriesChart = ({ data }) => {
+  const t = useTranslations("dashboard.mostUsedFabrics");
+
   const fabrics = data?.most_used_fabrics || [];
 
   // fallback data
@@ -20,7 +24,7 @@ const MostUsedIndustriesChart = ({ data }) => {
   return (
     <div className="bg-white border border-[#E9EDF5] rounded-2xl shadow-sm p-6 h-full">
       <h2 className="text-[18px] font-semibold text-[#1C2C56] mb-8">
-        Most Used Fabrics or Item Types
+        {t("mostUsedFabrics")}
       </h2>
 
       <div className="space-y-8">

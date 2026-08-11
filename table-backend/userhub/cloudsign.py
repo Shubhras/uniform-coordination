@@ -88,6 +88,64 @@ def send_cloudsign_contract(quotation, pdf_path):
 
     return document_id
 
+
+def send_contract_via_cloudsign(contract, pdf_path):
+    """
+    Create, attach file, add participant, and send document via CloudSign for a Contract.
+    """
+    if is_mock_configured():
+        mock_doc_id = f"CS-{uuid.uuid4().hex[:12].upper()}"
+        logger.info(f"[CloudSign Mock] Created and sent contract for Contract {contract.contract_id}. ID: {mock_doc_id}")
+        return mock_doc_id
+
+    base_url = getattr(settings, "CLOUDSIGN_BASE_URL", "https://sandbox.cloudsign.jp")
+    token = get_cloudsign_token()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    # Step 1: Create Document
+    doc_url = f"{base_url}/v1/documents"
+    doc_payload = {
+        "title": f"Rental Agreement - {contract.contract_id}",
+        "note": "Please sign the rental agreement for KIREIZ SPACE."
+    }
+    doc_resp = requests.post(doc_url, json=doc_payload, headers=headers)
+    doc_resp.raise_for_status()
+    document_id = doc_resp.json().get("id")
+
+    # Step 2: Upload PDF File
+    file_url = f"{base_url}/v1/documents/{document_id}/files"
+    with open(pdf_path, "rb") as f:
+        files = {
+            "file": (f"Agreement_{contract.contract_id}.pdf", f, "application/pdf")
+        }
+        # For multipart, we need headers without Content-Type (requests sets it automatically)
+        multipart_headers = {
+            "Authorization": f"Bearer {token}"
+        }
+        file_resp = requests.post(file_url, files=files, headers=multipart_headers)
+        file_resp.raise_for_status()
+
+    # Step 3: Add Participant
+    part_url = f"{base_url}/v1/documents/{document_id}/participants"
+    part_payload = {
+        "email": contract.email,
+        "name": contract.contact_person or "Client",
+        "order": 1
+    }
+    part_resp = requests.post(part_url, json=part_payload, headers=headers)
+    part_resp.raise_for_status()
+
+    # Step 4: Send the Document
+    send_url = f"{base_url}/v1/documents/{document_id}/send"
+    send_resp = requests.post(send_url, headers=headers)
+    send_resp.raise_for_status()
+
+    return document_id
+
+
 def download_signed_pdf(document_id):
     """
     Download signed PDF from CloudSign. Returns PDF bytes.

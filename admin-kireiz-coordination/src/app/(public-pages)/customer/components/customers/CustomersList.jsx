@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   FiSearch,
   FiPlus,
@@ -58,6 +59,8 @@ const selectStyles = {
 };
 
 const B2BAccounts = () => {
+  const t = useTranslations("customerSalesRep.customers");
+  const tStatus = useTranslations("customerSalesRep.statusFilter");
   const router = useRouter();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -95,9 +98,9 @@ const B2BAccounts = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
 
   const statusOptions = [
-    { value: "", label: "All Status" },
-    { value: "true", label: "Active" },
-    { value: "false", label: "Inactive" },
+    { value: "", label: tStatus("allStatus") },
+    { value: "true", label: tStatus("active") },
+    { value: "false", label: tStatus("inactive") },
   ];
 
   const [selectedStatus, setSelectedStatus] = useState(statusOptions[0]);
@@ -186,11 +189,11 @@ const B2BAccounts = () => {
       <table className="min-w-[800px] w-full text-sm text-left">
         <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
           <tr>
-            <th className="px-5 py-3 font-medium">User Name</th>
-            <th className="px-5 py-3 font-medium">User Type</th>
-            <th className="px-5 py-3 font-medium">Contact Info</th>
-            <th className="px-5 py-3 font-medium">Status</th>
-            <th className="px-5 py-3 font-medium text-right">Actions</th>
+            <th className="px-5 py-3 font-medium">{t("tableHeaders.userName")}</th>
+            <th className="px-5 py-3 font-medium">{t("tableHeaders.userType")}</th>
+            <th className="px-5 py-3 font-medium">{t("tableHeaders.contactInfo")}</th>
+            <th className="px-5 py-3 font-medium">{t("tableHeaders.status")}</th>
+            <th className="px-5 py-3 font-medium text-right">{t("tableHeaders.actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -225,10 +228,10 @@ const B2BAccounts = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              Customers Lists
+              {t("title")}
             </h2>
             <p className="text-[#486284] text-sm">
-              Manage discount tiers and corporate rules
+              {t("subtitle")}
             </p>
           </div>
         </div>
@@ -240,7 +243,7 @@ const B2BAccounts = () => {
 
             <input
               type="text"
-              placeholder="Search..."
+              placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2"
@@ -281,7 +284,7 @@ const B2BAccounts = () => {
             }}
             className="border border-[#CBD5E1] px-4 py-2 rounded-md text-white bg-[#1C4FA8] hover:bg-[#1C4FA8] transition-colors"
           >
-            Reset
+            {t("reset")}
           </button>
         </div>
         {/* Table */}
@@ -289,18 +292,18 @@ const B2BAccounts = () => {
           <TableSkeleton />
         ) : accounts.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
-            No Customers found
+            {t("noData")}
           </div>
         ) : (
           <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-[#E2E8F0]">
             <table className="min-w-[800px] w-full text-sm text-left">
               <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
                 <tr>
-                  <th className="px-5 py-3 font-medium">User Name</th>
-                  <th className="px-5 py-3 font-medium">User Type</th>
-                  <th className="px-5 py-3 font-medium">Contact Info</th>
-                  <th className="px-5 py-3 font-medium">Status</th>
-                  <th className="px-5 py-3 font-medium text-right">Actions</th>
+                  <th className="px-5 py-3 font-medium">{t("tableHeaders.userName")}</th>
+                  <th className="px-5 py-3 font-medium">{t("tableHeaders.userType")}</th>
+                  <th className="px-5 py-3 font-medium">{t("tableHeaders.contactInfo")}</th>
+                  <th className="px-5 py-3 font-medium">{t("tableHeaders.status")}</th>
+                  <th className="px-5 py-3 font-medium text-right">{t("tableHeaders.actions")}</th>
                 </tr>
               </thead>
 
@@ -346,7 +349,7 @@ const B2BAccounts = () => {
                               : "bg-red-100 text-red-700"
                           }`}
                         >
-                          {acc.isActive ? "Active" : "Inactive"}
+                          {acc.isActive ? tStatus("active") : tStatus("inactive")}
                         </span>
                       </td>
 
@@ -364,25 +367,12 @@ const B2BAccounts = () => {
                           </button>
                           <button
                             className="text-[#1C2C56] hover:text-[#0F172A] p-1.5 rounded hover:bg-[#EEF2FF]"
-                            // onClick={() => {
-                            //   setEditData(acc);
-                            //   setOpenModal(true);
-                            // }}
                             onClick={() =>
                               router.push(`/customer/customer-edit/${acc.id}`)
                             }
                           >
                             <FiEdit2 size={16} />
                           </button>
-                          {/* <button
-                            className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50"
-                            onClick={() => {
-                              setAccountToDelete(acc);
-                              setDeleteDialogOpen(true);
-                            }}
-                          >
-                            <FiTrash2 size={16} />
-                          </button> */}
                         </div>
                       </td>
                     </tr>
@@ -406,24 +396,6 @@ const B2BAccounts = () => {
           }}
         />
       </div>
-      {/* Modals */}
-
-      {/* <ViewB2BModal
-        isOpen={viewModalOpen}
-        onClose={() => {
-          setViewModalOpen(false);
-          setSelectedAccount(null);
-        }}
-        account={selectedAccount}
-      /> */}
-
-      {/* <AddEditB2BAccountModal
-        isOpen={openModal}
-        onClose={handleCloseModal}
-        mode={editData ? "edit" : "add"}
-        initialData={editData}
-        onSaveSuccess={handleSaveSuccess}
-      /> */}
 
       <DeleteConfirmDialog
         isOpen={deleteDialogOpen}
@@ -433,7 +405,7 @@ const B2BAccounts = () => {
         }}
         onConfirm={handleDeleteConfirm}
         title="Delete Account"
-        message="Are you sure you want to delete this B2B account? This action cannot be undone."
+        message="Are you sure you want to delete this account? This action cannot be undone."
         itemName={accountToDelete?.full_name}
         loading={deleteLoading}
       />

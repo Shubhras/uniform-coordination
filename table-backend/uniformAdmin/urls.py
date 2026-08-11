@@ -17,12 +17,14 @@ from .home_page import *
 from .Inventory import *
 from .table_theme import *
 from .pricing import *
-from .reports import ReportsAnalyticsAPIView
+from .reports import ReportsAnalyticsAPIView, ExportReportsAnalyticsAPIView
 from .system_settings_views import *
 from .ai_views import *
 from .menu import *
 from .permissions import *
 from .system_settings_views import *
+from .simulation import *
+
 
 
 
@@ -168,6 +170,10 @@ urlpatterns = [
     path("customers/<int:id>/",CustomerDetailAPIView.as_view(),name="admin-customer-detail",),
     path("customers/<int:id>/update/",CustomerUpdateAPIView.as_view(),name="admin-customer-update",),
 
+    # Contracts Management
+    path("contracts/get/", AdminContractsListAPIView.as_view(), name="admin-contracts-list"),
+    path("contracts/<str:contract_id>/get/", AdminContractDetailAPIView.as_view(), name="admin-contract-detail"),
+
     #<----------------------Table_Theme ---------------------------->
     path('tabletheme/create/',TableThemeCreateAPIView.as_view(), name = 'Table_Theme-create'),
     path('tabletheme/get-list/',TableThemeListAPIView.as_view(), name = 'Table_Theme-get-list'),
@@ -185,7 +191,9 @@ urlpatterns = [
 
     #<-------------------Dashboardes------------------------------->
     path("admindesh/",AdminDashAPIView.as_view(),name="admin-dash-info"),
+    path("admindesh/mark-alerts-reviewed/", MarkAlertsReviewedAPIView.as_view(), name="mark-alerts-reviewed"),
     path("reports-analytics/", ReportsAnalyticsAPIView.as_view(), name="reports-analytics"),
+    path("reports-analytics/export/", ExportReportsAnalyticsAPIView.as_view(), name="reports-analytics-export"),
 
     #<-------------------Homepage------------------------------->
     path("uniform-home/", HomePageAPIView.as_view(), name="home-page"),
@@ -263,6 +271,9 @@ urlpatterns = [
     # ==========================================
     path('settings/system/', SystemSettingsRetrieveView.as_view(), name='system-settings-get'),
     path('settings/system/update/', SystemSettingsUpdateView.as_view(), name='system-settings-update'),
+    
+    
+    path("validate-promocode/",ValidatePromocodeAPIView.as_view(),name="validate-promocode",),
 
     
     # ==========================================
@@ -273,5 +284,13 @@ urlpatterns = [
     path('ai/product-search/', ProductSearchAPIView.as_view(), name='ai-product-search'),
     path('ai/draft-generator/', DraftGeneratorAPIView.as_view(), name='ai-draft-generator'),
 
-
+    # ==========================================
+    # SIMULATION ASSETS MANAGEMENT
+    # ==========================================
+    path('simulation/structure/', SimulationStructureAPIView.as_view(), name='simulation-structure'),
+    path('simulation/structure/save/', SimulationStructureAPIView.as_view(), name='simulation-structure-save'),
+    path('product/toggle-simulation/', ProductSimulationVisibilityAPIView.as_view(), name='product-toggle-simulation'),
+    path('simulation/options/', SimulationOptionsAPIView.as_view(), name='simulation-options'),
+    path('simulation/categories/', SimulationCategoryListAPIView.as_view(), name='simulation-categories'),
 ]
+

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { FiEdit2, FiDownload, FiChevronDown } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
@@ -9,13 +10,15 @@ import {
 } from "@/services/UnitPriceService";
 import Pagination from "@/components/ui/Pagination";
 
+// `value` is the API's export format and stays untranslated.
 const exportOptions = [
-  { value: "csv", label: "CSV" },
-  { value: "excel", label: "Excel" },
-  { value: "pdf", label: "PDF" },
+  { value: "csv", labelKey: "csv" },
+  { value: "excel", labelKey: "excel" },
+  { value: "pdf", labelKey: "pdf" },
 ];
 
 const UnitPrice = () => {
+  const t = useTranslations("pricingQuotation.unitPrice");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -115,12 +118,24 @@ const UnitPrice = () => {
       <table className="w-full text-sm">
         <thead className="bg-[#F8FAFC] text-[#486284]">
           <tr>
-            <th className="px-4 py-4 text-left font-medium">Type</th>
-            <th className="px-4 py-4 text-left font-medium">Item Name</th>
-            <th className="px-4 py-4 text-left font-medium">Unit</th>
-            <th className="px-4 py-4 text-left font-medium">Base Price</th>
-            <th className="px-4 py-4 text-left font-medium">Bulk (10+)</th>
-            <th className="px-4 py-4 text-left font-medium">Action</th>
+            <th className="px-4 py-4 text-left font-medium">
+              {t("table.type")}
+            </th>
+            <th className="px-4 py-4 text-left font-medium">
+              {t("table.itemName")}
+            </th>
+            <th className="px-4 py-4 text-left font-medium">
+              {t("table.unit")}
+            </th>
+            <th className="px-4 py-4 text-left font-medium">
+              {t("table.basePrice")}
+            </th>
+            <th className="px-4 py-4 text-left font-medium">
+              {t("table.bulk")}
+            </th>
+            <th className="px-4 py-4 text-left font-medium">
+              {t("table.action")}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -161,10 +176,10 @@ const UnitPrice = () => {
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              Unit Price
+              {t("title")}
             </h2>
             <p className="text-sm text-[#486284]">
-              {data.total_items} items total
+              {t("totalCount", { count: pagination.total_items })}
             </p>
           </div>
 
@@ -181,7 +196,7 @@ const UnitPrice = () => {
                 className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 disabled:opacity-60"
               >
                 <FiDownload size={16} />
-                {exporting ? "Exporting..." : "Export"}
+                {exporting ? t("exporting") : t("export")}
                 <FiChevronDown
                   size={14}
                   className={`transition-transform ${exportOpen ? "rotate-180" : ""}`}
@@ -197,7 +212,7 @@ const UnitPrice = () => {
                       className="w-full text-left px-4 py-2.5 text-sm text-[#1C2C56] hover:bg-[#EEF2FF] transition-colors flex items-center gap-2"
                     >
                       <FiDownload size={14} className="text-[#64748B]" />
-                      {opt.label}
+                      {t(opt.labelKey)}
                     </button>
                   ))}
                 </div>
@@ -210,22 +225,26 @@ const UnitPrice = () => {
         {loading ? (
           <TableSkeleton />
         ) : data.length === 0 ? (
-          <div className="text-center py-16 text-[#94A3B8]">
-            No unit price data found
-          </div>
+          <div className="text-center py-16 text-[#94A3B8]">{t("noData")}</div>
         ) : (
           <div className="overflow-x-auto bg-white rounded-xl border border-[#E2E8F0]">
             <table className="w-full text-sm">
               <thead className="bg-[#F8FAFC] text-[#486284]">
                 <tr>
-                  <th className="px-4 py-4 text-left font-medium">Type</th>
-                  <th className="px-4 py-4 text-left font-medium">Item Name</th>
-                  <th className="px-4 py-4 text-left font-medium">Unit</th>
                   <th className="px-4 py-4 text-left font-medium">
-                    Base Price
+                    {t("table.type")}
                   </th>
                   <th className="px-4 py-4 text-left font-medium">
-                    Bulk (10+)
+                    {t("table.itemName")}
+                  </th>
+                  <th className="px-4 py-4 text-left font-medium">
+                    {t("table.unit")}
+                  </th>
+                  <th className="px-4 py-4 text-left font-medium">
+                    {t("table.basePrice")}
+                  </th>
+                  <th className="px-4 py-4 text-left font-medium">
+                    {t("table.bulk")}
                   </th>
                   {/* <th className="px-4 py-4 text-left font-medium">Action</th> */}
                 </tr>

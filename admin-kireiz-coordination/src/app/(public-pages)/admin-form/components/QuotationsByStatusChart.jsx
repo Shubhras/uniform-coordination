@@ -1,9 +1,12 @@
 "use client";
 
 import Chart from "react-apexcharts";
+import { useTranslations } from "next-intl";
 
 const QuotationsByStatusChart = ({ data }) => {
-  const statusData = Array.isArray(data?.Quote_status_distribution?.data) 
+  const t = useTranslations("dashboard.quoteStatus");
+
+  const statusData = Array.isArray(data?.Quote_status_distribution?.data)
     ? data.Quote_status_distribution.data 
     : [];
 
@@ -17,7 +20,7 @@ const QuotationsByStatusChart = ({ data }) => {
     chart: {
       type: "donut",
     },
-    labels: labels.length > 0 ? labels : ["No Data"],
+    labels: labels.length > 0 ? labels : [t("noData")],
     colors: ["#FACC15", "#1D4ED8", "#86EFAC", "#EF4444"],
     legend: {
       position: "bottom",
@@ -36,7 +39,7 @@ const QuotationsByStatusChart = ({ data }) => {
             show: true,
             total: {
               show: true,
-              label: "Total",
+              label: t("total"),
               fontSize: "14px",
               color: "#64748B",
             },
@@ -49,7 +52,7 @@ const QuotationsByStatusChart = ({ data }) => {
   return (
     <div className="h-full bg-white border border-[#ececec] rounded-xl shadow-sm p-5">
       <h3 className="text-[#1C2C56] font-semibold mb-6 text-[17px]">
-        Quote Status Distribution
+        {t("quoteStatusDistribution")}
       </h3>
 
       <Chart

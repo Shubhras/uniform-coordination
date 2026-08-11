@@ -20,6 +20,7 @@ const ROUTE_SLUGS = [
   ["/pricing", "order_manage"],
   ["/customer", "customer_sales_representative"],
   ["/simulation-configuration", "pdf_simulation_configuration"],
+  ["/simulation-assets", "simulation_assets"],
   ["/reports-analytics", "reports_analytics"],
   ["/system-settings", "system_settings"],
   ["/quotation-requests", "quotation_requests"],

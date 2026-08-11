@@ -250,6 +250,19 @@ class UserLoginAPIView(APIView):
             # ----------------------------------------
 
             serializer = LoginSerializer(data=request.data)
+
+            # serializer = LoginSerializer(data=request.data)
+
+            print("Request Data:", request.data)
+
+            serializer.is_valid(raise_exception=True)
+
+            print("Serializer passed")
+
+            user = serializer.validated_data["user"]
+
+            print("User:", user.email)
+            print("User Type:", user.userType)
             serializer.is_valid(raise_exception=True)
             user = serializer.validated_data["user"]
 
@@ -1659,44 +1672,7 @@ class CreateOrderAPIView(APIView):
                         "payment_method": data.get("payment_method", "stripe") or "stripe",
                     }
                 )        
-            # elif customer_data:
-            #     customer = CustomerDetails.objects.filter(user=user, email=customer_data.get("email")).first()
-            #     if not customer:
-            #         customer_data = data.get("customer")
-            #         # delivery = data.get("delivery_address", {})
-
-            #         # customer = CustomerDetails.objects.create(
-            #         #     user=user,
-            #         #     email=customer_data.get("email"),
-            #         #     first_name=customer_data.get("first_name"),
-            #         #     last_name=customer_data.get("last_name"),
-            #         #     phone=customer_data.get("phone"),
-            #         #     address_line_1=delivery.get("address_line_1"),
-            #         #     address_line_2=delivery.get("address_line_2", "") or "",
-            #         #     city=delivery.get("city"),
-            #         #     postal_code=delivery.get("postal_code"),
-            #         #     country=delivery.get("country"),
-            #         #     payment_method=data.get("payment_method", "stripe") or "stripe",
-            #         # )
-                    
-            #         delivery = data.get("delivery_address", {})
-
-            #         customer, created = CustomerDetails.objects.update_or_create(
-            #             user=user,
-            #             defaults={
-            #                 "email": customer_data.get("email"),
-            #                 "first_name": customer_data.get("first_name"),
-            #                 "last_name": customer_data.get("last_name"),
-            #                 "phone": customer_data.get("phone"),
-            #                 "address_line_1": delivery.get("address_line_1"),
-            #                 "address_line_2": delivery.get("address_line_2", ""),
-            #                 "city": delivery.get("city"),
-            #                 "postal_code": delivery.get("postal_code"),
-            #                 "country": delivery.get("country"),
-            #                 "payment_method": data.get("payment_method", "stripe") or "stripe",
-            #             }
-            #         )
-                    
+                               
             
             else:
                 return Response({
@@ -1711,6 +1687,7 @@ class CreateOrderAPIView(APIView):
             # ------------------- Promocode -------------------
             # promocode_code = data.get("promocode", "").strip()
             promocode = data.get("promocode")
+            currency = data.get("currency") or "USD"
 
             if isinstance(promocode, dict):
                 promocode_code = promocode.get("code", "").strip()
@@ -1796,6 +1773,7 @@ class CreateOrderAPIView(APIView):
                 total_amount=total_amount,
                 shipping_charge=shipping_charge,
                 tax=tax_amount,
+                currency=currency,
                 promocode=applied_promo,
             )
 
@@ -1805,6 +1783,7 @@ class CreateOrderAPIView(APIView):
                 order_item = OrderItem(
                     order=order,
                     product=item.product,
+                    rental_days=rental_days,
                     quantity=item.quantity,
                     price_per_day=Decimal(item.final_price or 0),
                     subtotal=line_total
@@ -1869,6 +1848,64 @@ class CreateOrderAPIView(APIView):
                 },
                 "promocode": promocode_code or None,
             }
+            # Create Contract
+            import uuid
+            contract_id_str = f"CTR-{uuid.uuid4().hex[:8].upper()}"
+            company_name_val = data.get("company_name") or (customer_data.get("company_name") if customer_data else None) or f"{customer.first_name} {customer.last_name}"
+            contact_person_val = f"{customer.first_name} {customer.last_name}"
+            additional_note_val = data.get("additional_note") or ""
+
+            contract = Contract.objects.create(
+                contract_id=contract_id_str,
+                order=order,
+                company_name=company_name_val,
+                contact_person=contact_person_val,
+                email=customer.email,
+                phone_number=customer.phone,
+                delivery_date=start_date,
+                additional_note=additional_note_val,
+                workflow_status="REQUESTED",
+                contract_status="pending"
+            )
+
+            # Generate contract PDF
+            from userhub.utils import generate_contract_pdf
+            try:
+                pdf_path = generate_contract_pdf(contract, request)
+
+                # Send via CloudSign
+                from userhub.cloudsign import send_contract_via_cloudsign
+                document_id = send_contract_via_cloudsign(contract, pdf_path)
+                
+                contract.external_document_id = document_id
+                contract.workflow_status = "SENT"
+                contract.contract_status = "sent"
+                contract.save()
+
+                # Audit Log
+                ContractAuditLog.objects.create(
+                    contract=contract,
+                    action="SENT_VIA_CLOUDSIGN",
+                    description=f"Contract sent via CloudSign. Document ID: {document_id}"
+                )
+
+                # Notification
+                from uniformAdmin.utils import create_admin_notification
+                create_admin_notification(
+                    instance=contract,
+                    title=f"Contract {contract.contract_id} Sent",
+                    message=f"Contract for Order {order.order_id} has been sent to client.",
+                    priority="high"
+                )
+            except Exception as cs_err:
+                logger.error(f"Failed to generate or send contract: {str(cs_err)}")
+                # Audit Log
+                ContractAuditLog.objects.create(
+                    contract=contract,
+                    action="SEND_FAILED",
+                    description=f"Failed to generate or send contract. Error: {str(cs_err)}"
+                )
+
             send_order_confirmation_email(
                         request.user,
                         order,
@@ -1980,6 +2017,8 @@ class OrderSummaryAPIView(APIView):
                     "subtotal": str(subtotal),
                     "shipping": str(shipping),
                     "tax": str(tax),
+                    "promocode": order.promocode.promocodeName if order.promocode else None,
+                    "amount": str(order.promocode.amount) if order.promocode else None,
                     "total": str(total_amount)
                 }
             }
@@ -2404,8 +2443,7 @@ class ReturnOrderAPIView(APIView):
                     rental_item.is_returned = True
                 rental_item.save()
 
-                rental_item.product.available_quantity += returned_qty
-                rental_item.product.save()
+
 
                 # Dynamic Late Fee: rental price per item/day * late days * returned quantity
                 late_fee = Decimal(late_days) * rental_item.price_per_day * Decimal(returned_qty)
@@ -2580,20 +2618,72 @@ class CloudSignWebhookAPIView(APIView):
         print("CLOUDSIGN WEBHOOK DATA:", data)
 
         document_id = data.get("document_id") or data.get("documentId") or data.get("id")
-        status = data.get("status") or data.get("event")
+        status_event = data.get("status") or data.get("event")
 
         if not document_id:
             return Response({"statusCode": 400, "status": False, "message": "No document id provided"}, status=400)
 
+        status_event = (status_event or "").lower()
+
+        # 1. Search for Contract first
+        contract = Contract.objects.filter(external_document_id=document_id).first()
+        if contract:
+            if "sent" in status_event:
+                contract.workflow_status = "SENT"
+                contract.contract_status = "sent"
+                contract.save()
+                ContractAuditLog.objects.create(
+                    contract=contract,
+                    action="SENT",
+                    description="Contract document status updated to sent by CloudSign webhook."
+                )
+            elif "completed" in status_event or "signed" in status_event:
+                contract.workflow_status = "SIGNED"
+                contract.contract_status = "signed"
+                contract.is_signed = True
+                contract.signed_at = now()
+
+                # Fetch signed PDF
+                from userhub.cloudsign import download_signed_pdf
+                try:
+                    pdf_bytes = download_signed_pdf(document_id)
+                    contract.signed_pdf.save(
+                        f"{contract.contract_id}_signed.pdf",
+                        ContentFile(pdf_bytes)
+                    )
+                    ContractAuditLog.objects.create(
+                        contract=contract,
+                        action="SIGNED",
+                        description=f"Contract signed via CloudSign. Signed PDF downloaded successfully."
+                    )
+                except Exception as e:
+                    ContractAuditLog.objects.create(
+                        contract=contract,
+                        action="SIGNED_PDF_DOWNLOAD_FAILED",
+                        description=f"Contract signed via CloudSign but signed PDF download failed. Error: {str(e)}"
+                    )
+
+            elif "declined" in status_event or "rejected" in status_event:
+                contract.workflow_status = "DECLINED"
+                contract.contract_status = "cancelled"
+                contract.save()
+                ContractAuditLog.objects.create(
+                    contract=contract,
+                    action="DECLINED",
+                    description="Contract was declined/rejected by the participant."
+                )
+
+            contract.save()
+            return Response({"statusCode": 201, "status": True, "message": "CloudSign webhook processed for contract"}, status=201)
+
+        # 2. Fallback to QuotationRequest
         try:
             quotation = QuotationRequest.objects.get(external_document_id=document_id)
-            status = (status or "").lower()
 
-            # Map CloudSign events/statuses
-            if "sent" in status:
+            if "sent" in status_event:
                 quotation.workflow_status = "SENT"
 
-            elif "completed" in status or "signed" in status:
+            elif "completed" in status_event or "signed" in status_event:
                 quotation.workflow_status = "SIGNED"
                 quotation.is_signed = True
                 quotation.signed_at = now()
@@ -2659,14 +2749,14 @@ class CloudSignWebhookAPIView(APIView):
 
                 mail.send(fail_silently=False)
 
-            elif "declined" in status or "rejected" in status:
+            elif "declined" in status_event or "rejected" in status_event:
                 quotation.workflow_status = "DECLINED"
 
             quotation.save()
             return Response({"statusCode": 201, "status": True, "message": "CloudSign webhook processed"}, status=201)
 
         except QuotationRequest.DoesNotExist:
-            return Response({"statusCode": 400, "status": False, "message": "Quotation not found"}, status=400)
+            return Response({"statusCode": 400, "status": False, "message": "Document not found in contracts or quotations"}, status=400)
 
 # #<----------------WebHook---------------->
 # class DocuSignWebhookAPIView(APIView):
@@ -2873,4 +2963,78 @@ class DocuSignWebhookAPIView(APIView):
 
         except QuotationRequest.DoesNotExist:
             return Response({"statusCode":400,"status":False,"message": "Quotation not found"}, status=400)
+
+
+from userhub.authentication import CustomUserJWTAuthentication as RealCustomUserJWTAuthentication
+
+class ToggleProductFavouriteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [RealCustomUserJWTAuthentication]
+
+    def post(self, request):
+        product_id = request.data.get("product_id")
+        if not product_id:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "product_id is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        product = get_object_or_404(Product, id=product_id, isDeleted=False)
+        fav, created = Favourite.objects.get_or_create(product=product, user=request.user)
+        
+        if created:
+            fav.is_like = True
+        else:
+            fav.is_like = not fav.is_like
+        
+        fav.isDeleted = False
+        fav.isActive = True
+        fav.save()
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "message": "Product favourite toggled successfully.",
+            "data": {
+                "product_id": product.id,
+                "is_favourite": fav.is_like
+            }
+        }, status=status.HTTP_200_OK)
+
+
+class ToggleThemeFavouriteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [RealCustomUserJWTAuthentication]
+
+    def post(self, request):
+        theme_id = request.data.get("theme_id")
+        if not theme_id:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "theme_id is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        theme = get_object_or_404(TableTheme, id=theme_id, isDeleted=False)
+        fav, created = ThemeFavourite.objects.get_or_create(theme=theme, user=request.user)
+        
+        if created:
+            fav.is_like = True
+        else:
+            fav.is_like = not fav.is_like
+        
+        fav.isDeleted = False
+        fav.isActive = True
+        fav.save()
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "message": "Theme favourite toggled successfully.",
+            "data": {
+                "theme_id": theme.id,
+                "is_favourite": fav.is_like
+            }
+        }, status=status.HTTP_200_OK)
 

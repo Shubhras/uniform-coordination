@@ -1,6 +1,6 @@
 from django.db import models
 from django.forms import CharField
-from uniformAdmin.models import Role , Product
+from uniformAdmin.models import Role, Product, TableTheme
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 import uuid
@@ -93,6 +93,22 @@ class Favourite(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.product} - {self.is_like}"
+
+
+class ThemeFavourite(models.Model):
+    theme = models.ForeignKey(TableTheme, on_delete=models.CASCADE, related_name="theme_favourites")
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="user_theme_favourites")
+    is_like = models.BooleanField(default=False)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('theme', 'user')
+
+    def __str__(self):
+        return f"{self.user} - {self.theme} - {self.is_like}"
 
 
 # Cart
@@ -259,6 +275,7 @@ class Rental(models.Model):
     grace_period_days = models.IntegerField(default=3)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
+    is_reviewed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -496,6 +513,69 @@ class QuotationRequest(models.Model):
             uid = uuid.uuid4().hex[:6].upper()
             self.quotation_id = f"{prefix}-{uid}"
         super().save(*args, **kwargs)
+
+
+class Contract(models.Model):
+    STATUS_CHOICES = (
+        ("pending", "Pending"),
+        ("sent", "Sent"),
+        ("signed", "Signed"),
+        ("cancelled", "Cancelled"),
+    )
+
+    WORKFLOW_STATUS = (
+        ("REQUESTED", "Requested"),     # Initial request
+        ("SENT", "Sent to Client"),     # Sent via CloudSign/DocuSign
+        ("SIGNED", "Client Signed"),    # Client signed
+        ("COMPLETED", "Completed"),     # Admin completed process
+        ("DECLINED", "Declined"),       # Client declined
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    contract_id = models.CharField(max_length=50, unique=True, null=True)
+    order = models.ForeignKey("Order", on_delete=models.SET_NULL, related_name="contracts", null=True, blank=True)
+    company_name = models.CharField(max_length=255, null=True, blank=True)
+    contact_person = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
+    delivery_date = models.DateField(null=True, blank=True)
+    additional_note = models.TextField(blank=True, null=True)
+    workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default="REQUESTED")
+    contract_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    
+    external_document_id = models.CharField(max_length=255, null=True, blank=True)
+    signed_pdf = models.FileField(upload_to='signed_contracts/', null=True, blank=True)
+    signed_at = models.DateTimeField(null=True, blank=True)
+    is_signed = models.BooleanField(default=False)
+    
+    cancelled_by = models.CharField(max_length=10, null=True, blank=True)
+    cancel_reason = models.TextField(null=True, blank=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.contract_id:
+            prefix = "CTR"
+            uid = uuid.uuid4().hex[:6].upper()
+            self.contract_id = f"{prefix}-{uid}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.contract_id} - {self.company_name or self.contact_person}"
+
+
+class ContractAuditLog(models.Model):
+    contract = models.ForeignKey("Contract", on_delete=models.CASCADE, related_name="audit_logs")
+    action = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.contract.contract_id} - {self.action} at {self.created_at}"
+
 
 
 

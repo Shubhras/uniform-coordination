@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { FiEdit2, FiMinus, FiPlus, FiSearch, FiTrash2 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetFaqList, apiDeleteFaq } from "@/services/FaqService";
@@ -10,6 +11,7 @@ import AddEditFaqModal from "./AddEditFaqModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
 const FaqTab = () => {
+  const t = useTranslations("contentMedia.faq");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -58,7 +60,7 @@ const FaqTab = () => {
       const response = await apiDeleteFaq(accessToken, faqToDelete.id);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={t("successTitle")} type="success">
           {response?.message}
         </Notification>
       );
@@ -109,10 +111,10 @@ const FaqTab = () => {
       <div className="bg-white rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
-            <h2 className="text-2xl font-semibold text-[#1C2C56]">FAQ's</h2>
-            <p className="text-base text-[#486284]">
-              Manage frequently asked questions
-            </p>
+            <h2 className="text-2xl font-semibold text-[#1C2C56]">
+              {t("title")}
+            </h2>
+            <p className="text-base text-[#486284]">{t("subtitle")}</p>
           </div>
 
           <button
@@ -123,18 +125,18 @@ const FaqTab = () => {
             }}
           >
             <FiPlus size={16} />
-            Add FAQ
+            {t("addNew")}
           </button>
         </div>
 
         {loading ? (
           <FaqSkeleton />
         ) : filteredFaqs.length === 0 ? (
-          <div className="text-center py-16 text-[#94A3B8]">No FAQs found</div>
+          <div className="text-center py-16 text-[#94A3B8]">{t("noData")}</div>
         ) : (
           <div className="max-w-5xl mx-auto space-y-4">
             <p className="text-center text-[#1C2C56] md:text-2xl text-xl">
-              About design and coordination flow
+              {t("sectionHeading")}
             </p>
 
             {filteredFaqs.map((faq) => {
@@ -226,8 +228,8 @@ const FaqTab = () => {
           setFaqToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete FAQ"
-        message="Are you sure you want to delete this FAQ? This action cannot be undone."
+        title={t("deleteDialog.title")}
+        message={t("deleteDialog.message")}
         itemName={faqToDelete?.title}
         loading={deleteLoading}
       />

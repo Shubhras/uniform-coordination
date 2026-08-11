@@ -8,13 +8,14 @@ const QuotationRequestsChart = ({ chartData = [] }) => {
   // Graph values
   const series = [
     {
-      name: "Quotation Requests",
+      name: "Orders",
       data: chartData.map((item) => item.value),
     },
   ];
 
-  //max value for Y-axis
-  const maxValue = Math.max(...series[0].data, 10);
+  const tickAmount = 4;
+  const rawMax = Math.max(...series[0].data, 4);
+  const maxValue = Math.ceil(rawMax / tickAmount) * tickAmount;
 
   const options = {
     chart: {
@@ -85,12 +86,13 @@ const QuotationRequestsChart = ({ chartData = [] }) => {
     yaxis: {
       min: 0,
       max: maxValue,
-      tickAmount: 4,
+      tickAmount: tickAmount,
       labels: {
         style: {
           colors: "#777777",
           fontSize: "12px",
         },
+        formatter: (val) => Math.round(val),
       },
     },
 
@@ -105,7 +107,7 @@ const QuotationRequestsChart = ({ chartData = [] }) => {
   return (
     <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
       <h3 className="text-[17px] font-semibold text-[#3B3B3B]">
-        Requests This Week
+        Orders This Week
       </h3>
 
       <div className="border-b border-[#D9D9D9] mt-6 mb-8" />

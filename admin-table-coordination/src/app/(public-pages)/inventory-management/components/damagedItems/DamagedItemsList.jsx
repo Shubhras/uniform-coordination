@@ -2,27 +2,11 @@
 
 import { useEffect, useState } from "react";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiDamagedItemsList } from "@/services/InventoryManagement";
+import { apiDamagedItemsList, apiUpdateDamagedItem } from "@/services/InventoryManagement";
 import Spinner from "@/components/ui/Spinner";
 import { FiAlertTriangle, FiRefreshCw } from "react-icons/fi";
-
-const statusColors = {
-  Pending: {
-    bg: "bg-white",
-    border: "border-[#D7C6B6]",
-    text: "text-[#8A6A4D]",
-  },
-  Repair: {
-    bg: "bg-[#D97706]",
-    border: "border-[#D97706]",
-    text: "text-white",
-  },
-  Discard: {
-    bg: "bg-[#EF4444]",
-    border: "border-[#EF4444]",
-    text: "text-white",
-  },
-};
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 
 const DamagedItemsList = () => {
   const { session } = useCurrentSession();
@@ -39,8 +23,8 @@ const DamagedItemsList = () => {
 
       const res = await apiDamagedItemsList(accessToken);
 
-      if (res?.data?.status) {
-        setItems(res.data.data || []);
+      if (res?.status) {
+        setItems(res.data || []);
       } else {
         setItems([]);
       }
@@ -56,10 +40,66 @@ const DamagedItemsList = () => {
     fetchDamagedItems();
   }, [accessToken]);
 
-  const updateStatus = (id, status) => {
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status } : item)),
-    );
+  const updateStatus = async (id, status) => {
+    if (!accessToken) return;
+    try {
+      const res = await apiUpdateDamagedItem(accessToken, id, {
+        status: status.toLowerCase(),
+      });
+      if (res?.status) {
+        toast.push(
+          <Notification type="success" title="Success">
+            Status updated to {status}.
+          </Notification>
+        );
+        fetchDamagedItems();
+      } else {
+        toast.push(
+          <Notification type="danger" title="Error">
+            {res?.message || "Failed to update status"}
+          </Notification>
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      const errMsg = err.response?.data?.message || err.message || "Failed to update status";
+      toast.push(
+        <Notification type="danger" title="Error">
+          {errMsg}
+        </Notification>
+      );
+    }
+  };
+
+  const handleMoveToAvailable = async (id) => {
+    if (!accessToken) return;
+    try {
+      const res = await apiUpdateDamagedItem(accessToken, id, {
+        status: "moved",
+      });
+      if (res?.status) {
+        toast.push(
+          <Notification type="success" title="Success">
+            Item moved to available stock.
+          </Notification>
+        );
+        fetchDamagedItems();
+      } else {
+        toast.push(
+          <Notification type="danger" title="Error">
+            {res?.message || "Failed to move item to available"}
+          </Notification>
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      const errMsg = err.response?.data?.message || err.message || "Failed to move item to available";
+      toast.push(
+        <Notification type="danger" title="Error">
+          {errMsg}
+        </Notification>
+      );
+    }
   };
 
   return (
@@ -79,7 +119,7 @@ const DamagedItemsList = () => {
               {/* Left */}
               <div className="flex gap-4 flex-1">
                 <img
-                  src={item.image}
+                  src={item.image || "/images/no-image.png"}
                   alt={item.name}
                   className="w-20 h-20 rounded-md object-cover border border-[#EFE5DD]"
                 />
@@ -99,9 +139,11 @@ const DamagedItemsList = () => {
                     <div className="flex items-center gap-2">
                       <span
                         className={`px-3 py-1 rounded-full text-[11px] font-semibold uppercase ${
-                          item.status === "Repair"
+                          item.status === "repair"
                             ? "bg-[#FFF5E8] text-[#D97706]"
-                            : "bg-[#FFF1F1] text-[#EF4444]"
+                            : item.status === "discard"
+                              ? "bg-[#FFF1F1] text-[#EF4444]"
+                              : "bg-[#F3F4F6] text-gray-500"
                         }`}
                       >
                         {item.status}
@@ -131,10 +173,10 @@ const DamagedItemsList = () => {
 
                       <button
                         onClick={() => updateStatus(item.id, "Pending")}
-                        className={`px-4 h-8 rounded-full border text-[12px] font-medium transition ${
-                          item.status === "Pending"
-                            ? "bg-[#8B6D4E] border-[#8B6D4E] text-white"
-                            : "bg-white border-[#D8CABC] text-[#6B4A2A] font-semibold"
+                        className={`px-4 h-8 rounded-full border text-[12px] font-medium transition cursor-pointer ${
+                          item.status === "pending"
+                            ? "bg-[#8B6D4E] border-[#8B6D4E] text-white font-semibold"
+                            : "bg-white border-[#D8CABC] text-[#6B4A2A] font-semibold hover:bg-orange-50/20"
                         }`}
                       >
                         Pending
@@ -142,10 +184,10 @@ const DamagedItemsList = () => {
 
                       <button
                         onClick={() => updateStatus(item.id, "Repair")}
-                        className={`px-4 h-8 rounded-full border text-[12px] font-medium transition ${
-                          item.status === "Repair"
-                            ? "bg-[#E17100] border-[#D97706] text-white"
-                            : "bg-white border-[#D8CABC] text-[#7B6656]"
+                        className={`px-4 h-8 rounded-full border text-[12px] font-medium transition cursor-pointer ${
+                          item.status === "repair"
+                            ? "bg-[#E17100] border-[#D97706] text-white font-semibold"
+                            : "bg-white border-[#D8CABC] text-[#7B6656] hover:bg-orange-50/20"
                         }`}
                       >
                         Repair
@@ -153,17 +195,20 @@ const DamagedItemsList = () => {
 
                       <button
                         onClick={() => updateStatus(item.id, "Discard")}
-                        className={`px-4 h-8 rounded-full border text-[12px] font-medium transition ${
-                          item.status === "Discard"
-                            ? "bg-[#EF4444] border-[#EF4444] text-white"
-                            : "bg-white border-[#D8CABC] text-[#6B4A2A] font-semibold"
+                        className={`px-4 h-8 rounded-full border text-[12px] font-medium transition cursor-pointer ${
+                          item.status === "discard"
+                            ? "bg-[#EF4444] border-[#EF4444] text-white font-semibold"
+                            : "bg-white border-[#D8CABC] text-[#6B4A2A] font-semibold hover:bg-orange-50/20"
                         }`}
                       >
                         Discard
                       </button>
                     </div>
 
-                    <button className="ml-auto px-5 h-9 rounded-full border border-[#BDEFD9] bg-[#ECFDF5] text-[#007A55] text-[13px] font-medium hover:bg-[#DDFBF0] transition flex items-center gap-2">
+                    <button
+                      onClick={() => handleMoveToAvailable(item.id)}
+                      className="ml-auto px-5 h-9 rounded-full border border-[#BDEFD9] bg-[#ECFDF5] text-[#007A55] text-[13px] font-medium hover:bg-[#DDFBF0] transition flex items-center gap-2 cursor-pointer"
+                    >
                       <FiRefreshCw size={13} className="text-[#007A55]" />
                       Move to Available
                     </button>

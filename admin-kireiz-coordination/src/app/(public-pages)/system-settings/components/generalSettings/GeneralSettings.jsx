@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiImage, FiUpload } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import Skeleton from "@/components/ui/Skeleton";
@@ -14,13 +15,12 @@ import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 
 const GeneralSettings = () => {
+  const t = useTranslations("systemSettings.generalSettings");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
   const [loading, setLoading] = useState(false);
-
   const [logoFile, setLogoFile] = useState(null);
-
   const [isEditing, setIsEditing] = useState(false);
 
   const [settings, setSettings] = useState({
@@ -44,7 +44,6 @@ const GeneralSettings = () => {
       setLoading(true);
 
       const formData = new FormData();
-
       formData.append("company_name", settings.company_name);
       formData.append("business_address", settings.business_address);
       formData.append("support_email", settings.support_email);
@@ -59,17 +58,18 @@ const GeneralSettings = () => {
       }
 
       const res = await apiUpdateGeneralSetting(accessToken, formData);
-      toast.push(
-        <Notification title="Success" type="success">
-          {res.message}
-        </Notification>,
-      );
 
-      setIsEditing(false);
-
-      getGeneralSettings();
+      if (res?.status) {
+        toast.push(
+          <Notification title="Success" type="success">
+            {res.message || "Updated successfully"}
+          </Notification>,
+        );
+        setIsEditing(false);
+        getGeneralSettings();
+      }
     } catch (error) {
-      console.log(error);
+      console.log("UPDATE ERROR", error);
     } finally {
       setLoading(false);
     }
@@ -78,14 +78,10 @@ const GeneralSettings = () => {
   const getGeneralSettings = async () => {
     try {
       setLoading(true);
-
       const res = await apiGeneralSettingList(accessToken);
-      console.log("ddddddddddddd", res);
-      console.log("adpiiiiiiii", res.data);
-
-      // if (res?.data?.success) {
-      setSettings(res.data);
-      // }
+      if (res?.status) {
+        setSettings(res.data);
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -94,37 +90,22 @@ const GeneralSettings = () => {
   };
 
   return (
-    <div className="min-h-screen mt-5">
+    <div className="py-6">
       {loading ? (
-        <div className="rounded-[24px] border border-[#E8DDD4] bg-white p-5">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index}>
-                <Skeleton className="mb-2 h-4 w-28" />
-                <Skeleton className="h-10 w-full rounded-xl" />
-              </div>
-            ))}
-          </div>
-
-          <Skeleton className="mt-8 h-64 w-full rounded-2xl" />
-
-          <div className="mt-10 flex justify-end gap-4">
-            <Skeleton className="h-10 w-28 rounded-xl" />
-            <Skeleton className="h-10 w-36 rounded-xl" />
-          </div>
+        <div className="flex items-center justify-center p-10">
+          <Spinner />
         </div>
       ) : (
-        <div className="rounded-[24px] border border-[#E8DDD4] bg-white p-5 shadow-sm">
-          {/* Form */}
+        <div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {/* Company */}
+            {/* Company Name */}
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
-                Company Name
+                {t("companyNameLabel")}
               </label>
 
               <input
-                className="h-10 w-full rounded-xl border border-[#E9DDD4] px-4 text-sm outline-none focus:border-[#B86A3C]"
+                className="h-10 w-full rounded-xl border border-[#E9DDD4] px-4 text-sm outline-none"
                 value={settings.company_name || ""}
                 readOnly={!isEditing}
                 onChange={(e) =>
@@ -137,14 +118,13 @@ const GeneralSettings = () => {
             </div>
 
             {/* Address */}
-
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
-                Business Address
+                {t("businessAddressLabel")}
               </label>
 
               <input
-                className="h-10 w-full rounded-xl border border-[#E9DDD4] px-4 text-sm outline-none focus:border-[#B86A3C]"
+                className="h-10 w-full rounded-xl border border-[#E9DDD4] px-4 text-sm outline-none"
                 value={settings.business_address || ""}
                 readOnly={!isEditing}
                 onChange={(e) =>
@@ -157,10 +137,9 @@ const GeneralSettings = () => {
             </div>
 
             {/* Email */}
-
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
-                Support Email
+                {t("supportEmailLabel")}
               </label>
 
               <input
@@ -177,10 +156,9 @@ const GeneralSettings = () => {
             </div>
 
             {/* Contact */}
-
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
-                Contact Number
+                {t("contactNumberLabel")}
               </label>
 
               <input
@@ -191,7 +169,6 @@ const GeneralSettings = () => {
                 readOnly={!isEditing}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, "").slice(0, 10);
-
                   setSettings({
                     ...settings,
                     contact_number: value,
@@ -201,10 +178,9 @@ const GeneralSettings = () => {
             </div>
 
             {/* Language */}
-
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
-                Defualt Language
+                {t("defaultLanguageLabel")}
               </label>
 
               <input
@@ -221,10 +197,9 @@ const GeneralSettings = () => {
             </div>
 
             {/* Currency */}
-
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
-                Default Currency
+                {t("defaultCurrencyLabel")}
               </label>
               <input
                 className="h-10 w-full rounded-xl border border-[#E9DDD4] px-4 text-sm outline-none"
@@ -240,10 +215,9 @@ const GeneralSettings = () => {
             </div>
 
             {/* Timezone */}
-
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
-                Time Zone
+                {t("timeZoneLabel")}
               </label>
 
               <input
@@ -260,10 +234,9 @@ const GeneralSettings = () => {
             </div>
 
             {/* Date */}
-
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
-                Date Format
+                {t("dateFormatLabel")}
               </label>
               <DatePicker
                 type="date"
@@ -284,15 +257,14 @@ const GeneralSettings = () => {
           </div>
 
           {/* Upload */}
-
           <div className="mt-8">
-            <label className="mb-2 block text-[13px] font-semibold">Logo</label>
+            <label className="mb-2 block text-[13px] font-semibold">{t("logoLabel")}</label>
 
             <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-[#E6D4C8] bg-[#FFFDFC]">
               {settings.logo ? (
                 <img
                   src={settings.logo}
-                  alt="Company Logo"
+                  alt={t("companyLogoAlt")}
                   className="mb-3 max-h-52 max-w-full object-contain"
                 />
               ) : (
@@ -314,11 +286,8 @@ const GeneralSettings = () => {
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-
                   if (!file) return;
-
                   setLogoFile(file);
-
                   setSettings((prev) => ({
                     ...prev,
                     logo: URL.createObjectURL(file),
@@ -333,7 +302,7 @@ const GeneralSettings = () => {
                     className="mt-4 cursor-pointer rounded-lg bg-[#1C4FA8] px-4 py-2 text-white hover:bg-[#163f88]"
                   >
                     <FiUpload className="mr-2 inline" />
-                    Upload Logo
+                    {t("uploadLogo")}
                   </label>
 
                   {logoFile && (
@@ -347,32 +316,31 @@ const GeneralSettings = () => {
           </div>
 
           {/* Footer */}
-
           <div className="mt-10 flex justify-end gap-4">
             {!isEditing ? (
               <button
                 onClick={() => setIsEditing(true)}
                 className="rounded-lg bg-[#1C4FA8] px-5 py-2 font-medium text-white hover:bg-[#1C4FA8]"
               >
-                Edit
+                {t("edit")}
               </button>
             ) : (
               <>
                 <button
                   onClick={() => {
                     setIsEditing(false);
-                    getGeneralSettings(); // original data restore
+                    getGeneralSettings();
                   }}
                   className="rounded-lg border border-[#E8DDD4] bg-white px-5 py-2 font-medium text-[#6E5A4D]"
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
 
                 <button
                   onClick={handleUpdate}
                   className="rounded-lg bg-[#1C4FA8] px-5 py-2 font-medium text-white hover:bg-[#1C4FA8]"
                 >
-                  Save Changes
+                  {t("saveChanges")}
                 </button>
               </>
             )}

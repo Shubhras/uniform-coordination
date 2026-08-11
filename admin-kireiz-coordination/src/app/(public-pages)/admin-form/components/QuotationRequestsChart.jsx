@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import Chart from "react-apexcharts";
+import { useTranslations } from "next-intl";
 
 const QuotationRequestsChart = ({ data }) => {
+  const t = useTranslations("dashboard.quotationVolume");
+
   const volumeData = data?.Quotation_volume;
 
   const [period, setPeriod] = useState("yearly");
@@ -61,22 +64,22 @@ const QuotationRequestsChart = ({ data }) => {
 
   const series = [
     {
-      name: "Quotation Volume",
+      name: t("quotationVolume"),
       data: values,
     },
   ];
 
   const periodTabs = [
-    { key: "weekly", label: "Weekly" },
-    { key: "monthly", label: "Monthly" },
-    { key: "yearly", label: "Yearly" },
+    { key: "weekly", labelKey: "weekly" },
+    { key: "monthly", labelKey: "monthly" },
+    { key: "yearly", labelKey: "yearly" },
   ];
 
   return (
     <div className="h-full bg-white border border-[#ececec] rounded-xl shadow-sm p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[#1C2C56] font-semibold text-[17px]">
-          Quotation Volume
+          {t("quotationVolume")}
         </h3>
 
         <div className="flex gap-1 bg-[#F1F5F9] rounded-lg p-1">
@@ -89,7 +92,7 @@ const QuotationRequestsChart = ({ data }) => {
                   : "text-[#64748B] hover:text-[#1E293B]"
                 }`}
             >
-              {tab.label}
+              {t(tab.labelKey)}
             </button>
           ))}
         </div>

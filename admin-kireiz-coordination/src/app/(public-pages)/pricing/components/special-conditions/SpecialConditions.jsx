@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   FiUsers,
   FiCheckCircle,
@@ -25,11 +26,15 @@ import Button from "@/components/ui/Button";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
 /* ---------- CONDITION TYPE OPTIONS ---------- */
-const conditionTypeOptions = [
-  { value: "corporate", label: "Corporate Standard" },
-  { value: "wholesale", label: "Wholesale Partner" },
-  { value: "enterprise", label: "Global Enterprise" },
-];
+// `value` is what the API stores, so it stays untranslated; only the label the
+// admin reads comes from the message catalogue.
+const CONDITION_TYPE_VALUES = ["corporate", "wholesale", "enterprise"];
+
+const buildConditionTypeOptions = (t) =>
+  CONDITION_TYPE_VALUES.map((value) => ({
+    value,
+    label: t(`conditionTypes.${value}`),
+  }));
 
 const selectStyles = {
   control: (base, state) => ({
@@ -53,35 +58,37 @@ const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const validationSchema = z.object({
-  title: z.string().trim().min(1, "Title is required"),
+// Built per-render from the active locale so validation errors are translated too.
+const buildValidationSchema = (t) =>
+  z.object({
+    title: z.string().trim().min(1, t("validation.titleRequired")),
 
-  conditionType: z
-    .object({
-      value: z.string(),
-      label: z.string(),
-    })
-    .nullable()
-    .refine((val) => val !== null, {
-      message: "Condition Type is required",
-    }),
+    conditionType: z
+      .object({
+        value: z.string(),
+        label: z.string(),
+      })
+      .nullable()
+      .refine((val) => val !== null, {
+        message: t("validation.conditionTypeRequired"),
+      }),
 
-  description: z.string().trim().min(1, "Description is required"),
+    description: z.string().trim().min(1, t("validation.descriptionRequired")),
 
-  discountPercentage: z
-    .string()
-    .trim()
-    .min(1, "Discount Percentage is required")
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && num >= 0 && num <= 100;
-      },
-      {
-        message: "Discount must be between 0 and 100",
-      },
-    ),
-});
+    discountPercentage: z
+      .string()
+      .trim()
+      .min(1, t("validation.discountRequired"))
+      .refine(
+        (val) => {
+          const num = Number(val);
+          return !isNaN(num) && num >= 0 && num <= 100;
+        },
+        {
+          message: t("validation.discountRange"),
+        },
+      ),
+  });
 
 /* ---------- ADD/EDIT MODAL ---------- */
 const AddEditConditionModal = ({
@@ -92,6 +99,14 @@ const AddEditConditionModal = ({
   onSaveSuccess,
   accessToken,
 }) => {
+  const t = useTranslations("pricingQuotation.specialConditions");
+  const tm = useTranslations(
+    "pricingQuotation.specialConditions.addConditionModal",
+  );
+
+  const conditionTypeOptions = useMemo(() => buildConditionTypeOptions(t), [t]);
+  const validationSchema = useMemo(() => buildValidationSchema(tm), [tm]);
+
   const [prioritySupport, setPrioritySupport] = useState(false);
   const [net30Terms, setNet30Terms] = useState(false);
   const [freeSamples, setFreeSamples] = useState(false);
@@ -166,7 +181,7 @@ const AddEditConditionModal = ({
       setFreeSamples(false);
     }
     setError("");
-  }, [isOpen, mode, initialData]);
+  }, [isOpen, mode, initialData, conditionTypeOptions, reset]);
 
   const handleSave = async (values) => {
     setError("");
@@ -199,7 +214,7 @@ const AddEditConditionModal = ({
       const errorMessage =
         err?.response?.data?.errors?.condition_type?.[0] ||
         err?.response?.data?.message ||
-        "Failed to save. Please try again.";
+        tm("saveFailed");
 
       setError(errorMessage);
     } finally {
@@ -217,7 +232,7 @@ const AddEditConditionModal = ({
       <div className="flex flex-col">
         <div className="border-b px-6 py-4">
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            {mode === "edit" ? "Edit Condition" : "Add Condition"}
+            {mode === "edit" ? tm("editModalTitle") : tm("modalTitle")}
           </h2>
         </div>
 
@@ -231,7 +246,8 @@ const AddEditConditionModal = ({
           {/* Title */}
           <div>
             <label className="text-base font-medium text-[#1C2C56]">
-              Title<span className="text-red-500">*</span>
+              {tm("titleLabel")}
+              <span className="text-red-500">*</span>
             </label>
             <FormItem
               //   label="Title"
@@ -244,7 +260,7 @@ const AddEditConditionModal = ({
                 render={({ field }) => (
                   <input
                     {...field}
-                    placeholder="e.g. Wholesale Partner"
+                    placeholder={tm("titlePlaceholder")}
                     className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm"
                   />
                 )}
@@ -255,7 +271,7 @@ const AddEditConditionModal = ({
           {/* Condition Type (React Select) */}
           <div>
             <label className="text-base font-medium text-[#1C2C56]">
-              Condition Type
+              {tm("conditionTypeLabel")}
             </label>
             <FormItem
               //   label="Condition Type"
@@ -270,7 +286,7 @@ const AddEditConditionModal = ({
                     {...field}
                     options={conditionTypeOptions}
                     styles={selectStyles}
-                    placeholder="Select condition type"
+                    placeholder={tm("conditionTypePlaceholder")}
                     isClearable
                     menuPortalTarget={
                       typeof document !== "undefined" ? document.body : null
@@ -285,7 +301,7 @@ const AddEditConditionModal = ({
           {/* Description */}
           <div>
             <label className="text-base font-medium text-[#1C2C56]">
-              Description
+              {tm("descriptionLabel")}
             </label>
             <FormItem
               //   label="Description"
@@ -299,7 +315,7 @@ const AddEditConditionModal = ({
                   <textarea
                     {...field}
                     rows={3}
-                    placeholder="Describe the condition"
+                    placeholder={tm("descriptionPlaceholder")}
                     className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                   />
                 )}
@@ -310,7 +326,7 @@ const AddEditConditionModal = ({
           {/* Discount Percentage */}
           <div>
             <label className="text-base font-medium text-[#1C2C56]">
-              Discount Percentage
+              {tm("discountPercentageLabel")}
             </label>
             <FormItem
               //   label="Discount Percentage"
@@ -327,7 +343,7 @@ const AddEditConditionModal = ({
                     min="0"
                     max="100"
                     step="0.01"
-                    placeholder="e.g. 15.00"
+                    placeholder={tm("discountPercentagePlaceholder")}
                     className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                   />
                 )}
@@ -338,11 +354,13 @@ const AddEditConditionModal = ({
           {/* Toggles */}
           <div className="space-y-3">
             <label className="text-base font-medium text-[#1C2C56]">
-              Features
+              {tm("featuresLabel")}
             </label>
 
             <div className="flex items-center justify-between bg-[#F8FAFC] rounded-lg px-4 py-3">
-              <span className="text-sm text-[#486284]">Priority Support</span>
+              <span className="text-sm text-[#486284]">
+                {tm("featurePrioritySupport")}
+              </span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -355,7 +373,9 @@ const AddEditConditionModal = ({
             </div>
 
             <div className="flex items-center justify-between bg-[#F8FAFC] rounded-lg px-4 py-3">
-              <span className="text-sm text-[#486284]">Net 30 Terms</span>
+              <span className="text-sm text-[#486284]">
+                {tm("featureNet30Terms")}
+              </span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -368,7 +388,9 @@ const AddEditConditionModal = ({
             </div>
 
             <div className="flex items-center justify-between bg-[#F8FAFC] rounded-lg px-4 py-3">
-              <span className="text-sm text-[#486284]">Free Samples</span>
+              <span className="text-sm text-[#486284]">
+                {tm("featureFreeSamples")}
+              </span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -391,7 +413,7 @@ const AddEditConditionModal = ({
             disabled={saving}
             className="bg-blue-100 rounded-lg"
           >
-            Cancel
+            {tm("cancel")}
           </Button>
           <Button
             variant="solid"
@@ -401,7 +423,7 @@ const AddEditConditionModal = ({
             onClick={handleSubmit(handleSave)}
             loading={saving}
           >
-            {mode === "edit" ? "Update" : "Save"}
+            {mode === "edit" ? tm("update") : tm("save")}
           </Button>
         </div>
       </div>
@@ -411,6 +433,7 @@ const AddEditConditionModal = ({
 
 /* ---------- MAIN COMPONENT ---------- */
 const SpecialConditions = () => {
+  const t = useTranslations("pricingQuotation.specialConditions");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -491,9 +514,18 @@ const SpecialConditions = () => {
   /* ---------- BUILD FEATURES LIST ---------- */
   const getFeatures = (card) => {
     return [
-      { label: "Priority Support", enabled: card.priority_support },
-      { label: "Net 30 Terms", enabled: card.net_30_terms },
-      { label: "Free Samples", enabled: card.free_samples },
+      {
+        label: t("addConditionModal.featurePrioritySupport"),
+        enabled: card.priority_support,
+      },
+      {
+        label: t("addConditionModal.featureNet30Terms"),
+        enabled: card.net_30_terms,
+      },
+      {
+        label: t("addConditionModal.featureFreeSamples"),
+        enabled: card.free_samples,
+      },
     ];
   };
 
@@ -528,11 +560,9 @@ const SpecialConditions = () => {
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-6">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              Special Conditions
+              {t("title")}
             </h2>
-            <p className="text-base text-[#486284]">
-              Manage discount tiers and corporate rules
-            </p>
+            <p className="text-base text-[#486284]">{t("subtitle")}</p>
           </div>
 
           <button
@@ -540,7 +570,7 @@ const SpecialConditions = () => {
             onClick={handleAdd}
           >
             <FiPlus size={16} />
-            Add Condition
+            {t("addNew")}
           </button>
         </div>
 
@@ -548,9 +578,7 @@ const SpecialConditions = () => {
         {loading ? (
           <CardSkeleton />
         ) : cards.length === 0 ? (
-          <div className="text-center py-16 text-[#94A3B8]">
-            No special conditions found
-          </div>
+          <div className="text-center py-16 text-[#94A3B8]">{t("noData")}</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {cards.map((card) => {
@@ -580,7 +608,7 @@ const SpecialConditions = () => {
                   <div className="text-3xl font-bold text-[#E47A1C] mb-4">
                     {parseFloat(card.discount_percentage || 0).toFixed(0)}%
                     <span className="text-sm font-medium text-[#64748B] ml-1">
-                      OFF
+                      {t("off")}
                     </span>
                   </div>
 
@@ -607,7 +635,7 @@ const SpecialConditions = () => {
                       onClick={() => handleEdit(card)}
                       className="flex-1 bg-[#003562] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#083255] transition"
                     >
-                      Edit Conditions
+                      {t("editConditions")}
                     </button>
                     <button
                       onClick={() => {
@@ -644,8 +672,8 @@ const SpecialConditions = () => {
           setItemToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Condition"
-        message="Are you sure you want to delete this special condition? This action cannot be undone."
+        title={t("deleteDialog.title")}
+        message={t("deleteDialog.message")}
         itemName={itemToDelete?.title}
         loading={deleteLoading}
       />

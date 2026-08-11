@@ -97,7 +97,7 @@ class KireizSpaceBusinessLogicTestCase(APITestCase):
             }
         }
 
-        response = self.client.post("/api/v1/userhub/create/order/", payload, format="json")
+        response = self.client.post("/api/v1/space/userhub/create/order/", payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
         order = Order.objects.get(order_id=response.data["data"]["order_id"])
@@ -139,7 +139,7 @@ class KireizSpaceBusinessLogicTestCase(APITestCase):
             }
         }
 
-        response = self.client.post("/api/v1/userhub/create/order/", payload, format="json")
+        response = self.client.post("/api/v1/space/userhub/create/order/", payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         order = Order.objects.get(order_id=response.data["data"]["order_id"])
@@ -166,7 +166,7 @@ class KireizSpaceBusinessLogicTestCase(APITestCase):
             subtotal=Decimal("100.00"),
             total_amount=Decimal("120.00")
         )
-        cancel_url_near = f"/api/v1/userhub/order/{order_near.order_id}/cancel/"
+        cancel_url_near = f"/api/v1/space/userhub/order/{order_near.order_id}/cancel/"
         response = self.client.post(cancel_url_near, {"reason": "Change of plans"}, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("Cancellations are only permitted up to 5 days", response.data["message"])
@@ -180,7 +180,7 @@ class KireizSpaceBusinessLogicTestCase(APITestCase):
             subtotal=Decimal("100.00"),
             total_amount=Decimal("120.00")
         )
-        cancel_url_far = f"/api/v1/userhub/order/{order_far.order_id}/cancel/"
+        cancel_url_far = f"/api/v1/space/userhub/order/{order_far.order_id}/cancel/"
         response = self.client.post(cancel_url_far, {"reason": "Change of plans"}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         order_far.refresh_from_db()
@@ -233,7 +233,7 @@ class KireizSpaceBusinessLogicTestCase(APITestCase):
             ]
         }
         
-        response = self.client.post("/api/v1/userhub/order/return/", payload, format="json")
+        response = self.client.post("/api/v1/space/userhub/order/return/", payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["late_fee"], 20.00)
         self.assertEqual(response.data["lost_fee"], 0.0)

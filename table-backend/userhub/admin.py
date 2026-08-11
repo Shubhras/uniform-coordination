@@ -34,6 +34,161 @@ class UsersAdminForm(forms.ModelForm):
 
         return user
 
+
+
+
+
+@admin.register(Favourite)
+class FavouriteAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "product",
+        "is_like",
+        "isActive",
+        "isDeleted",
+        "created_at",
+        "updated_at",
+    )
+
+    list_filter = (
+        "is_like",
+        "isActive",
+        "isDeleted",
+        "created_at",
+    )
+
+    search_fields = (
+        "user__email",
+        "user__userName",
+        "product__name",
+    )
+
+    ordering = ("-created_at",)
+
+
+@admin.register(ThemeFavourite)
+class ThemeFavouriteAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "theme",
+        "is_like",
+        "isActive",
+        "isDeleted",
+        "created_at",
+        "updated_at",
+    )
+
+    list_filter = (
+        "is_like",
+        "isActive",
+        "isDeleted",
+        "created_at",
+    )
+
+    search_fields = (
+        "user__email",
+        "user__userName",
+        "theme__name",
+    )
+
+    ordering = ("-created_at",)
+
+class ContractAuditLogInline(admin.TabularInline):
+    model = ContractAuditLog
+    extra = 0
+    can_delete = False
+    readonly_fields = (
+        "action",
+        "description",
+        "created_at",
+    )
+    ordering = ("-created_at",)
+
+
+@admin.register(Contract)
+class ContractAdmin(admin.ModelAdmin):
+    list_display = (
+        "contract_id",
+        "company_name",
+        "contact_person",
+        "email",
+        "workflow_status",
+        "contract_status",
+        "is_signed",
+        "delivery_date",
+        "created_at",
+    )
+
+    list_filter = (
+        "workflow_status",
+        "contract_status",
+        "is_signed",
+        "isActive",
+        "isDeleted",
+        "created_at",
+    )
+
+    search_fields = (
+        "contract_id",
+        "company_name",
+        "contact_person",
+        "email",
+        "phone_number",
+    )
+
+    readonly_fields = (
+        "id",
+        "contract_id",
+        "created_at",
+        "updated_at",
+        "signed_at",
+    )
+
+    inlines = [ContractAuditLogInline]
+    ordering = ("-created_at",)
+
+
+@admin.register(ContractAuditLog)
+class ContractAuditLogAdmin(admin.ModelAdmin):
+    list_display = (
+        "contract",
+        "action",
+        "created_at",
+    )
+
+    list_filter = (
+        "action",
+        "created_at",
+    )
+
+    search_fields = (
+        "contract__contract_id",
+        "contract__company_name",
+        "contract__contact_person",
+        "action",
+        "description",
+    )
+
+    readonly_fields = (
+        "contract",
+        "action",
+        "description",
+        "created_at",
+    )
+
+    ordering = ("-created_at",)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
 @admin.register(Users)
 class UsersAdmin(admin.ModelAdmin):
     form = UsersAdminForm

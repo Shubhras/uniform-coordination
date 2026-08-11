@@ -120,6 +120,43 @@ class SystemSettings(models.Model):
     
     logo = models.ImageField(upload_to="system/logos/", null=True, blank=True)
 
+    # SMTP Settings
+    email_host = models.CharField(max_length=255, default="smtp.gmail.com")
+    email_port = models.IntegerField(default=587)
+    email_username = models.CharField(max_length=255, default="saksri.s@eqho.com", blank=True, null=True)
+    email_password = models.CharField(max_length=255, default="fkfvgfdhjbxphzmm", blank=True, null=True)
+    email_use_tls = models.BooleanField(default=True)
+    email_from_address = models.CharField(max_length=255, default="no-reply@kireizspace.com")
+    email_from_name = models.CharField(max_length=255, default="Kireiz Space")
+
+    # Notification Toggles
+    email_notify_registration = models.BooleanField(default=True)
+    email_notify_order_placed = models.BooleanField(default=True)
+    email_notify_payment_success = models.BooleanField(default=True)
+    email_notify_payment_failure = models.BooleanField(default=True)
+    email_notify_shipping = models.BooleanField(default=True)
+    email_notify_return_received = models.BooleanField(default=True)
+    email_notify_return_overdue = models.BooleanField(default=True)
+    email_notify_late_fee = models.BooleanField(default=True)
+
+    # Payment Gateway Toggles & Configs
+    payment_enable_kakebarai = models.BooleanField(default=True)
+    payment_enable_credit_card = models.BooleanField(default=True)
+    payment_enable_paypay = models.BooleanField(default=False)
+    payment_enable_conbini = models.BooleanField(default=False)
+    payment_enable_bank_transfer = models.BooleanField(default=True)
+    payment_enable_applepay = models.BooleanField(default=False)
+    payment_enable_googlepay = models.BooleanField(default=False)
+
+    stripe_publishable_key = models.CharField(max_length=255, default="", blank=True, null=True)
+    stripe_secret_key = models.CharField(max_length=255, default="", blank=True, null=True)
+    stripe_webhook_secret = models.CharField(max_length=255, default="", blank=True, null=True)
+
+    bank_name = models.CharField(max_length=255, default="", blank=True, null=True)
+    bank_branch = models.CharField(max_length=255, default="", blank=True, null=True)
+    bank_account_number = models.CharField(max_length=255, default="", blank=True, null=True)
+    bank_account_holder = models.CharField(max_length=255, default="", blank=True, null=True)
+
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -581,7 +618,7 @@ class Product(models.Model):
     description = models.TextField(blank=True, null=True)
     productType = models.CharField(max_length=20,choices=productType,default='table' ,blank=True, null=True)
     type = models.CharField(max_length=30, choices=type_CHOICES, default="set")
-    theme = models.ForeignKey(TableTheme,on_delete=models.SET_NULL,null=True,blank=True,related_name="products")
+    # theme = models.ForeignKey(TableTheme,on_delete=models.SET_NULL,null=True,blank=True,related_name="products")
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,related_name="product_category")
     subcategory = models.ForeignKey(SubCategory,on_delete=models.SET_NULL, null=True,related_name="product_subcategory")
     parts = models.ManyToManyField(Parts,related_name="products_parts",blank=True)
@@ -591,6 +628,8 @@ class Product(models.Model):
     color = models.ForeignKey(Colors, on_delete=models.SET_NULL, null=True, blank=True, related_name="color_products")
     size = models.CharField(max_length=100, blank=True, null=True)
     rfid_tracking_enabled = models.BooleanField(default=False)
+    show_in_simulation = models.BooleanField(default=True)
+
 
     price = models.DecimalField(max_digits=10, decimal_places=2)
     total_quantity = models.PositiveIntegerField(default=0)
@@ -809,6 +848,7 @@ class InspectionItem(models.Model):
     missing_qty = models.PositiveIntegerField(default=0)
     notes = models.TextField(blank=True, null=True)
     result = models.CharField(max_length=20, choices=RESULT_CHOICES, default="pending")
+    is_reviewed = models.BooleanField(default=False)
     inspected_at = models.DateTimeField(auto_now_add=True)
     inspected_by = models.ForeignKey(AdminUser, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -824,6 +864,7 @@ class DamagedItem(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pending"),
         ("repair", "Repair"),
+        ("discard", "Discard"),
         ("moved", "Moved to Available"),
     ]
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="damaged_records")
@@ -993,3 +1034,13 @@ class RentalPolicySettings(models.Model):
 
     def __str__(self):
         return "Rental Policy Settings"    
+
+class SimulationStructure(models.Model):
+    category = models.OneToOneField(Category, on_delete=models.CASCADE, related_name="simulation_structure")
+    structure_data = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Simulation Structure for {self.category.categoryName}"
+

@@ -8,8 +8,10 @@ import TemplatesTab from "./components/templates/TemplatesTab";
 import ColorsTab from "./components/colors/ColorsTab";
 import ProductsTab from "./components/products/ProductsTab";
 import Tabs from "./components/Tabs";
+import { useTranslations } from "next-intl";
 
 const ProductSpecificationPage = () => {
+  const t = useTranslations("productSpecification.fabric");
   const searchParams = useSearchParams();
   useEffect(() => {
     const tab = searchParams.get("tab");
@@ -46,10 +48,10 @@ const ProductSpecificationPage = () => {
       </p> */}
 
       <h1 className="text-2xl font-semibold text-[#1C2C56]">
-        Product & Specification Management
+        {t("productManagement")}
       </h1>
       <p className="text-base font-medium text-[#64748B]">
-        Manage fabrics, parts, colors, options, and templates
+        {t("productSubtitle")}
       </p>
 
       {/* Tabs */}

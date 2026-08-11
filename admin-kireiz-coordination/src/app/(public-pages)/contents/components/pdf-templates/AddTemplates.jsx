@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import { FiArrowLeft } from "react-icons/fi";
 import RichTextEditor from "@/components/shared/RichTextEditor";
@@ -37,7 +38,11 @@ Please find below our quotation for {ITEM_TYPE}, quantity {QUANTITY}.
 </p>
 `;
 
-const PAGE_SIZES = ["A4", "Letter"];
+// Values go to the API as-is; only the visible label is translated.
+const PAGE_SIZES = [
+  { value: "A4", labelKey: "pageSizeA4" },
+  { value: "Letter", labelKey: "pageSizeLetter" },
+];
 
 const notify = (title, type, message) =>
   toast.push(
@@ -48,6 +53,7 @@ const notify = (title, type, message) =>
 
 export default function AddTemplate() {
   const router = useRouter();
+  const t = useTranslations("contentMedia.pdfTemplates.addPdfTemplatePage");
   const searchParams = useSearchParams();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -76,15 +82,15 @@ export default function AddTemplate() {
         setPageSize(res.data.page_size || "A4");
         setContent(res.data.content || "");
       } else {
-        notify("Error", "danger", res?.message || "Template not found");
+        notify(t("errorTitle"), "danger", res?.message || t("notFound"));
       }
     } catch (error) {
       console.error("Failed to load template:", error);
-      notify("Error", "danger", "Could not load the template");
+      notify(t("errorTitle"), "danger", t("loadFailed"));
     } finally {
       setLoading(false);
     }
-  }, [isEdit, accessToken, templateId]);
+  }, [isEdit, accessToken, templateId, t]);
 
   useEffect(() => {
     loadTemplate();
@@ -94,12 +100,12 @@ export default function AddTemplate() {
     if (saving) return;
 
     if (!name.trim()) {
-      notify("Required", "warning", "Please enter a template name");
+      notify(t("requiredTitle"), "warning", t("nameRequired"));
       return;
     }
 
     if (!content?.trim()) {
-      notify("Required", "warning", "Template content cannot be empty");
+      notify(t("requiredTitle"), "warning", t("emptyContent"));
       return;
     }
 
@@ -113,17 +119,17 @@ export default function AddTemplate() {
 
       if (res?.status) {
         notify(
-          "Success",
+          t("successTitle"),
           "success",
-          isEdit ? "Template updated" : "Template created",
+          isEdit ? t("updateSuccess") : t("createSuccess"),
         );
         router.push("/contents");
       } else {
-        notify("Error", "danger", res?.message || "Could not save template");
+        notify(t("errorTitle"), "danger", res?.message || t("saveFailed"));
       }
     } catch (error) {
       console.error("Failed to save template:", error);
-      notify("Error", "danger", "Could not save the template");
+      notify(t("errorTitle"), "danger", t("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -143,12 +149,10 @@ export default function AddTemplate() {
 
         <div>
           <h1 className="text-2xl font-semibold text-[#1C2C56]">
-            {isEdit ? "Edit PDF Template" : "Add PDF Template"}
+            {isEdit ? t("editPageTitle") : t("pageTitle")}
           </h1>
 
-          <p className="text-[#64748B] mt-1 text-sm">
-            Design and preview your quote layouts
-          </p>
+          <p className="text-[#64748B] mt-1 text-sm">{t("pageSubtitle")}</p>
         </div>
       </div>
 
@@ -163,39 +167,38 @@ export default function AddTemplate() {
           <div className="bg-white rounded-lg shadow p-5 mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#1C2C56] mb-1">
-                Template Name
+                {t("templateNameLabel")}
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Standard quotation"
+                placeholder={t("templateNamePlaceholder")}
                 className="w-full border border-[#E2E8F0] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1C4FA8]/30"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-[#1C2C56] mb-1">
-                Page Size
+                {t("pageSizeLabel")}
               </label>
               <select
                 value={pageSize}
                 onChange={(e) => setPageSize(e.target.value)}
                 className="w-full border border-[#E2E8F0] rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1C4FA8]/30"
               >
-                {PAGE_SIZES.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
+                {PAGE_SIZES.map(({ value, labelKey }) => (
+                  <option key={value} value={value}>
+                    {t(labelKey)}
                   </option>
                 ))}
               </select>
             </div>
 
             <p className="text-xs text-[#64748B] md:col-span-2">
-              Use placeholders like <code>{"{CLIENT_NAME}"}</code>,{" "}
-              <code>{"{ITEM_TYPE}"}</code>, <code>{"{QUANTITY}"}</code> — these
-              get filled in when a quotation is generated. The library counts
-              distinct placeholders as &quot;customizable fields&quot;.
+              {t.rich("placeholderHelperText", {
+                code: (chunks) => <code>{chunks}</code>,
+              })}
             </p>
           </div>
 
@@ -219,7 +222,7 @@ export default function AddTemplate() {
               size="sm"
               className="bg-blue-100 rounded-lg"
             >
-              Cancel
+              {t("cancel")}
             </Button>
 
             <button
@@ -228,7 +231,7 @@ export default function AddTemplate() {
               className="bg-[#1C4FA8] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 disabled:opacity-50"
               onClick={handleSave}
             >
-              {saving ? "Saving..." : "Save Template"}
+              {saving ? t("saving") : t("saveTemplate")}
             </button>
           </div>
         </>

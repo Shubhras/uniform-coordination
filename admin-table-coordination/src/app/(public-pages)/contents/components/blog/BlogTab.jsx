@@ -10,12 +10,14 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiX,
+  FiEye,
 } from "react-icons/fi";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetBlogList, apiDeleteBlog } from "@/services/BlogService";
 import AddEditBlogModal from "./AddEditBlogModal";
+import ViewBlogModal from "./ViewBlogModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
 
@@ -49,6 +51,10 @@ const BlogTab = () => {
   // Modal
   const [openModal, setOpenModal] = useState(false);
   const [editPost, setEditPost] = useState(null);
+
+  // View Modal
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [viewPost, setViewPost] = useState(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -265,7 +271,17 @@ const BlogTab = () => {
                   <div className="flex justify-end gap-2">
                     <button
                       type="button"
-                      className="text-[#1C2C56] hover:text-[#0F172A] p-1.5 rounded hover:bg-[#EEF2FF]"
+                      className="text-blue-500 hover:text-blue-700 p-1.5 rounded hover:bg-blue-50 cursor-pointer"
+                      onClick={() => {
+                        setViewPost(post);
+                        setViewModalOpen(true);
+                      }}
+                    >
+                      <FiEye size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      className="text-[#1C2C56] hover:text-[#0F172A] p-1.5 rounded hover:bg-[#EEF2FF] cursor-pointer"
                       onClick={() => {
                         setEditPost(post);
                         setOpenModal(true);
@@ -275,7 +291,7 @@ const BlogTab = () => {
                     </button>
                     <button
                       type="button"
-                      className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50"
+                      className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50 cursor-pointer"
                       onClick={() => {
                         setPostToDelete(post);
                         setDeleteDialogOpen(true);
@@ -308,6 +324,15 @@ const BlogTab = () => {
       </div>
 
       {/* Modals */}
+      <ViewBlogModal
+        isOpen={viewModalOpen}
+        onClose={() => {
+          setViewModalOpen(false);
+          setViewPost(null);
+        }}
+        post={viewPost}
+      />
+
       <AddEditBlogModal
         isOpen={openModal}
         onClose={handleCloseModal}

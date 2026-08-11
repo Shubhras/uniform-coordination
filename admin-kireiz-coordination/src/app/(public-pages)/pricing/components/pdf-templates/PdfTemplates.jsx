@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiDownload, FiSend, FiChevronDown, FiFileText } from "react-icons/fi";
 import {
     IoCheckmarkCircle,
@@ -17,45 +18,46 @@ import {
     apiExportQuotationPdf,
 } from "@/services/QuotationHistoryService";
 
-// Keys match QuotationRequest.STATUS_CHOICES on the backend.
+// Keys match QuotationRequest.STATUS_CHOICES on the backend. `labelKey` points at
+// the message catalogue; the status value itself is never translated.
 const statusConfig = {
     approved: {
-        label: "approved",
+        labelKey: "approved",
         icon: IoCheckmarkCircle,
         bg: "bg-[#1C2C56]",
         text: "text-white",
         dotColor: "bg-green-400",
     },
     accepted: {
-        label: "accepted",
+        labelKey: "accepted",
         icon: IoCheckmarkCircle,
         bg: "bg-[#1C2C56]",
         text: "text-white",
         dotColor: "bg-green-400",
     },
     pending: {
-        label: "pending",
+        labelKey: "pending",
         icon: IoTimeOutline,
         bg: "bg-amber-100",
         text: "text-amber-700",
         dotColor: "bg-amber-400",
     },
     received: {
-        label: "received",
+        labelKey: "received",
         icon: IoTimeOutline,
         bg: "bg-amber-100",
         text: "text-amber-700",
         dotColor: "bg-amber-400",
     },
     sent: {
-        label: "sent",
+        labelKey: "sent",
         icon: FiSend,
         bg: "bg-[#1C2C56]",
         text: "text-white",
         dotColor: "bg-blue-500",
     },
     cancelled: {
-        label: "cancelled",
+        labelKey: "cancelled",
         icon: IoCloseCircle,
         bg: "bg-red-100",
         text: "text-red-600",
@@ -64,7 +66,7 @@ const statusConfig = {
 };
 
 const fallbackStatus = {
-    label: "unknown",
+    labelKey: "unknown",
     icon: IoTimeOutline,
     bg: "bg-gray-100",
     text: "text-gray-600",
@@ -73,10 +75,11 @@ const fallbackStatus = {
 
 const PAGE_SIZE = 10;
 
-const money = (value) =>
+// Symbol comes from SystemSettings via the API — never hardcoded.
+const formatMoney = (value, symbol = "$") =>
     value === null || value === undefined
         ? "—"
-        : `$ ${Number(value).toLocaleString(undefined, {
+        : `${symbol} ${Number(value).toLocaleString(undefined, {
               minimumFractionDigits: 2,
           })}`;
 
@@ -88,8 +91,12 @@ const notify = (title, type, message) =>
     );
 
 const PdfTemplates = () => {
+    const t = useTranslations("pricingQuotation.quotationHistory");
     const { session } = useCurrentSession();
     const accessToken = session?.user?.accessToken;
+
+    const [currencySymbol, setCurrencySymbol] = useState("$");
+    const money = (value) => formatMoney(value, currencySymbol);
 
     const [quotations, setQuotations] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
@@ -114,16 +121,17 @@ const PdfTemplates = () => {
                 const rows = res.data || [];
                 setQuotations(rows);
                 setTotalItems(res.count || 0);
+                if (res.currency?.symbol) setCurrencySymbol(res.currency.symbol);
                 // Keep the first row open like the original design did.
                 setExpandedId((prev) => prev ?? rows[0]?.id ?? null);
             }
         } catch (error) {
             console.error("Failed to load quotation history:", error);
-            notify("Error", "danger", "Could not load quotation history");
+            notify(t("errorTitle"), "danger", t("loadFailed"));
         } finally {
             setLoading(false);
         }
-    }, [accessToken, currentPage]);
+    }, [accessToken, currentPage, t]);
 
     useEffect(() => {
         fetchHistory();
@@ -143,14 +151,14 @@ const PdfTemplates = () => {
                 window.open(res.pdf_url, "_blank", "noopener,noreferrer");
             } else {
                 notify(
-                    "Error",
+                    t("errorTitle"),
                     "danger",
-                    res?.message || "Could not generate the PDF",
+                    res?.message || t("pdfFailed"),
                 );
             }
         } catch (error) {
             console.error("Failed to export PDF:", error);
-            notify("Error", "danger", "Could not generate the PDF");
+            notify(t("errorTitle"), "danger", t("pdfFailed"));
         } finally {
             setBusyId(null);
         }
@@ -163,22 +171,25 @@ const PdfTemplates = () => {
             setBusyId(q.id);
             const res = await apiResendQuotation(accessToken, q.quotation_id);
             if (res?.status) {
-                notify("Success", "success", res.message || "Quotation resent");
+                notify(
+                    t("successTitle"),
+                    "success",
+                    res.message || t("resendSuccess"),
+                );
                 await fetchHistory();
             } else {
                 notify(
-                    "Error",
+                    t("errorTitle"),
                     "danger",
-                    res?.message || "Could not resend the quotation",
+                    res?.message || t("resendFailed"),
                 );
             }
         } catch (error) {
             console.error("Failed to resend quotation:", error);
             notify(
-                "Error",
+                t("errorTitle"),
                 "danger",
-                error?.response?.data?.message ||
-                    "Could not resend the quotation",
+                error?.response?.data?.message || t("resendFailed"),
             );
         } finally {
             setBusyId(null);
@@ -190,11 +201,9 @@ const PdfTemplates = () => {
             {/* Page Header */}
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-[#1C2C56]">
-                    Quotation History
+                    {t("title")}
                 </h1>
-                <p className="text-sm text-[#64748B] mt-1">
-                    Track and manage sent proposals
-                </p>
+                <p className="text-sm text-[#64748B] mt-1">{t("subtitle")}</p>
             </div>
 
             {/* Quotation History Card */}
@@ -203,12 +212,12 @@ const PdfTemplates = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                     <div>
                         <h2 className="text-xl font-bold text-[#0F172A]">
-                            Quotation History
+                            {t("title")}
                         </h2>
                         <p className="text-sm text-[#64748B] mt-0.5">
                             {loading
-                                ? "Loading proposals..."
-                                : `${totalItems} total proposals`}
+                                ? t("loadingProposals")
+                                : t("totalCount", { count: totalItems })}
                         </p>
                     </div>
 
@@ -217,18 +226,20 @@ const PdfTemplates = () => {
                         <div className="flex items-center gap-1.5">
                             <span className="w-2.5 h-2.5 rounded-full bg-green-400" />
                             <span className="text-xs text-[#64748B]">
-                                Approved
+                                {t("statusApproved")}
                             </span>
                         </div>
                         <div className="flex items-center gap-1.5">
                             <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
                             <span className="text-xs text-[#64748B]">
-                                Pending
+                                {t("statusPending")}
                             </span>
                         </div>
                         <div className="flex items-center gap-1.5">
                             <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                            <span className="text-xs text-[#64748B]">Sent</span>
+                            <span className="text-xs text-[#64748B]">
+                                {t("statusSent")}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -250,10 +261,10 @@ const PdfTemplates = () => {
                 {!loading && quotations.length === 0 && (
                     <div className="border border-dashed border-[#CBD5E1] rounded-xl py-12 text-center">
                         <p className="text-base font-medium text-[#1C2C56]">
-                            No quotations yet
+                            {t("noData")}
                         </p>
                         <p className="text-sm text-[#64748B] mt-1">
-                            Customer quotation requests will appear here.
+                            {t("noDataSubtitle")}
                         </p>
                     </div>
                 )}
@@ -326,7 +337,9 @@ const PdfTemplates = () => {
                                                         {money(q.amount)}
                                                     </p>
                                                     <p className="text-[10px] text-[#94A3B8]">
-                                                        {q.items} Items
+                                                        {t("itemsCount", {
+                                                            count: q.items,
+                                                        })}
                                                     </p>
                                                 </div>
 
@@ -334,7 +347,9 @@ const PdfTemplates = () => {
                                                     className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${status.bg} ${status.text}`}
                                                 >
                                                     <StatusIcon size={13} />
-                                                    {status.label}
+                                                    {t(
+                                                        `statuses.${status.labelKey}`,
+                                                    )}
                                                 </span>
 
                                                 <FiChevronDown
@@ -356,13 +371,17 @@ const PdfTemplates = () => {
                                                         {/* Quote Details */}
                                                         <div>
                                                             <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-3">
-                                                                Quote Details
+                                                                {t(
+                                                                    "quoteDetails",
+                                                                )}
                                                             </p>
                                                             <div className="space-y-2">
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="w-1.5 h-1.5 rounded-full bg-[#1C2C56]" />
                                                                     <span className="text-xs text-[#64748B] w-20">
-                                                                        Created:
+                                                                        {t(
+                                                                            "created",
+                                                                        )}
                                                                     </span>
                                                                     <span className="text-xs text-[#0F172A] font-medium">
                                                                         {q.details
@@ -373,8 +392,9 @@ const PdfTemplates = () => {
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="w-1.5 h-1.5 rounded-full bg-[#1C2C56]" />
                                                                     <span className="text-xs text-[#64748B] w-20">
-                                                                        Valid
-                                                                        Until:
+                                                                        {t(
+                                                                            "validUntil",
+                                                                        )}
                                                                     </span>
                                                                     <span className="text-xs text-[#0F172A] font-medium">
                                                                         {q.details
@@ -385,13 +405,16 @@ const PdfTemplates = () => {
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="w-1.5 h-1.5 rounded-full bg-[#1C2C56]" />
                                                                     <span className="text-xs text-[#64748B] w-20">
-                                                                        Sales
-                                                                        Rep:
+                                                                        {t(
+                                                                            "salesRep",
+                                                                        )}
                                                                     </span>
                                                                     <span className="text-xs text-[#0F172A] font-medium">
                                                                         {q.details
                                                                             .sales_rep ||
-                                                                            "Unassigned"}
+                                                                            t(
+                                                                                "unassigned",
+                                                                            )}
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -400,13 +423,15 @@ const PdfTemplates = () => {
                                                         {/* Summary */}
                                                         <div>
                                                             <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-3">
-                                                                Summary
+                                                                {t("summary")}
                                                             </p>
                                                             <div className="space-y-2">
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="w-1.5 h-1.5 rounded-full bg-[#1C2C56]" />
                                                                     <span className="text-xs text-[#64748B] w-28">
-                                                                        Subtotal:
+                                                                        {t(
+                                                                            "subtotal",
+                                                                        )}
                                                                     </span>
                                                                     <span className="text-xs text-[#0F172A] font-medium">
                                                                         {money(
@@ -421,14 +446,15 @@ const PdfTemplates = () => {
                                                                     <div className="flex items-center gap-2">
                                                                         <span className="w-1.5 h-1.5 rounded-full bg-[#1C2C56]" />
                                                                         <span className="text-xs text-red-500 w-28">
-                                                                            Discount
-                                                                            (
-                                                                            {
-                                                                                q
-                                                                                    .details
-                                                                                    .discount_percent
-                                                                            }
-                                                                            %):
+                                                                            {t(
+                                                                                "discount",
+                                                                                {
+                                                                                    percent:
+                                                                                        q
+                                                                                            .details
+                                                                                            .discount_percent,
+                                                                                },
+                                                                            )}
                                                                         </span>
                                                                         <span className="text-xs text-red-500 font-medium">
                                                                             -
@@ -445,7 +471,9 @@ const PdfTemplates = () => {
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="w-1.5 h-1.5 rounded-full bg-[#1C2C56]" />
                                                                     <span className="text-xs text-[#64748B] font-semibold w-28">
-                                                                        Total:
+                                                                        {t(
+                                                                            "total",
+                                                                        )}
                                                                     </span>
                                                                     <span className="text-xs text-[#0F172A] font-bold">
                                                                         {money(
@@ -475,8 +503,10 @@ const PdfTemplates = () => {
                                                                 size={15}
                                                             />
                                                             {isBusy
-                                                                ? "Working..."
-                                                                : "Download PDF"}
+                                                                ? t("working")
+                                                                : t(
+                                                                      "downloadPdf",
+                                                                  )}
                                                         </button>
                                                         <button
                                                             type="button"
@@ -488,12 +518,14 @@ const PdfTemplates = () => {
                                                         >
                                                             <FiSend size={14} />
                                                             {isBusy
-                                                                ? "Sending..."
-                                                                : "Resend Quote"}
+                                                                ? t("sending")
+                                                                : t(
+                                                                      "resendQuote",
+                                                                  )}
                                                         </button>
                                                         {q.last_sent_at && (
                                                             <p className="text-[10px] text-[#94A3B8] text-center">
-                                                                Last sent:{" "}
+                                                                {t("lastSent")}{" "}
                                                                 {new Date(
                                                                     q.last_sent_at,
                                                                 ).toLocaleString()}

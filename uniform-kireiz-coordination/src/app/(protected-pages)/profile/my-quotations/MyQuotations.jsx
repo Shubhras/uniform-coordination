@@ -61,10 +61,10 @@ const statusFilterOptions = [
 const getNormalizedStatus = (quotation) => {
   const rawStatus = String(
     quotation?.status ||
-      quotation?.quotation_status ||
-      quotation?.request_status ||
-      quotation?.state ||
-      "submitted",
+    quotation?.quotation_status ||
+    quotation?.request_status ||
+    quotation?.state ||
+    "submitted",
   ).toLowerCase();
 
   if (rawStatus.includes("approv") || rawStatus.includes("accept"))
@@ -205,11 +205,10 @@ const CustomStatusOption = (props) => {
   const { innerProps, label, isSelected, isDisabled } = props;
   return (
     <div
-      className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${
-        isSelected
-          ? "text-[#003560] bg-[#F2F7FF]"
-          : "text-[#1C2C56] hover:bg-gray-100"
-      } ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${isSelected
+        ? "text-[#003560] bg-[#F2F7FF]"
+        : "text-[#1C2C56] hover:bg-gray-100"
+        } ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
       {...innerProps}
     >
       <span className="ml-2 text-sm font-medium">{label}</span>
@@ -261,8 +260,8 @@ const MyQuotations = () => {
         setTotalCount(0);
         setErrorMessage(
           error?.response?.data?.message ||
-            error?.message ||
-            "Unable to load quotations right now.",
+          error?.message ||
+          "Unable to load quotations right now.",
         );
       } finally {
         setLoading(false);
@@ -394,9 +393,11 @@ const MyQuotations = () => {
         ) : null}
 
         {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Spinner size={28} />
-          </div>
+          <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+            </div>
+          </section>
         ) : (
           <div className="overflow-hidden rounded-xl border border-[#EEF2F7]">
             <div className="overflow-x-auto">

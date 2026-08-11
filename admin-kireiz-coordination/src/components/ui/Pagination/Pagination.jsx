@@ -5,10 +5,12 @@ import Next from "./Next";
 import Total from "./Total";
 import useControllableState from "../hooks/useControllableState";
 import classNames from "classnames";
+import { useTranslations } from "next-intl";
 
 const defaultTotal = 5;
 
 const Pagination = (props) => {
+  const t = useTranslations("pagination");
   const {
     className,
     currentPage = 1,
@@ -133,16 +135,13 @@ const Pagination = (props) => {
     <div className="flex items-center justify-between w-full mt-6">
       {/* Left */}
       <div className="text-sm text-[#7B7B7B]">
-        Showing{" "}
-        <span className="font-medium">
-          {paginationTotal === 0
-            ? 0
-            : (internalCurrentPage - 1) * internalPageSize + 1}
-        </span>
-        –
-        <span className="font-medium">
-          {Math.min(internalCurrentPage * internalPageSize, paginationTotal)}
-        </span>
+        {t("showingRange", {
+          from:
+            paginationTotal === 0
+              ? 0
+              : (internalCurrentPage - 1) * internalPageSize + 1,
+          to: Math.min(internalCurrentPage * internalPageSize, paginationTotal),
+        })}
       </div>
 
       {/* Right */}
