@@ -1134,6 +1134,72 @@ class AddToCartAPIView(APIView):
     @transaction.atomic
     def post(self, request):
         try:
+            custom_theme_id = request.data.get("custom_theme_id")
+            if custom_theme_id:
+                try:
+                    custom_theme = CustomUpdateThemes.objects.get(id=custom_theme_id, user=request.user)
+                except CustomUpdateThemes.DoesNotExist:
+                    return Response({
+                        "status": False,
+                        "statusCode": 404,
+                        "message": "Custom theme design not found"
+                    }, status=status.HTTP_404_NOT_FOUND)
+
+                if not custom_theme.theme:
+                    return Response({
+                        "status": False,
+                        "statusCode": 404,
+                        "message": "Associated theme not found for this customization."
+                    }, status=status.HTTP_404_NOT_FOUND)
+
+                from uniformAdmin.models import ThemeItem
+                theme_items = ThemeItem.objects.filter(theme=custom_theme.theme).select_related('product')
+                if not theme_items.exists():
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "This theme has no products configured."
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+                cart, _ = Cart.objects.get_or_create(
+                    user=request.user,
+                    is_active=True,
+                )
+
+                added_items = []
+                for theme_item in theme_items:
+                    prod = theme_item.product
+                    if not prod or not prod.isActive:
+                        continue
+
+                    item, created = CartItem.objects.select_for_update().get_or_create(
+                        cart=cart,
+                        product=prod,
+                        custom_theme=custom_theme,
+                        defaults={"quantity": 0}
+                    )
+
+                    new_quantity = item.quantity + 1
+                    if new_quantity > prod.available_quantity:
+                        new_quantity = max(prod.available_quantity, 1)
+
+                    item.quantity = new_quantity
+                    item.save()
+                    added_items.append(item)
+
+                serializer = CartItemSerializer(
+                    added_items,
+                    many=True,
+                    context={"request": request}
+                )
+
+                return Response({
+                    "status": True,
+                    "statusCode": 201,
+                    "message": "All theme products added to cart successfully.",
+                    "data": serializer.data
+                }, status=status.HTTP_201_CREATED)
+
             product_id = request.data.get("product_id")
             quantity = request.data.get("quantity", 1)
 
@@ -1583,6 +1649,35 @@ class ItemSummaryAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     
+class CustomerDetailsRetrieveAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            customer = CustomerDetails.objects.filter(user=user, isDeleted=False).first()
+            if customer:
+                serializer = CustomerDetailsSerializer(customer)
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "Customer details retrieved successfully",
+                    "data": serializer.data
+                }, status=status.HTTP_200_OK)
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "Customer details not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Something went wrong",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class CreateOrderAPIView(APIView):
     @transaction.atomic
     def post(self, request):
@@ -1639,7 +1734,7 @@ class CreateOrderAPIView(APIView):
                     "message": "Rental end date cannot be before start date"
                     }, status=status.HTTP_400_BAD_REQUEST)
 
-            rental_days = (end_date - start_date).days + 1
+            rental_days = (end_date - start_date).days
 
             customer_data = data.get("customer")
             customer_id = data.get("customer_id")
@@ -1762,6 +1857,13 @@ class CreateOrderAPIView(APIView):
             tax_amount = (taxable_amount * Decimal("10")) / Decimal("100")
             total_amount = subtotal - discount_amount + shipping_charge + tax_amount
 
+            # Check if any cart item has an associated custom theme
+            custom_theme = None
+            for item in cart.items.all():
+                if item.custom_theme:
+                    custom_theme = item.custom_theme
+                    break
+
             order = Order.objects.create(
                 user=user,
                 cart=cart,
@@ -1775,6 +1877,7 @@ class CreateOrderAPIView(APIView):
                 tax=tax_amount,
                 currency=currency,
                 promocode=applied_promo,
+                custom_theme=custom_theme,
             )
 
             order_items = []
@@ -1786,7 +1889,8 @@ class CreateOrderAPIView(APIView):
                     rental_days=rental_days,
                     quantity=item.quantity,
                     price_per_day=Decimal(item.final_price or 0),
-                    subtotal=line_total
+                    subtotal=line_total,
+                    custom_theme=item.custom_theme,
                 )
                 order_items.append(order_item)
 
@@ -1988,7 +2092,7 @@ class OrderSummaryAPIView(APIView):
                     "product_image": request.build_absolute_uri(item.product.ProductImage.url) if item.product.ProductImage else None
                 })
 
-            rental_days = (order.rental_end_date - order.rental_start_date).days + 1 if order.rental_start_date and order.rental_end_date else 0
+            rental_days = (order.rental_end_date - order.rental_start_date).days if order.rental_start_date and order.rental_end_date else 0
             subtotal = Decimal(order.subtotal or sum(item.subtotal for item in order_items))
             shipping = Decimal(order.shipping_charge or 0)
             tax = Decimal(order.tax or 0)

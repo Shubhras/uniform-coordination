@@ -42,11 +42,14 @@ export async function apiGetCartSummary(token) {
  * @param {number} [quantity=1] - Quantity of items to add.
  * @returns {Promise<Object>} API response confirming item addition to cart.
  */
-export async function apiAddToCart(token, product_id, quantity = 1) {
-  const payload = {
-    product_id: product_id,
-    quantity: quantity,
-  };
+export async function apiAddToCart(token, product_id, quantity = 1, custom_theme_id = null) {
+  const payload = {};
+  if (custom_theme_id) {
+    payload.custom_theme_id = custom_theme_id;
+  } else {
+    payload.product_id = product_id;
+    payload.quantity = quantity;
+  }
   return ApiService.fetchDataWithAxios({
     url: `/v1/space/userhub/cart/add/`,
     method: "post",

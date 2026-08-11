@@ -777,8 +777,8 @@ def generate_contract_pdf(contract, request):
             item_data.append([
                 item.product.productName,
                 str(item.quantity),
-                f"¥{item.price_per_day}",
-                f"¥{item.subtotal}"
+                f"${item.price_per_day}",
+                f"${item.subtotal}"
             ])
         item_table = Table(item_data, colWidths=[200, 70, 100, 110])
         item_table.setStyle(TableStyle([
@@ -795,10 +795,10 @@ def generate_contract_pdf(contract, request):
         # Order totals
         elements.append(Spacer(1, 10))
         total_data = [
-            ["Subtotal", f"¥{contract.order.subtotal}"],
-            ["Tax", f"¥{contract.order.tax}"],
-            ["Shipping Charge", f"¥{contract.order.shipping_charge}"],
-            ["Total Amount", f"¥{contract.order.total_amount}"],
+            ["Subtotal", f"${contract.order.subtotal}"],
+            ["Tax", f"${contract.order.tax}"],
+            ["Shipping Charge", f"${contract.order.shipping_charge}"],
+            ["Total Amount", f"${contract.order.total_amount}"],
         ]
         total_table = Table(total_data, colWidths=[380, 100])
         total_table.setStyle(TableStyle([
@@ -1166,7 +1166,7 @@ UserHub Team
 
 
 
-def send_payment_success_email(user, payment, currency_symbol="¥"):
+def send_payment_success_email(user, payment, currency_symbol="$"):
     send_mail(
         subject="Payment Successful - KIREIZ SPACE",
         message=f"""
@@ -1192,7 +1192,7 @@ KIREIZ SPACE Team
         fail_silently=False,
     )
 
-def send_payment_failed_email(user, payment, currency_symbol="¥"):
+def send_payment_failed_email(user, payment, currency_symbol="$"):
     send_mail(
         subject="Payment Failed - KIREIZ SPACE",
         message=f"""
@@ -1277,4 +1277,172 @@ def parse_size_quantity(size_quantity_str):
         if match:
             result.append({"size": match.group(1).upper(), "qty": int(match.group(2))})
     return result    
+
+
+def generate_theme_customization_pdf(obj, user):
+    file_name = f"theme_customization_{obj.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+    file_path = os.path.join(settings.MEDIA_ROOT, "exports", file_name)
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    doc = SimpleDocTemplate(
+        file_path,
+        pagesize=A4,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=40,
+    )
+
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # MAIN STYLES
+    title_style = ParagraphStyle(
+        "TitleStyle",
+        parent=styles["Title"],
+        fontSize=22,
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#1F3A5F"),
+        spaceAfter=25
+    )
+
+    section_style = ParagraphStyle(
+        "SectionStyle",
+        parent=styles["Heading2"],
+        fontSize=14,
+        textColor=colors.HexColor("#154360"),
+        spaceBefore=20,
+        spaceAfter=10
+    )
+
+    normal_style = ParagraphStyle(
+        "NormalStyle",
+        parent=styles["Normal"],
+        fontSize=10,
+        leading=14,
+        spaceAfter=6
+    )
+
+    muted_style = ParagraphStyle(
+        "MutedStyle",
+        parent=styles["Normal"],
+        fontSize=9,
+        textColor=colors.grey
+    )
+
+    from uniformAdmin.models import SystemSettings
+
+    system_settings = SystemSettings.load()
+
+    if system_settings.logo and os.path.exists(system_settings.logo.path):
+        logo_img = Image(system_settings.logo.path, width=140, height=140)
+        logo_img.hAlign = "CENTER"
+        elements.append(logo_img)
+
+    elements.append(Spacer(1, 20))
+
+    # TITLE
+    elements.append(Paragraph("Theme Customization Summary", title_style))
+
+    # USER INFO
+    full_name = f"{user.firstName or ''} {user.lastName or ''}".strip()
+    user_data = [
+        ["Customization ID", obj.id],
+        ["User", full_name or user.email],
+        ["Email", user.email],
+    ]
+    user_table = Table(user_data, colWidths=[150, 330])
+    user_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F4F6F7")),
+        ("GRID", (0, 0), (-1, -1), 0.3, colors.lightgrey),
+        ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(user_table)
+
+    # THEME DETAILS
+    theme = obj.theme
+    theme_table_data = [
+        ["Theme Name", theme.title],
+    ]
+    if theme.category:
+        theme_table_data.append(["Category", theme.category.categoryName])
+    else:
+        theme_table_data.append(["Category", "N/A"])
+        
+    theme_table_data.append(["Description", theme.description or ""])
+
+    theme_table = Table(theme_table_data, colWidths=[150, 330])
+    theme_table.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
+        ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(Paragraph("Theme Details", section_style))
+    elements.append(theme_table)
+
+    # CUSTOM SELECTIONS (CONFIG)
+    config = obj.config_json or {}
+    config_data = [
+        ["Table Shape", config.get("table_shape", "N/A")],
+        ["Table Scale", config.get("table_scale", "N/A")],
+        ["Table Seating", config.get("table_sitting", "N/A")],
+    ]
+    config_table = Table(config_data, colWidths=[150, 330])
+    config_table.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
+        ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(Paragraph("Layout Configurations", section_style))
+    elements.append(config_table)
+
+    # CUSTOM CATEGORY OPTIONS
+    specifications = obj.design_specifications or {}
+    if specifications:
+        spec_data = []
+        for cat_name, options in specifications.items():
+            if isinstance(options, dict):
+                opt_str = ", ".join([f"{k}: {v}" for k, v in options.items()])
+            else:
+                opt_str = str(options)
+            spec_data.append([cat_name, opt_str])
+        
+        if spec_data:
+            spec_table = Table(spec_data, colWidths=[150, 330])
+            spec_table.setStyle(TableStyle([
+                ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
+                ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, -1), 10),
+                ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 8),
+            ]))
+            elements.append(Paragraph("Customized Item Specifications", section_style))
+            elements.append(spec_table)
+
+    # FOOTER
+    elements.append(Spacer(1, 30))
+    elements.append(
+        Paragraph(
+            f"Generated on {datetime.now().strftime('%d %b %Y, %I:%M %p')}",
+            muted_style
+        )
+    )
+
+    doc.build(elements)
+    return f"{settings.MEDIA_URL}exports/{file_name}"
+
     

@@ -265,7 +265,7 @@ class ExportReportsAnalyticsAPIView(APIView):
             # KPI Section
             writer.writerow(['--- KPI METRICS ---'])
             writer.writerow(['Metric', 'Value'])
-            writer.writerow(['Total Revenue', f"¥{kpi.get('total_revenue', 0.0):,.2f}"])
+            writer.writerow(['Total Revenue', f"${kpi.get('total_revenue', 0.0):,.2f}"])
             writer.writerow(['Total Orders', kpi.get('total_orders', 0)])
             writer.writerow(['Active Rentals', kpi.get('active_rentals', 0)])
             writer.writerow(['Inventory Items', kpi.get('inventory_items', 0)])

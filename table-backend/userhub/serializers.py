@@ -216,11 +216,13 @@ class CartItemSerializer(serializers.ModelSerializer):
             "price",
             "final_price",
             "total_price",
+            "custom_theme",
         ]
         read_only_fields = [
             "price",
             "final_price",
             "total_price",
+            "custom_theme",
         ]
 
     def get_product_image(self, obj):
@@ -857,6 +859,93 @@ class CustomUpdateModelsSerializer(serializers.ModelSerializer):
             f"{settings.MEDIA_URL}"
             f"{obj.json_file_path.lstrip('/')}"
         )
+
+
+class CustomUpdateThemesSerializer(serializers.ModelSerializer):
+    json_file_url = serializers.SerializerMethodField()
+    themeName = serializers.SerializerMethodField()
+    ThemeImage = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    theme_id = serializers.SerializerMethodField()
+    products = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUpdateThemes
+        fields = [
+            "id",
+            "user",
+            "theme",
+            "themeName",
+            "theme_id",
+            "ThemeImage",
+            "category",
+            "description",
+            "design_specifications",
+            "json_file_path",
+            "json_file_url",
+            "isActive",
+            "isDeleted",
+            "created_at",
+            "products",
+        ]
+        read_only_fields = ["user", "json_file_path"]
+
+    def get_products(self, obj):
+        if not obj.theme:
+            return []
+        items = obj.theme.theme_items.select_related('product').all()
+        result = []
+        for item in items:
+            prod = item.product
+            result.append({
+                "id": prod.id,
+                "title": prod.productName,
+                "description": prod.description,
+                "price": float(prod.price) if prod.price else 0.0,
+                "image": new_build_media_url(prod.ProductImage) if prod.ProductImage else None,
+                "section": item.section,
+                "section_display": item.get_section_display(),
+            })
+        return result
+
+    def get_themeName(self, obj):
+        if obj.theme:
+            return obj.theme.title
+        return None
+
+    def get_theme_id(self, obj):
+        if obj.theme:
+            return obj.theme.id
+        return None
+
+    def get_ThemeImage(self, obj):
+        if obj.theme and obj.theme.image:
+            return new_build_media_url(obj.theme.image)
+        return None
+
+    def get_category(self, obj):
+        if obj.theme and obj.theme.category:
+            return {
+                "id": obj.theme.category.id,
+                "name": obj.theme.category.categoryName,
+            }
+        return None
+
+    def get_description(self, obj):
+        if obj.theme:
+            return obj.theme.description
+        return None
+
+    def get_json_file_url(self, obj):
+        if not obj.json_file_path:
+            return None
+        return (
+            f"{settings.SITE_URL}"
+            f"{settings.MEDIA_URL}"
+            f"{obj.json_file_path.lstrip('/')}"
+        )
+
         
 # class CustomUpdateModelsSerializer(serializers.ModelSerializer):
 #     json_file_url = serializers.SerializerMethodField()
