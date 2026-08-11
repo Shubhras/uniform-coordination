@@ -1,4 +1,4 @@
-// File: /home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/uniform-kireiz-coordination/src/app/(public-pages)/dashboards/layout.jsx
+// File: /home/dell/Documents/Uniform/uniform-coordination/uniform-kireiz-coordination/src/app/(public-pages)/dashboards/layout.jsx
 import * as entry from '../../../../../src/app/(public-pages)/dashboards/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

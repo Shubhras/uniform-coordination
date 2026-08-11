@@ -1,4 +1,4 @@
-// File: /home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/admin-kireiz-coordination/src/app/(protected-pages)/auth/reset-password-side/page.jsx
+// File: /home/dell/Documents/Uniform/uniform-coordination/admin-kireiz-coordination/src/app/(protected-pages)/auth/reset-password-side/page.jsx
 import * as entry from '../../../../../../src/app/(protected-pages)/auth/reset-password-side/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

@@ -1,4 +1,4 @@
-// File: /home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/admin-kireiz-coordination/src/app/(protected-pages)/ui-components/alert/page.jsx
+// File: /home/dell/Documents/Uniform/uniform-coordination/admin-kireiz-coordination/src/app/(protected-pages)/ui-components/alert/page.jsx
 import * as entry from '../../../../../../src/app/(protected-pages)/ui-components/alert/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

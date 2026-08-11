@@ -1,4 +1,4 @@
-// File: /home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/uniform-kireiz-coordination/src/app/api/ai/images/route.jsx
+// File: /home/dell/Documents/Uniform/uniform-coordination/uniform-kireiz-coordination/src/app/api/ai/images/route.jsx
 import * as entry from '../../../../../../src/app/api/ai/images/route.js'
 import type { NextRequest } from 'next/server.js'
 

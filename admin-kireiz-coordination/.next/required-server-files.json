@@ -95,7 +95,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/admin-kireiz-coordination",
+    "outputFileTracingRoot": "/home/dell/Documents/Uniform/uniform-coordination/admin-kireiz-coordination",
     "experimental": {
       "nodeMiddleware": false,
       "cacheLife": {
@@ -153,7 +153,7 @@
       "middlewarePrefetch": "flexible",
       "optimisticClientCache": true,
       "manualClientBasePath": false,
-      "cpus": 15,
+      "cpus": 7,
       "memoryBasedWorkersCount": false,
       "imgOptConcurrency": null,
       "imgOptTimeoutInSeconds": 7,
@@ -283,10 +283,10 @@
       "@react-three/fiber"
     ],
     "turbopack": {
-      "root": "/home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/admin-kireiz-coordination"
+      "root": "/home/dell/Documents/Uniform/uniform-coordination/admin-kireiz-coordination"
     }
   },
-  "appDir": "/home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/admin-kireiz-coordination",
+  "appDir": "/home/dell/Documents/Uniform/uniform-coordination/admin-kireiz-coordination",
   "relativeAppDir": "",
   "files": [
     ".next/routes-manifest.json",
