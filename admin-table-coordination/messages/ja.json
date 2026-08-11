@@ -1,4 +1,15 @@
 {
+    "header": {
+        "home": "ホーム",
+        "uniformDesign": "ユニフォームデザイン",
+        "tableDesign": "テーブルデザイン",
+        "blog": "ブログ",
+        "faq": "よくある質問",
+        "navigation": "ナビゲーション",
+        "login": "ログイン",
+        "signup": "新規登録",
+        "signOut": "サインアウト"
+    },
     "nav": {
         "dashboard": {
             "dashboard": "Dashboard",
@@ -932,6 +943,71 @@
             }
         }
     },
+    "simulationAssets": {
+        "simulationStructure": {
+            "simulationStructure": "シミュレーション構成",
+            "tile": "シミュレーション素材",
+            "subtitle": "在庫、在庫状況、商品の利用可能状況を管理します。",
+            "defineLine": "シミュレーションツールに表示されるカテゴリーと属性を設定します。",
+            "simulationCategories": "シミュレーションのカテゴリー",
+            "attribute": "属性",
+            "showIn": "シミュレーションに表示",
+            "displayOrder": "表示順",
+            "action": "操作",
+            "noAttributes": "このカテゴリーには属性が設定されていません。",
+            "note": "注意：ここで有効にした属性は、お客様向けシミュレーションツールでアコーディオンやフィルターとして表示されます",
+            "cancel": "キャンセル",
+            "saving": "保存中...",
+            "saveStructure": "構成を保存",
+            "cancelledTitle": "取り消し",
+            "changesReverted": "最後に保存した状態に戻しました。",
+            "savedSuccess": "{category}のシミュレーション構成を保存しました。",
+            "saveFailed": "シミュレーション構成の保存に失敗しました。",
+            "saveError": "構成の保存中にエラーが発生しました。"
+        },
+        "productVisibility": {
+            "title": "商品の表示設定",
+            "subtitle": "シミュレーションで利用できる在庫商品を選択してください",
+            "catFabric": "カテゴリー・生地",
+            "showIn": "シミュレーションに表示",
+            "style": "スタイル",
+            "searchPlaceholder": "商品名で検索...",
+            "reset": "リセット",
+            "all": "すべて",
+            "allCategories": "すべてのカテゴリー",
+            "productName": "商品名",
+            "color": "カラー",
+            "action": "操作",
+            "noProducts": "商品が見つかりません。",
+            "updated": "商品の表示設定を更新しました。",
+            "updateFailed": "商品の表示設定の更新に失敗しました。",
+            "updateError": "商品の表示設定の更新中にエラーが発生しました。"
+        },
+        "previewSimulation": {
+            "title": "シミュレーションのプレビュー",
+            "sustitle": "シミュレーションで利用できる在庫商品を選択してください",
+            "shapeCircle": "円形",
+            "shapeRectangle": "長方形",
+            "shapeSquare": "正方形",
+            "catTablecloths": "テーブルクロス",
+            "catChairCovers": "チェアカバー",
+            "catNapkins": "ナプキン",
+            "catCenterpieces": "センターピース",
+            "catTableware": "食器",
+            "catAdditionalDecor": "その他の装飾",
+            "defaultOption": "既定のオプション",
+            "tip": "ヒント：",
+            "tipText": "テーブル上のアイテムを選択すると設定を編集できます。左のサイドバーからテーブルへドラッグすることもできます。",
+            "categoriesInventory": "カテゴリーと在庫",
+            "noAttributesEnabled": "このカテゴリーでは、シミュレーション構成で有効な属性がありません。",
+            "tablePreviewAlt": "テーブルのプレビュー",
+            "simulationPreviewAlt": "シミュレーションのプレビュー",
+            "inventoryPreviewAlt": "在庫のプレビュー",
+            "totalOrder": "注文合計",
+            "lastMonths": "直近4か月",
+            "newCustomers": "新規顧客"
+        }
+    },
     "userPermissions": {
         "users": {
             "title": "ユーザー・権限",
@@ -1154,5 +1230,127 @@
     },
     "errorTitle": {
         "error": "エラー"
+    },
+    "reportsAnalytics": {
+        "pageTitle": "レポートと分析",
+        "pageSubtitle": "在庫、在庫状況、商品の利用可能性を追跡します。",
+        "exportData": "データをエクスポート",
+        "exporting": "エクスポート中...",
+        "count": "件数",
+        "summaryCards": {
+            "totalRevenue": "総売上高",
+            "totalOrders": "総注文数",
+            "activeRentals": "アクティブなレンタル",
+            "inventoryItems": "在庫アイテム数",
+            "lateReturns": "返却遅延",
+            "customers": "顧客数"
+        },
+        "panels": {
+            "customerGrowth": "顧客の成長 (過去6か月)",
+            "customerSegments": "顧客セグメント",
+            "topRentedCategories": "人気レンタルカテゴリ",
+            "inventoryStatus": "在庫ステータス",
+            "growth": "成長"
+        },
+        "statusLabels": {
+            "Available": "利用可能",
+            "Rented": "レンタル中",
+            "Maintenance": "メンテナンス中",
+            "Damaged": "破損"
+        }
+    },
+    "systemSettings": {
+        "pageTitle": "システム設定",
+        "pageSubtitle": "会社情報、地域設定、初期設定を管理します。",
+        "tabs": {
+            "generalSettings": "一般設定",
+            "paymentSettings": "支払い設定",
+            "emailNotifications": "メールと通知"
+        },
+        "generalSettings": {
+            "companyNameLabel": "会社名",
+            "businessAddressLabel": "所在地",
+            "supportEmailLabel": "サポートメールアドレス",
+            "contactNumberLabel": "電話番号",
+            "defaultLanguageLabel": "デフォルト言語",
+            "defaultCurrencyLabel": "デフォルト通貨",
+            "timeZoneLabel": "タイムゾーン",
+            "dateFormatLabel": "日付形式",
+            "logoLabel": "ロゴ",
+            "companyLogoAlt": "会社ロゴ",
+            "uploadLogo": "ロゴをアップロード",
+            "edit": "編集",
+            "cancel": "キャンセル",
+            "saveChanges": "変更を保存"
+        },
+        "paymentSettings": {
+            "sectionTitle": "有効な支払い方法",
+            "sectionSubtitle": "チェックアウト時に利用可能な決済ゲートウェイ連携を切り替えます。",
+            "stripeSectionTitle": "Stripe API 認証情報",
+            "stripeSectionSubtitle": "クレジットカード決済を安全に処理するためのStripeキーを設定します。",
+            "stripePublishableKeyLabel": "Stripe 公開可能キー",
+            "stripeSecretKeyLabel": "Stripe シークレットキー",
+            "stripeWebhookSecretLabel": "Stripe Webhook シークレット",
+            "bankSectionTitle": "銀行口座の詳細",
+            "bankSectionSubtitle": "手動振込用の振込先銀行口座情報を設定します。",
+            "bankNameLabel": "銀行名",
+            "branchLabel": "支店名",
+            "accountNumberLabel": "口座番号",
+            "accountHolderLabel": "口座名義",
+            "edit": "編集",
+            "cancel": "キャンセル",
+            "saveChanges": "変更を保存",
+            "gateways": {
+                "kakebaraiLabel": "NP掛け払い (法人向けB2B)",
+                "kakebaraiDesc": "法人顧客が請求書払い(売掛決済)で支払うことを許可します。",
+                "creditCardLabel": "クレジットカード (Stripe)",
+                "creditCardDesc": "Stripe APIを経由した直接オンライン決済処理。",
+                "paypayLabel": "PayPay",
+                "paypayDesc": "日本を代表するQRコードモバイル決済を受け付けます。",
+                "conbiniLabel": "コンビニ決済",
+                "conbiniDesc": "日本のコンビニエンスストアでの支払いを許可します。",
+                "bankTransferLabel": "銀行振込",
+                "bankTransferDesc": "手動の直接銀行振込決済オプション。",
+                "applePayLabel": "Apple Pay (オプション)",
+                "applePayDesc": "iOSおよびmacOSユーザー向けの特急チェックアウトをサポートします。",
+                "googlePayLabel": "Google Pay (オプション)",
+                "googlePayDesc": "AndroidおよびChromeユーザー向けの特急チェックアウトをサポートします。"
+            }
+        },
+        "emailNotifications": {
+            "pageTitle": "メールと通知",
+            "smtpTitle": "SMTP サーバーの設定",
+            "smtpSubtitle": "取引メール送信用の外部メールプロバイダ詳細を設定します。",
+            "smtpHostLabel": "SMTP ホスト",
+            "smtpPortLabel": "SMTP ポート",
+            "usernameLabel": "ユーザー名",
+            "passwordLabel": "パスワード",
+            "senderNameLabel": "送信者名",
+            "senderEmailLabel": "送信者メールアドレス",
+            "useTlsLabel": "TLS 暗号化接続を使用する（推奨）",
+            "customerNotificationTitle": "顧客向け通知メール",
+            "customerNotificationSubtitle": "顧客イベントに基づく自動通知トリガーの有効化/無効化を設定します。",
+            "edit": "編集",
+            "cancel": "キャンセル",
+            "saveChanges": "変更を保存",
+            "items": {
+                "registrationLabel": "アカウント登録完了通知",
+                "registrationDesc": "ユーザーが正常に登録された際に即座に通知します。",
+                "orderPlacedLabel": "注文確定通知",
+                "orderPlacedDesc": "注文/レンタルが送信された際に領収書と詳細を送信します。",
+                "paymentSuccessLabel": "決済完了通知",
+                "paymentSuccessDesc": "クレジットカードまたは銀行振込の入金確認時に送信します。",
+                "paymentFailureLabel": "決済失敗アラート",
+                "paymentFailureDesc": "クレジットカードまたは決済試行が失敗した際に顧客へ通知します。",
+                "shippingLabel": "発送通知",
+                "shippingDesc": "追跡番号と配送詳細を顧客に送信します。",
+                "returnReceivedLabel": "返送品受領確認",
+                "returnReceivedDesc": "返送パッケージが検品・登録された際に顧客へ通知します。",
+                "returnOverdueLabel": "返却期日超過リマインダー",
+                "returnOverdueDesc": "猶予期間内にレンタル商品が返却されない場合に警告を送信します。",
+                "lateFeeLabel": "延滞金通知",
+                "lateFeeDesc": "適用される延滞金とその計算明細を顧客へ通知します。"
+            }
+        }
     }
 }

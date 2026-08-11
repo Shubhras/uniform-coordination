@@ -1,4 +1,15 @@
 {
+    "header": {
+        "home": "Home",
+        "uniformDesign": "Uniform Design",
+        "tableDesign": "Table Design",
+        "blog": "Blog",
+        "faq": "FAQ's",
+        "navigation": "Navigation",
+        "login": "Login",
+        "signup": "Sign Up",
+        "signOut": "Sign Out"
+    },
     "nav": {
         "dashboard": {
             "dashboard": "Dashboard",
@@ -1100,18 +1111,64 @@
             "simulationStructure": "Simulation Structure",
             "tile": "Simulation Assets",
             "subtitle": "Track inventory, stock status, and product availability.",
-            "defineLine": "Define the categories and attributes that appear in the simulation tool."
+            "defineLine": "Define the categories and attributes that appear in the simulation tool.",
+            "simulationCategories": "Simulation Categories",
+            "attribute": "Attribute",
+            "showIn": "Show in Simulation",
+            "displayOrder": "Display Order",
+            "action": "Action",
+            "noAttributes": "No attributes configured for this category.",
+            "note": "Note: Attributes that are enabled here will appear as accordions/filters in the customer simulation tool",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "saveStructure": "Save Structure",
+            "cancelledTitle": "Cancelled",
+            "changesReverted": "Changes reverted to last saved state.",
+            "savedSuccess": "Simulation structure for {category} saved successfully.",
+            "saveFailed": "Failed to save simulation structure.",
+            "saveError": "An error occurred while saving structure."
         },
         "productVisibility": {
             "title": "Product Visibility",
             "subtitle": "Choose which inventory items will be available in the simulation",
             "catFabric": "Category Fabric",
             "showIn": "Show in Simulation",
-            "style": "Style"
+            "style": "Style",
+            "searchPlaceholder": "Search by product name...",
+            "reset": "Reset",
+            "all": "All",
+            "allCategories": "All Categories",
+            "productName": "Product Name",
+            "color": "Color",
+            "action": "Action",
+            "noProducts": "No products found.",
+            "updated": "Product visibility updated.",
+            "updateFailed": "Failed to update product visibility.",
+            "updateError": "An error occurred while updating product visibility."
         },
         "previewSimulation": {
             "title": "Preview Simulation",
-            "sustitle": "Choose which inventory items will be available in the simulation"
+            "sustitle": "Choose which inventory items will be available in the simulation",
+            "shapeCircle": "Circle",
+            "shapeRectangle": "Rectangle",
+            "shapeSquare": "Square",
+            "catTablecloths": "Tablecloths",
+            "catChairCovers": "Chair Covers",
+            "catNapkins": "Napkins",
+            "catCenterpieces": "Centerpieces",
+            "catTableware": "Tableware",
+            "catAdditionalDecor": "Additional Decor",
+            "defaultOption": "Default Option",
+            "tip": "Tip:",
+            "tipText": "select an item on the table to edit its property, or drag items from the left sidebar onto the table.",
+            "categoriesInventory": "Categories & Inventory",
+            "noAttributesEnabled": "No attributes enabled for this category in Simulation Structure.",
+            "tablePreviewAlt": "table preview",
+            "simulationPreviewAlt": "Simulation preview",
+            "inventoryPreviewAlt": "Inventory preview",
+            "totalOrder": "Total Order",
+            "lastMonths": "Last 4 Month",
+            "newCustomers": "New Customers"
         }
     },
     "reportAnalytics": {
@@ -1133,26 +1190,97 @@
         "maintenance": "Maintenance"
     },
     "systemSettings": {
-        "generalSetting": {
-            "system": "System Settings",
-            "systemSubtitle": "Manage your company identity, regional preferences, and default configurations.",
-            "title": "General Settings",
-            "businessAdd": "Business Address",
-            "supportEmail": "Support Email",
-            "contactNo": "Contact Number",
-            "defaultLang": "Default Language",
-            "defaultCurrency": "Default Currency",
-            "timeZone": "Time Zone",
-            "dateFormat": "Date Format",
-            "logo": "Logo",
+        "pageTitle": "System Settings",
+        "pageSubtitle": "Manage your company identity, regional preferences, and default configurations.",
+        "tabs": {
+            "generalSettings": "General Settings",
+            "paymentSettings": "Payment Settings",
+            "emailNotifications": "Email & Notifications"
+        },
+        "generalSettings": {
+            "companyNameLabel": "Company Name",
+            "businessAddressLabel": "Business Address",
+            "supportEmailLabel": "Support Email",
+            "contactNumberLabel": "Contact Number",
+            "defaultLanguageLabel": "Default Language",
+            "defaultCurrencyLabel": "Default Currency",
+            "timeZoneLabel": "Time Zone",
+            "dateFormatLabel": "Date Format",
+            "logoLabel": "Logo",
+            "companyLogoAlt": "Company Logo",
+            "uploadLogo": "Upload Logo",
             "edit": "Edit",
+            "cancel": "Cancel",
             "saveChanges": "Save Changes"
         },
-        "paymentSetting": {
-            "title": "Payment Settings"
+        "paymentSettings": {
+            "sectionTitle": "Activated Payment Methods",
+            "sectionSubtitle": "Toggle payment gateway integrations available on checkout.",
+            "stripeSectionTitle": "Stripe API Credentials",
+            "stripeSectionSubtitle": "Configure Stripe payment keys to process credit cards safely.",
+            "stripePublishableKeyLabel": "Stripe Publishable Key",
+            "stripeSecretKeyLabel": "Stripe Secret Key",
+            "stripeWebhookSecretLabel": "Stripe Webhook Secret",
+            "bankSectionTitle": "Bank Account Details",
+            "bankSectionSubtitle": "Configure target Japanese bank info for manual transfers.",
+            "bankNameLabel": "Bank Name",
+            "branchLabel": "Bank Branch Name",
+            "accountNumberLabel": "Account Number",
+            "accountHolderLabel": "Account Holder Name",
+            "edit": "Edit",
+            "cancel": "Cancel",
+            "saveChanges": "Save Changes",
+            "gateways": {
+                "kakebaraiLabel": "NP Kakebarai (Corporate B2B)",
+                "kakebaraiDesc": "Allow corporate customers to pay on credit invoice.",
+                "creditCardLabel": "Credit Card (Stripe)",
+                "creditCardDesc": "Direct online payment processing via Stripe API.",
+                "paypayLabel": "PayPay",
+                "paypayDesc": "Accept Japan's leading QR code mobile payment.",
+                "conbiniLabel": "Convenience Store",
+                "conbiniDesc": "Allow payment at Japanese convenience stores.",
+                "bankTransferLabel": "Bank Transfer",
+                "bankTransferDesc": "Manual direct bank transfer payment option.",
+                "applePayLabel": "Apple Pay (Optional)",
+                "applePayDesc": "Support express checkout for iOS & macOS users.",
+                "googlePayLabel": "Google Pay (Optional)",
+                "googlePayDesc": "Support express checkout for Android & Chrome users."
+            }
         },
         "emailNotifications": {
-            "title": "Email & Notifications"
+            "pageTitle": "Email & Notifications",
+            "smtpTitle": "SMTP Server Configuration",
+            "smtpSubtitle": "Configure outward mail provider details for sending transaction emails.",
+            "smtpHostLabel": "SMTP Host",
+            "smtpPortLabel": "SMTP Port",
+            "usernameLabel": "Username",
+            "passwordLabel": "Password",
+            "senderNameLabel": "Sender Name",
+            "senderEmailLabel": "Sender Email Address",
+            "useTlsLabel": "Use TLS secure transfer connection (Recommended)",
+            "customerNotificationTitle": "Customer Notification Emails",
+            "customerNotificationSubtitle": "Activate or deactivate automated triggers based on customer events.",
+            "edit": "Edit",
+            "cancel": "Cancel",
+            "saveChanges": "Save Changes",
+            "items": {
+                "registrationLabel": "Account Registration Confirmation",
+                "registrationDesc": "Notify users instantly upon successful account registration.",
+                "orderPlacedLabel": "Order Confirmation",
+                "orderPlacedDesc": "Send receipt and details when an order/rental is placed.",
+                "paymentSuccessLabel": "Payment Confirmation",
+                "paymentSuccessDesc": "Send confirmation upon successful credit card or transfer receipt.",
+                "paymentFailureLabel": "Payment Failure Alert",
+                "paymentFailureDesc": "Alert customers when credit card or direct payment attempt fails.",
+                "shippingLabel": "Shipping Notification",
+                "shippingDesc": "Send tracking ID and carrier dispatch details to customer.",
+                "returnReceivedLabel": "Return Received Confirmation",
+                "returnReceivedDesc": "Notify customers when their returned package is inspected and logged.",
+                "returnOverdueLabel": "Return Overdue Reminder",
+                "returnOverdueDesc": "Send warning notice if rental products are not received within grace period.",
+                "lateFeeLabel": "Late Fee Notification",
+                "lateFeeDesc": "Informs customers of applicable late fees, including detailed calculations."
+            }
         }
     },
     "aiAutomation": {
@@ -1226,5 +1354,33 @@
     },
     "errorTitle": {
         "error": "Error"
+    },
+    "reportsAnalytics": {
+        "pageTitle": "Reports & Analytics",
+        "pageSubtitle": "Track inventory, stock status, and product availability.",
+        "exportData": "Export Data",
+        "exporting": "Exporting...",
+        "count": "Count",
+        "summaryCards": {
+            "totalRevenue": "TOTAL REVENUE",
+            "totalOrders": "TOTAL ORDERS",
+            "activeRentals": "ACTIVE RENTALS",
+            "inventoryItems": "INVENTORY ITEMS",
+            "lateReturns": "LATE RETURNS",
+            "customers": "CUSTOMERS"
+        },
+        "panels": {
+            "customerGrowth": "Customer Growth (Last 6 Months)",
+            "customerSegments": "Customer Segments",
+            "topRentedCategories": "Top Rented Categories",
+            "inventoryStatus": "Inventory Status",
+            "growth": "growth"
+        },
+        "statusLabels": {
+            "Available": "Available",
+            "Rented": "Rented",
+            "Maintenance": "Maintenance",
+            "Damaged": "Damaged"
+        }
     }
 }
