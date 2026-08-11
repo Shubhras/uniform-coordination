@@ -15,13 +15,20 @@ const authRoutes = Object.entries(_authRoutes).map(([key]) => key)
 
 const apiAuthPrefix = `${appConfig.apiPrefix}/auth`
 
+const BASE_PATH = ''
+
 export default auth((req) => {
     const { nextUrl } = req
     const isSignedIn = !!req.auth
 
-    const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix)
-    const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
-    const isAuthRoute = authRoutes.includes(nextUrl.pathname)
+    /** nextUrl.pathname includes the basePath; strip it for route matching */
+    const rawPathname = nextUrl.pathname.startsWith(BASE_PATH)
+        ? nextUrl.pathname.slice(BASE_PATH.length) || '/'
+        : nextUrl.pathname
+
+    const isApiAuthRoute = rawPathname.startsWith(apiAuthPrefix)
+    const isPublicRoute = publicRoutes.includes(rawPathname)
+    const isAuthRoute = authRoutes.includes(rawPathname)
 
     /** Skip auth middleware for api routes */
     if (isApiAuthRoute) return
@@ -30,7 +37,7 @@ export default auth((req) => {
         if (isSignedIn) {
             /** Redirect to authenticated entry path if signed in & path is auth route */
             return Response.redirect(
-                new URL(appConfig.authenticatedEntryPath, nextUrl),
+                new URL(BASE_PATH + appConfig.authenticatedEntryPath, nextUrl),
             )
         }
         return
@@ -45,7 +52,7 @@ export default auth((req) => {
 
         return Response.redirect(
             new URL(
-                `${appConfig.unAuthenticatedEntryPath}?${REDIRECT_URL_KEY}=${callbackUrl}`,
+                `${BASE_PATH}${appConfig.unAuthenticatedEntryPath}?${REDIRECT_URL_KEY}=${callbackUrl}`,
                 nextUrl,
             ),
         )

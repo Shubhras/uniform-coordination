@@ -78,7 +78,7 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
               Sign in instead
             </ActionLink>
           </div>
-          <div className="mt-4">
+          {/* <div className="mt-4">
             <div className="flex items-center gap-5 mb-2">
               <div className="border-t border-gray-200 dark:border-gray-800 flex-1 " />
               <p className="text-base">or</p>
@@ -88,7 +88,7 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
               setMessage={setMessage}
               onOauthSignIn={onOauthSignIn}
             />
-          </div>
+          </div> */}
         </div>
       </SplitSignup>
     </>

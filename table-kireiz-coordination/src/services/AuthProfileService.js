@@ -105,9 +105,12 @@ export async function apiSimulationHistory(token, params = {}) {
  * @param {string|number} id - Model simulation ID to export.
  * @returns {Promise<Object>} API response containing PDF export file URL.
  */
-export async function apiSimulationExportPdf(token, id) {
+export async function apiSimulationExportPdf(token, id, isTheme = false) {
+    const url = isTheme 
+        ? `/v1/space/userhub/customupdatethemes/${id}/export/`
+        : `/v1/space/userhub/customupdatemodels/${id}/export/`
     return ApiService.fetchDataWithAxios({
-        url: `/v1/space/userhub/customupdatemodels/${id}/export/`,
+        url: url,
         method: "get",
         headers: {
             Authorization: `Bearer ${token}`,

@@ -977,41 +977,364 @@ class CustomUpdateModelExportPDFAPIView(APIView):
         },status=status.HTTP_200_OK)
 
 
-class CustomModelsUserAPIView(APIView):
+class CustomUpdateThemesCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["CustomUpdate Theme"],
+        summary="Create custom update theme",
+        description="Create a new custom update theme simulation design save.",
+        request=CustomUpdateThemesSerializer,
+        responses={
+            201: OpenApiResponse(description="Custom update theme created successfully", response=CustomUpdateThemesSerializer),
+            500: OpenApiResponse(description="Server error"),
+        },
+    )
+    def post(self, request):
+        data = request.data.copy()
+        large_json = data.pop("json_data", None)
+        json_path = None
+        if large_json:
+            json_path = save_large_json_to_file(large_json)
+
+        theme_id = data.get("theme")
+        existing = CustomUpdateThemes.objects.filter(
+            user=request.user,
+            theme_id=theme_id,
+            isDeleted=False
+        ).first()
+
+        if existing:
+            serializer = CustomUpdateThemesSerializer(
+                existing,
+                data=data,
+                context={"request": request},
+                partial=True
+            )
+            try:
+                if serializer.is_valid(raise_exception=True):
+                    serializer.save(json_file_path=json_path or existing.json_file_path)
+                    return Response({
+                        "statusCode": 200,
+                        "status": True,
+                        "message": "Custom Update Theme updated successfully",
+                        "data": serializer.data
+                    }, status=status.HTTP_200_OK)
+            except serializers.ValidationError as e:
+                return Response({
+                    "statusCode": 400,
+                    "status": False,
+                    "message": "Invalid data provided.",
+                    "error": e.detail
+                }, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({
+                    "statusCode": 500,
+                    "status": False,
+                    "message": "Something went wrong on server",
+                    "error": str(e)
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        serializer = CustomUpdateThemesSerializer(data=data, context={"request": request})
+        try:
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(user=request.user, json_file_path=json_path)
+                return Response({
+                    "statusCode": 201,
+                    "status": True,
+                    "message": "Custom Update Theme created successfully",
+                    "data": serializer.data
+                }, status=status.HTTP_201_CREATED)
+        except IntegrityError as e:
+            existing_retry = CustomUpdateThemes.objects.filter(
+                user=request.user,
+                theme_id=theme_id,
+                isDeleted=False
+            ).first()
+            if existing_retry:
+                serializer = CustomUpdateThemesSerializer(
+                    existing_retry,
+                    data=data,
+                    context={"request": request},
+                    partial=True
+                )
+                if serializer.is_valid(raise_exception=True):
+                    serializer.save(json_file_path=json_path or existing_retry.json_file_path)
+                    return Response({
+                        "statusCode": 200,
+                        "status": True,
+                        "message": "Custom Update Theme updated successfully",
+                        "data": serializer.data
+                    }, status=status.HTTP_200_OK)
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "message": "You have already created a Custom Update Theme for this user and theme.",
+                "error": str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except serializers.ValidationError as e:
+            return Response({
+                "statusCode": 400,
+                "status": False,
+                "message": "Invalid data provided.",
+                "error": e.detail
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                "statusCode": 500,
+                "status": False,
+                "message": "Something went wrong on server",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class CustomUpdateThemesListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["CustomUpdate Theme"],
+        summary="List custom update themes",
+        description="Fetch all custom update themes. Optional filter by IDs.",
+        parameters=[
+            OpenApiParameter(
+                name="ids",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description="Comma-separated IDs (e.g. 1,2,3)",
+                required=False
+            )
+        ],
+        responses={
+            200: OpenApiResponse(description="Custom update themes fetched successfully", response=CustomUpdateThemesSerializer(many=True))
+        },
+    )
+    def get(self, request):
+        qs = CustomUpdateThemes.objects.filter(isDeleted=False)
+        ids = request.GET.get("ids")
+        if ids:
+            id_list = [int(i.strip()) for i in ids.split(",")]
+            qs = qs.filter(id__in=id_list)
+
+        serializer = CustomUpdateThemesSerializer(qs, many=True, context={"request": request})
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "data": serializer.data
+        })
+
+
+class CustomUpdateThemesDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["CustomUpdate Theme"],
+        summary="Get custom update theme detail",
+        description="Fetch a single custom update theme by ID",
+        parameters=[
+            OpenApiParameter(
+                name="id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                description="Custom update theme ID",
+                required=True
+            )
+        ],
+        responses={
+            200: OpenApiResponse(description="Custom update theme fetched successfully", response=CustomUpdateThemesSerializer),
+            404: OpenApiResponse(description="Custom update theme not found"),
+        },
+    )
+    def get(self, request, id):
+        obj = get_object_or_404(CustomUpdateThemes, id=id, isDeleted=False)
+        serializer = CustomUpdateThemesSerializer(obj, context={"request": request})
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "data": serializer.data
+        })
+
+
+class CustomUpdateThemesUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["CustomUpdate Theme"],
+        summary="Update custom update theme",
+        description="Update custom update theme fields.",
+        parameters=[
+            OpenApiParameter(
+                name="id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                description="Custom update theme ID",
+                required=True
+            )
+        ],
+        request=CustomUpdateThemesSerializer,
+        responses={
+            200: OpenApiResponse(description="Updated successfully", response=CustomUpdateThemesSerializer),
+            400: OpenApiResponse(description="Validation error"),
+            404: OpenApiResponse(description="Custom update theme not found"),
+        },
+    )
+    def put(self, request, id):
+        obj = get_object_or_404(CustomUpdateThemes, id=id, isDeleted=False)
+        data = request.data.copy()
+        data.pop("json_data", None)
+
+        serializer = CustomUpdateThemesSerializer(obj, data=data, partial=True, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "statusCode": 200,
+                "status": True,
+                "message": "Updated successfully",
+                "data": serializer.data
+            })
+        return Response({
+            "statusCode": 400,
+            "status": False,
+            "message": "Invalid data provided.",
+            "error": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomUpdateThemesDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["CustomUpdate Theme"],
+        summary="Delete custom update themes",
+        description="Delete custom update theme records.",
+        request=OpenApiTypes.OBJECT,
+        responses={
+            204: OpenApiResponse(description="Deleted successfully"),
+            400: OpenApiResponse(description="Validation error"),
+            404: OpenApiResponse(description="Not found"),
+        },
+    )
+    def delete(self, request):
+        ids = request.data.get("ids")
+        all_flag = request.data.get("all")
+
+        if all_flag:
+            queryset = CustomUpdateThemes.objects.all()
+            for obj in queryset:
+                if obj.json_file_path:
+                    file_path = os.path.join(settings.MEDIA_ROOT, obj.json_file_path)
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                obj.delete()
+            return Response({
+                "status": True,
+                "statusCode": 204,
+                "message": "All records deleted successfully."
+            }, status=status.HTTP_204_NO_CONTENT)
+
+        if not ids or not isinstance(ids, list):
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Please provide a list of IDs in 'ids' field or set 'all=true'."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = CustomUpdateThemes.objects.filter(id__in=ids)
+        if not queryset.exists():
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "No records found for given IDs."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        for obj in queryset:
+            if obj.json_file_path:
+                file_path = os.path.join(settings.MEDIA_ROOT, obj.json_file_path)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+            obj.delete()
+
+        return Response({
+            "status": True,
+            "statusCode": 204,
+            "message": f"{queryset.count()} record(s) deleted successfully."
+        }, status=status.HTTP_204_NO_CONTENT)
+
+
+class CustomUpdateThemeExportPDFAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["CustomUpdate Theme"],
+        summary="Export theme customization as PDF",
+        description="Generate and export a PDF for a specific theme customization.",
+        parameters=[
+            OpenApiParameter(
+                name="customization_id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                description="Customization ID",
+                required=True
+            )
+        ],
+        responses={
+            200: OpenApiResponse(description="PDF generated successfully"),
+            404: OpenApiResponse(description="Customization not found"),
+        },
+    )
+    def get(self, request, customization_id):
+        customization = CustomUpdateThemes.objects.filter(
+            id=customization_id,
+            user=request.user,
+            isDeleted=False
+        ).first()
+
+        if not customization:
+            return Response({
+                "statusCode": 404,
+                "status": False,
+                "message": "Customization not found"
+            }, status=404)
+
+        pdf_path = generate_theme_customization_pdf(customization, request.user)
+        pdf_url = request.build_absolute_uri(pdf_path)
+        return Response({
+            "StatusCode": 200,
+            "status": True,
+            "message": "export pdf successfully. ",
+            "pdf_url": pdf_url
+        }, status=status.HTTP_200_OK)
+
+
+class CustomThemesUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-
         category_slug = request.GET.get("category")
         sort = request.GET.get("sort", "new")
         range_days = request.GET.get("range")
         search = request.GET.get("search")
 
-        queryset = CustomUpdateModels.objects.filter(
+        queryset = CustomUpdateThemes.objects.filter(
             user=user,
             isDeleted=False
         ).select_related(
-            "model_info",
-            "model_info__product",
-            "model_info__product__category"
+            "theme",
+            "theme__category"
         )
 
         # Search
         if search:
             queryset = queryset.filter(
-                Q(model_info__product__productName__icontains=search) |
-                Q(model_info__product__description__icontains=search) |
-                Q(model_info__product__category__categoryName__icontains=search) |
-                Q(model_info__product__productType__icontains=search) |
-                Q(model_info__product__type__icontains=search) |
-                Q(model_info__product__table_shape__icontains=search)
+                Q(theme__title__icontains=search) |
+                Q(theme__description__icontains=search) |
+                Q(theme__category__categoryName__icontains=search)
             )
 
         # Category Filter
         if category_slug:
             queryset = queryset.filter(
-                model_info__product__category__slug=category_slug
+                theme__category__slug=category_slug
             )
 
         # Date Range Filter
@@ -1033,7 +1356,7 @@ class CustomModelsUserAPIView(APIView):
         paginator = CustomPagination()
         paginated_queryset = paginator.paginate_queryset(queryset, request)
 
-        serializer = CustomUpdateModelsSerializer(
+        serializer = CustomUpdateThemesSerializer(
             paginated_queryset,
             many=True,
             context={"request": request}
@@ -1044,14 +1367,120 @@ class CustomModelsUserAPIView(APIView):
             "status": True,
             "user_id": user.id,
             "message": "fetch data successfully",
-
-            # Added pagination info
             "page": int(request.query_params.get("page", 1)),
             "page_size": int(request.query_params.get("page_size", paginator.page_size)),
             "count": queryset.count(),
-
-            # Same key as before
             "data": serializer.data
+        }, status=status.HTTP_200_OK)
+
+
+class CustomModelsUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        category_slug = request.GET.get("category")
+        sort = request.GET.get("sort", "new")
+        range_days = request.GET.get("range")
+        search = request.GET.get("search")
+
+        queryset = CustomUpdateModels.objects.filter(
+            user=user,
+            isDeleted=False
+        ).select_related(
+            "model_info",
+            "model_info__product",
+            "model_info__product__category"
+        )
+
+        theme_queryset = CustomUpdateThemes.objects.filter(
+            user=user,
+            isDeleted=False
+        ).select_related(
+            "theme",
+            "theme__category"
+        )
+
+        # Search
+        if search:
+            queryset = queryset.filter(
+                Q(model_info__product__productName__icontains=search) |
+                Q(model_info__product__description__icontains=search) |
+                Q(model_info__product__category__categoryName__icontains=search) |
+                Q(model_info__product__productType__icontains=search) |
+                Q(model_info__product__type__icontains=search) |
+                Q(model_info__product__table_shape__icontains=search)
+            )
+            theme_queryset = theme_queryset.filter(
+                Q(theme__title__icontains=search) |
+                Q(theme__description__icontains=search) |
+                Q(theme__category__categoryName__icontains=search)
+            )
+
+        # Category Filter
+        if category_slug:
+            queryset = queryset.filter(
+                model_info__product__category__slug=category_slug
+            )
+            theme_queryset = theme_queryset.filter(
+                theme__category__slug=category_slug
+            )
+
+        # Date Range Filter
+        if range_days:
+            try:
+                days = int(range_days)
+                start_date = now() - timedelta(days=days)
+                queryset = queryset.filter(created_at__gte=start_date)
+                theme_queryset = theme_queryset.filter(created_at__gte=start_date)
+            except ValueError:
+                pass
+
+        # Serialize CustomUpdateModels
+        model_serializer = CustomUpdateModelsSerializer(
+            queryset,
+            many=True,
+            context={"request": request}
+        )
+        model_data = model_serializer.data
+        for item in model_data:
+            item["isTheme"] = False
+
+        # Serialize CustomUpdateThemes
+        theme_serializer = CustomUpdateThemesSerializer(
+            theme_queryset,
+            many=True,
+            context={"request": request}
+        )
+        theme_data = theme_serializer.data
+        for item in theme_data:
+            item["isTheme"] = True
+            item["productName"] = item.get("themeName")
+            item["ProductImage"] = item.get("ThemeImage")
+
+        # Merge them
+        combined_data = model_data + theme_data
+
+        # Sorting
+        if sort == "old":
+            combined_data.sort(key=lambda x: x.get("created_at", ""))
+        else:
+            combined_data.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+
+        # Pagination
+        paginator = CustomPagination()
+        paginated_data = paginator.paginate_queryset(combined_data, request)
+
+        return Response({
+            "statusCode": 200,
+            "status": True,
+            "user_id": user.id,
+            "message": "fetch data successfully",
+            "page": int(request.query_params.get("page", 1)),
+            "page_size": int(request.query_params.get("page_size", paginator.page_size)),
+            "count": len(combined_data),
+            "data": paginated_data
         }, status=status.HTTP_200_OK)
         
 class OrderHistoryAPIView(APIView):

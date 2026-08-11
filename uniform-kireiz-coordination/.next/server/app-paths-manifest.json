@@ -1,7 +1,0 @@
-{
-  "/(public-pages)/kireiz-form/page": "app/(public-pages)/kireiz-form/page.js",
-  "/(protected-pages)/profile/my-quotations/page": "app/(protected-pages)/profile/my-quotations/page.js",
-  "/(protected-pages)/profile/my-profile/page": "app/(protected-pages)/profile/my-profile/page.js",
-  "/(auth-pages)/sign-in/page": "app/(auth-pages)/sign-in/page.js",
-  "/(protected-pages)/profile/simulation-history/page": "app/(protected-pages)/profile/simulation-history/page.js"
-}

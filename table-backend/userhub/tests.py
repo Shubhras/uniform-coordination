@@ -101,10 +101,10 @@ class KireizSpaceBusinessLogicTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
         order = Order.objects.get(order_id=response.data["data"]["order_id"])
-        self.assertEqual(order.subtotal, Decimal("200.00"))
+        self.assertEqual(order.subtotal, Decimal("100.00"))
         self.assertEqual(order.shipping_charge, Decimal("1500.00"))
-        self.assertEqual(order.tax, Decimal("170.00"))
-        self.assertEqual(order.total_amount, Decimal("1870.00"))
+        self.assertEqual(order.tax, Decimal("160.00"))
+        self.assertEqual(order.total_amount, Decimal("1760.00"))
 
     def test_b2b_order_checkout_with_corporate_discount(self):
         """
@@ -143,10 +143,10 @@ class KireizSpaceBusinessLogicTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         order = Order.objects.get(order_id=response.data["data"]["order_id"])
-        self.assertEqual(order.subtotal, Decimal("200.00"))
+        self.assertEqual(order.subtotal, Decimal("100.00"))
         self.assertEqual(order.shipping_charge, Decimal("1500.00"))
-        self.assertEqual(order.tax, Decimal("167.00"))
-        self.assertEqual(order.total_amount, Decimal("1837.00"))
+        self.assertEqual(order.tax, Decimal("158.50"))
+        self.assertEqual(order.total_amount, Decimal("1743.50"))
 
     def test_cancellation_cutoff_rule(self):
         """

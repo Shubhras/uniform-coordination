@@ -119,3 +119,19 @@ export async function apiSindleOrderDetials(token, id) {
     data: data,
   });
 }
+
+/**
+ * Fetches existing customer details for form auto-filling.
+ *
+ * @param {string} token - User authentication Bearer token.
+ * @returns {Promise<Object>} API response with customer details.
+ */
+export async function apiGetCustomerDetails(token) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/space/userhub/customer/details/",
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
