@@ -257,7 +257,6 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 # CORS_ALLOW_ALL_ORIGINS = True
 
-<<<<<<< HEAD
 # nginx terminates TLS and forwards X-Forwarded-Proto; without this Django
 # treats the request as http and rejects https Origins on POST (CSRF).
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -269,15 +268,6 @@ CSRF_TRUSTED_ORIGINS = [
     "https://table-admin.dxtspace.com",
 ]
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "moriji345@gmail.com"
-EMAIL_HOST_PASSWORD = "hqymjygpiifyfdfg"
-EMAIL_HOST_USER="sourabh.mori1digiprima@gmail.com"
-EMAIL_HOST_PASSWORD="xuwkrhblrzorjyyj"
-=======
 # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 # EMAIL_HOST = "smtp.gmail.com"
 # EMAIL_PORT = 587
@@ -286,7 +276,6 @@ EMAIL_HOST_PASSWORD="xuwkrhblrzorjyyj"
 # EMAIL_HOST_PASSWORD = "hqymjygpiifyfdfg"
 # EMAIL_HOST_USER="sourabh.mori1digiprima@gmail.com"
 # EMAIL_HOST_PASSWORD="xuwkrhblrzorjyyj"
->>>>>>> b08f54d8c7c5fcdd8028336081193022f0c48c14
 
 
 import os
