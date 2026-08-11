@@ -15,7 +15,7 @@ import { RiTable2 } from 'react-icons/ri'
 import { TbTable } from 'react-icons/tb'
 import { IoIosArrowForward } from 'react-icons/io'
 import { FiMinus, FiPlus } from "react-icons/fi";
-import { apiModelInfoCreate, apiSaveDesign } from '@/services/SaveDesignService'
+import { apiModelInfoCreate, apiSaveDesign, apiSaveThemeDesign } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
@@ -362,24 +362,66 @@ const Uniform3DmoduleDegisn = () => {
 
   /** Initialize and submit 3D model info payload */
   const handleUniformDesignResult = async () => {
-
-    let productId = "";
-    if (id) {
-      productId = id;
-    } else {
-      productId = "";
-    }
-    let themeId = "";
-    if (themeIdParam) {
-      themeId = themeIdParam;
-    } else {
-      themeId = "";
+    if (!session?.accessToken) {
+      toast.push(
+        <Notification title="Login Required" type="warning">
+          Please sign in first to continue.
+        </Notification>
+      );
+      return;
     }
 
     setIsSubmitting(true);
+
+    if (themeIdParam) {
+      // Theme Simulation Mode
+      const payload = {
+        user: session?.user?.id,
+        theme: parseInt(themeIdParam, 10),
+        config_json: {
+          table_shape: tableShape,
+          table_scale: String(tableScale),
+          table_sitting: String(tableSitting),
+        },
+        design_specifications: selectedOptions,
+        isActive: true,
+      };
+
+      try {
+        const response = await apiSaveThemeDesign(payload, session.accessToken);
+        if (response?.status) {
+          toast.push(
+            <Notification title="Success!" type="success">
+              Theme design saved successfully
+            </Notification>
+          );
+          const customThemeId = response.data?.id;
+          router.push(`/dashboards/theme-design-result/${customThemeId}`);
+        } else {
+          toast.push(
+            <Notification title="Error!" type="danger">
+              {response?.message || "Failed to save theme design"}
+            </Notification>
+          );
+        }
+      } catch (error) {
+        console.error("Save Theme Design Error:", error);
+        toast.push(
+          <Notification title="Error!" type="danger">
+            Something went wrong saving theme design.
+          </Notification>
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
+    // Product Simulation Mode (original logic)
+    let productId = id || "";
     const formData = new FormData();
     formData.append("product", productId);
-    formData.append("theme_id", themeId);
+    formData.append("theme_id", "");
     formData.append("model_file", "");
     formData.append("description", "School uniform 3D model");
 
@@ -406,6 +448,7 @@ const Uniform3DmoduleDegisn = () => {
       setIsSubmitting(false);
     }
   };
+
 
   /** Save complete design specification payload and navigate to result page */
   const handleSaveDesign = async (modelId) => {

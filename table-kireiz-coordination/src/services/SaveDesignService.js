@@ -91,3 +91,73 @@ export async function apiGetModalInfoDesignById(id, token) {
   });
 }
 
+/**
+ * Saves customized theme simulation configuration.
+ * 
+ * @param {Object} data - Theme simulation payload containing config_json and design_specifications.
+ * @param {string} token - User authentication Bearer token.
+ */
+export async function apiSaveThemeDesign(data, token) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/space/userhub/customupdatethemes/create/",
+    method: "post",
+    data,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+/**
+ * Updates an existing customized theme simulation design by ID.
+ * 
+ * @param {string|number} id - Target saved design ID.
+ * @param {Object} data - Updated simulation payload.
+ * @param {string} token - User authentication Bearer token.
+ */
+export async function apiUpdateThemeDesign(id, data, token) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/userhub/customupdatethemes/${id}/update/`,
+    method: "put",
+    data,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+/**
+ * Fetches customized theme design details by ID.
+ * 
+ * @param {string|number} id - Target saved design ID.
+ * @param {string} token - User authentication token.
+ */
+export async function apiGetThemeDesignById(id, token) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/userhub/customupdatethemes/${id}/get/`,
+    responseType: "json",
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+/**
+ * Exports theme simulation spec sheet to PDF.
+ * 
+ * @param {string|number} id - Target saved design ID.
+ * @param {string} token - User authentication token.
+ */
+export async function apiExportThemeDesignPdf(id, token) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/userhub/customupdatethemes/${id}/export/`,
+    method: "get",
+    responseType: "json",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+
