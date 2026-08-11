@@ -123,6 +123,7 @@ class Cart(models.Model):
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey("uniformAdmin.Product", on_delete=models.CASCADE)
+    custom_theme = models.ForeignKey("CustomUpdateThemes", on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)  
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0)
@@ -197,6 +198,7 @@ class Order(models.Model):
     shipping_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0,null=True,blank=True)
     tax = models.DecimalField(max_digits=10, decimal_places=2, default=0,null=True,blank=True)
     cart = models.ForeignKey(Cart,on_delete=models.SET_NULL,null=True,blank=True)
+    custom_theme = models.ForeignKey("CustomUpdateThemes", on_delete=models.SET_NULL, null=True, blank=True)
     customer =models.ForeignKey(CustomerDetails,on_delete=models.SET_NULL,null=True,blank=True)
     payment_method = models.CharField(max_length=500,null=True,blank=True)
     currency = models.CharField(max_length=10,null=True,blank=True)
@@ -233,6 +235,7 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order =models.ForeignKey(Order,on_delete=models.CASCADE,related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    custom_theme = models.ForeignKey("CustomUpdateThemes", on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
     rental_days = models.PositiveIntegerField(default=1)
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2,null = True, blank=True)
@@ -323,6 +326,7 @@ class Payment(models.Model):
     ]
    
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    custom_theme = models.ForeignKey("CustomUpdateThemes", on_delete=models.SET_NULL, null=True, blank=True)
     payment_id = models.CharField(max_length=255, unique=True)
     customer_id = models.CharField(max_length=255, blank=True, null=True)  
     payment_method_id = models.CharField(max_length=100, blank=True, null=True) 
@@ -575,6 +579,27 @@ class ContractAuditLog(models.Model):
 
     def __str__(self):
         return f"{self.contract.contract_id} - {self.action} at {self.created_at}"
+
+
+class CustomUpdateThemes(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, blank=True)
+    theme = models.ForeignKey(TableTheme, on_delete=models.CASCADE, null=True, blank=True)
+
+    config_json = models.JSONField(default=dict, null=True, blank=True)
+    design_specifications = models.JSONField(default=dict, null=True, blank=True)
+
+    json_file_path = models.CharField(max_length=500, null=True, blank=True, help_text="Stored JSON file path")
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'theme')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user} → {self.theme}"
+
 
 
 

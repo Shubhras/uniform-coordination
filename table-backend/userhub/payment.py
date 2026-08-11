@@ -264,6 +264,7 @@ class CreatePaymentAPIView(APIView):
         if payment_method == "bank_transfer":
             payment = Payment.objects.create(
                 order=order,
+                custom_theme=order.custom_theme,
                 payment_id=f"BT-{order.order_id}",
                 customer_id="",
                 payment_method_id="",
@@ -298,6 +299,7 @@ class CreatePaymentAPIView(APIView):
         elif payment_method == "paypay":
             payment = Payment.objects.create(
                 order=order,
+                custom_theme=order.custom_theme,
                 payment_id=f"PP-{order.order_id}",
                 customer_id="",
                 payment_method_id="",
@@ -327,6 +329,7 @@ class CreatePaymentAPIView(APIView):
         elif payment_method == "np_kakebarai":
             payment = Payment.objects.create(
                 order=order,
+                custom_theme=order.custom_theme,
                 payment_id=f"NP-{order.order_id}",
                 customer_id="",
                 payment_method_id="",
@@ -407,6 +410,7 @@ class CreatePaymentAPIView(APIView):
 
             payment = Payment.objects.create(
                 order=order,
+                custom_theme=order.custom_theme,
                 payment_id=intent.id,
                 customer_id=customer_id,
                 payment_method_id=payment_method_id,
