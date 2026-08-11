@@ -1364,6 +1364,27 @@
             "saveChanges": "Save Changes"
         }
     },
+    "simulationAssets": {
+        "breadcrumbDashboard": "Admin Dashboard",
+        "breadcrumbCurrent": "Simulation Assets",
+        "pageTitle": "Simulation Assets",
+        "pageSubtitle": "Layer order and canvas registration for uniform part images.",
+        "scopeNote": "Layers are drawn bottom to top in the order below. Offsets position each part image on the canvas. Colour and material mapping is not configured here yet — that depends on the outstanding decision on how colour is applied (pre-rendered image swap vs. canvas tinting).",
+        "missingImages": "{count, plural, one {# part has no image uploaded. It will render as a gap in the simulation — add artwork under Product & Specification → Parts.} other {# parts have no image uploaded. They will render as gaps in the simulation — add artwork under Product & Specification → Parts.}}",
+        "searchPlaceholder": "Search part or fabric...",
+        "noSearchResults": "No layers match that search",
+        "noParts": "No uniform parts yet",
+        "noPartsDescription": "Parts created under Product & Specification appear here as simulation layers.",
+        "layerCount": "{count, plural, one {# layer · drag to restack} other {# layers · drag to restack}}",
+        "stackDirection": "Top of stack ↑ · bottom ↓",
+        "noImage": "no image",
+        "pixels": "px",
+        "errorTitle": "Error",
+        "loadFailed": "Could not load simulation layers",
+        "reorderFailed": "Reorder failed",
+        "saveOrderFailed": "Could not save the layer order",
+        "saveOffsetFailed": "Could not save the offset"
+    },
     "reportsAnalytics": {
         "pageTitle": "Reports & Analytics",
         "pageSubtitle": "Quotation funnel, customers and catalog usage.",
@@ -1563,6 +1584,9 @@
         "noData": "No quotations found",
         "showingRange": "Showing {from}–{to}"
     },
+    "pagination": {
+        "showingRange": "Showing {from}–{to}"
+    },
     "adminTopHeader": {
         "openMenu": "Open menu",
         "admin": "Admin",
@@ -1584,4 +1608,6 @@
         "hAgo": "{count}h ago",
         "dAgo": "{count}d ago"
     }
+
+    
 }
