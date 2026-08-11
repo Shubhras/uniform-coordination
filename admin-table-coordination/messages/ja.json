@@ -240,5 +240,57 @@
             "utilsDoc": "Utilities",
             "changeLog": "Changelog"
         }
+    },
+  "productSpecification": {
+    "fabric": {
+      "productManagement": "製品・仕様管理",
+      "productSubtitle": "生地、パーツ、カラー、オプション、テンプレートを管理します",
+      "fabrics": "生地",
+      "colors": "カラー",
+      "fabriLibrary": "生地ライブラリ",
+      "fabricTotal": "生地の合計",
+      "searchFabric": "生地を検索...",
+      "fabricName": "生地名",
+      "color": "カラー",
+      "addFabric": "新しい生地を追加",
+      "pricePer": "単価",
+      "actions": "操作",
+      "materialType": "素材タイプ",
+      "material": "素材",
+      "category": "カテゴリー",
+      "subCategory": "サブカテゴリー",
+      "status": "ステータス",
+      "active": "有効",
+      "update": "更新",
+      "inactive": "無効",
+      "cancel": "キャンセル",
+      "colorCodeHelp": "カラーを選択するか、HEXコードを入力してください",
+      "addAnother": "保存して続けて追加",
+      "showing": "表示中",
+      "save": "保存",
+      "deleteFabric": "生地を削除",
+      "deleteFabricContent": "この生地を削除してもよろしいですか？この操作は元に戻せません。",
+      "Delete": "削除",
+      "deleting": "削除中...",
+      "editFabric": "生地を編集",
+      "noFabricsFound": "生地が見つかりません"
+    },
+    "color": {
+      "palette": "カラーパレット",
+      "colorAvailable": "利用可能なカラー",
+      "searchColor": "カラーを検索...",
+      "addColor": "カラーを追加",
+      "duplicate": "複製",
+      "addNewColor": "新しいカラーを追加",
+      "colorName": "カラー名",
+      "hexCode": "HEXコード",
+      "compatibleFabric": "対応する生地",
+      "enterColorname": "カラー名を入力",
+      "selectFabric": "対応する生地を選択",
+      "colorPlaceholder": "カラーを選択",
+      "edit": "編集"
     }
+  }
+
+
 }
