@@ -389,6 +389,8 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
     def get_item_name(self, obj):
+        if obj.custom_theme and obj.custom_theme.theme:
+            return obj.custom_theme.theme.title
         item = obj.items.select_related("product").first()
         if item and item.product:
             return item.product.productName
@@ -396,6 +398,10 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_item_image(self, obj):
         request = self.context.get("request")
+        if obj.custom_theme and obj.custom_theme.theme and obj.custom_theme.theme.image:
+            if request:
+                return request.build_absolute_uri(obj.custom_theme.theme.image.url)
+            return obj.custom_theme.theme.image.url
         item = obj.items.select_related("product").first()
 
         if (
@@ -435,17 +441,24 @@ class userOrderSerializer(serializers.ModelSerializer):
     delivery_address = serializers.SerializerMethodField()
     order_items = serializers.SerializerMethodField()
     payment_summary = serializers.SerializerMethodField()
+    contract_info = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = "__all__"
 
     def get_item_name(self, obj):
+        if obj.custom_theme and obj.custom_theme.theme:
+            return obj.custom_theme.theme.title
         item = obj.items.select_related("product").first()
         return item.product.productName if item and item.product else None
 
     def get_item_image(self, obj):
         request = self.context.get("request")
+        if obj.custom_theme and obj.custom_theme.theme and obj.custom_theme.theme.image:
+            if request:
+                return request.build_absolute_uri(obj.custom_theme.theme.image.url)
+            return obj.custom_theme.theme.image.url
         item = obj.items.select_related("product").first()
 
         if item and item.product and item.product.ProductImage:
@@ -453,6 +466,26 @@ class userOrderSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(item.product.ProductImage.url)
             return item.product.ProductImage.url
         return None
+
+    def get_contract_info(self, obj):
+        contract = obj.contracts.order_by("-created_at").first()
+        if not contract:
+            return None
+        request = self.context.get("request")
+        signed_pdf_url = None
+        if contract.signed_pdf:
+            if request:
+                signed_pdf_url = request.build_absolute_uri(contract.signed_pdf.url)
+            else:
+                signed_pdf_url = contract.signed_pdf.url
+        return {
+            "contract_id": contract.contract_id,
+            "contract_status": contract.contract_status,
+            "workflow_status": contract.workflow_status,
+            "created_at": contract.created_at.isoformat() if contract.created_at else None,
+            "signed_at": contract.signed_at.isoformat() if contract.signed_at else None,
+            "signed_pdf": signed_pdf_url,
+        }
 
     def get_delivery_address(self, obj):
         customer = obj.customer
@@ -562,7 +595,7 @@ class userOrderSerializer(serializers.ModelSerializer):
     
 class PaymentSerializer(serializers.ModelSerializer):
     cartitem =CartItemSerializer(read_only=True)
-    order = OrderSerializer(read_only=True)
+    order = userOrderSerializer(read_only=True)
 
     class Meta:
         model = Payment

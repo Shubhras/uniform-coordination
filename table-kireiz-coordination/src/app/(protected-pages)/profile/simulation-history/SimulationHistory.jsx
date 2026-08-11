@@ -64,8 +64,12 @@ const SimulationHistory = () => {
 
     const router = useRouter()
 
-    const handleRedirect = (id) => {
-        router.push(`/dashboards/design-result/${id}`)
+    const handleRedirect = (id, isTheme) => {
+        if (isTheme) {
+            router.push(`/dashboards/theme-design-result/${id}`)
+        } else {
+            router.push(`/dashboards/design-result/${id}`)
+        }
     }
 
     const fetchHomeData = async () => {
@@ -79,14 +83,14 @@ const SimulationHistory = () => {
         }
     }
 
-    const handlePdfDownload = async (id) => {
+    const handlePdfDownload = async (id, isTheme) => {
         try {
             if (!session?.accessToken || !id) return
 
             setPdfLoadingId(id)
             setPdfError('')
 
-            const res = await apiSimulationExportPdf(session.accessToken, id)
+            const res = await apiSimulationExportPdf(session.accessToken, id, isTheme)
 
             if (res?.status && res?.pdf_url) {
                 window.open(res.pdf_url, '_blank')
@@ -365,7 +369,7 @@ const SimulationHistory = () => {
                                             className="flex-[2] bg-[#A0522D] hover:bg-[#A0522D] text-white py-2 rounded-md text-xs sm:text-sm"
                                             size="sm"
                                             icon={<FiExternalLink size={14} />}
-                                            onClick={() => handleRedirect(item?.id)}
+                                            onClick={() => handleRedirect(item?.id, item?.isTheme)}
                                         >
                                             OPEN
                                         </Button>
@@ -375,7 +379,7 @@ const SimulationHistory = () => {
                                             size="sm"
                                             variant="default"
                                             icon={<LiaFileDownloadSolid size={14} />}
-                                            onClick={() => handlePdfDownload(item?.id)}
+                                            onClick={() => handlePdfDownload(item?.id, item?.isTheme)}
                                             disabled={pdfLoadingId === item?.id}
                                         >
                                             {pdfLoadingId === item?.id ? '...' : 'PDF'}

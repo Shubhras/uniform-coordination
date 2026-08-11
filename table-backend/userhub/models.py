@@ -224,9 +224,25 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.order_id:
-            prefix = "ORD"
-            uid = uuid.uuid4().hex[:6].upper()
-            self.order_id = f"{prefix}-{uid}"
+            from django.utils import timezone
+            year_str = timezone.now().strftime("%y")
+            prefix = f"ORD{year_str}-"
+            
+            latest_order = Order.objects.filter(order_id__startswith=prefix).order_by("-order_id").first()
+            if latest_order and latest_order.order_id:
+                try:
+                    parts = latest_order.order_id.split("-")
+                    if len(parts) == 2:
+                        last_num = int(parts[1])
+                        next_num = last_num + 1
+                    else:
+                        next_num = 1
+                except (ValueError, IndexError):
+                    next_num = 1
+            else:
+                next_num = 1
+            
+            self.order_id = f"{prefix}{next_num:05d}"
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -562,9 +578,25 @@ class Contract(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.contract_id:
-            prefix = "CTR"
-            uid = uuid.uuid4().hex[:6].upper()
-            self.contract_id = f"{prefix}-{uid}"
+            from django.utils import timezone
+            year_str = timezone.now().strftime("%y")
+            prefix = f"CTR{year_str}-"
+            
+            latest_contract = Contract.objects.filter(contract_id__startswith=prefix).order_by("-contract_id").first()
+            if latest_contract and latest_contract.contract_id:
+                try:
+                    parts = latest_contract.contract_id.split("-")
+                    if len(parts) == 2:
+                        last_num = int(parts[1])
+                        next_num = last_num + 1
+                    else:
+                        next_num = 1
+                except (ValueError, IndexError):
+                    next_num = 1
+            else:
+                next_num = 1
+                
+            self.contract_id = f"{prefix}{next_num:05d}"
         super().save(*args, **kwargs)
 
     def __str__(self):
