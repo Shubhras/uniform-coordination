@@ -9,6 +9,7 @@ import {
   FiChevronRight,
   FiX,
 } from "react-icons/fi";
+import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetFabricList, apiDeleteFabric } from "@/services/FabricService";
 import Spinner from "@/components/ui/Spinner";
@@ -19,6 +20,7 @@ import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
 
 const FabricsTab = () => {
+  const t = useTranslations("productSpecification.fabric");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -123,10 +125,11 @@ const FabricsTab = () => {
       <div className="flex justify-between sm:flex-row flex-col items-start mb-4 gap-2">
         <div>
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            Fabric Library
+            {/* Fabric Library */}
+            {t("fabriLibrary")}
           </h2>
           <p className="text-base text-[#486284]">
-            {pagination.total_items} fabrics total
+            {pagination.total_items} {t("fabricTotal")}
           </p>
         </div>
 
@@ -137,7 +140,7 @@ const FabricsTab = () => {
           }}
           className="bg-[#A0522D] text-white px-4 py-2 font-semibold rounded-md text-sm"
         >
-          + Add New Fabric
+          + {t("addFabric")}
         </button>
       </div>
 
@@ -149,7 +152,7 @@ const FabricsTab = () => {
         />
         <input
           type="text"
-          placeholder="Search Fabrics..."
+          placeholder={t("searchFabric")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm"
@@ -171,14 +174,20 @@ const FabricsTab = () => {
         <table className="w-full text-sm">
           <thead className="bg-[#F1F5F9] text-[#486284]">
             <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-              <th className="text-left px-5 py-4 font-medium">Fabric Name</th>
-              <th className="text-left px-5 py-4 font-medium">Color</th>
-              <th className="text-left px-5 py-4 font-medium">Material</th>
               <th className="text-left px-5 py-4 font-medium">
-                Price per Unit
+                {t("fabricName")}
               </th>
-              <th className="text-left px-5 py-4 font-medium">Status</th>
-              <th className="text-left px-5 py-4 font-medium">Actions</th>
+              <th className="text-left px-5 py-4 font-medium">{t("color")}</th>
+              <th className="text-left px-5 py-4 font-medium">
+                {t("material")}
+              </th>
+              <th className="text-left px-5 py-4 font-medium">
+                {t("pricePer")}
+              </th>
+              <th className="text-left px-5 py-4 font-medium">{t("status")}</th>
+              <th className="text-left px-5 py-4 font-medium">
+                {t("actions")}
+              </th>
             </tr>
           </thead>
 
@@ -194,7 +203,7 @@ const FabricsTab = () => {
             ) : fabrics.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-10 text-[#64748B]">
-                  No fabrics found
+                  {t("noFabricsFound")}
                 </td>
               </tr>
             ) : (
@@ -300,8 +309,8 @@ const FabricsTab = () => {
           setFabricToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Fabric"
-        message="Are you sure you want to delete this fabric? This action cannot be undone."
+        title={t("deleteFabric")}
+        message={t("deleteFabricContent")}
         itemName={fabricToDelete?.fabricName}
         loading={deleteLoading}
       />

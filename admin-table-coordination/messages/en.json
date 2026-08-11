@@ -241,6 +241,20 @@
             "changeLog": "Changelog"
         }
     },
+    "adminSidebar": {
+        "dashboard": "Dashboard",
+        "productSpecification": "Product & Specification",
+        "contentMedia": "Content & Media",
+        "pricingQuotation": "Pricing & Quotation",
+        "customerSalesRepresentative": "Customer & Sales Representative",
+        "pdfSimulationConfiguration": "PDF & Simulation Configuration",
+        "simulationAssets": "Simulation Assets",
+        "reportsAnalytics": "Reports & Analytics",
+        "systemSettings": "System Settings",
+        "quotationRequests": "Quotation Requests",
+        "kfAdminPanel": "KF Admin Panel",
+        "toggleSidebar": "Toggle sidebar"
+    },
     "dashboard":{
          "welcomeContent": {
             "createTheme": "Create Theme",
@@ -281,7 +295,7 @@
         "colors":"Colors",
         "fabriLibrary":"Fabric Library",
         "fabricTotal":"fabrics total",
-        "searchFabric":"Search Fabrics....",
+        "searchFabric":"Search Fabrics...",
         "fabricName":"Fabric Name",
         "color":"Color",
         "addFabric":"Add New Fabric",
@@ -292,15 +306,20 @@
         "category":"Category",
         "subCategory":"Sub Category",
         "status":"Status",
+        "update":"Update",
         "active":"Active",
+        "inactive":"Inactive",
         "cancel":"Cancel",
+        "colorCodeHelp": "Choose a color or enter a HEX code",
         "addAnother":"Save & Add Another",
         "showing":"Showing",
         "save":"Save",
         "deleteFabric":"Delete Fabric",
         "deleteFabricContent":"Are you sure you want to delete this fabric? This action cannot be undone.",
         "Delete":"Delete",
-        "editFabric":"Edit Fabric"
+        "deleting": "Deleting...",
+        "editFabric":"Edit Fabric",
+        "noFabricsFound": "No fabrics found"
         },
         "color":{
             "palette":"Color Palette",
@@ -314,7 +333,8 @@
             "compatibleFabric":"Compatible Fabrics",
             "enterColorname":"Enter Color Name",
             "selectFabric":"Select compatible fabrics",
-            "colorPlaceholder":"Select Color"
+            "colorPlaceholder":"Select Color",
+            "edit": "Edit"
 
         }
     },
