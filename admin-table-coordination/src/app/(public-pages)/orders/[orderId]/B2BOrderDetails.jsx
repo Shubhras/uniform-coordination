@@ -20,8 +20,11 @@ import {
 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import StatusModal from "./StatusModal";
+import { useTranslations } from "next-intl";
 
 export default function B2BOrderDetails({ orderId }) {
+  const t = useTranslations("orderRetals.viewOrder");
+  const tb = useTranslations("orderRetals.b2bOrder");
   const router = useRouter();
   const [openReturnModal, setOpenReturnModal] = useState(false);
   const [openTimeline, setOpenTimeline] = useState(false);
@@ -82,7 +85,7 @@ export default function B2BOrderDetails({ orderId }) {
 
             <div className="flex items-center gap-4">
               <h1 className="text-[30px] font-bold text-[#2E241D]">
-                Order & Rental Details
+                {t("orderDetails")}
               </h1>
 
               <span
@@ -105,7 +108,7 @@ export default function B2BOrderDetails({ orderId }) {
             onClick={() => setOpenReturnModal(true)}
             className="bg-[#A85A32] hover:bg-[#95502D] text-white px-5 py-2 rounded-lg text-sm font-semibold"
           >
-            Mark As Returned
+            {t("markAsReturnedAction")}
           </button>
         </div>
 
@@ -113,7 +116,7 @@ export default function B2BOrderDetails({ orderId }) {
         <div className="bg-white border border-[#EEE3DA] rounded-2xl p-4 mb-7">
           <div className="flex items-center gap-2 text-[#7A6E66] font-semibold text-[12px] mb-7">
             <FiBriefcase size={18} className="text-[#A0522D]" />
-            COMPANY INFORMATION
+            {tb("companyInformation")}
           </div>
 
           <div className="grid grid-cols-3 gap-y-8">
@@ -128,7 +131,7 @@ export default function B2BOrderDetails({ orderId }) {
 
             <div>
               <p className="text-[13px] font-semibold text-[#7A6E66] mb-1">
-                Contact Person
+                {tb("contactPerson")}
               </p>
               <p className="font-semibold text-[#241A14]">
                 {order?.delivery_address?.name || "-"}
@@ -137,7 +140,7 @@ export default function B2BOrderDetails({ orderId }) {
 
             <div>
               <p className="text-[13px] font-semibold text-[#7A6E66] mb-1">
-                Business Email
+                {tb("businessEmail")}
               </p>
               <p className="font-semibold text-[#241A14]">
                 {order?.delivery_address?.email || "-"}
@@ -146,7 +149,7 @@ export default function B2BOrderDetails({ orderId }) {
 
             <div>
               <p className="text-[13px] font-semibold text-[#7A6E66] mb-1">
-                Phone Number
+                {tb("phoneNumber")}
               </p>
               <p className="font-semibold text-[#241A14]">
                 {order?.delivery_address?.phone}
@@ -155,7 +158,7 @@ export default function B2BOrderDetails({ orderId }) {
 
             <div>
               <p className="text-[13px] font-semibold text-[#7A6E66] mb-1">
-                Company Address
+                {tb("companyAddress")}
               </p>
               <p className="font-semibold text-[#241A14] leading-7">
                 {[
@@ -172,7 +175,7 @@ export default function B2BOrderDetails({ orderId }) {
 
             <div>
               <p className="text-[13px] font-semibold text-[#7A6E66] mb-2">
-                User Type
+                {tb("userType")}
               </p>
 
               <span className="bg-[#FFF0E8] text-[#D97745] px-3 py-1 rounded text-xs font-semibold">
@@ -234,13 +237,13 @@ export default function B2BOrderDetails({ orderId }) {
           <div className="bg-white border border-[#EEE3DA] rounded-2xl p-4">
             <div className="flex items-center gap-2 text-[#7A6E66] font-semibold text-[12px] mb-7">
               <FiCalendar size={18} className="text-[#A85A32]" />
-              RENTAL INFORMATION
+              {tb("rentalInformation")}
             </div>
 
             <div className="grid grid-cols-2 gap-y-7">
               <div>
                 <p className="text-[11px] uppercase text-[#8C8178]">
-                  Rental Start
+                  {tb("rentalStart")}
                 </p>
                 <p className="mt-1 font-semibold text-[#1A1410]">
                   {order?.rental_start_date}
@@ -249,7 +252,7 @@ export default function B2BOrderDetails({ orderId }) {
 
               <div>
                 <p className="text-[11px] uppercase text-[#8C8178]">
-                  Rental End
+                  {tb("rentalEnd")}
                 </p>
                 <p className="mt-1 font-semibold text-[#1A1410]">
                   {order?.rental_end_date}
@@ -258,14 +261,14 @@ export default function B2BOrderDetails({ orderId }) {
 
               <div>
                 <p className="text-[11px] uppercase text-[#8C8178]">
-                  Venue / Event
+                  {tb("venueEvent")}
                 </p>
                 <p className="mt-1 font-semibold text-[#1A1410]">{"-"}</p>
               </div>
 
               <div>
                 <p className="text-[11px] uppercase text-[#8C8178]">
-                  Event Type
+                  {tb("eventType")}
                 </p>
                 <p className="mt-1 font-semibold text-[#1A1410]">
                   {order?.event_type || "-"}
@@ -278,13 +281,13 @@ export default function B2BOrderDetails({ orderId }) {
           <div className="bg-white border border-[#EEE3DA] rounded-2xl p-4">
             <div className="flex items-center gap-2 text-[#7A6E66] font-semibold text-[12px] mb-7">
               <FiFileText size={18} className="text-[#A0522D]" />
-              CONTRACT INFORMATION
+              {tb("contractInformation")}
             </div>
 
             <div className="grid grid-cols-2 gap-y-8">
               <div>
                 <p className="text-[13px] font-semibold text-[#7A6E66] mb-1">
-                  Contract ID
+                  {tb("contractId")}
                 </p>
 
                 <p className="font-semibold text-[#241A14]">{"-"}</p>
@@ -292,7 +295,7 @@ export default function B2BOrderDetails({ orderId }) {
 
               <div>
                 <p className="text-[13px] font-semibold text-[#7A6E66] mb-1">
-                  Contract Status
+                  {tb("contractStatus")}
                 </p>
 
                 <p className="text-[#169B62] font-semibold">{"-"}</p>
@@ -300,7 +303,7 @@ export default function B2BOrderDetails({ orderId }) {
 
               <div>
                 <p className="text-[13px] font-semibold text-[#7A6E66] mb-1">
-                  CloudSign Status
+                  {tb("cloudSignStatus")}
                 </p>
 
                 <p className="text-[#16A34A] font-semibold">{"-"}</p>
@@ -308,7 +311,7 @@ export default function B2BOrderDetails({ orderId }) {
 
               <div>
                 <p className="text-[13px] font-semibold text-[#7A6E66] mb-1">
-                  Signed Date
+                  {tb("signedDate")}
                 </p>
 
                 <p className="font-semibold text-[#241A14]">{"-"}</p>
@@ -317,7 +320,7 @@ export default function B2BOrderDetails({ orderId }) {
 
             <button className="mt-8 border border-[#D9A17C] text-[#A85A32] font-semibold rounded-lg px-5 py-2 flex items-center gap-2 text-sm bg-[#FFF7F3]">
               <FiDownload />
-              Download Contract PDF
+              {tb("downloadContractPdf")}
             </button>
           </div>
         </div>
@@ -329,13 +332,13 @@ export default function B2BOrderDetails({ orderId }) {
           {/* <div className="bg-white border border-[#EEE3DA] rounded-2xl p-6">
             <div className="flex items-center gap-2 text-[#7A6E66] font-semibold text-[12px] mb-7">
               <FiCalendar size={18} className="text-[#A85A32]" />
-              RENTAL INFORMATION
+              {tb("rentalInformation")}
             </div>
 
             <div className="grid grid-cols-2 gap-y-7">
               <div>
                 <p className="text-[11px] uppercase text-[#8C8178]">
-                  Rental Start
+                  {tb("rentalStart")}
                 </p>
                 <p className="mt-1 font-semibold text-[#1A1410]">
                   {order?.rental_start_date}
@@ -344,7 +347,7 @@ export default function B2BOrderDetails({ orderId }) {
 
               <div>
                 <p className="text-[11px] uppercase text-[#8C8178]">
-                  Rental End
+                  {tb("rentalEnd")}
                 </p>
                 <p className="mt-1 font-semibold text-[#1A1410]">
                   {order?.rental_end_date}
@@ -353,14 +356,14 @@ export default function B2BOrderDetails({ orderId }) {
 
               <div>
                 <p className="text-[11px] uppercase text-[#8C8178]">
-                  Venue / Event
+                  {tb("venueEvent")}
                 </p>
                 <p className="mt-1 font-semibold text-[#1A1410]">{""}</p>
               </div>
 
               <div>
                 <p className="text-[11px] uppercase text-[#8C8178]">
-                  Event Type
+                  {tb("eventType")}
                 </p>
                 <p className="mt-1 font-semibold text-[#1A1410]">
                   {order?.order_type}
@@ -412,24 +415,24 @@ export default function B2BOrderDetails({ orderId }) {
           <div className="col-span-12 lg:col-span-8 bg-white border border-[#EEE3DA] rounded-2xl overflow-hidden">
             <div className="flex justify-between items-center px-5 py-4 border-b border-[#F1E8E0]">
               <h3 className="font-semibold text-[15px] text-[#1A1410]">
-                Ordered Items
+                {t("orderItems")}
               </h3>
 
               <span className="text-[13px] text-[#999]">
-                {order?.order_items?.length || 0} Items
+                {t("itemsCount", { count: order?.order_items?.length || 0 })}
               </span>
             </div>
 
             <table className="w-full">
               <thead className="bg-[#FBF8F6]">
                 <tr className="text-left text-[12px] text-[#8B8178] uppercase">
-                  <th className="text-left px-4 py-3 font-medium">Item</th>
-                  <th className="text-left px-4 py-3 font-medium">Qty</th>
-                  <th className="text-left px-4 py-3 font-medium">Days</th>
+                  <th className="text-left px-4 py-3 font-medium">{t("item")}</th>
+                  <th className="text-left px-4 py-3 font-medium">{t("qty")}</th>
+                  <th className="text-left px-4 py-3 font-medium">{t("days")}</th>
                   <th className="text-left px-4 py-3 font-medium">
-                    Unit Price
+                    {t("unitPrice")}
                   </th>
-                  <th className="text-left px-4 py-3 font-medium">Subtotal</th>
+                  <th className="text-left px-4 py-3 font-medium">{t("subtotal")}</th>
                 </tr>
               </thead>
 
@@ -481,7 +484,7 @@ export default function B2BOrderDetails({ orderId }) {
                 ) : (
                   <tr>
                     <td colSpan={5} className="text-center py-8 text-[#6B7280]">
-                      No items found.
+                      {tb("noItems")}
                     </td>
                   </tr>
                 )}
@@ -493,12 +496,12 @@ export default function B2BOrderDetails({ orderId }) {
           <div className="col-span-12 lg:col-span-4 bg-white border border-[#EEE3DA] rounded-2xl p-6">
             <div className="flex items-center gap-2 text-[#7A6E66] font-semibold text-[12px] uppercase mb-6">
               <FiCreditCard size={15} className="text-[#A85A32]" />
-              PAYMENT SUMMARY
+              {t("paymentSummary")}
             </div>
 
             <div className="space-y-4 text-[14px]">
               <div className="flex justify-between">
-                <span>Total Items</span>
+                <span>{t("totalItems")}</span>
                 <span>
                   {order?.order_items?.reduce(
                     (sum, item) => sum + item.quantity,
@@ -508,7 +511,7 @@ export default function B2BOrderDetails({ orderId }) {
               </div>
 
               <div className="flex justify-between">
-                <span>Unit Price</span>
+                <span>{t("unitPrice")}</span>
                 <span>
                   {order?.payment_summary?.currency}{" "}
                   {order?.payment_summary?.subtotal}
@@ -516,7 +519,7 @@ export default function B2BOrderDetails({ orderId }) {
               </div>
 
               <div className="flex justify-between">
-                <span>Delivery Fee</span>
+                <span>{t("deliveryFee")}</span>
                 <span>
                   {order?.payment_summary?.currency}{" "}
                   {order?.payment_summary?.shipping_charge}
@@ -524,14 +527,14 @@ export default function B2BOrderDetails({ orderId }) {
               </div>
 
               <div className="flex justify-between">
-                <span>Consumption Tax</span>
+                <span>{tb("consumptionTax")}</span>
                 <span>
                   {order?.payment_summary?.currency} {order?.tax}
                 </span>
               </div>
 
               <div className="flex justify-between">
-                <span>Corporate Discount</span>
+                <span>{tb("corporateDiscount")}</span>
                 <span>
                   {order?.payment_summary?.currency}{" "}
                   {order?.payment_summary?.tax}
@@ -541,7 +544,7 @@ export default function B2BOrderDetails({ orderId }) {
               <hr className="my-3" />
 
               <div className="flex justify-between font-bold text-[#1A1714] text-[15px]">
-                <span>Rental Subtotal</span>
+                <span>{t("rentalSubtotal")}</span>
                 <span>
                   {order?.payment_summary?.currency}{" "}
                   {order?.payment_summary?.total_amount}
@@ -550,7 +553,7 @@ export default function B2BOrderDetails({ orderId }) {
 
               <div className="pt-5">
                 <p className="text-[12px] uppercase text-[#888] mb-2">
-                  Payment Method
+                  {tb("paymentMethod")}
                 </p>
 
                 <div className="border rounded-lg p-3 flex items-center gap-3">
@@ -562,7 +565,7 @@ export default function B2BOrderDetails({ orderId }) {
 
               <div className="flex justify-between items-center pt-5">
                 <span className="text-[12px] uppercase text-[#888]">
-                  Payment Status
+                  {tb("paymentStatus")}
                 </span>
 
                 <span
@@ -572,13 +575,13 @@ export default function B2BOrderDetails({ orderId }) {
                       : "bg-[#FFF4E5] text-[#D97706]"
                   }`}
                 >
-                  {order?.payment_summary?.payment_status || "Pending"}
+                  {order?.payment_summary?.payment_status || tb("pending")}
                 </span>
               </div>
 
               <div className="flex justify-between pt-3">
                 <span className="text-[12px] uppercase text-[#888]">
-                  Payment Date
+                  {tb("paymentDate")}
                 </span>
 
                 <span>{order?.payment_summary?.paid_at?.split("T")[0]}</span>
@@ -589,7 +592,7 @@ export default function B2BOrderDetails({ orderId }) {
                 className="w-full mt-8 border border-[#D8A07C] text-[#A85A32] rounded-lg py-2 hover:bg-[#FFF8F3] flex items-center justify-center gap-2 text-sm font-medium"
               >
                 <FiClock size={18} />
-                View Timeline
+                {t("viewTimeline")}
               </button>
             </div>
           </div>

@@ -8,8 +8,9 @@ import { FiSearch, FiEye, FiX, FiRotateCcw } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/ui/Spinner";
 import Pagination from "@/components/ui/Pagination";
+import { useTranslations, useLocale } from "next-intl";
 
-const formatRentalPeriod = (startDate, endDate) => {
+const formatRentalPeriod = (startDate, endDate, locale) => {
   if (!startDate || !endDate) return "-";
 
   const start = new Date(startDate);
@@ -18,8 +19,8 @@ const formatRentalPeriod = (startDate, endDate) => {
   const startDay = start.getDate();
   const endDay = end.getDate();
 
-  const startMonth = start.toLocaleString("en-US", { month: "short" });
-  const endMonth = end.toLocaleString("en-US", { month: "short" });
+  const startMonth = start.toLocaleString(locale, { month: "short" });
+  const endMonth = end.toLocaleString(locale, { month: "short" });
 
   const year = end.getFullYear();
 
@@ -64,20 +65,23 @@ const selectStyles = {
   }),
 };
 
-const customerOptions = [
-  { value: "all", label: "All Roles" },
-  { value: "b2b", label: "B2B" },
-  { value: "b2c", label: "B2C" },
-];
-
-const statusOptions = [
-  { value: "all", label: "All Status" },
-  { value: "delivered", label: "Delivered" },
-  { value: "returned", label: "Returned" },
-  { value: "shipped", label: "Shipped" },
-];
-
 export default function Orders() {
+  const t = useTranslations("orderRetals.viewOrder");
+  const locale = useLocale();
+
+  const customerOptions = [
+    { value: "all", label: t("allRoles") },
+    { value: "b2b", label: "B2B" },
+    { value: "b2c", label: "B2C" },
+  ];
+
+  const statusOptions = [
+    { value: "all", label: t("allStatus") },
+    { value: "delivered", label: t("statusDelivered") },
+    { value: "returned", label: t("statusReturned") },
+    { value: "shipped", label: t("statusShipped") },
+  ];
+
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -153,11 +157,11 @@ export default function Orders() {
         {/* Heading */}
         <div className="mb-6">
           <h1 className="text-[28px] font-bold text-[#1A1410]">
-            Order & Rentals
+            {t("orderTitle")}
           </h1>
 
           <p className="text-[16px] text-[#757575] mt-1">
-            Manage rental orders, deliveries and returns.
+            {t("orderContent")}
           </p>
         </div>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
@@ -172,7 +176,7 @@ export default function Orders() {
 
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder={t("searchProducts")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-10 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
@@ -215,7 +219,7 @@ export default function Orders() {
                 className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
               >
                 <FiRotateCcw size={14} />
-                Reset
+                {t("reset")}
               </button>
             </div>
           </div>
@@ -224,18 +228,18 @@ export default function Orders() {
           <table className="w-full text-sm">
             <thead className="bg-[#F1F5F9] text-[#486284]">
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                <th className="text-left px-4 py-3 font-medium">OrderId</th>
+                <th className="text-left px-4 py-3 font-medium">{t("orderid")}</th>
 
                 <th className="text-left px-4 py-3 font-medium">
-                  Customer Name
+                  {t("customerName")}
                 </th>
-                <th className="text-left px-4 py-3 font-medium">Role</th>
+                <th className="text-left px-4 py-3 font-medium">{t("role")}</th>
                 <th className="text-left px-4 py-3 font-medium">
-                  Rental Period
+                  {t("rentalPeriod")}
                 </th>
-                <th className="text-left px-4 py-3 font-medium">Amount</th>
-                <th className="text-left px-4 py-3 font-medium">Status</th>
-                <th className="text-left px-4 py-3 font-medium">Action</th>
+                <th className="text-left px-4 py-3 font-medium">{t("amount")}</th>
+                <th className="text-left px-4 py-3 font-medium">{t("status")}</th>
+                <th className="text-left px-4 py-3 font-medium">{t("action")}</th>
               </tr>
             </thead>
 
@@ -272,11 +276,12 @@ export default function Orders() {
                       {formatRentalPeriod(
                         order.rental_start_date,
                         order.rental_end_date,
+                        locale,
                       )}
                     </td>
                     <td className="px-5 py-5">
                       <span className="text-[12px] text-[#2C1A0E] font-semibold">
-                        {order.payment?.currency || "N/A"}{" "}
+                        {order.payment?.currency || t("na")}{" "}
                         {order.total_amount || "-"}
                       </span>
                     </td>
@@ -304,7 +309,7 @@ export default function Orders() {
                           className="inline-flex items-center gap-2 rounded-md border border-[#E6CDBB] bg-white px-4 py-1.5 text-[13px] font-medium text-[#A85A32] hover:bg-[#FFF7F2]"
                         >
                           <FiEye size={14} />
-                          View
+                          {t("view")}
                         </button>
                       </div>
                     </td>
@@ -319,7 +324,7 @@ export default function Orders() {
                       </div>
                     ) : (
                       <div className="text-center text-gray-500">
-                        No Orders Found
+                        {t("noOrders")}
                       </div>
                     )}
                   </td>

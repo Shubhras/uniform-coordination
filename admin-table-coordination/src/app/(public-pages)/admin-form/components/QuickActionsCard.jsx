@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   FiBox,
   FiBarChart2,
@@ -10,21 +11,22 @@ import {
 } from "react-icons/fi";
 
 const actions = [
-  { label: "Add Product", icon: FiBox ,route: "/inventory-management/add" },
-  { label: "Total Orders", icon: FiBarChart2 ,route: "/orders" },
-  { label: "Manage Pricing", icon: FiUsers ,route: "/pricing-packages" },
-  { label: "Themes", icon: FiGrid ,route: "/theme-management" },
-  { label: "Reports", icon: FiFileText ,route: "/reports-analytics" },
-  { label: "Rental & Usage Report", icon: FiSettings ,route: "/" },
+  { labelKey: "addProduct", icon: FiBox ,route: "/inventory-management/add" },
+  { labelKey: "totalOrders", icon: FiBarChart2 ,route: "/orders" },
+  { labelKey: "managePricing", icon: FiUsers ,route: "/pricing-packages" },
+  { labelKey: "themes", icon: FiGrid ,route: "/theme-management" },
+  { labelKey: "reports", icon: FiFileText ,route: "/reports-analytics" },
+  { labelKey: "rentalUsageReport", icon: FiSettings ,route: "/" },
 ];
 
 const QuickActionsCard = () => {
   const router = useRouter();
+  const t = useTranslations("dashboard.quickActions");
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-5">
       <h3 className="text-[#3B3B3B] text-[17px] font-semibold mb-5">
-        Quick Actions
+        {t("title")}
       </h3>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -42,7 +44,7 @@ const QuickActionsCard = () => {
               </div>
 
               <p className="text-[11px] text-center text-[#374151] px-2">
-                {item.label}
+                {t(item.labelKey)}
               </p>
             </div>
           );

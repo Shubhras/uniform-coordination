@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Pagination from "@/components/ui/Pagination";
 import Select from "react-select";
 import {
@@ -18,18 +19,9 @@ import { apiGetUsersList } from "@/services/UserPermissionService";
 import PermissionPage from "./PermissionPage";
 import Spinner from "@/components/ui/Spinner";
 
-const typeOptions = [
-  { value: "all", label: "All Types" },
-  { value: "b2c", label: "B2C" },
-  { value: "b2b", label: "B2B" },
-  { value: "user", label: "User" },
-];
 
-const statusOptions = [
-  { value: "all", label: "Status" },
-  { value: "active", label: "Active" },
-  { value: "inactive", label: "Inactive" },
-];
+
+
 
 const getApiErrorMessage = (error) =>
   error?.response?.data?.message ||
@@ -205,6 +197,22 @@ const selectStyles = {
   }),
 };
 const UsersPermissionsPage = () => {
+  const t = useTranslations("userPermissions.users");
+  const tp = useTranslations("userPermissions.permissions");
+
+  const typeOptions = [
+    { value: "all", label: t("allTypes") },
+    { value: "b2c", label: "B2C" },
+    { value: "b2b", label: "B2B" },
+    { value: "user", label: t("typeUser") },
+  ];
+
+  const statusOptions = [
+    { value: "all", label: t("statusFilter") },
+    { value: "active", label: t("active") },
+    { value: "inactive", label: t("inactive") },
+  ];
+
   const router = useRouter();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -374,26 +382,28 @@ const UsersPermissionsPage = () => {
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
       <h1 className="text-[30px] font-semibold leading-tight text-[#2A211D]">
-        Users &amp; Permissions
+        {t("title")}
       </h1>
       <p className="mt-1 text-[13px] text-[#B29D8C]">
-        Manage user accounts, roles, permissions, and access across the
-        platform.
+        {t("subtitle")}
       </p>
 
       <div className="mt-5 flex gap-8 border-b border-[#E8DDD4]">
-        {["Users", "Permissions"].map((tab) => (
+        {[
+          { key: "Users", label: t("users") },
+          { key: "Permissions", label: tp("permission") },
+        ].map((tab) => (
           <button
-            key={tab}
+            key={tab.key}
             type="button"
-            onClick={() => setActiveTab(tab)}
+            onClick={() => setActiveTab(tab.key)}
             className={`pb-1 text-base font-medium whitespace-nowrap ${
-              activeTab === tab
+              activeTab === tab.key
                 ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
                 : "text-[#525252] text-[16px]"
             }`}
           >
-            {tab}
+            {tab.label}
           </button>
         ))}
       </div>
@@ -409,7 +419,7 @@ const UsersPermissionsPage = () => {
 
               <input
                 type="text"
-                placeholder="Search Theme..."
+                placeholder={t("searchUsers")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#1C4FA8]"
@@ -453,7 +463,7 @@ const UsersPermissionsPage = () => {
                   className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
                 >
                   <FiRotateCcw size={14} />
-                  Reset
+                  {t("reset")}
                 </button>
               </div>
             </div>
@@ -463,12 +473,12 @@ const UsersPermissionsPage = () => {
             <table className="w-full text-sm">
               <thead className="bg-[#F1F5F9] text-[#486284]">
                 <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                  <th className="text-left px-4 py-3">Full Name</th>
-                  <th className="text-left px-4 py-3">Role</th>
-                  <th className="text-left px-4 py-3">Email</th>
-                  <th className="text-left px-4 py-3">Registration Date</th>
-                  <th className="text-left px-4 py-3">Status</th>
-                  <th className="text-left px-4 py-3">Actions</th>
+                  <th className="text-left px-4 py-3">{t("fullNameColumn")}</th>
+                  <th className="text-left px-4 py-3">{t("role")}</th>
+                  <th className="text-left px-4 py-3">{t("email")}</th>
+                  <th className="text-left px-4 py-3">{t("registration")}</th>
+                  <th className="text-left px-4 py-3">{t("statusColumn")}</th>
+                  <th className="text-left px-4 py-3">{t("actionsColumn")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -524,7 +534,7 @@ const UsersPermissionsPage = () => {
                                 user.isActive ? "bg-[#007A55]" : "bg-[#F04444]"
                               }`}
                             />
-                            {user.isActive ? "Active" : "Inactive"}
+                            {user.isActive ? t("active") : t("inactive")}
                           </span>
                         </td>
                         <td className="px-4 py-3">
@@ -563,7 +573,7 @@ const UsersPermissionsPage = () => {
 
           {!loading && users.length === 0 && (
             <div className="mt-4 rounded-md border border-dashed border-[#E6D6CD] bg-white px-4 py-10 text-center text-[14px] text-[#8B6A55]">
-              No users found.
+              {t("noUsers")}
             </div>
           )}
 

@@ -1,7 +1,10 @@
 "use client";
 import { FiTrendingUp, FiTrendingDown } from "react-icons/fi";
+import { useTranslations } from "next-intl";
 
 const DashboardStats = ({ data }) => {
+  const t = useTranslations("dashboard");
+
   // Map API response fields
   const recentProducts = data?.Recently_update_product_color_part || [];
 
@@ -26,7 +29,7 @@ const DashboardStats = ({ data }) => {
         <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
             <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
-              AVAILABLE INVENTORY
+              {t("stats.availableInventory")}
             </p>
             <h2 className="text-[30px] font-bold mt-2">{availableInventory}</h2>
           </div>
@@ -54,7 +57,7 @@ const DashboardStats = ({ data }) => {
         <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
             <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
-              ACTIVE RENTALS
+              {t("stats.activeRentals")}
             </p>
             <h2 className="text-[30px] font-bold mt-2">{activeRentals}</h2>
           </div>
@@ -64,7 +67,7 @@ const DashboardStats = ({ data }) => {
         <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
             <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
-              PENDING ORDERS
+              {t("stats.pendingOrders")}
             </p>
             <h2 className="text-[30px] font-bold mt-2">
               {" "}

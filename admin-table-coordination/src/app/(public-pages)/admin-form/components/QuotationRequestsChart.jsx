@@ -1,14 +1,16 @@
 "use client";
 
 import Chart from "react-apexcharts";
+import { useTranslations } from "next-intl";
 
 const QuotationRequestsChart = ({ chartData = [] }) => {
+  const t = useTranslations("dashboard.ordersThisWeek");
   const categories = chartData.map((item) => item.label);
 
   // Graph values
   const series = [
     {
-      name: "Orders",
+      name: t("seriesName"),
       data: chartData.map((item) => item.value),
     },
   ];
@@ -107,7 +109,7 @@ const QuotationRequestsChart = ({ chartData = [] }) => {
   return (
     <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
       <h3 className="text-[17px] font-semibold text-[#3B3B3B]">
-        Orders This Week
+        {t("title")}
       </h3>
 
       <div className="border-b border-[#D9D9D9] mt-6 mb-8" />

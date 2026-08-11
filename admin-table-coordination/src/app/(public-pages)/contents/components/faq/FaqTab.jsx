@@ -14,6 +14,7 @@ const FaqTab = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const t = useTranslations("contentMedia.faqs");
+  const ts = useTranslations("successTitle");
 
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +61,7 @@ const FaqTab = () => {
       const response = await apiDeleteFaq(accessToken, faqToDelete.id);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={ts("success")} type="success">
           {response.message}
         </Notification>,
       );

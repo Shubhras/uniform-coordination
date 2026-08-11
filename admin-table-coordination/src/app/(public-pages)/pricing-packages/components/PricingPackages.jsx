@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation";
 import Tabs from "./Tabs";
 import PricingRules from "./pricingRules/PricingRules";
 import Promotions from "./promotions/Promotions";
+import { useTranslations } from "next-intl";
 
 const PricingPackages = () => {
+  const t = useTranslations("pricingPackages.pricingRules");
+  const tp = useTranslations("pricingPackages.promotions");
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("Pricing Rules");
 
@@ -26,10 +29,10 @@ const PricingPackages = () => {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h1 className="text-[32px] font-semibold leading-tight text-[#2A211D]">
-            Pricing &amp; Packages
+            {t("pricePackage")}
           </h1>
           <p className="mt-1 text-[13px] text-[#B29D8C]">
-            Manage rental rates, late fees, shipping charges, and promotional discounts.
+            {t("ppContent")}
           </p>
         </div>
 
@@ -44,7 +47,7 @@ const PricingPackages = () => {
           }
           className="inline-flex h-[34px] items-center rounded-[8px] bg-[#B56735] px-4 text-[14px] font-medium text-white"
         >
-          {activeTab === "Pricing Rules" ? "Edit Pricing Rules" : "+ Create Promotion"}
+          {activeTab === "Pricing Rules" ? t("editPrice") : `+ ${tp("createPromotions")}`}
         </button>
       </div>
 

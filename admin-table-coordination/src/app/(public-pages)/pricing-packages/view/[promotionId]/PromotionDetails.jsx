@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import {
   FiArrowLeft,
   FiChevronDown,
@@ -13,6 +14,8 @@ import Spinner from "@/components/ui/Spinner";
 import { apiPromoCodeDetails } from "@/services/PricingPackages";
 
 const PromotionDetails = ({ promotionId }) => {
+  const t = useTranslations("pricingPackages.promotions");
+  const locale = useLocale();
   const router = useRouter();
 
   const { session } = useCurrentSession();
@@ -57,7 +60,7 @@ const PromotionDetails = ({ promotionId }) => {
           <FiArrowLeft className="text-lg text-[#5B4434]" />
         </button>
         <h1 className="text-[30px] font-semibold leading-tight text-[#2A211D]">
-          Promotion Details
+          {t("promotionDetails")}
         </h1>
       </div>
 
@@ -65,7 +68,7 @@ const PromotionDetails = ({ promotionId }) => {
         <div className="grid gap-x-10 gap-y-5 md:grid-cols-3">
           <div>
             <p className="text-[13px] font-semibold text-[#B3A096]">
-              PROMOTION NAME
+              {t("promotionName")}
             </p>
             <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
               {promotion?.promocodeName}
@@ -73,7 +76,7 @@ const PromotionDetails = ({ promotionId }) => {
           </div>
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[#B3A096]">
-              PROMOTION TYPE
+              {t("promotionType")}
             </p>
             <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
               {promotion?.promocodeType?.replace("_", " ")}
@@ -82,7 +85,7 @@ const PromotionDetails = ({ promotionId }) => {
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-[9px] font-semibold text-[#B3A096]">
-                DISCOUNT VALUE
+                {t("discountValue")}
               </p>
               <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
                 {promotion?.promocodeType === "percentage"
@@ -97,30 +100,30 @@ const PromotionDetails = ({ promotionId }) => {
                   : "bg-[#FFE9E8] text-[#F04444]"
               }`}
             >
-              {promotion?.isActive ? "Active" : "Inactive"}
+              {promotion?.isActive ? t("statusActive") : t("statusInactive")}
             </span>
           </div>
           <div>
             <p className="text-[9px] font-semibold text-[#B3A096]">
-              START DATE
+              {t("startDate")}
             </p>
             <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
               {promotion?.started_at
-                ? new Date(promotion.started_at).toLocaleDateString()
+                ? new Date(promotion.started_at).toLocaleDateString(locale)
                 : "-"}{" "}
             </p>
           </div>
           <div>
-            <p className="text-[9px] font-semibold text-[#B3A096]">END DATE</p>
+            <p className="text-[9px] font-semibold text-[#B3A096]">{t("endDate")}</p>
             <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
               {promotion?.ended_at
-                ? new Date(promotion.ended_at).toLocaleDateString()
+                ? new Date(promotion.ended_at).toLocaleDateString(locale)
                 : "-"}
             </p>
           </div>
           <div>
             <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#B3A096]">
-              ELIGIBLE CUSTOMERS
+              {t("eligibleCustomers")}
             </p>
             <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
               {promotion?.eligibleCustomers || "-"}
@@ -128,7 +131,7 @@ const PromotionDetails = ({ promotionId }) => {
           </div>
           <div className="md:col-span-3">
             <p className="text-[9px] font-semibold text-[#B3A096]">
-              DESCRIPTION
+              {t("descriptionLabel")}
             </p>
             <p className="mt-2 text-[14px] font-semibold uppercase text-[#3F332C]">
               {promotion?.description || "-"}
