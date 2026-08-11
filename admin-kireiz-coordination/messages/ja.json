@@ -1364,6 +1364,27 @@
             "saveChanges": "変更を保存"
         }
     },
+    "simulationAssets": {
+        "breadcrumbDashboard": "管理ダッシュボード",
+        "breadcrumbCurrent": "シミュレーション素材",
+        "pageTitle": "シミュレーション素材",
+        "pageSubtitle": "ユニフォーム部品画像のレイヤー順序とキャンバス位置合わせを設定します。",
+        "scopeNote": "レイヤーは以下の順序で下から上へ描画されます。オフセットは各部品画像のキャンバス上の位置を調整します。色と素材のマッピングは、色の適用方法（事前レンダリング済み画像の切り替えかキャンバス着色か）に関する決定待ちのため、まだここでは設定されていません。",
+        "missingImages": "{count} 個の部品に画像がアップロードされていません。シミュレーションでは隙間として表示されます。製品と仕様 → 部品でアートワークを追加してください。",
+        "searchPlaceholder": "部品または生地を検索...",
+        "noSearchResults": "検索に一致するレイヤーはありません",
+        "noParts": "ユニフォーム部品はまだありません",
+        "noPartsDescription": "製品と仕様で作成した部品が、シミュレーションレイヤーとしてここに表示されます。",
+        "layerCount": "{count} レイヤー · ドラッグして並べ替え",
+        "stackDirection": "スタックの上 ↑ · 下 ↓",
+        "noImage": "画像なし",
+        "pixels": "px",
+        "errorTitle": "エラー",
+        "loadFailed": "シミュレーションレイヤーを読み込めませんでした",
+        "reorderFailed": "並べ替えに失敗しました",
+        "saveOrderFailed": "レイヤーの順序を保存できませんでした",
+        "saveOffsetFailed": "オフセットを保存できませんでした"
+    },
     "reportsAnalytics": {
         "pageTitle": "レポートと分析",
         "pageSubtitle": "見積のファネル、顧客、カタログ利用状況。",
@@ -1562,6 +1583,9 @@
         },
         "noData": "見積が見つかりません",
         "showingRange": "{from}–{to}件を表示"
+    },
+    "pagination": {
+        "showingRange": "{from}～{to}件を表示"
     },
     "adminTopHeader": {
         "openMenu": "メニューを開く",

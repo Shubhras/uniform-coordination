@@ -1,0 +1,8 @@
+{
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/(public-pages)/simulation-configuration/page": "app/(public-pages)/simulation-configuration/page.js",
+  "/(public-pages)/customer/page": "app/(public-pages)/customer/page.js",
+  "/(public-pages)/simulation-assets/page": "app/(public-pages)/simulation-assets/page.js",
+  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
+  "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js"
+}
