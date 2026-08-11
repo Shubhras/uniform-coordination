@@ -1,7 +1,4 @@
 {
-  "/(public-pages)/contracts-policies/page": "app/(public-pages)/contracts-policies/page.js",
-  "/(public-pages)/reports-analytics/page": "app/(public-pages)/reports-analytics/page.js",
-  "/(public-pages)/notifications/page": "app/(public-pages)/notifications/page.js",
-  "/(public-pages)/users-permissions/page": "app/(public-pages)/users-permissions/page.js",
-  "/(public-pages)/products/page": "app/(public-pages)/products/page.js"
+  "/(public-pages)/theme-management/page": "app/(public-pages)/theme-management/page.js",
+  "/(public-pages)/theme-management/addTheme/page": "app/(public-pages)/theme-management/addTheme/page.js"
 }

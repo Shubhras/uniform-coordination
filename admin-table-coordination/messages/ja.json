@@ -273,7 +273,13 @@
       "Delete": "削除",
       "deleting": "削除中...",
       "editFabric": "生地を編集",
-      "noFabricsFound": "生地が見つかりません"
+      "noFabricsFound": "生地が見つかりません",
+      "validation": {
+            "fabricNameRequired": "生地名は必須です",
+            "materialTypeRequired": "素材タイプは必須です",
+            "priceRequired": "価格は必須です",
+            "validPrice": "有効な価格を入力してください"
+            }
     },
     "color": {
       "palette": "カラーパレット",
@@ -282,15 +288,163 @@
       "addColor": "カラーを追加",
       "duplicate": "複製",
       "addNewColor": "新しいカラーを追加",
+      "editColor": "カラーを編集",
       "colorName": "カラー名",
+      "color": "カラー",
       "hexCode": "HEXコード",
       "compatibleFabric": "対応する生地",
       "enterColorname": "カラー名を入力",
       "selectFabric": "対応する生地を選択",
       "colorPlaceholder": "カラーを選択",
-      "edit": "編集"
+      "edit": "編集",
+      "Delete": "削除",
+      "cancel": "キャンセル",
+      "save": "保存",
+      "update": "更新",
+      "deleteColor": "カラーを削除",
+      "deleteColorContent": "このカラーを削除してもよろしいですか？この操作は元に戻せません。",
+        "validation": {
+            "colorNameRequired": "カラー名は必須です",
+            "colorCodeRequired": "カラーコードは必須です",
+            "validHexCode": "有効なHEXコードを入力してください",
+            "compatibleFabricRequired": "対応する生地は必須です"
+        }
+      }
+    },
+        "contentMedia": {
+        "contentTitle": "コンテンツ・メディア",
+        "contentPara": "生地、パーツ、カラー、オプション、テンプレートを管理します",
+
+        "tabs": {
+            "categories": "カテゴリー",
+            "blog": "ブログ",
+            "faq": "よくある質問"
+        },
+
+        "categories": {
+            "productCategories": "商品カテゴリー",
+            "productManage": "商品カテゴリーを管理・整理します",
+            "addCategory": "カテゴリーを追加",
+            "noCategoriesFound": "カテゴリーが見つかりません",
+            "searchCategories": "カテゴリーを検索...",
+            "arrangeOrder": "並び順を整理",
+            "editCategory": "カテゴリーを編集",
+            "name": "名前",
+            "image": "画像",
+            "uploadImage": "画像をアップロード",
+            "drapDrop": "ここに画像ファイルをドラッグ＆ドロップ",
+            "clickHere": "またはここをクリックして参照",
+            "jpgFile": "JPG、PNG、またはWEBPファイル",
+            "maxDimension": "最大サイズ 1000×1000px",
+            "imageValidation": "画像の検証に成功しました",
+            "description": "説明",
+            "update": "更新",
+            "addAnother": "保存して続けて追加",
+            "cancel": "キャンセル",
+           "save": "保存",
+           "categoryNamePlaceholder": "例：医療外科医",
+            "createCategory": "カテゴリーを作成",
+            "deletCategory": "カテゴリーを削除",
+            "deleteCategoryContent": "このカテゴリーを削除してもよろしいですか？この操作は元に戻せません。",
+            "categoryValidation": {
+                "categoryNameRequired": "カテゴリー名は必須です",
+                "descriptionRequired": "説明は必須です",
+                "imageRequired": "画像は必須です"
+            }
+        },
+
+        "blog": {
+            "blog": "ブログ",
+            "blogContent": "ブログ記事を管理します",
+            "arrangeOrder": "並び順を整理",
+            "searchBlog": "ブログ記事を検索",
+            "addBlog": "ブログを追加",
+            "noBlogPostsFound": "ブログ記事が見つかりません",
+            "createBlog": "ブログを作成",
+            "title": "タイトル",
+            "category": "カテゴリー",
+            "editBlog": "ブログを編集",
+            "deleteBlog": "ブログ記事を削除",
+            "deleteContentBlog": "このブログ記事を削除してもよろしいですか？この操作は元に戻せません。",
+            "addEditBlog": {
+                "editBlog": "ブログを編集",
+                "createBlog": "ブログを作成",
+
+                "title": "タイトル",
+                "titlePlaceholder": "ブログタイトルを入力",
+
+                "category": "カテゴリー",
+                "selectCategory": "カテゴリーを選択...",
+                "loadingCategories": "カテゴリーを読み込み中...",
+                "noCategoriesFound": "カテゴリーが見つかりません",
+
+                "image": "画像",
+                "uploadImage": "画像をアップロード",
+                "dragDropImage": "ここに画像をドラッグ＆ドロップ",
+                "or": "または",
+                "clickToBrowse": "クリックして参照",
+                "imageFiles": "JPG、PNG、またはWEBPファイル",
+                "recommendedSize": "推奨サイズ 1200×800px",
+                "imageValidated": "画像の検証に成功しました",
+                "preview": "プレビュー",
+
+                "description": "説明",
+                "descriptionPlaceholder": "ブログの説明を入力...",
+
+                "cancel": "キャンセル",
+                "saveAddAnother": "保存して続けて追加",
+                "update": "更新",
+                "save": "保存",
+
+                "success": "成功",
+                "saveError": "ブログの保存に失敗しました。もう一度お試しください。",
+
+                "validation": {
+                    "titleRequired": "タイトルは必須です",
+                    "categoryRequired": "カテゴリーは必須です",
+                    "descriptionRequired": "説明は必須です"
+                }
+            }   
+        },
+
+        "faqs": {
+            "faq": "よくある質問",
+            "faqContent": "よくある質問を管理します",
+            "aboutDesign": "デザインとコーディネーションの流れについて",
+            "addFaq": "FAQを追加",
+            "createFAQ": "FAQを作成",
+            "addmore": "さらに追加",
+            "editFaq": "よくある質問を編集",
+            "deleteFaq": "よくある質問を削除",
+            "deleteContentFaq": "このFAQを削除してもよろしいですか？この操作は元に戻せません。",
+            "title": "タイトル",
+            "titlePlaceholder": "質問を入力してください",
+            "descriptions": "説明",
+            "descriptionPlaceholder": "説明 {number}...",
+
+            "cancel": "キャンセル",
+            "saveAddAnother": "保存して続けて追加",
+            "update": "更新",
+            "save": "保存",
+
+            "success": "成功",
+            "saveError": "FAQの保存に失敗しました。もう一度お試しください。",
+
+            "validation": {
+                "titleRequired": "タイトルは必須です",
+                "descriptionRequired": "説明は必須です",
+                "atLeastOneDescription": "少なくとも1つの説明が必要です"
+            }
+                }
+    },
+   "deleteConfirmDialog": {
+        "cancel": "キャンセル",
+        "delete": "削除",
+        "deleting": "削除中..."
+    },
+     "successTitle":{
+        "success":"成功"
     }
-  }
 
 
 }

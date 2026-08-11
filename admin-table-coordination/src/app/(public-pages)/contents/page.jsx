@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Tabs from "./components/Tabs";
+import { useTranslations } from "next-intl";
 import CategoriesTab from "./components/catogories/CategoriesTab";
 import CatelogImagesTab from "./components/catelog-images/CatelogImagesTab";
 import BlogTab from "./components/blog/BlogTab";
@@ -10,6 +11,7 @@ import PdfTemplatesTab from "./components/pdf-templates/PdfTemplatesTab";
 
 const ContentMediaPage = () => {
     const [activeTab, setActiveTab] = useState("Categories");
+      const t = useTranslations("contentMedia");
 
     const renderTab = () => {
         switch (activeTab) {
@@ -35,10 +37,10 @@ const ContentMediaPage = () => {
                 Admin Dashboard / <span className="text-[#1C2C56]">Content & Media </span>
             </p> */}
             <h1 className="text-2xl font-semibold text-[#1C2C56]">
-                Content & Media
+                 {t("contentTitle")}
             </h1>
             <p className="text-base font-medium text-[#64748B]">
-                Manage fabrics, parts, colors, options, and templates
+                {t("contentPara")}
             </p>
 
             {/* Tabs */}

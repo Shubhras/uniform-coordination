@@ -121,22 +121,25 @@ const AddEditFabricModal = ({
   }, [category, accessToken]);
 
   const validationSchema = z.object({
-    fabricName: z.string().trim().min(1, {
-      message: "Fabric name is required",
-    }),
+    fabricName: z
+      .string()
+      .trim()
+      .min(1, {
+        message: t("validation.fabricNameRequired"),
+      }),
 
     materialType: z.any().refine((val) => val !== null, {
-      message: "Material type is required",
+      message: t("validation.materialTypeRequired"),
     }),
 
     price: z
       .string()
       .trim()
       .min(1, {
-        message: "Price is required",
+        message: t("validation.priceRequired"),
       })
       .refine((val) => !isNaN(Number(val)), {
-        message: "Enter a valid price",
+        message: t("validation.validPrice"),
       }),
   });
 
@@ -440,7 +443,8 @@ const AddEditFabricModal = ({
             {/* Fabric Name */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                {t("fabricName")}<span className="text-red-500">*</span>
+                {t("fabricName")}
+                <span className="text-red-500">*</span>
               </label>
               <FormItem
                 className="mt-1"
@@ -460,7 +464,8 @@ const AddEditFabricModal = ({
             {/* Color */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                {t("color")}<span className="text-red-500">*</span>
+                {t("color")}
+                <span className="text-red-500">*</span>
               </label>
 
               <div className="flex gap-3 mt-1">
@@ -498,15 +503,14 @@ const AddEditFabricModal = ({
                 </div>
               </div>
 
-              <p className="text-xs text-gray-500 mt-1">
-                  {t("colorCodeHelp")}
-              </p>
+              <p className="text-xs text-gray-500 mt-1">{t("colorCodeHelp")}</p>
             </div>
 
             {/* Material Type */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                {t("materialType")}<span className="text-red-500">*</span>
+                {t("materialType")}
+                <span className="text-red-500">*</span>
               </label>
               {/* <Select
                             options={materialOptions}
@@ -542,7 +546,8 @@ const AddEditFabricModal = ({
             {/* Price */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                {t("pricePer")}<span className="text-red-500">*</span>
+                {t("pricePer")}
+                <span className="text-red-500">*</span>
               </label>
               {/* <input
                             type="number"
@@ -583,7 +588,7 @@ const AddEditFabricModal = ({
                   />
                 </button>
                 <span className="text-sm text-[#1C2C56]">
-                  {active ?  t("active") : t("inactive")}
+                  {active ? t("active") : t("inactive")}
                 </span>
               </div>
             </div>
