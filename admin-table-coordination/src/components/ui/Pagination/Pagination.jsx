@@ -5,6 +5,7 @@ import Next from "./Next";
 import Total from "./Total";
 import useControllableState from "../hooks/useControllableState";
 import classNames from "classnames";
+import { useTranslations } from "next-intl";
 
 const defaultTotal = 5;
 
@@ -24,6 +25,8 @@ const Pagination = (props) => {
     defaultProp: defaultTotal,
     onChange,
   });
+  const t = useTranslations("productSpecification.fabric");
+
 
   const [internalPageSize, setInternalPageSize] = useState(pageSize);
 
@@ -146,7 +149,7 @@ const Pagination = (props) => {
     <div className="flex items-center justify-between w-full mt-6">
       {/* Left */}
       <div className="text-sm text-[#7B7B7B]">
-        Showing{" "}
+        {t("showing")}{" "}
         <span className="font-medium">
           {paginationTotal === 0
             ? 0
