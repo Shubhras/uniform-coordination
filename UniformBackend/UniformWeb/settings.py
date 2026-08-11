@@ -226,15 +226,34 @@ CORS_ALLOWED_ORIGINS = [
 
     # Linode server (nginx par port 80)
     "http://104.64.206.82",
+    "http://104.64.206.82:7000",
+    "http://104.64.206.82:7001",
     "http://104.64.206.82:7002",
     "http://104.64.206.82:7003",
     "http://table.104.64.206.82.sslip.io",
     "http://admin.104.64.206.82.sslip.io",
     "http://admintable.104.64.206.82.sslip.io",
+
+    # dxtspace.com domains (HTTPS terminated at nginx)
+    "https://uniform.dxtspace.com",
+    "https://table.dxtspace.com",
+    "https://uniform-admin.dxtspace.com",
+    "https://table-admin.dxtspace.com",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 # CORS_ALLOW_ALL_ORIGINS = True
+
+# nginx terminates TLS and forwards X-Forwarded-Proto; without this Django
+# treats the request as http and rejects https Origins on POST (CSRF).
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://uniform.dxtspace.com",
+    "https://table.dxtspace.com",
+    "https://uniform-admin.dxtspace.com",
+    "https://table-admin.dxtspace.com",
+]
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
