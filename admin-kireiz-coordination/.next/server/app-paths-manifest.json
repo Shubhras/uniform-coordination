@@ -1,1 +1,6 @@
-{}
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js",
+  "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js",
+  "/(public-pages)/products/page": "app/(public-pages)/products/page.js"
+}

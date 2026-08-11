@@ -56,17 +56,30 @@ const AddEditPartModal = ({
   const [imageError, setImageError] = useState("");
 
   const validationSchema = z.object({
-    partName: z.string().trim().min(1, {
-      message: tm("validation.nameRequired"),
-    }),
+    partName: z
+      .string()
+      .trim()
+      .min(1, {
+        message: tm("validation.nameRequired"),
+      }),
     category: z.any().refine((val) => val !== null, {
       message: tm("validation.categoryRequired"),
     }),
-    fabric: z.any().optional(),
-    zIndex: z.string().trim().min(1, {
-      message: "z-Index is required",
+    fabric: z.any().refine((val) => val !== null, {
+      message: "Fabric is required",
     }),
+    zIndex: z
+      .string()
+      .min(1, {
+        message: "z-Index is required",
+      })
+      .refine((val) => Number(val) >= 0, {
+        message: "z-Index cannot be negative",
+      }),
     subcategory: z.any().optional(),
+    image: z.any().refine((val) => mode === "edit" || val instanceof File, {
+      message: tm("validation.imageRequired"),
+    }),
   });
 
   const {
@@ -84,6 +97,7 @@ const AddEditPartModal = ({
       subcategory: null,
       fabric: null,
       zIndex: "1",
+      image: null,
     },
   });
 
@@ -258,6 +272,9 @@ const AddEditPartModal = ({
 
     if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
       setImageError("Only PNG, JPG, JPEG files are allowed.");
+      setValue("image", null, {
+        shouldValidate: true,
+      });
       return;
     }
 
@@ -267,11 +284,17 @@ const AddEditPartModal = ({
     img.onload = () => {
       if (img.width > 1000 || img.height > 1000) {
         setImageError("Maximum dimension allowed is 1000x1000px.");
+        setValue("image", null, {
+          shouldValidate: true,
+        });
         URL.revokeObjectURL(objectUrl);
         return;
       }
 
       setImageFile(file);
+      setValue("image", file, {
+        shouldValidate: true,
+      });
       setPreview(objectUrl);
       setValidated(true);
     };
@@ -341,9 +364,7 @@ const AddEditPartModal = ({
       if (onSaveSuccess) onSaveSuccess();
     } catch (err) {
       console.error("Save failed:", err);
-      setError(
-        err?.response?.data?.message || tm("saveFailed"),
-      );
+      setError(err?.response?.data?.message || tm("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -378,7 +399,8 @@ const AddEditPartModal = ({
             {/* Part Name */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                {tm("partNameLabel")}<span className="text-red-500">*</span>
+                {tm("partNameLabel")}
+                <span className="text-red-500">*</span>
               </label>
 
               <FormItem
@@ -481,6 +503,7 @@ const AddEditPartModal = ({
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
                 {tm("zIndexLabel")}
+                <span className="text-red-500">*</span>
               </label>
               <FormItem
                 invalid={Boolean(errors.zIndex)}
@@ -490,14 +513,19 @@ const AddEditPartModal = ({
                   name="zIndex"
                   control={control}
                   render={({ field }) => (
-                    <Input type="number" placeholder={tm("zIndexPlaceholder")} {...field} />
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder={tm("zIndexPlaceholder")}
+                      {...field}
+                    />
                   )}
                 />
               </FormItem>
             </div>
 
             {/* Upload Image */}
-            <div>
+            {/* <div>
               <label className="text-[#1C2C56] text-base font-medium">
                 {tm("uploadImageLabel")}
               </label>
@@ -542,8 +570,60 @@ const AddEditPartModal = ({
                 className="hidden"
                 onChange={handleBrowse}
               />
+            </div> */}
+            <div>
+              <label className="text-[#1C2C56] text-base font-medium">
+                {tm("uploadImageLabel")}
+                <span className="text-red-500">*</span>
+              </label>
+
+              <FormItem
+                invalid={Boolean(errors.image)}
+                errorMessage={errors.image?.message}
+              >
+                <button
+                  type="button"
+                  className="w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm mt-2"
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  {tm("uploadImageButton")}
+                </button>
+
+                {imageError && (
+                  <p className="text-red-500 text-sm mt-1">{imageError}</p>
+                )}
+
+                <div
+                  onDrop={handleDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                  className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
+                >
+                  {tm("dragDropText")}
+                  <br />
+                  {tm("orText")}{" "}
+                  <span
+                    className="text-[#1C2C56] underline cursor-pointer"
+                    onClick={() => fileInputRef.current.click()}
+                  >
+                    {tm("clickToBrowse")}
+                  </span>
+                  <p className="text-xs mt-2 text-[#64748B]">
+                    {tm("allowedFormats")}
+                  </p>
+                  <p className="text-xs mt-2 text-[#64748B]">
+                    {tm("maxDimension")}
+                  </p>
+                </div>
+
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg"
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={handleBrowse}
+                />
+              </FormItem>
             </div>
-            
             {validated && (
               <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
                 <FiCheckCircle className="text-green-600" size={16} />
