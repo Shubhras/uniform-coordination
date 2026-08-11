@@ -188,12 +188,12 @@ STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-SITE_DOMAIN = "http://table.104.64.206.82.sslip.io"
-# SITE_DOMAIN = "https://t8sjq87n-8002.inc1.devtunnels.ms"
+# SITE_DOMAIN = "http://table.104.64.206.82.sslip.io"
+SITE_DOMAIN = "https://table-admin.dxtspace.com"
 
-SITE_URL = "http://table.104.64.206.82.sslip.io"
+# SITE_URL = "http://table.104.64.206.82.sslip.io"
 
-# SITE_URL = "https://t8sjq87n-8002.inc1.devtunnels.ms"
+SITE_URL = "https://table-admin.dxtspace.com"
 
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
@@ -239,24 +239,34 @@ CORS_ALLOWED_ORIGINS = [
 
     # Linode server (nginx par port 80)
     "http://104.64.206.82",
+    "http://104.64.206.82:7000",
+    "http://104.64.206.82:7001",
     "http://104.64.206.82:7002",
     "http://104.64.206.82:7003",
     "http://table.104.64.206.82.sslip.io",
     "http://admin.104.64.206.82.sslip.io",
     "http://admintable.104.64.206.82.sslip.io",
+
+    # dxtspace.com domains (HTTPS terminated at nginx)
+    "https://uniform.dxtspace.com",
+    "https://table.dxtspace.com",
+    "https://uniform-admin.dxtspace.com",
+    "https://table-admin.dxtspace.com",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 # CORS_ALLOW_ALL_ORIGINS = True
 
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# EMAIL_HOST = "smtp.gmail.com"
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = "moriji345@gmail.com"
-# EMAIL_HOST_PASSWORD = "hqymjygpiifyfdfg"
-# EMAIL_HOST_USER="sourabh.mori1digiprima@gmail.com"
-# EMAIL_HOST_PASSWORD="xuwkrhblrzorjyyj"
+# nginx terminates TLS and forwards X-Forwarded-Proto; without this Django
+# treats the request as http and rejects https Origins on POST (CSRF).
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://uniform.dxtspace.com",
+    "https://table.dxtspace.com",
+    "https://uniform-admin.dxtspace.com",
+    "https://table-admin.dxtspace.com",
+]
 
 
 import os

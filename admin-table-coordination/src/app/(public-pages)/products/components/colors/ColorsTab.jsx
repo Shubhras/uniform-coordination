@@ -10,9 +10,14 @@ import {
   FiX,
 } from "react-icons/fi";
 import toast from "@/components/ui/toast";
+import { useTranslations } from "next-intl";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiGetColorsList, apiDeleteColor, apiCreateColor } from "@/services/ColorsService";
+import {
+  apiGetColorsList,
+  apiDeleteColor,
+  apiCreateColor,
+} from "@/services/ColorsService";
 import AddEditColorModal from "./AddEditColorModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
@@ -21,6 +26,7 @@ import Spinner from "@/components/ui/Spinner";
 const ColorsTab = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
+  const t = useTranslations("productSpecification.color");
 
   const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -162,7 +168,9 @@ const ColorsTab = () => {
           </Notification>,
         );
       } else {
-        const errorMessage = Object.values(response?.message || {}).flat()[0] || "Failed to duplicate color.";
+        const errorMessage =
+          Object.values(response?.message || {}).flat()[0] ||
+          "Failed to duplicate color.";
         toast.push(
           <Notification title="Error" type="danger">
             {errorMessage}
@@ -212,10 +220,10 @@ const ColorsTab = () => {
         <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              Color Palette
+              {t("palette")}
             </h2>
             <p className="text-sm text-[#486284]">
-              {pagination.total_items} colors available
+              {pagination.total_items} {t("colorAvailable")}
             </p>
           </div>
 
@@ -224,7 +232,7 @@ const ColorsTab = () => {
             className="bg-[#A0522D] text-white px-4 py-2 font-semibold rounded-md text-sm flex items-center gap-2"
           >
             <FiPlus size={14} />
-            Add Color
+            {t("addColor")}
           </button>
         </div>
 
@@ -236,7 +244,7 @@ const ColorsTab = () => {
           />
           <input
             type="text"
-            placeholder="Search Colors..."
+            placeholder={t("searchColor")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm"
@@ -286,7 +294,7 @@ const ColorsTab = () => {
                     color.compatibleFabric.length > 0 && (
                       <div className="mt-3">
                         <p className="text-xs text-[#486284] mb-1">
-                          Compatible Fabrics:
+                          {t("compatibleFabric")}:
                         </p>
                         <div className="flex gap-2 flex-wrap">
                           {color.compatibleFabric.map((fabric, index) => (
@@ -306,7 +314,7 @@ const ColorsTab = () => {
                       onClick={() => handleEditColor(color)}
                       className="flex items-center justify-center bg-[#A0522D] text-white text-xs px-3 py-1.5 rounded-md"
                     >
-                      Edit
+                      {t("edit")}
                     </button>
 
                     <button
@@ -316,13 +324,13 @@ const ColorsTab = () => {
                       }}
                       className="flex-1 border border-red-200 text-red-500 text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                     >
-                      Delete
+                      {t("Delete")}
                     </button>
                     <button
                       onClick={() => handleDuplicateColor(color)}
                       className="flex-1 border border-gray-300 text-[#486284] hover:bg-gray-50 transition-colors text-xs py-1.5 rounded-md cursor-pointer"
                     >
-                      Duplicate
+                      {t("duplicate")}
                     </button>
                   </div>
                 </div>
@@ -361,8 +369,8 @@ const ColorsTab = () => {
           setColorToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Color"
-        message="Are you sure you want to delete this color? This action cannot be undone."
+        title={t("deleteColor")}
+        message={t("deleteColorContent")}
         itemName={colorToDelete?.colorName}
         loading={deleteLoading}
       />

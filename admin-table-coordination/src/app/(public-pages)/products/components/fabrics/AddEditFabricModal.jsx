@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
+import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -42,6 +43,7 @@ const AddEditFabricModal = ({
   initialData,
   onSaveSuccess,
 }) => {
+  const t = useTranslations("productSpecification.fabric");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -119,22 +121,25 @@ const AddEditFabricModal = ({
   }, [category, accessToken]);
 
   const validationSchema = z.object({
-    fabricName: z.string().trim().min(1, {
-      message: "Fabric name is required",
-    }),
+    fabricName: z
+      .string()
+      .trim()
+      .min(1, {
+        message: t("validation.fabricNameRequired"),
+      }),
 
     materialType: z.any().refine((val) => val !== null, {
-      message: "Material type is required",
+      message: t("validation.materialTypeRequired"),
     }),
 
     price: z
       .string()
       .trim()
       .min(1, {
-        message: "Price is required",
+        message: t("validation.priceRequired"),
       })
       .refine((val) => !isNaN(Number(val)), {
-        message: "Enter a valid price",
+        message: t("validation.validPrice"),
       }),
   });
 
@@ -422,7 +427,7 @@ const AddEditFabricModal = ({
           {/* HEADER */}
           <div className="border-b px-6 py-4 flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              {mode === "edit" ? "Edit Fabric" : "Add New Fabric"}
+              {mode === "edit" ? t("editFabric") : t("addFabric")}
             </h2>
           </div>
 
@@ -438,7 +443,8 @@ const AddEditFabricModal = ({
             {/* Fabric Name */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Fabric Name<span className="text-red-500">*</span>
+                {t("fabricName")}
+                <span className="text-red-500">*</span>
               </label>
               <FormItem
                 className="mt-1"
@@ -458,7 +464,8 @@ const AddEditFabricModal = ({
             {/* Color */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Color<span className="text-red-500">*</span>
+                {t("color")}
+                <span className="text-red-500">*</span>
               </label>
 
               <div className="flex gap-3 mt-1">
@@ -496,15 +503,14 @@ const AddEditFabricModal = ({
                 </div>
               </div>
 
-              <p className="text-xs text-gray-500 mt-1">
-                Choose a color or enter a HEX code
-              </p>
+              <p className="text-xs text-gray-500 mt-1">{t("colorCodeHelp")}</p>
             </div>
 
             {/* Material Type */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Material Type<span className="text-red-500">*</span>
+                {t("materialType")}
+                <span className="text-red-500">*</span>
               </label>
               {/* <Select
                             options={materialOptions}
@@ -540,7 +546,8 @@ const AddEditFabricModal = ({
             {/* Price */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Price Per Unit<span className="text-red-500">*</span>
+                {t("pricePer")}
+                <span className="text-red-500">*</span>
               </label>
               {/* <input
                             type="number"
@@ -568,7 +575,7 @@ const AddEditFabricModal = ({
             {/* Status */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Status
+                {t("status")}
               </label>
               <div className="flex items-center gap-3 mt-2">
                 <button
@@ -581,7 +588,7 @@ const AddEditFabricModal = ({
                   />
                 </button>
                 <span className="text-sm text-[#1C2C56]">
-                  {active ? "Active" : "Inactive"}
+                  {active ? t("active") : t("inactive")}
                 </span>
               </div>
             </div>
@@ -596,7 +603,7 @@ const AddEditFabricModal = ({
               disabled={saving}
               className="bg-blue-100 rounded-lg"
             >
-              Cancel
+              {t("cancel")}
             </Button>
 
             {mode === "add" && (
@@ -608,7 +615,7 @@ const AddEditFabricModal = ({
                 // className="bg-blue-100 rounded-lg text-[#F2F5FA]"
                 className="disabled:text-gray-400 disabled:cursor-not-allowed bg-blue-100 rounded-lg"
               >
-                {saving ? "Saving..." : "Save & Add Another"}
+                {saving ? "Saving..." : t("addAnother")}
               </Button>
             )}
 
@@ -620,7 +627,7 @@ const AddEditFabricModal = ({
               // onClick={handleSave}
               loading={saving}
             >
-              {mode === "edit" ? "Update" : "Save"}
+              {mode === "edit" ? t("update") : t("save")}
             </Button>
           </div>
         </div>

@@ -1,74 +1,3 @@
-// import NextAuth from "next-auth";
-// import { NextResponse } from "next/server";
-
-// import authConfig from "@/configs/auth.config";
-// import {
-//   authRoutes as _authRoutes,
-//   publicRoutes as _publicRoutes,
-// } from "@/configs/routes.config";
-// import { REDIRECT_URL_KEY } from "@/constants/app.constant";
-// import appConfig from "@/configs/app.config";
-
-// const { auth } = NextAuth(authConfig);
-
-// const publicRoutes = Object.keys(_publicRoutes);
-// const authRoutes = Object.keys(_authRoutes);
-
-// const apiAuthPrefix = `${appConfig.apiPrefix}/auth`;
-
-// export default auth((req) => {
-//   const { nextUrl } = req;
-//   const isSignedIn = !!req.auth;
-
-//   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
-
-//   const isPublicRoute = publicRoutes.some(
-//     (route) =>
-//       nextUrl.pathname === route ||
-//       nextUrl.pathname.startsWith(route + "/")
-//   );
-
-//   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-
-//   /** 1️⃣ Skip API auth routes */
-//   if (isApiAuthRoute) {
-//     return NextResponse.next();
-//   }
-
-//   /** 2️⃣ Auth pages (login, register) */
-//   if (isAuthRoute) {
-//     if (isSignedIn) {
-//       return NextResponse.redirect(
-//         new URL(appConfig.authenticatedEntryPath, nextUrl)
-//       );
-//     }
-//     return NextResponse.next();
-//   }
-
-//   /** 3️⃣ Protected routes */
-//   if (!isSignedIn && !isPublicRoute) {
-//     let callbackUrl = nextUrl.pathname;
-//     if (nextUrl.search) {
-//       callbackUrl += nextUrl.search;
-//     }
-
-//     return NextResponse.redirect(
-//       new URL(
-//         `${appConfig.unAuthenticatedEntryPath}?${REDIRECT_URL_KEY}=${callbackUrl}`,
-//         nextUrl
-//       )
-//     );
-//   }
-
-//   /** 4️⃣ ALLOW REQUEST ✅ (THIS WAS MISSING) */
-//   return NextResponse.next();
-// });
-
-// export const config = {
-//   matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api)(.*)"],
-// };
-
-
 import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
 
@@ -89,25 +18,28 @@ const authRoutes = Object.keys(_authRoutes);
 // NextAuth API prefix (must be skipped)
 const apiAuthPrefix = `${appConfig.apiPrefix}/auth`;
 
+const BASE_PATH = "";
+
 export default auth((req) => {
   const { nextUrl } = req;
 
   // TRUE if session exists
   const isSignedIn = !!req.auth;
 
-  // DEBUG (safe – does not affect logic)
-  console.log("PATH:", nextUrl.pathname);
-  console.log("AUTH SESSION:", req.auth ? "EXISTS" : "NULL");
+  // nextUrl.pathname includes the basePath; strip it for route matching
+  const rawPathname = nextUrl.pathname.startsWith(BASE_PATH)
+    ? nextUrl.pathname.slice(BASE_PATH.length) || "/"
+    : nextUrl.pathname;
 
-  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+  const isApiAuthRoute = rawPathname.startsWith(apiAuthPrefix);
 
   const isPublicRoute = publicRoutes.some(
     (route) =>
-      nextUrl.pathname === route ||
-      nextUrl.pathname.startsWith(route + "/")
+      rawPathname === route ||
+      rawPathname.startsWith(route + "/")
   );
 
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+  const isAuthRoute = authRoutes.includes(rawPathname);
 
   /** 1️⃣ Skip NextAuth internal API routes */
   if (isApiAuthRoute) {
@@ -118,7 +50,7 @@ export default auth((req) => {
   if (isAuthRoute) {
     if (isSignedIn) {
       return NextResponse.redirect(
-        new URL(appConfig.authenticatedEntryPath, nextUrl)
+        new URL(BASE_PATH + appConfig.authenticatedEntryPath, nextUrl)
       );
     }
     return NextResponse.next();
@@ -134,7 +66,7 @@ export default auth((req) => {
 
     return NextResponse.redirect(
       new URL(
-        `${appConfig.unAuthenticatedEntryPath}?${REDIRECT_URL_KEY}=${callbackUrl}`,
+        `${BASE_PATH}${appConfig.unAuthenticatedEntryPath}?${REDIRECT_URL_KEY}=${callbackUrl}`,
         nextUrl
       )
     );

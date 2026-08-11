@@ -13,6 +13,7 @@ import {
   FiEye,
 } from "react-icons/fi";
 import toast from "@/components/ui/toast";
+import { useTranslations } from "next-intl";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetBlogList, apiDeleteBlog } from "@/services/BlogService";
@@ -47,6 +48,7 @@ const BlogTab = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const t = useTranslations("contentMedia.blog");
 
   // Modal
   const [openModal, setOpenModal] = useState(false);
@@ -188,13 +190,16 @@ const BlogTab = () => {
       <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
-            <h2 className="text-2xl font-semibold text-[#1C2C56]">Blog</h2>
-            <p className="text-base text-[#486284]">Manage your blog posts</p>
+            <h2 className="text-2xl font-semibold text-[#1C2C56]">
+              {" "}
+              {t("blog")}
+            </h2>
+            <p className="text-base text-[#486284]">{t("blogContent")}</p>
           </div>
 
           <div className="flex gap-3">
             <button className="border border-[#CBD5E1] text-[#1C2C56] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
-              Arrange Order
+              {t("arrangeOrder")}
             </button>
 
             <button
@@ -205,7 +210,7 @@ const BlogTab = () => {
               }}
             >
               <FiPlus size={16} />
-              Add Blog
+              {t("addBlog")}
             </button>
           </div>
         </div>
@@ -217,7 +222,7 @@ const BlogTab = () => {
           />
           <input
             type="text"
-            placeholder="Search Blog Posts..."
+            placeholder={t("searchBlog")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none"
@@ -237,7 +242,7 @@ const BlogTab = () => {
           <CardSkeleton />
         ) : posts.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
-            No blog posts found
+            {t("noBlogPostsFound")}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -348,8 +353,8 @@ const BlogTab = () => {
           setPostToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Blog Post"
-        message="Are you sure you want to delete this blog post? This action cannot be undone."
+        title={t("deleteBlog")}
+        message={t("deleteContentBlog")}
         itemName={postToDelete?.title}
         loading={deleteLoading}
       />
