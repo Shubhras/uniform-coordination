@@ -8,11 +8,13 @@ import InspectionQueueList from "./components/queue/InspectionQueueList";
 import DamagedItemsList from "./components/damagedItems/DamagedItemsList";
 import CleaningItems from "./components/cleaningItems/CleaningItems";
 import Tabs from "./components/Tabs";
+import { useTranslations } from "next-intl";
 
 const InventoryManagement = () => {
+  const t = useTranslations("inventoryManagement");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState("Inventory Lists");
+  const [activeTab, setActiveTab] = useState("inventory");
   const [isDetailMode, setIsDetailMode] = useState(false);
 
   useEffect(() => {
@@ -30,13 +32,13 @@ const InventoryManagement = () => {
 
   const renderTab = () => {
     switch (activeTab) {
-      case "Inventory Lists":
+      case "inventory":
         return <InventoryList />;
-      case "Inspection Queue":
+      case "inspection":
         return <InspectionQueueList onDetailModeChange={setIsDetailMode} />;
-      case "Damaged Items":
+      case "damaged":
         return <DamagedItemsList />;
-      case "Cleaning Items":
+      case "cleaning":
         return <CleaningItems />;
 
       default:
@@ -51,11 +53,11 @@ const InventoryManagement = () => {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-[28px] font-semibold text-[#1A1410]">
-                Inventory Management
+                {t("invenotyrTitle")}
               </h1>
 
               <p className="text-[16px] text-[#757575] mt-1">
-                Track inventory, stock status, and product availability.
+                {t("inventoryContent")}
               </p>
             </div>
 
@@ -65,7 +67,7 @@ const InventoryManagement = () => {
                 className="flex items-center gap-2 bg-[#A85A32] hover:bg-[#8F4D2A] text-white px-3 py-2 rounded-lg font-medium transition"
               >
                 <FiPlus size={18} />
-                Add Product
+                {t("add")}
               </button>
             )}
           </div>
