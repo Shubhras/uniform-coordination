@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import { apiSindleOrderDetials } from '@/services/OrderService'
 import { formatDate } from '@/utils/formatDate'
+import { formatCurrency } from '@/utils/formatCurrency'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import {
     FiArrowLeft,
@@ -119,6 +120,8 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
         ? orderDetailData.data[0]
         : orderDetailData?.data || orderDetailData
 
+    const currencyCode = orderData?.payment_summary?.currency || orderData?.currency || 'USD'
+
     // Address formatter helper
     const formatAddress = (addr) => {
         if (!addr) return ''
@@ -196,23 +199,23 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <span>Sub Total</span>
-                                            <span>¥{orderData?.payment_summary?.subtotal}</span>
+                                            <span>{formatCurrency(orderData?.payment_summary?.subtotal, currencyCode)}</span>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <span>Delivery Fee</span>
-                                            <span>¥{orderData?.payment_summary?.shipping_charge}</span>
+                                            <span>{formatCurrency(orderData?.payment_summary?.shipping_charge, currencyCode)}</span>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <span>Consumption Tax (10%)</span>
-                                            <span>¥{orderData?.payment_summary?.tax}</span>
+                                            <span>{formatCurrency(orderData?.payment_summary?.tax, currencyCode)}</span>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <span>Corporate Discount</span>
-                                            <span className="text-[#B04E2F]">-¥{orderData?.payment_summary?.discount}0</span>
+                                            <span className="text-[#B04E2F]">-{formatCurrency(orderData?.payment_summary?.discount || 0, currencyCode)}</span>
                                         </div>
                                         <div className="flex items-center justify-between border-t border-[#F2E6E0] pt-3 font-semibold text-[#B04E2F]">
                                             <span>Rental Subtotal</span>
-                                            <span>¥{orderData?.payment_summary?.subtotal}</span>
+                                            <span>{formatCurrency(orderData?.payment_summary?.subtotal, currencyCode)}</span>
                                         </div>
                                     </div>
 
@@ -316,8 +319,8 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                                     <td className="px-4 py-3.5">{item.product_name}</td>
                                                     <td className="px-4 py-3.5">{item.quantity}</td>
                                                     <td className="px-4 py-3.5">{item.rental_days}</td>
-                                                    <td className="px-4 py-3.5">{item.price_per_day}</td>
-                                                    <td className="px-4 py-3.5">{item.subtotal}</td>
+                                                    <td className="px-4 py-3.5">{formatCurrency(item.price_per_day, currencyCode)}</td>
+                                                    <td className="px-4 py-3.5">{formatCurrency(item.subtotal, currencyCode)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -333,8 +336,8 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                             <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-[#6D5548]">
                                                 <span>Qty: {item.quantity}</span>
                                                 <span>Days: {item.rental_days}</span>
-                                                <span>{item.price_per_day}</span>
-                                                <span>{item.subtotal}</span>
+                                                <span>{formatCurrency(item.price_per_day, currencyCode)}</span>
+                                                <span>{formatCurrency(item.subtotal, currencyCode)}</span>
                                             </div>
                                         </div>
                                     ))}

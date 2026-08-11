@@ -2862,10 +2862,10 @@ class AdminContractDetailAPIView(APIView):
         summary_data = {
             "items": "0 line items",
             "rental_days": "0 days",
-            "subtotal": "¥0.00",
-            "discount": "¥0.00",
-            "delivery": "¥0.00",
-            "total": "¥0.00"
+            "subtotal": "$0.00",
+            "discount": "$0.00",
+            "delivery": "$0.00",
+            "total": "$0.00"
         }
 
         if contract.order:
@@ -2876,12 +2876,12 @@ class AdminContractDetailAPIView(APIView):
                     "category": item.product.subcategory.category.categoryName if (item.product.subcategory and item.product.subcategory.category) else "Uniform",
                     "requested": item.quantity,
                     "availability": f"Available ({item.quantity})",
-                    "unitRate": f"¥{item.price_per_day}"
+                    "unitRate": f"${item.price_per_day}"
                 })
 
             rental_days = 0
             if order.rental_start_date and order.rental_end_date:
-                rental_days = (order.rental_end_date - order.rental_start_date).days + 1
+                rental_days = (order.rental_end_date - order.rental_start_date).days
 
             discount_amount = (order.subtotal or 0) + (order.shipping_charge or 0) + (order.tax or 0) - (order.total_amount or 0)
             if discount_amount < 0:
@@ -2890,10 +2890,10 @@ class AdminContractDetailAPIView(APIView):
             summary_data = {
                 "items": f"{order.items.count()} line items",
                 "rental_days": f"{rental_days} days",
-                "subtotal": f"¥{order.subtotal}",
-                "discount": f"¥{discount_amount}",
-                "delivery": f"¥{order.shipping_charge}",
-                "total": f"¥{order.total_amount}"
+                "subtotal": f"${order.subtotal}",
+                "discount": f"${discount_amount}",
+                "delivery": f"${order.shipping_charge}",
+                "total": f"${order.total_amount}"
             }
 
         # Format audit logs

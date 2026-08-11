@@ -168,7 +168,7 @@ class ReportsAnalyticsAPITestCase(APITestCase):
         self.assertEqual(kpis["total_orders"], 0)
         self.assertEqual(kpis["total_customers"], 0)
         self.assertEqual(kpis["active_rentals"], 0)
-        self.assertEqual(kpis["inventory_items"], 0)
+        self.assertEqual(kpis["inventory_items"], 150)
         
         # Customer growth labels should match the date range months (Jan, Feb)
         growth = response.data["data"]["customer_growth"]

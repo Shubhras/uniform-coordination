@@ -34,6 +34,16 @@ urlpatterns = [
     path('customupdatemodels/delete/',CustomUpdateModelsDeleteAPIView.as_view(), name = 'custom-delete'),
     path('customupdatemodels/<int:customization_id>/export/',CustomUpdateModelExportPDFAPIView.as_view(), name = 'custom-get'),
     path('customupdateuser/get-list/', CustomModelsUserAPIView.as_view(), name = 'get-list'),
+
+    #<------------------------CustomUpdateTheme---------------------->
+    path('customupdatethemes/create/', CustomUpdateThemesCreateAPIView.as_view(), name = 'custom-theme-create'),
+    path('customupdatethemes/get-list/', CustomUpdateThemesListAPIView.as_view(), name = 'custom-theme-get-list'),
+    path('customupdatethemes/<int:id>/get/', CustomUpdateThemesDetailAPIView.as_view(), name = 'custom-theme-get'),
+    path('customupdatethemes/<int:id>/update/', CustomUpdateThemesUpdateAPIView.as_view(), name = 'custom-theme-update'),
+    path('customupdatethemes/delete/', CustomUpdateThemesDeleteAPIView.as_view(), name = 'custom-theme-delete'),
+    path('customupdatethemes/<int:customization_id>/export/', CustomUpdateThemeExportPDFAPIView.as_view(), name = 'custom-theme-export'),
+    path('customupdatethemesuser/get-list/', CustomThemesUserAPIView.as_view(), name = 'get-theme-list'),
+
     #<-----------------------------QuotationRequest-------------------->
     path('quotationrequest/create/',QuotationRequestCreateAPIView.as_view(), name = 'QuotationRequest-create'),
     path('quotationrequest/<str:quotation_id>/get/',QuotationRequestDetailAPIView.as_view(), name = 'QuotationRequest-get'),
@@ -52,6 +62,7 @@ urlpatterns = [
     path("cart/clear/", ClearCartAPIView.as_view()),# all items remove 
 
     #<-------------------ORDER API------------------------------->
+    path("customer/details/", CustomerDetailsRetrieveAPIView.as_view()),
     path("create/order/",CreateOrderAPIView.as_view()),
     path('order/summary/',OrderSummaryAPIView.as_view(), name='order-summary'),  #show full checkout/order review
     path("order/<str:order_id>/get/",OrderDetailAPIView.as_view()),

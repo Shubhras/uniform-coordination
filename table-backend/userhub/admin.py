@@ -625,3 +625,25 @@ class QuotationRequestAdmin(admin.ModelAdmin):
     #  Pagination
     list_per_page = 25
 
+
+
+@admin.register(CustomUpdateThemes)
+class CustomUpdateThemesAdmin(admin.ModelAdmin):
+    list_display = ("user", "theme", "isActive", "isDeleted", "created_at")
+    list_filter = ("isActive", "isDeleted", "theme", "created_at")
+    search_fields = ("user__username", "user__email", "theme__name", "json_file_path")
+    autocomplete_fields = ("user", "theme")
+    readonly_fields = ("created_at",)
+    ordering = ("-created_at",)
+
+    fieldsets = (
+        (None, {
+            "fields": ("user", "theme", "isActive", "isDeleted")
+        }),
+        ("Config", {
+            "fields": ("config_json", "design_specifications", "json_file_path")
+        }),
+        ("Timestamps", {
+            "fields": ("created_at",)
+        }),
+    )
