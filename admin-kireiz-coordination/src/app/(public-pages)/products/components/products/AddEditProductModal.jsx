@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
@@ -69,43 +69,44 @@ const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const validationSchema = z.object({
-  productName: z.string().trim().min(1, "Product name is required"),
+const getValidationSchema = (tm) =>
+  z.object({
+    productName: z.string().trim().min(1, tm("validation.nameRequired")),
 
-  description: z.string().trim().min(1, "Description is required"),
+    description: z.string().trim().min(1, tm("validation.descriptionRequired")),
 
-  category: z
-    .object({
-      value: z.any(),
-      label: z.string(),
-    })
-    .nullable()
-    .refine((val) => val !== null, {
-      message: "Category is required",
-    }),
+    category: z
+      .object({
+        value: z.any(),
+        label: z.string(),
+      })
+      .nullable()
+      .refine((val) => val !== null, {
+        message: tm("validation.categoryRequired"),
+      }),
 
-  subcategory: z.any().optional(),
-  type: z
-    .object({
-      value: z.string(),
-      label: z.string(),
-    })
-    .nullable()
-    .refine((val) => val !== null, {
-      message: "Type is required",
-    }),
+    subcategory: z.any().optional(),
+    type: z
+      .object({
+        value: z.string(),
+        label: z.string(),
+      })
+      .nullable()
+      .refine((val) => val !== null, {
+        message: tm("validation.typeRequired"),
+      }),
 
-  price: z
-    .string()
-    .min(1, "Price is required")
-    .refine((val) => !isNaN(Number(val)), {
-      message: "Enter valid price",
-    }),
+    price: z
+      .string()
+      .min(1, tm("validation.priceRequired"))
+      .refine((val) => !isNaN(Number(val)), {
+        message: tm("validation.priceInvalid"),
+      }),
 
-  selectedParts: z.array(z.any()).min(1, "Parts is required"),
+    selectedParts: z.array(z.any()).min(1, tm("validation.partsRequired")),
 
-  image: z.any().optional(),
-});
+    image: z.any().optional(),
+  });
 
 const EMPTY_PRODUCT_FORM_VALUES = {
   productName: "",
@@ -152,6 +153,8 @@ const AddEditProductModal = ({
   const [loadingParts, setLoadingParts] = useState(false);
   const [imageError, setImageError] = useState("");
   const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
+
+  const validationSchema = useMemo(() => getValidationSchema(tm), [tm]);
 
   const {
     control,
@@ -371,7 +374,7 @@ const AddEditProductModal = ({
     if (!file) return;
 
     if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
-      setImageError("Only PNG, JPG, JPEG files are allowed.");
+      setImageError(tm("validation.onlyAllowedFormats"));
       return;
     }
 
@@ -380,7 +383,7 @@ const AddEditProductModal = ({
 
     img.onload = () => {
       if (img.width > 1000 || img.height > 1000) {
-        setImageError("Maximum dimension allowed is 1000x1000px.");
+        setImageError(tm("validation.maxDimensionAllowed"));
         URL.revokeObjectURL(objectUrl);
         return;
       }
@@ -391,7 +394,7 @@ const AddEditProductModal = ({
     };
 
     img.onerror = () => {
-      setImageError("Invalid image file.");
+      setImageError(tm("validation.invalidImageFile"));
       URL.revokeObjectURL(objectUrl);
     };
 

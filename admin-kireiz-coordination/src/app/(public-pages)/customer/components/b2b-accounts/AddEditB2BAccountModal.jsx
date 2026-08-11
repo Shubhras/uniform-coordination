@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
@@ -18,11 +18,7 @@ import {
   apiUpdateB2BAccount,
 } from "@/services/B2BAccountService";
 
-const tierOptions = [
-  { value: "gold", label: "Gold" },
-  { value: "silver", label: "Silver" },
-  { value: "bronze", label: "Bronze" },
-];
+
 
 const selectStyles = {
   control: (base) => ({
@@ -36,23 +32,23 @@ const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const getValidationSchema = (mode) =>
+const getValidationSchema = (mode, t) =>
   z
     .object({
-      name: z.string().min(1, "Name is required"),
+      name: z.string().min(1, t("validation.nameRequired")),
 
-      companyName: z.string().trim().min(1, "Company Name is required"),
+      companyName: z.string().trim().min(1, t("validation.companyNameRequired")),
 
       email: z
         .string()
-        .min(1, "Email is required")
-        .email("Invalid email address"),
+        .min(1, t("validation.emailRequired"))
+        .email(t("validation.invalidEmail")),
 
       mobile: z
         .string()
         .trim()
-        .min(1, "Mobile number is required")
-        .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
+        .min(1, t("validation.mobileRequired"))
+        .regex(/^[6-9]\d{9}$/, t("validation.invalidMobile")),
 
       tier: z.any().nullable().optional(),
 
@@ -63,7 +59,7 @@ const getValidationSchema = (mode) =>
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["password"],
-          message: "Password is required",
+          message: t("validation.passwordRequired"),
         });
       }
     });
@@ -86,10 +82,22 @@ const AddEditB2BAccountModal = ({
   const [tier, setTier] = useState(null);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
-  // Save state
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const tierOptions = useMemo(
+    () => [
+      { value: "gold", label: t("tierOptions.gold") },
+      { value: "silver", label: t("tierOptions.silver") },
+      { value: "bronze", label: t("tierOptions.bronze") },
+    ],
+    [t],
+  );
+
+  const validationSchema = useMemo(
+    () => getValidationSchema(mode, t),
+    [mode, t],
+  );
 
   const {
     handleSubmit,
@@ -97,7 +105,7 @@ const AddEditB2BAccountModal = ({
     reset,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(getValidationSchema(mode)),
+    resolver: zodResolver(validationSchema),
     defaultValues: {
       name: "",
       companyName: "",

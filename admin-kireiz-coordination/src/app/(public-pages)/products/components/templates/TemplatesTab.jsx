@@ -189,7 +189,7 @@ const TemplatesTab = () => {
 
       toast.push(
         <Notification title={t("successTitle")} type="success">
-          Template deleted successfully.
+          {t("deleteSuccess")}
         </Notification>,
       );
 
@@ -342,7 +342,7 @@ const TemplatesTab = () => {
                   </h3>
 
                   <p className="text-xs text-[#486284] mt-1">
-                    {tItem.partName} &nbsp; | &nbsp; {tItem.partUsageCount} Parts
+                    {tItem.partName} &nbsp; | &nbsp; {t("partsCount", { count: tItem.partUsageCount })}
                   </p>
 
                   <span
@@ -352,7 +352,7 @@ const TemplatesTab = () => {
                         : "bg-red-50 text-red-600"
                     }`}
                   >
-                    {tItem.isActive ? "Active" : "Inactive"}
+                    {tItem.isActive ? t("createTemplateModal.statusActive") : t("createTemplateModal.statusInactive")}
                   </span>
 
                   <div className="flex gap-2 mt-4">
@@ -360,7 +360,7 @@ const TemplatesTab = () => {
                       onClick={() => handleEdit(tItem)}
                       className="flex-1 bg-[#1C4FA8] text-white text-xs py-1.5 rounded-md"
                     >
-                      Edit
+                      {t("edit")}
                     </button>
                     <button
                       onClick={() => {
@@ -369,13 +369,13 @@ const TemplatesTab = () => {
                       }}
                       className="flex-1 border border-red-200 text-red-500 text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                     >
-                      Delete
+                      {t("delete")}
                     </button>
                     <button
                       onClick={() => handlePreview(tItem)}
-                      className="flex-1 border border-[#CBD5E1] text-[#1C2C56] text-xs py-1.5 rounded-md"
+                      className="flex-1 border border-[#CBD5E1] text-[#1C2C56] text-xs py-1.5 rounded-md hover:bg-gray-50 transition-colors"
                     >
-                      Preview
+                      {t("preview")}
                     </button>
                   </div>
                 </div>

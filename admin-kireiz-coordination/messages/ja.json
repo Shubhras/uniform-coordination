@@ -510,6 +510,11 @@
                 "title": "テンプレートを削除",
                 "message": "このテンプレートを削除してもよろしいですか？この操作は取り消せません。"
             },
+            "edit": "編集",
+            "delete": "削除",
+            "preview": "プレビュー",
+            "partsCount": "{count}パーツ",
+            "deleteSuccess": "テンプレートが正常に削除されました。",
             "previewModal": {
                 "title": "テンプレートのプレビュー",
                 "close": "閉じる"
@@ -592,9 +597,16 @@
                 "saveFailed": "商品の保存に失敗しました。もう一度お試しください。",
                 "validation": {
                     "nameRequired": "商品名は必須です",
+                    "descriptionRequired": "説明は必須です",
                     "priceRequired": "価格は必須です",
+                    "priceInvalid": "有効な価格を入力してください",
                     "categoryRequired": "カテゴリーは必須です",
-                    "imageRequired": "画像は必須です"
+                    "typeRequired": "タイプは必須です",
+                    "partsRequired": "パーツは必須です",
+                    "imageRequired": "画像は必須です",
+                    "onlyAllowedFormats": "PNG、JPG、JPEGファイルのみ許可されています。",
+                    "maxDimensionAllowed": "許可されている最大サイズは1000x1000pxです。",
+                    "invalidImageFile": "無効な画像ファイルです。"
                 },
                 "imageValidated": "画像を確認しました",
                 "saveSuccess": "保存しました"
@@ -1029,7 +1041,21 @@
                 "leaveBlankPassword": "現在のパスワードを保持する場合は空欄",
                 "cancel": "キャンセル",
                 "createAccount": "アカウントを作成",
-                "updateAccount": "更新"
+                "updateAccount": "更新",
+                "tierOptions": {
+                    "gold": "ゴールド",
+                    "silver": "シルバー",
+                    "bronze": "ブロンズ"
+                },
+                "validation": {
+                    "nameRequired": "氏名は必須です",
+                    "companyNameRequired": "会社名は必須です",
+                    "emailRequired": "メールアドレスは必須です",
+                    "invalidEmail": "有効なメールアドレスを入力してください",
+                    "mobileRequired": "携帯電話番号は必須です",
+                    "invalidMobile": "有効な10桁の携帯電話番号を入力してください",
+                    "passwordRequired": "パスワードは必須です"
+                }
             },
             "viewAccountModal": {
                 "salesRepTitle": "担当営業者",
@@ -1327,6 +1353,7 @@
             "formatPdf": "PDF",
             "formatPng": "PNG",
             "formatJpg": "JPG",
+            "saving": "保存中...",
             "compressionQuality": "圧縮品質",
             "smallerFile": "ファイルサイズ優先",
             "betterQuality": "画質優先",
@@ -1448,7 +1475,13 @@
             "accountNumberLabel": "口座番号",
             "quotedFiguresIncludeTax": "見積金額は税込みです",
             "cancel": "キャンセル",
-            "saveChanges": "変更を保存"
+            "saveChanges": "変更を保存",
+            "saving": "保存中...",
+            "saveSuccess": "支払い設定を保存しました。",
+            "loadError": "支払い設定を読み込めませんでした",
+            "saveError": "設定を保存できませんでした",
+            "successTitle": "成功",
+            "errorTitle": "エラー"
         },
         "emailNotifications": {
             "senderIdentitySection": "送信者情報",

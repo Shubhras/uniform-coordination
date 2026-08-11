@@ -1,6 +1,0 @@
-{
-  "/(public-pages)/table-form/page": "app/(public-pages)/table-form/page.js",
-  "/(public-pages)/browse-by-color/page": "app/(public-pages)/browse-by-color/page.js",
-  "/(public-pages)/browse-by-theme/page": "app/(public-pages)/browse-by-theme/page.js",
-  "/(public-pages)/faq/page": "app/(public-pages)/faq/page.js"
-}

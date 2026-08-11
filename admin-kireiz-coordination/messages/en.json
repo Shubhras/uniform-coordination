@@ -510,6 +510,11 @@
                 "title": "Delete Template",
                 "message": "Are you sure you want to delete this template? This action cannot be undone."
             },
+            "edit": "Edit",
+            "delete": "Delete",
+            "preview": "Preview",
+            "partsCount": "{count} Parts",
+            "deleteSuccess": "Template deleted successfully.",
             "previewModal": {
                 "title": "Preview Template",
                 "close": "Close"
@@ -592,9 +597,16 @@
                 "saveFailed": "Failed to save product. Please try again.",
                 "validation": {
                     "nameRequired": "Product name is required",
+                    "descriptionRequired": "Description is required",
                     "priceRequired": "Price is required",
+                    "priceInvalid": "Enter valid price",
                     "categoryRequired": "Category is required",
-                    "imageRequired": "Image is required"
+                    "typeRequired": "Type is required",
+                    "partsRequired": "Parts is required",
+                    "imageRequired": "Image is required",
+                    "onlyAllowedFormats": "Only PNG, JPG, JPEG files are allowed.",
+                    "maxDimensionAllowed": "Maximum dimension allowed is 1000x1000px.",
+                    "invalidImageFile": "Invalid image file."
                 },
                 "imageValidated": "Image validated successfully",
                 "saveSuccess": "Saved successfully"
@@ -1029,7 +1041,21 @@
                 "leaveBlankPassword": "Leave blank to keep current",
                 "cancel": "Cancel",
                 "createAccount": "Create Account",
-                "updateAccount": "Update"
+                "updateAccount": "Update",
+                "tierOptions": {
+                    "gold": "Gold",
+                    "silver": "Silver",
+                    "bronze": "Bronze"
+                },
+                "validation": {
+                    "nameRequired": "Name is required",
+                    "companyNameRequired": "Company name is required",
+                    "emailRequired": "Email is required",
+                    "invalidEmail": "Invalid email address",
+                    "mobileRequired": "Mobile number is required",
+                    "invalidMobile": "Enter a valid 10-digit mobile number",
+                    "passwordRequired": "Password is required"
+                }
             },
             "viewAccountModal": {
                 "salesRepTitle": "Your Sales Representative",
@@ -1324,9 +1350,10 @@
             "title": "Export Configuration",
             "subtitle": "Configure output settings for generated documents.",
             "outputFormat": "Output Format",
-            "formatPdf": "Pdf",
-            "formatPng": "Png",
-            "formatJpg": "Jpg",
+            "formatPdf": "PDF",
+            "formatPng": "PNG",
+            "formatJpg": "JPG",
+            "saving": "Saving...",
             "compressionQuality": "Compression Quality",
             "smallerFile": "Smaller File",
             "betterQuality": "Better Quality",
@@ -1448,7 +1475,13 @@
             "accountNumberLabel": "Account Number",
             "quotedFiguresIncludeTax": "Quoted figures already include tax",
             "cancel": "Cancel",
-            "saveChanges": "Save Changes"
+            "saveChanges": "Save Changes",
+            "saving": "Saving...",
+            "saveSuccess": "Payment settings saved successfully.",
+            "loadError": "Could not load payment settings",
+            "saveError": "Could not save settings",
+            "successTitle": "Success",
+            "errorTitle": "Error"
         },
         "emailNotifications": {
             "senderIdentitySection": "Sender Identity",

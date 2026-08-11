@@ -1,6 +1,6 @@
 from django.db import models
 from django.forms import CharField
-from uniformAdmin.models import Role , Product
+from uniformAdmin.models import Role, Product, TableTheme
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 import uuid
@@ -93,6 +93,22 @@ class Favourite(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.product} - {self.is_like}"
+
+
+class ThemeFavourite(models.Model):
+    theme = models.ForeignKey(TableTheme, on_delete=models.CASCADE, related_name="theme_favourites")
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="user_theme_favourites")
+    is_like = models.BooleanField(default=False)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('theme', 'user')
+
+    def __str__(self):
+        return f"{self.user} - {self.theme} - {self.is_like}"
 
 
 # Cart
