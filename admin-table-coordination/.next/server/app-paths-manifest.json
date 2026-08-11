@@ -1,4 +1,5 @@
 {
-  "/(public-pages)/theme-management/page": "app/(public-pages)/theme-management/page.js",
-  "/(public-pages)/theme-management/addTheme/page": "app/(public-pages)/theme-management/addTheme/page.js"
+  "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js",
+  "/(public-pages)/inventory-management/page": "app/(public-pages)/inventory-management/page.js",
+  "/(public-pages)/theme-management/page": "app/(public-pages)/theme-management/page.js"
 }

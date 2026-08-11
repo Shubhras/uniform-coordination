@@ -1,4 +1,22 @@
 {
+  "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./MostUsedIndustriesChart": {
+    "id": "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./MostUsedIndustriesChart",
+    "files": [
+      "static/chunks/_app-pages-browser_src_app_public-pages_admin-form_components_MostUsedIndustriesChart_jsx.js"
+    ]
+  },
+  "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./QuotationRequestsChart": {
+    "id": "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./QuotationRequestsChart",
+    "files": [
+      "static/chunks/_app-pages-browser_src_app_public-pages_admin-form_components_QuotationRequestsChart_jsx.js"
+    ]
+  },
+  "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./QuotationsByStatusChart": {
+    "id": "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./QuotationsByStatusChart",
+    "files": [
+      "static/chunks/_app-pages-browser_src_app_public-pages_admin-form_components_QuotationsByStatusChart_jsx.js"
+    ]
+  },
   "i18n/dateLocales.js -> dayjs/locale/ar": {
     "id": "i18n/dateLocales.js -> dayjs/locale/ar",
     "files": [

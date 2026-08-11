@@ -437,6 +437,41 @@
             }
                 }
     },
+    "inventoryManagement": {
+          "invenotyrTitle": "在庫管理",
+         "inventoryContent": "在庫、在庫状況、商品の利用可能状況を管理します。",
+         "add": "商品を追加",
+         "tabs": {
+            "inventory": "在庫一覧",
+            "inspection": "検査待ち",
+            "damaged": "破損品",
+            "cleaning": "クリーニング中"
+     },
+            "inventoryLists": {
+                "invenotyrTitle": "在庫管理",
+                "inventoryContent": "在庫、在庫状況、商品の利用可能状況を管理します。",
+                "inventoryLists": "在庫一覧",
+                "searchProducts": "商品を検索...",
+                "allCategories": "すべてのカテゴリー",
+                "allFabrics": "すべての生地",
+                "productName": "商品名",
+                "category": "カテゴリー",
+                "fabric": "生地",
+                "total": "合計",
+                "available": "利用可能",
+                "onRent": "貸出中",
+                "cleaning": "クリーニング中",
+                "actions": "アクション",
+                "inspect": "検査",
+                "addProduct": "商品を追加",
+                "noProducts": "商品が見つかりません",
+                "reset": "リセット",
+                "deleteProduct": "商品を削除",
+                "deleteContent": "この商品を削除すると、プラットフォーム全体から削除されます。この操作は元に戻せません。"
+            }
+    },
+
+
    "deleteConfirmDialog": {
         "cancel": "キャンセル",
         "delete": "削除",

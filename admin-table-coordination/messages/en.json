@@ -535,21 +535,34 @@
            }
     },
     "inventoryManagement":{
+        "invenotyrTitle":"Inventory Management",
+        "inventoryContent":"Track inventory, stock status, and product availability.",
+        "add":"Add Product",
+         "tabs": {
+            "inventory": "Inventory Lists",
+            "inspection": "Inspection Queue",
+            "damaged": "Damaged Items",
+            "cleaning": "Cleaning Items"
+        },
         "inventoryLists":{
-            "invenotyrTitle":"Inventory Management",
-            "inventoryContent":"Track inventory, stock status, and product availability.",
             "inventoryLists":"Inventory Lists",
             "searchProducts":"Search Products...",
             "allCategories":"All Categories",
             "allFabrics":"All Fabrics",
             "productName":"Product Name",
+            "category":"Category",
+            "fabric":"Fabric",
             "total":"Total",
             "available":"Available",
             "onRent":"On Rent",
             "cleaning":"Cleaning",
+            "actions":"Actions",
             "inspect":"Inspect",
             "addProduct":"Add Product",
-            "noProducts":"No products found"
+            "noProducts":"No products found",
+            "reset":"Reset",
+            "deleteProduct":"Delete Product",
+            "deleteContent":"Deleting this product will remove it from all over the platform. This action cannot be undone."
         },
         "addProduct":{
             "productNAME":"PRODUCT NAME",
