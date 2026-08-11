@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiCreditCard, FiCheckCircle, FiShield, FiBriefcase, FiEye, FiEyeOff } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
@@ -13,6 +14,7 @@ import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 
 const PaymentSettings = () => {
+  const t = useTranslations("systemSettings.paymentSettings");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -115,38 +117,38 @@ const PaymentSettings = () => {
   const gatewaysList = [
     {
       key: "payment_enable_kakebarai",
-      label: "NP Kakebarai (Corporate B2B)",
-      description: "Allow corporate customers to pay on credit invoice.",
+      label: t("gateways.kakebaraiLabel"),
+      description: t("gateways.kakebaraiDesc"),
     },
     {
       key: "payment_enable_credit_card",
-      label: "Credit Card (Stripe)",
-      description: "Direct online payment processing via Stripe API.",
+      label: t("gateways.creditCardLabel"),
+      description: t("gateways.creditCardDesc"),
     },
     {
       key: "payment_enable_paypay",
-      label: "PayPay",
-      description: "Accept Japan's leading QR code mobile payment.",
+      label: t("gateways.paypayLabel"),
+      description: t("gateways.paypayDesc"),
     },
     {
       key: "payment_enable_conbini",
-      label: "Convenience Store",
-      description: "Allow payment at Japanese convenience stores.",
+      label: t("gateways.conbiniLabel"),
+      description: t("gateways.conbiniDesc"),
     },
     {
       key: "payment_enable_bank_transfer",
-      label: "Bank Transfer",
-      description: "Manual direct bank transfer payment option.",
+      label: t("gateways.bankTransferLabel"),
+      description: t("gateways.bankTransferDesc"),
     },
     {
       key: "payment_enable_applepay",
-      label: "Apple Pay (Optional)",
-      description: "Support express checkout for iOS & macOS users.",
+      label: t("gateways.applePayLabel"),
+      description: t("gateways.applePayDesc"),
     },
     {
       key: "payment_enable_googlepay",
-      label: "Google Pay (Optional)",
-      description: "Support express checkout for Android & Chrome users.",
+      label: t("gateways.googlePayLabel"),
+      description: t("gateways.googlePayDesc"),
     },
   ];
 
@@ -160,13 +162,15 @@ const PaymentSettings = () => {
         <div className="space-y-6">
           {/* Active Payment Channels Card */}
           <div className="rounded-[24px] border border-[#E8DDD4] bg-white p-6 shadow-sm">
-            <div className="flex items-center gap-3 border-b border-[#F5E6DA] pb-4 mb-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F5E6DA] text-[#A85A32]">
-                <FiCreditCard size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-[#2F241F]">Activated Payment Methods</h3>
-                <p className="text-xs text-[#8C6E5D]">Toggle payment gateway integrations available on checkout.</p>
+            <div className="flex items-start justify-between border-b border-[#F5E6DA] pb-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F5E6DA] text-[#A85A32]">
+                  <FiCreditCard size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-[#2F241F]">{t("sectionTitle")}</h3>
+                  <p className="text-xs text-[#8C6E5D]">{t("sectionSubtitle")}</p>
+                </div>
               </div>
             </div>
 
@@ -196,14 +200,14 @@ const PaymentSettings = () => {
                   <FiShield size={20} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-[#2F241F]">Stripe API Credentials</h3>
-                  <p className="text-xs text-[#8C6E5D]">Configure Stripe payment keys to process credit cards safely.</p>
+                  <h3 className="text-lg font-semibold text-[#2F241F]">{t("stripeSectionTitle")}</h3>
+                  <p className="text-xs text-[#8C6E5D]">{t("stripeSectionSubtitle")}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">Stripe Publishable Key</label>
+                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("stripePublishableKeyLabel")}</label>
                   <input
                     className="h-10 w-full rounded-xl border border-[#E9DDD4] bg-[#FFFCFB] px-4 text-sm outline-none focus:border-[#A85A32] disabled:bg-[#FAF6F3]"
                     value={settings.stripe_publishable_key || ""}
@@ -213,7 +217,7 @@ const PaymentSettings = () => {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">Stripe Secret Key</label>
+                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("stripeSecretKeyLabel")}</label>
                   <div className="relative">
                     <input
                       type={showSecretKey ? "text" : "password"}
@@ -235,7 +239,7 @@ const PaymentSettings = () => {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">Stripe Webhook Secret</label>
+                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("stripeWebhookSecretLabel")}</label>
                   <div className="relative">
                     <input
                       type={showWebhookSecret ? "text" : "password"}
@@ -267,14 +271,14 @@ const PaymentSettings = () => {
                   <FiBriefcase size={20} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-[#2F241F]">Bank Account Details</h3>
-                  <p className="text-xs text-[#8C6E5D]">Configure target Japanese bank info for manual transfers.</p>
+                  <h3 className="text-lg font-semibold text-[#2F241F]">{t("bankSectionTitle")}</h3>
+                  <p className="text-xs text-[#8C6E5D]">{t("bankSectionSubtitle")}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">Bank Name</label>
+                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("bankNameLabel")}</label>
                   <input
                     className="h-10 w-full rounded-xl border border-[#E9DDD4] bg-[#FFFCFB] px-4 text-sm outline-none focus:border-[#A85A32] disabled:bg-[#FAF6F3]"
                     value={settings.bank_name || ""}
@@ -284,7 +288,7 @@ const PaymentSettings = () => {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">Bank Branch Name</label>
+                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("branchLabel")}</label>
                   <input
                     className="h-10 w-full rounded-xl border border-[#E9DDD4] bg-[#FFFCFB] px-4 text-sm outline-none focus:border-[#A85A32] disabled:bg-[#FAF6F3]"
                     value={settings.bank_branch || ""}
@@ -294,7 +298,7 @@ const PaymentSettings = () => {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">Account Number</label>
+                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("accountNumberLabel")}</label>
                   <input
                     className="h-10 w-full rounded-xl border border-[#E9DDD4] bg-[#FFFCFB] px-4 text-sm outline-none focus:border-[#A85A32] disabled:bg-[#FAF6F3]"
                     value={settings.bank_account_number || ""}
@@ -304,7 +308,7 @@ const PaymentSettings = () => {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">Account Holder Name</label>
+                  <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("accountHolderLabel")}</label>
                   <input
                     className="h-10 w-full rounded-xl border border-[#E9DDD4] bg-[#FFFCFB] px-4 text-sm outline-none focus:border-[#A85A32] disabled:bg-[#FAF6F3]"
                     value={settings.bank_account_holder || ""}
@@ -323,7 +327,7 @@ const PaymentSettings = () => {
                 onClick={() => setIsEditing(true)}
                 className="rounded-xl bg-[#A85A32] px-8 py-3 font-medium text-white hover:bg-[#8f4c2a] transition duration-150"
               >
-                Edit
+                {t("edit")}
               </button>
             ) : (
               <>
@@ -334,14 +338,14 @@ const PaymentSettings = () => {
                   }}
                   className="rounded-xl border border-[#E8DDD4] bg-white px-8 py-3 font-medium text-[#6E5A4D] hover:bg-[#FAF6F3] transition duration-150"
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
                 <button
                   onClick={handleUpdate}
                   className="rounded-xl bg-[#A85A32] px-8 py-3 font-medium text-white hover:bg-[#8f4c2a] transition duration-150 flex items-center gap-2"
                 >
                   {loading && <Spinner size={16} customColorClass="text-white" />}
-                  Save Changes
+                  {t("saveChanges")}
                 </button>
               </>
             )}

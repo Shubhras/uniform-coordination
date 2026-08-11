@@ -1,4 +1,15 @@
 {
+    "header": {
+        "home": "Home",
+        "uniformDesign": "Uniform Design",
+        "tableDesign": "Table Design",
+        "blog": "Blog",
+        "faq": "FAQ's",
+        "navigation": "Navigation",
+        "login": "Login",
+        "signup": "Sign Up",
+        "signOut": "Sign Out"
+    },
     "nav": {
         "dashboard": {
             "dashboard": "Dashboard",
@@ -1388,10 +1399,18 @@
     "reportsAnalytics": {
         "pageTitle": "Reports & Analytics",
         "pageSubtitle": "Quotation funnel, customers and catalog usage.",
+        "errorTitle": "Error",
+        "loadFailed": "Could not load analytics",
+        "exportFailed": "Could not export the report",
+        "exportCsvTitle": "Export {type} as CSV",
+        "days": "d",
+        "wonCount": "{count} won",
+        "salesPerformanceSummary": "{won}/{assigned} won · {rate}% · {value}",
         "dateRangeFilter": {
             "last3Months": "Last 3 months",
             "last6Months": "Last 6 months",
-            "last12Months": "Last 12 months"
+            "last12Months": "Last 12 months",
+            "lastNMonths": "Last {months} months"
         },
         "exportQuotations": "Export Quotations",
         "exporting": "Exporting...",
@@ -1417,13 +1436,17 @@
             "adminEnteredTotals": "From admin-entered totals",
             "awaitingAdminQuote": "Awaiting an admin quote",
             "awaitingCustomerReply": "Awaiting customer reply",
-            "pendingPlusSent": "Pending + sent"
+            "pendingPlusSent": "Pending + sent",
+            "winRateHint": "{rate}% win rate",
+            "basedOnSample": "Based on {sample} sent quotes",
+            "b2bAccountsHint": "{count} B2B accounts"
         },
         "panels": {
             "statusDistribution": "Status Distribution",
             "statusSubtitle": "Breakdown of quotations by status",
             "monthlyTrend": "Monthly Trend",
             "monthlySubtitle": "Quotations submitted per month",
+            "monthlyTrendWithRange": "Monthly Trend (Last {months} Months)",
             "topIndustries": "Top Industries",
             "topIndustriesSubtitle": "By quotation request volume",
             "topProducts": "Top Products",
@@ -1434,6 +1457,7 @@
             "topCustomersSubtitle": "By quotation volume",
             "customerGrowth": "Customer Growth",
             "customerGrowthSubtitle": "New uniform-platform customers per month",
+            "customerGrowthWithRange": "Customer Growth (Last {months} Months)",
             "salesRepPerformance": "Sales Rep Performance",
             "salesRepPerformanceSubtitle": "Quotations assigned vs won",
             "catalogSnapshot": "Catalog Snapshot",

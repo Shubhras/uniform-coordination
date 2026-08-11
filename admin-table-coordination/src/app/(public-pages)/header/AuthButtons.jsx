@@ -1,23 +1,21 @@
 "use client";
+
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 const AuthButtons = () => {
+  const t = useTranslations("header");
   const [active, setActive] = useState("login");
   const router = useRouter();
 
-  
   const handleClick = (type) => {
     setActive(type);
     if (type === "login") {
-      // router.push("/auth/sign-in-split");
       router.push("/sign-in");
     } else {
-      //router.push("/auth/sign-up-split");
-      router.push("/sign-up")
+      router.push("/sign-up");
     }
-    console.log('clickeddddddddddd');
-
   };
 
   return (
@@ -31,7 +29,7 @@ const AuthButtons = () => {
             ${active === "login" ? "bg-white text-[#1C2C56]" : "bg-transparent text-white"}
           `}
         >
-          Login
+          {t("login")}
         </button>
 
         {/* SIGNUP */}
@@ -42,7 +40,7 @@ const AuthButtons = () => {
             ${active === "signup" ? "bg-white text-[#1C2C56]" : "bg-transparent text-white"}
           `}
         >
-          Signup
+          {t("signup")}
         </button>
       </div>
     </div>

@@ -44,14 +44,17 @@ const AddEditFabricModal = ({
   onSaveSuccess,
 }) => {
   const t = useTranslations("productSpecification.fabric");
+  const tm = useTranslations("productSpecification.materials");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
   const materialOptions = [
-    { value: "cotton", label: "Cotton" },
-    { value: "polyester", label: "Polyester" },
-    { value: "silk", label: "Silk" },
-    { value: "linen", label: "Linen" },
+    { value: "cotton", label: tm("cotton") },
+    { value: "polyester", label: tm("polyester") },
+    { value: "silk", label: tm("silk") },
+    { value: "linen", label: tm("linen") },
   ];
 
   const [fabricName, setFabricName] = useState("");
@@ -313,7 +316,7 @@ const AddEditFabricModal = ({
         );
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={ts("success")} type="success">
             {response.message}
           </Notification>,
         );
@@ -324,7 +327,7 @@ const AddEditFabricModal = ({
           const errorMessage = Object.values(response.message || {}).flat()[0];
 
           toast.push(
-            <Notification title="Error" type="danger">
+            <Notification title={te("error")} type="danger">
               {errorMessage}
             </Notification>,
           );
@@ -333,7 +336,7 @@ const AddEditFabricModal = ({
         }
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={ts("success")} type="success">
             {response.message}
           </Notification>,
         );
@@ -348,7 +351,7 @@ const AddEditFabricModal = ({
       console.error("Fabric save error:", err);
       setError(
         err?.response?.data?.message ||
-          "Failed to save fabric. Please try again.",
+          t("saveFailed"),
       );
     } finally {
       setSaving(false);
@@ -358,7 +361,7 @@ const AddEditFabricModal = ({
   const handleSaveAndAdd = async () => {
     // Same save logic but keep model open and reset form
     if (!fabricName.trim() || !materialType || !price || isNaN(Number(price))) {
-      setError("Fabric name, material type, and valid price are required");
+      setError(t("requiredFields"));
       return;
     }
 
@@ -407,7 +410,7 @@ const AddEditFabricModal = ({
       console.error("Fabric save error:", err);
       setError(
         err?.response?.data?.message ||
-          "Failed to save fabric. Please try again.",
+          t("saveFailed"),
       );
     } finally {
       setSaving(false);
@@ -455,7 +458,7 @@ const AddEditFabricModal = ({
                   name="fabricName"
                   control={control}
                   render={({ field }) => (
-                    <Input placeholder="Eg:- Cotton Canvas" {...field} />
+                    <Input placeholder={t("namePlaceholder")} {...field} />
                   )}
                 />
               </FormItem>
@@ -517,7 +520,7 @@ const AddEditFabricModal = ({
                             styles={selectStyles}
                             value={materialType}
                             onChange={setMaterialType}
-                            placeholder="Select Material Type"
+                            placeholder={t("materialTypePlaceholder")}
                             menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                             menuPosition="fixed"
                             className="mt-1"
@@ -554,7 +557,7 @@ const AddEditFabricModal = ({
                             step="0.01"
                             value={price}
                             onChange={(e) => setPrice(e.target.value)}
-                            placeholder="Eg:- 250.50"
+                            placeholder={t("pricePlaceholder")}
                             className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                         /> */}
               <FormItem
@@ -566,7 +569,7 @@ const AddEditFabricModal = ({
                   name="price"
                   control={control}
                   render={({ field }) => (
-                    <Input type="number" placeholder="Eg:- 250.50" {...field} />
+                    <Input type="number" placeholder={t("pricePlaceholder")} {...field} />
                   )}
                 />
               </FormItem>

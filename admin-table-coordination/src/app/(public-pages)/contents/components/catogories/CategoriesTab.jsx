@@ -177,6 +177,7 @@ const CategoriesTab = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [openCategory, setOpenCategory] = useState(null);
   const t = useTranslations("contentMedia.categories");
+  const ts = useTranslations("successTitle");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -260,7 +261,7 @@ const CategoriesTab = () => {
         );
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={ts("success")} type="success">
             {response.message}
           </Notification>,
         );

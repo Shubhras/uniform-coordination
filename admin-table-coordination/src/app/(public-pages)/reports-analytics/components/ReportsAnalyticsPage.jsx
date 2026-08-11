@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetReportAnalytics, apiExportReportAnalytics } from "@/services//ReportAnalytics";
 import { FiDownload } from "react-icons/fi";
@@ -138,6 +139,7 @@ function DonutChart({
 }
 
 const ReportsAnalyticsPage = () => {
+  const t = useTranslations("reportsAnalytics");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -162,28 +164,34 @@ const ReportsAnalyticsPage = () => {
 
   const summaryCards = [
     {
-      label: "TOTAL REVENUE",
+      key: "totalRevenue",
+      label: t("summaryCards.totalRevenue"),
       value: `¥${Number(reportData?.kpi?.total_revenue ?? 0).toLocaleString()}`,
     },
     {
-      label: "TOTAL ORDERS",
+      key: "totalOrders",
+      label: t("summaryCards.totalOrders"),
       value: (reportData?.kpi?.total_orders ?? 0).toLocaleString(),
     },
     {
-      label: "ACTIVE RENTALS",
+      key: "activeRentals",
+      label: t("summaryCards.activeRentals"),
       value: (reportData?.kpi?.active_rentals ?? 0).toLocaleString(),
     },
     {
-      label: "INVENTORY ITEMS",
+      key: "inventoryItems",
+      label: t("summaryCards.inventoryItems"),
       value: (reportData?.kpi?.inventory_items ?? 0).toLocaleString(),
     },
     {
-      label: "LATE RETURNS",
+      key: "lateReturns",
+      label: t("summaryCards.lateReturns"),
       value: (reportData?.kpi?.late_returns ?? 0).toLocaleString(),
       valueClass: "text-[#E4574E]",
     },
     {
-      label: "CUSTOMERS",
+      key: "customers",
+      label: t("summaryCards.customers"),
       value: (reportData?.kpi?.total_customers ?? 0).toLocaleString(),
     },
   ];
@@ -216,14 +224,14 @@ const ReportsAnalyticsPage = () => {
   const barTicks = Array.from({ length: 5 }, (_, i) => Math.round((niceBarMaxValue / 4) * i));
 
   const getGrowthText = () => {
-    if (growthPoints.length < 2) return "0% growth";
+    if (growthPoints.length < 2) return `0% ${t("panels.growth")}`;
     const firstVal = growthPoints[0].value;
     const lastVal = growthPoints[growthPoints.length - 1].value;
     if (firstVal === 0) {
-      return lastVal > 0 ? "+100% growth" : "0% growth";
+      return lastVal > 0 ? `+100% ${t("panels.growth")}` : `0% ${t("panels.growth")}`;
     }
     const pct = ((lastVal - firstVal) / firstVal) * 100;
-    return `${pct >= 0 ? "+" : ""}${pct.toFixed(0)}% growth`;
+    return `${pct >= 0 ? "+" : ""}${pct.toFixed(0)}% ${t("panels.growth")}`;
   };
 
   const stepX =
@@ -284,10 +292,10 @@ const ReportsAnalyticsPage = () => {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h1 className="text-[28px] font-semibold leading-tight text-[#2A211D]">
-            Reports &amp; Analytics
+            {t("pageTitle")}
           </h1>
           <p className="text-[13px] text-[#B29D8C]">
-            Track inventory, stock status, and product availability.
+            {t("pageSubtitle")}
           </p>
         </div>
 
@@ -298,14 +306,14 @@ const ReportsAnalyticsPage = () => {
           className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-[#A0522D] hover:bg-[#854122] disabled:opacity-50 px-4 text-[13px] font-medium text-white transition-colors duration-150"
         >
           <FiDownload size={14} className={exporting ? "animate-bounce" : ""} />
-          {exporting ? "Exporting..." : "Export Data"}
+          {exporting ? t("exporting") : t("exportData")}
         </button>
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
         {summaryCards.map((card) => (
           <div
-            key={card.label}
+            key={card.key}
             className="rounded-[10px] border border-[#F0E4DB] bg-white px-4 py-4"
           >
             <p className="text-[12px] font-semibold tracking-[0.12em] text-[#757575]">
@@ -324,7 +332,7 @@ const ReportsAnalyticsPage = () => {
         <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
           <div className="flex items-start justify-between">
             <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
-              Customer Growth (Last 6 Months)
+              {t("panels.customerGrowth")}
             </h2>
             <p className="text-[11px] text-[#C0ADA0]">{getGrowthText()}</p>
           </div>
@@ -395,7 +403,7 @@ const ReportsAnalyticsPage = () => {
 
         <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
           <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
-            Customer Segments
+            {t("panels.customerSegments")}
           </h2>
 
           <div className="mt-6 flex justify-center">
@@ -438,7 +446,7 @@ const ReportsAnalyticsPage = () => {
       <div className="mt-4 grid gap-4 xl:grid-cols-2">
         <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
           <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
-            Top Rented Categories
+            {t("panels.topRentedCategories")}
           </h2>
 
           <div className="mt-6 space-y-4">
@@ -467,7 +475,7 @@ const ReportsAnalyticsPage = () => {
 
         <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
           <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
-            Inventory Status
+            {t("panels.inventoryStatus")}
           </h2>
 
           <div className="mt-6 flex justify-center">
@@ -493,8 +501,12 @@ const ReportsAnalyticsPage = () => {
                   top: tooltip.y + 10,
                 }}
               >
-                <div>{tooltip.data.label}</div>
-                <div>Count: {tooltip.data.count}</div>
+                <div>
+                  {t.has(`statusLabels.${tooltip.data.label}`)
+                    ? t(`statusLabels.${tooltip.data.label}`)
+                    : tooltip.data.label}
+                </div>
+                <div>{t("count")}: {tooltip.data.count}</div>
                 <div>{tooltip.data.value}%</div>
               </div>
             )}
@@ -510,7 +522,10 @@ const ReportsAnalyticsPage = () => {
                   }}
                 />
                 <span>
-                  {item.label} ({item.count})
+                  {t.has(`statusLabels.${item.label}`)
+                    ? t(`statusLabels.${item.label}`)
+                    : item.label}{" "}
+                  ({item.count})
                 </span>
               </div>
             ))}

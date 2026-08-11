@@ -21,6 +21,7 @@ import Pagination from "@/components/ui/Pagination";
 
 const FabricsTab = () => {
   const t = useTranslations("productSpecification.fabric");
+  const ts = useTranslations("successTitle");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -99,7 +100,7 @@ const FabricsTab = () => {
       const response = await apiDeleteFabric(accessToken, fabricToDelete.id);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={ts("success")} type="success">
           {response.message}
         </Notification>,
       );

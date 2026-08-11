@@ -6,6 +6,7 @@ import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import { FiCheckCircle, FiX } from "react-icons/fi";
 import Spinner from "@/components/ui/Spinner";
+import { useTranslations } from "next-intl";
 
 export default function StatusModal({
   open,
@@ -15,6 +16,9 @@ export default function StatusModal({
   accessToken,
   fetchOrder,
 }) {
+  const t = useTranslations("orderRetals.viewOrder");
+  const ts = useTranslations("successTitle");
+
   if (!open) return null;
 
   const [loading, setLoading] = useState(false);
@@ -33,7 +37,7 @@ export default function StatusModal({
       const nextStatus = nextStatusMap[status];
 
       if (!nextStatus) {
-        toast.error("Status cannot be updated.");
+        toast.error(t("statusCannotUpdate"));
         return;
       }
 
@@ -43,7 +47,7 @@ export default function StatusModal({
 
       if (res?.status) {
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={ts("success")} type="success">
             {res.message}
           </Notification>,
         );
@@ -55,7 +59,7 @@ export default function StatusModal({
         }
       }
     } catch (err) {
-      toast.error("Something went wrong.");
+      toast.error(t("somethingWentWrong"));
     } finally {
       setLoading(false);
     }
@@ -63,43 +67,43 @@ export default function StatusModal({
 
   const statusConfig = {
     pending: {
-      title: "Mark as Shipped?",
-      button: "Mark Shipped",
+      title: t("markAsShipped"),
+      button: t("markShipped"),
       description:
         "You are about to mark order as shipped. The customer will be notified that the order has been shipped.",
     },
     processing: {
-      title: "Mark as Delivered?",
-      button: "Mark Delivered",
+      title: t("markAsDeliver"),
+      button: t("markDeliver"),
       description:
         "You are about to mark order as delivered. The customer will be notified that the order has been delivered.",
     },
 
     shipped: {
-      title: "Mark as Delivered?",
-      button: "Mark Delivered",
+      title: t("markAsDeliver"),
+      button: t("markDeliver"),
       description:
         "You are about to mark order as delivered. The customer will be notified that the order has been delivered.",
     },
 
     delivered: {
-      title: "Mark as Returned?",
-      button: "Mark Returned",
+      title: t("markAsReturned"),
+      button: t("markReturned"),
       description:
         "You are about to mark this order as returned. Inventory will be updated and the item(s) will be sent for quality inspection before restocking.",
     },
 
     returned: {
-      title: "Mark as Process Return?",
-      button: "Process Return",
+      title: t("markAsProcess"),
+      button: t("processReturnAction"),
       description:
         "You are about to move this returned order to the return processing stage.",
     },
   };
 
   const current = statusConfig[status?.toLowerCase()] || {
-    title: "Update Status?",
-    button: "Update",
+    title: t("updateStatus"),
+    button: t("update"),
     description: "Are you sure you want to update this order status?",
   };
 
@@ -129,10 +133,9 @@ export default function StatusModal({
 
           {/* Description */}
           <p className="text-[12px] leading-6 text-[#78716C]">
-            You are about to mark order{" "}
+            {t("youarAbout")}{" "}
             <span className="font-medium text-[#8B8B8B]">{orderId}.</span>{" "}
-            Inventory will be updated and the item(s) will be sent for quality
-            inspection before restocking.
+            {t("inventoryText")}
           </p>
 
           {/* <p className="text-[12px] leading-6 text-[#78716C]">
@@ -146,7 +149,7 @@ export default function StatusModal({
               onClick={onClose}
               className="text-[14px] font-medium text-[#666] hover:text-[#222]"
             >
-              Cancel
+              {t("cancel")}
             </button>
 
             <button
@@ -154,7 +157,7 @@ export default function StatusModal({
               disabled={loading}
               className="bg-[#A85A32] hover:bg-[#944B25] disabled:opacity-60 text-white px-5 py-2 rounded-lg text-[14px] font-semibold shadow-md transition"
             >
-              {loading ? "Updating..." : current.button}
+              {loading ? t("updating") : current.button}
             </button>
           </div>
         </div>
