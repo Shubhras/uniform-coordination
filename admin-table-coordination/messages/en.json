@@ -319,7 +319,13 @@
         "Delete":"Delete",
         "deleting": "Deleting...",
         "editFabric":"Edit Fabric",
-        "noFabricsFound": "No fabrics found"
+        "noFabricsFound": "No fabrics found",
+        "validation": {
+            "fabricNameRequired": "Fabric name is required",
+            "materialTypeRequired": "Material type is required",
+            "priceRequired": "Price is required",
+            "validPrice": "Enter a valid price"
+            }
         },
         "color":{
             "palette":"Color Palette",
@@ -328,23 +334,43 @@
             "addColor":"Add Color",
             "duplicate":"Duplicate",
             "addNewColor":"Add New Color",
+            "editColor":"Edit Color",
             "colorName":"Color Name",
+            "color":"Color",
             "hexCode":"HEX Code",
             "compatibleFabric":"Compatible Fabrics",
             "enterColorname":"Enter Color Name",
             "selectFabric":"Select compatible fabrics",
             "colorPlaceholder":"Select Color",
-            "edit": "Edit"
+            "edit": "Edit",
+            "Delete":"Delete",
+            "cancel":"Cancel",
+            "save":"Save",
+            "update":"Update",
+            "deleteColor": "Delete Color",
+            "deleteColorContent": "Are you sure you want to delete this color? This action cannot be undone.",
+            "validation": {
+                "colorNameRequired": "Color name is required",
+                "colorCodeRequired": "Color code is required",
+                "validHexCode": "Enter a valid HEX code",
+                "compatibleFabricRequired": "Compatible fabric is required"
+            }
 
         }
     },
     "contentMedia":{
+        "contentTitle":"Content & Media",
+        "contentPara":"Manage fabrics, parts, colors, options, and templates",
+        "tabs":{
+            "categories":"Categories",
+             "blog":"Blog",
+             "faq":"FAQ"
+        },
         "categories":{
-            "contentTitle":"Content & Media",
-            "contentPara":"Manage fabrics, parts, colors, options, and templates",
             "productCategories":"Product Categories",
             "productManage":"Manage and organize your product categories",
             "addCategory":"Add Category",
+            "noCategoriesFound": "No categories found",
             "searchCategories":"Search Categories...",
             "arrangeOrder":"Arrange Order",
             "editCategory":"Edit Category",
@@ -358,21 +384,65 @@
             "imageValidation":"Image validated successfully",
             "description":"Description",
             "update":"Update",
+            "cancel":"Cancel",
+            "save":"Save",
+            "addAnother":"Save & Add Another",
             "createCategory":"Create Category",
             "deletCategory":"Delete Category",
-            "deleteCategoryContent":"Are you sure you want to delete this category? This action cannot be undone."
+            "categoryNamePlaceholder":"Eg:- Medical Surgeon",
+            "deleteCategoryContent":"Are you sure you want to delete this category? This action cannot be undone.",
+              "categoryValidation": {
+                "categoryNameRequired": "Category name is required",
+                "descriptionRequired": "Description is required",
+                "imageRequired": "Image is required"
+            }
         },
         "blog":{
             "blog":"Blog",
             "blogContent":"Manage your blog posts",
+            "arrangeOrder":"Arrange Order",
             "searchBlog":"Search Blog Posts",
+            "noBlogPostsFound": "No blog posts found",
             "addBlog":"Add Blog",
             "createBlog":"Create Blog",
             "title":"Title",
             "category":"Categroy",
             "editBlog":"Edit Blog",
             "deleteBlog":"Delete Blog Post",
-            "deleteContentBlog":"Are you sure you want to delete this blog post? This action cannot be undone."
+            "deleteContentBlog":"Are you sure you want to delete this blog post? This action cannot be undone.",
+            "addEditBlog":{
+                "editBlog": "Edit Blog",
+                "createBlog": "Create Blog",
+                "title": "Title",
+                "titlePlaceholder": "Type blog title",
+                "category": "Category",
+                "selectCategory": "Select category...",
+                "loadingCategories": "Loading categories...",
+                "noCategoriesFound": "No categories found",
+                "image": "Image",
+                "uploadImage": "Upload image",
+                "dragDropImage": "Drag & Drop your image here",
+                "or": "or",
+                "clickToBrowse": "click to browse here",
+                "imageFiles": "JPG, PNG, or WEBP files",
+                "recommendedSize": "Recommended size 1200×800px",
+                "imageValidated": "Image validated successfully",
+                "preview": "Preview",
+                "description": "Description",
+                "descriptionPlaceholder": "Type blog description...",
+                "cancel": "Cancel",
+                "saveAddAnother": "Save & Add Another",
+                "update": "Update",
+                "save": "Save",
+                "success": "Success",
+                "saveError": "Failed to save blog. Please try again.",
+                "validation": {
+                    "titleRequired": "Title is required",
+                    "categoryRequired": "Category is required",
+                    "descriptionRequired": "Description is required"
+                }
+            }
+            
         },
         "faqs":{
             "faq":"FAQ's",
@@ -383,8 +453,23 @@
             "addmore":"Add More",
             "editFaq":"Edit FAQ",
             "deleteFaq":"Delete FAQ",
-            "deleteContentFaq":"Are you sure you want to delete this FAQ? This action cannot be undone."
-        }
+            "deleteContentFaq":"Are you sure you want to delete this FAQ? This action cannot be undone.",
+            "title": "Title",
+            "titlePlaceholder": "Type your question",
+            "descriptions": "Descriptions",
+            "descriptionPlaceholder": "Description {number}...",
+            "cancel": "Cancel",
+            "saveAddAnother": "Save & Add Another",
+            "update": "Update",
+            "save": "Save",
+            "success": "Success",
+            "saveError": "Failed to save FAQ. Please try again.",
+            "validation": {
+                "titleRequired": "Title is required",
+                "descriptionRequired": "Description is required",
+                "atLeastOneDescription": "At least one description is required"
+            }
+                }
     },
     "themeManagement":{
         "themeManage":"Theme Management",
@@ -392,63 +477,92 @@
         "searchTheme":"Search Theme...",
         "reset":"Reset",
         "theme":"Theme",
+        "name":"Name",
+        "category":"Category",
         "itemsIncluded":"Items Included",
         "usage":"Usage",
         "grid":"Grid",
         "list":"List",
+        "actions":"Actions",
         "preview":"Preview",
         "notheme":"No Theme Found",
-
-        "addtheme":{
-        "addNewTheme":"Add New Theme",
-        "basicInfo":"Basic Information",
-        "themeName":"THEME NAME",
-        "shortDescription":"Short Description",
-        "descriptionPlaceholder":"Enter Short Description",
-        "themeImage":"Theme Images",
-        "thumbnail":"THUMBNAIL",
-        "browseFile":"Browse Files",
-        "galleryPhoto":"GALLERY PHOTOS",
-        "continue":"Continue",
-        "themeBuilder":"Theme Builder",
-        "tableSetup":"Table Setup",
-        "floral":"Floral & Decor",
-        "seating":"Seating",
-        "addtionalElements":"Additional Elements",
-        "additem":"Add Item",
-        "previewTheme":"Preview Theme",
-        "items":"items",
-        "addInvItems":"Add Inventory Items",
-        "searchInven":"Search Inventory",
-        "reuslts":"results",
-        "addSelected":"Add Selected",
-        "selectItems":"Select items to include",
-        "itemsIncludedTheme":"Items Included In This Theme",
-        "itemsTotal":"items Total",
-        "back":"Back",
-        "noSelected":"No items Selected",
-        "editTheme":"Edit Theme",
-        "updateTheme":"Update Theme",
-        "presetLook":"Preset Look",
+        "edit":"Edit",
+        "addNew":"Add New Theme",
         "deleteTheme":"Delete Theme",
-        "deletethemeContent":"Deleting this theme will remove it from all over the platform. This action cannot be undone. This action cannot be undone"        }
+        "deletethemeContent":"Deleting this theme will remove it from all over the platform. This action cannot be undone. This action cannot be undone" ,
+        "addtheme":{
+            "addNewTheme":"Add New Theme",
+            "basicInfo":"Basic Information",
+            "themeName":"THEME NAME",
+            "placeholderThemeName":"Enter theme name",
+            "category":"Category",
+            "shortDescription":"Short Description",
+            "descriptionPlaceholder":"Enter Short Description",
+            "themeImage":"Theme Images",
+            "changeImage":"Change Image",
+            "uploadImage":"Upload Image",
+            "dragDropImage": "Drag & Drop your image here",
+            "or": "or",
+            "clickToBrowse": "click to browse here",
+            "imageFiles": "JPG, PNG, or WEBP files",
+            "thumbnail":"THUMBNAIL",
+            "browseFile":"Browse Files",
+            "galleryPhoto":"GALLERY PHOTOS",
+            "cancel": "Cancel",
+            "continue":"Continue",
+            "themeBuilder":"Theme Builder",
+            "tableSetup":"Table Setup",
+            "floral":"Floral & Decor",
+            "seating":"Seating",
+            "addtionalElements":"Additional Elements",
+            "additem":"Add Item",
+            "previewTheme":"Preview Theme",
+            "items":"items",
+            "addInvItems":"Add Inventory Items",
+            "searchInven":"Search Inventory",
+            "reuslts":"results",
+            "addSelected":"Add Selected",
+            "selectItems":"Select items to include",
+            "itemsIncludedTheme":"Items Included In This Theme",
+            "itemsTotal":"items Total",
+            "back":"Back",
+            "noSelected":"No items Selected",
+            "editTheme":"Edit Theme",
+            "updateTheme":"Update Theme",
+            "presetLook":"Preset Look",
+            "deleteTheme":"Delete Theme",
+            "deletethemeContent":"Deleting this theme will remove it from all over the platform. This action cannot be undone. This action cannot be undone" 
+           }
     },
     "inventoryManagement":{
+        "invenotyrTitle":"Inventory Management",
+        "inventoryContent":"Track inventory, stock status, and product availability.",
+        "add":"Add Product",
+         "tabs": {
+            "inventory": "Inventory Lists",
+            "inspection": "Inspection Queue",
+            "damaged": "Damaged Items",
+            "cleaning": "Cleaning Items"
+        },
         "inventoryLists":{
-            "invenotyrTitle":"Inventory Management",
-            "inventoryContent":"Track inventory, stock status, and product availability.",
             "inventoryLists":"Inventory Lists",
             "searchProducts":"Search Products...",
             "allCategories":"All Categories",
             "allFabrics":"All Fabrics",
             "productName":"Product Name",
+            "category":"Category",
+            "fabric":"Fabric",
             "total":"Total",
             "available":"Available",
             "onRent":"On Rent",
             "cleaning":"Cleaning",
+            "actions":"Actions",
             "inspect":"Inspect",
             "addProduct":"Add Product",
-            "noProducts":"No products found"
+            "noProducts":"No products found",
+            "reset":"Reset",
+            "deleteProduct":"Delete Product",
+            "deleteContent":"Deleting this product will remove it from all over the platform. This action cannot be undone."
         },
         "addProduct":{
             "productNAME":"PRODUCT NAME",
@@ -789,6 +903,14 @@
             "placeholder":"Type the customer inquiry here...Example: I want to rent 20 round tables for my wedding event next month. Please share pricing and availability.",
             "submit":"Submit"
         }
+    },
+     "deleteConfirmDialog": {
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "deleting": "Deleting..."
+    },
+    "successTitle":{
+        "success":"Success"
     }
 
 }

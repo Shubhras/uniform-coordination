@@ -14,7 +14,7 @@ const DeleteConfirmDialog = ({
     itemName = "",
     loading = false,
 }) => {
-    const t = useTranslations("productSpecification.fabric");
+    const t = useTranslations("deleteConfirmDialog");
     return (
         <Dialog
             isOpen={isOpen}
@@ -64,7 +64,7 @@ const DeleteConfirmDialog = ({
                         disabled={loading}
                         className="bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white px-6 py-2 rounded-md text-sm font-medium transition-colors"
                     >
-                         {loading ? t("deleting") : t("Delete")}
+                         {loading ? t("deleting") : t("delete")}
                     </button>
                 </div>
             </div>

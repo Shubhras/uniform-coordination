@@ -9,10 +9,12 @@ import { useRouter } from "next/navigation";
 import ThemeBuilder from "./components/ThemeBuilder";
 import PreviewTheme from "./components/PreviewTheme";
 import { apiGetCategoryList } from "@/services/CategoryService";
+import { useTranslations } from "next-intl";
 
 const AddTheme = () => {
   const router = useRouter();
-
+  const t = useTranslations("themeManagement.addtheme");
+  const ts = useTranslations("successTitle");
   const [step, setStep] = useState(1);
   const [categoryList, setCategoryList] = useState([]);
   const { session } = useCurrentSession();
@@ -110,7 +112,7 @@ const AddTheme = () => {
             </button>
 
             <h1 className="text-[28px] font-bold text-[#1A1410]">
-              Add New Theme
+              {t("addNewTheme")}
             </h1>
           </div>
 
@@ -123,7 +125,7 @@ const AddTheme = () => {
               </div>
 
               <h2 className="text-[20px] font-bold text-[#2C1A0E]">
-                Basic Information
+                {t("basicInfo")}
               </h2>
             </div>
 
@@ -131,7 +133,7 @@ const AddTheme = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
-                  Theme Name
+                  {t("themeName")}
                 </label>
 
                 <input
@@ -148,7 +150,7 @@ const AddTheme = () => {
                       title: "",
                     }));
                   }}
-                  placeholder="Enter theme name"
+                  placeholder={t("placeholderThemeName")}
                   className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 outline-none focus:border-[#A85A32]"
                 />
                 {errors.title && (
@@ -158,7 +160,7 @@ const AddTheme = () => {
 
               <div>
                 <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
-                  Category
+                  {t("category")}
                 </label>
 
                 <Select
@@ -186,7 +188,7 @@ const AddTheme = () => {
             {/* Description */}
             <div className="mt-5">
               <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
-                Short Description
+                {t("shortDescription")}
               </label>
 
               <textarea
@@ -203,7 +205,7 @@ const AddTheme = () => {
                   }));
                 }}
                 rows={4}
-                placeholder="Write short description..."
+                placeholder={t("descriptionPlaceholder")}
                 className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] p-4 resize-none outline-none focus:border-[#A85A32]"
               />
               {errors.description && (
@@ -223,14 +225,14 @@ const AddTheme = () => {
               </div>
 
               <h2 className="text-[20px] font-bold text-[#2C1A0E]">
-                Theme Images
+                {t("themeImage")}
               </h2>
             </div>
 
             {/* Thumbnail */}
             <div>
               <label className="block text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-3">
-                Thumbnail
+                {t("thumbnail")}
               </label>
 
               {themeData.image ? (
@@ -266,7 +268,7 @@ const AddTheme = () => {
                     />
 
                     <span className="px-5 py-2 border border-[#D7A07B] rounded-full text-[#A85A32] text-sm font-medium hover:bg-[#FFF4ED] transition">
-                      Change Image
+                      {t("changeImage")}
                     </span>
                   </label>
                 </div>
@@ -280,11 +282,11 @@ const AddTheme = () => {
                   </div>
 
                   <h3 className="text-[16px] font-medium text-[#1A1410]">
-                    Upload image
+                    {t("uploadImage")}
                   </h3>
 
                   <p className="text-[13px] text-[#9E8D80] mt-1">
-                    PNG or JPG up to 5 MB
+                    {t("imageFiles")}
                   </p>
 
                   <label className="mt-5 cursor-pointer">
@@ -310,7 +312,7 @@ const AddTheme = () => {
                     />
 
                     <span className="px-5 py-2 border border-[#D7A07B] rounded-full text-[#A85A32] text-sm font-medium hover:bg-[#FFF4ED] transition">
-                      Browse Files
+                      {t("browseFile")}
                     </span>
                   </label>
                 </div>
@@ -322,10 +324,9 @@ const AddTheme = () => {
             </div>
 
             {/* Gallery */}
-            {/* Gallery */}
             <div className="mt-8">
               <label className="block text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-3">
-                Gallery Photos
+                {t("galleryPhoto")}
               </label>
 
               <div className="flex gap-3 flex-wrap">
@@ -385,7 +386,7 @@ const AddTheme = () => {
                 onClick={() => router.back()}
                 className="px-8 py-2.5 rounded-xl border border-[#E5D5C8] text-[#8C6E5D] font-medium hover:bg-[#FAF5F2]"
               >
-                Cancel
+                {t("cancel")}
               </button>
 
               <button
@@ -396,7 +397,7 @@ const AddTheme = () => {
                 }}
                 className="px-8 py-2.5 rounded-xl bg-[#A85A32] text-white font-semibold hover:bg-[#8E4727]"
               >
-                Continue
+                {t("continue")}
               </button>
             </div>
           </div>

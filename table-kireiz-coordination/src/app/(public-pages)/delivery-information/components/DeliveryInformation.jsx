@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 
 import { useSession } from "next-auth/react";
-import { apiApplyPromocode, apiCreateOrder } from "@/services/OrderService";
+import { apiApplyPromocode, apiCreateOrder, apiGetCustomerDetails } from "@/services/OrderService";
 import Notification from "@/components/ui/Notification";
 import toast from "@/components/ui/toast";
 import Spinner from "@/components/ui/Spinner";
@@ -86,21 +86,44 @@ const DeliveryInformation = () => {
   });
 
   useEffect(() => {
-    if (session?.user) {
-      if (session.user.email) setValue("email", session.user.email);
-      if (session.user.firstName || session.user.name) {
-        setValue(
-          "first_name",
-          session.user.firstName || session.user.name?.split(" ")[0] || "",
-        );
+    const loadCustomerDetails = async () => {
+      if (!session?.accessToken) return;
+      try {
+        const res = await apiGetCustomerDetails(session.accessToken);
+        if (res?.status && res?.data) {
+          const cust = res.data;
+          if (cust.first_name) setValue("first_name", cust.first_name);
+          if (cust.last_name) setValue("last_name", cust.last_name);
+          if (cust.email) setValue("email", cust.email);
+          if (cust.phone) setValue("phone", cust.phone);
+          if (cust.address_line_1) setValue("address_line_1", cust.address_line_1);
+          if (cust.address_line_2) setValue("address_line_2", cust.address_line_2 || "");
+          if (cust.city) setValue("city", cust.city);
+          if (cust.postal_code) setValue("postal_code", cust.postal_code);
+          if (cust.country) setValue("country", cust.country);
+        } else {
+          // Fallback to session user details
+          if (session?.user) {
+            if (session.user.email) setValue("email", session.user.email);
+            if (session.user.firstName || session.user.name) {
+              setValue(
+                "first_name",
+                session.user.firstName || session.user.name?.split(" ")[0] || "",
+              );
+            }
+            if (session.user.lastName || session.user.name) {
+              setValue(
+                "last_name",
+                session.user.lastName || session.user.name?.split(" ")[1] || "",
+              );
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load customer details:", err);
       }
-      if (session.user.lastName || session.user.name) {
-        setValue(
-          "last_name",
-          session.user.lastName || session.user.name?.split(" ")[1] || "",
-        );
-      }
-    }
+    };
+    loadCustomerDetails();
   }, [session, setValue]);
 
   const start_date = watch("start_date");

@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { apiUserOrderList } from '@/services/OrderService'
 import { formatDate } from '@/utils/formatDate'
+import { formatCurrency } from '@/utils/formatCurrency'
 import { FiCalendar, FiMapPin } from 'react-icons/fi'
 import Pagination from '@/components/ui/Pagination'
 
@@ -167,7 +168,7 @@ const CompletedOrders = ({ onTotalCountChange }) => {
                                         </div>
 
                                         <p className="text-lg font-bold text-[#C26D3C]">
-                                            ¥{Number(order.total_amount || 0).toLocaleString()}
+                                            {formatCurrency(order.total_amount, order.currency)}
                                         </p>
                                     </div>
 
