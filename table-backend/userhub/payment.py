@@ -235,7 +235,8 @@ class CreatePaymentAPIView(APIView):
                 "message": "Order not found"
             }, status=status.HTTP_404_NOT_FOUND)
        
-        if order.status == "confirmed":
+        successful_payment = Payment.objects.filter(order=order, payment_status="success").exists()
+        if successful_payment or order.status in ["confirmed", "paid"] or order.is_paid:
             return Response({
                 "status": False,
                 "statusCode": 400,
@@ -425,6 +426,10 @@ class CreatePaymentAPIView(APIView):
                 payment.payment_status = "success"
                 payment.paid_at = timezone.now()
                 payment.save(update_fields=["payment_status", "paid_at"])
+
+                order.status = "confirmed"
+                order.is_paid = True
+                order.save(update_fields=["status", "is_paid"])
 
                 cart = Cart.objects.filter(user=request.user, is_active=True).first()
                 if cart:

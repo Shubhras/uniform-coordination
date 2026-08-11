@@ -1394,6 +1394,14 @@ class CustomModelsUserAPIView(APIView):
             "model_info__product__category"
         )
 
+        theme_queryset = CustomUpdateThemes.objects.filter(
+            user=user,
+            isDeleted=False
+        ).select_related(
+            "theme",
+            "theme__category"
+        )
+
         # Search
         if search:
             queryset = queryset.filter(
@@ -1404,11 +1412,19 @@ class CustomModelsUserAPIView(APIView):
                 Q(model_info__product__type__icontains=search) |
                 Q(model_info__product__table_shape__icontains=search)
             )
+            theme_queryset = theme_queryset.filter(
+                Q(theme__title__icontains=search) |
+                Q(theme__description__icontains=search) |
+                Q(theme__category__categoryName__icontains=search)
+            )
 
         # Category Filter
         if category_slug:
             queryset = queryset.filter(
                 model_info__product__category__slug=category_slug
+            )
+            theme_queryset = theme_queryset.filter(
+                theme__category__slug=category_slug
             )
 
         # Date Range Filter
@@ -1417,38 +1433,54 @@ class CustomModelsUserAPIView(APIView):
                 days = int(range_days)
                 start_date = now() - timedelta(days=days)
                 queryset = queryset.filter(created_at__gte=start_date)
+                theme_queryset = theme_queryset.filter(created_at__gte=start_date)
             except ValueError:
                 pass
 
-        # Sorting
-        if sort == "old":
-            queryset = queryset.order_by("created_at")
-        else:
-            queryset = queryset.order_by("-created_at")
-
-        # Pagination
-        paginator = CustomPagination()
-        paginated_queryset = paginator.paginate_queryset(queryset, request)
-
-        serializer = CustomUpdateModelsSerializer(
-            paginated_queryset,
+        # Serialize CustomUpdateModels
+        model_serializer = CustomUpdateModelsSerializer(
+            queryset,
             many=True,
             context={"request": request}
         )
+        model_data = model_serializer.data
+        for item in model_data:
+            item["isTheme"] = False
+
+        # Serialize CustomUpdateThemes
+        theme_serializer = CustomUpdateThemesSerializer(
+            theme_queryset,
+            many=True,
+            context={"request": request}
+        )
+        theme_data = theme_serializer.data
+        for item in theme_data:
+            item["isTheme"] = True
+            item["productName"] = item.get("themeName")
+            item["ProductImage"] = item.get("ThemeImage")
+
+        # Merge them
+        combined_data = model_data + theme_data
+
+        # Sorting
+        if sort == "old":
+            combined_data.sort(key=lambda x: x.get("created_at", ""))
+        else:
+            combined_data.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+
+        # Pagination
+        paginator = CustomPagination()
+        paginated_data = paginator.paginate_queryset(combined_data, request)
 
         return Response({
             "statusCode": 200,
             "status": True,
             "user_id": user.id,
             "message": "fetch data successfully",
-
-            # Added pagination info
             "page": int(request.query_params.get("page", 1)),
             "page_size": int(request.query_params.get("page_size", paginator.page_size)),
-            "count": queryset.count(),
-
-            # Same key as before
-            "data": serializer.data
+            "count": len(combined_data),
+            "data": paginated_data
         }, status=status.HTTP_200_OK)
         
 class OrderHistoryAPIView(APIView):
