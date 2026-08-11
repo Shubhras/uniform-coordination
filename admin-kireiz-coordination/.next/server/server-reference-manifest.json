@@ -10,15 +10,19 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/(public-pages)/products/page": {
+        "app/(public-pages)/simulation-assets/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/(public-pages)/contents/page": {
+        "app/(public-pages)/reports-analytics/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/_not-found/page": {
+        "app/(public-pages)/system-settings/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(public-pages)/pricing/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
@@ -26,9 +30,10 @@
       "layer": {
         "app/page": "rsc",
         "app/(public-pages)/admin-form/page": "rsc",
-        "app/(public-pages)/products/page": "rsc",
-        "app/(public-pages)/contents/page": "rsc",
-        "app/_not-found/page": "rsc"
+        "app/(public-pages)/simulation-assets/page": "rsc",
+        "app/(public-pages)/reports-analytics/page": "rsc",
+        "app/(public-pages)/system-settings/page": "rsc",
+        "app/(public-pages)/pricing/page": "rsc"
       }
     },
     "002bc0d119980e1aa5217d902dda86438cc2261a32": {
@@ -41,15 +46,19 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/(public-pages)/products/page": {
+        "app/(public-pages)/simulation-assets/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/(public-pages)/contents/page": {
+        "app/(public-pages)/reports-analytics/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/_not-found/page": {
+        "app/(public-pages)/system-settings/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(public-pages)/pricing/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
@@ -57,9 +66,10 @@
       "layer": {
         "app/page": "rsc",
         "app/(public-pages)/admin-form/page": "rsc",
-        "app/(public-pages)/products/page": "rsc",
-        "app/(public-pages)/contents/page": "rsc",
-        "app/_not-found/page": "rsc"
+        "app/(public-pages)/simulation-assets/page": "rsc",
+        "app/(public-pages)/reports-analytics/page": "rsc",
+        "app/(public-pages)/system-settings/page": "rsc",
+        "app/(public-pages)/pricing/page": "rsc"
       }
     },
     "405bb059e8f32220f8c5bfced7bbf0c5982d9100e5": {
@@ -72,15 +82,19 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/(public-pages)/products/page": {
+        "app/(public-pages)/simulation-assets/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/(public-pages)/contents/page": {
+        "app/(public-pages)/reports-analytics/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/_not-found/page": {
+        "app/(public-pages)/system-settings/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(public-pages)/pricing/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
@@ -88,9 +102,10 @@
       "layer": {
         "app/page": "rsc",
         "app/(public-pages)/admin-form/page": "rsc",
-        "app/(public-pages)/products/page": "rsc",
-        "app/(public-pages)/contents/page": "rsc",
-        "app/_not-found/page": "rsc"
+        "app/(public-pages)/simulation-assets/page": "rsc",
+        "app/(public-pages)/reports-analytics/page": "rsc",
+        "app/(public-pages)/system-settings/page": "rsc",
+        "app/(public-pages)/pricing/page": "rsc"
       }
     },
     "0080dd5addd7942acefa7161e865592bebb28e05c6": {
@@ -103,15 +118,19 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/(public-pages)/products/page": {
+        "app/(public-pages)/simulation-assets/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/(public-pages)/contents/page": {
+        "app/(public-pages)/reports-analytics/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/_not-found/page": {
+        "app/(public-pages)/system-settings/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(public-pages)/pricing/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
@@ -119,9 +138,10 @@
       "layer": {
         "app/page": "rsc",
         "app/(public-pages)/admin-form/page": "rsc",
-        "app/(public-pages)/products/page": "rsc",
-        "app/(public-pages)/contents/page": "rsc",
-        "app/_not-found/page": "rsc"
+        "app/(public-pages)/simulation-assets/page": "rsc",
+        "app/(public-pages)/reports-analytics/page": "rsc",
+        "app/(public-pages)/system-settings/page": "rsc",
+        "app/(public-pages)/pricing/page": "rsc"
       }
     },
     "40092e339c198d1217ba23b48a3769a83500e97808": {
@@ -134,15 +154,19 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/(public-pages)/products/page": {
+        "app/(public-pages)/simulation-assets/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/(public-pages)/contents/page": {
+        "app/(public-pages)/reports-analytics/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/_not-found/page": {
+        "app/(public-pages)/system-settings/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(public-pages)/pricing/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f7ef90b7a9a1efaf4a16ec3fb66fe63e66141f69b%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22002bc0d119980e1aa5217d902dda86438cc2261a32%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22405bb059e8f32220f8c5bfced7bbf0c5982d9100e5%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220080dd5addd7942acefa7161e865592bebb28e05c6%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240092e339c198d1217ba23b48a3769a83500e97808%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
@@ -150,9 +174,10 @@
       "layer": {
         "app/page": "rsc",
         "app/(public-pages)/admin-form/page": "rsc",
-        "app/(public-pages)/products/page": "rsc",
-        "app/(public-pages)/contents/page": "rsc",
-        "app/_not-found/page": "rsc"
+        "app/(public-pages)/simulation-assets/page": "rsc",
+        "app/(public-pages)/reports-analytics/page": "rsc",
+        "app/(public-pages)/system-settings/page": "rsc",
+        "app/(public-pages)/pricing/page": "rsc"
       }
     },
     "7f0e89cc71d97193c57a04c976ef34810459e34526": {
@@ -161,19 +186,29 @@
           "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f0e89cc71d97193c57a04c976ef34810459e34526%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
           "async": false
         },
-        "app/(public-pages)/products/page": {
+        "app/(public-pages)/simulation-assets/page": {
           "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f0e89cc71d97193c57a04c976ef34810459e34526%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
           "async": false
         },
-        "app/(public-pages)/contents/page": {
+        "app/(public-pages)/reports-analytics/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f0e89cc71d97193c57a04c976ef34810459e34526%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/(public-pages)/system-settings/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f0e89cc71d97193c57a04c976ef34810459e34526%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/(public-pages)/pricing/page": {
           "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-35%2FDesktop%2FUniform%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f0e89cc71d97193c57a04c976ef34810459e34526%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
           "async": false
         }
       },
       "layer": {
         "app/(public-pages)/admin-form/page": "action-browser",
-        "app/(public-pages)/products/page": "action-browser",
-        "app/(public-pages)/contents/page": "action-browser"
+        "app/(public-pages)/simulation-assets/page": "action-browser",
+        "app/(public-pages)/reports-analytics/page": "action-browser",
+        "app/(public-pages)/system-settings/page": "action-browser",
+        "app/(public-pages)/pricing/page": "action-browser"
       }
     }
   },
