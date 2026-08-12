@@ -22,8 +22,8 @@ import {
 import { apiGetCategoryList } from "@/services/CategoryService";
 
 const navItems = [
-  { id: "table-shape", label: "Table Shape", icon: FiTag },
-  { id: "categories", label: "Categories", icon: FiLayers },
+  { id: "table-shape", labelKey: "tableShape", icon: FiTag },
+  { id: "categories", labelKey: "categories", icon: FiLayers },
 ];
 
 const CircleTableIcon = ({ size = 26 }) => (
@@ -351,7 +351,7 @@ const PreviewSimulation = () => {
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[72px_188px_minmax(0,1fr)]">
         <div className="flex gap-2 lg:flex-col">
-          {navItems.map(({ id, label, icon: Icon }) => (
+          {navItems.map(({ id, labelKey, icon: Icon }) => (
             <button
               key={id}
               type="button"
@@ -376,7 +376,7 @@ const PreviewSimulation = () => {
                   activePanel === id ? "text-[#3F3A37]" : "text-[#8A7F76]"
                 }`}
               >
-                {label}
+                {t(labelKey)}
               </span>
             </button>
           ))}
@@ -385,7 +385,9 @@ const PreviewSimulation = () => {
         <div className="rounded-[8px] border border-[#F0DED3] bg-[#FFF9F6] p-3">
           {activePanel === "table-shape" ? (
             <>
-              <h3 className="text-[12px] font-medium text-[#352A24]">Table Shape</h3>
+              <h3 className="text-[12px] font-medium text-[#352A24]">
+                {t("tableShape")}
+              </h3>
 
               <div className="mt-4 grid grid-cols-3 gap-2">
                 {shapes.map(({ id, label, Icon }) => (
@@ -406,14 +408,18 @@ const PreviewSimulation = () => {
               </div>
 
               <div className="mt-4">
-                <p className="text-[10px] text-[#7F736B]">Table Scale</p>
+                <p className="text-[10px] text-[#7F736B]">
+                  {t("tableScale")}
+                </p>
                 <div className="mt-2 h-[4px] rounded-full bg-[#DDD4CF]">
                   <div className="h-[4px] w-[38%] rounded-full bg-[#C67747]" />
                 </div>
               </div>
 
               <div className="mt-4 flex items-center justify-between">
-                <p className="text-[10px] text-[#7F736B]">Table Sitting</p>
+                <p className="text-[10px] text-[#7F736B]">
+                  {t("tableSitting")}
+                </p>
                 <div className="flex items-center gap-2 rounded-[4px] border border-[#E7D8CE] bg-white px-2 py-1 text-[10px] text-[#7F736B]">
                   <button type="button">
                     <FiMinus size={10} />
