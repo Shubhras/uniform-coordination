@@ -27,6 +27,8 @@ const ColorsTab = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const t = useTranslations("productSpecification.color");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
 
   const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -118,7 +120,7 @@ const ColorsTab = () => {
       const response = await apiDeleteColor(accessToken, colorToDelete.id);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={ts("success")} type="success">
           {response.message}
         </Notification>,
       );
@@ -163,16 +165,16 @@ const ColorsTab = () => {
 
       if (response?.status) {
         toast.push(
-          <Notification title="Success" type="success">
-            {response.message || "Color duplicated successfully!"}
+          <Notification title={ts("success")} type="success">
+            {response.message || t("duplicateSuccess")}
           </Notification>,
         );
       } else {
         const errorMessage =
           Object.values(response?.message || {}).flat()[0] ||
-          "Failed to duplicate color.";
+          t("duplicateFailed");
         toast.push(
-          <Notification title="Error" type="danger">
+          <Notification title={te("error")} type="danger">
             {errorMessage}
           </Notification>,
         );
@@ -181,8 +183,8 @@ const ColorsTab = () => {
     } catch (error) {
       console.error("Failed to duplicate color:", error);
       toast.push(
-        <Notification title="Error" type="danger">
-          An error occurred while duplicating the color.
+        <Notification title={te("error")} type="danger">
+          {t("duplicateError")}
         </Notification>,
       );
       fetchColors(currentPage);

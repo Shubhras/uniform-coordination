@@ -7,8 +7,12 @@ import Spinner from "@/components/ui/Spinner";
 import { FiRefreshCw } from "react-icons/fi";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
+import { useTranslations } from "next-intl";
 
 const CleaningItems = () => {
+  const t = useTranslations("inventoryManagement.cleaningItems");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -48,23 +52,23 @@ const CleaningItems = () => {
       });
       if (res?.status) {
         toast.push(
-          <Notification type="success" title="Success">
-            Item moved to available stock.
+          <Notification type="success" title={ts("success")}>
+            {t("movedToAvailable")}
           </Notification>
         );
         fetchCleaningItems();
       } else {
         toast.push(
-          <Notification type="danger" title="Error">
-            {res?.message || "Failed to move item to available"}
+          <Notification type="danger" title={te("error")}>
+            {res?.message || t("moveFailed")}
           </Notification>
         );
       }
     } catch (err) {
       console.error(err);
-      const errMsg = err.response?.data?.message || err.message || "Failed to move item to available";
+      const errMsg = err.response?.data?.message || err.message || t("moveFailed");
       toast.push(
-        <Notification type="danger" title="Error">
+        <Notification type="danger" title={te("error")}>
           {errMsg}
         </Notification>
       );
@@ -97,7 +101,7 @@ const CleaningItems = () => {
                   </h2>
 
                   <p className="mt-2 text-[13px] text-[#9B8878]">
-                    {item.category} · Added {item.added}
+                    {item.category} · {t("addedOn", { date: item.added })}
                   </p>
                 </div>
               </div>
@@ -107,14 +111,14 @@ const CleaningItems = () => {
                 className="flex items-center gap-2 px-5 h-9 rounded-full border border-[#BDEFD9] bg-[#ECFDF5] text-[#007A55] text-[13px] font-semibold hover:bg-[#DDFBF0] transition cursor-pointer"
               >
                 <FiRefreshCw size={13} />
-                Move to Available
+                {t("moveToAvailable")}
               </button>
             </div>
           </div>
         ))
       ) : (
         <div className="bg-white border border-[#EFE5DD] rounded-xl py-10 text-center text-gray-500">
-          No cleaning items found.
+          {t("noCleaning")}
         </div>
       )}
     </div>

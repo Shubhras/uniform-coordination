@@ -39,16 +39,21 @@ const AddEditColorModal = ({
   const [error, setError] = useState("");
 
   const validationSchema = z.object({
-    name: z.string().trim().min(1, {
-      message: tm("validation.nameRequired"),
-    }),
+    name: z
+      .string()
+      .trim()
+      .min(1, {
+        message: tm("validation.nameRequired"),
+      }),
     hex: z
       .string()
       .trim()
       .min(1, {
         message: tm("validation.hexRequired"),
       }),
-    compatibleFabric: z.any().optional(),
+    compatibleFabric: z.array(z.any()).min(1, {
+      message: "Compatible fabric is required",
+    }),
   });
 
   const {
@@ -144,9 +149,7 @@ const AddEditColorModal = ({
       if (onSaveSuccess) onSaveSuccess();
     } catch (err) {
       console.error("Save failed:", err);
-      setError(
-        err?.response?.data?.message || tm("saveFailed"),
-      );
+      setError(err?.response?.data?.message || tm("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -177,7 +180,8 @@ const AddEditColorModal = ({
           <div className="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto">
             <div>
               <label className="text-[#1C2C56] text-sm font-medium">
-                {tm("colorNameLabel")}<span className="text-red-500">*</span>
+                {tm("colorNameLabel")}
+                <span className="text-red-500">*</span>
               </label>
 
               <FormItem
@@ -188,7 +192,10 @@ const AddEditColorModal = ({
                   name="name"
                   control={control}
                   render={({ field }) => (
-                    <Input placeholder={tm("colorNamePlaceholder")} {...field} />
+                    <Input
+                      placeholder={tm("colorNamePlaceholder")}
+                      {...field}
+                    />
                   )}
                 />
               </FormItem>

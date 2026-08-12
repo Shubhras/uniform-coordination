@@ -2,7 +2,30 @@
 
 import { useState } from "react";
 import Chart from "react-apexcharts";
+import Select from "react-select";
 import { useTranslations } from "next-intl";
+
+const selectStyles = {
+  control: (base, state) => ({
+    ...base,
+    minHeight: "34px",
+    borderRadius: "8px",
+    borderColor: state.isFocused ? "#1C2C56" : "#E2E8F0",
+    boxShadow: "none",
+    "&:hover": { borderColor: "#1C2C56" },
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? "#1C2C56"
+      : state.isFocused
+        ? "#EEF2FF"
+        : "white",
+    color: state.isSelected ? "white" : "#1E293B",
+    fontSize: "14px",
+  }),
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+};
 
 const QuotationRequestsChart = ({ data }) => {
   const t = useTranslations("dashboard.quotationVolume");
@@ -20,7 +43,7 @@ const QuotationRequestsChart = ({ data }) => {
       type: "area",
       toolbar: { show: false },
     },
-    colors: ["#FACC15"],
+    colors: ["#1C2C56"],
     stroke: {
       curve: "smooth",
       width: 3,
@@ -31,6 +54,10 @@ const QuotationRequestsChart = ({ data }) => {
         shadeIntensity: 0.4,
         opacityFrom: 0.35,
         opacityTo: 0.05,
+        colorStops: [
+          { offset: 0, color: "#818CF8", opacity: 0.4 },
+          { offset: 100, color: "#818CF8", opacity: 0.05 },
+        ],
       },
     },
     dataLabels: { enabled: false },
@@ -51,7 +78,7 @@ const QuotationRequestsChart = ({ data }) => {
     },
     markers: {
       size: 4,
-      colors: ["#FACC15"],
+      colors: ["#1C2C56"],
       strokeColors: "#fff",
       strokeWidth: 2,
     },
@@ -75,6 +102,11 @@ const QuotationRequestsChart = ({ data }) => {
     { key: "yearly", labelKey: "yearly" },
   ];
 
+  const periodOptions = periodTabs.map((tab) => ({
+    value: tab.key,
+    label: t(tab.labelKey),
+  }));
+
   return (
     <div className="h-full bg-white border border-[#ececec] rounded-xl shadow-sm p-5">
       <div className="flex items-center justify-between mb-4">
@@ -82,19 +114,14 @@ const QuotationRequestsChart = ({ data }) => {
           {t("quotationVolume")}
         </h3>
 
-        <div className="flex gap-1 bg-[#F1F5F9] rounded-lg p-1">
-          {periodTabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setPeriod(tab.key)}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${period === tab.key
-                  ? "bg-[#1C2C56] text-white"
-                  : "text-[#64748B] hover:text-[#1E293B]"
-                }`}
-            >
-              {t(tab.labelKey)}
-            </button>
-          ))}
+        <div className="w-36">
+          <Select
+            value={periodOptions.find((opt) => opt.value === period)}
+            onChange={(opt) => setPeriod(opt.value)}
+            options={periodOptions}
+            styles={selectStyles}
+            isSearchable={false}
+          />
         </div>
       </div>
 

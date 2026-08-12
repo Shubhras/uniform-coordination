@@ -17,8 +17,10 @@ import { useRouter } from "next/navigation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiOrderRentalDetails } from "@/services/OrderRentals";
 import Spinner from "@/components/ui/Spinner";
+import { useTranslations } from "next-intl";
 
 export default function RentalTimeline({ orderId }) {
+  const t = useTranslations("orderRetals.timeline");
   const router = useRouter();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -59,32 +61,32 @@ export default function RentalTimeline({ orderId }) {
   const timeline = [
     {
       key: "pending",
-      title: "Order Confirmed",
-      desc: "Order created",
+      title: t("orderConfirmed"),
+      desc: t("orderCreated"),
       icon: <FiShoppingBag />,
     },
     {
       key: "confirmed",
-      title: "Payment Received",
-      desc: "Payment received",
+      title: t("paymentReceived"),
+      desc: t("paymentReceived"),
       icon: <FiCreditCard />,
     },
     {
       key: "processing",
-      title: "Shipped",
-      desc: "Dispatched",
+      title: t("shipped"),
+      desc: t("dispatched"),
       icon: <FiTruck />,
     },
     {
       key: "delivered",
-      title: "Delivered",
-      desc: "Items delivered successfully",
+      title: t("delivered"),
+      desc: t("deliveredDesc"),
       icon: <FiCheckCircle />,
     },
     {
       key: "returned",
-      title: "Returned",
-      desc: "Items received and logged for inspection",
+      title: t("returned"),
+      desc: t("returnedDesc"),
       icon: <FiRotateCcw />,
     },
   ];
@@ -110,7 +112,7 @@ export default function RentalTimeline({ orderId }) {
         </button>
 
         <h1 className="text-[28px] font-bold text-[#2F241D]">
-          Rental Timeline
+          {t("rentalTimeline")}
         </h1>
       </div>
 
@@ -172,7 +174,7 @@ export default function RentalTimeline({ orderId }) {
                       completed ? "text-[#8B8B8B]" : "text-[#BEBEBE]"
                     }`}
                   >
-                    {completed ? "Completed" : "Pending"}
+                    {completed ? t("completed") : t("pending")}
                   </span>
                 </div>
               );
@@ -185,26 +187,26 @@ export default function RentalTimeline({ orderId }) {
           {/* Summary */}
           <div className="bg-white border border-[#EEE5DE] rounded-2xl p-4">
             <h3 className="text-[13px] font-medium text-[#7A6E66] uppercase mb-5">
-              Order Summary
+              {t("orderSummary")}
             </h3>
 
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-[#8C8177]">Order ID</span>
+                <span className="text-[#8C8177]">{t("orderId")}</span>
                 <span className="font-medium text-[12px] text-[#A85A32]">
                   {order?.order_id}
                 </span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#8C8177]">Company</span>
+                <span className="text-[#8C8177]">{t("company")}</span>
                 <span className="font-semibold text-[#1A1714]">
                   {order?.delivery_address?.name}
                 </span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#8C8177]">Type</span>
+                <span className="text-[#8C8177]">{t("type")}</span>
 
                 <span className="px-2 py-1 rounded bg-[#F0F9FF] border border-[#B8E6FE] text-[#0069A8] text-xs font-semibold">
                   B2C
@@ -212,7 +214,7 @@ export default function RentalTimeline({ orderId }) {
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#8C8177]">Amount</span>
+                <span className="text-[#8C8177]">{t("amount")}</span>
                 <span className="font-semibold text-[#A85A32]">
                   {order?.payment_summary?.currency || "₹"}{" "}
                   {order?.total_amount}
@@ -220,7 +222,7 @@ export default function RentalTimeline({ orderId }) {
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#8C8177]">Status</span>
+                <span className="text-[#8C8177]">{t("status")}</span>
 
                 <span
                   className={`px-2 py-1 rounded border text-xs font-semibold capitalize
@@ -246,7 +248,7 @@ export default function RentalTimeline({ orderId }) {
           <div className="bg-[#FFF8F3] border border-[#ECD8CB] rounded-2xl p-4">
             <h3 className="flex items-center gap-2 text-[13px] uppercase text-[#C26C35] font-semibold mb-4">
               <FiInfo size={17} />
-              Progress
+              {t("progress")}
             </h3>
 
             <div className="w-full h-2 rounded-full bg-[#E8D7CA] overflow-hidden">
@@ -257,7 +259,7 @@ export default function RentalTimeline({ orderId }) {
             </div>
 
             <p className="mt-3 text-xs text-[#A85A32] font-semibold">
-              {completedSteps} of {totalSteps} steps completed
+              {completedSteps} {t("of")} {totalSteps} {t("stepsCompleted")}
             </p>
           </div>
         </div>

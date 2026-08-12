@@ -121,7 +121,7 @@ const ViewOrderPopup = ({ isOpen, onClose, orderId }) => {
                                             <tr key={idx} className="border-t">
                                                 <td className="px-4 py-3">{item.name}</td>
                                                 <td className="text-center px-4">{item.quantity}</td>
-                                                <td className="text-right px-4">₹{item.price}</td>
+                                                <td className="text-right px-4">${item.price}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -132,15 +132,15 @@ const ViewOrderPopup = ({ isOpen, onClose, orderId }) => {
                             <div className="border rounded-lg p-4 max-w-full ml-auto space-y-2">
                                 <div className="flex justify-between">
                                     <span>Subtotal</span>
-                                    <span>₹{orderData.subtotal}</span>
+                                    <span>${orderData.subtotal}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Tax</span>
-                                    <span>₹{orderData.tax}</span>
+                                    <span>${orderData.tax}</span>
                                 </div>
                                 <div className="flex justify-between font-semibold text-lg">
                                     <span>Total</span>
-                                    <span>₹{orderData.total}</span>
+                                    <span>${orderData.total}</span>
                                 </div>
                             </div>
 

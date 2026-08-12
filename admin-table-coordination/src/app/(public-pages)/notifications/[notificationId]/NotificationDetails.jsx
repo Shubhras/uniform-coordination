@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   FiAlertCircle,
   FiArrowLeft,
@@ -146,6 +147,7 @@ const normalizeNotificationDetails = (item) => {
 };
 
 const NotificationDetails = ({ notificationId }) => {
+  const t = useTranslations("notifications");
   const router = useRouter();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -212,7 +214,7 @@ const NotificationDetails = ({ notificationId }) => {
             <FiArrowLeft size={12} />
           </button>
           <h1 className="text-[20px] font-semibold text-[#241915] sm:text-[28px]">
-            Notification Details
+            {t("notificationDetails")}
           </h1>
           {!loading && notification ? (
             <span
@@ -227,26 +229,26 @@ const NotificationDetails = ({ notificationId }) => {
               ) : (
                 <FiAlertCircle size={11} />
               )}
-              {notification.statusLabel}
+              {isSent ? t("statusSent") : t("statusFailed")}
             </span>
           ) : null}
         </div>
 
         <div className="grid gap-1 text-right text-[10px] text-[#9B8D84]">
           <div className="flex items-center justify-end gap-3">
-            <span>Sent At:</span>
+            <span>{t("sentAt")}:</span>
             <span className="font-medium text-[#5B4D46]">
-              {loading ? "Loading..." : notification?.sentAt || "-"}
+              {loading ? t("loading") : notification?.sentAt || "-"}
             </span>
           </div>
           <div className="flex items-center justify-end gap-3">
-            <span>Delivered At:</span>
+            <span>{t("deliveredAt")}:</span>
             <span
               className={
                 isSent ? "font-medium text-[#5B4D46]" : "font-medium text-[#F04444]"
               }
             >
-              {loading ? "Loading..." : notification?.deliveredAt || "-"}
+              {loading ? t("loading") : notification?.deliveredAt || "-"}
             </span>
           </div>
         </div>
@@ -256,13 +258,13 @@ const NotificationDetails = ({ notificationId }) => {
         <div className="rounded-xl border border-[#F2E7DE] bg-white">
           <div className="border-b border-[#F7EEE7] px-4 py-2.5">
             <h3 className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#BC9074]">
-              Subject Line
+              {t("subjectLine")}
             </h3>
           </div>
           <div className="px-4 py-3 text-[11px] font-medium text-[#3E312A] sm:text-xs">
             {loading
-              ? "Loading notification subject..."
-              : notification?.subject || "Notification Details"}
+              ? t("loadingSubject")
+              : notification?.subject || t("notificationDetails")}
           </div>
         </div>
 
@@ -271,7 +273,7 @@ const NotificationDetails = ({ notificationId }) => {
             <div className="flex items-center gap-2">
               <FiMail size={12} className="text-[#BC9074]" />
               <h3 className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#BC9074]">
-                Email Content Preview
+                {t("emailPreview")}
               </h3>
             </div>
             <span className="text-[10px] text-[#A1948B]">
@@ -316,7 +318,7 @@ const NotificationDetails = ({ notificationId }) => {
 
                 <div className="px-4 py-4 text-[11px] leading-6 text-[#594C45]">
                   {notification.recipientName ? (
-                    <p>{`Dear ${notification.recipientName},`}</p>
+                    <p>{t("dearName", { name: notification.recipientName })}</p>
                   ) : null}
 
                   {notification.body.map((paragraph) => (
@@ -328,7 +330,7 @@ const NotificationDetails = ({ notificationId }) => {
                   {summaryRows.length > 0 ? (
                     <>
                       <p className="mt-5 font-medium text-[#3A2F2A]">
-                        Notification Summary:
+                        {t("notificationSummary")}
                       </p>
                       <div className="mt-3 max-w-[280px] border-t border-[#C9B9AE] pt-2">
                         {summaryRows.map(([label, value]) => (
@@ -345,17 +347,15 @@ const NotificationDetails = ({ notificationId }) => {
                   ) : null}
 
                   <div className="mt-6 rounded bg-[#B56835] px-3 py-2 text-[9px] text-white/90">
-                    KIREIZ SPACE Inc. · 1-23 Minami-Aoyama, Minato-ku, Tokyo
-                    107-0062 · Japan
+                    {t("companyAddress")}
                     <br />
-                    This is an automated transactional email. Please do not
-                    reply to this message.
+                    {t("automatedEmail")}
                   </div>
                 </div>
               </div>
             ) : (
               <div className="py-8 text-center text-[13px] text-[#8B6A55]">
-                Notification details not found.
+                {t("notFound")}
               </div>
             )}
           </div>

@@ -2,7 +2,7 @@
 
 import { FiAlertTriangle } from "react-icons/fi";
 import Dialog from "@/components/ui/Dialog";
-
+import { useTranslations } from "next-intl";
 const NewDeleteModal = ({
   isOpen,
   onClose,
@@ -11,6 +11,7 @@ const NewDeleteModal = ({
   message = "Deleting this product will remove it from all over the platform.",
   loading = false,
 }) => {
+  const t = useTranslations("deleteConfirmDialog");
   return (
     <Dialog
       isOpen={isOpen}
@@ -54,7 +55,7 @@ const NewDeleteModal = ({
             disabled={loading}
             className="h-10 rounded-md border border-[#E5E7EB] bg-white px-5 text-sm font-medium text-[#4B5563] transition hover:bg-[#F9FAFB] disabled:opacity-60"
           >
-            Cancel
+            {t("cancel")}
           </button>
 
           <button
@@ -62,7 +63,7 @@ const NewDeleteModal = ({
             disabled={loading}
             className="h-10 rounded-md bg-[#EF4444] px-5 text-sm font-medium text-white transition hover:bg-[#DC2626] disabled:opacity-60"
           >
-            {loading ? "Deleting..." : "Delete"}
+            {loading ? "Deleting..." : t("delete")}
           </button>
         </div>
       </div>

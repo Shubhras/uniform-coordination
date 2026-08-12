@@ -6,8 +6,10 @@ import { apiProcessReturnDetails } from "@/services/OrderRentals";
 import { useRouter } from "next/navigation";
 import { FiArrowLeft, FiAlertCircle, FiClock } from "react-icons/fi";
 import Spinner from "@/components/ui/Spinner";
+import { useTranslations } from "next-intl";
 
 export default function ProcessReturn({ orderId }) {
+  const t = useTranslations("orderRetals.processReturn");
   const router = useRouter();
 
   const { session } = useCurrentSession();
@@ -75,10 +77,10 @@ export default function ProcessReturn({ orderId }) {
 
           <div>
             <h1 className="text-2xl font-semibold text-[#1A1410]">
-              Process Return
+              {t("processReturn")}
             </h1>
             <p className="text-sm text-[#8B8B8B] mt-1">
-              Order ID :{" "}
+              {t("orderId")} :{" "}
               <span className="font-medium text-[#A0522D]">{orderId}</span>
             </p>
           </div>
@@ -91,15 +93,15 @@ export default function ProcessReturn({ orderId }) {
             }
             className="px-4 py-2 rounded-lg bg-[#F0EBE5] border border-[#E7DDD5] text-[#8C4A2F] text-sm font-semibold"
           >
-            Continue Inspection
+            {t("continueInspection")}
           </button>
 
           <button className="px-4 py-2 rounded-lg border border-[#E7DDD5] bg-white text-[#A85A32] text-sm font-semibold">
-            Late Fee
+            {t("lateFee")}
           </button>
 
           <button className="px-4 py-2 rounded-lg bg-[#B63B2B] text-white text-sm font-semibold hover:bg-[#9E3225]">
-            Generate Compensation
+            {t("generate")}
           </button>
         </div>
       </div>
@@ -110,10 +112,10 @@ export default function ProcessReturn({ orderId }) {
           <FiClock className="text-[#DC2626] mt-1" size={17} />
           <div>
             <h3 className="text-[15px] font-semibold text-[#C10007]">
-              Return overdue by 3 days
+              {t("returnOverdue")}
             </h3>
             <p className="text-[12px] font-medium text-[#FB2C36] mt-1">
-              Expected: Jul 1, 2025 • Actual: Jul 4, 2025
+              {t("expected")}: Jul 1, 2025 • {t("actual")}: Jul 4, 2025
             </p>
           </div>
         </div>
@@ -122,10 +124,10 @@ export default function ProcessReturn({ orderId }) {
           <FiAlertCircle className="text-[#F59E0B] mt-1" size={17} />
           <div>
             <h3 className="text-[15px] font-semibold text-[#CA3500]">
-              Missing or damaged items detected
+              {t("missinDamaged")}
             </h3>
             <p className="text-[12px] text-[#FF6900] mt-1">
-              2 missing chairs • 1 damaged candelabra
+              {t("missingDamagedDetail")}
             </p>
           </div>
         </div>
@@ -135,7 +137,7 @@ export default function ProcessReturn({ orderId }) {
       <div className="bg-white rounded-2xl border border-[#ECE6E1] overflow-hidden">
         <div className="px-6 py-4 border-b border-[#F1ECE7]">
           <h2 className="text-[16px] font-semibold text-[#1C1917]">
-            Return Item Checklist
+            {t("itemsChecklist")}
           </h2>
         </div>
 
@@ -143,13 +145,13 @@ export default function ProcessReturn({ orderId }) {
           <table className="w-full text-sm">
             <thead className="bg-[#FAF8F6] text-[#8B8B8B] uppercase text-[11px]">
               <tr>
-                <th className="text-left px-6 py-4">Item</th>
-                <th className="text-center px-4 py-4">Rented</th>
-                <th className="text-center px-4 py-4">Returned</th>
-                <th className="text-center px-4 py-4">Missing</th>
-                <th className="text-center px-4 py-4">Damaged</th>
-                <th className="text-center px-4 py-4">Late</th>
-                <th className="text-center px-6 py-4">Status</th>
+                <th className="text-left px-6 py-4">{t("item")}</th>
+                <th className="text-center px-4 py-4">{t("rented")}</th>
+                <th className="text-center px-4 py-4">{t("returned")}</th>
+                <th className="text-center px-4 py-4">{t("missing")}</th>
+                <th className="text-center px-4 py-4">{t("damaged")}</th>
+                <th className="text-center px-4 py-4">{t("late")}</th>
+                <th className="text-center px-6 py-4">{t("status")}</th>
               </tr>
             </thead>
 
@@ -182,7 +184,7 @@ export default function ProcessReturn({ orderId }) {
                       item.damaged !== "-" ? "text-[#DC2626]" : "text-[#888]"
                     }`}
                   >
-                    {item.is_damaged ? "Yes" : "-"}
+                    {item.is_damaged ? t("yes") : "-"}
                   </td>
 
                   <td
@@ -190,7 +192,7 @@ export default function ProcessReturn({ orderId }) {
                       item.late === "Yes" ? "text-[#DC2626]" : "text-[#888]"
                     }`}
                   >
-                    {orderDetails?.actual_return_date ? "Yes" : "No"}
+                    {orderDetails?.actual_return_date ? t("yes") : t("no")}
                   </td>
 
                   <td className="text-center">
@@ -207,10 +209,10 @@ export default function ProcessReturn({ orderId }) {
                         }`}
                     >
                       {item.is_lost
-                        ? "Missing/Damaged"
+                        ? t("statusMissingDamaged")
                         : item.is_damaged
-                          ? "Damaged"
-                          : "Available"}
+                          ? t("statusDamaged")
+                          : t("statusAvailable")}
                     </span>
                   </td>
                 </tr>

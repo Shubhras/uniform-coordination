@@ -11,6 +11,7 @@ import {
   FiPackage,
 } from "react-icons/fi";
 import { apiGetThemeDetails } from "@/services/ThemeManagement";
+import { useTranslations } from "next-intl";
 
 const sectionsData = [
   {
@@ -40,6 +41,8 @@ const sectionsData = [
 ];
 
 const PreviewTheme = () => {
+  const t = useTranslations("themeManagement.addtheme");
+
   const [sections, setSections] = useState(sectionsData);
   const [activeImage, setActiveImage] = useState(0);
   const router = useRouter();
@@ -157,7 +160,7 @@ const PreviewTheme = () => {
 
           <div className="absolute top-5 left-5">
             <span className="bg-white/95 text-[#7A553D] text-xs px-3 py-1 rounded-full shadow">
-              Preset Look
+              {t("presetLook")}
             </span>
           </div>
 
@@ -168,9 +171,8 @@ const PreviewTheme = () => {
               <button
                 key={index}
                 onClick={() => setActiveImage(index)}
-                className={`w-2.5 h-2.5 rounded-full transition ${
-                  activeImage === index ? "bg-white w-6" : "bg-white/50"
-                }`}
+                className={`w-2.5 h-2.5 rounded-full transition ${activeImage === index ? "bg-white w-6" : "bg-white/50"
+                  }`}
               />
             ))}
           </div>
@@ -180,7 +182,7 @@ const PreviewTheme = () => {
 
         <div className="flex items-center gap-5 mt-8 mb-5">
           <h2 className="text-[20px] font-bold text-[#7B3C1D]">
-            Items Included In This Theme
+            {t("itemsIncludedTheme")}
           </h2>
 
           <span className="px-3 py-1 rounded-full shadow-sm bg-white text-[#8B5A3C] text-sm">

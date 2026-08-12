@@ -1,1 +1,1 @@
-export { protectedRoutes, publicRoutes, authRoutes } from './routes.config'
+export { protectedRoutes, publicRoutes, authRoutes, isPublicRoute } from './routes.config'

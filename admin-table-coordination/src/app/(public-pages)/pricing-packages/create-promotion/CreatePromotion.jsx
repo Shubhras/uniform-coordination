@@ -10,6 +10,7 @@ import {
 } from "@/services/PricingPackages";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
+import { useTranslations } from "next-intl";
 
 import {
   FiArrowLeft,
@@ -29,6 +30,9 @@ const labelClassName =
   "mb-2 block text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D]";
 
 const CreatePromotion = () => {
+  const t = useTranslations("pricingPackages.promotions");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
   const router = useRouter();
   const params = useParams();
   console.log("params", params);
@@ -45,25 +49,25 @@ const CreatePromotion = () => {
     const newErrors = {};
 
     if (!form.promocodeName.trim()) {
-      newErrors.promocodeName = "Promotion name is required*";
+      newErrors.promocodeName = t("validation.nameRequired");
     }
 
     if (!form.promocodeType) {
-      newErrors.promocodeType = "Promotion type is required*";
+      newErrors.promocodeType = t("validation.typeRequired");
     }
 
     if (!form.amount) {
-      newErrors.amount = "Discount value is required*";
+      newErrors.amount = t("validation.amountRequired");
     } else if (Number(form.amount) <= 0) {
-      newErrors.amount = "Discount value must be greater than 0";
+      newErrors.amount = t("validation.amountGreaterThanZero");
     }
 
     if (!form.started_at) {
-      newErrors.started_at = "Start date is required*";
+      newErrors.started_at = t("validation.startDateRequired");
     }
 
     if (!form.ended_at) {
-      newErrors.ended_at = "End date is required*";
+      newErrors.ended_at = t("validation.endDateRequired");
     }
 
     if (
@@ -71,11 +75,11 @@ const CreatePromotion = () => {
       form.ended_at &&
       new Date(form.ended_at) <= new Date(form.started_at)
     ) {
-      newErrors.ended_at = "End date must be after start date";
+      newErrors.ended_at = t("validation.endAfterStart");
     }
 
     if (!form.description.trim()) {
-      newErrors.description = "Description is required*";
+      newErrors.description = t("validation.descriptionRequired");
     }
 
     setErrors(newErrors);
@@ -161,7 +165,7 @@ const CreatePromotion = () => {
       }
       if (res?.status) {
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={ts("success")} type="success">
             {res.message}
           </Notification>,
         );
@@ -170,8 +174,8 @@ const CreatePromotion = () => {
       }
     } catch (err) {
       toast.push(
-        <Notification title="Error" type="danger">
-          {err?.response?.data?.message || "Something went wrong"}
+        <Notification title={te("error")} type="danger">
+          {err?.response?.data?.message || t("genericError")}
         </Notification>,
       );
     } finally {
@@ -192,14 +196,14 @@ const CreatePromotion = () => {
         </button>
 
         <h1 className="text-[30px] font-semibold text-[#2A211D]">
-          {isEdit ? "Edit Promotion" : "Create Promotion"}
+          {isEdit ? t("editPromotion") : t("createPromotion")}
         </h1>
       </div>
 
       <div className="mt-6 rounded-[14px] border border-[#F0E4DB] bg-white p-6">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div className="md:col-span-2">
-            <label className={labelClassName}>Promotion Name</label>
+            <label className={labelClassName}>{t("promotionName")}</label>
 
             <input
               type="text"
@@ -217,7 +221,7 @@ const CreatePromotion = () => {
                 }));
               }}
               className={inputClassName}
-              placeholder="Enter promotion name"
+              placeholder={t("namePlaceholder")}
             />
             {errors.promocodeName && (
               <p className="mt-1 text-sm text-red-500">
@@ -228,7 +232,7 @@ const CreatePromotion = () => {
 
           {/* Promotion Type */}
           <div>
-            <label className={labelClassName}>Promotion Type</label>
+            <label className={labelClassName}>{t("promotionType")}</label>
 
             <div className="relative">
               <select
@@ -247,8 +251,8 @@ const CreatePromotion = () => {
                 }}
                 className={`${inputClassName} appearance-none`}
               >
-                <option value="discount">Percentage</option>
-                <option value="fix_price">Fixed Price</option>
+                <option value="discount">{t("typePercentage")}</option>
+                <option value="fix_price">{t("typeFixedPrice")}</option>
               </select>
               {errors.promocodeType && (
                 <p className="mt-1 text-sm text-red-500">
@@ -264,7 +268,7 @@ const CreatePromotion = () => {
 
           {/* Amount */}
           <div>
-            <label className={labelClassName}>Discount Value</label>
+            <label className={labelClassName}>{t("discountValue")}</label>
 
             <input
               type="number"
@@ -283,7 +287,7 @@ const CreatePromotion = () => {
                 }));
               }}
               className={inputClassName}
-              placeholder="Enter amount"
+              placeholder={t("amountPlaceholder")}
             />
             {errors.amount && (
               <p className="mt-1 text-sm text-red-500">{errors.amount}</p>
@@ -319,7 +323,7 @@ const CreatePromotion = () => {
 
           {/* Start Date */}
           <div>
-            <label className={labelClassName}>Start Date</label>
+            <label className={labelClassName}>{t("startDate")}</label>
 
             <div className="relative">
               <input
@@ -344,15 +348,15 @@ const CreatePromotion = () => {
                 size={18}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A38D82] pointer-events-none"
               />
-              {errors.started_at && (
-                <p className="mt-1 text-sm text-red-500">{errors.started_at}</p>
-              )}
             </div>
+            {errors.started_at && (
+              <p className="mt-1 text-sm text-red-500">{errors.started_at}</p>
+            )}
           </div>
 
           {/* End Date */}
           <div>
-            <label className={labelClassName}>End Date</label>
+            <label className={labelClassName}>{t("endDate")}</label>
 
             <div className="relative">
               <input
@@ -377,15 +381,15 @@ const CreatePromotion = () => {
                 size={18}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A38D82] pointer-events-none"
               />
-              {errors.ended_at && (
-                <p className="mt-1 text-sm text-red-500">{errors.ended_at}</p>
-              )}
             </div>
+            {errors.ended_at && (
+              <p className="mt-1 text-sm text-red-500">{errors.ended_at}</p>
+            )}
           </div>
 
           {/* Description */}
           <div className="md:col-span-2">
-            <label className={labelClassName}>Description</label>
+            <label className={labelClassName}>{t("descriptionLabel")}</label>
 
             <textarea
               name="description"
@@ -402,7 +406,7 @@ const CreatePromotion = () => {
                 }));
               }}
               className={textareaClassName}
-              placeholder="Write description..."
+              placeholder={t("descriptionPlaceholder")}
             />
             {errors.description && (
               <p className="mt-1 text-sm text-red-500">{errors.description}</p>
@@ -431,11 +435,11 @@ const CreatePromotion = () => {
         <div className="mt-6 flex items-center justify-between border-t border-[#F3E7DE] pt-5">
           <div>
             <h3 className="text-[14px] font-semibold text-[#2F241F]">
-              Active Status
+              {t("activeStatus")}
             </h3>
 
             <p className="mt-1 text-[12px] text-[#A08E83]">
-              Enable or disable this promotion immediately
+              {t("promoImmediately")}
             </p>
           </div>
 
@@ -465,7 +469,7 @@ const CreatePromotion = () => {
           onClick={() => router.back()}
           className="rounded-xl border border-[#EAD9CD] px-6 py-2.5 text-[13px] font-medium text-[#6E615A]"
         >
-          Cancel
+          {t("cancel")}
         </button>
 
         <button
@@ -476,11 +480,11 @@ const CreatePromotion = () => {
         >
           {loading
             ? isEdit
-              ? "Updating..."
-              : "Creating..."
+              ? t("updating")
+              : t("creating")
             : isEdit
-              ? "Update Promotion"
-              : "Create Promotion"}
+              ? t("updatePromotion")
+              : t("createPromotion")}
         </button>
       </div>
     </div>

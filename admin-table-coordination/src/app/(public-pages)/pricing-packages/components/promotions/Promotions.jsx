@@ -21,22 +21,7 @@ import {
   apiDeletePromoCode,
 } from "@/services/PricingPackages";
 import NewDeleteModal from "@/components/shared/NewDeleteModal";
-
-const typeOptions = [
-  { value: "all", label: "All Types" },
-  { value: "percentage", label: "Percentage" },
-  { value: "first purchase", label: "First Purchase" },
-  { value: "repeat customer", label: "Repeat Customer" },
-  { value: "limited time", label: "Limited Time" },
-  { value: "fixed amount", label: "Fixed Amount" },
-];
-
-const statusOptions = [
-  { value: "all", label: "Status" },
-  { value: "active", label: "Active" },
-  { value: "expired", label: "Expired" },
-  { value: "scheduled", label: "Scheduled" },
-];
+import { useTranslations } from "next-intl";
 
 const selectStyles = {
   control: (base) => ({
@@ -83,6 +68,26 @@ const getStatusClasses = (status) => {
 };
 
 const Promotions = () => {
+  const t = useTranslations("pricingPackages.promotions");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
+
+  const typeOptions = [
+    { value: "all", label: t("allTypes") },
+    { value: "percentage", label: t("typePercentage") },
+    { value: "first purchase", label: t("typeFirstPurchase") },
+    { value: "repeat customer", label: t("typeRepeatCustomer") },
+    { value: "limited time", label: t("typeLimitedTime") },
+    { value: "fixed amount", label: t("typeFixedAmount") },
+  ];
+
+  const statusOptions = [
+    { value: "all", label: t("status") },
+    { value: "active", label: t("statusActive") },
+    { value: "expired", label: t("statusExpired") },
+    { value: "scheduled", label: t("statusScheduled") },
+  ];
+
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [type, setType] = useState(typeOptions[0]);
@@ -159,8 +164,8 @@ const Promotions = () => {
 
       if (res?.status) {
         toast.push(
-          <Notification type="success" title="Success">
-            Promotion deleted successfully.
+          <Notification type="success" title={ts("success")}>
+            {t("deleteSuccess")}
           </Notification>,
         );
 
@@ -170,8 +175,8 @@ const Promotions = () => {
         getPromotionList(); // Refresh list
       } else {
         toast.push(
-          <Notification type="danger" title="Error">
-            {res?.message || "Failed to delete promotion."}
+          <Notification type="danger" title={te("error")}>
+            {res?.message || t("deleteFailed")}
           </Notification>,
         );
       }
@@ -179,8 +184,8 @@ const Promotions = () => {
       console.error(err);
 
       toast.push(
-        <Notification type="danger" title="Error">
-          Something went wrong.
+        <Notification type="danger" title={te("error")}>
+          {t("somethingWentWrong")}
         </Notification>,
       );
     } finally {
@@ -200,7 +205,7 @@ const Promotions = () => {
 
             <input
               type="text"
-              placeholder="Search Theme..."
+              placeholder={t("searchPromotion")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-11 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#1C4FA8]"
@@ -246,12 +251,12 @@ const Promotions = () => {
           <table className="w-full text-sm">
             <thead className="bg-[#F1F5F9] text-[#486284]">
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                <th className="text-left px-4 py-3">Promotion Name</th>
-                <th className="text-left px-4 py-3">Type</th>
-                <th className=" text-left px-4 py-3">Value</th>
-                <th className="text-left px-4 py-3">Validity</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-left px-4 py-3">Actions</th>
+                <th className="text-left px-4 py-3">{t("promotionName")}</th>
+                <th className="text-left px-4 py-3">{t("type")}</th>
+                <th className=" text-left px-4 py-3">{t("value")}</th>
+                <th className="text-left px-4 py-3">{t("validity")}</th>
+                <th className="text-left px-4 py-3">{t("status")}</th>
+                <th className="text-left px-4 py-3">{t("actions")}</th>
               </tr>
             </thead>
 
@@ -340,7 +345,7 @@ const Promotions = () => {
               ) : (
                 <tr>
                   <td colSpan={6} className="py-8 text-center">
-                    No Promotions Found
+                    {t("noPromotions")}
                   </td>
                 </tr>
               )}
@@ -367,8 +372,8 @@ const Promotions = () => {
           setPromotionToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Promotion"
-        message="Deleting this promotion will permanently remove it. This action cannot be undone."
+        title={t("deletePromotion")}
+        message={t("deletePromotionContent")}
         loading={deleteLoading}
       />
     </>

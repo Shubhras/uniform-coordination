@@ -59,8 +59,8 @@ const SingleBlogSection = () => {
       <div className="bg-[#F5F7FB] rounded-3xl px-1 md:px-10 lg:px-8 py-10 md:py-8">
 
         {/* HEADER */}
-        <div className="text-center lg:mb-24 md:mb-18 mb-10">
-          <div className="text-center mb-6">
+        <div className="text-center lg:mb-7 md:mb-10">
+          <div className="text-center mb-1">
             <div className="inline-flex flex-col items-end">
               <h2 className="text-[#1C2C56] lg:text-4xl text-3xl font-semibold">
                 Blog
@@ -68,12 +68,12 @@ const SingleBlogSection = () => {
               <div className="w-[40px] md:w-[40px] h-[3px] bg-[#87CEEB] mt-2" />
             </div>
           </div>
-          <p className="text-[#6B7280] text-sm mt-4 max-w-xl mx-auto">
+          <p className="text-[#6B7280] text-sm mt-2 max-w-xl mx-auto">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
           </p>
         </div>
 
-        <h2 className="text-center mb-5 lg:text-3xl text-3xl font-semibold text-[#1C2C56]">
+        <h2 className="text-center mb-3 lg:text-3xl text-3xl font-semibold text-[#1C2C56]">
           Our Latest Blog Posts
         </h2>
 
@@ -96,7 +96,7 @@ const SingleBlogSection = () => {
                   alt={blogData.title}
                   width={900}
                   height={450}
-                  className="w-full lg:h-[600px] lg:object-cover object-contain rounded-2xl"
+                  className="w-full lg:h-[600px] lg:object-fill object-contain rounded-2xl"
                   unoptimized
                 />
               </div>

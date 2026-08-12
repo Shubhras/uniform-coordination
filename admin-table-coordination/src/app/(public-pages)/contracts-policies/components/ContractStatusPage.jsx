@@ -10,6 +10,7 @@ import {
   FiSend,
 } from "react-icons/fi";
 import StatusBadge, { getStatusColors } from "./StatusBadge";
+import { useTranslations } from "next-intl";
 
 const iconMap = {
   done: FiCheck,
@@ -20,6 +21,7 @@ const iconMap = {
 const activityIconMap = [FiFileText, FiSend, FiFileText, FiCheck];
 
 const ContractStatusPage = ({ contract }) => {
+  const t = useTranslations("contractPolicies");
   const router = useRouter();
   const colors = getStatusColors(contract.status);
 
@@ -45,10 +47,10 @@ const ContractStatusPage = ({ contract }) => {
         <div className="space-y-4">
           <div className="rounded-2xl border border-[#F1E6DE] bg-white p-5">
             <h2 className="text-sm font-semibold text-[#2E231E]">
-              Signature Timeline
+              {t("viewStatus.signatureTimeline")}
             </h2>
             <p className="mt-1 text-xs text-[#A09186]">
-              Contract {contract.contractId} · Meridian Events Group
+              {t("viewStatus.contract")} {contract.contractId}
             </p>
 
             <div className="mt-6 space-y-6">
@@ -93,9 +95,9 @@ const ContractStatusPage = ({ contract }) => {
 
           <div className="rounded-2xl border border-[#F1E6DE] bg-white p-5">
             <h2 className="text-sm font-semibold text-[#2E231E]">
-              Activity History
+              {t("viewStatus.activityHistory")}
             </h2>
-            <p className="mt-1 text-xs text-[#A09186]">All contract events</p>
+            <p className="mt-1 text-xs text-[#A09186]">{t("viewStatus.allContract")}</p>
 
             <div className="mt-5 space-y-5">
               {contract.activityHistory.map((entry, index) => {
@@ -120,18 +122,18 @@ const ContractStatusPage = ({ contract }) => {
         <div className="space-y-4">
           <div className="rounded-2xl border border-[#F1E6DE] bg-white p-5">
             <h2 className="text-sm font-semibold text-[#2E231E]">
-              Status Summary
+              {t("viewStatus.statusSummary")}
             </h2>
 
             <div className="mt-5 space-y-4 text-xs uppercase tracking-[0.08em] text-[#9E8F83]">
               <div className="flex items-center justify-between gap-4">
-                <span>Current Status</span>
+                <span>{t("viewStatus.currentStatus")}</span>
                 <span className={`font-semibold ${colors.badge} rounded-full px-2.5 py-1 normal-case tracking-normal`}>
                   {contract.statusSummary.currentStatus}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span>CloudSign</span>
+                <span>{t("viewStatus.cloudSign")}</span>
                 <span
                   className={`text-right text-[13px] font-semibold normal-case tracking-normal ${
                     contract.status === "Signed"
@@ -143,13 +145,13 @@ const ContractStatusPage = ({ contract }) => {
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span>Contract Value</span>
+                <span>{t("viewStatus.contractValue")}</span>
                 <span className="text-[15px] font-semibold normal-case tracking-normal text-[#C2703D]">
                   {contract.statusSummary.contractValue}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span>Generated On</span>
+                <span>{t("viewStatus.generatedOn")}</span>
                 <span className="text-[13px] font-medium normal-case tracking-normal text-[#53463E]">
                   {contract.statusSummary.generatedOn}
                 </span>
@@ -158,7 +160,7 @@ const ContractStatusPage = ({ contract }) => {
           </div>
 
           <div className="rounded-2xl border border-[#F1E6DE] bg-white p-5">
-            <h2 className="text-sm font-semibold text-[#2E231E]">Documents</h2>
+            <h2 className="text-sm font-semibold text-[#2E231E]">{t("viewStatus.documents")}</h2>
 
             <div className="mt-5 space-y-3">
               {contract.documents.map((document) => (

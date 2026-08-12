@@ -13,8 +13,11 @@ import {
 import Spinner from "@/components/ui/Spinner";
 import StatusModal from "./StatusModal";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { useTranslations, useLocale } from "next-intl";
 
 export default function B2COrderDetails({ orderId, order, fetchOrder }) {
+  const t = useTranslations("orderRetals.viewOrder");
+  const locale = useLocale();
   const router = useRouter();
   const [openReturnModal, setOpenReturnModal] = useState(false);
   const { session } = useCurrentSession();
@@ -53,33 +56,34 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
   const statusConfig = {
     pending: {
-      action: "Mark as Shipped",
+      action: t("markAsShippedAction"),
     },
     processing: {
-      action: "Mark as Delivered",
+      action: t("markAsDeliveredAction"),
     },
 
     out_for_delivery: {
-      action: "Mark as Delivered",
+      action: t("markAsDeliveredAction"),
     },
 
     shipped: {
-      action: "Mark as Delivered",
+      action: t("markAsDeliveredAction"),
     },
     delivered: {
-      action: "Mark as Returned",
+      action: t("markAsReturnedAction"),
     },
     returned: {
-      action: "Process Return",
+      action: t("processReturnAction"),
+      isProcessReturn: true,
     },
   };
 
   const currentAction = statusConfig[order?.status?.toLowerCase()] || {
-    action: "Update Status",
+    action: t("updateStatusAction"),
   };
 
   const handleAction = () => {
-    if (currentAction.action === "Process Return") {
+    if (currentAction.isProcessReturn) {
       router.push(`/orders/${orderId}/return`);
       return;
     }
@@ -110,7 +114,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-semibold text-[#222]">
-                Order & Rental Details
+                {t("orderDetails")}
               </h1>
 
               <span
@@ -144,7 +148,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
           <div className="bg-white rounded-xl border border-[#EEE] p-5">
             <div className="flex items-center gap-2 text-[12px] text-[#7A6E66] mb-4">
               <FiUser size={15} className="text-[#A85A32]" />
-              CUSTOMER
+              {t("customer")}
             </div>
 
             <h3 className="font-semibold text-[17px]">
@@ -166,7 +170,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
           <div className="bg-white rounded-xl border border-[#EEE] p-5">
             <div className="flex items-center gap-2 text-[12px] text-[#7A6E66] mb-4">
               <FiMapPin size={15} className="text-[#A85A32]" />
-              SHIPPING ADDRESS
+              {t("shippingAdd")}
             </div>
 
             <h3 className="font-semibold text-[15px]">
@@ -189,12 +193,12 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
           <div className="bg-white rounded-xl border border-[#EEE] p-5">
             <div className="flex items-center gap-2 text-[12px] text-[#7A6E66] mb-4">
               <FiCalendar size={17} className="text-[#A85A32]" />
-              RENTAL DATES
+              {t("rentalDates")}
             </div>
 
             <div className="space-y-5">
               <div>
-                <p className="text-[13px] text-[#7A6E66]">RENTAL START</p>
+                <p className="text-[13px] text-[#7A6E66]">{t("rentalStart")}</p>
 
                 <p className="font-semibold text-[#1A1714] mt-1 text-[15px]">
                   {order?.rental_start_date}
@@ -202,7 +206,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
               </div>
 
               <div>
-                <p className="text-[13px] text-[#7A6E66]">RENTAL ENd</p>
+                <p className="text-[13px] text-[#7A6E66]">{t("rentalEnd")}</p>
 
                 <p className="font-semibold text-[#1A1714] mt-1 text-[15px]">
                   {order?.rental_end_date}
@@ -220,11 +224,11 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
           <div className="xl:col-span-3 bg-white rounded-xl border border-[#EEE] overflow-hidden">
             <div className="flex justify-between items-center px-5 py-4">
               <h2 className="text-[15px] font-semibold text-[#1A1714]">
-                Ordered Items
+                {t("orderItems")}
               </h2>
 
               <span className="text-sm text-gray-500">
-                {order?.order_items?.length || 0} Items
+                {t("itemsCount", { count: order?.order_items?.length || 0 })}
               </span>
             </div>
 
@@ -232,18 +236,18 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
               <table className="w-full text-sm">
                 <thead className="bg-[#F1F5F9] text-[#486284]">
                   <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                    <th className="text-left px-4 py-3 font-medium">Item</th>
+                    <th className="text-left px-4 py-3 font-medium">{t("item")}</th>
 
-                    <th className="text-left px-2 py-3 font-medium">Qty</th>
+                    <th className="text-left px-2 py-3 font-medium">{t("qty")}</th>
 
-                    <th className="text-left px-4 py-3 font-medium">Days</th>
+                    <th className="text-left px-4 py-3 font-medium">{t("days")}</th>
 
                     <th className="text-left px-4 py-3 font-medium">
-                      Unit Price
+                      {t("unitPrice")}
                     </th>
 
                     <th className="text-left px-4 py-3 font-medium">
-                      Subtotal
+                      {t("subtotal")}
                     </th>
                   </tr>
                 </thead>
@@ -293,26 +297,26 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
           <div className="bg-white rounded-xl border border-[#EEE] p-4">
             <h2 className="flex items-center gap-2 font-semibold text-[12px] text-[#7A6E66] mb-5">
               <FiCreditCard size={15} className="text-[#A85A32]" />
-              PAYMENT SUMMARY
+              {t("paymentSummary")}
             </h2>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-[#7A6E66]">Total Items</span>
+                <span className="text-[#7A6E66]">{t("totalItems")}</span>
                 <span>{order?.order_items?.length || 0}</span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#7A6E66]">Shipping</span>
+                <span className="text-[#7A6E66]">{t("shipping")}</span>
                 <span>{order?.payment_summary?.shipping_charge || 0}</span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#7A6E66]">Promo Discount</span>
+                <span className="text-[#7A6E66]">{t("promoDiscount")}</span>
                 <span>{order?.payment_summary?.promo_amount || 0}</span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#7A6E66]">Subtotal</span>
+                <span className="text-[#7A6E66]">{t("subtotal")}</span>
                 <span>
                   {order?.payment_summary?.currency}{" "}
                   {order?.payment_summary?.subtotal}
@@ -320,7 +324,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#7A6E66]">Delivery Fee</span>
+                <span className="text-[#7A6E66]">{t("deliveryFee")}</span>
                 <span>
                   {order?.payment_summary?.currency}{" "}
                   {order?.payment_summary?.shipping_charge}
@@ -335,7 +339,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
             </div> */}
 
               <div className="border-t pt-4 mt-4 flex justify-between font-semibold text-[15px] text-[#1A1714]">
-                <span>Rental Subtotal</span>
+                <span>{t("rentalSubtotal")}</span>
 
                 <span className="text-[#A85A32] text-[15px]">
                   {order?.payment_summary?.currency}{" "}
@@ -345,11 +349,11 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
             </div>
 
             <div className="mt-7">
-              <p className="text-[13px] text-[#7A6E66] mb-2">PAYMENT METHOD</p>
+              <p className="text-[13px] text-[#7A6E66] mb-2">{t("paymentMethod")}</p>
 
               <div className="border rounded-lg p-3 h-10 flex items-center gap-3">
                 <FiCreditCard />
-                {order?.payment_summary?.payment_method || "N/A"}
+                {order?.payment_summary?.payment_method || t("na")}
               </div>
             </div>
 
@@ -357,7 +361,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
               {/* Payment Status */}
               <div className="flex justify-between items-center mb-4">
                 <p className="text-[13px] uppercase text-[#7A6E66] font-medium">
-                  PAYMENT STATUS
+                  {t("paymentStatus")}
                 </p>
 
                 <span
@@ -367,20 +371,20 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                     }`}
                 >
                   {order?.payment_summary?.payment_status === "success"
-                    ? "PAID"
-                    : order?.payment_summary?.payment_status || "UNPAID"}
+                    ? t("paid")
+                    : order?.payment_summary?.payment_status || t("unpaid")}
                 </span>
               </div>
 
               {/* Payment Date */}
               <div className="flex justify-between items-center">
                 <p className="text-[13px] uppercase text-[#7A6E66] font-medium">
-                  PAYMENT DATE
+                  {t("paymentDate")}
                 </p>
 
                 <p className="text-[14px] text-[#6B7280]">
                   {new Date(order?.payment_summary?.paid_at).toLocaleDateString(
-                    "en-GB",
+                    locale,
                     {
                       day: "2-digit",
                       month: "short",
@@ -396,7 +400,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
               className="w-full mt-8 border border-[#D8A07C] text-[#A85A32] rounded-lg py-2 hover:bg-[#FFF8F3] flex items-center justify-center gap-2 text-sm font-medium"
             >
               <FiClock size={18} />
-              View Timeline
+              {t("viewTimeline")}
             </button>
           </div>
         </div>

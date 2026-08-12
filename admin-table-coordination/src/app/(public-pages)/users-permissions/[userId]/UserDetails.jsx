@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { FiArrowLeft } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetUserDetails } from "@/services/UserPermissionService";
@@ -130,6 +131,7 @@ const getRawUserDetails = (payload) => {
 };
 
 const UserDetails = ({ userId }) => {
+  const t = useTranslations("userPermissions.users");
   const router = useRouter();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -191,7 +193,7 @@ const UserDetails = ({ userId }) => {
         </button>
 
         <h1 className="text-[30px] font-semibold leading-tight text-[#2A211D]">
-          Users Details
+          {t("usersDetails")}
         </h1>
       </div>
 
@@ -209,7 +211,7 @@ const UserDetails = ({ userId }) => {
           <div className="grid gap-6 md:grid-cols-4">
             <div>
               <p className="text-[13px] font-semibold text-[#B7A39A]">
-                FULL NAME
+                {t("fullName")}
               </p>
               <p className="mt-1 text-[13px] font-medium text-[#3C302B]">
                 {user.firstName} {user.lastName}
@@ -218,7 +220,7 @@ const UserDetails = ({ userId }) => {
 
             <div>
               <p className="text-[13px] font-semibold text-[#B7A39A]">
-                USER TYPE
+                {t("userType")}
               </p>
               <div className="mt-1">
                 <span
@@ -234,7 +236,7 @@ const UserDetails = ({ userId }) => {
             </div>
 
             <div>
-              <p className="text-[13px] font-semibold text-[#B7A39A]">EMAIL</p>
+              <p className="text-[13px] font-semibold text-[#B7A39A]">{t("emailLabel")}</p>
               <p className="mt-1 text-[13px] font-medium text-[#3C302B]">
                 {user.email}
               </p>
@@ -248,13 +250,13 @@ const UserDetails = ({ userId }) => {
                     : "bg-[#FFE9E8] text-[#F04444]"
                 }`}
               >
-                {user.statusLabel}
+                {isActive ? t("active") : t("inactive")}
               </span>
             </div>
 
             <div>
               <p className="text-[13px] font-semibold text-[#B7A39A]">
-                PHONE NUMBER
+                {t("phoneNumber")}
               </p>
               <p className="mt-1 text-[13px] font-medium text-[#3C302B]">
                 {user.phoneNumber}
@@ -263,7 +265,7 @@ const UserDetails = ({ userId }) => {
 
             <div>
               <p className="text-[13px] font-semibold text-[#B7A39A]">
-                REGISTRATION DATE
+                {t("registrationDateLabel")}
               </p>
               <p className="mt-1 text-[13px] font-medium text-[#3C302B]">
                 {user.registrationDate}
@@ -272,7 +274,7 @@ const UserDetails = ({ userId }) => {
           </div>
         ) : (
           <div className="py-8 text-center text-[13px] text-[#8B6A55]">
-            User details not found.
+            {t("notFound")}
           </div>
         )}
       </div>
