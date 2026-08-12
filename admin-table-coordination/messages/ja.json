@@ -252,6 +252,22 @@
             "changeLog": "Changelog"
         }
     },
+    "adminSidebar": {
+            "dashboard": "ダッシュボード",
+            "productSpecification": "商品・仕様",
+            "contentMedia": "コンテンツ・メディア",
+            "themeManagement": "テーマ管理",
+            "inventoryManagement": "在庫管理",
+            "orderRentals": "注文・レンタル",
+            "pricingPackages": "価格・パッケージ",
+            "contractsPolicies": "契約・ポリシー",
+            "notifications": "通知",
+            "aiAutomation": "AI・自動化",
+            "usersPermissions": "ユーザー・権限",
+            "simulationAssets": "シミュレーションアセット",
+            "reportsAnalytics": "レポート・分析",
+            "systemSettings": "システム設定"
+        },
     "dashboard": {
         "welcomeTitle": "おかえりなさい、{name}さん！",
         "welcomeSubtitle": "在庫、レンタル、イベントテーマを一括で管理できます。",
