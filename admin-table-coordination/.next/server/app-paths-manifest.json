@@ -1,0 +1,7 @@
+{
+  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
+  "/(public-pages)/system-settings/page": "app/(public-pages)/system-settings/page.js",
+  "/(public-pages)/notifications/page": "app/(public-pages)/notifications/page.js",
+  "/(public-pages)/inventory-management/page": "app/(public-pages)/inventory-management/page.js",
+  "/(public-pages)/inventory-management/inventory-list/view/page": "app/(public-pages)/inventory-management/inventory-list/view/page.js"
+}
