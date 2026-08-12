@@ -1,7 +1,0 @@
-{
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/(public-pages)/kireiz-form/page": "app/(public-pages)/kireiz-form/page.js",
-  "/(public-pages)/single-blog/[id]/page": "app/(public-pages)/single-blog/[id]/page.js",
-  "/_not-found/page": "app/_not-found/page.js",
-  "/(auth-pages)/sign-in/page": "app/(auth-pages)/sign-in/page.js"
-}

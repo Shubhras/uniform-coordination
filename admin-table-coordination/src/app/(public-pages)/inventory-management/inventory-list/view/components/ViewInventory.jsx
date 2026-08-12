@@ -19,8 +19,10 @@ import {
   apiRentalHistory,
 } from "@/services/ProductService";
 import Spinner from "@/components/ui/Spinner";
+import { useTranslations } from "next-intl";
 
 export default function ViewInventory() {
+  const t = useTranslations("inventoryManagement.inventoryDetails");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -136,7 +138,7 @@ export default function ViewInventory() {
             </button>
 
             <h1 className="text-[28px] font-semibold text-[#1A1410]">
-              Inventory Details
+              {t("title")}
             </h1>
           </div>
 
@@ -147,7 +149,7 @@ export default function ViewInventory() {
               className="flex items-center gap-2 px-5 h-10 rounded-lg bg-[#FFF1F0] text-[#F04438] text-sm font-medium hover:bg-[#FFE4E2] transition"
             >
               <FiTrash2 />
-              Delete Product
+              {t("deleteProduct")}
             </button>
 
             <button
@@ -159,7 +161,7 @@ export default function ViewInventory() {
               className="flex items-center gap-2 px-5 h-10 rounded-lg bg-[#A0522D] text-white text-sm font-medium hover:bg-[#914A27] transition"
             >
               <FiEdit2 size={15} />
-              Edit Product
+              {t("editProduct")}
             </button>
           </div>
         </div>
@@ -171,21 +173,21 @@ export default function ViewInventory() {
             <div className="overflow-hidden rounded-2xl border border-[#EFE5DD] bg-white">
               <img
                 src={product?.ProductImage || "/placeholder-image.png"}
-                alt="Inventory"
+                alt={t("imageAlt")}
                 className="w-full h-[360px] object-cover rounded-2xl"
               />
             </div>
             <div className="mt-6 bg-white border border-[#EFE5DD] rounded-2xl overflow-hidden">
               <div className="p-5">
                 <h3 className="text-[12px] uppercase tracking-wider font-bold text-[#8B6D4E] mb-6">
-                  Product Details
+                  {t("productDetails")}
                 </h3>
 
                 <div className="grid grid-cols-2 gap-x-16 gap-y-6">
                   {/* Category */}
                   <div>
                     <p className="text-[11px] uppercase text-[#8B6D4E] font-semibold">
-                      Category
+                      {t("category")}
                     </p>
                     <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
                       {product?.category?.categoryName}
@@ -195,7 +197,7 @@ export default function ViewInventory() {
                   {/* Fabric */}
                   <div>
                     <p className="text-[11px] uppercase text-[#8B6D4E] font-semibold">
-                      Fabric
+                      {t("fabric")}
                     </p>
                     <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
                       {product?.fabric_details?.name || "-"}
@@ -205,7 +207,7 @@ export default function ViewInventory() {
                   {/* Table Shape */}
                   <div>
                     <p className="text-[11px] uppercase text-[#8B6D4E] font-semibold">
-                      Table Shape
+                      {t("tableShape")}
                     </p>
                     <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
                       {product?.table_shape}
@@ -215,7 +217,7 @@ export default function ViewInventory() {
                   {/* Style */}
                   <div>
                     <p className="text-[11px] uppercase text-[#8B6D4E] font-semibold">
-                      Style
+                      {t("style")}
                     </p>
                     <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
                       {product?.style}
@@ -225,7 +227,7 @@ export default function ViewInventory() {
                   {/* Color */}
                   <div>
                     <p className="text-[11px] uppercase text-[#8B6D4E] font-semibold">
-                      Color
+                      {t("color")}
                     </p>
                     <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
                       {product?.color_details?.name || "-"}
@@ -235,7 +237,7 @@ export default function ViewInventory() {
                   {/* Size */}
                   <div>
                     <p className="text-[11px] uppercase text-[#8B6D4E] font-semibold">
-                      Size
+                      {t("size")}
                     </p>
                     <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
                       {product?.size}
@@ -245,7 +247,7 @@ export default function ViewInventory() {
                   {/* Rental */}
                   <div>
                     <p className="text-[11px] uppercase text-[#8B6D4E] font-semibold">
-                      Rental Price / Day
+                      {t("rentalPrice")}
                     </p>
                     <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
                       ₹{product?.rental_price_per_day}
@@ -255,7 +257,7 @@ export default function ViewInventory() {
                   {/* RFID */}
                   <div>
                     <p className="text-[11px] uppercase text-[#8B6D4E] font-semibold">
-                      RFID Tracking
+                      {t("rfid")}
                     </p>
 
                     <div className="flex items-center gap-2 mt-1">
@@ -263,8 +265,8 @@ export default function ViewInventory() {
 
                       <p className="text-[15px] font-medium text-[#16A34A]">
                         {product?.rfid_tracking_enabled
-                          ? "Enabled"
-                          : "Disabled"}
+                          ? t("enabled")
+                          : t("disabled")}
                       </p>
                     </div>
                   </div>
@@ -272,20 +274,20 @@ export default function ViewInventory() {
                   {/* Stock */}
                   <div>
                     <p className="text-[11px] uppercase text-[#8B6D4E] font-semibold">
-                      Stock Quantity
+                      {t("stockQuantity")}
                     </p>
                     <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
-                      {product?.total_quantity} Units
+                      {product?.total_quantity} {t("units")}
                     </p>
                   </div>
 
                   {/* Rentals */}
                   <div>
                     <p className="text-[11px] uppercase text-[#8B6D4E] font-semibold">
-                      Total Rentals
+                      {t("totalRentals")}
                     </p>
                     <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
-                      14 Times
+                      14 {t("times")}
                     </p>
                   </div>
                 </div>
@@ -297,7 +299,7 @@ export default function ViewInventory() {
               {/* Description */}
               <div className="p-5">
                 <h3 className="text-[12px] uppercase tracking-wider font-bold text-[#8B6D4E] mb-2">
-                  Description
+                  {t("description")}
                 </h3>
 
                 <p className="text-[15px] leading-7 text-[#6B4A2A]">
@@ -311,7 +313,7 @@ export default function ViewInventory() {
               <div className="flex items-center justify-between mb-3">
                 <h3 className="flex items-center gap-2 text-[12px] font-bold text-[#8B6D4E]">
                   <FiActivity size={18} className="text-[#8B6D4E]" />
-                  RENTAL HISTORY
+                  {t("rentalHistory")}
                 </h3>
 
                 {rentalHistory.length > 1 && (
@@ -319,7 +321,7 @@ export default function ViewInventory() {
                     onClick={() => setShowAllHistory(!showAllHistory)}
                     className="text-[14px] font-medium text-[#B85C2F] hover:underline"
                   >
-                    {showAllHistory ? "View less" : "View all"}
+                    {showAllHistory ? t("viewLess") : t("viewAll")}
                   </button>
                 )}
               </div>
@@ -339,7 +341,7 @@ export default function ViewInventory() {
                       {/* Content */}
                       <div>
                         <h4 className="text-[16px] font-semibold text-[#1A1410]">
-                          {item.customer_name || "Guest Customer"}
+                          {item.customer_name || t("guestCustomer")}
                         </h4>
 
                         <p className="mt-1 text-[14px] text-[#A38A75]">
@@ -359,14 +361,14 @@ export default function ViewInventory() {
                       }`}
                     >
                       {item.order_status === "processing"
-                        ? "ACTIVE"
+                        ? t("active")
                         : item.order_status.toUpperCase()}
                     </span>
                   </div>
                 ))
               ) : (
                 <p className="text-center text-gray-500 py-6">
-                  No rental history found.
+                  {t("noRentalHistory")}
                 </p>
               )}
             </div>
@@ -376,12 +378,12 @@ export default function ViewInventory() {
           <div className="col-span-12 lg:col-span-4">
             <div className="bg-white border border-[#EFE5DD] rounded-2xl p-4">
               <p className="text-[12px] uppercase tracking-wider text-[#8B6D4E] font-semibold">
-                Stock Summary
+                {t("stockSummary")}
               </p>
 
               <div className="flex items-center justify-between mt-4 mb-6">
                 <span className="text-[15px] font-semibold text-[#6B4A2A]">
-                  Total Units
+                  {t("totalUnits")}
                 </span>
 
                 <span className="text-[30px] font-bold text-[#1A1410]">
@@ -398,7 +400,7 @@ export default function ViewInventory() {
                     {product?.available_quantity || 0}
                   </h3>
                   <p className="mt-1 text-[11px] uppercase font-semibold text-[#138A4B]">
-                    Available
+                    {t("available")}
                   </p>
                 </div>
 
@@ -408,7 +410,7 @@ export default function ViewInventory() {
                     {product?.on_rent_quantity || 0}
                   </h3>
                   <p className="mt-1 text-[11px] uppercase font-semibold text-[#2F6BFF]">
-                    On Rent
+                    {t("onRent")}
                   </p>
                 </div>
 
@@ -418,7 +420,7 @@ export default function ViewInventory() {
                     {product?.cleaning_quantity || 0}
                   </h3>
                   <p className="mt-1 text-[11px] uppercase font-semibold text-[#E48A00]">
-                    Cleaning
+                    {t("cleaning")}
                   </p>
                 </div>
 
@@ -428,7 +430,7 @@ export default function ViewInventory() {
                     {product?.inspect_quantity || 0}
                   </h3>
                   <p className="mt-1 text-[11px] uppercase font-semibold text-[#7B3EFF]">
-                    Inspection
+                    {t("inspection")}
                   </p>
                 </div>
 
@@ -438,7 +440,7 @@ export default function ViewInventory() {
                     {product?.damaged_quantity || 0}
                   </h3>
                   <p className="mt-1 text-[11px] uppercase font-semibold text-[#E53935]">
-                    Damaged
+                    {t("damaged")}
                   </p>
                 </div>
               </div>
@@ -450,8 +452,8 @@ export default function ViewInventory() {
         isOpen={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Product"
-        message="Deleting this product will remove it from all over the platform. This action cannot be undone."
+        title={t("deleteProduct")}
+        message={t("deleteContent")}
         itemName={product?.productName}
         loading={deleteLoading}
       />
