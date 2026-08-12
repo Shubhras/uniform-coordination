@@ -24,7 +24,6 @@ import InventoryItemsModal from "../../../addTheme/components/InventoryItemsModa
 import { apiGetCategoryList } from "@/services/CategoryService";
 import { useTranslations } from "next-intl";
 
-
 const categoryOptions = [
   { value: "Wedding", label: "Wedding" },
   { value: "Corporate", label: "Corporate" },
@@ -178,6 +177,20 @@ const Edit = () => {
         };
       }),
     );
+  };
+
+  const handleThumbnailUpload = (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setThumbnail(file);
+    setThumbnailPreview(URL.createObjectURL(file));
+
+    setErrors((prev) => ({
+      ...prev,
+      thumbnail: "",
+    }));
   };
 
   const handleGalleryUpload = (e) => {
@@ -469,7 +482,7 @@ const Edit = () => {
           </div>
 
           {/* Thumbnail */}
-          <div>
+          {/* <div>
             <label className="block text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-3">
               {t("thumbnail")}
             </label>
@@ -478,6 +491,34 @@ const Edit = () => {
               <img
                 src={thumbnailPreview || "/placeholder.png"}
                 alt=""
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div> */}
+          <div>
+            <label className="block text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-3">
+              {t("thumbnail")}
+            </label>
+
+            {/* Thumbnail file picker */}
+            <input
+              id="thumbnailUpload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleThumbnailUpload}
+            />
+
+            {/* Clickable Thumbnail */}
+            <div
+              onClick={() =>
+                document.getElementById("thumbnailUpload")?.click()
+              }
+              className="overflow-hidden rounded-xl border border-[#EFE5DD] h-[230px] cursor-pointer hover:opacity-90 transition"
+            >
+              <img
+                src={thumbnailPreview || "/placeholder.png"}
+                alt="Thumbnail"
                 className="w-full h-full object-cover"
               />
             </div>

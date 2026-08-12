@@ -146,7 +146,7 @@ const Uniforms = () => {
 
                 {/* HEADER */}
                 <div className="bg-[#F5F8FF] rounded-xl pt-10 text-center border-b px-5">
-                    <div className="text-center mb-6">
+                    <div className="text-center mb-3">
                         <div className="inline-flex flex-col items-end">
                             <h2 className="text-[#1C2C56] md:text-3xl text-2xl font-semibold">
                                 Placeholder Text
@@ -154,7 +154,7 @@ const Uniforms = () => {
                             <div className="w-[50px] md:w-[70px] h-[3px] bg-[#87CEEB] mt-2" />
                         </div>
                     </div>
-                    <p className="text-sm text-[#6B7280] mt-4 max-w-lg mx-auto">
+                    <p className="text-sm text-[#6B7280] mt-2 max-w-lg mx-auto">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                     </p>
 
