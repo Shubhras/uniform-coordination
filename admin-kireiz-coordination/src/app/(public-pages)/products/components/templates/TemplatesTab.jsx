@@ -288,7 +288,7 @@ const TemplatesTab = () => {
             )}
           </div>
 
-          <Select
+          {/* <Select
             options={categoryOptions}
             value={selectedCategory}
             onChange={setSelectedCategory}
@@ -310,7 +310,7 @@ const TemplatesTab = () => {
             className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-white bg-[#1C4FA8] hover:bg-[#163F86] transition-colors"
           >
             {t("reset")}
-          </button>
+          </button> */}
         </div>
 
         {loading ? (

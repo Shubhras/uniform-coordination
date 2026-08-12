@@ -348,10 +348,10 @@ const CreatePromotion = () => {
                 size={18}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A38D82] pointer-events-none"
               />
-              {errors.started_at && (
-                <p className="mt-1 text-sm text-red-500">{errors.started_at}</p>
-              )}
             </div>
+            {errors.started_at && (
+              <p className="mt-1 text-sm text-red-500">{errors.started_at}</p>
+            )}
           </div>
 
           {/* End Date */}
@@ -381,10 +381,10 @@ const CreatePromotion = () => {
                 size={18}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A38D82] pointer-events-none"
               />
-              {errors.ended_at && (
-                <p className="mt-1 text-sm text-red-500">{errors.ended_at}</p>
-              )}
             </div>
+            {errors.ended_at && (
+              <p className="mt-1 text-sm text-red-500">{errors.ended_at}</p>
+            )}
           </div>
 
           {/* Description */}

@@ -159,9 +159,7 @@ export default function EditPricingRules() {
             {t("lateFeeConfig")}
           </h2>
 
-          <p className="mt-1 text-sm text-[#9A8B82]">
-            {t("define")}
-          </p>
+          <p className="mt-1 text-sm text-[#9A8B82]">{t("define")}</p>
 
           <div className="mt-6">
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
@@ -197,6 +195,7 @@ export default function EditPricingRules() {
               name="lateFeeRate"
               value={formData.lateFeeRate}
               onChange={handleChange}
+              min={0}
               className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 text-sm outline-none focus:border-[#B56A3C]"
             />
 
@@ -215,9 +214,7 @@ export default function EditPricingRules() {
             {t("returnDelivery")}
           </h2>
 
-          <p className="mt-1 text-sm text-[#9A8B82]">
-            {t("deliveryContent")}
-          </p>
+          <p className="mt-1 text-sm text-[#9A8B82]">{t("deliveryContent")}</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div>
@@ -230,6 +227,7 @@ export default function EditPricingRules() {
                 name="gracePeriod"
                 value={formData.gracePeriod}
                 onChange={handleChange}
+                min={0}
                 className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 text-sm outline-none focus:border-[#B56A3C]"
               />
 
@@ -250,6 +248,7 @@ export default function EditPricingRules() {
                 name="flatShippingFee"
                 value={formData.flatShippingFee}
                 onChange={handleChange}
+                min={0}
                 className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 text-sm outline-none focus:border-[#B56A3C]"
               />
 
@@ -267,7 +266,9 @@ export default function EditPricingRules() {
 
         {/* Tax */}
         <div>
-          <h2 className="text-lg font-semibold text-[#2C1A0E]">{t("taxSetting")}</h2>
+          <h2 className="text-lg font-semibold text-[#2C1A0E]">
+            {t("taxSetting")}
+          </h2>
 
           <p className="mt-1 text-sm text-[#9A8B82]">
             {t("taxsettingContent")}
@@ -309,6 +310,7 @@ export default function EditPricingRules() {
               name="taxPercentage"
               value={formData.taxPercentage}
               onChange={handleChange}
+              min={0}
               className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 text-sm outline-none focus:border-[#B56A3C]"
             />
 
