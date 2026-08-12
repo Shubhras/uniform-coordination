@@ -1,1 +1,8 @@
-{}
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(protected-pages)/profile/change-password/page": "app/(protected-pages)/profile/change-password/page.js",
+  "/(protected-pages)/profile/personal-information/page": "app/(protected-pages)/profile/personal-information/page.js",
+  "/(public-pages)/dashboards/design-result/[id]/page": "app/(public-pages)/dashboards/design-result/[id]/page.js",
+  "/(protected-pages)/profile/simulation-history/page": "app/(protected-pages)/profile/simulation-history/page.js",
+  "/(public-pages)/dashboards/uniform-3d-design/page": "app/(public-pages)/dashboards/uniform-3d-design/page.js"
+}
