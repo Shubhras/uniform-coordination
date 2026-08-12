@@ -285,7 +285,8 @@
         "quoteStatus": {
             "quoteStatusDistribution": "Quote Status Distribution",
             "total": "Total",
-            "noData": "No Data"
+            "noData": "No Data",
+            "quotes": "quotes"
         },
         "quotationVolume": {
             "quotationVolume": "Quotation Volume",

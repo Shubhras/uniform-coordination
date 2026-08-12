@@ -1885,9 +1885,6 @@
   .shrink-0 {
     flex-shrink: 0;
   }
-  .flex-grow {
-    flex-grow: 1;
-  }
   .grow {
     flex-grow: 1;
   }
@@ -5283,11 +5280,6 @@
   .lg\:border-\[\#E5E7EB\] {
     @media (width >= 1024px) {
       border-color: #E5E7EB;
-    }
-  }
-  .lg\:object-cover {
-    @media (width >= 1024px) {
-      object-fit: cover;
     }
   }
   .lg\:object-fill {
