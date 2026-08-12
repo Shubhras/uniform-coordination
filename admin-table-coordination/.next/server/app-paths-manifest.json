@@ -1,0 +1,9 @@
+{
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(public-pages)/inventory-management/inventory-list/view/page": "app/(public-pages)/inventory-management/inventory-list/view/page.js",
+  "/(public-pages)/theme-management/page": "app/(public-pages)/theme-management/page.js",
+  "/(public-pages)/inventory-management/page": "app/(public-pages)/inventory-management/page.js",
+  "/(auth-pages)/sign-in/page": "app/(auth-pages)/sign-in/page.js",
+  "/(auth-pages)/forgot-password/page": "app/(auth-pages)/forgot-password/page.js"
+}
