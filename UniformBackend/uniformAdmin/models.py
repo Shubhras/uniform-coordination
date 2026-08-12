@@ -161,8 +161,15 @@ class SystemSettings(models.Model):
     bank_account_number = models.CharField(max_length=50, blank=True, null=True)
 
     # ---------------- Email & Notifications ----------------
-    # SMTP host/credentials stay in settings/env — they are secrets and must not be
-    # editable from an admin form. Only the presentation and routing live here.
+    # SMTP connection. Left blank, the mailer falls back to the values in
+    # settings/env — so an untouched install keeps working exactly as before.
+    # Filling these in makes the admin panel the source of truth instead.
+    email_host = models.CharField(max_length=255, blank=True, null=True)
+    email_port = models.PositiveIntegerField(blank=True, null=True)
+    email_use_tls = models.BooleanField(default=True)
+    email_username = models.CharField(max_length=255, blank=True, null=True)
+    email_password = models.CharField(max_length=255, blank=True, null=True)
+
     email_sender_name = models.CharField(max_length=150, blank=True, null=True)
     email_sender_address = models.EmailField(blank=True, null=True)
     email_reply_to = models.EmailField(blank=True, null=True)
@@ -515,6 +522,11 @@ class Product(models.Model):
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,related_name="product_category")
     subcategory = models.ForeignKey(SubCategory,on_delete=models.SET_NULL, null=True,related_name="product_subcategory")
     parts = models.ManyToManyField(Parts,related_name="products_parts",blank=True)
+
+    # Admin controls whether this product is offered in the customer simulation.
+    # Mirrors Product.show_in_simulation on the KIREIZ SPACE side so both platforms
+    # gate the simulation catalogue the same way.
+    show_in_simulation = models.BooleanField(default=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     total_quantity = models.PositiveIntegerField(default=0)
     available_quantity = models.PositiveIntegerField(default=0)
@@ -980,6 +992,30 @@ class SimulationExportSetting(models.Model):
 
     def __str__(self):
         return f"{self.output_format} @ {self.dpi} DPI"
+
+
+class SimulationStructure(models.Model):
+    """
+    Which attributes the customer simulation shows for a category, and in what order.
+
+    Mirrors SimulationStructure on the KIREIZ SPACE side so both platforms configure
+    the simulation the same way. `structure_data` holds:
+
+        {"attributes": [{"attribute": "Fabric", "enabled": true, "order": "1"}, ...]}
+
+    Kept as JSON rather than a table of rows because the attribute set is admin-defined
+    free text — the admin can add or remove attributes per category without a migration.
+    """
+
+    category = models.OneToOneField(
+        Category, on_delete=models.CASCADE, related_name="simulation_structure"
+    )
+    structure_data = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Simulation Structure for {self.category.categoryName}"
 
 
 class DocumentCounter(models.Model):

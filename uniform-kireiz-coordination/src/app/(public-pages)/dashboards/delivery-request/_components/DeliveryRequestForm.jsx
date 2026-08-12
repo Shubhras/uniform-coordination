@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FormItem, Form } from '@/components/ui/Form'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
@@ -11,6 +11,7 @@ import DatePicker from '@/components/ui/DatePicker'
 import TermsAndConditionsPopup from './TermsAndConditionsPopup'
 import QuoteRequestPopup from './QuoteRequestPopup'
 import { apiCreateQuotationRequest } from '@/services/QuotationRequestService'
+import { apiGetModalInfo } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 /**
@@ -56,6 +57,21 @@ const validationSchema = z.object({
  * validation, submission to the quotation request API, and opens the
  * terms & conditions popup and the quote request confirmation popup.
  */
+/**
+ * Turns the design's size quantities into the one-line string this form asks for,
+ * e.g. {XS: 1, S: 2} -> "XS x 1, S x 2". Ordered by size rather than by insertion so
+ * the quote reads sensibly.
+ */
+const formatSizes = (sizes) => {
+    if (!sizes) return ""
+    return SIZE_ORDER
+        .filter((label) => Number(sizes[label]) > 0)
+        .map((label) => `${label} x ${sizes[label]}`)
+        .join(", ")
+}
+
+const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"]
+
 const DeliveryRequestForm = () => {
     const [quoteData, setQuoteData] = useState(null)
     const { data: session } = useSession()
@@ -84,6 +100,51 @@ const DeliveryRequestForm = () => {
         },
         resolver: zodResolver(validationSchema),
     })
+
+    /*
+     * Prefill from what is already known: the design the shopper just confirmed, and the
+     * account they are signed in with.
+     *
+     * These fields started blank, which meant retyping details the system already held —
+     * and worse, the quote could end up describing something other than the design it is
+     * attached to. Everything stays editable; this only sets the starting values.
+     *
+     * Company Name is left blank on purpose: the customer record has no company field, so
+     * there is nothing to prefill it from.
+     */
+    useEffect(() => {
+        let cancelled = false
+
+        const prefill = async () => {
+            if (!id || !session?.accessToken) return
+
+            let design = null
+            try {
+                const res = await apiGetModalInfo(id, session.accessToken)
+                design = res?.data || (res?.status ? res : null)
+            } catch (err) {
+                // A failed lookup just means no prefill — the form still works.
+                console.error("Could not load the design for prefill:", err)
+            }
+            if (cancelled) return
+
+            const config = design?.config_json || {}
+
+            reset((prev) => ({
+                ...prev,
+                contact_person: prev.contact_person || session?.user?.name || "",
+                email: prev.email || session?.user?.email || "",
+                item_type: prev.item_type || design?.productName || "",
+                material: prev.material || config.fabric || "",
+                size_quantity: prev.size_quantity || formatSizes(config.sizes),
+            }))
+        }
+
+        prefill()
+        return () => {
+            cancelled = true
+        }
+    }, [id, session?.accessToken, session?.user?.name, session?.user?.email, reset])
     /**
         * Handles form submission. Builds the payload, checks for a valid
         * session, calls the create quotation request API, and opens the

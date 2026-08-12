@@ -47,6 +47,17 @@ export async function apiGetProductList(
   });
 }
 
+// No Authorization header on purpose. product/get/ declares no authentication
+// class, so it falls back to the DRF default — CustomUserJWTAuthentication, which
+// expects a *customer* token. Sending an admin token makes it fail with
+// 403 "User not found". The customer site calls this endpoint the same way.
+export async function apiGetProductById(id) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/product/get/${id}/`,
+    method: "get",
+  });
+}
+
 export async function apiDeleteProduct(accessToken, id) {
   return ApiService.fetchDataWithAxios({
     url: `/v1/uniformAdmin/product/delete/${id}/`,

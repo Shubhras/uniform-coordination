@@ -7,15 +7,18 @@ import ColorPickerPopup from './ColorPickerPopup'
 // const SAMPLE_MODEL = '/img/3dmodels/doctor_uniform.glb'
 const FALLBACK_MODEL = '' //'https://modelviewer.dev/shared-assets/models/Astronaut.glb'
 import Button from '@/components/ui/Button';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, usePathname } from 'next/navigation';
 import UniformCanvas from './UniformCanvas'
 import { controlsApi } from './UniformCanvas'
 import { uniformState } from './uniformStore'
-import { FiChevronRight, FiChevronDown } from "react-icons/fi";
+import { FiCheck } from "react-icons/fi";
 import { apiModelInfoCreate, apiSaveDesign } from '@/services/SaveDesignService'
+import { apiGetProductDetailsById } from '@/services/ProductService'
+import { apiGetSimulationOptions } from '@/services/SimulationService'
 import { useSession } from 'next-auth/react'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
+import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 
 const PANELS = {
   color: {
@@ -159,15 +162,114 @@ const PANELS = {
   },
 };
 
+/*
+ * Admin -> customer wiring for the customiser.
+ *
+ * Which tools appear in the left rail, and in what order, comes from
+ * Admin -> Simulation Assets -> Simulation Structure for this product's category.
+ * Colours come from the admin Colors table and fabrics from the admin Fabric table.
+ * PANELS above stays as the fallback for attributes the admin has no data source for.
+ */
+
+// The admin types attribute names as free text, so match on substrings rather than
+// exact strings — "Sleeve", "Sleeves" and "Sleeve Length" all mean the sleeve tool.
+const ATTRIBUTE_TO_PANEL = [
+  [["fabric", "material"], "fabric"],
+  [["colour", "color"], "color"],
+  // "part" before "pant": the two never overlap as substrings, but keeping them
+  // adjacent makes it obvious they are different tools.
+  [["part"], "parts"],
+  [["size"], "size"],
+  [["collar"], "collar"],
+  [["sleeve"], "sleeves"],
+  [["cap"], "cap"],
+  [["cuff"], "cuff"],
+  [["pocket"], "pocket"],
+  [["apron"], "aprons"],
+  [["zip", "closure"], "zipper"],
+  [["pant", "trouser", "bottom"], "pants"],
+  [["top"], "top"],
+  [["leg"], "legy"],
+];
+
+// Attributes the admin can enable that this customiser has no tool for — Style, Fit,
+// Waist, Hem, Inner Mesh and anything else typed freehand. They are skipped rather
+// than rendered as an empty panel, and reported in `unsupportedAttributes` so the gap
+// is visible instead of silent.
+const panelKeyFor = (attributeName) => {
+  const n = (attributeName || "").toLowerCase();
+  const hit = ATTRIBUTE_TO_PANEL.find(([needles]) => needles.some((x) => n.includes(x)));
+  return hit ? hit[1] : null;
+};
+
+// A garment half is a property of the 3D model, not of the admin config: a collar tool
+// makes no sense while the trousers are selected. Admin decides *whether* a tool is
+// offered; this decides *when* it is reachable.
+const PANEL_POSITIONS = {
+  // Apply to any garment.
+  color: ["top", "bottom"],
+  size: ["top", "bottom"],
+  fabric: ["top", "bottom"],
+  pocket: ["top", "bottom"],
+  parts: ["top", "bottom"],
+  // Genuinely upper-body.
+  top: ["top"],
+  collar: ["top"],
+  sleeves: ["top"],
+  cap: ["top"],
+  zipper: ["top"],
+  cuff: ["top"],
+  // Genuinely lower-body.
+  pants: ["bottom"],
+  aprons: ["bottom"],
+  legy: ["bottom"],
+};
+
+// Stacked-layers glyph for the Parts tool. Drawn inline because there is no parts icon
+// in /img/top-left-image, and the parts themselves are per-product so no fixed image
+// would be right.
+const PartsIcon = () => (
+  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" className="mb-1">
+    <path d="M12 3L21 7.5L12 12L3 7.5L12 3Z" stroke="#1C2A4A" strokeWidth="1.4" strokeLinejoin="round" />
+    <path d="M4.5 11.2L12 15L19.5 11.2" stroke="#1C2A4A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M4.5 15.2L12 19L19.5 15.2" stroke="#1C2A4A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const RAIL_META = {
+  color: { label: "Color", icon: "/img/top-left-image/color-wheel.png", cls: "w-12 h-12" },
+  parts: { label: "Parts", Svg: PartsIcon },
+  fabric: { label: "Fabric", icon: "/img/top-left-image/textile.png", cls: "w-12 h-12" },
+  size: { label: "Size", icon: "/img/top-left-image/measuring-tape.png", cls: "w-12 h-12" },
+  collar: { label: "Collar", icon: "/img/top-left-image/collar.png", cls: "w-12 h-12" },
+  sleeves: { label: "Sleeves", icon: "/img/top-left-image/sleeves.png", cls: "w-12 h-12" },
+  cap: { label: "Cap", icon: "/img/top-left-image/cap.png", cls: "w-12 h-12" },
+  zipper: { label: "Zipper", icon: "/img/top-left-image/zipper.png", cls: "w-12 h-12" },
+  cuff: { label: "Cuff", icon: "/img/top-left-image/cuff.png", cls: "w-12 h-12" },
+  top: { label: "Top", icon: "/img/top-left-image/textile.png", cls: "w-12 h-12" },
+  legy: { label: "Legy", icon: "/img/top-left-image/textile.png", cls: "w-12 h-12" },
+  pants: { label: "Pant", icon: "/img/top-left-image/bottoms/pant1.png", cls: "w-8 h-12 object-contain" },
+  pocket: { label: "Pocket", icon: "/img/top-left-image/bottoms/pocket.png", cls: "w-8 h-12 object-contain" },
+  aprons: { label: "Aprons", icon: "/img/top-left-image/bottoms/apron.png", cls: "w-10 h-12 object-contain" },
+};
+
 const Uniform3DmoduleDegisn = () => {
   // 
   const { id } = useParams();
   const { data: session } = useSession();
+  const pathname = usePathname();
   const [isSubmitting, setIsSubmitting] = useState(false);
   //console.log("Current Product ID:", id);
   const [counts, setCounts] = useState({});
   const [designJSON, setDesignJSON] = useState({
     colors: {
+      top: "",
+      bottom: ""
+    },
+
+    // Which admin colour row was picked per half. Kept alongside the hex because rows
+    // can share a hex, so the value alone cannot identify the choice.
+    colorKeys: {
       top: "",
       bottom: ""
     },
@@ -303,19 +405,179 @@ const Uniform3DmoduleDegisn = () => {
 
   const [position, setPosition] = useState("top"); // top | bottom
 
-  const COMMON_BUTTONS = ["color", "size"];
-  const TOP_ONLY_BUTTONS = [
-    "fabric",
-    "top",
-    "collar",
-    "sleeves",
-    "cap",
-    "zipper",
-    "cuff",
-  ];
-  // const BOTTOM_ONLY_BUTTONS = [
-  //   "legy", "pants", "pocket", "aprons"
-  // ];
+  // --- Admin-driven simulation config ---------------------------------------
+  const [simProduct, setSimProduct] = useState(null);
+  const [simAttributes, setSimAttributes] = useState([]);
+  const [simFabrics, setSimFabrics] = useState([]);
+  const [simColors, setSimColors] = useState([]);
+  const [simParts, setSimParts] = useState([]);
+  const [simLoading, setSimLoading] = useState(true);
+  const [simBlocked, setSimBlocked] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadAdminConfig = async () => {
+      // No product in the URL: nothing to load, and leaving simLoading true would hold
+      // the rail on its skeletons forever. The route without an id renders the product
+      // picker instead, so this is only a safety net.
+      if (!id) {
+        setSimLoading(false);
+        return;
+      }
+      try {
+        setSimLoading(true);
+
+        const productRes = await apiGetProductDetailsById(id);
+        const product = productRes?.status ? productRes.data : null;
+        if (cancelled) return;
+
+        if (!product) {
+          setSimBlocked(true);
+          return;
+        }
+        setSimProduct(product);
+
+        // Which garment half this is, taken from the product rather than asked of the
+        // shopper. A "set" covers both, so leave it on top and let the rail offer the
+        // tools for either half.
+        if (product.type === "bottom") setPosition("bottom");
+        else setPosition("top");
+
+        // The admin can take a product out of the simulation entirely. Honour that
+        // here, otherwise a shopper could still reach the customiser by URL.
+        if (product.show_in_simulation === false) {
+          setSimBlocked(true);
+          return;
+        }
+
+        const categoryId = product.category?.id;
+        if (!categoryId) return;
+
+        const optionsRes = await apiGetSimulationOptions({ categoryId });
+        if (cancelled || !optionsRes?.status) return;
+
+        setSimAttributes(optionsRes.data?.attributes || []);
+        setSimFabrics(optionsRes.data?.fabrics || []);
+        setSimColors(optionsRes.data?.colors || []);
+
+        // This product's own parts, with images and stacking order. product/get/ returns
+        // parts without their images, so the layer data has to come from here.
+        const row = (optionsRes.data?.products || []).find(
+          (p) => String(p.id) === String(id),
+        );
+        setSimParts(row?.layers || []);
+      } catch (err) {
+        // Fall through to the static PANELS rather than leaving the customiser
+        // with no tools at all.
+        console.error("Failed to load admin simulation config:", err);
+      } finally {
+        if (!cancelled) setSimLoading(false);
+      }
+    };
+
+    loadAdminConfig();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  // PANELS, with colour and fabric swapped for the admin's own records. Attributes
+  // the admin has no table for (Collar, Sleeves, Cap, ...) keep their static images —
+  // the admin controls whether they appear, not what they contain.
+  const panels = (() => {
+    const merged = { ...PANELS };
+
+    /*
+     * Every colour the admin has, one swatch each — no deduping. Rows can share a hex
+     * (two of the current ones are both #7e3e3e), and they are still separate admin
+     * records, so hiding one would mean the customer sees fewer colours than the admin
+     * configured.
+     *
+     * Each entry carries a stable `key`, and selection is tracked by that key rather
+     * than by colour value. Comparing by hex made every row sharing a hex tick at once.
+     */
+    const adminColors = simColors
+      .filter((c) => (c.code || "").trim())
+      .map((c) => ({
+        key: `c${c.id}`,
+        code: (c.code || "").trim(),
+        name: c.name,
+      }));
+
+    merged.color = {
+      ...PANELS.color,
+      data: adminColors.length
+        ? adminColors
+        : // Static fallback: same shape, so the renderer has one case to handle.
+        PANELS.color.data.map((hex, i) => ({ key: `s${i}`, code: hex, name: hex })),
+    };
+
+    // Parts are per product, not a fixed list, so there is no static fallback for this
+    // one — no parts configured means no Parts tool.
+    if (simParts.length) {
+      merged.parts = {
+        title: "Parts",
+        type: "parts",
+        data: simParts,
+      };
+    }
+
+    if (simFabrics.length) {
+      merged.fabric = {
+        title: "Fabric",
+        // Distinct type: admin fabrics carry no swatch image (the Fabric model has no
+        // image field), so they render as name + colour chip instead of a texture tile.
+        type: "fabricRecords",
+        data: simFabrics,
+      };
+    }
+
+    return merged;
+  })();
+
+  // Tools the admin enabled for this category, in the admin's order, limited to the
+  // ones that apply to the garment half currently selected.
+  const railKeys = (() => {
+    // Nothing until the admin config has landed. Rendering the fallback first would
+    // flash a full set of tools and then drop to the admin's shorter list.
+    if (simLoading) return [];
+
+    const fromAdmin = simAttributes
+      .map((a) => panelKeyFor(a.attribute))
+      .filter(Boolean);
+
+    // When the admin has configured this category, show exactly that — no extra
+    // filtering by garment half. Simulation Structure is defined per category, and a
+    // category holds both tops and bottoms, so the admin has no way to say "Collar for
+    // tops only". Second-guessing the toggle here would make it look broken: the admin
+    // ticks Collar, nothing appears, and nothing explains why.
+    if (fromAdmin.length) {
+      return [...new Set(fromAdmin)].filter((k) => panels[k]);
+    }
+
+    // No structure saved for this category — fall back to the built-in set, and here the
+    // garment half is worth honouring since nobody has expressed an intent to respect.
+    return ["color", "size", "fabric", "collar", "sleeves", "cap", "zipper", "cuff", "pants", "pocket", "aprons"]
+      .filter(
+        (k) =>
+          panels[k] &&
+          (simProduct?.type === "set" ||
+            (PANEL_POSITIONS[k] || []).includes(position)),
+      );
+  })();
+
+  const unsupportedAttributes = simAttributes
+    .filter((a) => !panelKeyFor(a.attribute))
+    .map((a) => a.attribute);
+
+  // A tool can disappear when the garment half changes; don't leave its panel open.
+  // Keyed on a joined string because railKeys is rebuilt on every render.
+  const railKey = railKeys.join(",");
+  useEffect(() => {
+    if (active && !railKeys.includes(active)) setActive("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [railKey, active]);
 
   useEffect(() => {
     uniformState.active3dPart = "top";
@@ -326,9 +588,18 @@ const Uniform3DmoduleDegisn = () => {
   }, [position]);
 
 
-  const [showDropdown, setShowDropdown] = useState(false);
 
   const handleUniformDesignResult = async () => {
+    if (!session?.accessToken) {
+      toast.push(
+        <Notification title="Login Required" type="warning">
+          Please sign in first to continue.
+        </Notification>
+      );
+      router.push(`/sign-in?${REDIRECT_URL_KEY}=${pathname}`);
+      return;
+    }
+
     console.log("FINAL DESIGN JSON:", designJSON);
 
     setIsSubmitting(true);
@@ -383,20 +654,22 @@ const Uniform3DmoduleDegisn = () => {
     }
     setIsSaving(true);
 
+    // The shopper's real choices. This used to send fixed sample values
+    // (grey / M / cotton, "My Brand"), so everything picked in the customiser was
+    // collected into designJSON and then thrown away — which left the Design Result
+    // screen with nothing to render.
     const payload = {
       "user": session?.user?.id,
       "model_info": modelId,
       "config_json": {
-        "color": "grey",
-        "size": "M",
-        "material": "cotton"
+        "product_id": id,
+        "colors": designJSON.colors,
+        "color_keys": designJSON.colorKeys,
+        "fabric": designJSON.fabric,
+        "part": designJSON.part || "",
+        "options": designJSON.options,
+        "sizes": designJSON.sizes,
       },
-      "design_specifications": {
-        "logo_position": "front",
-        "print_type": "embroidery",
-        "text": "My Brand"
-      },
-      "json_file_path": "uploads/configs/user6_model3.json",
       "isActive": true
     }
 
@@ -426,196 +699,101 @@ const Uniform3DmoduleDegisn = () => {
   };
 
 
+  // The admin can withdraw a product from the simulation. Reaching the customiser by
+  // URL must not get around that, so this stops before any tool is rendered.
+  if (simBlocked) {
+    return (
+      <section className="w-full mx-auto bg-white px-6 lg:px-4 py-20 mt-11">
+        <div className="max-w-md mx-auto text-center border border-dashed border-gray-300 rounded-xl py-12 px-6">
+          <h2 className="text-lg font-semibold text-[#1C2A4A]">
+            This uniform is not available to customise
+          </h2>
+          <p className="mt-2 text-sm text-gray-500">
+            {simProduct
+              ? "It has been withdrawn from the design tool. Please pick another uniform."
+              : "We could not find this uniform."}
+          </p>
+          <button
+            onClick={() => router.back()}
+            className="mt-6 bg-[#1C4FA8] text-white px-5 py-2 rounded-md text-sm font-medium"
+          >
+            Go back
+          </button>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-11 ">
       <div className="flex gap-6">
         <div className="w-[80px] flex flex-col items-center" >
-          <div className="relative mb-2">
-            <button
-              onClick={() => setShowDropdown(!showDropdown)}
-              className="w-full flex items-center justify-between px-4 py-2 bg-[#1C4FA8] text-white rounded-lg shadow text-sm"
-            >
-              {position === "top" ? "Top" : "Bottom"}
-              <span className="text-lg">
-                {showDropdown ? <FiChevronDown /> : <FiChevronRight />}
-              </span>
-            </button>
+          {/*
+            The Top / Bottom picker used to sit here. Removed: the product already
+            records which half it is (Product.type = top | bottom | set), so `position`
+            is derived from it instead of asked of the shopper.
+          */}
 
+          {/* Left rail: one tool per attribute the admin enabled, in the admin's order. */}
+          <div className="flex flex-col gap-2 w-full">
+            {railKeys.map((key) => {
+              const meta = RAIL_META[key];
+              if (!meta) return null;
+              return (
+                <button
+                  key={key}
+                  onClick={() => onIconClick(key)}
+                  className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === key ? "ring-2 ring-blue-500" : ""
+                    }`}
+                >
+                  {meta.Svg ? (
+                    <meta.Svg />
+                  ) : (
+                    <img src={meta.icon} className={`${meta.cls} mb-1`} alt={meta.label} />
+                  )}
+                  <span className="text-xs text-gray-600">{meta.label}</span>
+                </button>
+              );
+            })}
 
-            {showDropdown && (
-              <div className="absolute top-full left-0 w-full bg-white border border-[#1c2c56] rounded-lg shadow z-50 overflow-hidden">
-                {["top", "bottom"].map(opt => (
-                  <button
-                    key={opt}
-                    onClick={() => {
-                      setPosition(opt);
-                      setShowDropdown(false);
-                    }}
-                    className="w-full px-4 py-2 text-sm flex items-center justify-between hover:bg-gray-100"
-                  >
-                    <span className="capitalize">{opt}</span>
-                    {position === opt && <span>✓</span>}
-                  </button>
+            {simLoading && (
+              <div className="flex flex-col gap-2">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="w-[70px] h-[70px] bg-gray-100 rounded-lg animate-pulse"
+                  />
                 ))}
               </div>
             )}
-          </div>
 
-          <div className="flex flex-col gap-2 w-full">
-            <button
-              onClick={() => onIconClick("color")}
-              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
-                }`}
-            >
-              <img src="/img/top-left-image/color-wheel.png" className="w-12 h-12 mb-1" />
-              <span className="text-xs text-gray-600">Color</span>
-            </button>
-
-            {position === "top" && (
-              <button
-                onClick={() => onIconClick("fabric")}
-                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "fabric" ? "ring-2 ring-blue-500" : ""
-                  }`}
-              >
-                <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
-                <span className="text-xs text-gray-600">Fabric</span>
-              </button>
+            {!simLoading && railKeys.length === 0 && (
+              <p className="w-[70px] text-[10px] leading-tight text-gray-500">
+                No {position} options enabled for this category.
+              </p>
             )}
 
-            <button
-              onClick={() => onIconClick("size")}
-              className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "size" ? "ring-2 ring-blue-500" : ""
-                }`}
-            >
-              <img src="/img/top-left-image/measuring-tape.png" className="w-12 h-12 mb-1" />
-              <span className="text-xs text-gray-600">Size</span>
-            </button>
-
-            {/* {position === "bottom" && (
-              <button
-                onClick={() => onIconClick("legy")}
-                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
-                  }`}
-              >
-                <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
-                <span className="text-xs text-gray-600">Legy</span>
-              </button>
-            )} */}
-
-            {position === "bottom" && (
-              <button
-                onClick={() => onIconClick("pants")}
-                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
-                  }`}
-              >
-                <img src="/img/top-left-image/bottoms/pant1.png" className="w-8 object-contain h-12 mb-1" />
-                <span className="text-xs text-gray-600">Pant</span>
-              </button>
-            )}
-
-            {position === "bottom" && (
-              <button
-                onClick={() => onIconClick("pocket")}
-                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
-                  }`}
-              >
-                <img src="/img/top-left-image/bottoms/pocket.png" className="w-8 object-contain h-12 mb-1" />
-                <span className="text-xs text-gray-600">Pocket</span>
-              </button>
-            )}
-
-            {position === "bottom" && (
-              <button
-                onClick={() => onIconClick("aprons")}
-                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
-                  }`}
-              >
-                <img src="/img/top-left-image/bottoms/apron.png" className="w-10 h-12 object-contain  mb-1" />
-                <span className="text-xs text-gray-600">Aprons</span>
-              </button>
-            )}
-
-            {/* {position === "top" && (
-              <button
-                onClick={() => onIconClick("top")}
-                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "color" ? "ring-2 ring-blue-500" : ""
-                  }`}
-              >
-                <img src="/img/top-left-image/textile.png" className="w-12 h-12 mb-1" />
-                <span className="text-xs text-gray-600">Top</span>
-              </button>
-            )} */}
-
-            {position === "top" && (
-              <button
-                onClick={() => onIconClick("collar")}
-                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "collar" ? "ring-2 ring-blue-500" : ""
-                  }`}
-              >
-                <img src="/img/top-left-image/collar.png" className="w-12 h-12 mb-1" />
-                <span className="text-xs text-gray-600">Collar</span>
-              </button>
-            )}
-
-
-
-            {position === "top" && (
-              <button
-                onClick={() => onIconClick("sleeves")}
-                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "sleeves" ? "ring-2 ring-blue-500" : ""
-                  }`}
-              >
-                <img src="/img/top-left-image/sleeves.png" className="w-12 h-12 mb-1" />
-                <span className="text-xs text-gray-600">Sleeves</span>
-              </button>
-            )}
-            {position === "top" && (
-
-
-              <button
-                onClick={() => onIconClick("cap")}
-                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "cap" ? "ring-2 ring-blue-500" : ""
-                  }`}
-              >
-                <img src="/img/top-left-image/cap.png" className="w-12 h-12 mb-1" />
-                <span className="text-xs text-gray-600">Cap</span>
-              </button>
-            )}
-            {position === "top" && (
-
-
-              <button
-                onClick={() => onIconClick("zipper")}
-                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "zipper" ? "ring-2 ring-blue-500" : ""
-                  }`}
-              >
-                <img src="/img/top-left-image/zipper.png" className="w-12 h-12 mb-1" />
-                <span className="text-xs text-gray-600">Zipper</span>
-              </button>
-            )}
-            {position === "top" && (
-
-
-              <button
-                onClick={() => onIconClick("cuff")}
-                className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === "cuff" ? "ring-2 ring-blue-500" : ""
-                  }`}
-              >
-                <img src="/img/top-left-image/cuff.png" className="w-12 h-12 mb-1" />
-                <span className="text-xs text-gray-600">Cuff</span>
-              </button>
+            {/*
+              Attributes the admin enabled that this customiser has no tool for.
+              Shown rather than dropped silently, so the mismatch is visible to
+              whoever is testing instead of looking like the admin toggle did nothing.
+            */}
+            {!simLoading && unsupportedAttributes.length > 0 && (
+              <p className="w-[70px] text-[9px] leading-tight text-amber-700">
+                No tool yet: {unsupportedAttributes.join(", ")}
+              </p>
             )}
           </div>
         </div>
         <div className="relative ">
-          {PANELS[active] && (
+          {panels[active] && (
             <div
               ref={panelRef}
               className="absolute top-0 left-0 z-30 w-[275px] bg-white shadow-xl rounded-xl p-3">
               {/* <h5 className="font-semibold text-gray-700 mb-2">
-                {PANELS[active].title}
+                {panels[active].title}
               </h5> */}
-              {PANELS[active].type === "colors" && (
+              {panels[active].type === "colors" && (
                 // <div className="grid grid-cols-5 gap-3 relative">
                 <div className="grid grid-cols-4 gap-3 relative">
                   {/* <button
@@ -628,29 +806,49 @@ const Uniform3DmoduleDegisn = () => {
                     />
                   </button> */}
 
-                  {PANELS[active].data.map((hex, i) => (
-                    <button
-                      key={i}
-                      onClick={() => {
-                        applyBaseColorToModel(hex);
-                        setColor(hex);
+                  {panels[active].data.map((swatch) => {
+                    // By key, not by colour value: several admin rows can hold the same
+                    // hex, and comparing values ticked all of them together. Colour is
+                    // chosen per garment half, so the key is read for the active half.
+                    const selected = designJSON.colorKeys?.[position] === swatch.key;
+                    return (
+                      <button
+                        key={swatch.key}
+                        onClick={() => {
+                          applyBaseColorToModel(swatch.code);
+                          setColor(swatch.code);
 
-                        // ✅ Only Top & Bottom colors allowed
-                        const jsonPart = uniformState.active3dPart;
+                          // ✅ Only Top & Bottom colors allowed
+                          const jsonPart = uniformState.active3dPart;
 
-                        setDesignJSON((prev) => ({
-                          ...prev,
-                          colors: {
-                            ...prev.colors,
-                            [jsonPart]: hex
-                          }
-                        }));
-                      }}
-
-                      className="w-10 h-10 rounded-full shadow border"
-                      style={{ background: hex }}
-                    />
-                  ))}
+                          setDesignJSON((prev) => ({
+                            ...prev,
+                            colors: {
+                              ...prev.colors,
+                              [jsonPart]: swatch.code
+                            },
+                            colorKeys: {
+                              ...prev.colorKeys,
+                              [jsonPart]: swatch.key
+                            }
+                          }));
+                        }}
+                        title={swatch.name || swatch.code}
+                        className={`relative w-10 h-10 rounded-full shadow flex items-center justify-center transition ${selected
+                          ? "ring-2 ring-offset-2 ring-[#1C4FA8] border-0"
+                          : "border"
+                          }`}
+                        style={{ background: swatch.code }}
+                      >
+                        {selected && (
+                          <FiCheck
+                            size={18}
+                            className="text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 
@@ -665,7 +863,7 @@ const Uniform3DmoduleDegisn = () => {
                 />
               )}
 
-              {PANELS[active].type === "textures" && (
+              {panels[active].type === "textures" && (
                 <div className="w-full">
                   {/* HEADER */}
                   <div className="grid grid-cols-5 text-center mb-4 text-sm font-medium text-[#1C2A4A]">
@@ -678,65 +876,179 @@ const Uniform3DmoduleDegisn = () => {
 
                   {/* TEXTURE GRID */}
                   <div className="grid grid-cols-5 gap-2">
-                    {PANELS[active].data.map((tex, i) => (
-                      <button
-                        key={i}
-                        onClick={() => {
-                          setDesignJSON((prev) => ({
-                            ...prev,
-                            fabric: tex
-                          }));
-                        }}
-
-                        className="
-                          w-[43px] h-[43px]
-                          border border-gray-300
-                          rounded-md
-                          overflow-hidden
-                          hover:border-blue-500
-                          focus:border-blue-600
-                          focus:ring-2 focus:ring-blue-300
-                          transition
-                        "
-                      >
-                        <img
-                          src={tex}
-                          alt="texture"
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
+                    {panels[active].data.map((tex, i) => {
+                      const selected = designJSON.fabric === tex;
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => {
+                            setDesignJSON((prev) => ({
+                              ...prev,
+                              fabric: tex
+                            }));
+                          }}
+                          className={`relative w-[43px] h-[43px] rounded-md overflow-hidden transition ${selected
+                            ? "ring-2 ring-[#1C4FA8] border-0"
+                            : "border border-gray-300 hover:border-blue-500"
+                            }`}
+                        >
+                          <img
+                            src={tex}
+                            alt="texture"
+                            className="w-full h-full object-cover"
+                          />
+                          {selected && (
+                            <span className="absolute inset-0 flex items-center justify-center bg-black/25">
+                              <FiCheck size={16} className="text-white" />
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
-              {PANELS[active].type === "options" && (
-                <div className="grid grid-cols-3 gap-3">
-                  {PANELS[active].data.map((opt, i) => (
-                    <button key={i} onClick={() => {
-                      setDesignJSON((prev) => ({
-                        ...prev,
-                        options: {
-                          ...prev.options,
-                          [active]: opt   // collar / pants / pocket / aprons
-                        }
-                      }));
-                    }} className="p-2 rounded-lg shadow relative">
-                      <img src={opt} className="w-full h-full object-cover" />
-
-                      <p className="text-xs absolute bottom-1 left-1/2 -translate-x-1/2
-                px-2 rounded-full bg-[#1C2C56] text-white">
-                        {PANELS[active].title}
-                      </p>
-                    </button>
-
-                  ))}
+              {/*
+                The product's parts, as the admin built it under Simulation Assets.
+                Shown top of the stack first so the list reads the way the garment is
+                layered. Selecting one records it on the design.
+              */}
+              {panels[active].type === "parts" && (
+                <div className="w-full max-h-[280px] overflow-y-auto pr-1">
+                  <div className="space-y-2">
+                    {[...panels[active].data].reverse().map((part) => {
+                      const selected = designJSON.part === part.name;
+                      return (
+                        <button
+                          key={part.id}
+                          onClick={() => {
+                            setDesignJSON((prev) => ({
+                              ...prev,
+                              part: part.name,
+                            }));
+                          }}
+                          className={`w-full flex items-center gap-3 rounded-md border p-2 text-left transition ${selected
+                            ? "border-blue-600 bg-blue-50"
+                            : "border-gray-300 hover:border-blue-500"
+                            }`}
+                        >
+                          <span className="w-11 h-11 flex-shrink-0 rounded bg-gray-50 border border-gray-200 overflow-hidden flex items-center justify-center">
+                            {part.image ? (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img
+                                src={part.image}
+                                alt={part.name}
+                                className="w-full h-full object-contain"
+                              />
+                            ) : null}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-[11px] font-medium text-[#1C2A4A] truncate">
+                              {part.name}
+                            </span>
+                            <span className="block text-[10px] text-gray-500 truncate">
+                              {part.fabric || "—"}
+                            </span>
+                          </span>
+                          {selected && (
+                            <FiCheck size={16} className="text-[#1C4FA8] flex-shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
-              {PANELS[active].type === "size" && (
+              {/*
+                Admin fabrics. The Fabric model has no image field, so there is no
+                texture tile to show — name, material and the colour it records are all
+                the admin actually stores. Painting an invented swatch would show the
+                shopper something the catalogue does not contain.
+              */}
+              {panels[active].type === "fabricRecords" && (
+                <div className="w-full max-h-[280px] overflow-y-auto pr-1">
+                  <div className="grid grid-cols-2 gap-2">
+                    {panels[active].data.map((fabric) => {
+                      const selected = designJSON.fabric === fabric.name;
+                      return (
+                        <button
+                          key={fabric.id}
+                          onClick={() => {
+                            setDesignJSON((prev) => ({
+                              ...prev,
+                              fabric: fabric.name,
+                            }));
+                          }}
+                          className={`flex items-center gap-2 rounded-md border p-2 text-left transition ${selected
+                            ? "border-blue-600 bg-blue-50"
+                            : "border-gray-300 hover:border-blue-500"
+                            }`}
+                        >
+                          <span
+                            className="w-6 h-6 rounded border border-gray-300 flex-shrink-0"
+                            style={
+                              fabric.swatch
+                                ? { background: fabric.swatch }
+                                : { background: "repeating-linear-gradient(45deg,#f1f5f9,#f1f5f9 4px,#e2e8f0 4px,#e2e8f0 8px)" }
+                            }
+                            title={fabric.swatch ? fabric.color : `Colour recorded as "${fabric.color}"`}
+                          />
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-[11px] font-medium text-[#1C2A4A] truncate">
+                              {fabric.name}
+                            </span>
+                            <span className="block text-[10px] text-gray-500 capitalize truncate">
+                              {fabric.material_type || "—"}
+                            </span>
+                          </span>
+                          {selected && (
+                            <FiCheck size={14} className="text-[#1C4FA8] flex-shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {panels[active].type === "options" && (
+                <div className="grid grid-cols-3 gap-3">
+                  {panels[active].data.map((opt, i) => {
+                    const selected = designJSON.options?.[active] === opt;
+                    return (
+                      <button key={i} onClick={() => {
+                        setDesignJSON((prev) => ({
+                          ...prev,
+                          options: {
+                            ...prev.options,
+                            [active]: opt   // collar / pants / pocket / aprons
+                          }
+                        }));
+                      }} className={`p-2 rounded-lg shadow relative transition ${selected ? "ring-2 ring-[#1C4FA8]" : ""
+                        }`}>
+                        <img src={opt} className="w-full h-full object-cover" />
+
+                        {selected && (
+                          <span className="absolute top-1 right-1 bg-[#1C4FA8] rounded-full p-0.5">
+                            <FiCheck size={11} className="text-white" />
+                          </span>
+                        )}
+
+                        <p className="text-xs absolute bottom-1 left-1/2 -translate-x-1/2
+                px-2 rounded-full bg-[#1C2C56] text-white">
+                          {panels[active].title}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {panels[active].type === "size" && (
                 <div className="grid grid-cols-4 gap-3">
-                  {PANELS[active].data.map((size, i) => {
+                  {panels[active].data.map((size, i) => {
                     const isSelected = Boolean(counts[size]);
                     return (
                       <button
@@ -758,9 +1070,9 @@ const Uniform3DmoduleDegisn = () => {
                 </div>
               )}
 
-              {PANELS[active].type === "optionsLegy" && (
+              {panels[active].type === "optionsLegy" && (
                 <div className="grid grid-cols-3 gap-3">
-                  {PANELS[active].data.map((opt, i) => (
+                  {panels[active].data.map((opt, i) => (
                     <button
                       key={i}
                       className="p-2 border rounded-lg shadow"
@@ -773,9 +1085,9 @@ const Uniform3DmoduleDegisn = () => {
               )}
 
 
-              {PANELS[active].type === "optionsTops" && (
+              {panels[active].type === "optionsTops" && (
                 <div className="grid grid-cols-3 gap-3">
-                  {PANELS[active].data.map((opt, i) => (
+                  {panels[active].data.map((opt, i) => (
                     <button key={i} className="p-2 border rounded-lg shadow" onClick={() => onActive3dPartClick("top")}
                     >
                       <img src={opt} className="w-full" />
@@ -808,15 +1120,31 @@ const Uniform3DmoduleDegisn = () => {
                     )} */}
 
           {/* <UniformCanvas /> */}
+          {/*
+            The product's own catalogue image. The 3D canvas above is commented out, so
+            this is what the shopper actually sees — it used to be a fixed doctor PNG,
+            which showed the wrong garment for every product.
+
+            `unoptimized` because these come from the API host at runtime; the Next image
+            optimiser would need each host whitelisted in next.config.
+          */}
           <div className="relative z-10 py-16">
-            <Image
-              src="/img/uniform/uniform.png"
-              alt="Uniform"
-              width={450}
-              height={800}
-              className="object-contain"
-              priority
-            />
+            {/* Nothing stand-in while the product loads. Rendering the fallback image
+                straight away flashed the old fixed doctor picture on every refresh
+                before the real product arrived. */}
+            {simLoading ? (
+              <div className="w-[450px] max-w-full h-[500px] rounded-2xl bg-[#F5F8FF] animate-pulse" />
+            ) : (
+              <Image
+                src={simProduct?.ProductImage || "/img/uniform/uniform.png"}
+                alt={simProduct?.productName || "Uniform"}
+                width={450}
+                height={800}
+                className="object-contain"
+                unoptimized
+                priority
+              />
+            )}
           </div>
 
           {/* <div className="absolute top-[-10] w-[360px] h-[360px] bg-[#BEE0FF] rounded-full"></div>

@@ -1,33 +1,26 @@
 'use client'
 
 import { apiGetProductDetailsById } from '@/services/ProductService'
-import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FiChevronDown, FiArrowLeft } from 'react-icons/fi'
+import useCurrentSession from '@/utils/hooks/useCurrentSession'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
+import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 const filters = ['All', 'Scrub', 'Lab Coats', 'Patient Care', 'Administrative']
 const sortOptions = ['Popular', 'Newest', 'Price: Low to High', 'Price: High to Low']
 
 const UniformSingle = () => {
     const { id } = useParams()
-
-    const [activeFilter, setActiveFilter] = useState('All')
-    const [sortBy, setSortBy] = useState('Popular')
+    const { session } = useCurrentSession()
     const [openSort, setOpenSort] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
     const router = useRouter()
-    const [circleColor, setCircleColor] = useState('#BFE3F9')
     const [product, setProduct] = useState(null)
 
-    const colors = [
-        '#1C2C56',
-        '#000000',
-        '#BFE3F9',
-        '#A7F3D0',
-        '#FEF08A'
-    ]
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
@@ -55,11 +48,22 @@ const UniformSingle = () => {
 
 
     const handleUniformDesigning = () => {
-        // product id 
-        router.push(`/dashboards/uniform-3d-design/${id}`);
+        const destination = `/dashboards/uniform-3d-design/${id}`
+
+        if (!session?.user?.email) {
+            toast.push(
+                <Notification title="Login Required" type="warning">
+                    Please sign in first to continue.
+                </Notification>
+            )
+            router.push(`/sign-in?${REDIRECT_URL_KEY}=${destination}`)
+            return
+        }
+
+        router.push(destination)
     };
     return (
-        <section className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10 mt-15 ">
+        <section className="w-full bg-white flex flex-col lg:flex-row px-6 lg:px-4 py-4 gap-10 mt-6 ">
             <div className="w-full mx-auto">
                 {/* <p className='text-sm text-[#486284] py-5'>My dashboard / Medical Care Uniforms</p> */}
                 <div className="flex items-center gap-2 py-5">
@@ -74,62 +78,18 @@ const UniformSingle = () => {
                         {product?.subcategory?.name}
                     </p>
                 </div>
-                {/* FILTER + SORT */}
-                {/* <div className="flex flex-col lg:flex-row justify-between gap-4 mb-5">
-                   
-                    <div className="flex flex-wrap items-center gap-2 border border-[#1C2C56] bg-[#F5F8FF] rounded-lg px-3 py-2">
-                        <span className="text-sm font-medium text-[#1C2C56] mr-1">Filters :</span>
-                        {filters.map(item => (
-                            <button
-                                key={item}
-                                onClick={() => setActiveFilter(item)}
-                                className={`text-sm px-3 py-1 rounded-md transition
-                  ${activeFilter === item
-                                        ? 'bg-[#1C2C56] text-white'
-                                        : 'text-[#1C2C56] hover:bg-[#1C2C5615]'
-                                    }`}
-                            >
-                                {item}
-                            </button>
-                        ))}
-                    </div>
-                    <div className="relative">
-                        <button
-                            onClick={() => setOpenSort(!openSort)}
-                            className="flex items-center justify-between gap-2 border border-[#1C2C56] bg-[#F5F8FF]
-              px-4 py-3 rounded-lg text-sm min-w-[190px]"
-                        >
-                            <span>Sort By : <b>{sortBy}</b></span>
-                            <FiChevronDown />
-                        </button>
-
-                        {openSort && (
-                            <div className="absolute right-0 mt-2 w-full bg-white border rounded-lg shadow-md z-20">
-                                {sortOptions.map(option => (
-                                    <button
-                                        key={option}
-                                        onClick={() => {
-                                            setSortBy(option)
-                                            setOpenSort(false)
-                                        }}
-                                        className="w-full text-left px-4 py-2 text-sm hover:bg-[#F5F8FF]"
-                                    >
-                                        {option}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div> */}
+               
                 {/* HEADER */}
                 <div className='bg-[#F5F8FF] rounded-xl  md:p-8 p-5'>
                     <div className="text-center mb-12 ">
-                        <h2 className="text-[#1C2C56] text-3xl font-semibold">
-                            Placeholder Text
+                        <h2 className="text-[#1C2C56] text-3xl font-semibold capitalize">
+                            {product?.productName || 'Uniform Design'}
                         </h2>
                         <div className="w-20 h-1 bg-[#1C2C56] mx-auto mt-2 rounded-full" />
                         <p className="text-[#6B7280] mt-3 text-sm">
-                            Comfortable, functional scrubs for healthcare professionals
+                            {product?.category?.categoryName}
+                            {product?.category?.categoryName && product?.subcategory?.name ? ' • ' : ''}
+                            {product?.subcategory?.name}
                         </p>
                     </div>
                     {/* MAIN CONTENT */}
@@ -196,53 +156,51 @@ const UniformSingle = () => {
                                         </p>
 
                                         <p className="text-[#6B7280] text-sm leading-relaxed">
-                                            Price: ₹{product.price}
+                                            Price: ${product.price}
                                         </p>
 
+                                        {product.type && (
+                                            <p className="text-[#6B7280] text-sm leading-relaxed capitalize">
+                                                Type: {product.type}
+                                            </p>
+                                        )}
+
                                         <p className="text-[#6B7280] text-sm leading-relaxed">
-                                            Available Quantity: {product.available_quantity}
+                                            Available Quantity: {product.available_quantity} / {product.total_quantity}
                                         </p>
+
+                                        {Number(product.rental_price_per_day) > 0 && (
+                                            <p className="text-[#6B7280] text-sm leading-relaxed">
+                                                Rental Price: ${product.rental_price_per_day} / day
+                                            </p>
+                                        )}
+
+                                        {Number(product.security_deposit) > 0 && (
+                                            <p className="text-[#6B7280] text-sm leading-relaxed">
+                                                Security Deposit: ${product.security_deposit}
+                                            </p>
+                                        )}
                                     </div>
                                 </>
                             )}
                         </div>
 
-
                         {/* RIGHT IMAGE WITH BLUE CIRCLE */}
                         <div className="order-1 lg:order-2 relative flex justify-center">
-                            <div className="absolute right-0 top-10 flex flex-col items-center gap-3 z-20">
-                                {colors.map((color) => (
-                                    <button
-                                        key={color}
-                                        onClick={() => setCircleColor(color)}
-                                        className={`w-8 h-10 rounded border ${circleColor === color ? 'ring-1' : ''
-                                            }`}
-                                        style={{ backgroundColor: color }}
-                                    />
-                                ))}
-                                <button className="mt-2 text-[8px] w-8 h-10 p-1 border border-gray-300 rounded text-gray-600 bg-white">
-                                    View All
-                                </button>
-                            </div>
                             <div
-                                className="absolute md:w-[380px] md:h-[380px] w-[300px] h-[300px] rounded-full transition-colors duration-300"
-                                style={{ backgroundColor: circleColor }}
+                                className="absolute md:w-[380px] md:h-[380px] w-[300px] h-[300px] rounded-full"
                             />
                             <div className="relative z-10">
-                                <Image
-                                    src="/img/uniform/uniform.png"
-                                    // src={product?.ProductImage || '/img/uniform/uniform.png'}
-                                    alt="Uniform"
-                                    width={450}
-                                    height={800}
-                                    className="object-contain"
-                                    priority
+                                <img
+                                    src={product?.ProductImage || '/img/uniform/uniform.png'}
+                                    alt={product?.productName || 'Uniform'}
+                                    className="w-[450px] max-w-full object-contain"
                                 />
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className='md:p-10 p-5 border-x-2 border-t-2 rounded-xl border-[#87CEEB]'>
+                {/* <div className='md:p-10 p-5 border-x-2 border-t-2 rounded-xl border-[#87CEEB]'>
                     <h1 className='text-4xl font-semibold mb-2'>Size Guide</h1>
                     <div className='flex items-center justify-center'>
                         <Image
@@ -254,7 +212,7 @@ const UniformSingle = () => {
                             priority
                         />
                     </div>
-                </div>
+                </div> */}
             </div>
         </section>
     )

@@ -92,7 +92,7 @@ const Uniforms = () => {
 
 
     return (
-        <section className="w-full bg-white flex flex-col lg:flex-row px-5 md:px-8 lg:px-12 py-5 gap-10 mt-15">
+        <section className="w-full bg-white flex flex-col lg:flex-row px-5 md:px-8 lg:px-12 py-5 gap-10 mt-6">
             <div className="w-full mx-auto">
                 <div className="flex items-center gap-2 py-5">
                     <button onClick={() => router.back()} className="text-[#1C2C56] hover:text-[#1C4FA8] transition-colors" title="Go Back">

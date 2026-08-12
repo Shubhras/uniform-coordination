@@ -12,7 +12,7 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 
 const navMenu = [
   { title: "Home", value: "home", url: "/kireiz-form" },
-  { title: "Uniform Design", value: "uniformDesign", url: "/kireiz-form" },
+  { title: "Uniform Design", value: "uniformDesign", url: "/dashboards/uniform-3d-design" },
   { title: "Blog", value: "blog", url: "/blog" },
   { title: `FAQ's`, value: "faq", url: "/faq" },
 ];
