@@ -38,6 +38,7 @@ const EmailNotifications = () => {
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [passwordSet, setPasswordSet] = useState(false);
 
   const senderFields = [
     {
@@ -95,7 +96,15 @@ const EmailNotifications = () => {
       const res = await apiGeneralSettingList(accessToken);
       const d = res?.data;
       if (d) {
+        // The API never returns the SMTP password, only whether one is stored.
+        setPasswordSet(!!d.email_password_set);
         setForm({
+          email_host: d.email_host || "",
+          email_port: d.email_port ?? "",
+          email_use_tls: d.email_use_tls ?? true,
+          email_username: d.email_username || "",
+          // Always starts blank; blank on save means "keep the existing password".
+          email_password: "",
           email_sender_name: d.email_sender_name || "",
           email_sender_address: d.email_sender_address || "",
           email_reply_to: d.email_reply_to || "",
@@ -151,7 +160,14 @@ const EmailNotifications = () => {
 
     try {
       setSaving(true);
-      const res = await apiUpdateSystemSettings(accessToken, form);
+
+      const payload = { ...form };
+      // Empty port must go as null, not "" — DRF rejects a blank integer.
+      payload.email_port = payload.email_port === "" ? null : Number(payload.email_port);
+      // Omit the password when untouched so an existing one isn't wiped.
+      if (!payload.email_password) delete payload.email_password;
+
+      const res = await apiUpdateSystemSettings(accessToken, payload);
       // This endpoint replies with `success`, not `status`.
       if (res?.success) {
         notify("Success", "success", "Email settings saved");
@@ -230,12 +246,96 @@ const EmailNotifications = () => {
           />
         </div>
 
-        {/* Why SMTP creds aren't here */}
+      </div>
+
+      {/* SMTP connection — blank host means fall back to server env config */}
+      <div className="border border-[#E2E8F0] rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-[#1C2C56]">
+          {t("smtpSection")}
+        </h2>
+        <p className="text-sm text-[#64748B] mt-1">{t("smtpSubtitle")}</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <div>
+            <label className="block text-sm font-medium text-[#1C2C56] mb-2">
+              {t("smtpHostLabel")}
+            </label>
+            <input
+              type="text"
+              name="email_host"
+              value={form.email_host}
+              onChange={change}
+              maxLength={255}
+              placeholder={t("smtpHostPlaceholder")}
+              className="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]/30"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#1C2C56] mb-2">
+              {t("smtpPortLabel")}
+            </label>
+            <input
+              type="number"
+              name="email_port"
+              value={form.email_port}
+              onChange={change}
+              min={1}
+              max={65535}
+              placeholder="587"
+              className="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]/30"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#1C2C56] mb-2">
+              {t("smtpUsernameLabel")}
+            </label>
+            <input
+              type="text"
+              name="email_username"
+              value={form.email_username}
+              onChange={change}
+              maxLength={255}
+              autoComplete="off"
+              className="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]/30"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#1C2C56] mb-2">
+              {t("smtpPasswordLabel")}
+            </label>
+            <input
+              type="password"
+              name="email_password"
+              value={form.email_password}
+              onChange={change}
+              maxLength={255}
+              autoComplete="new-password"
+              placeholder={t("smtpPasswordPlaceholder")}
+              className="w-full border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]/30"
+            />
+            <p className="text-xs text-[#94A3B8] mt-1">
+              {passwordSet ? t("smtpPasswordSetHint") : t("smtpPasswordUnsetHint")}
+            </p>
+          </div>
+        </div>
+
+        <label className="flex items-center gap-3 mt-5 cursor-pointer">
+          <input
+            type="checkbox"
+            name="email_use_tls"
+            checked={form.email_use_tls}
+            onChange={change}
+            className="w-4 h-4 accent-[#1C4FA8]"
+          />
+          <span className="text-sm text-[#1C2C56]">{t("smtpUseTlsLabel")}</span>
+        </label>
+
         <div className="flex gap-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg p-4 mt-5">
           <FiLock className="text-[#64748B] mt-0.5 flex-shrink-0" size={15} />
-          <p className="text-xs text-[#64748B]">
-            {t("smtpNoticeText")}
-          </p>
+          <p className="text-xs text-[#64748B]">{t("smtpFallbackNotice")}</p>
         </div>
       </div>
 

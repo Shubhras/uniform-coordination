@@ -23,6 +23,7 @@ from .sales_reps import *
 from .simulation_config import *
 from .reports import *
 from .simulation_assets import *
+from .simulation_public import *
 
 
 
@@ -219,6 +220,14 @@ urlpatterns = [
     path("simulation-assets/",SimulationAssetListAPIView.as_view(),name="simulation-assets-list"),
     path("simulation-assets/reorder/",SimulationAssetReorderAPIView.as_view(),name="simulation-assets-reorder"),
     path("simulation-assets/<int:pk>/update/",SimulationAssetUpdateAPIView.as_view(),name="simulation-assets-update"),
+    path("simulation-assets/product-visibility/",ProductSimulationVisibilityAPIView.as_view(),name="simulation-product-visibility"),
+    path("simulation-assets/structure/",SimulationStructureAPIView.as_view(),name="simulation-structure"),
+
+    # Customer-facing simulation reads — same config the admin manages above
+    path("simulation/categories/",SimulationCategoryListAPIView.as_view(),name="simulation-public-categories"),
+    path("simulation/options/",SimulationOptionsAPIView.as_view(),name="simulation-public-options"),
+    path("simulation/product/<int:pk>/layers/",SimulationProductLayersAPIView.as_view(),name="simulation-public-layers"),
+
     path("pdf-templates/<int:pk>/",PdfTemplateDetailAPIView.as_view(),name="pdf-template-detail"),
     path("pdf-templates/<int:pk>/update/",PdfTemplateUpdateAPIView.as_view(),name="pdf-template-update"),
     path("pdf-templates/<int:pk>/delete/",PdfTemplateDeleteAPIView.as_view(),name="pdf-template-delete"),
