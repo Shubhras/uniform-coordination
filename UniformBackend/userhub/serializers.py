@@ -697,6 +697,12 @@ class CustomUpdateModelsSerializer(serializers.ModelSerializer):
             "productName",
             "ProductImage",
 
+            # config_json holds the shopper's actual choices (colours, fabric, part,
+            # options, size quantities). It was missing from this list, so every write
+            # to it was silently dropped and every read came back empty — which is why
+            # the Design Result screen had nothing to show and fell back to fixed text.
+            "config_json",
+
             "design_specifications",
             "json_file_path",
             "json_file_url",

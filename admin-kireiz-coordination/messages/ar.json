@@ -412,7 +412,11 @@
     "loadFailed": "Could not load simulation layers",
     "reorderFailed": "Reorder failed",
     "saveOrderFailed": "Could not save the layer order",
-    "saveOffsetFailed": "Could not save the offset"
+    "saveOffsetFailed": "Could not save the offset",
+    "addAttribute": "Add Attribute",
+    "allAttributesAdded": "All available attributes are already added",
+    "noAttributesYet": "No attributes yet — use Add Attribute to configure this category",
+    "unsavedChanges": "Unsaved changes — click Save Structure to apply them"
   },
   "adminSidebar": {
     "dashboard": "Dashboard",

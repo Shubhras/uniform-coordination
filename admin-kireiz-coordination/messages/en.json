@@ -12,66 +12,66 @@
   },
   "nav": {
     "dashboard": {
-        "welcomeTitle": "Welcome to Dashboard! {name}!",
-        "welcomeSubtitle": "You have {count} pending quotes. Check your dashboard for the latest updates.",
-        "quickActionsTop": {
-            "uploadProduct": "Upload Product",
-            "createTemplate": "Create Template",
-            "viewQuotation": "View Quotation",
-            "viewProfile": "View Profile"
-        },
-        "stats": {
-            "pendingQuotes": "Pending Quotes",
-            "totalTemplates": "Total Templates",
-            "b2bUsers": "B2B Users",
-            "upFromYesterday": "Up from yesterday",
-            "downFromYesterday": "Down from yesterday"
-        },
-        "quoteStatus": {
-            "quoteStatusDistribution": "Quote Status Distribution",
-            "total": "Total",
-            "noData": "No Data",
-            "quotes": "quotes"
-        },
-        "quotationVolume": {
-            "quotationVolume": "Quotation Volume",
-            "weekly": "Weekly",
-            "monthly": "Monthly",
-            "yearly": "Yearly"
-        },
-        "salesRepActions": {
-            "pendingSalesRepActions": "Pending Sales Representative Actions",
-            "noActiveReps": "No active reps"
-        },
-        "recentlyUpdated": {
-            "recentlyUpdatedProducts": "Recently Updated Products / Colour Parts",
-            "noRecentUpdates": "No recent updates"
-        },
-        "mostUsedFabrics": {
-            "mostUsedFabrics": "Most Used Fabrics or Item Types"
-        },
-        "quickActions": {
-            "quickActions": "Quick Actions",
-            "uploadNewFabric": "Upload New Fabric",
-            "viewQuotations": "View Quotations",
-            "manageB2bAccount": "Manage B2B account",
-            "themesAndTemplates": "Themes & Templates",
-            "generateReport": "Generate Report",
-            "systemSetting": "System setting"
-        },
-        "activeAlerts": {
-            "activeAlerts": "Active Alerts",
-            "markAllRead": "Mark All Read",
-            "marking": "Marking...",
-            "allCaughtUp": "You're all caught up",
-            "allCaughtUpDesc": "New alerts will appear here as quotation activity comes in.",
-            "priorityHigh": "HIGH",
-            "priorityMedium": "MEDIUM",
-            "quotesPendingReview": "{count} quotes pending review - {overdue} overdue",
-            "reviewNow": "Review Now",
-            "quotationRequestContact": "{count} Quotation request - Contact customers required",
-            "viewDetails": "View Details"
-        }
+      "welcomeTitle": "Welcome to Dashboard! {name}!",
+      "welcomeSubtitle": "You have {count} pending quotes. Check your dashboard for the latest updates.",
+      "quickActionsTop": {
+        "uploadProduct": "Upload Product",
+        "createTemplate": "Create Template",
+        "viewQuotation": "View Quotation",
+        "viewProfile": "View Profile"
+      },
+      "stats": {
+        "pendingQuotes": "Pending Quotes",
+        "totalTemplates": "Total Templates",
+        "b2bUsers": "B2B Users",
+        "upFromYesterday": "Up from yesterday",
+        "downFromYesterday": "Down from yesterday"
+      },
+      "quoteStatus": {
+        "quoteStatusDistribution": "Quote Status Distribution",
+        "total": "Total",
+        "noData": "No Data",
+        "quotes": "quotes"
+      },
+      "quotationVolume": {
+        "quotationVolume": "Quotation Volume",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "yearly": "Yearly"
+      },
+      "salesRepActions": {
+        "pendingSalesRepActions": "Pending Sales Representative Actions",
+        "noActiveReps": "No active reps"
+      },
+      "recentlyUpdated": {
+        "recentlyUpdatedProducts": "Recently Updated Products / Colour Parts",
+        "noRecentUpdates": "No recent updates"
+      },
+      "mostUsedFabrics": {
+        "mostUsedFabrics": "Most Used Fabrics or Item Types"
+      },
+      "quickActions": {
+        "quickActions": "Quick Actions",
+        "uploadNewFabric": "Upload New Fabric",
+        "viewQuotations": "View Quotations",
+        "manageB2bAccount": "Manage B2B account",
+        "themesAndTemplates": "Themes & Templates",
+        "generateReport": "Generate Report",
+        "systemSetting": "System setting"
+      },
+      "activeAlerts": {
+        "activeAlerts": "Active Alerts",
+        "markAllRead": "Mark All Read",
+        "marking": "Marking...",
+        "allCaughtUp": "You're all caught up",
+        "allCaughtUpDesc": "New alerts will appear here as quotation activity comes in.",
+        "priorityHigh": "HIGH",
+        "priorityMedium": "MEDIUM",
+        "quotesPendingReview": "{count} quotes pending review - {overdue} overdue",
+        "reviewNow": "Review Now",
+        "quotationRequestContact": "{count} Quotation request - Contact customers required",
+        "viewDetails": "View Details"
+      }
     },
     "concepts": "Concepts",
     "conceptsAi": {
@@ -1512,7 +1512,11 @@
     "previewZoomIn": "Zoom in",
     "previewZoomOut": "Zoom out",
     "previewFit": "Reset zoom to 100%",
-    "previewFabricHighlight": "Layers using the selected fabric are highlighted. Fabric and colour are not applied to the render — how colour reaches the customer canvas is still an open decision, so tinting here would show something the customer site does not do."
+    "previewFabricHighlight": "Layers using the selected fabric are highlighted. Fabric and colour are not applied to the render — how colour reaches the customer canvas is still an open decision, so tinting here would show something the customer site does not do.",
+    "addAttribute": "Add Attribute",
+    "allAttributesAdded": "All available attributes are already added",
+    "noAttributesYet": "No attributes yet — use Add Attribute to configure this category",
+    "unsavedChanges": "Unsaved changes — click Save Structure to apply them"
   },
   "reportsAnalytics": {
     "pageTitle": "Reports & Analytics",

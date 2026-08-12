@@ -156,7 +156,7 @@ const UniformSingle = () => {
                                         </p>
 
                                         <p className="text-[#6B7280] text-sm leading-relaxed">
-                                            Price: ₹{product.price}
+                                            Price: ${product.price}
                                         </p>
 
                                         {product.type && (
@@ -171,13 +171,13 @@ const UniformSingle = () => {
 
                                         {Number(product.rental_price_per_day) > 0 && (
                                             <p className="text-[#6B7280] text-sm leading-relaxed">
-                                                Rental Price: ₹{product.rental_price_per_day} / day
+                                                Rental Price: ${product.rental_price_per_day} / day
                                             </p>
                                         )}
 
                                         {Number(product.security_deposit) > 0 && (
                                             <p className="text-[#6B7280] text-sm leading-relaxed">
-                                                Security Deposit: ₹{product.security_deposit}
+                                                Security Deposit: ${product.security_deposit}
                                             </p>
                                         )}
                                     </div>

@@ -1084,6 +1084,9 @@
   .mr-8 {
     margin-right: calc(var(--spacing) * 8);
   }
+  .mr-auto {
+    margin-right: auto;
+  }
   .-mb-40 {
     margin-bottom: calc(var(--spacing) * -40);
   }
@@ -1600,6 +1603,9 @@
   }
   .w-\[150px\] {
     width: 150px;
+  }
+  .w-\[190px\] {
+    width: 190px;
   }
   .w-\[200px\] {
     width: 200px;

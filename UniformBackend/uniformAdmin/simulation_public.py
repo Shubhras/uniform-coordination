@@ -16,6 +16,7 @@ active, non-deleted, admin-enabled records are ever returned, so nothing hidden 
 an admin can leak through.
 """
 
+import re
 import traceback
 
 from django.db.models import Count, Q
@@ -31,8 +32,28 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from uniformAdmin.models import Category, Colors, Fabric, Parts, Product
+from uniformAdmin.simulation_assets import category_attributes
 
 UNIFORM_TYPE = "uniform"
+
+HEX_COLOR = re.compile(r"#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\Z")
+
+
+def _hex_or_none(value):
+    """A CSS-paintable hex code, or None when the field holds something else."""
+    v = (value or "").strip()
+    return v if HEX_COLOR.match(v) else None
+
+
+def _order_key(value):
+    """
+    Sort key for an attribute's `order`, which is admin-entered free text stored as a
+    string. Non-numeric values sort last instead of raising.
+    """
+    try:
+        return (0, int(str(value).strip()))
+    except (TypeError, ValueError):
+        return (1, 0)
 
 
 def _absolute(request, file_field):
@@ -176,10 +197,27 @@ class SimulationOptionsAPIView(APIView):
 
             category_id = request.query_params.get("category_id")
             category_name = (request.query_params.get("category_name") or "").strip()
+
+            # Resolve the category itself, not just filter by it: the attribute list
+            # and the fabric palette both hang off the category.
+            category = None
             if category_id:
-                products = products.filter(category_id=category_id)
+                category = Category.objects.filter(
+                    id=category_id, isDeleted=False, type=UNIFORM_TYPE
+                ).first()
             elif category_name:
-                products = products.filter(category__categoryName__iexact=category_name)
+                category = Category.objects.filter(
+                    categoryName__iexact=category_name,
+                    isDeleted=False,
+                    type=UNIFORM_TYPE,
+                ).first()
+
+            if category:
+                products = products.filter(category_id=category.id)
+            elif category_id or category_name:
+                # Asked for a category that does not exist as a uniform category —
+                # answer with nothing rather than silently ignoring the filter.
+                products = products.none()
 
             product_rows = []
             fabric_ids = set()
@@ -200,15 +238,39 @@ class SimulationOptionsAPIView(APIView):
                     "category_id": p.category_id,
                     "category": p.category.categoryName if p.category_id else None,
                     "subcategory": p.subcategory.name if p.subcategory_id else None,
+                    # Catalogue image and garment half — the customer product picker needs
+                    # both, and it has nothing else to read them from.
+                    "image": _absolute(request, p.ProductImage),
+                    "type": p.type,
                     "layer_count": len(layers),
                     "layers": layers,
                 })
 
+            # The fabric palette a shopper may choose from — deliberately NOT limited to
+            # the fabrics already assigned to this product's parts. That set is often a
+            # single fabric, which would leave the customiser with one option. Fabrics
+            # with no category are the global palette and always apply.
             fabrics = Fabric.objects.filter(
-                isDeleted=False, isActive=True, id__in=fabric_ids
-            ) if fabric_ids else Fabric.objects.none()
+                isDeleted=False, isActive=True, fabricType=UNIFORM_TYPE
+            )
+            if category:
+                fabrics = fabrics.filter(
+                    Q(category_id=category.id) | Q(category__isnull=True)
+                )
+            fabrics = fabrics.order_by("fabricName")
 
             colours = Colors.objects.filter(isDeleted=False, isActive=True)
+
+            # Which attributes the customiser shows, and in what order — straight from
+            # Admin -> Simulation Assets -> Simulation Structure.
+            attributes = []
+            if category:
+                attributes = [
+                    a
+                    for a in category_attributes(category)
+                    if a.get("enabled")
+                ]
+                attributes.sort(key=lambda a: _order_key(a.get("order")))
 
             return Response({
                 "status": True,
@@ -216,12 +278,17 @@ class SimulationOptionsAPIView(APIView):
                 "message": "Simulation options fetched successfully",
                 "data": {
                     "products": product_rows,
+                    "attributes": attributes,
                     "fabrics": [
                         {
                             "id": f.id,
                             "name": f.fabricName,
                             "material_type": f.materialType,
                             "color": f.color,
+                            # Fabric.color is free text — some rows hold a hex code,
+                            # others a colour name. Only a hex can be painted, so the
+                            # UI gets a separate field it can trust.
+                            "swatch": _hex_or_none(f.color),
                         }
                         for f in fabrics
                     ],

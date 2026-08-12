@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { FiTrash2 } from "react-icons/fi";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { FiChevronDown, FiPlus, FiTrash2 } from "react-icons/fi";
 import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
@@ -26,6 +26,22 @@ const notify = (title, type, message) =>
     </Notification>,
   );
 
+/*
+ * Attributes that can be added here.
+ *
+ * Deliberately only the three that have real admin data behind them — Fabric, Parts and
+ * Color are actual tables the customer simulation can read options from. Offering
+ * freehand attribute names would let the admin enable something with no options to
+ * show, which reads as a broken toggle on the customer side.
+ */
+const ADDABLE_ATTRIBUTES = ["Fabric", "Parts", "Color"];
+
+// "Colors" and "Color", "Fabrics" and "Fabric" are the same attribute. Existing rows
+// were seeded with singular names, so compare on a normalised stem rather than the
+// literal string.
+const normalise = (name) =>
+  (name || "").trim().toLowerCase().replace(/s$/, "");
+
 const SimulationStructure = () => {
   const t = useTranslations("simulationAssets");
   const { session } = useCurrentSession();
@@ -36,6 +52,9 @@ const SimulationStructure = () => {
   const [active, setActive] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [saved, setSaved] = useState("{}");
+  const addRef = useRef(null);
 
   const load = useCallback(async () => {
     if (!accessToken) {
@@ -49,6 +68,8 @@ const SimulationStructure = () => {
       if (res?.status) {
         const data = res.data || {};
         setStructures(data);
+        // Snapshot of what the server holds, so edits can be told apart from it.
+        setSaved(JSON.stringify(data));
         setActive((prev) => prev ?? Object.keys(data)[0] ?? null);
       }
     } catch (error) {
@@ -64,6 +85,38 @@ const SimulationStructure = () => {
   }, [load]);
 
   const rows = active ? structures[active] || [] : [];
+
+  const dirty = JSON.stringify(structures) !== saved;
+
+  // Only what this category does not already have.
+  const taken = new Set(rows.map((r) => normalise(r.attribute)));
+  const available = ADDABLE_ATTRIBUTES.filter((a) => !taken.has(normalise(a)));
+
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (addRef.current && !addRef.current.contains(e.target)) {
+        setAddOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  const addRow = (attribute) => {
+    // Enabled on add — the admin picked it deliberately, so making them tick a second
+    // box to make it count would be busywork. Order continues the existing list.
+    const nextOrder = String(
+      rows.reduce((max, r) => Math.max(max, Number(r.order) || 0), 0) + 1,
+    );
+    setStructures((prev) => ({
+      ...prev,
+      [active]: [
+        ...(prev[active] || []),
+        { attribute, enabled: true, order: nextOrder },
+      ],
+    }));
+    setAddOpen(false);
+  };
 
   const updateRow = (index, patch) => {
     setStructures((prev) => ({
@@ -88,6 +141,8 @@ const SimulationStructure = () => {
       setSaving(true);
       const res = await apiSaveSimulationStructure(accessToken, active, rows);
       if (res?.status) {
+        // Now the server matches what is on screen, so the unsaved marker clears.
+        setSaved(JSON.stringify(structures));
         notify("Success", "success", t("structureSaved"));
       } else {
         notify(t("errorTitle"), "danger", res?.message || t("structureSaveFailed"));
@@ -159,12 +214,47 @@ const SimulationStructure = () => {
 
         {/* Attribute table */}
         <div className="lg:col-span-3 border border-[#E2E8F0] rounded-xl p-5">
-          <h3 className="text-base font-semibold text-[#1C2C56]">
-            {t("structureFor", { category: active })}
-          </h3>
-          <p className="text-sm text-[#64748B] mt-0.5">
-            {t("structureForSubtitle", { category: active })}
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 className="text-base font-semibold text-[#1C2C56]">
+                {t("structureFor", { category: active })}
+              </h3>
+              <p className="text-sm text-[#64748B] mt-0.5">
+                {t("structureForSubtitle", { category: active })}
+              </p>
+            </div>
+
+            <div className="relative" ref={addRef}>
+              <button
+                type="button"
+                onClick={() => setAddOpen((o) => !o)}
+                disabled={available.length === 0}
+                title={
+                  available.length === 0 ? t("allAttributesAdded") : undefined
+                }
+                className="flex items-center gap-2 border border-[#CBD5E1] text-[#486284] px-3 py-2 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FiPlus size={14} />
+                {t("addAttribute")}
+                <FiChevronDown size={14} />
+              </button>
+
+              {addOpen && available.length > 0 && (
+                <div className="absolute right-0 top-full mt-1 z-30 w-[190px] bg-white border border-[#E2E8F0] rounded-lg shadow-lg overflow-hidden">
+                  {available.map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => addRow(name)}
+                      className="w-full text-left px-3 py-2 text-sm text-[#1C2C56] hover:bg-[#F8FAFC]"
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
 
           <div className="overflow-x-auto mt-4">
             <table className="w-full text-sm">
@@ -185,6 +275,17 @@ const SimulationStructure = () => {
                 </tr>
               </thead>
               <tbody>
+                {rows.length === 0 && (
+                  <tr className="border-t border-[#F1F5F9]">
+                    <td
+                      colSpan={4}
+                      className="px-4 py-8 text-center text-sm text-[#94A3B8]"
+                    >
+                      {t("noAttributesYet")}
+                    </td>
+                  </tr>
+                )}
+
                 {rows.map((row, index) => (
                   <tr
                     key={`${row.attribute}-${index}`}
@@ -232,7 +333,15 @@ const SimulationStructure = () => {
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3 mt-6">
+      <div className="flex flex-wrap items-center justify-end gap-3 mt-6">
+        {/* Add and delete only touch local state until this is saved. Without saying so,
+            a deleted row reappearing after a refresh looks like the delete failed. */}
+        {dirty && (
+          <span className="text-xs text-amber-700 mr-auto">
+            {t("unsavedChanges")}
+          </span>
+        )}
+
         <button
           type="button"
           onClick={load}
@@ -244,7 +353,7 @@ const SimulationStructure = () => {
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving}
+          disabled={saving || !dirty}
           className="bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
         >
           {saving ? "Saving..." : t("saveStructure")}

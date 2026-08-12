@@ -93,6 +93,27 @@ GENERIC_STRUCTURE = [
 UNIFORM_PART_TYPE = "uniform"
 
 
+def category_attributes(category):
+    """
+    A category's simulation attributes, in the order the admin set.
+
+    Falls back to the per-industry default when the admin has not saved a structure
+    yet, so the customer simulation is never left with nothing to offer.
+
+    Shared with the customer-facing endpoints (simulation_public) so both sides read
+    the same source — the admin screen and the shopper cannot drift apart.
+    """
+    saved = getattr(category, "simulation_structure", None)
+    attributes = (saved.structure_data or {}).get("attributes") if saved else None
+
+    # `is None`, not a falsy check: an admin who deleted every attribute and saved has
+    # stored [], and that is a decision to keep. Treating [] as "nothing saved" brought
+    # the seeded defaults straight back, so deletions looked like they never happened.
+    if attributes is None:
+        attributes = DEFAULT_STRUCTURES.get(category.categoryName, GENERIC_STRUCTURE)
+    return attributes
+
+
 def serialize_layer(part, request=None):
     image_url = None
     if part.partImage:
@@ -277,13 +298,7 @@ class SimulationStructureAPIView(APIView):
 
             data = {}
             for category in categories:
-                saved = getattr(category, "simulation_structure", None)
-                attributes = (saved.structure_data or {}).get("attributes") if saved else None
-                if not attributes:
-                    attributes = DEFAULT_STRUCTURES.get(
-                        category.categoryName, GENERIC_STRUCTURE
-                    )
-                data[category.categoryName] = attributes
+                data[category.categoryName] = category_attributes(category)
 
             return Response({
                 "status": True,

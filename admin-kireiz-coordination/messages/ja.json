@@ -12,66 +12,66 @@
   },
   "nav": {
     "dashboard": {
-        "welcomeTitle": "{name}さん、ダッシュボードへようこそ！",
-        "welcomeSubtitle": "保留中の見積が{count}件あります。最新情報はダッシュボードでご確認ください。",
-        "quickActionsTop": {
-            "uploadProduct": "商品をアップロード",
-            "createTemplate": "テンプレートを作成",
-            "viewQuotation": "見積を表示",
-            "viewProfile": "プロフィールを表示"
-        },
-        "stats": {
-            "pendingQuotes": "保留中の見積",
-            "totalTemplates": "テンプレート総数",
-            "b2bUsers": "B2Bユーザー",
-            "upFromYesterday": "昨日より増加",
-            "downFromYesterday": "昨日より減少"
-        },
-        "quoteStatus": {
-            "quoteStatusDistribution": "見積ステータスの内訳",
-            "total": "合計",
-            "noData": "データなし",
-            "quotes": "件"
-        },
-        "quotationVolume": {
-            "quotationVolume": "見積件数",
-            "weekly": "週次",
-            "monthly": "月次",
-            "yearly": "年次"
-        },
-        "salesRepActions": {
-            "pendingSalesRepActions": "営業担当者の未対応アクション",
-            "noActiveReps": "有効な担当者がいません"
-        },
-        "recentlyUpdated": {
-            "recentlyUpdatedProducts": "最近更新された商品・カラーパーツ",
-            "noRecentUpdates": "最近の更新はありません"
-        },
-        "mostUsedFabrics": {
-            "mostUsedFabrics": "よく使われる生地・アイテムタイプ"
-        },
-        "quickActions": {
-            "quickActions": "クイックアクション",
-            "uploadNewFabric": "新しい生地をアップロード",
-            "viewQuotations": "見積を表示",
-            "manageB2bAccount": "B2Bアカウントを管理",
-            "themesAndTemplates": "テーマとテンプレート",
-            "generateReport": "レポートを生成",
-            "systemSetting": "システム設定"
-        },
-        "activeAlerts": {
-            "activeAlerts": "有効なアラート",
-            "markAllRead": "すべて既読にする",
-            "marking": "処理中...",
-            "allCaughtUp": "すべて確認済みです",
-            "allCaughtUpDesc": "新しいアラートは見積の動きに応じてここに表示されます。",
-            "priorityHigh": "高",
-            "priorityMedium": "中",
-            "quotesPendingReview": "{count}件の見積が確認待ち - {overdue}件が期限超過",
-            "reviewNow": "今すぐ確認",
-            "quotationRequestContact": "{count}件の見積依頼 - 顧客への連絡が必要です",
-            "viewDetails": "詳細を表示"
-        }
+      "welcomeTitle": "{name}さん、ダッシュボードへようこそ！",
+      "welcomeSubtitle": "保留中の見積が{count}件あります。最新情報はダッシュボードでご確認ください。",
+      "quickActionsTop": {
+        "uploadProduct": "商品をアップロード",
+        "createTemplate": "テンプレートを作成",
+        "viewQuotation": "見積を表示",
+        "viewProfile": "プロフィールを表示"
+      },
+      "stats": {
+        "pendingQuotes": "保留中の見積",
+        "totalTemplates": "テンプレート総数",
+        "b2bUsers": "B2Bユーザー",
+        "upFromYesterday": "昨日より増加",
+        "downFromYesterday": "昨日より減少"
+      },
+      "quoteStatus": {
+        "quoteStatusDistribution": "見積ステータスの内訳",
+        "total": "合計",
+        "noData": "データなし",
+        "quotes": "件"
+      },
+      "quotationVolume": {
+        "quotationVolume": "見積件数",
+        "weekly": "週次",
+        "monthly": "月次",
+        "yearly": "年次"
+      },
+      "salesRepActions": {
+        "pendingSalesRepActions": "営業担当者の未対応アクション",
+        "noActiveReps": "有効な担当者がいません"
+      },
+      "recentlyUpdated": {
+        "recentlyUpdatedProducts": "最近更新された商品・カラーパーツ",
+        "noRecentUpdates": "最近の更新はありません"
+      },
+      "mostUsedFabrics": {
+        "mostUsedFabrics": "よく使われる生地・アイテムタイプ"
+      },
+      "quickActions": {
+        "quickActions": "クイックアクション",
+        "uploadNewFabric": "新しい生地をアップロード",
+        "viewQuotations": "見積を表示",
+        "manageB2bAccount": "B2Bアカウントを管理",
+        "themesAndTemplates": "テーマとテンプレート",
+        "generateReport": "レポートを生成",
+        "systemSetting": "システム設定"
+      },
+      "activeAlerts": {
+        "activeAlerts": "有効なアラート",
+        "markAllRead": "すべて既読にする",
+        "marking": "処理中...",
+        "allCaughtUp": "すべて確認済みです",
+        "allCaughtUpDesc": "新しいアラートは見積の動きに応じてここに表示されます。",
+        "priorityHigh": "高",
+        "priorityMedium": "中",
+        "quotesPendingReview": "{count}件の見積が確認待ち - {overdue}件が期限超過",
+        "reviewNow": "今すぐ確認",
+        "quotationRequestContact": "{count}件の見積依頼 - 顧客への連絡が必要です",
+        "viewDetails": "詳細を表示"
+      }
     },
     "concepts": "コンセプト",
     "conceptsAi": {
@@ -1512,7 +1512,11 @@
     "previewZoomIn": "Zoom in",
     "previewZoomOut": "Zoom out",
     "previewFit": "Reset zoom to 100%",
-    "previewFabricHighlight": "Layers using the selected fabric are highlighted. Fabric and colour are not applied to the render — how colour reaches the customer canvas is still an open decision, so tinting here would show something the customer site does not do."
+    "previewFabricHighlight": "Layers using the selected fabric are highlighted. Fabric and colour are not applied to the render — how colour reaches the customer canvas is still an open decision, so tinting here would show something the customer site does not do.",
+    "addAttribute": "Add Attribute",
+    "allAttributesAdded": "All available attributes are already added",
+    "noAttributesYet": "No attributes yet — use Add Attribute to configure this category",
+    "unsavedChanges": "Unsaved changes — click Save Structure to apply them"
   },
   "reportsAnalytics": {
     "pageTitle": "レポートと分析",
