@@ -71,7 +71,7 @@ class HomePageAPIView(APIView):
             isDeleted=False
         )
 
-        if page_type in ["uniform", "table"]:
+        if page_type in ["table"]:
             blogs = blogs.filter(type=page_type)
 
         blogs = blogs.order_by("-created_at")[:10]

@@ -1,1 +1,9 @@
-{}
+{
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(public-pages)/dashboards/uniform-3d-design/[id]/page": "app/(public-pages)/dashboards/uniform-3d-design/[id]/page.js",
+  "/(public-pages)/dashboards/uniform-3d-design/page": "app/(public-pages)/dashboards/uniform-3d-design/page.js",
+  "/(protected-pages)/profile/my-order-rentals/page": "app/(protected-pages)/profile/my-order-rentals/page.js",
+  "/(protected-pages)/profile/simulation-history/page": "app/(protected-pages)/profile/simulation-history/page.js",
+  "/(protected-pages)/profile/my-profile/page": "app/(protected-pages)/profile/my-profile/page.js"
+}

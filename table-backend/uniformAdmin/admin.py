@@ -347,10 +347,6 @@ class SystemSettingsAdmin(admin.ModelAdmin):
 
 
 
-from django.contrib import admin
-from .models import SimulationStructure
-
-
 @admin.register(SimulationStructure)
 class SimulationStructureAdmin(admin.ModelAdmin):
     list_display = (
@@ -370,7 +366,7 @@ class SimulationStructureAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    
+
 @admin.register(Parts)
 class PartsAdmin(admin.ModelAdmin):
     list_display = ("id",

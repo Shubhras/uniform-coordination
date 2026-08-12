@@ -268,6 +268,8 @@ class AdminListProductsAPIView(APIView):
             search = request.query_params.get("search")
             is_active = request.query_params.get("isActive")
             rfid_tracking = request.query_params.get("rfid_tracking_enabled")
+            show_in_simulation = request.query_params.get("showInSimulation")
+
 
             # -------------------------
             # productType is required
@@ -323,6 +325,12 @@ class AdminListProductsAPIView(APIView):
                 products = products.filter(
                     rfid_tracking_enabled=rfid_tracking.lower() == "true"
                 )
+
+            if show_in_simulation is not None:
+                products = products.filter(
+                    show_in_simulation=show_in_simulation.lower() == "true"
+                )
+                
             # -------------------------
             # Ordering
             # -------------------------
@@ -357,18 +365,6 @@ class AdminListProductsAPIView(APIView):
                 "previous": pagination.get_previous_link(),
                 "data": serializer.data
             }, status=status.HTTP_200_OK)
-            # serializer = ProductSerializer(
-            #     products,
-            #     many=True,
-            #     context={"request": request}
-            # )
-
-            # return Response({
-            #     "status": True,
-            #     "statusCode": 200,
-            #     "message": "Products fetched successfully.",
-            #     "data": serializer.data
-            # }, status=status.HTTP_200_OK)
 
         except Exception as exc:
             return Response({

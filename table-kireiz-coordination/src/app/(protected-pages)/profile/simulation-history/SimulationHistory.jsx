@@ -339,7 +339,7 @@ const SimulationHistory = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-4">
                         {simulationData.map((item) => (
                             <div
-                                key={item?.id}
+                                key={`${item?.isTheme ? 'theme' : 'product'}-${item?.id}`}
                                 className="bg-[#F5F0EE] border border-[#D0BEB6] rounded-2xl overflow-hidden flex flex-col justify-between"
                             >
                                 <div>
@@ -351,6 +351,13 @@ const SimulationHistory = () => {
                                             className="object-cover rounded-xl p-3"
                                             unoptimized
                                         />
+                                        <span className={`absolute top-5 right-5 px-3 py-1 text-[11px] font-semibold tracking-wider uppercase rounded-full shadow-sm z-10 ${
+                                            item?.isTheme 
+                                                ? 'bg-[#A0522D] text-white' 
+                                                : 'bg-white/80 backdrop-blur-sm text-[#3E3E3E] border border-[#D0BEB6]'
+                                        }`}>
+                                            {item?.isTheme ? 'Theme' : 'Product'}
+                                        </span>
                                     </div>
 
                                     <div className="px-3 sm:px-4 pb-0 mt-4">

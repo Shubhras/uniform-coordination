@@ -337,7 +337,7 @@ def new_build_media_url(file_field):
         return file_field.name
 
     domain = settings.SITE_URL
-    if settings.DEBUG and ("sslip.io" in domain or "localhost" in domain):
+    if settings.DEBUG and ("sslip.io" in domain or "localhost" in domain or "table-admin.dxtspace.com" in domain):
         domain = "http://127.0.0.1:8002"
 
     return f"{domain.rstrip('/')}{file_field.url}"    
