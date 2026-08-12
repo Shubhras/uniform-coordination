@@ -11,25 +11,30 @@
       "static/chunks/main-app.js",
       "static/chunks/app/not-found.js"
     ],
-    "/page": [
+    "/(public-pages)/dashboards/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/(public-pages)/dashboards/layout.js"
     ],
-    "/(public-pages)/kireiz-form/page": [
+    "/(public-pages)/dashboards/uniform-single/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/kireiz-form/page.js"
+      "static/chunks/app/(public-pages)/dashboards/uniform-single/[id]/page.js"
     ],
-    "/(public-pages)/blog/page": [
+    "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/blog/page.js"
+      "static/chunks/app/_not-found/page.js"
     ],
-    "/(public-pages)/single-blog/[id]/page": [
+    "/(public-pages)/medical-form/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/single-blog/[id]/page.js"
+      "static/chunks/app/(public-pages)/medical-form/[id]/page.js"
+    ],
+    "/(public-pages)/dashboards/uniform-design/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/uniform-design/[id]/page.js"
     ],
     "/(protected-pages)/layout": [
       "static/chunks/webpack.js",
@@ -46,6 +51,21 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(protected-pages)/profile/my-profile/page.js"
     ],
+    "/(public-pages)/kireiz-form/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/kireiz-form/page.js"
+    ],
+    "/(public-pages)/dashboards/uniform-3d-design/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/uniform-3d-design/page.js"
+    ],
+    "/(protected-pages)/profile/personal-information/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(protected-pages)/profile/personal-information/page.js"
+    ],
     "/(auth-pages)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -56,10 +76,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(auth-pages)/sign-in/page.js"
     ],
-    "/_not-found/page": [
+    "/(auth-pages)/sign-up/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/(auth-pages)/sign-up/page.js"
     ]
   }
 }
