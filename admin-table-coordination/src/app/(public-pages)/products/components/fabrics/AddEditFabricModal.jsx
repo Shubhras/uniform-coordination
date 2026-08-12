@@ -543,6 +543,22 @@ const AddEditFabricModal = ({
               </FormItem>
             </div>
 
+            {/* Category */}
+            <div>
+              <label className="text-[#1C2C56] text-base font-medium">
+                Category
+              </label>
+              <Select
+                options={categoryOptions}
+                styles={selectStyles}
+                value={category}
+                onChange={(selected) => setCategory(selected)}
+                placeholder="Select Category"
+                isClearable
+                className="mt-1"
+              />
+            </div>
+
             {/* Price */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">

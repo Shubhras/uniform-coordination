@@ -531,6 +531,41 @@ class ColorsAdmin(admin.ModelAdmin):
     search_fields = ("colorName", "colorCode")
 
 
+@admin.register(TableShape)
+class TableShapeAdmin(admin.ModelAdmin):
+    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("isActive", "isDeleted")
+    search_fields = ("name",)
+
+
+@admin.register(Closure)
+class ClosureAdmin(admin.ModelAdmin):
+    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("isActive", "isDeleted")
+    search_fields = ("name",)
+
+
+@admin.register(Style)
+class StyleAdmin(admin.ModelAdmin):
+    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("isActive", "isDeleted")
+    search_fields = ("name",)
+
+
+@admin.register(Size)
+class SizeAdmin(admin.ModelAdmin):
+    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("isActive", "isDeleted")
+    search_fields = ("name",)
+
+
+@admin.register(Pattern)
+class PatternAdmin(admin.ModelAdmin):
+    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("isActive", "isDeleted")
+    search_fields = ("name",)
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (

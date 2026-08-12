@@ -30,7 +30,7 @@ from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
 stripe.api_key = settings.STRIPE_SECRET_KEY
 from .utils import render_quotation_template , generate_quotation_template_pdf
-from userhub.utils import send_return_received_email
+from userhub.utils import send_return_received_email, send_shipping_email
 from .auth import IsAdminUserJWT,MultiRoleJWTAuth
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 from userhub.views import get_docusign_token
@@ -2447,6 +2447,12 @@ class AdminOrderUpdateAPIView(APIView):
         elif new_status == 'returned' and hasattr(order, 'user'):
             send_return_received_email(order.user, order)
             
+        # Send Shipping Notification Email
+        if new_status == 'out_for_delivery' and hasattr(order, 'customer') and hasattr(order.customer, 'user'):
+            send_shipping_email(order.customer.user, order)
+        elif new_status == 'out_for_delivery' and hasattr(order, 'user'):
+            send_shipping_email(order.user, order)
+            
         return Response({
             "status": True,
             "statusCode": 200,
@@ -2631,6 +2637,10 @@ class AdminOrderCancelAPIView(APIView):
             order.cancelled_by = request.user.name
             order.admin_cancel_reason = reason
             order.save()
+
+            # Delete the associated Rental if it exists
+            if hasattr(order, 'rental') and order.rental:
+                order.rental.delete()
             return Response({
                 "statusCode":200,
                 "status":True,

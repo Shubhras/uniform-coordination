@@ -356,6 +356,23 @@ def generate_customization_pdf(obj, user):
         textColor=colors.grey
     )
 
+    cell_style = ParagraphStyle(
+        "TableCellStyle",
+        parent=styles["Normal"],
+        fontSize=10,
+        leading=14,
+        textColor=colors.HexColor("#2C3E50")
+    )
+
+    cell_bold_style = ParagraphStyle(
+        "TableCellBoldStyle",
+        parent=styles["Normal"],
+        fontSize=10,
+        leading=14,
+        fontName="Helvetica-Bold",
+        textColor=colors.HexColor("#1A252F")
+    )
+
     from uniformAdmin.models import SystemSettings  # adjust import to your actual path
 
     system_settings = SystemSettings.load()
@@ -374,16 +391,15 @@ def generate_customization_pdf(obj, user):
     # USER INFO
     full_name = f"{user.firstName or ''} {user.lastName or ''}".strip()
     user_data = [
-        ["Customization ID", obj.id],
-        ["User", full_name or user.email],
-        ["Email", user.email],
+        [Paragraph("Customization ID", cell_bold_style), Paragraph(str(obj.id), cell_style)],
+        [Paragraph("User", cell_bold_style), Paragraph(full_name or user.email, cell_style)],
+        [Paragraph("Email", cell_bold_style), Paragraph(user.email, cell_style)],
     ]
     user_table = Table(user_data, colWidths=[150, 330])
     user_table.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F4F6F7")),
         ("GRID", (0, 0), (-1, -1), 0.3, colors.lightgrey),
-        ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("LEFTPADDING", (0, 0), (-1, -1), 8),
         ("RIGHTPADDING", (0, 0), (-1, -1), 8),
         ("TOPPADDING", (0, 0), (-1, -1), 8),
@@ -392,25 +408,126 @@ def generate_customization_pdf(obj, user):
     elements.append(user_table)
 
     # PRODUCT DETAILS
-    product = obj.model_info.product
+    product = obj.model_info.product if (obj.model_info and obj.model_info.product) else None
+    product_name = product.productName if product else "N/A"
+    product_type = getattr(product, "type", None) or getattr(product, "productType", None) or "N/A"
+    product_price = f"{product.price}" if product else "N/A"
+
     elements.append(Paragraph("Product Details", section_style))
     product_table = Table(
         [
-            ["Product Name", product.productName],
-            ["Product Type", product.productType],
-            ["Price", f"{product.price}"],
+            [Paragraph("Product Name", cell_bold_style), Paragraph(product_name, cell_style)],
+            [Paragraph("Product Type", cell_bold_style), Paragraph(product_type, cell_style)],
+            [Paragraph("Price", cell_bold_style), Paragraph(product_price, cell_style)],
         ],
         colWidths=[250, 250]
     )
     product_table.setStyle(TableStyle([
         ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
-        ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, -1), 10),
         ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
         ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
     ]))
     elements.append(product_table)
+
+    # DESIGN SPECIFICATIONS SECTION
+    elements.append(Paragraph("Design Specifications", section_style))
+    spec_rows = []
+
+    specs = obj.design_specifications or {}
+    config = obj.config_json or {}
+
+    def extract_val(data, key):
+        if not isinstance(data, dict):
+            return None
+        val = data.get(key)
+        if val is None:
+            val = data.get(key.lower())
+        if val is None:
+            val = data.get(key.capitalize())
+        if isinstance(val, dict):
+            return val.get("name") or val.get("colorName") or val.get("fabricName") or str(val)
+        if val:
+            return str(val)
+        return None
+
+    # Attribute values extraction
+    style_val = extract_val(specs, "style") or extract_val(config, "style") or (getattr(product, "style", None) if product else None)
+    type_val = product_type or extract_val(specs, "type") or extract_val(config, "type")
+    table_shape_val = extract_val(specs, "table_shape") or extract_val(specs, "tableShape") or extract_val(config, "table_shape") or (getattr(product, "table_shape", None) if product else None)
+    
+    color_val = extract_val(specs, "color") or extract_val(config, "color")
+    if not color_val and isinstance(specs.get("color_details"), dict):
+        color_val = specs["color_details"].get("name") or specs["color_details"].get("colorName")
+    if not color_val and product and getattr(product, "color", None):
+        color_val = getattr(product.color, "colorName", None) or getattr(product.color, "name", None)
+
+    fabric_val = extract_val(specs, "fabric") or extract_val(config, "fabric") or extract_val(config, "material")
+    if not fabric_val and isinstance(specs.get("fabric_details"), dict):
+        fabric_val = specs["fabric_details"].get("name") or specs["fabric_details"].get("fabricName")
+    if not fabric_val and product and getattr(product, "fabric", None):
+        fabric_val = getattr(product.fabric, "fabricName", None) or getattr(product.fabric, "name", None)
+
+    size_val = extract_val(specs, "size") or extract_val(config, "size") or (getattr(product, "size", None) if product else None)
+    
+    closure_val = extract_val(specs, "closure") or extract_val(config, "closure")
+    if not closure_val and isinstance(specs.get("closure_details"), dict):
+        closure_val = specs["closure_details"].get("name")
+    if not closure_val and product and getattr(product, "closure", None):
+        closure_val = getattr(product.closure, "name", None)
+
+    pattern_val = extract_val(specs, "pattern") or extract_val(config, "pattern")
+    if not pattern_val and isinstance(specs.get("pattern_details"), dict):
+        pattern_val = specs["pattern_details"].get("name")
+    if not pattern_val and product and getattr(product, "pattern", None):
+        pattern_val = getattr(product.pattern, "name", None)
+
+    all_specs = [
+        ("Style", style_val),
+        ("Type", type_val),
+        ("Table Shape", table_shape_val),
+        ("Color", color_val),
+        ("Fabric", fabric_val),
+        ("Size", size_val),
+        ("Closure", closure_val),
+        ("Pattern", pattern_val),
+    ]
+
+    for label, val in all_specs:
+        if val:
+            spec_rows.append([Paragraph(label, cell_bold_style), Paragraph(str(val), cell_style)])
+
+    # Iterate additional nested category specifications in specs if any exist
+    if isinstance(specs, dict):
+        for cat_key, cat_val in specs.items():
+            if isinstance(cat_val, dict) and cat_key not in ["color_details", "fabric_details", "closure_details", "pattern_details"]:
+                for item_k, item_v in cat_val.items():
+                    if item_v:
+                        v_str = item_v.get("name") if isinstance(item_v, dict) else str(item_v)
+                        if not any(r[0].text == item_k for r in spec_rows):
+                            spec_rows.append([Paragraph(str(item_k), cell_bold_style), Paragraph(v_str, cell_style)])
+            elif isinstance(cat_val, (str, int, float)) and cat_key not in ["style", "table_shape", "color", "fabric", "size", "closure", "pattern"]:
+                label_name = cat_key.replace("_", " ").title()
+                if not any(r[0].text == label_name for r in spec_rows):
+                    spec_rows.append([Paragraph(label_name, cell_bold_style), Paragraph(str(cat_val), cell_style)])
+
+    if not spec_rows:
+        spec_rows.append([Paragraph("Status", cell_bold_style), Paragraph("Standard Design Configuration", cell_style)])
+
+    spec_table = Table(spec_rows, colWidths=[250, 250])
+    spec_table.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F9F9F9")),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(spec_table)
 
     # FOOTER
     elements.append(Spacer(1, 30))
@@ -1090,7 +1207,61 @@ def send_admin_quotation_email(quotation):
         
 
 
+def send_dynamic_email(subject, message, recipient_list, from_email=None):
+    from django.core.mail import get_connection, EmailMessage
+    from uniformAdmin.models import SystemSettings
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        settings_obj = SystemSettings.load()
+        host = settings_obj.email_host
+        port = settings_obj.email_port
+        username = settings_obj.email_username
+        password = settings_obj.email_password
+        use_tls = settings_obj.email_use_tls
+
+        from_addr = settings_obj.email_from_address or from_email or settings.EMAIL_HOST_USER
+        from_name = settings_obj.email_from_name or "System"
+        from_header = f"{from_name} <{from_addr}>"
+
+        if host and username and password:
+            connection = get_connection(
+                backend='django.core.mail.backends.smtp.EmailBackend',
+                host=host,
+                port=int(port) if port else 587,
+                username=username,
+                password=password,
+                use_tls=use_tls
+            )
+            email = EmailMessage(
+                subject=subject,
+                body=message,
+                from_email=from_header,
+                to=recipient_list,
+                connection=connection
+            )
+            email.send(fail_silently=False)
+            logger.info(f"Dynamically sent email to {recipient_list} via custom SMTP ({host})")
+        else:
+            from django.core.mail import send_mail
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=from_addr,
+                recipient_list=recipient_list,
+                fail_silently=False
+            )
+            logger.info(f"Sent email to {recipient_list} via default SMTP")
+    except Exception as e:
+        logger.error(f"Failed to send dynamic email to {recipient_list}: {str(e)}")
+
 def send_registration_email(user):
+    from uniformAdmin.models import SystemSettings
+    settings_obj = SystemSettings.load()
+    if not settings_obj.email_notify_registration:
+        return
+
     full_name = f"{user.firstName or ''} {user.lastName or ''}".strip()
 
     if not full_name:
@@ -1115,17 +1286,15 @@ Best Regards,
 KIREIZ SPACE Team
 """
 
-    send_mail(
+    send_dynamic_email(
         subject=subject,
         message=message,
-        from_email=settings.EMAIL_HOST_USER,
         recipient_list=[user.email],
-        fail_silently=False,
     )
 
 
 def send_login_alert_email(user):
-    send_mail(
+    send_dynamic_email(
         subject="Login Alert",
         message=f"""
 Hello {user.firstName if user.lastName else "User"},
@@ -1137,13 +1306,16 @@ If this was not you, please change your password immediately.
 Thank You,
 KIREIZ SPACE Team
 """,
-        from_email=settings.EMAIL_HOST_USER,
         recipient_list=[user.email],
-        fail_silently=False,
     )
 
 def send_order_confirmation_email(user, order, start_date, end_date, total_amount):
-    send_mail(
+    from uniformAdmin.models import SystemSettings
+    settings_obj = SystemSettings.load()
+    if not settings_obj.email_notify_order_placed:
+        return
+
+    send_dynamic_email(
         subject="Order Confirmation",
         message=f"""
 Hello {user.userName},
@@ -1157,17 +1329,16 @@ Total Amount: ₹{total_amount}
 Thank You,
 UserHub Team
 """,
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[user.email],   
-        fail_silently=False,
+        recipient_list=[user.email],
     )
-    
-    
-
-
 
 def send_payment_success_email(user, payment, currency_symbol="$"):
-    send_mail(
+    from uniformAdmin.models import SystemSettings
+    settings_obj = SystemSettings.load()
+    if not settings_obj.email_notify_payment_success:
+        return
+
+    send_dynamic_email(
         subject="Payment Successful - KIREIZ SPACE",
         message=f"""
 Dear {user.firstName if user.lastName else "User"},
@@ -1187,13 +1358,16 @@ If you have any questions, please contact our support team.
 Best Regards,
 KIREIZ SPACE Team
 """,
-        from_email=settings.EMAIL_HOST_USER,
         recipient_list=[user.email],
-        fail_silently=False,
     )
 
 def send_payment_failed_email(user, payment, currency_symbol="$"):
-    send_mail(
+    from uniformAdmin.models import SystemSettings
+    settings_obj = SystemSettings.load()
+    if not settings_obj.email_notify_payment_failure:
+        return
+
+    send_dynamic_email(
         subject="Payment Failed - KIREIZ SPACE",
         message=f"""
 Dear {user.firstName if user.lastName else "User"},
@@ -1212,13 +1386,16 @@ If you believe this is an error, please contact your bank or our support team fo
 Best Regards,
 KIREIZ SPACE Team
 """,
-        from_email=settings.EMAIL_HOST_USER,
         recipient_list=[user.email],
-        fail_silently=False,
     )
 
 def send_return_received_email(user, order):
-    send_mail(
+    from uniformAdmin.models import SystemSettings
+    settings_obj = SystemSettings.load()
+    if not settings_obj.email_notify_return_received:
+        return
+
+    send_dynamic_email(
         subject="Return Received Successfully - KIREIZ SPACE",
         message=f"""
 Dear {user.firstName if user.lastName else "User"},
@@ -1233,13 +1410,16 @@ Thank you for using KIREIZ SPACE!
 Best Regards,
 KIREIZ SPACE Team
 """,
-        from_email=settings.EMAIL_HOST_USER,
         recipient_list=[user.email],
-        fail_silently=False,
     )
 
 def send_rental_return_reminder_email(user, order, return_deadline):
-    send_mail(
+    from uniformAdmin.models import SystemSettings
+    settings_obj = SystemSettings.load()
+    if not settings_obj.email_notify_return_overdue:
+        return
+
+    send_dynamic_email(
         subject="Reminder: Rental Return Deadline Approaching - KIREIZ SPACE",
         message=f"""
 Dear {user.firstName if user.lastName else "User"},
@@ -1255,9 +1435,28 @@ If you have already shipped the return, please disregard this email.
 Best Regards,
 KIREIZ SPACE Team
 """,
-        from_email=settings.EMAIL_HOST_USER,
         recipient_list=[user.email],
-        fail_silently=False,
+    )
+
+def send_shipping_email(user, order):
+    from uniformAdmin.models import SystemSettings
+    settings_obj = SystemSettings.load()
+    if not settings_obj.email_notify_shipping:
+        return
+
+    send_dynamic_email(
+        subject="Your Order is Out for Delivery! 🚚",
+        message=f"""
+Dear {user.firstName if user.lastName else "User"},
+
+Great news! Your order #{order.order_id} is out for delivery. 
+
+It should arrive shortly. If you have any questions or require assistance, please contact our support team.
+
+Best Regards,
+KIREIZ SPACE Team
+""",
+        recipient_list=[user.email],
     )
 
 
@@ -1300,19 +1499,19 @@ def generate_theme_customization_pdf(obj, user):
     title_style = ParagraphStyle(
         "TitleStyle",
         parent=styles["Title"],
-        fontSize=22,
+        fontSize=20,
         alignment=TA_CENTER,
         textColor=colors.HexColor("#1F3A5F"),
-        spaceAfter=25
+        spaceAfter=15
     )
 
     section_style = ParagraphStyle(
         "SectionStyle",
         parent=styles["Heading2"],
-        fontSize=14,
+        fontSize=12,
         textColor=colors.HexColor("#154360"),
-        spaceBefore=20,
-        spaceAfter=10
+        spaceBefore=12,
+        spaceAfter=6
     )
 
     normal_style = ParagraphStyle(
@@ -1330,16 +1529,41 @@ def generate_theme_customization_pdf(obj, user):
         textColor=colors.grey
     )
 
+    # TABLE CELL STYLES
+    cell_style = ParagraphStyle(
+        "TableCellStyle",
+        parent=styles["Normal"],
+        fontSize=9,
+        leading=12,
+        textColor=colors.HexColor("#2C3E50")
+    )
+    cell_bold_style = ParagraphStyle(
+        "TableCellBoldStyle",
+        parent=styles["Normal"],
+        fontSize=9,
+        leading=12,
+        fontName="Helvetica-Bold",
+        textColor=colors.HexColor("#1A252F")
+    )
+    prod_header_style = ParagraphStyle(
+        "ProdHeaderStyle",
+        parent=styles["Normal"],
+        fontSize=9,
+        leading=12,
+        fontName="Helvetica-Bold",
+        textColor=colors.whitesmoke
+    )
+
     from uniformAdmin.models import SystemSettings
 
     system_settings = SystemSettings.load()
 
     if system_settings.logo and os.path.exists(system_settings.logo.path):
-        logo_img = Image(system_settings.logo.path, width=140, height=140)
+        logo_img = Image(system_settings.logo.path, width=90, height=90)
         logo_img.hAlign = "CENTER"
         elements.append(logo_img)
 
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 10))
 
     # TITLE
     elements.append(Paragraph("Theme Customization Summary", title_style))
@@ -1347,63 +1571,75 @@ def generate_theme_customization_pdf(obj, user):
     # USER INFO
     full_name = f"{user.firstName or ''} {user.lastName or ''}".strip()
     user_data = [
-        ["Customization ID", obj.id],
-        ["User", full_name or user.email],
-        ["Email", user.email],
+        [Paragraph("Customization ID", cell_bold_style), Paragraph(str(obj.id), cell_style)],
+        [Paragraph("User", cell_bold_style), Paragraph(full_name or user.email, cell_style)],
+        [Paragraph("Email", cell_bold_style), Paragraph(user.email, cell_style)],
     ]
     user_table = Table(user_data, colWidths=[150, 330])
     user_table.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F4F6F7")),
         ("GRID", (0, 0), (-1, -1), 0.3, colors.lightgrey),
-        ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
         ("LEFTPADDING", (0, 0), (-1, -1), 8),
         ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-        ("TOPPADDING", (0, 0), (-1, -1), 8),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
     ]))
     elements.append(user_table)
 
     # THEME DETAILS
     theme = obj.theme
     theme_table_data = [
-        ["Theme Name", theme.title],
+        [Paragraph("Theme Name", cell_bold_style), Paragraph(theme.title, cell_style)],
     ]
     if theme.category:
-        theme_table_data.append(["Category", theme.category.categoryName])
+        theme_table_data.append([Paragraph("Category", cell_bold_style), Paragraph(theme.category.categoryName, cell_style)])
     else:
-        theme_table_data.append(["Category", "N/A"])
+        theme_table_data.append([Paragraph("Category", cell_bold_style), Paragraph("N/A", cell_style)])
         
-    theme_table_data.append(["Description", theme.description or ""])
+    theme_table_data.append([Paragraph("Description", cell_bold_style), Paragraph(theme.description or "", cell_style)])
 
     theme_table = Table(theme_table_data, colWidths=[150, 330])
     theme_table.setStyle(TableStyle([
         ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
-        ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, -1), 10),
         ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
     ]))
     elements.append(Paragraph("Theme Details", section_style))
     elements.append(theme_table)
 
     # CUSTOM SELECTIONS (CONFIG)
     config = obj.config_json or {}
+    shape_val = config.get("table_shape") or "Circle"
+    
+    scale_val = config.get("table_scale")
+    scale_str = f"{scale_val} cm" if scale_val else "300 cm"
+    if scale_val and "cm" in str(scale_val).lower():
+        scale_str = str(scale_val)
+
+    sitting_val = config.get("table_sitting")
+    sitting_str = f"{sitting_val} Seats" if sitting_val else "6 Seats"
+    if sitting_val and "seat" in str(sitting_val).lower():
+        sitting_str = str(sitting_val)
+
     config_data = [
-        ["Table Shape", config.get("table_shape", "N/A")],
-        ["Table Scale", config.get("table_scale", "N/A")],
-        ["Table Seating", config.get("table_sitting", "N/A")],
+        [Paragraph("Table Shape", cell_bold_style), Paragraph(shape_val, cell_style)],
+        [Paragraph("Table Scale", cell_bold_style), Paragraph(scale_str, cell_style)],
+        [Paragraph("Table Seating", cell_bold_style), Paragraph(sitting_str, cell_style)],
     ]
     config_table = Table(config_data, colWidths=[150, 330])
     config_table.setStyle(TableStyle([
         ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
-        ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, -1), 10),
         ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
     ]))
     elements.append(Paragraph("Layout Configurations", section_style))
     elements.append(config_table)
@@ -1417,24 +1653,58 @@ def generate_theme_customization_pdf(obj, user):
                 opt_str = ", ".join([f"{k}: {v}" for k, v in options.items()])
             else:
                 opt_str = str(options)
-            spec_data.append([cat_name, opt_str])
+            spec_data.append([Paragraph(cat_name, cell_bold_style), Paragraph(opt_str, cell_style)])
         
         if spec_data:
             spec_table = Table(spec_data, colWidths=[150, 330])
             spec_table.setStyle(TableStyle([
                 ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
-                ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, -1), 10),
                 ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-                ("TOPPADDING", (0, 0), (-1, -1), 8),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
             ]))
             elements.append(Paragraph("Customized Item Specifications", section_style))
             elements.append(spec_table)
 
+    # INCLUDED PRODUCTS IN THEME SETUP
+    if obj.theme:
+        theme_items = obj.theme.theme_items.select_related('product').all()
+        if theme_items.exists():
+            prod_data = []
+            prod_data.append([
+                Paragraph("Product Name", prod_header_style), 
+                Paragraph("Section", prod_header_style), 
+                Paragraph("Rental Price", prod_header_style)
+            ])
+            for item in theme_items:
+                prod = item.product
+                price_str = f"${prod.price:.2f}" if prod.price else "$0.00"
+                section_str = item.get_section_display() or "N/A"
+                prod_data.append([
+                    Paragraph(prod.productName, cell_style),
+                    Paragraph(section_str, cell_style),
+                    Paragraph(price_str, cell_style)
+                ])
+            
+            prod_table = Table(prod_data, colWidths=[200, 150, 130])
+            prod_table.setStyle(TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1F3A5F")),
+                ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ]))
+            elements.append(Paragraph("Included Products in Theme Setup", section_style))
+            elements.append(prod_table)
+
     # FOOTER
-    elements.append(Spacer(1, 30))
+    elements.append(Spacer(1, 15))
     elements.append(
         Paragraph(
             f"Generated on {datetime.now().strftime('%d %b %Y, %I:%M %p')}",

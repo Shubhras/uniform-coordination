@@ -137,10 +137,27 @@ class FabricSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = Fabric
         fields = '__all__'
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.category:
+            representation['category'] = {
+                'id': instance.category.id,
+                'categoryName': instance.category.categoryName,
+                'type': instance.category.type
+            }
+        return representation
 
     def validate(self, data):
         fabric_type = data.get("fabricType")
@@ -293,6 +310,36 @@ class ColorsSerializer(serializers.ModelSerializer):
         if Colors.objects.filter(colorName__iexact=value, isDeleted=False).exists():
             raise serializers.ValidationError("This color name already exists.")
         return value
+
+
+class TableShapeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TableShape
+        fields = ["id", "name", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+
+
+class ClosureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Closure
+        fields = ["id", "name", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+
+
+class StyleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Style
+        fields = ["id", "name", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+
+
+class SizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Size
+        fields = ["id", "name", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+
+
+class PatternSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pattern
+        fields = ["id", "name", "image", "isActive", "isDeleted", "created_at", "updated_at"]
 
 
 class TemplateSerializer(serializers.ModelSerializer):

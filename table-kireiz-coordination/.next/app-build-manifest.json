@@ -11,46 +11,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/not-found.js"
     ],
-    "/(protected-pages)/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/layout.js"
-    ],
-    "/(protected-pages)/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/loading.js"
-    ],
-    "/(protected-pages)/profile/my-profile/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/profile/my-profile/page.js"
-    ],
-    "/(protected-pages)/profile/personal-information/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/profile/personal-information/page.js"
-    ],
-    "/(protected-pages)/profile/simulation-history/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/profile/simulation-history/page.js"
-    ],
-    "/(protected-pages)/profile/my-order-rentals/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/profile/my-order-rentals/page.js"
-    ],
-    "/(public-pages)/browse-by-color/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/browse-by-color/page.js"
-    ],
-    "/(public-pages)/browse-by-theme/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/browse-by-theme/page.js"
-    ],
     "/(public-pages)/dashboards/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -61,35 +21,45 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/dashboards/uniform-3d-design/page.js"
     ],
-    "/(public-pages)/dashboards/uniform-3d-design/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/dashboards/uniform-3d-design/[id]/page.js"
-    ],
-    "/(public-pages)/dashboards/uniform-single/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/dashboards/uniform-single/[id]/page.js"
-    ],
     "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/_not-found/page.js"
+    ],
+    "/(public-pages)/dashboards/theme-design-result/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/theme-design-result/[id]/page.js"
+    ],
+    "/(public-pages)/browse-by-theme/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/browse-by-theme/page.js"
+    ],
+    "/(public-pages)/browse-by-color/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/browse-by-color/page.js"
     ],
     "/(public-pages)/table-form/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/table-form/page.js"
     ],
-    "/(public-pages)/blog/page": [
+    "/(public-pages)/cart-summary/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/blog/page.js"
+      "static/chunks/app/(public-pages)/cart-summary/page.js"
     ],
-    "/(public-pages)/faq/page": [
+    "/(public-pages)/dashboards/design-result/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/faq/page.js"
+      "static/chunks/app/(public-pages)/dashboards/design-result/[id]/page.js"
+    ],
+    "/(public-pages)/theme-details/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/theme-details/page.js"
     ]
   }
 }

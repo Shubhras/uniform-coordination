@@ -19,8 +19,9 @@ import { apiModelInfoCreate, apiSaveDesign, apiSaveThemeDesign } from '@/service
 import { useSession } from 'next-auth/react'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
-import { apiGetProductDetailsById, apiGetSimulationCategories, apiGetSimulationOptions } from '@/services/ProductService'
+import { apiGetProductDetailsById, apiGetSimulationCategories, apiGetSimulationOptions, apiGetProductById } from '@/services/ProductService'
 import { apiGetSindleThemeDetails } from '@/services/HomeService'
+import { apiAddToCart } from '@/services/CartSummaryService'
 /**
  * Uniform3DmoduleDegisn Component
  *
@@ -157,7 +158,10 @@ const ATTRIBUTE_API_MAPPING = {
   "Fabric": "fabrics",
   "Color": "colors",
   "Style": "styles",
-  "Size": "sizes"
+  "Size": "sizes",
+  "Closure": "closures",
+  "Pattern": "patterns",
+  "Table Shape": "table_shapes"
 };
 
 const Uniform3DmoduleDegisn = () => {
@@ -180,6 +184,8 @@ const Uniform3DmoduleDegisn = () => {
   const panelRef = useRef(null)
   const [fullView, setFullView] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [categoryProducts, setCategoryProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState({
     title: 'Loading Theme...',
@@ -199,6 +205,44 @@ const Uniform3DmoduleDegisn = () => {
   const [tableShape, setTableShape] = useState("Circle");
   const [tableScale, setTableScale] = useState(300);
 
+
+
+  const handleProductSelect = (product) => {
+    setSingleProductData(product)
+
+    // Auto-update standard attributes in selectedOptions based on this product's properties
+    setSelectedOptions((prev) => {
+      const updatedCat = { ...(prev[categoryView] || {}) }
+      
+      if (product.fabric && product.fabric.fabricName) {
+        updatedCat["Fabric"] = product.fabric.fabricName
+      }
+      if (product.color && product.color.colorName) {
+        updatedCat["Color"] = product.color.colorName
+      }
+      if (product.style) {
+        updatedCat["Style"] = product.style.charAt(0).toUpperCase() + product.style.slice(1)
+      }
+      if (product.size) {
+        updatedCat["Size"] = product.size
+      }
+      if (product.table_shape) {
+        const shape = product.table_shape.charAt(0).toUpperCase() + product.table_shape.slice(1)
+        setTableShape(shape === "Round" ? "Circle" : shape)
+      }
+
+      return {
+        ...prev,
+        [categoryView]: updatedCat
+      }
+    })
+
+    toast.push(
+      <Notification title="Product Selected" type="success">
+        Loaded base template: {product.productName}
+      </Notification>
+    )
+  }
 
 
   function onIconClick(key) {
@@ -239,6 +283,37 @@ const Uniform3DmoduleDegisn = () => {
     }
     fetchSimulationCategories()
   }, [])
+
+  // Fetch products for the active category
+  useEffect(() => {
+    const fetchCategoryProducts = async () => {
+      if (categoryView && categoryView !== "list") {
+        const selectedCat = simulationCategories.find(c => c.name === categoryView)
+        if (!selectedCat) return
+        try {
+          setLoadingProducts(true)
+          const res = await apiGetProductById({
+            productType: 'table',
+            category_id: selectedCat.id,
+            showInSimulation: 'true'
+          })
+          if (res && res.status === true && Array.isArray(res.data)) {
+            setCategoryProducts(res.data)
+          } else {
+            setCategoryProducts([])
+          }
+        } catch (error) {
+          console.error("Error fetching category products:", error)
+          setCategoryProducts([])
+        } finally {
+          setLoadingProducts(false)
+        }
+      } else {
+        setCategoryProducts([])
+      }
+    }
+    fetchCategoryProducts()
+  }, [categoryView, simulationCategories])
 
   // Fetch options dynamically when a category is selected or table shape changes
   useEffect(() => {
@@ -418,7 +493,18 @@ const Uniform3DmoduleDegisn = () => {
     }
 
     // Product Simulation Mode (original logic)
-    let productId = id || "";
+    let productId = singleProductData?.id || id || "";
+    if (!productId) {
+      toast.push(
+        <Notification title="Selection Required" type="warning">
+          Please select at least one product from category simulation before confirming design.
+        </Notification>
+      );
+      setActive("category");
+      setIsSubmitting(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("product", productId);
     formData.append("theme_id", "");
@@ -462,23 +548,74 @@ const Uniform3DmoduleDegisn = () => {
     }
     setIsSaving(true);
 
+    const currentCatName = (categoryView && categoryView !== "list") ? categoryView : (singleProductData?.category?.categoryName || "");
+    const currentCatSelections = selectedOptions[currentCatName] || {};
+
+    const selectedFabricName = currentCatSelections["Fabric"];
+    let fabricDetails = singleProductData?.fabric_details;
+    if (selectedFabricName) {
+      const fabricsList = categoryOptions[currentCatName]?.fabrics || [];
+      const foundFabric = fabricsList.find(f => (f.label || f.name) === selectedFabricName);
+      if (foundFabric) {
+        fabricDetails = {
+          id: parseInt(foundFabric.id, 10),
+          name: foundFabric.label || foundFabric.name
+        };
+      } else {
+        fabricDetails = {
+          id: null,
+          name: selectedFabricName
+        };
+      }
+    } else {
+      fabricDetails = null;
+    }
+
+    const selectedColorName = currentCatSelections["Color"];
+    let colorDetails = singleProductData?.color_details;
+    if (selectedColorName) {
+      const colorsList = categoryOptions[currentCatName]?.colors || [];
+      const foundColor = colorsList.find(c => (c.label || c.name) === selectedColorName);
+      if (foundColor) {
+        colorDetails = {
+          id: parseInt(foundColor.id, 10),
+          name: foundColor.label || foundColor.name
+        };
+      } else {
+        colorDetails = {
+          id: null,
+          name: selectedColorName
+        };
+      }
+    } else {
+      colorDetails = null;
+    }
+
+    const selectedStyleName = currentCatSelections["Style"];
+    const styleValue = selectedStyleName ? selectedStyleName.toLowerCase() : (singleProductData?.style || "");
+
+    const selectedSizeName = currentCatSelections["Size"];
+    const sizeValue = selectedSizeName || singleProductData?.size || "";
+
+    const shapeValue = tableShape ? tableShape.toLowerCase() : (singleProductData?.table_shape || "");
+
     const payload = {
       user: session?.user?.id,
       model_info: modelId,
       config_json: {
-        color: "grey",
-        size: "M",
-        material: "cotton",
+        color: selectedColorName || "grey",
+        size: sizeValue || "M",
+        material: selectedFabricName || "cotton",
       },
       design_specifications: {
         logo_position: "front",
         print_type: "embroidery",
         text: "My Brand",
-        size: singleProductData?.size,
-        table_shape: singleProductData?.table_shape,
-        style: singleProductData?.style,
-        fabric_details: singleProductData?.fabric_details,
-        color_details: singleProductData?.color_details,
+        size: sizeValue,
+        table_shape: shapeValue,
+        style: styleValue,
+        fabric_details: fabricDetails,
+        color_details: colorDetails,
         category: singleProductData?.category,
         subcategory: singleProductData?.subcategory,
         parts: singleProductData?.parts,
@@ -702,6 +839,56 @@ const Uniform3DmoduleDegisn = () => {
                       <IoIosArrowForward />
                     </button>
 
+                    {/* Simulation Products Section */}
+                    {!themeIdParam && (
+                      <div className="mb-6 border-b border-[#F3D3C8] pb-5">
+                        <p className="text-xs font-semibold text-[#1C2C56] mb-3">Simulation Products</p>
+                        {loadingProducts ? (
+                          <div className="flex justify-center py-4">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#A0522D]"></div>
+                          </div>
+                        ) : categoryProducts.length === 0 ? (
+                          <p className="text-xs text-gray-500 italic">No products available in this category.</p>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
+                            {categoryProducts.map((prod) => {
+                              const isSelected = singleProductData?.id === prod.id;
+                              return (
+                                <button
+                                  key={prod.id}
+                                  onClick={() => handleProductSelect(prod)}
+                                  className={`relative flex flex-col items-center p-2 rounded-xl bg-white border transition-all ${
+                                    isSelected 
+                                      ? "border-[#A0522D] bg-[#FFF5F1] ring-1 ring-[#A0522D]" 
+                                      : "border-gray-200 hover:border-gray-300"
+                                  }`}
+                                >
+                                  <div className="w-full h-[80px] rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 mb-2">
+                                    <img
+                                      src={prod.ProductImage || "/img/table-form/3dtable.png"}
+                                      className="w-full h-full object-contain"
+                                      alt={prod.productName}
+                                    />
+                                  </div>
+                                  <p className="text-[10px] font-semibold text-[#1C2C56] text-center line-clamp-1 w-full">
+                                    {prod.productName}
+                                  </p>
+                                  <p className="text-[9px] text-[#A0522D] font-bold mt-0.5">
+                                    ${prod.price}
+                                  </p>
+                                  {isSelected && (
+                                    <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full shadow-md z-10">
+                                      ✓
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {selectedCat.attributes
                       .filter(attr => attr.enabled)
                       .sort((a, b) => Number(a.order) - Number(b.order))
@@ -715,35 +902,75 @@ const Uniform3DmoduleDegisn = () => {
                           : [];
 
                         // Map options from API structure or fall back to static ATTRIBUTE_OPTIONS
-                        const options = apiOptionsList.length > 0
+                        const mappedOptions = apiOptionsList.length > 0
                           ? apiOptionsList.map(opt => ({
                               name: opt.label,
                               img: opt.image || null,
-                              colorCode: opt.colorCode || null
+                              colorCode: opt.colorCode || null,
+                              materialType: opt.materialType || null,
+                              compatibleFabric: opt.compatibleFabric || []
                             }))
                           : (ATTRIBUTE_OPTIONS[attrName] || []).map(opt => ({
                               name: opt.name,
                               img: opt.img || null,
-                              colorCode: opt.colorCode || null
+                              colorCode: opt.colorCode || null,
+                              materialType: opt.materialType || opt.material || null,
+                              compatibleFabric: opt.compatibleFabric || []
                             }));
+
+                        // Find the selected fabric name
+                        const selectedFabricName = selectedOptions[selectedCat.name]?.["Fabric"];
+                        const fabricsOptions = (categoryOptions[selectedCat.name]?.["fabrics"] || []).length > 0
+                          ? categoryOptions[selectedCat.name]["fabrics"]
+                          : (ATTRIBUTE_OPTIONS["Fabric"] || []);
+                        const selectedFabricObj = fabricsOptions.find(f => (f.label || f.name) === selectedFabricName);
+                        const selectedFabricMaterial = selectedFabricObj?.materialType || selectedFabricObj?.material || null;
+
+                        // Find the selected color name
+                        const selectedColorName = selectedOptions[selectedCat.name]?.["Color"];
+                        const colorsOptions = (categoryOptions[selectedCat.name]?.["colors"] || []).length > 0
+                          ? categoryOptions[selectedCat.name]["colors"]
+                          : (ATTRIBUTE_OPTIONS["Color"] || []);
+                        const selectedColorObj = colorsOptions.find(c => (c.label || c.name) === selectedColorName);
+                        const selectedColorCompFabrics = selectedColorObj?.compatibleFabric || [];
+
+                        // Filter options based on compatibility
+                        let displayedOptions = [...mappedOptions];
+                        if (attrName === "Color" && selectedFabricMaterial) {
+                          displayedOptions = mappedOptions.filter(opt => 
+                            !opt.compatibleFabric || 
+                            opt.compatibleFabric.length === 0 ||
+                            opt.compatibleFabric.some(f => f.toLowerCase() === selectedFabricMaterial.toLowerCase())
+                          );
+                        } else if (attrName === "Fabric" && selectedColorName && selectedColorCompFabrics.length > 0) {
+                          displayedOptions = mappedOptions.filter(opt => 
+                            !opt.materialType || 
+                            selectedColorCompFabrics.some(f => f.toLowerCase() === opt.materialType.toLowerCase())
+                          );
+                        }
 
                         return (
                           <div key={attrName}>
                             <p className="text-xs font-semibold text-[#1C2C56] mb-2">{attrName}</p>
                             <div className="grid grid-cols-3 gap-3">
-                              {options.map(opt => {
+                              {displayedOptions.map(opt => {
                                 const isSelected = selectedOptions[selectedCat.name]?.[attrName] === opt.name;
                                 return (
                                   <button
                                     key={opt.name}
                                     onClick={() => {
-                                      setSelectedOptions(prev => ({
-                                        ...prev,
-                                        [selectedCat.name]: {
-                                          ...(prev[selectedCat.name] || {}),
-                                          [attrName]: opt.name
+                                      setSelectedOptions(prev => {
+                                        const currentCatOptions = { ...(prev[selectedCat.name] || {}) };
+                                        if (currentCatOptions[attrName] === opt.name) {
+                                          delete currentCatOptions[attrName];
+                                        } else {
+                                          currentCatOptions[attrName] = opt.name;
                                         }
-                                      }));
+                                        return {
+                                          ...prev,
+                                          [selectedCat.name]: currentCatOptions
+                                        };
+                                      });
                                     }}
                                     className="relative flex flex-col items-center"
                                   >
