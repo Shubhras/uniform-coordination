@@ -223,7 +223,7 @@ const ReportsAnalyticsPage = () => {
     if (m === 3) return t("dateRangeFilter.last3Months");
     if (m === 6) return t("dateRangeFilter.last6Months");
     if (m === 12) return t("dateRangeFilter.last12Months");
-    return `Last ${m} months`;
+    return t("dateRangeFilter.lastNMonths", { months: m });
   };
 
   const fetchAnalytics = useCallback(async () => {
@@ -238,11 +238,11 @@ const ReportsAnalyticsPage = () => {
       if (res?.status) setData(res.data);
     } catch (error) {
       console.error("Failed to load analytics:", error);
-      notify("Error", "danger", "Could not load analytics");
+      notify(t("errorTitle"), "danger", t("loadFailed"));
     } finally {
       setLoading(false);
     }
-  }, [accessToken, months]);
+  }, [accessToken, months, t]);
 
   useEffect(() => {
     fetchAnalytics();
@@ -268,7 +268,7 @@ const ReportsAnalyticsPage = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Failed to export CSV:", error);
-      notify("Error", "danger", "Could not export the report");
+      notify(t("errorTitle"), "danger", t("exportFailed"));
     } finally {
       setExporting(false);
     }
@@ -279,7 +279,7 @@ const ReportsAnalyticsPage = () => {
       type="button"
       onClick={() => handleExport(type)}
       disabled={!!exporting}
-      title={`Export ${type} as CSV`}
+      title={t("exportCsvTitle", { type })}
       className="text-[#64748B] hover:text-[#1C4FA8] disabled:opacity-40 flex-shrink-0"
     >
       <FiDownload size={15} />
@@ -370,7 +370,7 @@ const ReportsAnalyticsPage = () => {
               label={t("stats.won")}
               value={num(stats.won)}
               accent="text-green-600"
-              hint={`${stats.win_rate}% win rate`}
+              hint={t("stats.winRateHint", { rate: stats.win_rate })}
             />
             <StatCard
               label={t("stats.quotedValue")}
@@ -387,16 +387,14 @@ const ReportsAnalyticsPage = () => {
               value={
                 stats.avg_response_days === null
                   ? "—"
-                  : `${stats.avg_response_days} d`
+                  : `${stats.avg_response_days} ${t("days")}`
               }
-              hint={`Based on ${stats.responded_sample} sent quote${stats.responded_sample === 1 ? "" : "s"
-                }`}
+              hint={t("stats.basedOnSample", { sample: stats.responded_sample })}
             />
             <StatCard
               label={t("stats.customers")}
               value={num(stats.customers)}
-              hint={`${stats.b2b_accounts} B2B account${stats.b2b_accounts === 1 ? "" : "s"
-                }`}
+              hint={t("stats.b2bAccountsHint", { count: stats.b2b_accounts })}
             />
           </div>
 
@@ -404,7 +402,7 @@ const ReportsAnalyticsPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-6">
             <div className="lg:col-span-2">
               <Panel
-                title={`${t("panels.monthlyTrend")} (Last ${data.range_months} Months)`}
+                title={t("panels.monthlyTrendWithRange", { months: data.range_months })}
                 subtitle={t("panels.monthlySubtitle")}
               >
                 <BarChart data={charts.quotation_trend} />
@@ -481,7 +479,7 @@ const ReportsAnalyticsPage = () => {
                         {c.label}
                       </span>
                       <span className="text-xs text-[#64748B] flex-shrink-0">
-                        {c.value} {t("requests")} · {c.won} won
+                        {c.value} {t("requests")} · {t("wonCount", { count: c.won })}
                         {c.amount !== null ? ` · ${money(c.amount)}` : ""}
                       </span>
                     </div>
@@ -510,7 +508,7 @@ const ReportsAnalyticsPage = () => {
           {/* Row 4 — customer growth + sales reps */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
             <Panel
-              title={`${t("panels.customerGrowth")} (Last ${data.range_months} Months)`}
+              title={t("panels.customerGrowthWithRange", { months: data.range_months })}
               subtitle={t("panels.customerGrowthSubtitle")}
             >
               <BarChart data={charts.customer_growth} color="#10B981" />
@@ -532,8 +530,12 @@ const ReportsAnalyticsPage = () => {
                         {r.label}
                       </span>
                       <span className="text-xs text-[#64748B] flex-shrink-0">
-                        {r.won}/{r.assigned} won · {r.win_rate}% ·{" "}
-                        {money(r.value)}
+                        {t("salesPerformanceSummary", {
+                          won: r.won,
+                          assigned: r.assigned,
+                          rate: r.win_rate,
+                          value: money(r.value),
+                        })}
                       </span>
                     </div>
                   ))}

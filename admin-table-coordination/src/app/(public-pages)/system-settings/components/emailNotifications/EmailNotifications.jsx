@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { FiMail, FiServer, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
@@ -13,6 +14,7 @@ import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 
 const EmailNotifications = () => {
+  const t = useTranslations("systemSettings.emailNotifications");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -116,43 +118,43 @@ const EmailNotifications = () => {
   const notificationList = [
     {
       key: "email_notify_registration",
-      label: "Account Registration Confirmation",
-      description: "Notify users instantly upon successful account registration.",
+      label: t("items.registrationLabel"),
+      description: t("items.registrationDesc"),
     },
     {
       key: "email_notify_order_placed",
-      label: "Order Confirmation",
-      description: "Send receipt and details when an order/rental is placed.",
+      label: t("items.orderPlacedLabel"),
+      description: t("items.orderPlacedDesc"),
     },
     {
       key: "email_notify_payment_success",
-      label: "Payment Confirmation",
-      description: "Send confirmation upon successful credit card or transfer receipt.",
+      label: t("items.paymentSuccessLabel"),
+      description: t("items.paymentSuccessDesc"),
     },
     {
       key: "email_notify_payment_failure",
-      label: "Payment Failure Alert",
-      description: "Alert customers when credit card or direct payment attempt fails.",
+      label: t("items.paymentFailureLabel"),
+      description: t("items.paymentFailureDesc"),
     },
     {
       key: "email_notify_shipping",
-      label: "Shipping Notification",
-      description: "Send tracking ID and carrier dispatch details to customer.",
+      label: t("items.shippingLabel"),
+      description: t("items.shippingDesc"),
     },
     {
       key: "email_notify_return_received",
-      label: "Return Received Confirmation",
-      description: "Notify customers when their returned package is inspected and logged.",
+      label: t("items.returnReceivedLabel"),
+      description: t("items.returnReceivedDesc"),
     },
     {
       key: "email_notify_return_overdue",
-      label: "Return Overdue Reminder",
-      description: "Send warning notice if rental products are not received within grace period.",
+      label: t("items.returnOverdueLabel"),
+      description: t("items.returnOverdueDesc"),
     },
     {
       key: "email_notify_late_fee",
-      label: "Late Fee Notification",
-      description: "Informs customers of applicable late fees, including detailed calculations.",
+      label: t("items.lateFeeLabel"),
+      description: t("items.lateFeeDesc"),
     },
   ];
 
@@ -171,14 +173,14 @@ const EmailNotifications = () => {
                 <FiServer size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[#2F241F]">SMTP Server Configuration</h3>
-                <p className="text-xs text-[#8C6E5D]">Configure outward mail provider details for sending transaction emails.</p>
+                <h3 className="text-lg font-semibold text-[#2F241F]">{t("smtpTitle")}</h3>
+                <p className="text-xs text-[#8C6E5D]">{t("smtpSubtitle")}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
-                <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">SMTP Host</label>
+                <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("smtpHostLabel")}</label>
                 <input
                   className="h-10 w-full rounded-xl border border-[#E9DDD4] bg-[#FFFCFB] px-4 text-sm outline-none focus:border-[#A85A32] disabled:bg-[#FAF6F3]"
                   value={settings.email_host || ""}
@@ -188,7 +190,7 @@ const EmailNotifications = () => {
               </div>
 
               <div>
-                <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">SMTP Port</label>
+                <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("smtpPortLabel")}</label>
                 <input
                   type="number"
                   className="h-10 w-full rounded-xl border border-[#E9DDD4] bg-[#FFFCFB] px-4 text-sm outline-none focus:border-[#A85A32] disabled:bg-[#FAF6F3]"
@@ -199,7 +201,7 @@ const EmailNotifications = () => {
               </div>
 
               <div>
-                <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">Username</label>
+                <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("usernameLabel")}</label>
                 <input
                   className="h-10 w-full rounded-xl border border-[#E9DDD4] bg-[#FFFCFB] px-4 text-sm outline-none focus:border-[#A85A32] disabled:bg-[#FAF6F3]"
                   value={settings.email_username || ""}
@@ -209,7 +211,7 @@ const EmailNotifications = () => {
               </div>
 
               <div>
-                <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">Password</label>
+                <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("passwordLabel")}</label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -231,7 +233,7 @@ const EmailNotifications = () => {
               </div>
 
               <div>
-                <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">Sender Name</label>
+                <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("senderNameLabel")}</label>
                 <input
                   className="h-10 w-full rounded-xl border border-[#E9DDD4] bg-[#FFFCFB] px-4 text-sm outline-none focus:border-[#A85A32] disabled:bg-[#FAF6F3]"
                   value={settings.email_from_name || ""}
@@ -241,7 +243,7 @@ const EmailNotifications = () => {
               </div>
 
               <div>
-                <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">Sender Email Address</label>
+                <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">{t("senderEmailLabel")}</label>
                 <input
                   type="email"
                   className="h-10 w-full rounded-xl border border-[#E9DDD4] bg-[#FFFCFB] px-4 text-sm outline-none focus:border-[#A85A32] disabled:bg-[#FAF6F3]"
@@ -261,7 +263,7 @@ const EmailNotifications = () => {
                   onChange={(e) => setSettings({ ...settings, email_use_tls: e.target.checked })}
                 />
                 <label htmlFor="email_use_tls" className="text-sm font-semibold text-[#8C6E5D] cursor-pointer select-none">
-                  Use TLS secure transfer connection (Recommended)
+                  {t("useTlsLabel")}
                 </label>
               </div>
             </div>
@@ -274,8 +276,8 @@ const EmailNotifications = () => {
                 <FiMail size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[#2F241F]">Customer Notification Emails</h3>
-                <p className="text-xs text-[#8C6E5D]">Activate or deactivate automated triggers based on customer events.</p>
+                <h3 className="text-lg font-semibold text-[#2F241F]">{t("customerNotificationTitle")}</h3>
+                <p className="text-xs text-[#8C6E5D]">{t("customerNotificationSubtitle")}</p>
               </div>
             </div>
 
@@ -304,7 +306,7 @@ const EmailNotifications = () => {
                 onClick={() => setIsEditing(true)}
                 className="rounded-xl bg-[#A85A32] px-8 py-3 font-medium text-white hover:bg-[#8f4c2a] transition duration-150"
               >
-                Edit
+                {t("edit")}
               </button>
             ) : (
               <>
@@ -315,14 +317,14 @@ const EmailNotifications = () => {
                   }}
                   className="rounded-xl border border-[#E8DDD4] bg-white px-8 py-3 font-medium text-[#6E5A4D] hover:bg-[#FAF6F3] transition duration-150"
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
                 <button
                   onClick={handleUpdate}
                   className="rounded-xl bg-[#A85A32] px-8 py-3 font-medium text-white hover:bg-[#8f4c2a] transition duration-150 flex items-center gap-2"
                 >
                   {loading && <Spinner size={16} customColorClass="text-white" />}
-                  Save Changes
+                  {t("saveChanges")}
                 </button>
               </>
             )}

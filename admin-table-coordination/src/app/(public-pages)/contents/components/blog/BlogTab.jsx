@@ -49,6 +49,7 @@ const BlogTab = () => {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const t = useTranslations("contentMedia.blog");
+  const ts = useTranslations("successTitle");
 
   // Modal
   const [openModal, setOpenModal] = useState(false);
@@ -132,7 +133,7 @@ const BlogTab = () => {
       const response = await apiDeleteBlog(accessToken, postToDelete.id);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={ts("success")} type="success">
           {response.message}
         </Notification>,
       );

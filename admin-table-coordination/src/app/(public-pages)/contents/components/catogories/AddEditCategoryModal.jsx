@@ -315,7 +315,7 @@ const AddEditCategoryModal = ({
               <div className="flex justify-center">
                 <img
                   src={preview}
-                  alt="Preview"
+                  alt={t("preview")}
                   className="w-32 h-32 object-contain rounded-lg shadow"
                 />
               </div>
@@ -343,7 +343,7 @@ const AddEditCategoryModal = ({
                   render={({ field }) => (
                     <textarea
                       {...field}
-                      placeholder="Type..."
+                      placeholder={t("descriptionPlaceholder")}
                       className="mt-1 w-full border rounded-md px-3 py-2 text-sm h-[90px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                     />
                   )}

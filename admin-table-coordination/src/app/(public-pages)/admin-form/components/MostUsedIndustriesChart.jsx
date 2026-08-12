@@ -1,12 +1,14 @@
 "use client";
 
 import Chart from "react-apexcharts";
+import { useTranslations } from "next-intl";
 
 const MostUsedIndustriesChart = ({ data }) => {
+  const t = useTranslations("dashboard.mostRentedTheme");
   const mostRentedTheme = data?.Most_Rented_Theme || [];
 
   const categories = mostRentedTheme.length > 0
-    ? mostRentedTheme.map(item => item.theme_name || "Unassigned")
+    ? mostRentedTheme.map(item => item.theme_name || t("unassigned"))
     : [
         "Round 6ft",
         "Round 8ft",
@@ -91,7 +93,7 @@ const MostUsedIndustriesChart = ({ data }) => {
 
   const series = [
     {
-      name: "Orders/Rentals",
+      name: t("seriesName"),
       data: mostRentedTheme.length > 0
         ? mostRentedTheme.map(item => item.count)
         : [120, 145, 170, 190, 200, 225],
@@ -101,7 +103,7 @@ const MostUsedIndustriesChart = ({ data }) => {
   return (
     <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
       <h3 className="text-[17px] font-semibold text-[#3B3B3B] mb-5">
-        Most Rented Theme
+        {t("title")}
       </h3>
 
       <Chart
@@ -112,7 +114,7 @@ const MostUsedIndustriesChart = ({ data }) => {
       />
 
       <p className="mt-5 text-xs text-[#9CA3AF] flex items-center gap-1">
-        Growth Chart Visualization ↗
+        {t("growthVisualization")} ↗
       </p>
     </div>
   );

@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { useRouter } from "next/navigation";
 
 const HeroContent = ({ data }) => {
+  const t = useTranslations("dashboard");
   const { session } = useCurrentSession();
   console.log("SESSION =>", session);
   console.log("USER =>", session?.user);
@@ -27,39 +29,39 @@ const HeroContent = ({ data }) => {
       <div className="relative z-10 bg-white rounded-xl shadow-lg p-5 md:p-8 flex flex-col gap-6">
         <div className="flex flex-wrap gap-3">
           <button className="bg-[#6A341A] text-white px-4 py-2 rounded-md text-sm font-medium">
-            Create Theme
+            {t("heroActions.createTheme")}
           </button>
 
           <button
             className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
             onClick={() => router.push("/orders")}
           >
-            View Orders
+            {t("heroActions.viewOrders")}
           </button>
 
           <button
             className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
             onClick={() => router.push("/inventory-management/add")}
           >
-            Add New Product
+            {t("heroActions.addNewProduct")}
           </button>
         </div>
 
         <div className="flex flex-col lg:flex-row items-center gap-6">
           <div className="flex-1">
             <h1 className="text-xl md:text-2xl font-semibold text-[#4D2512]">
-              Welcome Back, {userName}!
+              {t("welcomeTitle", { name: userName ?? "" })}
             </h1>
 
             <p className="text-[14px] text-[#4D2512] max-w-md">
-              Manage inventory, rentals and event themes from one place.
+              {t("welcomeSubtitle")}
             </p>
           </div>
 
           <div className="flex justify-center lg:absolute lg:right-5 lg:bottom-0">
             <Image
               src="/img/admin/emoji.png"
-              alt="Dashboard Emoji"
+              alt={t("dashboardEmojiAlt")}
               width={300}
               height={220}
               priority

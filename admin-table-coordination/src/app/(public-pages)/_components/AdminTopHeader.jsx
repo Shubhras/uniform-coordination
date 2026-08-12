@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -22,6 +23,7 @@ import USA from "../../../assets/USAflag.jpeg";
 import Japan from "../../../assets/japanflag.png";
 
 const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
+  const t = useTranslations("header");
   const { session } = useCurrentSession();
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -203,7 +205,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
                   className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
                 >
                   <FiLogOut size={16} />
-                  <span>Sign Out</span>
+                  <span>{t("signOut")}</span>
                 </button>
               </div>
             </div>

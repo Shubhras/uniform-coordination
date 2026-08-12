@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Select from "react-select";
 import {
   FiAlertCircle,
@@ -15,12 +16,6 @@ import {
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetNotificationList } from "@/services/NotificationService";
-
-const statusOptions = [
-  { value: "all", label: "Status" },
-  { value: "sent", label: "Sent" },
-  { value: "failed", label: "Failed" },
-];
 
 const getApiErrorMessage = (error) =>
   error?.response?.data?.message ||
@@ -174,6 +169,14 @@ const selectStyles = {
 };
 
 const NotificationPage = () => {
+  const t = useTranslations("notifications");
+
+  const statusOptions = [
+    { value: "all", label: t("statusFilter") },
+    { value: "sent", label: t("statusSent") },
+    { value: "failed", label: t("statusFailed") },
+  ];
+
   const router = useRouter();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -295,10 +298,10 @@ const NotificationPage = () => {
     <div className="min-h-screen bg-white px-3 py-4 sm:px-6 sm:py-5">
       <div className="mb-4">
         <h1 className="text-[24px] font-semibold leading-tight text-[#241915] sm:text-[28px]">
-          Notifications
+          {t("title")}
         </h1>
         <p className="mt-1 text-[12px] text-[#94867C] sm:text-xs">
-          All transactional notifications sent by KIREIZ SPACE
+          {t("subtitle")}
         </p>
       </div>
 
@@ -310,7 +313,7 @@ const NotificationPage = () => {
           />
           <input
             type="text"
-            placeholder="Search by ID, recipient, order..."
+            placeholder={t("searchby")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="h-10 w-full rounded-md border border-[#F3E7DE] bg-white pl-8 pr-8 text-[11px] text-[#6F625B] outline-none placeholder:text-[#C28E73] focus:border-[#D7B7A3]"
@@ -320,7 +323,7 @@ const NotificationPage = () => {
               type="button"
               onClick={() => setSearchQuery("")}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#9A8E86]"
-              aria-label="Clear search"
+              aria-label={t("clearSearch")}
             >
               <FiX size={13} />
             </button>
@@ -347,7 +350,7 @@ const NotificationPage = () => {
           className="flex h-10 w-full items-center justify-center gap-1 rounded-md border border-[#F2E5DD] bg-white px-3 text-sm font-medium text-[#B7774D] transition hover:bg-[#FCF4EF] sm:w-auto"
         >
           <FiRotateCcw size={12} />
-          Reset
+          {t("reset")}
         </button>
       </div>
 
@@ -355,12 +358,12 @@ const NotificationPage = () => {
         <table className="w-full text-sm">
           <thead className="bg-[#F1F5F9] text-[#486284]">
             <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-              <th className="text-left px-4 py-3 font-medium">Recipient</th>
-              <th className="text-left px-4 py-3 font-medium">Email</th>
-              <th className="text-left px-4 py-3 font-medium">Order ID</th>
-              <th className="text-left px-4 py-3 font-medium">Status</th>
-              <th className="text-left px-4 py-3 font-medium">Sent At</th>
-              <th className="text-left px-4 py-3 font-medium">Action</th>
+              <th className="text-left px-4 py-3 font-medium">{t("recipient")}</th>
+              <th className="text-left px-4 py-3 font-medium">{t("email")}</th>
+              <th className="text-left px-4 py-3 font-medium">{t("orderId")}</th>
+              <th className="text-left px-4 py-3 font-medium">{t("statusFilter")}</th>
+              <th className="text-left px-4 py-3 font-medium">{t("sentAt")}</th>
+              <th className="text-left px-4 py-3 font-medium">{t("action")}</th>
             </tr>
           </thead>
           <tbody>
@@ -421,7 +424,7 @@ const NotificationPage = () => {
                           ) : (
                             <FiAlertCircle size={11} />
                           )}
-                          {item.statusLabel}
+                          {isSent ? t("statusSent") : t("statusFailed")}
                         </span>
                       </td>
                       <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
@@ -441,7 +444,7 @@ const NotificationPage = () => {
                           }`}
                         >
                           <FiEye size={11} />
-                          View
+                          {t("view")}
                         </button>
                       </td>
                     </tr>
@@ -453,7 +456,7 @@ const NotificationPage = () => {
 
       {!loading && filteredNotifications.length === 0 && (
         <div className="mt-4 rounded-md border border-dashed border-[#E6D6CD] bg-white px-4 py-10 text-center text-[13px] text-[#8B6A55]">
-          No notifications found for the selected search and status.
+          {t("noNotifications")}
         </div>
       )}
 

@@ -1,25 +1,29 @@
+import { useTranslations } from "next-intl";
+
 const tabs = [
-  "FAQ / Terms Assistant",
-  "Order & Delivery",
-  "Product Search",
-  "Draft Generator",
+  { key: "FAQ / Terms Assistant", labelKey: "termAssistant.title" },
+  { key: "Order & Delivery", labelKey: "orderDelivery.title" },
+  { key: "Product Search", labelKey: "productSearch.productSearch" },
+  { key: "Draft Generator", labelKey: "draftGenerator.draftGenerator" },
 ];
 
 const Tabs = ({ activeTab, setActiveTab }) => {
+  const t = useTranslations("aiAutomation");
+
   return (
     <div className="mt-5 flex gap-6 overflow-x-auto border-b border-[#E8DDD4]">
-      {tabs.map((tab) => (
+      {tabs.map(({ key, labelKey }) => (
         <button
-          key={tab}
+          key={key}
           type="button"
-          onClick={() => setActiveTab(tab)}
+          onClick={() => setActiveTab(key)}
           className={`pb-1 text-base font-medium whitespace-nowrap ${
-            activeTab === tab
+            activeTab === key
               ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
               : "text-[#525252] text-[16px]"
           }`}
         >
-          {tab}
+          {t(labelKey)}
         </button>
       ))}
     </div>
