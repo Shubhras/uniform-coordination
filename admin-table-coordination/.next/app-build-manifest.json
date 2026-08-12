@@ -31,70 +31,50 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/inventory-management/page.js"
     ],
-    "/(public-pages)/orders/page": [
+    "/(public-pages)/contracts-policies/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/orders/page.js"
-    ],
-    "/_not-found/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/(public-pages)/contracts-policies/page.js"
     ],
     "/(public-pages)/theme-management/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/theme-management/page.js"
     ],
-    "/(public-pages)/theme-management/view/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/theme-management/view/[id]/page.js"
-    ],
-    "/(public-pages)/theme-management/addTheme/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/theme-management/addTheme/page.js"
-    ],
     "/(public-pages)/theme-management/edit/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/theme-management/edit/[id]/page.js"
     ],
-    "/(public-pages)/simulation-assets/page": [
+    "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/simulation-assets/page.js"
+      "static/chunks/app/_not-found/page.js"
     ],
-    "/(public-pages)/system-settings/page": [
+    "/(public-pages)/products/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/system-settings/page.js"
-    ],
-    "/(public-pages)/pricing-packages/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/pricing-packages/page.js"
-    ],
-    "/(public-pages)/pricing-packages/edit-pricing-rules/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/pricing-packages/edit-pricing-rules/page.js"
-    ],
-    "/(public-pages)/pricing-packages/create-promotion/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/pricing-packages/create-promotion/page.js"
+      "static/chunks/app/(public-pages)/products/page.js"
     ],
     "/(public-pages)/contents/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/contents/page.js"
     ],
-    "/(public-pages)/products/page": [
+    "/(public-pages)/theme-management/addTheme/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/products/page.js"
+      "static/chunks/app/(public-pages)/theme-management/addTheme/page.js"
+    ],
+    "/(public-pages)/theme-management/view/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/theme-management/view/[id]/page.js"
+    ],
+    "/(public-pages)/orders/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/orders/page.js"
     ]
   }
 }

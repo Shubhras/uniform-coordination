@@ -1,9 +1,10 @@
 {
+  "/favicon.ico/route": "app/favicon.ico/route.js",
   "/_not-found/page": "app/_not-found/page.js",
-  "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js",
-  "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js",
   "/(public-pages)/theme-management/page": "app/(public-pages)/theme-management/page.js",
-  "/(public-pages)/theme-management/edit/[id]/page": "app/(public-pages)/theme-management/edit/[id]/page.js",
-  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
-  "/(public-pages)/theme-management/view/[id]/page": "app/(public-pages)/theme-management/view/[id]/page.js"
+  "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js",
+  "/(public-pages)/theme-management/addTheme/page": "app/(public-pages)/theme-management/addTheme/page.js",
+  "/(public-pages)/theme-management/view/[id]/page": "app/(public-pages)/theme-management/view/[id]/page.js",
+  "/(public-pages)/orders/page": "app/(public-pages)/orders/page.js",
+  "/(public-pages)/inventory-management/page": "app/(public-pages)/inventory-management/page.js"
 }

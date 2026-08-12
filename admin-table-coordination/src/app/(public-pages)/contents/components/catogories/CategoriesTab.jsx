@@ -378,9 +378,9 @@ const CategoriesTab = () => {
           </div>
 
           <div className="flex gap-3">
-            <button className="border border-[#CBD5E1] text-[#1C2C56] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
+            {/* <button className="border border-[#CBD5E1] text-[#1C2C56] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
               {t("arrangeOrder")}
-            </button>
+            </button> */}
 
             <button
               className="bg-[#A0522D] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
