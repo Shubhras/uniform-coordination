@@ -22,6 +22,8 @@ import Notification from "@/components/ui/Notification";
 import toast from "@/components/ui/toast";
 import InventoryItemsModal from "../../../addTheme/components/InventoryItemsModal";
 import { apiGetCategoryList } from "@/services/CategoryService";
+import { useTranslations } from "next-intl";
+
 
 const categoryOptions = [
   { value: "Wedding", label: "Wedding" },
@@ -30,6 +32,7 @@ const categoryOptions = [
 ];
 
 const Edit = () => {
+  const t = useTranslations("themeManagement.addtheme");
   const router = useRouter();
   const { id } = useParams();
   const { session } = useCurrentSession();
@@ -357,7 +360,9 @@ const Edit = () => {
             <FiArrowLeft size={18} className="text-[#1A1410]" />
           </button>
 
-          <h1 className="text-[28px] font-bold text-[#1A1410]">Edit Theme</h1>
+          <h1 className="text-[28px] font-bold text-[#1A1410]">
+            {t("editTheme")}
+          </h1>
         </div>
 
         {/* Card */}
@@ -369,7 +374,7 @@ const Edit = () => {
             </div>
 
             <h2 className="text-[20px] font-bold text-[#2C1A0E]">
-              Basic Information
+              {t("basicInfo")}
             </h2>
           </div>
 
@@ -377,7 +382,7 @@ const Edit = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
-                Theme Name
+                {t("themeName")}
               </label>
               <input
                 type="text"
@@ -390,7 +395,7 @@ const Edit = () => {
                     title: "",
                   }));
                 }}
-                placeholder="Enter theme name"
+                placeholder={t("placeholderThemeName")}
                 className="w-full h-12 rounded-xl border border-[#E7D9CF] px-4 outline-none focus:border-[#A0522D]"
               />
               {errors.title && (
@@ -400,7 +405,7 @@ const Edit = () => {
 
             <div>
               <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
-                Category
+                {t("category")}
               </label>
 
               <Select
@@ -427,7 +432,7 @@ const Edit = () => {
           {/* Description */}
           <div className="mt-5">
             <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
-              Short Description
+              {t("shortDescription")}
             </label>
 
             <textarea
@@ -441,7 +446,7 @@ const Edit = () => {
                   description: "",
                 }));
               }}
-              placeholder="Write short description..."
+              placeholder={t("descriptionPlaceholder")}
               className="w-full rounded-xl border border-[#E7D9CF] p-4 resize-none outline-none focus:border-[#A0522D]"
             />
             {errors.description && (
@@ -459,14 +464,14 @@ const Edit = () => {
             </div>
 
             <h2 className="text-[20px] font-bold text-[#2C1A0E]">
-              Theme Images
+              {t("themeImage")}
             </h2>
           </div>
 
           {/* Thumbnail */}
           <div>
             <label className="block text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-3">
-              Thumbnail
+              {t("thumbnail")}
             </label>
 
             <div className="overflow-hidden rounded-xl border border-[#EFE5DD] h-[230px]">
@@ -484,7 +489,7 @@ const Edit = () => {
           {/* Gallery */}
           <div className="mt-6">
             <label className="block text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-3">
-              Gallery Photos
+              {t("galleryPhoto")}
             </label>
 
             <input
@@ -533,7 +538,7 @@ const Edit = () => {
               <FiLayers size={18} className="text-[#A0522D]" />
             </div>
             <h1 className="text-[20px] font-bold text-[#1A1410]">
-              Theme Builder
+              {t("themeBuilder")}
             </h1>
           </div>
           <div className="space-y-5">
@@ -559,7 +564,7 @@ const Edit = () => {
                     </h3>
 
                     <span className="px-2 py-1 rounded-full bg-[#FDF1EA] text-[#A85A32] text-[13px] font-semibold">
-                      {section.count} items
+                      {section.count} {t("items")}
                     </span>
                   </div>
 
@@ -571,7 +576,7 @@ const Edit = () => {
                     className="flex items-center gap-2 border border-[#E8D8CC] rounded-lg px-4 py-2 text-[#A85A32] text-[14px] bg-[#FAF5F2]"
                   >
                     <FiPlus size={14} />
-                    Add Item
+                    {t("additem")}
                   </button>
                 </div>
 
@@ -679,7 +684,7 @@ const Edit = () => {
             // onClick={onBack}
             className="px-8 py-2.5 rounded-xl border border-[#E5D5C8] text-[#8C6E5D] font-medium hover:bg-[#FAF5F2]"
           >
-            Back
+            {t("back")}
           </button>
 
           <button
@@ -688,7 +693,7 @@ const Edit = () => {
             disabled={saving}
             className="bg-[#A0522D] transition text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium"
           >
-            Update Theme
+            {t("updateTheme")}
           </button>
         </div>
       </div>

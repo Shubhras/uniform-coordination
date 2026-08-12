@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { FiDownload } from "react-icons/fi";
 import { toast } from "@/components/ui/toast";
@@ -10,6 +11,28 @@ import {
   apiGetReportsAnalytics,
   apiExportReportsCsv,
 } from "@/services/ReportsService";
+
+const selectStyles = {
+  control: (base, state) => ({
+    ...base,
+    minHeight: "38px",
+    borderRadius: "8px",
+    borderColor: state.isFocused ? "#1C2C56" : "#E2E8F0",
+    boxShadow: "none",
+    "&:hover": { borderColor: "#1C2C56" },
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? "#1C2C56"
+      : state.isFocused
+        ? "#EEF2FF"
+        : "white",
+    color: state.isSelected ? "white" : "#1E293B",
+    fontSize: "14px",
+  }),
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+};
 
 /*
  * DESIGN NOTE — metric set chosen to match KIREIZ FORM backend data.
@@ -307,18 +330,19 @@ const ReportsAnalyticsPage = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <select
-            value={months}
-            onChange={(e) => setMonths(Number(e.target.value))}
-            disabled={loading}
-            className="border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm bg-white disabled:opacity-50"
-          >
-            {MONTH_OPTIONS.map((m) => (
-              <option key={m} value={m}>
-                {getFilterLabel(m)}
-              </option>
-            ))}
-          </select>
+          <div className="w-48">
+            <Select
+              value={{ value: months, label: getFilterLabel(months) }}
+              onChange={(opt) => setMonths(opt.value)}
+              options={MONTH_OPTIONS.map((m) => ({
+                value: m,
+                label: getFilterLabel(m),
+              }))}
+              styles={selectStyles}
+              isDisabled={loading}
+              isSearchable={false}
+            />
+          </div>
 
           <button
             type="button"
