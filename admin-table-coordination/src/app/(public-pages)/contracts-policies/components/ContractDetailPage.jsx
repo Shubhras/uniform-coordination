@@ -271,7 +271,7 @@ const ContractDetailPage = ({ contract }) => {
             <h3 className="text-[18px] font-semibold text-[#1E130C]">
               {t("requestedItems")}
             </h3>
-            <p className="mt-1 text-xs text-[#A09186]">
+            <p className="mt-1 text-xs font-semibold text-[#A09186]">
               {contract.requestedItemsNote}
             </p>
           </div>
@@ -325,7 +325,7 @@ const ContractDetailPage = ({ contract }) => {
               <div className="flex items-center justify-between">
                 <span>{t("rentalDays")}</span>
                 <span className="font-medium text-[#463932]">
-                  {contract.summary.rentalDays}
+                  {contract.summary.rental_days}
                 </span>
               </div>
               <div className="flex items-center justify-between">

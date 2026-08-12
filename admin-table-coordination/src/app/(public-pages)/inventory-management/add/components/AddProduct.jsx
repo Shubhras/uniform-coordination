@@ -23,8 +23,10 @@ import {
   apiUpdateProduct,
   apiGetProductDetails,
 } from "@/services/ProductService";
+import { useTranslations } from "next-intl";
 
 const AddProduct = () => {
+  const t = useTranslations("inventoryManagement.addProduct");
   const router = useRouter();
   const searchParams = useSearchParams();
   const { session } = useCurrentSession();
@@ -360,7 +362,7 @@ const AddProduct = () => {
         </button>
 
         <h1 className="text-[32px] font-semibold text-[#1A1410]">
-          {isEdit ? "Edit Product" : "Add Product"}
+          {isEdit ? t("editProduct") : t("addProduct")}
         </h1>
       </div>
 
@@ -375,7 +377,7 @@ const AddProduct = () => {
           </div>
 
           <h2 className="text-[20px] font-semibold text-[#2C1A0E]">
-            Product Information
+            {t("productInformation")}
           </h2>
         </div>
 
@@ -384,7 +386,7 @@ const AddProduct = () => {
           {/* Product Name */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              Product Name
+              {t("productNAME")}
             </label>
 
             <input
@@ -398,7 +400,7 @@ const AddProduct = () => {
                   productName: "",
                 }));
               }}
-              placeholder="Enter product name"
+              placeholder={t("productPlaceholder")}
               className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 outline-none focus:border-[#A85A32]"
             />
             {errors.productName && (
@@ -409,7 +411,7 @@ const AddProduct = () => {
           {/* Category */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              Category
+              {t("category")}
             </label>
 
             <Select
@@ -424,7 +426,7 @@ const AddProduct = () => {
               }}
               options={categoryOptions}
               styles={selectStyles}
-              placeholder="Select Category"
+              placeholder={t("selectCategory")}
               isSearchable={false}
             />
             {errors.category && (
@@ -436,7 +438,7 @@ const AddProduct = () => {
         {/* Short Description */}
         <div className="mt-6">
           <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-            Short Description
+            {t("shortDescription")}
           </label>
 
           <textarea
@@ -450,7 +452,7 @@ const AddProduct = () => {
                 description: "",
               }));
             }}
-            placeholder="Write product description..."
+            placeholder={t("descriptionPlaceholder")}
             className="w-full rounded-2xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 outline-none resize-none focus:border-[#A85A32]"
           />
           {errors.description && (
@@ -461,15 +463,15 @@ const AddProduct = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              Table Shape
+              {t("tableShape")}
             </label>
 
             <div className="relative">
               <select className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 appearance-none outline-none focus:border-[#A85A32]">
-                <option>Round</option>
-                <option>Rectangle</option>
-                <option>Square</option>
-                <option>Oval</option>
+                <option>{t("round")}</option>
+                <option>{t("rectangle")}</option>
+                <option>{t("square")}</option>
+                <option>{t("oval")}</option>
               </select>
 
               <FiChevronDown
@@ -482,15 +484,15 @@ const AddProduct = () => {
           {/* Style */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              Style
+              {t("style")}
             </label>
 
             <div className="relative">
               <select className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 appearance-none outline-none focus:border-[#A85A32]">
-                <option>Premium</option>
-                <option>Classic</option>
-                <option>Luxury</option>
-                <option>Modern</option>
+                <option>{t("premium")}</option>
+                <option>{t("classic")}</option>
+                <option>{t("luxury")}</option>
+                <option>{t("modern")}</option>
               </select>
 
               <FiChevronDown
@@ -503,7 +505,7 @@ const AddProduct = () => {
           {/* Fabric */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              Fabric
+              {t("fabric")}
             </label>
 
             <Select
@@ -518,7 +520,7 @@ const AddProduct = () => {
               }}
               options={fabricOptions}
               styles={selectStyles}
-              placeholder="Select Fabric"
+              placeholder={t("selectFabric")}
               isSearchable={false}
             />
             {errors.fabric && (
@@ -529,7 +531,7 @@ const AddProduct = () => {
           {/* Color */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              Color
+              {t("color")}
             </label>
 
             <Select
@@ -544,7 +546,7 @@ const AddProduct = () => {
               }}
               options={colorOptions}
               styles={selectStyles}
-              placeholder="Select Color"
+              placeholder={t("selectColor")}
               isSearchable={false}
             />
             {errors.color && (
@@ -555,7 +557,7 @@ const AddProduct = () => {
           {/* Table Size */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              Table Size
+              {t("tableSize")}
             </label>
 
             <div className="relative">
@@ -570,7 +572,7 @@ const AddProduct = () => {
                     size: "",
                   }));
                 }}
-                placeholder="Ex-72 Inch"
+              placeholder={t("tableSizePlaceholder")}
                 className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 pr-10 outline-none focus:border-[#A85A32]"
               />
               {errors.size && (
@@ -582,7 +584,7 @@ const AddProduct = () => {
           {/* Rental Price */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              Rental Price / Day*
+              {t("rentalPrice")}
             </label>
 
             <input
@@ -596,7 +598,7 @@ const AddProduct = () => {
                   rentalPricePerDay: "",
                 }));
               }}
-              placeholder="Ex-250"
+              placeholder={t("pricePlaceholder")}
               className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 outline-none focus:border-[#A85A32]"
             />
             {errors.rentalPricePerDay && (
@@ -609,7 +611,7 @@ const AddProduct = () => {
           {/* Stock Quantity */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              Stock Quantity
+              {t("stockQuantity")}
             </label>
             <input
               type="number"
@@ -622,7 +624,7 @@ const AddProduct = () => {
                   total_quantity: "",
                 }));
               }}
-              placeholder="Ex-250"
+              placeholder={t("quantityPlaceholder")}
               className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 outline-none focus:border-[#A85A32]"
             />
             {errors.total_quantity && (
@@ -641,11 +643,11 @@ const AddProduct = () => {
           <div className="flex items-center justify-between border border-[#E9DDD3] rounded-xl bg-[#FCFAF8] px-5 py-4">
             <div>
               <h3 className="text-[16px] font-semibold text-[#1A1410]">
-                RFID Tracking
+                {t("rfid")}
               </h3>
 
               <p className="text-[13px] text-[#9B8A7A] mt-1">
-                Enable asset tracking via RFID tags
+                {t("rfidContent")}
               </p>
             </div>
 
@@ -670,7 +672,7 @@ const AddProduct = () => {
           </div>
 
           <h2 className="text-[20px] font-semibold text-[#1A1410]">
-            Product Image
+            {t("productImage")}
           </h2>
         </div>
 
@@ -684,11 +686,11 @@ const AddProduct = () => {
           </div>
 
           <h3 className="text-[16px] font-medium text-[#1A1410]">
-            Upload image
+            {t("uploadImage")}
           </h3>
 
           <p className="text-[13px] text-[#9E8D80] mt-1">
-            PNG or JPG up to 5 MB
+            {t("imageHint")}
           </p>
 
           <label className="mt-5 cursor-pointer">
@@ -713,7 +715,7 @@ const AddProduct = () => {
             />
 
             <span className="px-5 py-2 border border-[#D7A07B] rounded-full text-[#A85A32] text-sm font-medium hover:bg-[#FFF4ED] transition">
-              Browse Files
+              {t("browseFiles")}
             </span>
           </label>
         </div>
@@ -721,7 +723,7 @@ const AddProduct = () => {
           <div className="mt-5">
             <img
               src={previewImage}
-              alt="Preview"
+              alt={t("imagePreview")}
               className="w-44 h-44 rounded-xl border object-cover"
             />
           </div>
@@ -739,7 +741,7 @@ const AddProduct = () => {
           onClick={() => router.back()}
           className="h-10 px-5 rounded-xl border border-[#E9DDD3] bg-white text-[#6E6258] font-medium hover:bg-[#F8F3EF] transition"
         >
-          Cancel
+          {t("cancel")}
         </button>
 
         <Button
@@ -748,7 +750,7 @@ const AddProduct = () => {
           loading={saving}
           className="h-10 px-5 rounded-xl bg-[#A85A32] text-white font-medium hover:bg-[#8F4D2A] transition"
         >
-          {isEdit ? "Save Changes" : "Publish Product"}
+          {isEdit ? t("saveChanges") : t("publishProduct")}
         </Button>
       </div>
     </div>
