@@ -26,25 +26,25 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/admin-form/page.js"
     ],
-    "/(public-pages)/products/page": [
+    "/(public-pages)/contents/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/products/page.js"
+      "static/chunks/app/(public-pages)/contents/page.js"
     ],
     "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/_not-found/page.js"
     ],
-    "/(public-pages)/pricing/page": [
+    "/(public-pages)/products/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/pricing/page.js"
+      "static/chunks/app/(public-pages)/products/page.js"
     ],
-    "/(public-pages)/customer/page": [
+    "/(public-pages)/notifications/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/customer/page.js"
+      "static/chunks/app/(public-pages)/notifications/page.js"
     ]
   }
 }
