@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { FiArrowLeft, FiDownload } from "react-icons/fi";
 import StatusBadge, { getStatusColors } from "./StatusBadge";
+import { useTranslations } from "next-intl";
 
 const DownloadButton = ({ label, onClick }) => (
   <button
@@ -16,6 +17,7 @@ const DownloadButton = ({ label, onClick }) => (
 );
 
 const ContractDetailPage = ({ contract }) => {
+  const t = useTranslations("contractPolicies");
   const router = useRouter();
   const colors = getStatusColors(contract.status);
   const isSigned = contract.status === "Signed";
@@ -46,7 +48,7 @@ const ContractDetailPage = ({ contract }) => {
           }
           className="rounded-lg border border-[#F1DED1] bg-[#FFF7F1] px-4 py-2 text-xs font-medium text-[#C2703D]"
         >
-          View Status
+          {t("viewStatus.viewStatus")}
         </button>
       </div>
 
@@ -54,7 +56,7 @@ const ContractDetailPage = ({ contract }) => {
         <div className="rounded-2xl border border-[#F1E6DE] bg-white">
           <div className="border-b border-[#F5ECE6] px-5 py-3">
             <h3 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#7A6E66]">
-              Company Information
+              {t("companyInfo")}
             </h3>
           </div>
 
@@ -62,7 +64,7 @@ const ContractDetailPage = ({ contract }) => {
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               <div>
                 <p className="text-[13px] font-semibold text-[#7A6E66]">
-                  ABC HOTELS PVT LTD
+                  {t("companyName")}
                 </p>
                 <p className="mt-1 text-[15px] font-semibold text-[#1A1714]">
                   {contract.companyName}
@@ -71,7 +73,7 @@ const ContractDetailPage = ({ contract }) => {
 
               <div>
                 <p className="text-[13px] font-semibold text-[#7A6E66]">
-                  CONTACT PERSON
+                  {t("contactPerson")}
                 </p>
                 <p className="mt-1 text-[15px] font-semibold text-[#1A1714]">
                   {contract.contactPerson}
@@ -80,7 +82,7 @@ const ContractDetailPage = ({ contract }) => {
 
               <div>
                 <p className="text-[13px] font-semibold text-[#7A6E66]">
-                  BUSINESS EMAIL
+                  {t("businessEmail")}
                 </p>
                 <p className="mt-1 text-[15px] font-semibold text-[#1A1714]">
                   {contract.businessEmail}
@@ -89,7 +91,7 @@ const ContractDetailPage = ({ contract }) => {
 
               <div>
                 <p className="text-[13px] font-semibold text-[#7A6E66]">
-                  PHONE NUMBER
+                  {t("phone")}
                 </p>
                 <p className="mt-1 text-[15px] font-semibold text-[#1A1714]">
                   {contract.phoneNumber}
@@ -98,7 +100,7 @@ const ContractDetailPage = ({ contract }) => {
 
               <div>
                 <p className="text-[13px] font-semibold text-[#7A6E66]">
-                  COMPANY ADDRESS
+                  {t("companyAdd")}
                 </p>
                 <p className="mt-1 max-w-[260px] text-[15px] font-semibold leading-5 text-[#1A1714]">
                   {contract.companyAddress}
@@ -107,7 +109,7 @@ const ContractDetailPage = ({ contract }) => {
 
               <div>
                 <p className="text-[13px] font-semibold text-[#7A6E66]">
-                  USER TYPE
+                  {t("userType")}
                 </p>
                 <p className="mt-1 text-[15px] font-semibold text-[#1A1714]">
                   {contract.userType}
@@ -120,7 +122,7 @@ const ContractDetailPage = ({ contract }) => {
         <div className="rounded-2xl border border-[#F1E6DE] bg-white">
           <div className="border-b border-[#F5ECE6] px-5 py-3">
             <h3 className="text-[12px] font-semibold text-[#7A6E66]">
-              ORDER & CONTRACT INFORMATION
+              {t("ordercontract")}
             </h3>
           </div>
 
@@ -128,7 +130,7 @@ const ContractDetailPage = ({ contract }) => {
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
               <div>
                 <p className="text-[10px] font-semibold text-[#9B8D84]">
-                  ORDER ID
+                  {t("orderid")}
                 </p>
                 <p className="mt-1 text-sm font-medium text-[#3E312A]">
                   {contract.quotationNo}
@@ -137,7 +139,7 @@ const ContractDetailPage = ({ contract }) => {
 
               <div>
                 <p className="text-[10px] font-semibold text-[#9B8D84]">
-                  ORDER DATE
+                  {t("orderDate")}
                 </p>
                 <p className="mt-1 text-sm font-medium text-[#3E312A]">
                   {contract.quotationDate}
@@ -146,7 +148,7 @@ const ContractDetailPage = ({ contract }) => {
 
               <div>
                 <p className="text-[10px] font-semibold text-[#9B8D84]">
-                  CONTRACT ID
+                  {t("contractid")}
                 </p>
                 <p className="mt-1 text-sm font-medium text-[#3E312A]">
                   {contract.contractIdShort}
@@ -203,7 +205,7 @@ const ContractDetailPage = ({ contract }) => {
           <div className="rounded-2xl border border-[#F1E6DE] bg-white">
             <div className="border-b border-[#F5ECE6] px-5 py-3">
               <h3 className="text-[12px] font-semibold text-[#7A6E66]">
-                RENTAL INFORMATION
+                {t("rentalInfo")}
               </h3>
             </div>
 
@@ -211,7 +213,7 @@ const ContractDetailPage = ({ contract }) => {
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
                   <p className="text-[10px] font-semibold text-[#9B8D84]">
-                    RENTAL START
+                    {t("rentalStart")}
                   </p>
                   <p className="mt-1 text-sm font-medium text-[#3E312A]">
                     {contract.rentalStart}
@@ -220,7 +222,7 @@ const ContractDetailPage = ({ contract }) => {
 
                 <div>
                   <p className="text-[10px] font-semibold text-[#9B8D84]">
-                    RENTAL END
+                    {t("rentalEnd")}
                   </p>
                   <p className="mt-1 text-sm font-medium text-[#3E312A]">
                     {contract.rentalEnd}
@@ -229,7 +231,7 @@ const ContractDetailPage = ({ contract }) => {
 
                 <div>
                   <p className="text-[10px] font-semibold text-[#9B8D84]">
-                    VENUE TYPE
+                    {t("venuType")}
                   </p>
                   <p className="mt-1 text-sm font-medium text-[#3E312A]">
                     {contract.venueType}
@@ -238,7 +240,7 @@ const ContractDetailPage = ({ contract }) => {
 
                 <div>
                   <p className="text-[10px] font-semibold text-[#9B8D84]">
-                    VENUE NAME
+                    {t("venuName")}
                   </p>
                   <p className="mt-1 text-sm font-medium text-[#3E312A]">
                     {contract.venueName}
@@ -252,7 +254,7 @@ const ContractDetailPage = ({ contract }) => {
           <div className="rounded-2xl border border-[#F1E6DE] bg-white">
             <div className="border-b border-[#F5ECE6] px-5 py-3">
               <h3 className="text-[11px] font-semibold text-[#B6876A]">
-                CUSTOMER NOTES
+                {t("customerNotes")}
               </h3>
             </div>
 
@@ -267,7 +269,7 @@ const ContractDetailPage = ({ contract }) => {
         <div className="overflow-hidden rounded-2xl border border-[#F1E6DE] bg-white">
           <div className="border-b border-[#F5ECE6] px-5 py-4">
             <h3 className="text-[18px] font-semibold text-[#1E130C]">
-              Requested Items
+              {t("requestedItems")}
             </h3>
             <p className="mt-1 text-xs text-[#A09186]">
               {contract.requestedItemsNote}
@@ -278,11 +280,11 @@ const ContractDetailPage = ({ contract }) => {
             <table className="min-w-[880px] w-full">
               <thead>
                 <tr className="bg-[#FCF7F3] text-left text-[11px] uppercase tracking-[0.08em] text-[#A09186]">
-                  <th className="px-5 py-3">Item</th>
-                  <th className="px-5 py-3">Category</th>
-                  <th className="px-5 py-3">Requested</th>
-                  <th className="px-5 py-3">Availability</th>
-                  <th className="px-5 py-3 text-right">Unit Rate/Day</th>
+                  <th className="px-5 py-3">{t("itemColumn")}</th>
+                  <th className="px-5 py-3">{t("categoryColumn")}</th>
+                  <th className="px-5 py-3">{t("requested")}</th>
+                  <th className="px-5 py-3">{t("availabilityColumn")}</th>
+                  <th className="px-5 py-3 text-right">{t("unitPerDay")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -310,42 +312,42 @@ const ContractDetailPage = ({ contract }) => {
 
           <div className="border-t border-[#F5ECE6] px-5 py-4">
             <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-[#9B8D84]">
-              Order Summary
+              {t("orderSummary")}
             </h3>
 
             <div className="mt-4 grid gap-2 text-sm text-[#8B7C73]">
               <div className="flex items-center justify-between">
-                <span>Items</span>
+                <span>{t("items")}</span>
                 <span className="font-medium text-[#463932]">
                   {contract.summary.items}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Rental Days</span>
+                <span>{t("rentalDays")}</span>
                 <span className="font-medium text-[#463932]">
                   {contract.summary.rentalDays}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Subtotal</span>
+                <span>{t("subtotal")}</span>
                 <span className="font-medium text-[#463932]">
                   {contract.summary.subtotal}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Discount (%)</span>
+                <span>{t("discount")}</span>
                 <span className="font-medium text-[#53A998]">
                   {contract.summary.discount}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Delivery</span>
+                <span>{t("delivery")}</span>
                 <span className="font-medium text-[#53A998]">
                   {contract.summary.delivery}
                 </span>
               </div>
               <div className="mt-2 flex items-center justify-between border-t border-[#F5ECE6] pt-3 text-[15px] font-semibold text-[#302520]">
-                <span>Total</span>
+                <span>{t("total")}</span>
                 <span className="text-[#C2703D]">{contract.summary.total}</span>
               </div>
             </div>

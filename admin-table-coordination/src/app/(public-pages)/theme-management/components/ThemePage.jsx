@@ -20,9 +20,12 @@ import Notification from "@/components/ui/Notification";
 import NewDeleteModal from "@/components/shared/NewDeleteModal";
 import { apiGetThemeList, apiDeleteTheme } from "@/services/ThemeManagement";
 import { apiGetCategoryList } from "@/services/CategoryService";
+import { useTranslations } from "next-intl";
 
 const ThemePage = () => {
   const router = useRouter();
+  const t = useTranslations("themeManagement");
+   const ts = useTranslations("successTitle");
   const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState("list");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -139,7 +142,7 @@ const ThemePage = () => {
 
       const res = await apiDeleteTheme(accessToken, themeToDelete.id);
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={ts("success")} type="success">
           {res.message}
         </Notification>,
       );
@@ -207,11 +210,11 @@ const ThemePage = () => {
         <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
           <div>
             <h2 className="text-[28px] font-semibold text-[#1A1410]">
-              Theme Management
+              {t("themeManage")}
             </h2>
 
             <p className="text-sm text-[#757575] mt-1">
-              Manage decoration themes for your rental catalog
+              {t("themeContent")}
             </p>
           </div>
 
@@ -220,7 +223,7 @@ const ThemePage = () => {
             className="bg-[#A0522D] transition text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium"
           >
             <FiPlus />
-            Add New Theme
+             {t("addNew")}
           </button>
         </div>
 
@@ -235,7 +238,7 @@ const ThemePage = () => {
 
             <input
               type="text"
-              placeholder="Search Theme..."
+              placeholder={t("searchTheme")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#1C4FA8]"
@@ -266,7 +269,7 @@ const ThemePage = () => {
             className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
           >
             <FiRotateCcw size={14} />
-            Reset
+             {t("reset")}
           </button>
 
           {/* View Toggle */}
@@ -279,7 +282,7 @@ const ThemePage = () => {
                   : "bg-white text-[#A85A32B2] font-semibold"
               }`}
             >
-              Grid
+               {t("grid")}
             </button>
 
             <button
@@ -290,7 +293,7 @@ const ThemePage = () => {
                   : "bg-white text-[#A85A32B2] font-semibold"
               }`}
             >
-              List
+               {t("list")}
             </button>
           </div>
         </div>
@@ -306,17 +309,17 @@ const ThemePage = () => {
                 <table className="w-full text-sm">
                   <thead className="bg-[#F1F5F9] text-[#486284]">
                     <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                      <th className="text-left px-4 py-3 font-medium">Theme</th>
-                      <th className="text-left px-4 py-3 font-medium">Name</th>
+                      <th className="text-left px-4 py-3 font-medium"> {t("theme")}</th>
+                      <th className="text-left px-4 py-3 font-medium">{t("name")}</th>
                       <th className="text-left px-4 py-3 font-medium">
-                        Category
+                        {t("category")}
                       </th>
                       <th className="text-left px-4 py-3 font-medium">
-                        Items Included
+                        {t("itemsIncluded")}
                       </th>
-                      <th className="text-left px-4 py-3 font-medium">Usage</th>
+                      <th className="text-left px-4 py-3 font-medium"> {t("usage")}</th>
                       <th className="text-left px-4 py-3 font-medium">
-                        Actions
+                         {t("actions")}
                       </th>
                     </tr>
                   </thead>
@@ -399,7 +402,7 @@ const ThemePage = () => {
                           colSpan={6}
                           className="py-10 text-center text-gray-500"
                         >
-                          No Theme Found
+                          {t("notheme")}
                         </td>
                       </tr>
                     )}
@@ -459,7 +462,7 @@ const ThemePage = () => {
                                 className="flex items-center gap-2 bg-[#A0522D] text-white text-xs px-4 py-2 rounded-full hover:bg-[#8b4322]"
                               >
                                 <FiEye size={13} />
-                                Preview
+                                 {t("preview")}
                               </button>
 
                               <button
@@ -471,7 +474,7 @@ const ThemePage = () => {
                                 className="flex items-center gap-2 border border-[#D8D8D8] text-[#444] text-xs px-4 py-2 rounded-full hover:bg-[#F8F8F8]"
                               >
                                 <FiEdit2 size={13} />
-                                Edit
+                                 {t("edit")}
                               </button>
                             </div>
 
@@ -489,7 +492,7 @@ const ThemePage = () => {
                 </div>
               ) : (
                 <div className="py-16 text-center text-gray-500 text-lg">
-                  No Theme Found
+                  {t("notheme")}
                 </div>
               ))}
           </>
@@ -515,8 +518,8 @@ const ThemePage = () => {
           setThemeToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Theme"
-        message="Deleting this theme will remove it from all over the platform. This action cannot be undone."
+        title={t("deleteTheme")}
+        message={t("deletethemeContent")}
         // itemName={fabricToDelete?.productName}
         loading={deleteLoading}
       />

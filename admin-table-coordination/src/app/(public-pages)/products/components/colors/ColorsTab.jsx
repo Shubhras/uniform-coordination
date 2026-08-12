@@ -27,6 +27,8 @@ const ColorsTab = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const t = useTranslations("productSpecification.color");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
 
   const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -118,7 +120,7 @@ const ColorsTab = () => {
       const response = await apiDeleteColor(accessToken, colorToDelete.id);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={ts("success")} type="success">
           {response.message}
         </Notification>,
       );
@@ -163,16 +165,16 @@ const ColorsTab = () => {
 
       if (response?.status) {
         toast.push(
-          <Notification title="Success" type="success">
-            {response.message || "Color duplicated successfully!"}
+          <Notification title={ts("success")} type="success">
+            {response.message || t("duplicateSuccess")}
           </Notification>,
         );
       } else {
         const errorMessage =
           Object.values(response?.message || {}).flat()[0] ||
-          "Failed to duplicate color.";
+          t("duplicateFailed");
         toast.push(
-          <Notification title="Error" type="danger">
+          <Notification title={te("error")} type="danger">
             {errorMessage}
           </Notification>,
         );
@@ -181,8 +183,8 @@ const ColorsTab = () => {
     } catch (error) {
       console.error("Failed to duplicate color:", error);
       toast.push(
-        <Notification title="Error" type="danger">
-          An error occurred while duplicating the color.
+        <Notification title={te("error")} type="danger">
+          {t("duplicateError")}
         </Notification>,
       );
       fetchColors(currentPage);
@@ -294,7 +296,7 @@ const ColorsTab = () => {
                     color.compatibleFabric.length > 0 && (
                       <div className="mt-3">
                         <p className="text-xs text-[#486284] mb-1">
-                          Compatible Fabrics:
+                          {t("compatibleFabric")}:
                         </p>
                         <div className="flex gap-2 flex-wrap">
                           {color.compatibleFabric.map((fabric, index) => (
@@ -324,13 +326,13 @@ const ColorsTab = () => {
                       }}
                       className="flex-1 border border-red-200 text-red-500 text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                     >
-                      Delete
+                      {t("Delete")}
                     </button>
                     <button
                       onClick={() => handleDuplicateColor(color)}
                       className="flex-1 border border-gray-300 text-[#486284] hover:bg-gray-50 transition-colors text-xs py-1.5 rounded-md cursor-pointer"
                     >
-                      Duplicate
+                      {t("duplicate")}
                     </button>
                   </div>
                 </div>
@@ -369,8 +371,8 @@ const ColorsTab = () => {
           setColorToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Color"
-        message="Are you sure you want to delete this color? This action cannot be undone."
+        title={t("deleteColor")}
+        message={t("deleteColorContent")}
         itemName={colorToDelete?.colorName}
         loading={deleteLoading}
       />

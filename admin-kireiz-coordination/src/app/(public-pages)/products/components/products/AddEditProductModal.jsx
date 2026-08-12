@@ -445,7 +445,11 @@ const AddEditProductModal = ({
 
       let response;
       if (isEdit && initialData?.id) {
-        response = await apiUpdateProduct(accessToken, initialData.id, formData);
+        response = await apiUpdateProduct(
+          accessToken,
+          initialData.id,
+          formData,
+        );
       } else {
         response = await apiCreateProduct(accessToken, formData);
       }
@@ -459,9 +463,7 @@ const AddEditProductModal = ({
       if (onSaveSuccess) onSaveSuccess();
     } catch (err) {
       console.error("Save failed:", err);
-      setError(
-        err?.response?.data?.message || tm("saveFailed"),
-      );
+      setError(err?.response?.data?.message || tm("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -565,7 +567,10 @@ const AddEditProductModal = ({
                 name="productName"
                 control={control}
                 render={({ field }) => (
-                  <Input placeholder={tm("productNamePlaceholder")} {...field} />
+                  <Input
+                    placeholder={tm("productNamePlaceholder")}
+                    {...field}
+                  />
                 )}
               />
             </FormItem>
@@ -573,7 +578,11 @@ const AddEditProductModal = ({
 
           {/* Description */}
           <div>
-            <FormItem label={tm("descriptionLabel")}>
+            <FormItem
+              label={tm("descriptionLabel")}
+              invalid={!!errors.description}
+              errorMessage={errors.description?.message}
+            >
               <Controller
                 name="description"
                 control={control}

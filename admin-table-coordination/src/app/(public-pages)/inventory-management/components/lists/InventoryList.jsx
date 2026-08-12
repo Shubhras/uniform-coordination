@@ -20,9 +20,12 @@ import NewDeleteModal from "@/components/shared/NewDeleteModal";
 import { apiGetProductList, apiDeleteProduct } from "@/services/ProductService";
 import { apiGetFabricList } from "@/services/FabricService";
 import { apiGetCategoryList } from "@/services/CategoryService";
+import { useTranslations } from "next-intl";
 
 const InventoryList = () => {
   const router = useRouter();
+  const t = useTranslations("inventoryManagement.inventoryLists");
+  const ts = useTranslations("successTitle");
 
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -38,12 +41,12 @@ const InventoryList = () => {
 
   const [category, setCategory] = useState({
     value: "all",
-    label: "All Categories",
+    label: t("allCategories"),
   });
 
   const [material, setMaterial] = useState({
     value: "all",
-    label: "All Fabrics",
+    label: t("allFabrics"),
   });
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -106,7 +109,7 @@ const InventoryList = () => {
   }, [debouncedSearch, category, material]);
 
   const categoryOptions = [
-    { value: "all", label: "All Categories" },
+    { value: "all", label: t("allCategories") },
     ...categoryList.map((item) => ({
       value: item.id,
       label: item.categoryName,
@@ -114,7 +117,7 @@ const InventoryList = () => {
   ];
 
   const materialOptions = [
-    { value: "all", label: "All Fabrics" },
+    { value: "all", label: t("allFabrics") },
     ...fabricList.map((item) => ({
       value: item.id,
       label: item.fabricName,
@@ -135,7 +138,7 @@ const InventoryList = () => {
     try {
       const res = await apiDeleteProduct(accessToken, fabricToDelete.id);
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={ts("success")} type="success">
           {res.message}
         </Notification>,
       );
@@ -214,12 +217,12 @@ const InventoryList = () => {
 
     setCategory({
       value: "all",
-      label: "All Categories",
+      label: t("allCategories"),
     });
 
     setMaterial({
       value: "all",
-      label: "All Fabrics",
+      label: t("allFabrics"),
     });
 
     setCurrentPage(1);
@@ -253,7 +256,7 @@ const InventoryList = () => {
 
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder= {t("searchProducts")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-10 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
@@ -279,7 +282,7 @@ const InventoryList = () => {
 
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder={t("searchProducts")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full h-11 rounded-lg border border-[#EFE5DD] pl-10 pr-4 text-sm outline-none focus:border-[#A0522D]"
@@ -315,7 +318,7 @@ const InventoryList = () => {
                 className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
               >
                 <FiRotateCcw size={14} />
-                Reset
+                {t("reset")}
               </button>
             </div>
           </div>
@@ -327,17 +330,17 @@ const InventoryList = () => {
             <thead className="bg-[#F1F5F9] text-[#486284]">
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
                 <th className="text-left  px-4 py-3 font-normal">
-                  Product Name
+                  {t("productName")}
                 </th>
-                <th className="text-left  px-4 py-3 font-normal">Category</th>
-                <th className="text-left  px-4 py-3 font-normal">Fabric</th>
-                <th className="text-left  px-4 py-3 font-normal">Total</th>
-                <th className="text-left  px-4 py-3 font-normal">Available</th>
-                <th className="text-left  px-4 py-3 font-normal">On Rent</th>
-                <th className="text-left  px-4 py-3 font-normal ">Cleaning</th>
-                <th className="text-left  px-4 py-3 font-normal">Inspect</th>
+                <th className="text-left  px-4 py-3 font-normal"> {t("category")}</th>
+                <th className="text-left  px-4 py-3 font-normal"> {t("fabric")}</th>
+                <th className="text-left  px-4 py-3 font-normal"> {t("total")}</th>
+                <th className="text-left  px-4 py-3 font-normal">{t("available")}</th>
+                <th className="text-left  px-4 py-3 font-normal">{t("onRent")}</th>
+                <th className="text-left  px-4 py-3 font-normal ">{t("cleaning")}</th>
+                <th className="text-left  px-4 py-3 font-normal">{t("inspect")}</th>
                 <th className="text-left  px-4 py-3 font-normal text-center">
-                  Actions
+                  {t("actions")}
                 </th>
               </tr>
             </thead>
@@ -414,7 +417,7 @@ const InventoryList = () => {
               ) : (
                 <tr>
                   <td colSpan={9} className="py-10 text-center text-gray-500">
-                    No products found.
+                    {t("noProducts")}
                   </td>
                 </tr>
               )}
@@ -441,8 +444,8 @@ const InventoryList = () => {
           setFabricToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete Product"
-        message="Deleting this product will remove it from all over the platform. This action cannot be undone."
+        title={t("deleteProduct")}
+        message={t("deleteContent")}
         itemName={fabricToDelete?.productName}
         loading={deleteLoading}
       />

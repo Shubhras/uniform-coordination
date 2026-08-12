@@ -28,7 +28,9 @@ const AddEditTemplateModal = ({
   onSaveSuccess,
 }) => {
   const t = useTranslations("productSpecification.template");
-  const tm = useTranslations("productSpecification.template.createTemplateModal");
+  const tm = useTranslations(
+    "productSpecification.template.createTemplateModal",
+  );
   const fileRef = useRef(null);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -48,17 +50,35 @@ const AddEditTemplateModal = ({
   const [validated, setValidated] = useState(false);
 
   const validationSchema = z.object({
-    templateName: z.string().trim().min(1, {
-      message: tm("validation.nameRequired"),
+    templateName: z
+      .string()
+      .trim()
+      .min(1, {
+        message: tm("validation.nameRequired"),
+      }),
+    part: z.any().refine((val) => val?.value, {
+      message: "Part is required",
     }),
-    part: z.any().optional(),
-    partUsageCount: z.string().optional(),
+
+    partUsageCount: z
+      .string()
+      .min(1, {
+        message: "Part usage count is required",
+      })
+      .refine((val) => Number(val) > 0, {
+        message: "Part usage count must be greater than 0",
+      }),
+
+    image: z.any().refine((val) => mode === "edit" || val instanceof File, {
+      message: "Image is required",
+    }),
   });
 
   const {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(validationSchema),
@@ -66,6 +86,7 @@ const AddEditTemplateModal = ({
       templateName: "",
       part: null,
       partUsageCount: "1",
+      image: null,
     },
   });
 
@@ -124,9 +145,7 @@ const AddEditTemplateModal = ({
       setIsActive(initialData.isActive ?? true);
       setPreview(initialData.templateImage || null);
 
-      const matchedPart = partOptions.find(
-        (p) => p.value === initialData.part,
-      );
+      const matchedPart = partOptions.find((p) => p.value === initialData.part);
 
       reset({
         templateName: initialData.templateName || "",
@@ -159,6 +178,9 @@ const AddEditTemplateModal = ({
 
     if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
       setImageError("Only PNG, JPG, JPEG files are allowed.");
+      setValue("image", null, {
+        shouldValidate: true,
+      });
       return;
     }
 
@@ -168,11 +190,17 @@ const AddEditTemplateModal = ({
     img.onload = () => {
       if (img.width > 1000 || img.height > 1000) {
         setImageError("Maximum dimension allowed is 1000x1000px.");
+        setValue("image", null, {
+          shouldValidate: true,
+        });
         URL.revokeObjectURL(objectUrl);
         return;
       }
 
       setImageFile(file);
+      setValue("image", file, {
+        shouldValidate: true,
+      });
       setPreview(objectUrl);
       setValidated(true);
     };
@@ -210,7 +238,10 @@ const AddEditTemplateModal = ({
         formData.append("part", values.part.value);
       }
 
-      formData.append("partUsageCount", parseInt(values.partUsageCount || "1", 10));
+      formData.append(
+        "partUsageCount",
+        parseInt(values.partUsageCount || "1", 10),
+      );
       formData.append("isActive", isActive);
 
       if (imageFile) {
@@ -237,9 +268,7 @@ const AddEditTemplateModal = ({
       if (onSaveSuccess) onSaveSuccess();
     } catch (err) {
       console.error("Save failed:", err);
-      setError(
-        err?.response?.data?.message || tm("saveFailed"),
-      );
+      setError(err?.response?.data?.message || tm("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -274,7 +303,8 @@ const AddEditTemplateModal = ({
             {/* Template Name */}
             <div>
               <label className="text-base font-medium text-[#1C2C56]">
-                {tm("templateNameLabel")}<span className="text-red-500">*</span>
+                {tm("templateNameLabel")}
+                <span className="text-red-500">*</span>
               </label>
               <FormItem
                 invalid={Boolean(errors.templateName)}
@@ -284,7 +314,10 @@ const AddEditTemplateModal = ({
                   name="templateName"
                   control={control}
                   render={({ field }) => (
-                    <Input placeholder={tm("templateNamePlaceholder")} {...field} />
+                    <Input
+                      placeholder={tm("templateNamePlaceholder")}
+                      {...field}
+                    />
                   )}
                 />
               </FormItem>
@@ -294,6 +327,7 @@ const AddEditTemplateModal = ({
             <div>
               <label className="text-base font-medium text-[#1C2C56]">
                 {tm("partLabel")}
+                <span className="text-red-500">*</span>
               </label>
               <FormItem
                 invalid={Boolean(errors.part)}
@@ -324,6 +358,7 @@ const AddEditTemplateModal = ({
             <div>
               <label className="text-base font-medium text-[#1C2C56]">
                 {tm("partUsageCountLabel")}
+                <span className="text-red-500">*</span>
               </label>
               <FormItem
                 invalid={Boolean(errors.partUsageCount)}
@@ -335,6 +370,7 @@ const AddEditTemplateModal = ({
                   render={({ field }) => (
                     <Input
                       type="number"
+                      min="1"
                       placeholder={tm("partUsageCountPlaceholder")}
                       {...field}
                     />
@@ -365,7 +401,7 @@ const AddEditTemplateModal = ({
             </div>
 
             {/* Template Image */}
-            <div>
+            {/* <div>
               <label className="text-base font-medium text-[#1C2C56]">
                 {tm("templateImageLabel")}
               </label>
@@ -416,6 +452,66 @@ const AddEditTemplateModal = ({
                 accept="image/*"
                 onChange={(e) => handleFile(e.target.files[0])}
               />
+            </div> */}
+            <div>
+              <label className="text-base font-medium text-[#1C2C56]">
+                {tm("templateImageLabel")}
+                <span className="text-red-500">*</span>
+              </label>
+
+              <FormItem
+                invalid={Boolean(errors.image || imageError)}
+                errorMessage={errors.image?.message || imageError}
+              >
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  className="mt-2 w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm flex items-center justify-center gap-2"
+                >
+                  <FiUpload size={16} />
+                  {tm("uploadImageButton")}
+                </button>
+
+                {validated && (
+                  <div className="mb-2 mt-2 flex items-center gap-2 text-sm text-green-600 font-medium">
+                    <FiCheckCircle className="text-green-600" size={16} />
+                    <span>{tm("imageValidated")}</span>
+                  </div>
+                )}
+
+                <div
+                  onDrop={handleDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                  className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
+                >
+                  {tm("dragDropText")}
+                  <br />
+                  {tm("orText")}{" "}
+                  <span
+                    className="text-[#1C2C56] underline cursor-pointer"
+                    onClick={() => fileRef.current?.click()}
+                  >
+                    {tm("clickToBrowse")}
+                  </span>
+                  <p className="text-xs mt-2 text-[#64748B]">
+                    {tm("allowedFormats")}
+                  </p>
+                  <p className="text-xs mt-2 text-[#64748B]">
+                    {tm("maxDimension")}
+                  </p>
+                </div>
+
+                <input
+                  type="file"
+                  ref={fileRef}
+                  className="hidden"
+                  accept="image/png,image/jpeg,image/jpg"
+                  onChange={(e) => {
+                    handleFile(e.target.files?.[0]);
+                    e.target.value = "";
+                  }}
+                />
+              </FormItem>
             </div>
 
             {preview && (

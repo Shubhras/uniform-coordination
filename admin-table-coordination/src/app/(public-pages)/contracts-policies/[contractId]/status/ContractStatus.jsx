@@ -5,8 +5,11 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetContractDetail } from "@/services/ContractsPoliciesService";
 import Spinner from "@/components/ui/Spinner";
 import ContractStatusPage from "../../components/ContractStatusPage";
+import { useTranslations, useLocale } from "next-intl";
 
 export default function ContractStatus({ contractId }) {
+  const t = useTranslations("contractPolicies");
+  const locale = useLocale();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -28,49 +31,49 @@ export default function ContractStatus({ contractId }) {
           
           const timeline = [
             {
-              title: "Generated",
-              date: apiData.created_at ? new Date(apiData.created_at).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }) : "Pending",
+              title: t("viewStatus.generated"),
+              date: apiData.created_at ? new Date(apiData.created_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' }) : t("pending"),
               state: "done"
             },
             {
-              title: "Sent via CloudSign",
-              date: apiData.created_at ? new Date(apiData.created_at).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }) : "Pending",
+              title: t("viewStatus.sentVia"),
+              date: apiData.created_at ? new Date(apiData.created_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' }) : t("pending"),
               state: "done"
             },
             {
-              title: "Viewed by Recipient",
-              date: apiData.is_signed && apiData.signed_at ? new Date(apiData.signed_at).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }) : "Pending",
+              title: t("viewStatus.viewBy"),
+              date: apiData.is_signed && apiData.signed_at ? new Date(apiData.signed_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' }) : t("pending"),
               state: apiData.is_signed ? "done" : "pending"
             },
             {
-              title: "Signed",
-              date: apiData.is_signed && apiData.signed_at ? new Date(apiData.signed_at).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }) : "Pending",
+              title: t("viewStatus.signed"),
+              date: apiData.is_signed && apiData.signed_at ? new Date(apiData.signed_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' }) : t("pending"),
               state: apiData.is_signed ? "complete" : "pending"
             }
           ];
 
           const activityHistory = (apiData.audit_logs || []).map(log => ({
             title: log.description,
-            date: log.timestamp ? new Date(log.timestamp).toLocaleString("en-US", { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ""
+            date: log.timestamp ? new Date(log.timestamp).toLocaleString(locale, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ""
           }));
 
           // Fallback if no audit logs exist
           if (activityHistory.length === 0) {
             activityHistory.push({
-              title: "Contract generated",
-              date: apiData.created_at ? new Date(apiData.created_at).toLocaleString("en-US", { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ""
+              title: t("contractGenerated"),
+              date: apiData.created_at ? new Date(apiData.created_at).toLocaleString(locale, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ""
             });
             activityHistory.push({
-              title: "Sent via CloudSign",
-              date: apiData.created_at ? new Date(apiData.created_at).toLocaleString("en-US", { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ""
+              title: t("viewStatus.sentVia"),
+              date: apiData.created_at ? new Date(apiData.created_at).toLocaleString(locale, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ""
             });
           }
 
           const statusSummary = {
-            currentStatus: apiData.is_signed ? "Signed" : "Sent",
-            cloudsign: apiData.is_signed ? "Signed" : "Awaiting Signature",
+            currentStatus: apiData.is_signed ? t("statusSigned") : t("statusSent"),
+            cloudsign: apiData.is_signed ? t("statusSigned") : t("awaitingSign"),
             contractValue: apiData.summary?.total || "—",
-            generatedOn: apiData.created_at ? new Date(apiData.created_at).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }) : "—"
+            generatedOn: apiData.created_at ? new Date(apiData.created_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' }) : "—"
           };
 
           const formattedContract = {
@@ -82,11 +85,11 @@ export default function ContractStatus({ contractId }) {
 
           setContract(formattedContract);
         } else {
-          setError(res?.message || "Contract not found");
+          setError(res?.message || t("contractNotFound"));
         }
       } catch (err) {
         console.error(err);
-        setError(err.response?.data?.message || err.message || "Failed to fetch contract status");
+        setError(err.response?.data?.message || err.message || t("fetchStatusFailed"));
       } finally {
         setLoading(false);
       }
@@ -106,14 +109,14 @@ export default function ContractStatus({ contractId }) {
   if (error || !contract) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#FFFCFA] p-6 text-center">
-        <h2 className="text-xl font-semibold text-[#2E231E]">Error loading contract status</h2>
-        <p className="mt-2 text-sm text-[#7A6E66]">{error || "Contract status could not be retrieved."}</p>
+        <h2 className="text-xl font-semibold text-[#2E231E]">{t("errorLoadingStatus")}</h2>
+        <p className="mt-2 text-sm text-[#7A6E66]">{error || t("statusNotRetrieved")}</p>
         <button
           type="button"
           onClick={() => window.location.reload()}
           className="mt-4 rounded-lg bg-[#A85A32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#8B4C2A]"
         >
-          Retry
+          {t("retry")}
         </button>
       </div>
     );

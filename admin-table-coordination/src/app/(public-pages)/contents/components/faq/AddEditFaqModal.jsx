@@ -11,17 +11,7 @@ import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiCreateFaq, apiUpdateFaq } from "@/services/FaqService";
-
-const faqSchema = z.object({
-  title: z.string().trim().min(1, "Title is required"),
-  descriptions: z
-    .array(
-      z.object({
-        description: z.string().trim().min(1, "Description is required"),
-      }),
-    )
-    .min(1, "At least one description is required"),
-});
+import { useTranslations } from "next-intl";
 
 const AddEditFaqModal = ({
   isOpen,
@@ -35,6 +25,21 @@ const AddEditFaqModal = ({
 
   const [title, setTitle] = useState("");
   const [descriptions, setDescriptions] = useState([{ description: "" }]);
+  const t = useTranslations("contentMedia.faqs");
+
+  const faqSchema = z.object({
+    title: z.string().trim().min(1, t("validation.titleRequired")),
+    descriptions: z
+      .array(
+        z.object({
+          description: z
+            .string()
+            .trim()
+            .min(1, t("validation.descriptionRequired")),
+        }),
+      )
+      .min(1, t("validation.atLeastOneDescription")),
+  });
 
   // Save state
   const [saving, setSaving] = useState(false);
@@ -145,7 +150,7 @@ const AddEditFaqModal = ({
           payload,
         );
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={t("success")} type="success">
             {response.message}
           </Notification>,
         );
@@ -153,7 +158,7 @@ const AddEditFaqModal = ({
         const response = await apiCreateFaq(accessToken, payload);
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={t("success")} type="success">
             {response.message}
           </Notification>,
         );
@@ -168,7 +173,7 @@ const AddEditFaqModal = ({
       onSaveSuccess?.();
     } catch (err) {
       setError(
-        err?.response?.data?.message || "Failed to save FAQ. Please try again.",
+        err?.response?.data?.message || t("saveError"),
       );
     } finally {
       setSaving(false);
@@ -185,7 +190,7 @@ const AddEditFaqModal = ({
       <div className="flex flex-col">
         <div className="border-b p-2 flex justify-between items-center">
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            {mode === "edit" ? "Edit FAQ" : "Create FAQ"}
+            {mode === "edit" ? t("editFaq") : t("createFAQ")}
           </h2>
         </div>
 
@@ -200,7 +205,8 @@ const AddEditFaqModal = ({
           {/* Title */}
           <div>
             <label className="text-[#1C2C56] text-base font-medium">
-              Title<span className="text-red-500">*</span>
+              {t("title")}
+              <span className="text-red-500">*</span>
             </label>
             <Controller
               name="title"
@@ -209,7 +215,7 @@ const AddEditFaqModal = ({
                 <input
                   {...field}
                   type="text"
-                  placeholder="Type your question"
+                  placeholder={t("titlePlaceholder")}
                   className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                 />
               )}
@@ -226,7 +232,8 @@ const AddEditFaqModal = ({
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-[#1C2C56] text-base font-medium">
-                Descriptions<span className="text-red-500">*</span>
+                {t("descriptions")}
+                <span className="text-red-500">*</span>
               </label>
               <button
                 type="button"
@@ -234,7 +241,7 @@ const AddEditFaqModal = ({
                 className="text-[#1C2C56] text-sm font-medium flex items-center gap-1 hover:text-[#0F172A]"
               >
                 <FiPlus size={14} />
-                Add More
+                {t("addmore")}
               </button>
             </div>
 
@@ -248,7 +255,9 @@ const AddEditFaqModal = ({
                       render={({ field }) => (
                         <textarea
                           {...field}
-                          placeholder={`Description ${index + 1}...`}
+                          placeholder={t("descriptionPlaceholder", {
+                            number: index + 1,
+                          })}
                           className="flex-1 border rounded-md px-3 py-2 text-sm h-[80px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                         />
                       )}
@@ -284,7 +293,7 @@ const AddEditFaqModal = ({
             disabled={saving}
             className="bg-blue-100 rounded-lg"
           >
-            Cancel
+            {t("cancel")}
           </Button>
 
           <Button
@@ -297,7 +306,7 @@ const AddEditFaqModal = ({
             disabled={saving}
             className="bg-blue-100 rounded-lg"
           >
-            Save & Add Another
+            {t("saveAddAnother")}
           </Button>
 
           <Button
@@ -310,7 +319,7 @@ const AddEditFaqModal = ({
             )}
             loading={saving}
           >
-            {mode === "edit" ? "Update" : "Save"}
+            {mode === "edit" ? t("update") : t("save")}
           </Button>
         </div>
       </div>

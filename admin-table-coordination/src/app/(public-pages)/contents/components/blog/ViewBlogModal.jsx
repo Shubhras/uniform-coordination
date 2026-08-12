@@ -2,11 +2,12 @@
 
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
+import { useTranslations, useLocale } from "next-intl";
 
-const formatDate = (isoDate) => {
+const formatDate = (isoDate, locale) => {
   if (!isoDate) return "";
   const d = new Date(isoDate);
-  return d.toLocaleDateString("en-US", {
+  return d.toLocaleDateString(locale, {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -14,6 +15,9 @@ const formatDate = (isoDate) => {
 };
 
 const ViewBlogModal = ({ isOpen, onClose, post }) => {
+  const t = useTranslations("contentMedia.blog.view");
+  const locale = useLocale();
+
   if (!post) return null;
 
   return (
@@ -27,7 +31,7 @@ const ViewBlogModal = ({ isOpen, onClose, post }) => {
         {/* Header */}
         <div className="border-b border-gray-150 px-6 py-4 flex justify-between items-center bg-[#FFFDFC]">
           <h2 className="text-xl font-bold text-[#1C2C56] leading-snug">
-            Blog Post Details
+            {t("blogPostDetails")}
           </h2>
           <button
             onClick={onClose}
@@ -53,13 +57,13 @@ const ViewBlogModal = ({ isOpen, onClose, post }) => {
           {/* Metadata Badges */}
           <div className="flex flex-wrap gap-2 items-center text-xs">
             <span className="bg-[#A0522D1A] text-[#A0522D] px-2.5 py-1 rounded-full font-medium">
-              {post.categoryName || "Uncategorized"}
+              {post.categoryName || t("uncategorized")}
             </span>
             <span className="bg-[#1C2C561A] text-[#1C2C56] px-2.5 py-1 rounded-full font-medium capitalize">
-              Type: {post.type || "N/A"}
+              {t("type")}: {post.type || t("notAvailable")}
             </span>
             <span className="text-gray-500 ml-auto">
-              Published: {formatDate(post.created_at)}
+              {t("published")}: {formatDate(post.created_at, locale)}
             </span>
           </div>
 
@@ -84,7 +88,7 @@ const ViewBlogModal = ({ isOpen, onClose, post }) => {
             className="bg-[#A0522D] hover:bg-[#8A4225] text-white px-6 py-2 rounded-md font-medium"
             onClick={onClose}
           >
-            Close
+            {t("close")}
           </Button>
         </div>
       </div>

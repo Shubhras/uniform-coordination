@@ -6,6 +6,7 @@ import { FiCheckCircle } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
 import { apiPaymentDetail } from '@/services/paymentService'
 import { formatDate } from '@/utils/formatDate'
+import { formatCurrency } from '@/utils/formatCurrency'
 
 /**
  * ThankyouPopup Component
@@ -70,22 +71,24 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
     const customerPhone = deliveryAddress?.phone || customer?.phone
 
     let orderItems = []
-    if (order?.item_name) {
+    if (Array.isArray(order?.order_items) && order.order_items.length > 0) {
+        orderItems = order.order_items
+    } else if (Array.isArray(order?.items) && order.items.length > 0) {
+        orderItems = order.items
+    } else if (order?.item_name) {
         orderItems = [{
             product_name: order.item_name,
             quantity: 1,
             total_price: order.total_amount || order.subtotal,
             price_per_day: null
         }]
-    } else if (Array.isArray(order?.order_items)) {
-        orderItems = order.order_items
-    } else if (Array.isArray(order?.items)) {
-        orderItems = order.items
     }
 
     const startDate = order?.rental_start_date ? formatDate(order.rental_start_date) : '—'
     const endDate = order?.rental_end_date ? formatDate(order.rental_end_date) : '—'
     const duration = order?.rental_days ? `${order.rental_days} days` : '—'
+
+    const currencyCode = order?.currency || orderPaymentDetail?.currency || 'USD'
 
     const subtotal = order?.subtotal
     const shipping = order?.shipping_charge
@@ -169,11 +172,11 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
                                                 <div>
                                                     <p className="font-medium text-[15px] text-gray-800">{itemName}</p>
                                                     <p className="text-[14px] text-gray-500">
-                                                        Qty: {qty} {pricePerDay ? `(¥${Number(pricePerDay).toLocaleString()}/day)` : ''}
+                                                        Qty: {qty} {pricePerDay ? `(${formatCurrency(pricePerDay, currencyCode)}/day)` : ''}
                                                     </p>
                                                 </div>
                                                 <span className="font-semibold text-gray-800 text-[15px]">
-                                                    ${Number(price).toLocaleString()}
+                                                    {formatCurrency(price, currencyCode)}
                                                 </span>
                                             </div>
                                         )
@@ -217,31 +220,31 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
                                     {subtotal !== undefined && subtotal !== null && (
                                         <div className="flex justify-between">
                                             <span className="text-gray-500">Subtotal:</span>
-                                            <span>${Number(subtotal).toLocaleString()}</span>
+                                            <span>{formatCurrency(subtotal, currencyCode)}</span>
                                         </div>
                                     )}
                                     {shipping !== undefined && shipping !== null && (
                                         <div className="flex justify-between">
                                             <span className="text-gray-500">Shipping:</span>
-                                            <span>${Number(shipping).toLocaleString()}</span>
+                                            <span>{formatCurrency(shipping, currencyCode)}</span>
                                         </div>
                                     )}
                                     {discount !== undefined && discount !== null && Number(discount) > 0 && (
                                         <div className="flex justify-between text-green-600">
                                             <span>Discount:</span>
-                                            <span>-${Number(discount).toLocaleString()}</span>
+                                            <span>-{formatCurrency(discount, currencyCode)}</span>
                                         </div>
                                     )}
                                     {tax !== undefined && tax !== null && (
                                         <div className="flex justify-between">
                                             <span className="text-gray-500">Tax:</span>
-                                            <span>${Number(tax).toLocaleString()}</span>
+                                            <span>{formatCurrency(tax, currencyCode)}</span>
                                         </div>
                                     )}
                                     {totalAmount !== undefined && totalAmount !== null && (
                                         <div className="flex justify-between font-semibold text-base text-[#111827] border-t pt-2 mt-1">
                                             <span>Total:</span>
-                                            <span className="text-[#8B4513]">${Number(totalAmount).toLocaleString()}</span>
+                                            <span className="text-[#8B4513]">{formatCurrency(totalAmount, currencyCode)}</span>
                                         </div>
                                     )}
                                 </div>

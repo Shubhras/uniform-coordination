@@ -1,4 +1,15 @@
 {
+    "header": {
+        "home": "ホーム",
+        "uniformDesign": "ユニフォームデザイン",
+        "tableDesign": "テーブルデザイン",
+        "blog": "ブログ",
+        "faq": "よくある質問",
+        "navigation": "ナビゲーション",
+        "login": "ログイン",
+        "signup": "新規登録",
+        "signOut": "サインアウト"
+    },
     "nav": {
         "dashboard": {
             "dashboard": "ダッシュボード",
@@ -1388,10 +1399,18 @@
     "reportsAnalytics": {
         "pageTitle": "レポートと分析",
         "pageSubtitle": "見積のファネル、顧客、カタログ利用状況。",
+        "errorTitle": "エラー",
+        "loadFailed": "分析データを読み込めませんでした",
+        "exportFailed": "レポートをエクスポートできませんでした",
+        "exportCsvTitle": "{type}をCSVとしてエクスポート",
+        "days": "日",
+        "wonCount": "{count} 件成約",
+        "salesPerformanceSummary": "{won}/{assigned} 成約 · {rate}% · {value}",
         "dateRangeFilter": {
             "last3Months": "過去3か月",
             "last6Months": "過去6か月",
-            "last12Months": "過去12か月"
+            "last12Months": "過去12か月",
+            "lastNMonths": "過去{months}か月"
         },
         "exportQuotations": "見積をエクスポート",
         "exporting": "エクスポート中...",
@@ -1417,13 +1436,17 @@
             "adminEnteredTotals": "管理者入力の合計より",
             "awaitingAdminQuote": "管理者見積待ち",
             "awaitingCustomerReply": "顧客の返答待ち",
-            "pendingPlusSent": "保留 + 送信済み"
+            "pendingPlusSent": "保留 + 送信済み",
+            "winRateHint": "成約率 {rate}%",
+            "basedOnSample": "送信済み見積 {sample} 件に基づく",
+            "b2bAccountsHint": "{count} B2B アカウント"
         },
         "panels": {
             "statusDistribution": "ステータス分布",
             "statusSubtitle": "ステータス別の見積内訳",
             "monthlyTrend": "月別推移",
             "monthlySubtitle": "月別の見積提出数",
+            "monthlyTrendWithRange": "月別推移 (過去{months}か月)",
             "topIndustries": "主要業界",
             "topIndustriesSubtitle": "見積依頼ボリューム順",
             "topProducts": "人気商品",
@@ -1434,6 +1457,7 @@
             "topCustomersSubtitle": "見積ボリューム順",
             "customerGrowth": "顧客の成長",
             "customerGrowthSubtitle": "月別の新規顧客登録数",
+            "customerGrowthWithRange": "顧客の成長 (過去{months}か月)",
             "salesRepPerformance": "営業担当パフォーマンス",
             "salesRepPerformanceSubtitle": "割り当て済み vs 成約見積",
             "catalogSnapshot": "カタログスナップショット",

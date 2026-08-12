@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import { apiSindleOrderDetials } from '@/services/OrderService'
 import { formatDate } from '@/utils/formatDate'
+import { formatCurrency } from '@/utils/formatCurrency'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import {
     FiArrowLeft,
@@ -13,6 +14,7 @@ import {
     FiMail,
     FiPhone,
     FiUser,
+    FiFileText,
 } from 'react-icons/fi'
 
 // Order item image preview component
@@ -119,6 +121,8 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
         ? orderDetailData.data[0]
         : orderDetailData?.data || orderDetailData
 
+    const currencyCode = orderData?.payment_summary?.currency || orderData?.currency || 'USD'
+
     // Address formatter helper
     const formatAddress = (addr) => {
         if (!addr) return ''
@@ -134,118 +138,154 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
     }
 
     return (
-        <AdaptiveCard className="h-full mt-8 border-0">
-            <div className="mx-auto w-full max-w-7xl rounded-2xl bg-[#F5F0EE30] p-5 shadow-md md:p-8">
-                {/* Header */}
-                <div className="mb-5 flex items-center gap-3">
-                    <button
-                        type="button"
-                        onClick={handleBack}
-                        className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E5D5CD] bg-white text-[#8B6A55] hover:bg-[#FAF6F4] transition"
-                    >
-                        <FiArrowLeft size={16} />
-                    </button>
-                    <div className="flex-1">
-                        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                            <h2 className="text-xl font-semibold text-[#2C1810]">
-                                Order {orderData?.order_id || orderId}
-                            </h2>
-                            {orderData?.created_at && (
-                                <p className="text-xs text-[#8D7769]">
-                                    Ordered On {formatDate(orderData.created_at)}
-                                </p>
-                            )}
-                        </div>
+        <div className="mx-auto w-full max-w-7xl py-6 px-4 md:px-8">
+            {/* Header */}
+            <div className="mb-6 flex items-center gap-3">
+                <button
+                    type="button"
+                    onClick={handleBack}
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E5D5CD] bg-white text-[#8B6A55] hover:bg-[#FAF6F4] transition"
+                >
+                    <FiArrowLeft size={16} />
+                </button>
+                <div className="flex-1">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                        <h2 className="text-2xl font-bold text-[#2C1810]">
+                            {orderData?.item_name || `Order ${orderData?.order_id || orderId}`}
+                        </h2>
+                        {orderData?.created_at && (
+                            <p className="text-sm text-[#8D7769] font-medium">
+                                Ordered On {formatDate(orderData.created_at)}
+                            </p>
+                        )}
                     </div>
                 </div>
+            </div>
 
-                {loading ? (
-                    <div className="flex justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
-                    </div>
-                ) : (
-                    <>
-                        <div className="grid gap-4 xl:grid-cols-[1.06fr_0.56fr] xl:items-stretch">
-                            <div className="flex h-full flex-col gap-4">
-                                <div className={`${cardClassName} p-4`}>
-                                    <PreviewImage src={orderData?.item_image} alt={orderData?.item_name} />
-                                </div>
-
-                                <DetailCard
-                                    title="Rental Information"
-                                    icon={<FiCalendar size={12} className="text-[#B66636]" />}
-                                    className="flex-1"
-                                >
-                                    <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                                        <InfoRow label="Rental Start" value={formatDate(orderData?.rental_start_date)} />
-                                        <InfoRow label="Rental End" value={formatDate(orderData?.rental_end_date)} />
+            {loading ? (
+                <div className="flex justify-center items-center py-20">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
+                </div>
+            ) : (
+                <>
+                    <div className="grid gap-4 xl:grid-cols-[1.06fr_0.56fr] xl:items-stretch">
+                        <div className="flex h-full flex-col gap-4">
+                            <div className={`${cardClassName} overflow-hidden`}>
+                                {orderData?.item_image ? (
+                                    <img
+                                        src={orderData.item_image}
+                                        alt={orderData.item_name || 'Order banner'}
+                                        className="w-full h-[240px] md:h-[320px] object-cover"
+                                    />
+                                ) : (
+                                    <div className="p-4">
+                                        <PreviewImage src={null} alt={orderData?.item_name} />
                                     </div>
-                                </DetailCard>
+                                )}
                             </div>
 
-                            <div className="h-full">
-                                <div className={`${cardClassName} flex h-full flex-col p-4`}>
-                                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#C8A18C]">
-                                        <FiCreditCard size={12} className="text-[#B66636]" />
-                                        <p>Payment Summary</p>
-                                    </div>
-                                    <div className="mt-4 space-y-3 text-sm text-[#6D5548]">
-                                        <div className="flex items-center justify-between">
-                                            <span>Total Items</span>
-                                            <span>{orderData?.order_items?.length}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span>Sub Total</span>
-                                            <span>¥{orderData?.payment_summary?.subtotal}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span>Delivery Fee</span>
-                                            <span>¥{orderData?.payment_summary?.shipping_charge}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span>Consumption Tax (10%)</span>
-                                            <span>¥{orderData?.payment_summary?.tax}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span>Corporate Discount</span>
-                                            <span className="text-[#B04E2F]">-¥{orderData?.payment_summary?.discount}0</span>
-                                        </div>
-                                        <div className="flex items-center justify-between border-t border-[#F2E6E0] pt-3 font-semibold text-[#B04E2F]">
-                                            <span>Rental Subtotal</span>
-                                            <span>¥{orderData?.payment_summary?.subtotal}</span>
-                                        </div>
-                                    </div>
+                            <DetailCard
+                                title="Rental Information"
+                                icon={<FiCalendar size={12} className="text-[#B66636]" />}
+                                className="flex-grow-0"
+                            >
+                                <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                                    <InfoRow label="Rental Start" value={formatDate(orderData?.rental_start_date)} />
+                                    <InfoRow label="Rental End" value={formatDate(orderData?.rental_end_date)} />
+                                </div>
+                            </DetailCard>
 
-                                    <div className="mt-5 border-t border-[#F2E6E0] pt-5">
-                                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C8A18C]">
-                                            Payment Method
-                                        </p>
-                                        <div className="mt-2 flex items-center gap-2 rounded-md border border-[#EEE1D8] bg-white px-3 py-3 text-sm font-medium text-[#2C1810]">
-                                            <span className="rounded bg-[#EEF6FF] px-1.5 py-0.5 text-[10px] font-semibold text-[#2B7FFF]">
-                                                {orderData?.payment_summary?.payment_method?.[0]?.toUpperCase()}
-                                            </span>
-                                            <span> {orderData?.payment_summary?.payment_method}</span>
-                                        </div>
-                                        <div className="mt-5 flex items-center justify-between text-sm text-[#7C6558]">
-                                            <span>Payment Status</span>
-                                            <span className={`rounded-sm px-2 py-0.5 text-[11px] font-semibold uppercase ${getPaymentStatusBadge(orderData?.payment_summary?.payment_status)}`}>
-                                                {orderData?.payment_summary?.payment_status}
-                                            </span>
-                                        </div>
-                                        <div className="mt-4 flex items-center justify-between text-sm text-[#7C6558]">
-                                            <span>Payment Date</span>
-                                            <span>{orderData?.payment_summary?.paid_at ? formatDate(orderData?.payment_summary?.paid_at) : ''}</span>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            className="mt-5 w-full rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
-                                        >
-                                            Track Order
-                                        </button>
+                            {orderData?.contract_info && (
+                                <DetailCard
+                                    title="Quotation & Contract Information"
+                                    icon={<FiFileText size={12} className="text-[#B66636]" />}
+                                    className="flex-grow-0"
+                                >
+                                    <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                                        <InfoRow label="Contract ID" value={orderData.contract_info.contract_id} />
+                                        <InfoRow label="Contract Status" value={orderData.contract_info.contract_status?.toUpperCase()} />
+                                        <InfoRow label="Workflow Status" value={orderData.contract_info.workflow_status?.replace(/_/g, ' ')} />
+                                        {orderData.contract_info.signed_at && (
+                                            <InfoRow label="Signed Date" value={formatDate(orderData.contract_info.signed_at)} />
+                                        )}
                                     </div>
+                                    {orderData.contract_info.signed_pdf && (
+                                        <a
+                                            href={orderData.contract_info.signed_pdf}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="mt-5 inline-flex w-full items-center justify-center rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
+                                        >
+                                            Download Contract PDF
+                                        </a>
+                                    )}
+                                </DetailCard>
+                            )}
+                        </div>
+
+                        <div className="h-full">
+                            <div className={`${cardClassName} flex h-full flex-col p-4`}>
+                                <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#C8A18C]">
+                                    <FiCreditCard size={12} className="text-[#B66636]" />
+                                    <p>Payment Summary</p>
+                                </div>
+                                <div className="mt-4 space-y-3 text-sm text-[#6D5548]">
+                                    <div className="flex items-center justify-between">
+                                        <span>Total Items</span>
+                                        <span>{orderData?.order_items?.length}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span>Sub Total</span>
+                                        <span>{formatCurrency(orderData?.payment_summary?.subtotal, currencyCode)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span>Delivery Fee</span>
+                                        <span>{formatCurrency(orderData?.payment_summary?.shipping_charge, currencyCode)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span>Consumption Tax (10%)</span>
+                                        <span>{formatCurrency(orderData?.payment_summary?.tax, currencyCode)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span>Corporate Discount</span>
+                                        <span className="text-[#B04E2F]">-{formatCurrency(orderData?.payment_summary?.discount || 0, currencyCode)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between border-t border-[#F2E6E0] pt-3 font-semibold text-[#B04E2F]">
+                                        <span>Rental Subtotal</span>
+                                        <span>{formatCurrency(orderData?.payment_summary?.total_amount, currencyCode)}</span>
+                                    </div>
+                                </div>
+
+                                <div className="mt-5 border-t border-[#F2E6E0] pt-5">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C8A18C]">
+                                        Payment Method
+                                    </p>
+                                    <div className="mt-2 flex items-center gap-2 rounded-md border border-[#EEE1D8] bg-white px-3 py-3 text-sm font-medium text-[#2C1810]">
+                                        <span className="rounded bg-[#EEF6FF] px-1.5 py-0.5 text-[10px] font-semibold text-[#2B7FFF]">
+                                            {orderData?.payment_summary?.payment_method?.[0]?.toUpperCase()}
+                                        </span>
+                                        <span> {orderData?.payment_summary?.payment_method}</span>
+                                    </div>
+                                    <div className="mt-5 flex items-center justify-between text-sm text-[#7C6558]">
+                                        <span>Payment Status</span>
+                                        <span className={`rounded-sm px-2 py-0.5 text-[11px] font-semibold uppercase ${getPaymentStatusBadge(orderData?.payment_summary?.payment_status)}`}>
+                                            {orderData?.payment_summary?.payment_status}
+                                        </span>
+                                    </div>
+                                    <div className="mt-4 flex items-center justify-between text-sm text-[#7C6558]">
+                                        <span>Payment Date</span>
+                                        <span>{orderData?.payment_summary?.paid_at ? formatDate(orderData?.payment_summary?.paid_at) : ''}</span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="mt-5 w-full rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
+                                    >
+                                        Track Order
+                                    </button>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
                         <div className="mt-4 space-y-4">
                             <DetailCard
@@ -316,8 +356,8 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                                     <td className="px-4 py-3.5">{item.product_name}</td>
                                                     <td className="px-4 py-3.5">{item.quantity}</td>
                                                     <td className="px-4 py-3.5">{item.rental_days}</td>
-                                                    <td className="px-4 py-3.5">{item.price_per_day}</td>
-                                                    <td className="px-4 py-3.5">{item.subtotal}</td>
+                                                    <td className="px-4 py-3.5">{formatCurrency(item.price_per_day, currencyCode)}</td>
+                                                    <td className="px-4 py-3.5">{formatCurrency(item.subtotal, currencyCode)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -333,8 +373,8 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                             <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-[#6D5548]">
                                                 <span>Qty: {item.quantity}</span>
                                                 <span>Days: {item.rental_days}</span>
-                                                <span>{item.price_per_day}</span>
-                                                <span>{item.subtotal}</span>
+                                                <span>{formatCurrency(item.price_per_day, currencyCode)}</span>
+                                                <span>{formatCurrency(item.subtotal, currencyCode)}</span>
                                             </div>
                                         </div>
                                     ))}
@@ -343,8 +383,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                         </div>
                     </>
                 )}
-            </div>
-        </AdaptiveCard>
+        </div>
     )
 }
 

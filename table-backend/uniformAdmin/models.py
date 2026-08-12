@@ -4,7 +4,7 @@ from django.utils.text import slugify
 from django.db.models import Q
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-
+from django.conf import settings
 
 
 # Role Table
@@ -114,20 +114,22 @@ class SystemSettings(models.Model):
     contact_number = models.CharField(max_length=50, blank=True, null=True)
     
     default_language = models.CharField(max_length=50, default="Japanese")
-    default_currency = models.CharField(max_length=50, default="JPY (¥)")
+    default_currency = models.CharField(max_length=50, default="USD ($)")
     time_zone = models.CharField(max_length=100, default="(GMT+09:00) Tokyo")
     date_format = models.CharField(max_length=50, default="YYYY/MM/DD")
     
     logo = models.ImageField(upload_to="system/logos/", null=True, blank=True)
 
     # SMTP Settings
-    email_host = models.CharField(max_length=255, default="smtp.gmail.com")
-    email_port = models.IntegerField(default=587)
-    email_username = models.CharField(max_length=255, default="saksri.s@eqho.com", blank=True, null=True)
-    email_password = models.CharField(max_length=255, default="fkfvgfdhjbxphzmm", blank=True, null=True)
-    email_use_tls = models.BooleanField(default=True)
-    email_from_address = models.CharField(max_length=255, default="no-reply@kireizspace.com")
-    email_from_name = models.CharField(max_length=255, default="Kireiz Space")
+    email_host = models.CharField(max_length=255, default="", blank=True, null=True)
+    email_port = models.IntegerField(default=0, blank=True, null=True)
+    email_use_tls = models.BooleanField(default=True, blank=True, null=True)
+    email_from_address = models.CharField(max_length=255, default="", blank=True, null=True)
+    email_from_name = models.CharField(max_length=255, default="", blank=True, null=True)
+
+    email_username = models.CharField(max_length=255, default="", blank=True, null=True)
+    email_password = models.CharField(max_length=255, default="", blank=True, null=True)
+   
 
     # Notification Toggles
     email_notify_registration = models.BooleanField(default=True)
@@ -175,8 +177,18 @@ class SystemSettings(models.Model):
 
     @classmethod
     def load(cls):
-        """Fetch the single settings row, creating it with defaults if missing."""
-        obj, _ = cls.objects.get_or_create(pk=1)
+        obj, created = cls.objects.get_or_create(
+            pk=1,
+            defaults={
+                "email_host": getattr(settings, "EMAIL_HOST", ""),
+                "email_username": getattr(settings, "EMAIL_HOST_USER", ""),
+                "email_password": getattr(settings, "EMAIL_HOST_PASSWORD", ""),
+                "email_port": getattr(settings, "EMAIL_PORT", 587),
+                "email_use_tls": getattr(settings, "EMAIL_USE_TLS", True),
+                "email_from_address": getattr(settings, "EMAIL_FROM_ADDRESS", getattr(settings, "EMAIL_HOST_USER", "")),
+                "email_from_name": getattr(settings, "EMAIL_FROM_NAME", "System"),
+            }
+        )
         return obj
 
     def __str__(self):

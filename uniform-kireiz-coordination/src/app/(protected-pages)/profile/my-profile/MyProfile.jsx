@@ -349,8 +349,8 @@ const MyProfile = () => {
             />
           </div>
 
-          <div className="relative flex-1 pr-0 md:pr-[110px]">
-            <span className="mt-3 inline-flex w-fit items-center gap-1 rounded-full bg-[#DCFCE7] px-2.5 py-1 text-xs font-medium text-[#10B981] md:absolute md:right-3 md:-top-2 md:mb-0 md:shadow-[0_0_0_6px_#F6FAFF]">
+          <div className="relative flex-1">
+            <span className="absolute right-0 -top-1 inline-flex items-center gap-1 rounded-full bg-[#DCFCE7] px-2.5 py-1 text-xs font-medium text-[#10B981]">
               <HiCheckCircle size={12} />
               Verified Account
             </span>

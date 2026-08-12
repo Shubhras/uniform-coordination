@@ -5,15 +5,18 @@ import { FiSend } from "react-icons/fi";
 import { TbRobot } from "react-icons/tb";
 import { apiFaqAssistant } from "@/services/AiAutomation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-
-const faqChips = [
-  "Cancellation policy?",
-  "Delivery schedule?",
-  "Deposit & refund?",
-  "Damage liability?",
-];
+import { useTranslations } from "next-intl";
 
 const TermsAssistant = () => {
+  const t = useTranslations("aiAutomation.termAssistant");
+
+  const faqChips = [
+    t("cancelPolicy"),
+    t("deliverySchedule"),
+    t("deposit"),
+    t("damageliability"),
+  ];
+
   const [message, setMessage] = useState("");
 
   const { session } = useCurrentSession();
@@ -52,7 +55,7 @@ const TermsAssistant = () => {
           text:
             res?.data?.answer ||
             res?.data?.data?.answer ||
-            "No response found.",
+            t("noResponse"),
           confidence: res?.data?.confidence || res?.data?.data?.confidence,
           source: res?.data?.source || res?.data?.data?.source,
         },
@@ -64,7 +67,7 @@ const TermsAssistant = () => {
         ...prev,
         {
           type: "assistant",
-          text: "Something went wrong.",
+          text: t("somethingWentWrong"),
         },
       ]);
     } finally {
@@ -75,10 +78,10 @@ const TermsAssistant = () => {
   return (
     <div className="mt-6">
       <div className="text-[24px] font-semibold leading-tight text-[#2A1A0E] sm:text-[24px]">
-        FAQ / Terms Assistant
+        {t("title")}
       </div>
       <p className="mt-1 text-[13px] text-[#B29D8C]">
-        Ask questions based on company FAQs and Terms of Service
+        {t("subtitle")}
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -139,7 +142,7 @@ const TermsAssistant = () => {
               </div>
 
               <div className="rounded-xl border border-[#EFE2D9] bg-[#FFFDFC] px-5 py-4 text-sm">
-                Thinking...
+                {t("thinking")}
               </div>
             </div>
           )}
@@ -156,7 +159,7 @@ const TermsAssistant = () => {
                 }
               }}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Ask about company policies, terms, or FAQs..."
+              placeholder={t("askAbout")}
               className="w-full bg-transparent text-[13px] text-[#6C615A] outline-none placeholder:text-[#D7C7BC]"
             />
             <button

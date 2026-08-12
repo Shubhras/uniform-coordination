@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
+import { useTranslations } from "next-intl";
 import {
   apiGetMenuList,
   apiGetRolePermissionList,
@@ -13,6 +14,8 @@ import {
 import Spinner from "@/components/ui/Spinner";
 
 const PermissionPage = () => {
+  const t = useTranslations("userPermissions.permissions");
+  const ts = useTranslations("successTitle");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -94,8 +97,8 @@ const PermissionPage = () => {
     try {
       if (!selectedRoleId) {
         toast.push(
-          <Notification title="Info" type="warning">
-            Please modify a permission first.
+          <Notification title={t("infoTitle")} type="warning">
+            {t("modifyFirst")}
           </Notification>,
         );
         return;
@@ -129,7 +132,7 @@ const PermissionPage = () => {
       const response = await apiUpdatePermissionList(accessToken, payload);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={ts("success")} type="success">
           {response?.message}
         </Notification>,
       );
@@ -169,7 +172,7 @@ const PermissionPage = () => {
               <thead className="bg-[#F7F2EE] border-b border-[#ECE7E3]">
                 <tr className="text-[#486284]">
                   <th className="text-left text-[#1C1917] px-5 py-3 font-semibold">
-                    Feature / Capability
+                    {t("feature")}
                   </th>
 
                   {roles.map((role) => (
@@ -241,7 +244,7 @@ const PermissionPage = () => {
             loading={saving}
             className="bg-[#A0522D] h-9 text-white px-5 py-2 rounded-md text-sm font-medium"
           >
-            Save Changes
+            {t("saveChanges")}
           </Button>
         </div>
       </div>

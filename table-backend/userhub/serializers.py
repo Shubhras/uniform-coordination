@@ -216,11 +216,13 @@ class CartItemSerializer(serializers.ModelSerializer):
             "price",
             "final_price",
             "total_price",
+            "custom_theme",
         ]
         read_only_fields = [
             "price",
             "final_price",
             "total_price",
+            "custom_theme",
         ]
 
     def get_product_image(self, obj):
@@ -387,6 +389,8 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
     def get_item_name(self, obj):
+        if obj.custom_theme and obj.custom_theme.theme:
+            return obj.custom_theme.theme.title
         item = obj.items.select_related("product").first()
         if item and item.product:
             return item.product.productName
@@ -394,6 +398,10 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_item_image(self, obj):
         request = self.context.get("request")
+        if obj.custom_theme and obj.custom_theme.theme and obj.custom_theme.theme.image:
+            if request:
+                return request.build_absolute_uri(obj.custom_theme.theme.image.url)
+            return obj.custom_theme.theme.image.url
         item = obj.items.select_related("product").first()
 
         if (
@@ -433,17 +441,24 @@ class userOrderSerializer(serializers.ModelSerializer):
     delivery_address = serializers.SerializerMethodField()
     order_items = serializers.SerializerMethodField()
     payment_summary = serializers.SerializerMethodField()
+    contract_info = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = "__all__"
 
     def get_item_name(self, obj):
+        if obj.custom_theme and obj.custom_theme.theme:
+            return obj.custom_theme.theme.title
         item = obj.items.select_related("product").first()
         return item.product.productName if item and item.product else None
 
     def get_item_image(self, obj):
         request = self.context.get("request")
+        if obj.custom_theme and obj.custom_theme.theme and obj.custom_theme.theme.image:
+            if request:
+                return request.build_absolute_uri(obj.custom_theme.theme.image.url)
+            return obj.custom_theme.theme.image.url
         item = obj.items.select_related("product").first()
 
         if item and item.product and item.product.ProductImage:
@@ -451,6 +466,26 @@ class userOrderSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(item.product.ProductImage.url)
             return item.product.ProductImage.url
         return None
+
+    def get_contract_info(self, obj):
+        contract = obj.contracts.order_by("-created_at").first()
+        if not contract:
+            return None
+        request = self.context.get("request")
+        signed_pdf_url = None
+        if contract.signed_pdf:
+            if request:
+                signed_pdf_url = request.build_absolute_uri(contract.signed_pdf.url)
+            else:
+                signed_pdf_url = contract.signed_pdf.url
+        return {
+            "contract_id": contract.contract_id,
+            "contract_status": contract.contract_status,
+            "workflow_status": contract.workflow_status,
+            "created_at": contract.created_at.isoformat() if contract.created_at else None,
+            "signed_at": contract.signed_at.isoformat() if contract.signed_at else None,
+            "signed_pdf": signed_pdf_url,
+        }
 
     def get_delivery_address(self, obj):
         customer = obj.customer
@@ -560,7 +595,7 @@ class userOrderSerializer(serializers.ModelSerializer):
     
 class PaymentSerializer(serializers.ModelSerializer):
     cartitem =CartItemSerializer(read_only=True)
-    order = OrderSerializer(read_only=True)
+    order = userOrderSerializer(read_only=True)
 
     class Meta:
         model = Payment
@@ -857,6 +892,93 @@ class CustomUpdateModelsSerializer(serializers.ModelSerializer):
             f"{settings.MEDIA_URL}"
             f"{obj.json_file_path.lstrip('/')}"
         )
+
+
+class CustomUpdateThemesSerializer(serializers.ModelSerializer):
+    json_file_url = serializers.SerializerMethodField()
+    themeName = serializers.SerializerMethodField()
+    ThemeImage = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    theme_id = serializers.SerializerMethodField()
+    products = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUpdateThemes
+        fields = [
+            "id",
+            "user",
+            "theme",
+            "themeName",
+            "theme_id",
+            "ThemeImage",
+            "category",
+            "description",
+            "design_specifications",
+            "json_file_path",
+            "json_file_url",
+            "isActive",
+            "isDeleted",
+            "created_at",
+            "products",
+        ]
+        read_only_fields = ["user", "json_file_path"]
+
+    def get_products(self, obj):
+        if not obj.theme:
+            return []
+        items = obj.theme.theme_items.select_related('product').all()
+        result = []
+        for item in items:
+            prod = item.product
+            result.append({
+                "id": prod.id,
+                "title": prod.productName,
+                "description": prod.description,
+                "price": float(prod.price) if prod.price else 0.0,
+                "image": new_build_media_url(prod.ProductImage) if prod.ProductImage else None,
+                "section": item.section,
+                "section_display": item.get_section_display(),
+            })
+        return result
+
+    def get_themeName(self, obj):
+        if obj.theme:
+            return obj.theme.title
+        return None
+
+    def get_theme_id(self, obj):
+        if obj.theme:
+            return obj.theme.id
+        return None
+
+    def get_ThemeImage(self, obj):
+        if obj.theme and obj.theme.image:
+            return new_build_media_url(obj.theme.image)
+        return None
+
+    def get_category(self, obj):
+        if obj.theme and obj.theme.category:
+            return {
+                "id": obj.theme.category.id,
+                "name": obj.theme.category.categoryName,
+            }
+        return None
+
+    def get_description(self, obj):
+        if obj.theme:
+            return obj.theme.description
+        return None
+
+    def get_json_file_url(self, obj):
+        if not obj.json_file_path:
+            return None
+        return (
+            f"{settings.SITE_URL}"
+            f"{settings.MEDIA_URL}"
+            f"{obj.json_file_path.lstrip('/')}"
+        )
+
         
 # class CustomUpdateModelsSerializer(serializers.ModelSerializer):
 #     json_file_url = serializers.SerializerMethodField()

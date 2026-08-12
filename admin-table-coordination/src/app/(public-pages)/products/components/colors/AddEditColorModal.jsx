@@ -5,6 +5,7 @@ import Select from "react-select";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,33 +14,6 @@ import Input from "@/components/ui/Input";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import { apiCreateColor, apiUpdateColor } from "@/services/ColorsService";
-
-const validationSchema = z.object({
-  name: z.string().trim().min(1, {
-    message: "Color name is required",
-  }),
-
-  hex: z
-    .string()
-    .trim()
-    .min(1, {
-      message: "Color code is required",
-    })
-    .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, {
-      message: "Enter a valid HEX code",
-    }),
-
-  compatibleFabric: z.any().refine((val) => val?.length > 0, {
-    message: "Compatible fabric is required",
-  }),
-});
-
-const fabricOptions = [
-  { value: "cotton", label: "Cotton" },
-  { value: "polyester", label: "Polyester" },
-  { value: "silk", label: "Silk" },
-  { value: "linen", label: "Linen" },
-];
 
 const AddEditColorModal = ({
   isOpen,
@@ -50,6 +24,40 @@ const AddEditColorModal = ({
 }) => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
+  const t = useTranslations("productSpecification.color");
+  const tm = useTranslations("productSpecification.materials");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
+
+  const fabricOptions = [
+    { value: "cotton", label: tm("cotton") },
+    { value: "polyester", label: tm("polyester") },
+    { value: "silk", label: tm("silk") },
+    { value: "linen", label: tm("linen") },
+  ];
+
+  const validationSchema = z.object({
+    name: z
+      .string()
+      .trim()
+      .min(1, {
+        message: t("validation.colorNameRequired"),
+      }),
+
+    hex: z
+      .string()
+      .trim()
+      .min(1, {
+        message: t("validation.colorCodeRequired"),
+      })
+      .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, {
+        message: t("validation.validHexCode"),
+      }),
+
+    compatibleFabric: z.any().refine((val) => val?.length > 0, {
+      message: t("validation.compatibleFabricRequired"),
+    }),
+  });
 
   const [name, setName] = useState("");
   const [selectedFabrics, setSelectedFabrics] = useState([]);
@@ -148,12 +156,12 @@ const AddEditColorModal = ({
 
   const handleSave = async (values) => {
     if (!values.name.trim()) {
-      setError("Color name is required");
+      setError(t("validation.colorNameRequired"));
       return;
     }
 
     if (!values.hex.trim()) {
-      setError("Color code is required");
+      setError(t("validation.colorCodeRequired"));
       return;
     }
 
@@ -178,7 +186,7 @@ const AddEditColorModal = ({
           const errorMessage = Object.values(response.message || {}).flat()[0];
 
           toast.push(
-            <Notification title="Error" type="danger">
+            <Notification title={te("error")} type="danger">
               {errorMessage}
             </Notification>,
           );
@@ -187,7 +195,7 @@ const AddEditColorModal = ({
         }
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={ts("success")} type="success">
             {response.message}
           </Notification>,
         );
@@ -198,7 +206,7 @@ const AddEditColorModal = ({
           const errorMessage = Object.values(response.message || {}).flat()[0];
 
           toast.push(
-            <Notification title="Error" type="danger">
+            <Notification title={te("error")} type="danger">
               {errorMessage}
             </Notification>,
           );
@@ -207,7 +215,7 @@ const AddEditColorModal = ({
         }
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={ts("success")} type="success">
             {response.message}
           </Notification>,
         );
@@ -220,7 +228,7 @@ const AddEditColorModal = ({
       console.error("Color save error:", err);
       setError(
         err?.response?.data?.message ||
-          "Failed to save color. Please try again.",
+          t("saveFailed"),
       );
     } finally {
       setSaving(false);
@@ -238,7 +246,7 @@ const AddEditColorModal = ({
         <div className="flex flex-col">
           <div className="border-b px-6 py-4">
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              {mode === "edit" ? "Edit Color" : "Add New Color"}
+              {mode === "edit" ? t("editColor") : t("addNewColor")}
             </h2>
           </div>
 
@@ -252,7 +260,8 @@ const AddEditColorModal = ({
           <div className="px-5 py-5 space-y-5">
             <div>
               <label className="text-[#1C2C56] text-sm font-medium">
-                Color Name<span className="text-red-500">*</span>
+                {t("colorName")}
+                <span className="text-red-500">*</span>
               </label>
               <FormItem
                 invalid={Boolean(errors.name)}
@@ -262,7 +271,7 @@ const AddEditColorModal = ({
                   name="name"
                   control={control}
                   render={({ field }) => (
-                    <Input {...field} placeholder="Enter color name" />
+                    <Input {...field} placeholder={t("enterColorname")} />
                   )}
                 />
               </FormItem>
@@ -276,7 +285,8 @@ const AddEditColorModal = ({
                   <>
                     <div className="flex flex-col">
                       <label className="text-[#1C2C56] text-sm font-medium">
-                        Color<span className="text-red-500">*</span>
+                        {t("color")}
+                        <span className="text-red-500">*</span>
                       </label>
 
                       <input
@@ -289,7 +299,7 @@ const AddEditColorModal = ({
 
                     <div className="flex-1">
                       <label className="text-[#1C2C56] text-sm font-medium">
-                        HEX Code
+                        {t("hexCode")}
                       </label>
 
                       <input
@@ -308,7 +318,7 @@ const AddEditColorModal = ({
 
             <div>
               <label className="text-[#1C2C56] text-sm font-medium">
-                Compatible Fabrics
+                {t("compatibleFabric")}
               </label>
               <FormItem
                 invalid={Boolean(errors.compatibleFabric)}
@@ -325,7 +335,7 @@ const AddEditColorModal = ({
                       value={field.value}
                       onChange={field.onChange}
                       styles={selectStyles}
-                      placeholder="Select compatible fabrics..."
+                      placeholder={t("selectFabric")}
                       noOptionsMessage={() => "No fabrics found"}
                       menuPortalTarget={
                         typeof document !== "undefined" ? document.body : null
@@ -347,7 +357,7 @@ const AddEditColorModal = ({
               disabled={saving}
               className="bg-blue-100 rounded-lg"
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               type="submit"
@@ -356,7 +366,7 @@ const AddEditColorModal = ({
               className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"
               loading={saving}
             >
-              {mode === "edit" ? "Update" : "Save"}
+              {mode === "edit" ? t("update") : t("save")}
             </Button>
           </div>
         </div>

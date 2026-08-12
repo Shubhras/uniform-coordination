@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { apiDraftGenerator } from "@/services/AiAutomation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { useTranslations } from "next-intl";
 
 const DraftGenerator = () => {
+  const t = useTranslations("aiAutomation.draftGenerator");
   const [inquiry, setInquiry] = useState("");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -29,11 +31,11 @@ const DraftGenerator = () => {
         // response ke according change kar lena
         setDraftResponse(res?.data?.draft || "");
       } else {
-        setApiMessage(res?.message || "Unable to generate draft.");
+        setApiMessage(res?.message || t("unableToGenerate"));
       }
     } catch (error) {
       console.error(error);
-      setApiMessage("Something went wrong.");
+      setApiMessage(t("somethingWentWrong"));
     } finally {
       setLoading(false);
     }
@@ -42,12 +44,11 @@ const DraftGenerator = () => {
   return (
     <div className="mt-6">
       <h2 className="text-[24px] font-semibold leading-tight text-[#2A1A0E] sm:text-[24px]">
-        Draft Response Generator
+        {t("title")}
       </h2>
 
       <p className="mt-1 text-[13px] text-[#B29D8C]">
-        AI-assisted reply drafts for customer inquiries — review, edit, and
-        approve before sending.
+        {t("subtitle")}
       </p>
 
       <div className="mt-6">
@@ -55,10 +56,7 @@ const DraftGenerator = () => {
           rows={10}
           value={inquiry}
           onChange={(e) => setInquiry(e.target.value)}
-          placeholder="Type the customer inquiry here...
-
-Example:
-I want to rent 20 round tables for my wedding event next month. Please share pricing and availability."
+          placeholder={t("placeholder")}
           className="min-h-[260px] w-full resize-none rounded-xl border border-[#EFE3DA] bg-[#FFFCFA] p-4 text-[13px] text-[#4B4039] outline-none placeholder:text-[#C7B4A8] focus:border-[#B76836]"
         />
 
@@ -69,7 +67,7 @@ I want to rent 20 round tables for my wedding event next month. Please share pri
         {draftResponse && (
           <div className="mt-6 rounded-xl border border-[#EFE3DA] bg-[#FFFCFA] p-4">
             <h3 className="mb-3 text-sm font-semibold text-[#2A211D]">
-              AI Draft
+              {t("aiDraft")}
             </h3>
 
             <p className="whitespace-pre-wrap text-sm text-[#5C524B]">
@@ -89,7 +87,7 @@ I want to rent 20 round tables for my wedding event next month. Please share pri
                 : "bg-[#E4C4AE] cursor-not-allowed"
             }`}
           >
-            {loading ? "Generating..." : "Submit"}
+            {loading ? t("generating") : t("submit")}
           </button>
         </div>
       </div>

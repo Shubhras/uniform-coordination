@@ -1,4 +1,0 @@
-{
-  "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js",
-  "/(public-pages)/simulation-assets/page": "app/(public-pages)/simulation-assets/page.js"
-}

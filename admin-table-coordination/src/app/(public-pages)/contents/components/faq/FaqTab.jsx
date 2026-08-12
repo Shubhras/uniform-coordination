@@ -8,10 +8,13 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetFaqList, apiDeleteFaq } from "@/services/FaqService";
 import AddEditFaqModal from "./AddEditFaqModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import { useTranslations } from "next-intl";
 
 const FaqTab = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
+  const t = useTranslations("contentMedia.faqs");
+  const ts = useTranslations("successTitle");
 
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -58,7 +61,7 @@ const FaqTab = () => {
       const response = await apiDeleteFaq(accessToken, faqToDelete.id);
 
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={ts("success")} type="success">
           {response.message}
         </Notification>,
       );
@@ -109,10 +112,10 @@ const FaqTab = () => {
       <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
-            <h2 className="text-2xl font-semibold text-[#1C2C56]">FAQ's</h2>
-            <p className="text-base text-[#486284]">
-              Manage frequently asked questions
-            </p>
+            <h2 className="text-2xl font-semibold text-[#1C2C56]">
+              {t("faq")}
+            </h2>
+            <p className="text-base text-[#486284]">{t("faqContent")} </p>
           </div>
 
           <button
@@ -123,7 +126,7 @@ const FaqTab = () => {
             }}
           >
             <FiPlus size={16} />
-            Add FAQ
+            {t("addFaq")}
           </button>
         </div>
 
@@ -134,7 +137,7 @@ const FaqTab = () => {
         ) : (
           <div className="max-w-5xl mx-auto space-y-4">
             <p className="text-center text-[#1C2C56] md:text-2xl text-xl">
-              About design and coordination flow
+              {t("aboutDesign")}
             </p>
 
             {filteredFaqs.map((faq) => {
@@ -147,7 +150,9 @@ const FaqTab = () => {
                 <div
                   key={faq.id}
                   className={`rounded-xl px-6 py-3 transition-all duration-300 ${
-                    isOpen ? "bg-white shadow-md" : "bg-[#FFFDFC] border border-[#E8DDD4]"
+                    isOpen
+                      ? "bg-white shadow-md"
+                      : "bg-[#FFFDFC] border border-[#E8DDD4]"
                   }`}
                 >
                   <div className="w-full flex items-center justify-between text-left gap-4">
@@ -226,8 +231,8 @@ const FaqTab = () => {
           setFaqToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title="Delete FAQ"
-        message="Are you sure you want to delete this FAQ? This action cannot be undone."
+        title={t("deleteFaq")}
+        message={t("deleteContentFaq")}
         itemName={faqToDelete?.title}
         loading={deleteLoading}
       />

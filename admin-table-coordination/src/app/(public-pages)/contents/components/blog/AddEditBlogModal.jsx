@@ -11,6 +11,7 @@ import { z } from "zod";
 import { Form, FormItem } from "@/components/ui/Form";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
+import { useTranslations } from "next-intl";
 import Input from "@/components/ui/Input";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
@@ -18,24 +19,6 @@ import {
   apiUpdateBlog,
   apiGetBlogCategoryList,
 } from "@/services/BlogService";
-
-const validationSchema = z.object({
-  title: z.string().trim().min(1, "Title is required"),
-
-  category: z
-    .object({
-      value: z.any(),
-      label: z.string(),
-    })
-    .nullable()
-    .refine((val) => val !== null, {
-      message: "Category is required",
-    }),
-
-  description: z.string().trim().min(1, "Description is required"),
-
-  image: z.any().optional(),
-});
 
 const selectStyles = {
   control: (base, state) => ({
@@ -72,6 +55,25 @@ const AddEditBlogModal = ({
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [validated, setValidated] = useState(false);
+  const t = useTranslations("contentMedia.blog.addEditBlog");
+
+  const validationSchema = z.object({
+    title: z.string().trim().min(1, t("validation.titleRequired")),
+
+    category: z
+      .object({
+        value: z.any(),
+        label: z.string(),
+      })
+      .nullable()
+      .refine((val) => val !== null, {
+        message: t("validation.categoryRequired"),
+      }),
+
+    description: z.string().trim().min(1, t("validation.descriptionRequired")),
+
+    image: z.any().optional(),
+  });
 
   // Category options from API
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -255,7 +257,7 @@ const AddEditBlogModal = ({
         );
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={t("success")} type="success">
             {response.message}
           </Notification>,
         );
@@ -263,7 +265,7 @@ const AddEditBlogModal = ({
         const response = await apiCreateBlog(accessToken, formData);
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={t("success")} type="success">
             {response.message}
           </Notification>,
         );
@@ -281,10 +283,7 @@ const AddEditBlogModal = ({
       }
     } catch (err) {
       console.error("Blog save error:", err);
-      setError(
-        err?.response?.data?.message ||
-          "Failed to save blog. Please try again.",
-      );
+      setError(err?.response?.data?.message || t("saveError"));
     } finally {
       setSaving(false);
     }
@@ -300,7 +299,7 @@ const AddEditBlogModal = ({
       <div className="flex flex-col">
         <div className="border-b p-2 flex justify-between items-center">
           <h2 className="text-2xl font-semibold text-[#1C2C56]">
-            {mode === "edit" ? "Edit Blog" : "Create Blog"}
+            {mode === "edit" ? t("editBlog") : t("createBlog")}
           </h2>
         </div>
 
@@ -316,14 +315,14 @@ const AddEditBlogModal = ({
           <div>
             {/* <input
               type="text"
-              placeholder="Type blog title"
+              placeholder={t("titlePlaceholder")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
             /> */}
 
             <FormItem
-              label="Title"
+              label={t("title")}
               invalid={!!errors.title}
               errorMessage={errors.title?.message}
             >
@@ -331,7 +330,7 @@ const AddEditBlogModal = ({
                 name="title"
                 control={control}
                 render={({ field }) => (
-                  <Input placeholder="Type blog title" {...field} />
+                  <Input placeholder={t("titlePlaceholder")} {...field} />
                 )}
               />{" "}
             </FormItem>
@@ -347,7 +346,7 @@ const AddEditBlogModal = ({
               value={category}
               onChange={setCategory}
               styles={selectStyles}
-              placeholder="Select category..."
+              placeholder={t("selectCategory")}
               isLoading={loadingCategories}
               loadingMessage={() => "Loading categories..."}
               noOptionsMessage={() => "No categories found"}
@@ -357,7 +356,7 @@ const AddEditBlogModal = ({
               className="mt-1"
             /> */}
             <FormItem
-              label="Category"
+              label={t("category")}
               invalid={!!errors.category}
               errorMessage={errors.category?.message}
             >
@@ -380,7 +379,8 @@ const AddEditBlogModal = ({
           {/* Image */}
           <div>
             <label className="text-[#1C2C56] text-base font-medium">
-              Image<span className="text-red-500">*</span>
+              {t("image")}
+              <span className="text-red-500">*</span>
             </label>
 
             <button
@@ -388,7 +388,7 @@ const AddEditBlogModal = ({
               onClick={() => fileInputRef.current?.click()}
             >
               <FiUpload size={16} />
-              Upload image
+              {t("uploadImage")}
             </button>
 
             <div
@@ -396,20 +396,18 @@ const AddEditBlogModal = ({
               onDragOver={(event) => event.preventDefault()}
               className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
             >
-              Drag & Drop your image here
+              {t("dragDropImage")}
               <br />
-              or{" "}
+              {t("or")}{" "}
               <span
                 className="text-[#A0522D] underline cursor-pointer"
                 onClick={() => fileInputRef.current?.click()}
               >
-                click to browse here
+                {t("clickToBrowse")}
               </span>
+              <p className="text-xs mt-2 text-[#64748B]">{t("imageFiles")}</p>
               <p className="text-xs mt-2 text-[#64748B]">
-                JPG, PNG, or WEBP files
-              </p>
-              <p className="text-xs mt-2 text-[#64748B]">
-                Recommended size 1200×800px
+                {t("recommendedSize")}
               </p>
             </div>
 
@@ -424,7 +422,7 @@ const AddEditBlogModal = ({
 
           {validated && (
             <p className="text-sm text-green-600 flex items-center gap-1">
-              ✔ Image validated successfully
+              ✔ {t("imageValidated")}
             </p>
           )}
           {errors.image && (
@@ -435,7 +433,7 @@ const AddEditBlogModal = ({
             <div className="flex justify-center">
               <img
                 src={preview}
-                alt="Preview"
+                alt={t("preview")}
                 className="w-40 h-28 object-cover rounded-lg shadow"
               />
             </div>
@@ -447,13 +445,13 @@ const AddEditBlogModal = ({
               Description<span className="text-red-500">*</span>
             </label>
             <textarea
-              placeholder="Type blog description..."
+              placeholder={t("descriptionPlaceholder")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="mt-1 w-full border rounded-md px-3 py-2 text-sm h-[150px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
             /> */}
             <FormItem
-              label="Description"
+              label={t("description")}
               invalid={!!errors.description}
               errorMessage={errors.description?.message}
             >
@@ -479,7 +477,7 @@ const AddEditBlogModal = ({
             disabled={saving}
             className="bg-blue-100 rounded-lg"
           >
-            Cancel
+            {t("cancel")}
           </Button>
 
           <Button
@@ -489,7 +487,7 @@ const AddEditBlogModal = ({
             disabled={saving}
             className="bg-blue-100 rounded-lg"
           >
-            Save & Add Another
+            {t("saveAddAnother")}
           </Button>
 
           <Button
@@ -500,7 +498,7 @@ const AddEditBlogModal = ({
             onClick={handleSubmit(handleSave)}
             loading={saving}
           >
-            {mode === "edit" ? "Update" : "Save"}
+            {mode === "edit" ? t("update") : t("save")}
           </Button>
         </div>
       </div>

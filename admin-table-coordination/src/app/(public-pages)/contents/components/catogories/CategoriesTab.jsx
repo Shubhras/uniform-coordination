@@ -10,6 +10,7 @@ import {
   FiGrid,
   FiX,
 } from "react-icons/fi";
+import { useTranslations } from "next-intl";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -175,6 +176,8 @@ const CategoriesTab = () => {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [openCategory, setOpenCategory] = useState(null);
+  const t = useTranslations("contentMedia.categories");
+  const ts = useTranslations("successTitle");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -258,7 +261,7 @@ const CategoriesTab = () => {
         );
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={ts("success")} type="success">
             {response.message}
           </Notification>,
         );
@@ -369,16 +372,14 @@ const CategoriesTab = () => {
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              Product Categories
+              {t("productCategories")}
             </h2>
-            <p className="text-base text-[#486284]">
-              Manage and organize your product categories
-            </p>
+            <p className="text-base text-[#486284]">{t("productManage")}</p>
           </div>
 
           <div className="flex gap-3">
             <button className="border border-[#CBD5E1] text-[#1C2C56] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
-              Arrange Order
+              {t("arrangeOrder")}
             </button>
 
             <button
@@ -389,7 +390,7 @@ const CategoriesTab = () => {
               }}
             >
               <FiPlus size={16} />
-              Add Category
+              {t("addCategory")}
             </button>
           </div>
         </div>
@@ -401,7 +402,7 @@ const CategoriesTab = () => {
           />
           <input
             type="text"
-            placeholder="Search Categories..."
+            placeholder={t("searchCategories")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none"
@@ -421,7 +422,7 @@ const CategoriesTab = () => {
           <ListSkeleton />
         ) : categories.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
-            No categories found
+            {t("noCategoriesFound")}
           </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
@@ -580,9 +581,13 @@ const CategoriesTab = () => {
         title={
           deleteTarget?.type === "subcategory"
             ? "Delete Subcategory"
-            : "Delete Category"
+            : t("deletCategory")
         }
-        message={`Are you sure you want to delete this ${deleteTarget?.type || "item"}? This action cannot be undone.`}
+        message={
+          deleteTarget?.type === "subcategory"
+            ? `Are you sure you want to delete this subcategory? This action cannot be undone.`
+            : t("deleteCategoryContent")
+        }
         itemName={
           deleteTarget?.type === "subcategory"
             ? deleteTarget?.item?.name
