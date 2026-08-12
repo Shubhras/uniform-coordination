@@ -3,14 +3,13 @@ import NextAuth from 'next-auth'
 import authConfig from '@/configs/auth.config'
 import {
     authRoutes as _authRoutes,
-    publicRoutes as _publicRoutes,
+    isPublicRoute,
 } from '@/configs/routes.config'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import appConfig from '@/configs/app.config'
 
 const { auth } = NextAuth(authConfig)
 
-const publicRoutes = Object.entries(_publicRoutes).map(([key]) => key)
 const authRoutes = Object.entries(_authRoutes).map(([key]) => key)
 
 const apiAuthPrefix = `${appConfig.apiPrefix}/auth`
@@ -27,7 +26,7 @@ export default auth((req) => {
         : nextUrl.pathname
 
     const isApiAuthRoute = rawPathname.startsWith(apiAuthPrefix)
-    const isPublicRoute = publicRoutes.includes(rawPathname)
+    const isRoutePublic = isPublicRoute(rawPathname)
     const isAuthRoute = authRoutes.includes(rawPathname)
 
     /** Skip auth middleware for api routes */
@@ -44,7 +43,7 @@ export default auth((req) => {
     }
 
     /** Redirect to authenticated entry path if signed in & path is public route */
-    if (!isSignedIn && !isPublicRoute) {
+    if (!isSignedIn && !isRoutePublic) {
         let callbackUrl = nextUrl.pathname
         if (nextUrl.search) {
             callbackUrl += nextUrl.search

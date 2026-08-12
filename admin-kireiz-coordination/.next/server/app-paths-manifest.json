@@ -1,6 +1,0 @@
-{
-  "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js",
-  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
-  "/(public-pages)/pricing/page": "app/(public-pages)/pricing/page.js",
-  "/(public-pages)/customer/page": "app/(public-pages)/customer/page.js"
-}
