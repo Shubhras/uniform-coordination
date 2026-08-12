@@ -61,7 +61,7 @@ const InventoryManagement = () => {
               </p>
             </div>
 
-            {activeTab === "Inventory Lists" && (
+            {activeTab === "inventory" && (
               <button
                 onClick={() => router.push("/inventory-management/add")}
                 className="flex items-center gap-2 bg-[#A85A32] hover:bg-[#8F4D2A] text-white px-3 py-2 rounded-lg font-medium transition"

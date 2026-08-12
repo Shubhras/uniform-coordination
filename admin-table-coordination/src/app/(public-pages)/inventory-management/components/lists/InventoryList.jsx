@@ -364,7 +364,7 @@ const InventoryList = () => {
 
                     <td className="px-4 py-3">{item.category?.categoryName}</td>
 
-                    <td className="px-4 py-3">{item.fabric}</td>
+                    <td className="px-4 py-3">{item.fabric_details?.name}</td>
 
                     <td className="px-4 py-3">{item.total_quantity}</td>
 

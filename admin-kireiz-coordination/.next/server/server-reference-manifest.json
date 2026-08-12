@@ -2,375 +2,68 @@
   "node": {
     "7fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a": {
       "workers": {
-        "app/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/admin-form/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(auth-pages)/sign-in/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
         "app/(public-pages)/simulation-assets/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/user-simulations/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/_not-found/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/simulation-configuration/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/contents/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/products/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/products/view/[id]/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/reports-analytics/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
       },
       "layer": {
-        "app/page": "rsc",
-        "app/(public-pages)/admin-form/page": "rsc",
-        "app/(auth-pages)/sign-in/page": "rsc",
-        "app/(public-pages)/simulation-assets/page": "rsc",
-        "app/(public-pages)/user-simulations/page": "rsc",
-        "app/_not-found/page": "rsc",
-        "app/(public-pages)/simulation-configuration/page": "rsc",
-        "app/(public-pages)/contents/page": "rsc",
-        "app/(public-pages)/products/page": "rsc",
-        "app/(public-pages)/products/view/[id]/page": "rsc",
-        "app/(public-pages)/reports-analytics/page": "rsc"
+        "app/(public-pages)/simulation-assets/page": "rsc"
       }
     },
     "009d9f179a3333705f6cf5fb109aa133111dcda1ec": {
       "workers": {
-        "app/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/admin-form/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(auth-pages)/sign-in/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
         "app/(public-pages)/simulation-assets/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/user-simulations/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/_not-found/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/simulation-configuration/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/contents/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/products/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/products/view/[id]/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/reports-analytics/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
       },
       "layer": {
-        "app/page": "rsc",
-        "app/(public-pages)/admin-form/page": "rsc",
-        "app/(auth-pages)/sign-in/page": "rsc",
-        "app/(public-pages)/simulation-assets/page": "rsc",
-        "app/(public-pages)/user-simulations/page": "rsc",
-        "app/_not-found/page": "rsc",
-        "app/(public-pages)/simulation-configuration/page": "rsc",
-        "app/(public-pages)/contents/page": "rsc",
-        "app/(public-pages)/products/page": "rsc",
-        "app/(public-pages)/products/view/[id]/page": "rsc",
-        "app/(public-pages)/reports-analytics/page": "rsc"
+        "app/(public-pages)/simulation-assets/page": "rsc"
       }
     },
     "40958c5044534c0926d9c96e2b148d6f105cdfe20a": {
       "workers": {
-        "app/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/admin-form/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(auth-pages)/sign-in/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
         "app/(public-pages)/simulation-assets/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/user-simulations/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/_not-found/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/simulation-configuration/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/contents/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/products/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/products/view/[id]/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/reports-analytics/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
       },
       "layer": {
-        "app/page": "rsc",
-        "app/(public-pages)/admin-form/page": "rsc",
-        "app/(auth-pages)/sign-in/page": "rsc",
-        "app/(public-pages)/simulation-assets/page": "rsc",
-        "app/(public-pages)/user-simulations/page": "rsc",
-        "app/_not-found/page": "rsc",
-        "app/(public-pages)/simulation-configuration/page": "rsc",
-        "app/(public-pages)/contents/page": "rsc",
-        "app/(public-pages)/products/page": "rsc",
-        "app/(public-pages)/products/view/[id]/page": "rsc",
-        "app/(public-pages)/reports-analytics/page": "rsc"
+        "app/(public-pages)/simulation-assets/page": "rsc"
       }
     },
     "0043d72c84cd20c1c756680d00629475128ea4405f": {
       "workers": {
-        "app/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/admin-form/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(auth-pages)/sign-in/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
         "app/(public-pages)/simulation-assets/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/user-simulations/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/_not-found/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/simulation-configuration/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/contents/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/products/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/products/view/[id]/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/reports-analytics/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
       },
       "layer": {
-        "app/page": "rsc",
-        "app/(public-pages)/admin-form/page": "rsc",
-        "app/(auth-pages)/sign-in/page": "rsc",
-        "app/(public-pages)/simulation-assets/page": "rsc",
-        "app/(public-pages)/user-simulations/page": "rsc",
-        "app/_not-found/page": "rsc",
-        "app/(public-pages)/simulation-configuration/page": "rsc",
-        "app/(public-pages)/contents/page": "rsc",
-        "app/(public-pages)/products/page": "rsc",
-        "app/(public-pages)/products/view/[id]/page": "rsc",
-        "app/(public-pages)/reports-analytics/page": "rsc"
+        "app/(public-pages)/simulation-assets/page": "rsc"
       }
     },
     "409ba23dd06ac9a7ef4ff973428e52d933c8b7968f": {
       "workers": {
-        "app/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/admin-form/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(auth-pages)/sign-in/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
         "app/(public-pages)/simulation-assets/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/user-simulations/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/_not-found/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/simulation-configuration/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/contents/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/products/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/products/view/[id]/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/(public-pages)/reports-analytics/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227fdc8a935bbe9047cb7d53ff075270d91ffbaa6e3a%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%22009d9f179a3333705f6cf5fb109aa133111dcda1ec%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%2240958c5044534c0926d9c96e2b148d6f105cdfe20a%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220043d72c84cd20c1c756680d00629475128ea4405f%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%22409ba23dd06ac9a7ef4ff973428e52d933c8b7968f%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
       },
       "layer": {
-        "app/page": "rsc",
-        "app/(public-pages)/admin-form/page": "rsc",
-        "app/(auth-pages)/sign-in/page": "rsc",
-        "app/(public-pages)/simulation-assets/page": "rsc",
-        "app/(public-pages)/user-simulations/page": "rsc",
-        "app/_not-found/page": "rsc",
-        "app/(public-pages)/simulation-configuration/page": "rsc",
-        "app/(public-pages)/contents/page": "rsc",
-        "app/(public-pages)/products/page": "rsc",
-        "app/(public-pages)/products/view/[id]/page": "rsc",
-        "app/(public-pages)/reports-analytics/page": "rsc"
+        "app/(public-pages)/simulation-assets/page": "rsc"
       }
     },
     "7f213d6261033fa182953ced071724ee24645aa983": {
       "workers": {
-        "app/(public-pages)/admin-form/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f213d6261033fa182953ced071724ee24645aa983%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        },
         "app/(public-pages)/simulation-assets/page": {
           "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f213d6261033fa182953ced071724ee24645aa983%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
           "async": false
-        },
-        "app/(public-pages)/user-simulations/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f213d6261033fa182953ced071724ee24645aa983%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        },
-        "app/(public-pages)/simulation-configuration/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f213d6261033fa182953ced071724ee24645aa983%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        },
-        "app/(public-pages)/contents/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f213d6261033fa182953ced071724ee24645aa983%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        },
-        "app/(public-pages)/products/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f213d6261033fa182953ced071724ee24645aa983%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        },
-        "app/(public-pages)/products/view/[id]/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f213d6261033fa182953ced071724ee24645aa983%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        },
-        "app/(public-pages)/reports-analytics/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227f213d6261033fa182953ced071724ee24645aa983%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
         }
       },
       "layer": {
-        "app/(public-pages)/admin-form/page": "action-browser",
-        "app/(public-pages)/simulation-assets/page": "action-browser",
-        "app/(public-pages)/user-simulations/page": "action-browser",
-        "app/(public-pages)/simulation-configuration/page": "action-browser",
-        "app/(public-pages)/contents/page": "action-browser",
-        "app/(public-pages)/products/page": "action-browser",
-        "app/(public-pages)/products/view/[id]/page": "action-browser",
-        "app/(public-pages)/reports-analytics/page": "action-browser"
-      }
-    },
-    "7f46faf27a8972662946b864067f9aa56a475d8b2a": {
-      "workers": {
-        "app/(auth-pages)/sign-in/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignIn.js%22%2C%5B%7B%22id%22%3A%227f46faf27a8972662946b864067f9aa56a475d8b2a%22%2C%22exportedName%22%3A%22onSignInWithCredentials%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleOauthSignIn.js%22%2C%5B%7B%22id%22%3A%227f7ada1bc4eb8958d1b326019e24ca2ed510e4e852%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        }
-      },
-      "layer": {
-        "app/(auth-pages)/sign-in/page": "action-browser"
-      }
-    },
-    "7f7ada1bc4eb8958d1b326019e24ca2ed510e4e852": {
-      "workers": {
-        "app/(auth-pages)/sign-in/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignIn.js%22%2C%5B%7B%22id%22%3A%227f46faf27a8972662946b864067f9aa56a475d8b2a%22%2C%22exportedName%22%3A%22onSignInWithCredentials%22%7D%5D%5D%2C%5B%22%2Fvar%2Fwww%2Fhtml%2Funiform-coordination%2Fadmin-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleOauthSignIn.js%22%2C%5B%7B%22id%22%3A%227f7ada1bc4eb8958d1b326019e24ca2ed510e4e852%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        }
-      },
-      "layer": {
-        "app/(auth-pages)/sign-in/page": "action-browser"
+        "app/(public-pages)/simulation-assets/page": "action-browser"
       }
     }
   },

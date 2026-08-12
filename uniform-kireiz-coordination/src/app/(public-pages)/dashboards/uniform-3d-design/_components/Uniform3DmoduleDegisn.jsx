@@ -7,7 +7,7 @@ import ColorPickerPopup from './ColorPickerPopup'
 // const SAMPLE_MODEL = '/img/3dmodels/doctor_uniform.glb'
 const FALLBACK_MODEL = '' //'https://modelviewer.dev/shared-assets/models/Astronaut.glb'
 import Button from '@/components/ui/Button';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, usePathname } from 'next/navigation';
 import UniformCanvas from './UniformCanvas'
 import { controlsApi } from './UniformCanvas'
 import { uniformState } from './uniformStore'
@@ -16,6 +16,7 @@ import { apiModelInfoCreate, apiSaveDesign } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
+import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 
 const PANELS = {
   color: {
@@ -163,6 +164,7 @@ const Uniform3DmoduleDegisn = () => {
   // 
   const { id } = useParams();
   const { data: session } = useSession();
+  const pathname = usePathname();
   const [isSubmitting, setIsSubmitting] = useState(false);
   //console.log("Current Product ID:", id);
   const [counts, setCounts] = useState({});
@@ -329,6 +331,16 @@ const Uniform3DmoduleDegisn = () => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleUniformDesignResult = async () => {
+    if (!session?.accessToken) {
+      toast.push(
+        <Notification title="Login Required" type="warning">
+          Please sign in first to continue.
+        </Notification>
+      );
+      router.push(`/sign-in?${REDIRECT_URL_KEY}=${pathname}`);
+      return;
+    }
+
     console.log("FINAL DESIGN JSON:", designJSON);
 
     setIsSubmitting(true);

@@ -332,10 +332,10 @@ const AddEditPartModal = ({
     try {
       const formData = new FormData();
       formData.append("partName", values.partName.trim());
-      formData.append("category", values.category?.value || "");
+      formData.append("category_id", values.category?.value || "");
 
       if (values.subcategory?.value) {
-        formData.append("subcategory", values.subcategory.value);
+        formData.append("subcategory_id", values.subcategory.value);
       }
 
       if (values.fabric?.value) {
