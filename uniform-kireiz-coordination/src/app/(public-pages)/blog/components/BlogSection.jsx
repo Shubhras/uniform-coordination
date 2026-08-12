@@ -76,7 +76,7 @@ const BlogSection = () => {
   return (
     <section className="w-full bg-white px-5 md:px-8 lg:px-12 py-20 md:py-24">
       <div className="bg-[#F5F7FB] rounded-3xl px-4 md:px-10 lg:px-8 py-10 md:py-8">
-        <div className="text-center mb-10">
+        {/* <div className="text-center mb-10">
           <h2 className="text-[#1C2C56] lg:text-4xl text-3xl font-semibold">
             Blog
           </h2>
@@ -84,15 +84,30 @@ const BlogSection = () => {
           <p className="text-[#6B7280] text-sm mt-4 max-w-xl mx-auto">
             Read our latest updates and insights
           </p>
+        </div> */}
+        <div className="text-center lg:mb-7 md:mb-10">
+          <div className="text-center mb-1">
+            <div className="inline-flex flex-col items-end">
+              <h2 className="text-[#1C2C56] lg:text-4xl text-3xl font-semibold">
+                Blog
+              </h2>
+              <div className="w-[40px] md:w-[40px] h-[3px] bg-[#87CEEB] mt-2" />
+            </div>
+          </div>
+          <p className="text-[#6B7280] text-sm mt-4 max-w-xl mx-auto">
+            Read our latest updates and insights
+          </p>
         </div>
         <h2 className="mb-5 lg:text-3xl text-3xl font-semibold text-[#1C2C56]">
           Our Latest Blog Posts
         </h2>
-        {loading ? <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
-          </div>
-        </section> : null}
+        {loading ? (
+          <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+            </div>
+          </section>
+        ) : null}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {blogs.map((post, index) => (
             <div
@@ -125,9 +140,7 @@ const BlogSection = () => {
           ))}
         </div>
         {!loading && blogs.length === 0 && (
-          <p className="text-center text-gray-500 mt-10">
-            No blogs available
-          </p>
+          <p className="text-center text-gray-500 mt-10">No blogs available</p>
         )}
       </div>
     </section>
