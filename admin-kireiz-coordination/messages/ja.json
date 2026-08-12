@@ -285,7 +285,8 @@
         "quoteStatus": {
             "quoteStatusDistribution": "見積ステータスの内訳",
             "total": "合計",
-            "noData": "データなし"
+            "noData": "データなし",
+            "quotes": "件"
         },
         "quotationVolume": {
             "quotationVolume": "見積件数",

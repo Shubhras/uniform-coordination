@@ -1,8 +1,0 @@
-{
-  "/(public-pages)/pricing-packages/create-promotion/page": "app/(public-pages)/pricing-packages/create-promotion/page.js",
-  "/(public-pages)/pricing-packages/create-promotion/[id]/page": "app/(public-pages)/pricing-packages/create-promotion/[id]/page.js",
-  "/(public-pages)/contracts-policies/page": "app/(public-pages)/contracts-policies/page.js",
-  "/(public-pages)/notifications/page": "app/(public-pages)/notifications/page.js",
-  "/(public-pages)/ai-automation/page": "app/(public-pages)/ai-automation/page.js",
-  "/(public-pages)/users-permissions/page": "app/(public-pages)/users-permissions/page.js"
-}
