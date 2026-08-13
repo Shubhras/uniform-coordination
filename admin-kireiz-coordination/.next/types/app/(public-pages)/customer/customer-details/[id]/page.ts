@@ -1,4 +1,4 @@
-// File: /home/dell/Documents/Uniform/uniform-coordination/admin-kireiz-coordination/src/app/(public-pages)/customer/customer-details/[id]/page.jsx
+// File: /home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/admin-kireiz-coordination/src/app/(public-pages)/customer/customer-details/[id]/page.jsx
 import * as entry from '../../../../../../../src/app/(public-pages)/customer/customer-details/[id]/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { FiImage } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
@@ -12,6 +13,7 @@ import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 
 const GeneralSettings = () => {
+  const t = useTranslations("systemSettings.generalSettings");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -102,7 +104,7 @@ const GeneralSettings = () => {
             {/* Company */}
             <div>
               <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">
-                Company Name
+                {t("companyNameLabel")}
               </label>
 
               <input
@@ -122,7 +124,7 @@ const GeneralSettings = () => {
 
             <div>
               <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">
-                Business Address
+                {t("businessAddressLabel")}
               </label>
 
               <input
@@ -142,7 +144,7 @@ const GeneralSettings = () => {
 
             <div>
               <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">
-                Support Email
+                {t("supportEmailLabel")}
               </label>
 
               <input
@@ -162,7 +164,7 @@ const GeneralSettings = () => {
 
             <div>
               <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">
-                Contact Number
+                {t("contactNumberLabel")}
               </label>
 
               <input
@@ -182,7 +184,7 @@ const GeneralSettings = () => {
 
             <div>
               <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">
-                Defualt Language
+                {t("defaultLanguageLabel")}
               </label>
 
               <input
@@ -202,7 +204,7 @@ const GeneralSettings = () => {
 
             <div>
               <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">
-                Default Currency
+                {t("defaultCurrencyLabel")}
               </label>
 
               <input
@@ -222,7 +224,7 @@ const GeneralSettings = () => {
 
             <div>
               <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">
-                Time Zone
+                {t("timeZoneLabel")}
               </label>
 
               <input
@@ -242,7 +244,7 @@ const GeneralSettings = () => {
 
             <div>
               <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">
-                Date Format
+                {t("dateFormatLabel")}
               </label>
 
               <input
@@ -263,7 +265,7 @@ const GeneralSettings = () => {
 
           <div className="mt-8">
             <label className="mb-2 block text-[13px] font-semibold text-[#8C6E5D]">
-              Logo
+              {t("logoLabel")}
             </label>
 
             <div
@@ -276,7 +278,7 @@ const GeneralSettings = () => {
               {settings.logo ? (
                 <img
                   src={settings.logo}
-                  alt="Company Logo"
+                  alt={t("companyLogoAlt")}
                   className="mb-3 max-h-52 max-w-full object-contain"
                 />
               ) : (
@@ -286,7 +288,7 @@ const GeneralSettings = () => {
                   </div>
 
                   <p className="mt-3 text-sm text-gray-500">
-                    No logo available
+                    {t("uploadLogo")}
                   </p>
                 </div>
               )}
@@ -308,24 +310,6 @@ const GeneralSettings = () => {
                   }));
                 }}
               />
-              {/* {isEditing && (
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-
-                    if (!file) return;
-
-                    setLogoFile(file);
-
-                    setSettings((prev) => ({
-                      ...prev,
-                      company_logo: URL.createObjectURL(file),
-                    }));
-                  }}
-                />
-              )} */}
             </div>
           </div>
 
@@ -337,25 +321,25 @@ const GeneralSettings = () => {
                 onClick={() => setIsEditing(true)}
                 className="rounded-xl bg-[#A85A32] px-6 py-3 font-medium text-white hover:bg-[#8f4c2a]"
               >
-                Edit
+                {t("edit")}
               </button>
             ) : (
               <>
                 <button
                   onClick={() => {
                     setIsEditing(false);
-                    getGeneralSettings(); // original data restore
+                    getGeneralSettings();
                   }}
                   className="rounded-xl border border-[#E8DDD4] bg-white px-8 py-3 font-medium text-[#6E5A4D]"
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
 
                 <button
                   onClick={handleUpdate}
                   className="rounded-xl bg-[#A85A32] px-6 py-3 font-medium text-white hover:bg-[#8f4c2a]"
                 >
-                  Save Changes
+                  {t("saveChanges")}
                 </button>
               </>
             )}

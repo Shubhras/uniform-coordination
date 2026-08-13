@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { apiOrderPayment } from '@/services/paymentService'
+import { apiOrderPayment, apiGetSystemSettings } from '@/services/paymentService'
 import {
     CardNumberElement,
     CardExpiryElement,
@@ -38,6 +38,39 @@ const PaymentHero = () => {
     const [cardholderName, setCardholderName] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
+    const [settings, setSettings] = useState(null)
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            if (session?.accessToken) {
+                try {
+                    const res = await apiGetSystemSettings(session.accessToken)
+                    if (res?.success && res?.data) {
+                        setSettings(res.data)
+                        const data = res.data
+                        if (data.payment_enable_credit_card) {
+                            setPaymentMethod('card')
+                        } else if (data.payment_enable_paypay) {
+                            setPaymentMethod('paypal')
+                        } else if (data.payment_enable_kakebarai) {
+                            setPaymentMethod('kakebarai')
+                        } else if (data.payment_enable_bank_transfer) {
+                            setPaymentMethod('bank')
+                        } else if (data.payment_enable_applepay) {
+                            setPaymentMethod('apple')
+                        } else if (data.payment_enable_googlepay) {
+                            setPaymentMethod('googlepay')
+                        } else if (data.payment_enable_conbini) {
+                            setPaymentMethod('conbini')
+                        }
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch system settings:', err)
+                }
+            }
+        }
+        fetchSettings()
+    }, [session])
 
     const handleElementChange = (event) => {
         if (event.error) {
@@ -102,12 +135,22 @@ const PaymentHero = () => {
                     setError(res?.message || 'Payment processing failed. Please try again.')
                     setDialogCancelPopupOpen(true)
                 }
-            } else if (paymentMethod === 'googlepay') {
-                //setLoading(true)
-                // setTimeout(() => {
-                //     setLoading(false)
-                //     setDialogThankyouPopupOpen(true)
-                // }, 1200)
+            } else if (['bank', 'kakebarai', 'conbini', 'googlepay', 'apple'].includes(paymentMethod)) {
+                setLoading(true)
+                const payload = {
+                    order_id: orderId,
+                    payment_method: paymentMethod,
+                    currency: 'usd',
+                }
+
+                const res = await apiOrderPayment(session.accessToken, payload)
+
+                if (res?.status) {
+                    setPaymentId(res?.payment_id || null)
+                    setDialogThankyouPopupOpen(true)
+                } else {
+                    setError(res?.message || 'Payment processing failed. Please try again.')
+                }
             } else if (paymentMethod === 'paypal') {
                 setError('Please click the PayPal button above to complete your payment.')
             } else {
@@ -144,6 +187,41 @@ const PaymentHero = () => {
         }
     }
 
+    const allowedMethods = []
+    if (settings) {
+        if (settings.payment_enable_credit_card) {
+            allowedMethods.push({ id: 'card', label: 'Credit Card' })
+        }
+        if (settings.payment_enable_paypay) {
+            allowedMethods.push({ id: 'paypal', label: 'PayPal' })
+        }
+        if (settings.payment_enable_kakebarai) {
+            allowedMethods.push({ id: 'kakebarai', label: 'NP Kakebarai' })
+        }
+        if (settings.payment_enable_bank_transfer) {
+            allowedMethods.push({ id: 'bank', label: 'Bank Transfer' })
+        }
+        if (settings.payment_enable_applepay) {
+            allowedMethods.push({ id: 'apple', label: 'Apple Pay' })
+        }
+        if (settings.payment_enable_googlepay) {
+            allowedMethods.push({ id: 'googlepay', label: 'Google Pay' })
+        }
+        if (settings.payment_enable_conbini) {
+            allowedMethods.push({ id: 'conbini', label: 'Convenience Store' })
+        }
+    } else {
+        // Fallback default
+        allowedMethods.push(
+            { id: 'card', label: 'Credit Card' },
+            { id: 'paypal', label: 'PayPal' },
+            { id: 'kakebarai', label: 'NP Kakebarai' },
+            { id: 'bank', label: 'Bank Transfer' },
+            { id: 'apple', label: 'Apple Pay' },
+            { id: 'googlepay', label: 'Google Pay' }
+        )
+    }
+
     return (
         <>
             <section className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-12 mt-14 min-h-[calc(100vh-360px)] flex flex-col">
@@ -153,14 +231,7 @@ const PaymentHero = () => {
 
                         {/* PAYMENT METHODS */}
                         <div className="flex flex-wrap items-center gap-4">
-                            {[
-                                { id: 'card', label: 'Credit Card' },
-                                { id: 'paypal', label: 'PayPal' },
-                                { id: 'kakebarai', label: 'NP Kakebarai' },
-                                { id: 'bank', label: 'Bank Transfer' },
-                                { id: 'apple', label: 'Apple Pay' },
-                                { id: 'googlepay', label: 'Google Pay' },
-                            ].map((method) => (
+                            {allowedMethods.map((method) => (
                                 <label
                                     key={method.id}
                                     className={`flex items-center gap-2.5 border rounded-xl px-4 py-3 cursor-pointer transition ${paymentMethod === method.id
@@ -297,24 +368,52 @@ const PaymentHero = () => {
                             </div>
                         )}
 
-                        {/* OTHER PAYMENT NOTICES */}
-                        {/* {paymentMethod === 'kakebarai' && (
-                            <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-md p-4 text-sm font-medium">
+                        {/* OTHER PAYMENT NOTICES & BANK DETAILS */}
+                        {paymentMethod === 'bank' && (
+                            <div className="bg-amber-50/60 border border-amber-200 text-amber-900 rounded-xl p-6 space-y-4 animate-fadeIn">
+                                <h3 className="font-semibold text-base text-[#8B4513]">Bank Transfer Information</h3>
+                                <p className="text-sm text-gray-700">
+                                    Please transfer the total amount to the following bank account. Your order will be processed once payment is confirmed.
+                                </p>
+                                <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm bg-white/80 p-4 rounded-lg border border-amber-100">
+                                    <span className="text-gray-500 font-semibold">Bank Name:</span>
+                                    <span className="text-gray-900 font-semibold">{settings?.bank_name || 'Sample Bank'}</span>
+                                    
+                                    <span className="text-gray-500 font-semibold">Branch:</span>
+                                    <span className="text-gray-900 font-semibold">{settings?.bank_branch || 'Main Branch'}</span>
+                                    
+                                    <span className="text-gray-500 font-semibold">Account Number:</span>
+                                    <span className="text-gray-900 font-semibold">{settings?.bank_account_number || '123-456-789'}</span>
+                                    
+                                    <span className="text-gray-500 font-semibold">Account Holder:</span>
+                                    <span className="text-gray-900 font-semibold">{settings?.bank_account_holder || 'Kireiz Space'}</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {paymentMethod === 'kakebarai' && (
+                            <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-md p-4 text-sm font-medium animate-fadeIn">
                                 NP Kakebarai invoice payment instructions will be sent upon order confirmation.
                             </div>
                         )}
 
-                        {paymentMethod === 'bank' && (
-                            <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-md p-4 text-sm font-medium">
-                                Bank Transfer instructions will be sent to your registered email upon order placement.
+                        {paymentMethod === 'apple' && (
+                            <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-md p-4 text-sm font-medium animate-fadeIn">
+                                Apple Pay is currently supported on compatible Safari browser devices.
                             </div>
                         )}
 
-                        {paymentMethod === 'apple' && (
-                            <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-md p-4 text-sm font-medium">
-                                Apple Pay is currently supported on compatible Safari browser devices.
+                        {paymentMethod === 'conbini' && (
+                            <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-md p-4 text-sm font-medium animate-fadeIn">
+                                Convenience Store payment instructions and confirmation barcode will be sent to your registered email.
                             </div>
-                        )} */}
+                        )}
+
+                        {paymentMethod === 'googlepay' && (
+                            <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-md p-4 text-sm font-medium animate-fadeIn">
+                                Pay quickly and securely using Google Pay.
+                            </div>
+                        )}
 
                         {/* ERROR MESSAGE */}
                         {error && (
@@ -323,7 +422,7 @@ const PaymentHero = () => {
                             </div>
                         )}
 
-                        {/* ACTION BUTTON FOR CARD */}
+                        {/* ACTION BUTTONS */}
                         {paymentMethod === 'card' && (
                             <div className="flex justify-end pt-6">
                                 <button
@@ -332,6 +431,18 @@ const PaymentHero = () => {
                                     className="px-10 py-3 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md transition font-medium disabled:opacity-50"
                                 >
                                     {loading ? 'Processing...' : 'Continue'}
+                                </button>
+                            </div>
+                        )}
+
+                        {paymentMethod !== 'card' && paymentMethod !== 'paypal' && (
+                            <div className="flex justify-end pt-6">
+                                <button
+                                    disabled={loading}
+                                    onClick={handlePayment}
+                                    className="px-10 py-3 bg-[#8B4513] hover:bg-[#71370F] text-white rounded-md transition font-medium disabled:opacity-50"
+                                >
+                                    {loading ? 'Processing...' : 'Confirm Order'}
                                 </button>
                             </div>
                         )}

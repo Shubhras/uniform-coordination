@@ -1,4 +1,4 @@
-// File: /home/dell/Documents/Uniform/uniform-coordination/admin-table-coordination/src/app/api/contacts/route.js
+// File: /home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/admin-table-coordination/src/app/api/contacts/route.js
 import * as entry from '../../../../../src/app/api/contacts/route.js'
 import type { NextRequest } from 'next/server.js'
 

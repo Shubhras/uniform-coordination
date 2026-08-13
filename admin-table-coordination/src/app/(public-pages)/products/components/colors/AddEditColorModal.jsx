@@ -15,13 +15,6 @@ import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import { apiCreateColor, apiUpdateColor } from "@/services/ColorsService";
 
-const fabricOptions = [
-  { value: "cotton", label: "Cotton" },
-  { value: "polyester", label: "Polyester" },
-  { value: "silk", label: "Silk" },
-  { value: "linen", label: "Linen" },
-];
-
 const AddEditColorModal = ({
   isOpen,
   onClose,
@@ -32,6 +25,16 @@ const AddEditColorModal = ({
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const t = useTranslations("productSpecification.color");
+  const tm = useTranslations("productSpecification.materials");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
+
+  const fabricOptions = [
+    { value: "cotton", label: tm("cotton") },
+    { value: "polyester", label: tm("polyester") },
+    { value: "silk", label: tm("silk") },
+    { value: "linen", label: tm("linen") },
+  ];
 
   const validationSchema = z.object({
     name: z
@@ -153,12 +156,12 @@ const AddEditColorModal = ({
 
   const handleSave = async (values) => {
     if (!values.name.trim()) {
-      setError("Color name is required");
+      setError(t("validation.colorNameRequired"));
       return;
     }
 
     if (!values.hex.trim()) {
-      setError("Color code is required");
+      setError(t("validation.colorCodeRequired"));
       return;
     }
 
@@ -183,7 +186,7 @@ const AddEditColorModal = ({
           const errorMessage = Object.values(response.message || {}).flat()[0];
 
           toast.push(
-            <Notification title="Error" type="danger">
+            <Notification title={te("error")} type="danger">
               {errorMessage}
             </Notification>,
           );
@@ -192,7 +195,7 @@ const AddEditColorModal = ({
         }
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={ts("success")} type="success">
             {response.message}
           </Notification>,
         );
@@ -203,7 +206,7 @@ const AddEditColorModal = ({
           const errorMessage = Object.values(response.message || {}).flat()[0];
 
           toast.push(
-            <Notification title="Error" type="danger">
+            <Notification title={te("error")} type="danger">
               {errorMessage}
             </Notification>,
           );
@@ -212,7 +215,7 @@ const AddEditColorModal = ({
         }
 
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={ts("success")} type="success">
             {response.message}
           </Notification>,
         );
@@ -225,7 +228,7 @@ const AddEditColorModal = ({
       console.error("Color save error:", err);
       setError(
         err?.response?.data?.message ||
-          "Failed to save color. Please try again.",
+          t("saveFailed"),
       );
     } finally {
       setSaving(false);

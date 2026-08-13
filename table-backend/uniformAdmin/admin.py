@@ -347,10 +347,6 @@ class SystemSettingsAdmin(admin.ModelAdmin):
 
 
 
-from django.contrib import admin
-from .models import SimulationStructure
-
-
 @admin.register(SimulationStructure)
 class SimulationStructureAdmin(admin.ModelAdmin):
     list_display = (
@@ -370,7 +366,7 @@ class SimulationStructureAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    
+
 @admin.register(Parts)
 class PartsAdmin(admin.ModelAdmin):
     list_display = ("id",
@@ -533,6 +529,41 @@ class ColorsAdmin(admin.ModelAdmin):
     list_display = ("colorName", "colorCode", "compatibleFabric", "isActive", "isDeleted", "created_at")
     list_filter = ("isActive", "isDeleted")
     search_fields = ("colorName", "colorCode")
+
+
+@admin.register(TableShape)
+class TableShapeAdmin(admin.ModelAdmin):
+    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("isActive", "isDeleted")
+    search_fields = ("name",)
+
+
+@admin.register(Closure)
+class ClosureAdmin(admin.ModelAdmin):
+    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("isActive", "isDeleted")
+    search_fields = ("name",)
+
+
+@admin.register(Style)
+class StyleAdmin(admin.ModelAdmin):
+    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("isActive", "isDeleted")
+    search_fields = ("name",)
+
+
+@admin.register(Size)
+class SizeAdmin(admin.ModelAdmin):
+    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("isActive", "isDeleted")
+    search_fields = ("name",)
+
+
+@admin.register(Pattern)
+class PatternAdmin(admin.ModelAdmin):
+    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("isActive", "isDeleted")
+    search_fields = ("name",)
 
 
 @admin.register(Product)

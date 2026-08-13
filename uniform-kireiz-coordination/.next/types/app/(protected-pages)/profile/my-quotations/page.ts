@@ -1,4 +1,4 @@
-// File: /home/dell/Documents/Uniform/uniform-coordination/uniform-kireiz-coordination/src/app/(protected-pages)/profile/my-quotations/page.jsx
+// File: /home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/uniform-kireiz-coordination/src/app/(protected-pages)/profile/my-quotations/page.jsx
 import * as entry from '../../../../../../src/app/(protected-pages)/profile/my-quotations/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

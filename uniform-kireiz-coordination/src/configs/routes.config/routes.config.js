@@ -34,6 +34,10 @@ export const publicRoutes = {
     key: "medical-form",
     authority: [],
   },
+  "/medical-form/*": {
+    key: "medical-form-detail",
+    authority: [],
+  },
   "/table-form": {
     key: "table-form",
     authority: [],
@@ -42,8 +46,16 @@ export const publicRoutes = {
     key: "dashboards/uniform-design",
     authority: [],
   },
+  "/dashboards/uniform-design/*": {
+    key: "dashboards/uniform-design-detail",
+    authority: [],
+  },
   "/dashboards/uniform-single": {
     key: "dashboards/uniform-single",
+    authority: [],
+  },
+  "/dashboards/uniform-single/*": {
+    key: "dashboards/uniform-single-detail",
     authority: [],
   },
   "/dashboards/uniform-3d-design": {

@@ -2,8 +2,8 @@
   "app/(auth-pages)/reset-password/page.jsx -> ./_components/ResetPasswordClient": {
     "id": 34425,
     "files": [
-      "static/chunks/ee560e2c-1d09e2ac1a343278.js",
       "static/chunks/66ec4792-3d5626275eab433c.js",
+      "static/chunks/ee560e2c-1d09e2ac1a343278.js",
       "static/chunks/c916193b-ae82faa328f870f4.js",
       "static/chunks/6148-339fdb93dbd4903e.js",
       "static/chunks/1083-245d054936d22599.js",

@@ -1890,24 +1890,24 @@
       "static/chunks/c916193b-6685ff49d795ab04.js",
       "static/chunks/ee560e2c-bb85a22034f30516.js",
       "static/chunks/1605-6345ca9de54d356e.js",
-      "static/chunks/9688-7966e37fdd3a5c5b.js",
-      "static/chunks/5757-577a095b1740907a.js",
-      "static/chunks/5211-51147da8d0961aa1.js",
+      "static/chunks/9688-1aa340dde3836452.js",
+      "static/chunks/3464-80511f1fe27bd31d.js",
+      "static/chunks/1342-f622d70901c9cd3d.js",
       "static/chunks/6874-0448427e64a0e7a3.js",
       "static/chunks/3083-b98ae70508eb95ed.js",
-      "static/chunks/3161.b5ddbfb40e27fce1.js"
+      "static/chunks/3161.b4f5f12edcdca1db.js"
     ]
   },
   "app/(protected-pages)/dashboards/analytic/_components/AnalyticChart.jsx -> @/components/shared/Chart": {
     "id": 34055,
     "files": [
-      "static/chunks/4055.c5b51718b2f1ceb6.js"
+      "static/chunks/4055.cfb790d78dc732f2.js"
     ]
   },
   "app/(protected-pages)/dashboards/analytic/_components/DeviceSession.jsx -> @/components/shared/Chart": {
     "id": 34055,
     "files": [
-      "static/chunks/4055.c5b51718b2f1ceb6.js"
+      "static/chunks/4055.cfb790d78dc732f2.js"
     ]
   },
   "app/(protected-pages)/dashboards/analytic/_components/TopChannel.jsx -> react-csv": {
@@ -1931,8 +1931,8 @@
   "app/(protected-pages)/dashboards/profile/settings/_components/Settings.jsx -> ./ChangePassword": {
     "id": 49241,
     "files": [
-      "static/chunks/5211-51147da8d0961aa1.js",
-      "static/chunks/9241.ae71b5e5d5d4adc8.js"
+      "static/chunks/1342-f622d70901c9cd3d.js",
+      "static/chunks/9241.4f86cfb15dbc1970.js"
     ]
   },
   "app/(protected-pages)/dashboards/profile/settings/_components/Settings.jsx -> ./LinkedOrderAndQuotes": {
@@ -1951,22 +1951,21 @@
   "app/(protected-pages)/dashboards/profile/settings/_components/Settings.jsx -> ./PersonalInformation": {
     "id": 50776,
     "files": [
-      "static/chunks/c16f53c3-1927bc07efb559b6.js",
+      "static/chunks/c16f53c3-010492b20051bf68.js",
       "static/chunks/0e762574-be2014b219191da5.js",
       "static/chunks/e34aaff9-b620a68df6fe8849.js",
       "static/chunks/578c2090-376246d6a65c23a2.js",
-      "static/chunks/5757-577a095b1740907a.js",
-      "static/chunks/5809-f087aab9ed123daa.js",
-      "static/chunks/1574-1893249ced197053.js",
-      "static/chunks/5211-51147da8d0961aa1.js",
-      "static/chunks/868-f7d7c1a57f2c4e6d.js",
-      "static/chunks/1815-8df588a1bf0151c1.js",
-      "static/chunks/8966-5b26a8816125b424.js",
-      "static/chunks/3669-89714e50166722b6.js",
-      "static/chunks/1881-fd15a10352a07ecb.js",
+      "static/chunks/3464-80511f1fe27bd31d.js",
+      "static/chunks/1093-f6cf3ef32a86adc2.js",
+      "static/chunks/2468-1862886f3dde55e1.js",
+      "static/chunks/1342-f622d70901c9cd3d.js",
+      "static/chunks/868-8d7ce402d9eb5754.js",
+      "static/chunks/8966-fd39a6a1b8a19c09.js",
+      "static/chunks/3669-9200a06c2144b57d.js",
+      "static/chunks/7264-8c7c6bd3e2a6e929.js",
       "static/chunks/2832-009329f01af00759.js",
-      "static/chunks/8416-cae08169ea3a2de4.js",
-      "static/chunks/776.d798c5fed50f7fc0.js"
+      "static/chunks/8416-4746c9c30f9e3313.js",
+      "static/chunks/776.213c6742cd3ce783.js"
     ]
   },
   "app/(protected-pages)/dashboards/profile/settings/_components/Settings.jsx -> ./SimulationHistory": {
@@ -1978,100 +1977,102 @@
     ]
   },
   "app/(protected-pages)/ui-components/charts/_components/BasicArea.jsx -> react-apexcharts": {
-    "id": 6144,
+    "id": 78699,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/6144.c0605b5a8807d856.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/1080.8591f4c53e0d6b62.js"
     ]
   },
   "app/(protected-pages)/ui-components/charts/_components/BasicBar.jsx -> react-apexcharts": {
-    "id": 6144,
+    "id": 78699,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/6144.c0605b5a8807d856.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/1080.8591f4c53e0d6b62.js"
     ]
   },
   "app/(protected-pages)/ui-components/charts/_components/BasicColumn.jsx -> react-apexcharts": {
-    "id": 6144,
+    "id": 78699,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/6144.c0605b5a8807d856.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/1080.8591f4c53e0d6b62.js"
     ]
   },
   "app/(protected-pages)/ui-components/charts/_components/BasicLine.jsx -> react-apexcharts": {
-    "id": 6144,
+    "id": 78699,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/6144.c0605b5a8807d856.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/1080.8591f4c53e0d6b62.js"
     ]
   },
   "app/(protected-pages)/ui-components/charts/_components/DashedLine.jsx -> react-apexcharts": {
-    "id": 6144,
+    "id": 78699,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/6144.c0605b5a8807d856.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/1080.8591f4c53e0d6b62.js"
     ]
   },
   "app/(protected-pages)/ui-components/charts/_components/GroupedBar.jsx -> react-apexcharts": {
-    "id": 6144,
+    "id": 78699,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/6144.c0605b5a8807d856.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/1080.8591f4c53e0d6b62.js"
     ]
   },
   "app/(protected-pages)/ui-components/charts/_components/SimpleDonut.jsx -> react-apexcharts": {
-    "id": 6144,
+    "id": 78699,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/6144.c0605b5a8807d856.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/1080.8591f4c53e0d6b62.js"
     ]
   },
   "app/(protected-pages)/ui-components/charts/_components/SimplePie.jsx -> react-apexcharts": {
-    "id": 6144,
+    "id": 78699,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/6144.c0605b5a8807d856.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/1080.8591f4c53e0d6b62.js"
     ]
   },
   "app/(protected-pages)/ui-components/charts/_components/SplineArea.jsx -> react-apexcharts": {
-    "id": 6144,
+    "id": 78699,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/6144.c0605b5a8807d856.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/1080.8591f4c53e0d6b62.js"
     ]
   },
   "app/(protected-pages)/ui-components/charts/_components/StackedColumn.jsx -> react-apexcharts": {
-    "id": 6144,
+    "id": 78699,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/6144.c0605b5a8807d856.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/1080.8591f4c53e0d6b62.js"
     ]
   },
   "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./MostUsedIndustriesChart": {
     "id": 76553,
     "files": [
-      "static/chunks/6553.abbc618d19e4784d.js"
+      "static/chunks/6553.92e766c028856ab0.js"
     ]
   },
   "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./QuotationRequestsChart": {
     "id": 14987,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/4987.e5bd26c233f964d7.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/1093-f6cf3ef32a86adc2.js",
+      "static/chunks/868-8d7ce402d9eb5754.js",
+      "static/chunks/8334.fa8d983a6d77ce68.js"
     ]
   },
   "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./QuotationsByStatusChart": {
     "id": 89353,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/9353.f3a88533cbcb360d.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/9353.7592652d14c3a827.js"
     ]
   },
   "components/shared/Chart.jsx -> react-apexcharts": {
-    "id": 6144,
+    "id": 78699,
     "files": [
-      "static/chunks/477d4af2.03adf51aeceda30f.js",
-      "static/chunks/3763.0ac157319d68ab89.js"
+      "static/chunks/477d4af2.46a33de73afd014f.js",
+      "static/chunks/8699.aeb8405b579a7212.js"
     ]
   },
   "components/template/MobileNav.jsx -> @/components/template/VerticalMenuContent": {

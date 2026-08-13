@@ -77,6 +77,14 @@
         "nxtPid": "nxtPid"
       },
       "namedRegex": "^/customer/view/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/products/view/[id]",
+      "regex": "^/products/view/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/products/view/(?<nxtPid>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [

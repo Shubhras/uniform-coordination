@@ -8,12 +8,7 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetContractsList } from "@/services/ContractsPoliciesService";
 import Spinner from "@/components/ui/Spinner";
 import StatusBadge from "./StatusBadge";
-
-const statusOptions = [
-  { value: "all", label: "Status" },
-  { value: "sent", label: "Sent" },
-  { value: "signed", label: "Signed" },
-];
+import { useTranslations } from "next-intl";
 
 const selectStyles = {
   control: (base) => ({
@@ -60,6 +55,14 @@ const selectStyles = {
 };
 
 const ContractsPoliciesPage = () => {
+  const t = useTranslations("contractPolicies");
+
+  const statusOptions = [
+    { value: "all", label: t("statusFilter") },
+    { value: "sent", label: t("statusSent") },
+    { value: "signed", label: t("statusSigned") },
+  ];
+
   const router = useRouter();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -159,12 +162,11 @@ const ContractsPoliciesPage = () => {
     <div className="bg-white p-3 sm:p-6">
       <div className="mb-5">
         <h1 className="text-[28px] font-semibold leading-tight text-[#1A1410]">
-          Contracts & Policies
+          {t("title")}
         </h1>
 
         <p className="mt-1 text-sm text-[#8B817A]">
-          Manage rental agreements, digital signatures, and compensation
-          policies.
+          {t("subHeading")}
         </p>
       </div>
 
@@ -177,7 +179,7 @@ const ContractsPoliciesPage = () => {
 
           <input
             type="text"
-            placeholder="Search by contract id..."
+            placeholder={t("searchby")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="h-[42px] w-full rounded-lg border border-[#F0E6DE] bg-white pl-10 pr-10 text-sm text-[#6F625B] outline-none placeholder:text-[#C28E73] focus:border-[#D7B7A3]"
@@ -188,7 +190,7 @@ const ContractsPoliciesPage = () => {
               type="button"
               onClick={() => setSearchQuery("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9A8E86]"
-              aria-label="Clear search"
+              aria-label={t("clearSearch")}
             >
               <FiX size={15} />
             </button>
@@ -215,7 +217,7 @@ const ContractsPoliciesPage = () => {
           className="flex h-[42px] w-full items-center justify-center gap-1.5 rounded-lg border border-[#F0E6DE] bg-white px-4 text-sm font-medium text-[#A85A32] transition hover:bg-[#FAF3EE] sm:w-auto"
         >
           <FiRotateCcw size={14} />
-          Reset
+          {t("reset")}
         </button>
       </div>
 
@@ -223,13 +225,13 @@ const ContractsPoliciesPage = () => {
         <table className="w-full min-w-[980px]">
           <thead>
             <tr className="bg-[#F8F3EF] text-left text-xs font-medium text-[#85776F]">
-              <th className="px-4 py-4">Contract ID</th>
-              <th className="px-4 py-4">Company</th>
-              <th className="px-4 py-4">Order ID</th>
-              <th className="px-4 py-4">Sent Date</th>
-              <th className="px-4 py-4">Signed Date</th>
-              <th className="px-4 py-4">Status</th>
-              <th className="px-4 py-4 text-center">Action</th>
+              <th className="px-4 py-4">{t("contractId")}</th>
+              <th className="px-4 py-4">{t("companyColumn")}</th>
+              <th className="px-4 py-4">{t("orderIdColumn")}</th>
+              <th className="px-4 py-4">{t("sentDate")}</th>
+              <th className="px-4 py-4">{t("signedDate")}</th>
+              <th className="px-4 py-4">{t("statusColumn")}</th>
+              <th className="px-4 py-4 text-center">{t("actionColumn")}</th>
             </tr>
           </thead>
 
@@ -281,7 +283,7 @@ const ContractsPoliciesPage = () => {
                       className="inline-flex items-center gap-1.5 rounded-lg border border-[#E7D9CF] bg-white px-3 py-1.5 text-xs font-medium text-[#A85A32] transition hover:bg-[#FAF3EE]"
                     >
                       <FiEye size={12} />
-                      View
+                      {t("view")}
                     </button>
                   </td>
                 </tr>
@@ -292,7 +294,7 @@ const ContractsPoliciesPage = () => {
                   colSpan={7}
                   className="bg-white px-4 py-12 text-center text-sm text-[#8B817A]"
                 >
-                  No contracts found.
+                  {t("noContracts")}
                 </td>
               </tr>
             )}

@@ -11,8 +11,12 @@ import {
 } from "@/services/PricingPackages";
 import { FiArrowLeft } from "react-icons/fi";
 import Button from "@/components/ui/Button";
+import { useTranslations } from "next-intl";
 
 export default function EditPricingRules() {
+  const t = useTranslations("pricingPackages.pricingRules");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
   const router = useRouter();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -72,23 +76,23 @@ export default function EditPricingRules() {
     let newErrors = {};
 
     if (!formData.lateFeeFormula.trim()) {
-      newErrors.lateFeeFormula = "Late fee formula is required*";
+      newErrors.lateFeeFormula = t("validation.lateFeeFormulaRequired");
     }
 
     if (!formData.lateFeeRate) {
-      newErrors.lateFeeRate = "Late fee rate is required*";
+      newErrors.lateFeeRate = t("validation.lateFeeRateRequired");
     }
 
     if (!formData.gracePeriod) {
-      newErrors.gracePeriod = "Grace period is required*";
+      newErrors.gracePeriod = t("validation.gracePeriodRequired");
     }
 
     if (!formData.flatShippingFee) {
-      newErrors.flatShippingFee = "Shipping fee is required*";
+      newErrors.flatShippingFee = t("validation.shippingFeeRequired");
     }
 
     if (!formData.taxPercentage) {
-      newErrors.taxPercentage = "Tax percentage is required*";
+      newErrors.taxPercentage = t("validation.taxPercentageRequired");
     }
 
     setErrors(newErrors);
@@ -114,16 +118,16 @@ export default function EditPricingRules() {
       const res = await apiUpdatePricingList(accessToken, payload);
 
       toast.push(
-        <Notification title="Success" type="success">
-          {res?.data?.message || "Pricing Rule Updated Successfully"}
+        <Notification title={ts("success")} type="success">
+          {res?.data?.message || t("updateSuccess")}
         </Notification>,
       );
 
       router.back();
     } catch (error) {
       toast.push(
-        <Notification title="Error" type="danger">
-          {error?.response?.data?.message || "Something went wrong"}
+        <Notification title={te("error")} type="danger">
+          {error?.response?.data?.message || t("somethingWentWrong")}
         </Notification>,
       );
     } finally {
@@ -143,7 +147,7 @@ export default function EditPricingRules() {
         </button>
 
         <h1 className="text-[28px] font-semibold text-[#2C1A0E]">
-          Edit Pricing Rules
+          {t("editPrice")}
         </h1>
       </div>
 
@@ -152,16 +156,14 @@ export default function EditPricingRules() {
         {/* Late Fee */}
         <div>
           <h2 className="text-lg font-semibold text-[#2C1A0E]">
-            Late Fee Configuration
+            {t("lateFeeConfig")}
           </h2>
 
-          <p className="mt-1 text-sm text-[#9A8B82]">
-            Define how late fees are calculated and applied
-          </p>
+          <p className="mt-1 text-sm text-[#9A8B82]">{t("define")}</p>
 
           <div className="mt-6">
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              Late Fee Formula
+              {t("lateFeeFormulaLabel")}
             </label>
 
             <input
@@ -179,13 +181,13 @@ export default function EditPricingRules() {
             )}
 
             <p className="mt-2 text-xs text-[#B3A39A]">
-              Descriptive formula label shown to staff in invoices
+              {t("descriptiveFormula")}
             </p>
           </div>
 
           <div className="mt-6">
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              Late Fee Rate (% Per Day)
+              {t("lateFeeRateLabel")}
             </label>
 
             <input
@@ -193,6 +195,7 @@ export default function EditPricingRules() {
               name="lateFeeRate"
               value={formData.lateFeeRate}
               onChange={handleChange}
+              min={0}
               className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 text-sm outline-none focus:border-[#B56A3C]"
             />
 
@@ -208,17 +211,15 @@ export default function EditPricingRules() {
         {/* Return & Delivery */}
         <div>
           <h2 className="text-lg font-semibold text-[#2C1A0E]">
-            Return & Delivery Settings
+            {t("returnDelivery")}
           </h2>
 
-          <p className="mt-1 text-sm text-[#9A8B82]">
-            Configure grace period and shipping fee
-          </p>
+          <p className="mt-1 text-sm text-[#9A8B82]">{t("deliveryContent")}</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-                Grace Period (Days)
+                {t("gracePeriodLabel")}
               </label>
 
               <input
@@ -226,6 +227,7 @@ export default function EditPricingRules() {
                 name="gracePeriod"
                 value={formData.gracePeriod}
                 onChange={handleChange}
+                min={0}
                 className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 text-sm outline-none focus:border-[#B56A3C]"
               />
 
@@ -238,7 +240,7 @@ export default function EditPricingRules() {
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-                Flat Shipping Fee
+                {t("flatShippingFeeLabel")}
               </label>
 
               <input
@@ -246,6 +248,7 @@ export default function EditPricingRules() {
                 name="flatShippingFee"
                 value={formData.flatShippingFee}
                 onChange={handleChange}
+                min={0}
                 className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 text-sm outline-none focus:border-[#B56A3C]"
               />
 
@@ -263,21 +266,23 @@ export default function EditPricingRules() {
 
         {/* Tax */}
         <div>
-          <h2 className="text-lg font-semibold text-[#2C1A0E]">Tax Settings</h2>
+          <h2 className="text-lg font-semibold text-[#2C1A0E]">
+            {t("taxSetting")}
+          </h2>
 
           <p className="mt-1 text-sm text-[#9A8B82]">
-            Configure consumption tax on rental transactions
+            {t("taxsettingContent")}
           </p>
 
           {/* Toggle Card */}
           <div className="mt-4 flex items-center justify-between rounded-2xl border border-[#E9DDD3] bg-[#FCFAF8] px-5 py-2">
             <div>
               <h3 className="font-semibold text-[#2C1A0E] text-[15px]">
-                Enable Consumption Tax
+                {t("enableTax")}
               </h3>
 
               <p className="text-[13px] text-[#9A8B82] mt-1">
-                Apply sales tax to all taxable transactions
+                {t("applySales")}
               </p>
             </div>
 
@@ -297,7 +302,7 @@ export default function EditPricingRules() {
 
           <div className="mt-6">
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              Tax Percentage (%)
+              {t("taxPercentageLabel")}
             </label>
 
             <input
@@ -305,6 +310,7 @@ export default function EditPricingRules() {
               name="taxPercentage"
               value={formData.taxPercentage}
               onChange={handleChange}
+              min={0}
               className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 text-sm outline-none focus:border-[#B56A3C]"
             />
 
@@ -322,7 +328,7 @@ export default function EditPricingRules() {
           onClick={() => router.back()}
           className="h-10 px-5 rounded-xl border border-[#E9DDD3] bg-white text-[#6E6258] font-medium hover:bg-[#F8F3EF] transition"
         >
-          Cancel
+          {t("cancel")}
         </button>
 
         <Button
@@ -332,7 +338,7 @@ export default function EditPricingRules() {
           disabled={loading}
           className="h-10 px-5 rounded-xl bg-[#A85A32] text-white font-medium hover:bg-[#8F4D2A]"
         >
-          Save Rule
+          {t("saveRule")}
         </Button>
       </div>
     </div>

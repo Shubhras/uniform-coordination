@@ -18,6 +18,7 @@ import {
   FiSliders,
   FiClipboard,
   FiImage,
+  FiLayers,
 } from "react-icons/fi";
 
 // labelKey resolves against the "adminSidebar" namespace in messages/<locale>.json

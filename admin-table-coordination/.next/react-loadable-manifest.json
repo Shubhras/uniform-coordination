@@ -1888,7 +1888,7 @@
     "files": [
       "static/chunks/c916193b-6685ff49d795ab04.js",
       "static/chunks/66ec4792-63e8a85aaa740d87.js",
-      "static/chunks/ee560e2c-238ef3d8b7ca23f2.js",
+      "static/chunks/ee560e2c-2b18491a74cf4b6b.js",
       "static/chunks/3464-80511f1fe27bd31d.js",
       "static/chunks/1605-6345ca9de54d356e.js",
       "static/chunks/9688-1aa340dde3836452.js",
@@ -1913,19 +1913,19 @@
   "app/(protected-pages)/dashboards/analytic/_components/TopChannel.jsx -> react-csv": {
     "id": 8076,
     "files": [
-      "static/chunks/8076.26be61e571254241.js"
+      "static/chunks/8076.72a7768e31c006e9.js"
     ]
   },
   "app/(protected-pages)/dashboards/analytic/_components/TopPerformingPages.jsx -> react-csv": {
     "id": 8076,
     "files": [
-      "static/chunks/8076.26be61e571254241.js"
+      "static/chunks/8076.72a7768e31c006e9.js"
     ]
   },
   "app/(protected-pages)/dashboards/analytic/_components/Traffic.jsx -> react-csv": {
     "id": 8076,
     "files": [
-      "static/chunks/8076.26be61e571254241.js"
+      "static/chunks/8076.72a7768e31c006e9.js"
     ]
   },
   "app/(protected-pages)/dashboards/profile/settings/_components/Settings.jsx -> ./ChangePassword": {
@@ -2050,14 +2050,14 @@
     "id": 76553,
     "files": [
       "static/chunks/477d4af2.46a33de73afd014f.js",
-      "static/chunks/6553.5ef73e5c96d548b4.js"
+      "static/chunks/6553.1d9f20d3ddaa4ab7.js"
     ]
   },
   "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./QuotationRequestsChart": {
     "id": 14987,
     "files": [
       "static/chunks/477d4af2.46a33de73afd014f.js",
-      "static/chunks/4987.2f035ff0792766ec.js"
+      "static/chunks/4987.3d07e311f546d926.js"
     ]
   },
   "app/(public-pages)/admin-form/components/AdminHome.jsx -> ./QuotationsByStatusChart": {

@@ -15,10 +15,8 @@ const HeroContent = ({ categoryData }) => {
   const router = useRouter();
 
   const dynamicImageSrc =
-    categoryData?.categoryImage ||
     categoryData?.bannerImage ||
-    categoryData?.heroImage ||
-    categoryData?.image ||
+    categoryData?.categoryImage ||
     "/img/medical-form/hero/doctors.png";
 
   return (
@@ -65,6 +63,7 @@ const HeroContent = ({ categoryData }) => {
                 fill
                 className="object-cover object-center"
                 priority
+                unoptimized
               />
             </div>
 

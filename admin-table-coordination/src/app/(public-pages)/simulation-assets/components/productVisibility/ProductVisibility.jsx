@@ -19,6 +19,7 @@ import { apiGetCategoryList } from "@/services/CategoryService";
 import { apiToggleProductVisibility } from "@/services/SimulationService";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
+import { useTranslations } from "next-intl";
 
 const selectStyles = {
   control: (base) => ({
@@ -59,6 +60,9 @@ const selectStyles = {
 };
 
 const ProductVisibility = () => {
+  const t = useTranslations("simulationAssets.productVisibility");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
   const router = useRouter();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -76,8 +80,8 @@ const ProductVisibility = () => {
       const res = await apiToggleProductVisibility(accessToken, productId, !currentShow);
       if (res?.status) {
         toast.push(
-          <Notification title="Success" type="success">
-            {res.message || "Product visibility updated."}
+          <Notification title={ts("success")} type="success">
+            {res.message || t("updated")}
           </Notification>
         );
       } else {
@@ -86,8 +90,8 @@ const ProductVisibility = () => {
           prev.map((p) => (p.id === productId ? { ...p, show: currentShow } : p))
         );
         toast.push(
-          <Notification title="Error" type="danger">
-            {res?.message || "Failed to update product visibility."}
+          <Notification title={te("error")} type="danger">
+            {res?.message || t("updateFailed")}
           </Notification>
         );
       }
@@ -98,8 +102,8 @@ const ProductVisibility = () => {
         prev.map((p) => (p.id === productId ? { ...p, show: currentShow } : p))
       );
       toast.push(
-        <Notification title="Error" type="danger">
-          An error occurred while updating product visibility.
+        <Notification title={te("error")} type="danger">
+          {t("updateError")}
         </Notification>
       );
     }
@@ -120,10 +124,10 @@ const ProductVisibility = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const [material] = useState({ value: "all", label: "All" });
+  const [material] = useState({ value: "all", label: t("all") });
 
   const categoryOptions = [
-    { value: "all", label: "All Categories" },
+    { value: "all", label: t("allCategories") },
     ...categoryList.map((item) => ({
       value: item.id,
       label: item.categoryName,
@@ -202,10 +206,10 @@ const ProductVisibility = () => {
     <>
       <div className="mt-5">
         <h2 className="text-[24px] font-semibold text-[#2A1A0E]">
-          Product Visibility
+          {t("title")}
         </h2>
         <p className="mt-1 text-[16px] text-[#8B7355]">
-          Choose which inventory items will be available in the simulation
+          {t("subtitle")}
         </p>
 
         <div className="mt-5 mb-5 flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -214,7 +218,7 @@ const ProductVisibility = () => {
 
             <input
               type="text"
-              placeholder="Search by product name..."
+              placeholder={t("searchPlaceholder")}
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               className="w-full h-10 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
@@ -247,7 +251,7 @@ const ProductVisibility = () => {
               className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
             >
               <FiRotateCcw size={14} />
-              Reset
+              {t("reset")}
             </button>
           </div>
         </div>
@@ -257,17 +261,17 @@ const ProductVisibility = () => {
             <thead className="bg-[#F1F5F9] text-[#486284]">
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
                 <th className="text-left  px-4 py-3 font-normal">
-                  Product Name
+                  {t("productName")}
                 </th>
                 <th className="text-left  px-4 py-3 font-normal">
-                  Category Fabric
+                  {t("catFabric")}
                 </th>
-                <th className="text-left  px-4 py-3 font-normal">Style</th>
-                <th className="text-left  px-4 py-3 font-normal">Color</th>
+                <th className="text-left  px-4 py-3 font-normal">{t("style")}</th>
+                <th className="text-left  px-4 py-3 font-normal">{t("color")}</th>
                 <th className="text-left  px-4 py-3 font-normal">
-                  Show in Simulation
+                  {t("showIn")}
                 </th>
-                <th className="text-left  px-4 py-3 font-normal">Action</th>
+                <th className="text-left  px-4 py-3 font-normal">{t("action")}</th>
               </tr>
             </thead>
             <tbody>
@@ -323,7 +327,7 @@ const ProductVisibility = () => {
               ) : (
                 <tr>
                   <td colSpan={9} className="py-10 text-center text-gray-500">
-                    No products found.
+                    {t("noProducts")}
                   </td>
                 </tr>
               )}

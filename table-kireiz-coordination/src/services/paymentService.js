@@ -34,3 +34,19 @@ export async function apiPaymentDetail(token, paymentId) {
     },
   });
 }
+
+/**
+ * Fetches system settings (including enabled payment gateways).
+ * 
+ * @param {string} token - User authentication Bearer token.
+ * @returns {Promise<Object>} API response with system settings.
+ */
+export async function apiGetSystemSettings(token) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/space/uniformAdmin/settings/system/",
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

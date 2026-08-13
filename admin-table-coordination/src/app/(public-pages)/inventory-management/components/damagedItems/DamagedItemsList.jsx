@@ -7,8 +7,12 @@ import Spinner from "@/components/ui/Spinner";
 import { FiAlertTriangle, FiRefreshCw } from "react-icons/fi";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
+import { useTranslations } from "next-intl";
 
 const DamagedItemsList = () => {
+  const t = useTranslations("inventoryManagement.damagedItems");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -48,23 +52,23 @@ const DamagedItemsList = () => {
       });
       if (res?.status) {
         toast.push(
-          <Notification type="success" title="Success">
-            Status updated to {status}.
+          <Notification type="success" title={ts("success")}>
+            {t("statusUpdated", { status: t(status) })}
           </Notification>
         );
         fetchDamagedItems();
       } else {
         toast.push(
-          <Notification type="danger" title="Error">
-            {res?.message || "Failed to update status"}
+          <Notification type="danger" title={te("error")}>
+            {res?.message || t("updateStatusFailed")}
           </Notification>
         );
       }
     } catch (err) {
       console.error(err);
-      const errMsg = err.response?.data?.message || err.message || "Failed to update status";
+      const errMsg = err.response?.data?.message || err.message || t("updateStatusFailed");
       toast.push(
-        <Notification type="danger" title="Error">
+        <Notification type="danger" title={te("error")}>
           {errMsg}
         </Notification>
       );
@@ -79,23 +83,23 @@ const DamagedItemsList = () => {
       });
       if (res?.status) {
         toast.push(
-          <Notification type="success" title="Success">
-            Item moved to available stock.
+          <Notification type="success" title={ts("success")}>
+            {t("movedToAvailable")}
           </Notification>
         );
         fetchDamagedItems();
       } else {
         toast.push(
-          <Notification type="danger" title="Error">
-            {res?.message || "Failed to move item to available"}
+          <Notification type="danger" title={te("error")}>
+            {res?.message || t("moveFailed")}
           </Notification>
         );
       }
     } catch (err) {
       console.error(err);
-      const errMsg = err.response?.data?.message || err.message || "Failed to move item to available";
+      const errMsg = err.response?.data?.message || err.message || t("moveFailed");
       toast.push(
-        <Notification type="danger" title="Error">
+        <Notification type="danger" title={te("error")}>
           {errMsg}
         </Notification>
       );
@@ -132,7 +136,7 @@ const DamagedItemsList = () => {
                       </h2>
 
                       <p className="text-[13px] text-[#8D7A6E] mt-1">
-                        {item.category} · Added {item.added}
+                        {item.category} · {t("addedOn", { date: item.added })}
                       </p>
                     </div>
 
@@ -158,7 +162,7 @@ const DamagedItemsList = () => {
                   <div className="mt-4 rounded-lg bg-[#FEF2F2] border border-[#F8DEDE] px-4 py-3">
                     <p className="flex items-center gap-2 text-[#C10007] font-semibold text-[13px]">
                       <FiAlertTriangle size={18} className="text-[#C10007]" />
-                      Damage Reason
+                      {t("damageReason")}
                     </p>
 
                     <p className="text-[#C45B5B] text-[13px] mt-1 leading-6">
@@ -168,40 +172,40 @@ const DamagedItemsList = () => {
                   <div className="flex items-center gap-4 mt-5">
                     <div className="flex items-center gap-3">
                       <span className="text-[13px] text-[#8B6D4E] font-semibold">
-                        Update status:
+                        {t("updateStatus")}
                       </span>
 
                       <button
-                        onClick={() => updateStatus(item.id, "Pending")}
+                        onClick={() => updateStatus(item.id, "pending")}
                         className={`px-4 h-8 rounded-full border text-[12px] font-medium transition cursor-pointer ${
                           item.status === "pending"
                             ? "bg-[#8B6D4E] border-[#8B6D4E] text-white font-semibold"
                             : "bg-white border-[#D8CABC] text-[#6B4A2A] font-semibold hover:bg-orange-50/20"
                         }`}
                       >
-                        Pending
+                        {t("pending")}
                       </button>
 
                       <button
-                        onClick={() => updateStatus(item.id, "Repair")}
+                        onClick={() => updateStatus(item.id, "repair")}
                         className={`px-4 h-8 rounded-full border text-[12px] font-medium transition cursor-pointer ${
                           item.status === "repair"
                             ? "bg-[#E17100] border-[#D97706] text-white font-semibold"
                             : "bg-white border-[#D8CABC] text-[#7B6656] hover:bg-orange-50/20"
                         }`}
                       >
-                        Repair
+                        {t("repair")}
                       </button>
 
                       <button
-                        onClick={() => updateStatus(item.id, "Discard")}
+                        onClick={() => updateStatus(item.id, "discard")}
                         className={`px-4 h-8 rounded-full border text-[12px] font-medium transition cursor-pointer ${
                           item.status === "discard"
                             ? "bg-[#EF4444] border-[#EF4444] text-white font-semibold"
                             : "bg-white border-[#D8CABC] text-[#6B4A2A] font-semibold hover:bg-orange-50/20"
                         }`}
                       >
-                        Discard
+                        {t("discard")}
                       </button>
                     </div>
 
@@ -210,7 +214,7 @@ const DamagedItemsList = () => {
                       className="ml-auto px-5 h-9 rounded-full border border-[#BDEFD9] bg-[#ECFDF5] text-[#007A55] text-[13px] font-medium hover:bg-[#DDFBF0] transition flex items-center gap-2 cursor-pointer"
                     >
                       <FiRefreshCw size={13} className="text-[#007A55]" />
-                      Move to Available
+                      {t("moveToAvailable")}
                     </button>
                   </div>
                 </div>
@@ -222,7 +226,7 @@ const DamagedItemsList = () => {
         ))
       ) : (
         <div className="bg-white border border-[#EFE5DD] rounded-xl py-10 text-center text-gray-500">
-          No damaged items found.
+          {t("noDamageIem")}
         </div>
       )}
     </div>

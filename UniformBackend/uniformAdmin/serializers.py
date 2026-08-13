@@ -333,6 +333,17 @@ class FabricMiniSerializer(serializers.ModelSerializer):
 
 
 class SystemSettingsSerializer(serializers.ModelSerializer):
+    # Write-only: an admin can set the SMTP password but it is never returned,
+    # so it cannot leak through the settings GET.
+    email_password = serializers.CharField(
+        write_only=True, required=False, allow_blank=True, allow_null=True
+    )
+    # Lets the UI show "configured / not configured" without exposing the value.
+    email_password_set = serializers.SerializerMethodField()
+
+    def get_email_password_set(self, obj):
+        return bool(obj.email_password)
+
     class Meta:
         model = SystemSettings
         fields = [
@@ -357,6 +368,12 @@ class SystemSettingsSerializer(serializers.ModelSerializer):
             'bank_account_number',
 
             # Email & Notifications tab
+            'email_host',
+            'email_port',
+            'email_use_tls',
+            'email_username',
+            'email_password',
+            'email_password_set',
             'email_sender_name',
             'email_sender_address',
             'email_reply_to',
@@ -721,8 +738,9 @@ class CategorySerializer(serializers.ModelSerializer):
             "id",
             "categoryName",
             "slug",
-            "type", 
-            "categoryImage",  
+            "type",
+            "categoryImage",
+            "bannerImage",
             "description",
             "isActive",
             "order",
@@ -1184,6 +1202,10 @@ class ProductSerializer(serializers.ModelSerializer):
 
             "price", "discount", "total_quantity", "available_quantity",
             "isActive", "created_at","rental_price_per_day", "security_deposit",
+
+            # Whether the customer simulation offers this product — managed under
+            # Simulation Assets → Product Visibility.
+            "show_in_simulation",
 ]
 
     def to_internal_value(self, data):

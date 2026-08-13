@@ -1,4 +1,4 @@
-// File: /home/dell/Documents/Uniform/uniform-coordination/uniform-kireiz-coordination/src/app/api/projects/scrum-board/route.js
+// File: /home/digi-4/project/Uniform Coordination Web Application/uniform-coordination/uniform-kireiz-coordination/src/app/api/projects/scrum-board/route.js
 import * as entry from '../../../../../../src/app/api/projects/scrum-board/route.js'
 import type { NextRequest } from 'next/server.js'
 

@@ -1,24 +1,52 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .fabric import IsAdministrator
+from rest_framework.permissions import IsAuthenticated
 from .models import SystemSettings
 from .serializers import SystemSettingsSerializer
+from .fabric import IsAdministrator
 
 class SystemSettingsRetrieveView(APIView):
     """
     GET /api/v1/settings/system/
     Returns the current global system settings.
     """
-    permission_classes = [IsAdministrator]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         settings_obj = SystemSettings.load()
         data = SystemSettingsSerializer(
             settings_obj,
-            context={"request": request}   # <-- add this
+            context={"request": request}
         ).data
+
+        # Check if the requesting user is an administrator
+        is_admin = False
+        try:
+            is_admin = (
+                request.user and
+                request.user.is_authenticated and
+                hasattr(request.user, "role") and
+                request.user.role and
+                request.user.role.role_name.lower() == "admin"
+            )
+        except AttributeError:
+            pass
+
+        if not is_admin:
+            sensitive_fields = [
+                "email_password",
+                "stripe_secret_key",
+                "stripe_webhook_secret",
+                "email_host",
+                "email_port",
+                "email_username"
+            ]
+            for field in sensitive_fields:
+                if field in data:
+                    data[field] = ""
+
         return Response(
             {
                 "success": True,

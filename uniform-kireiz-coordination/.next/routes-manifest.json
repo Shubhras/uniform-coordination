@@ -145,6 +145,12 @@
       "namedRegex": "^/blog(?:/)?$"
     },
     {
+      "page": "/dashboards/uniform-3d-design",
+      "regex": "^/dashboards/uniform\\-3d\\-design(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboards/uniform\\-3d\\-design(?:/)?$"
+    },
+    {
       "page": "/email-verification-page",
       "regex": "^/email\\-verification\\-page(?:/)?$",
       "routeKeys": {},
