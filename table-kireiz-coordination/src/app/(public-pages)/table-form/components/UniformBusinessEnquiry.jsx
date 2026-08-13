@@ -28,9 +28,9 @@ const bottomCards = [
 
 /**
  * UniformBusinessEnquiry Component
- * 
+ *
  * Features showcase section detailing space coordination advantages and responsive slider for table themes.
- * 
+ *
  * @param {Object} props
  * @param {Array} [props.tableThemes=[]] - Array of theme objects.
  */
@@ -52,17 +52,17 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
       const width = window.innerWidth;
 
       if (width >= 1440) {
-        setCardsPerView(4);      // xl / large desktop
+        setCardsPerView(4); // xl / large desktop
       } else if (width >= 1280) {
-        setCardsPerView(3);      // lg desktop
+        setCardsPerView(3); // lg desktop
       } else if (width >= 1024) {
-        setCardsPerView(2);      // laptop
+        setCardsPerView(2); // laptop
       } else if (width >= 768) {
-        setCardsPerView(2);      // tablet
+        setCardsPerView(2); // tablet
       } else if (width >= 640) {
-        setCardsPerView(2);      // large mobile
+        setCardsPerView(2); // large mobile
       } else {
-        setCardsPerView(1);      // small mobile
+        setCardsPerView(1); // small mobile
       }
     };
 
@@ -75,20 +75,27 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
    * Navigates theme carousel forward.
    */
   const handleNext = () => {
-    setIndex((prev) =>
-      prev + cardsPerView >= (cards.length || bottomCards.length) ? 0 : prev + 1
-    );
+    setIndex((prev) => {
+      const totalCards = cards.length;
+
+      if (prev + cardsPerView >= totalCards) {
+        return prev;
+      }
+
+      return prev + cardsPerView;
+    });
   };
 
   /**
    * Navigates theme carousel backward.
    */
   const handlePrev = () => {
-    setIndex((prev) =>
-      prev === 0 ? Math.max(0, (cards.length || bottomCards.length) - cardsPerView) : prev - 1
-    );
-  };
+    setIndex((prev) => {
+      if (prev === 0) return 0;
 
+      return Math.max(0, prev - cardsPerView);
+    });
+  };
   /**
    * Redirects to Browse by Theme catalog.
    */
@@ -131,16 +138,9 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
               key={i}
               className="bg-[#E8B4A924] rounded-xl shadow-sm px-4 py-5 text-left hover:shadow-md transition"
             >
-              <Icon
-                size={30}
-                className="mb-3 text-[#A0522D]"
-              />
-              <p className="text-black font-semibold text-sm">
-                {item.title}
-              </p>
-              <p className="text-[#7A7A7A] text-xs mt-1">
-                {item.desc}
-              </p>
+              <Icon size={30} className="mb-3 text-[#A0522D]" />
+              <p className="text-black font-semibold text-sm">{item.title}</p>
+              <p className="text-[#7A7A7A] text-xs mt-1">{item.desc}</p>
             </div>
           );
         })}
@@ -150,49 +150,68 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
         Explore Our Table Themes
       </h2>
       <div className="flex justify-end gap-3 mt-6 mr-6">
-        <FiArrowLeft onClick={handlePrev} size={25} className="text-lg cursor-pointer text-[#5D4A4A]" />
-        <FiArrowRight onClick={handleNext} size={25} className="text-lg text-[#5D4A4A] ml-8 cursor-pointer" />
+        <button
+          onClick={handlePrev}
+          disabled={index === 0}
+          className={`${
+            index === 0
+              ? "text-gray-300 cursor-not-allowed"
+              : "text-[#5D4A4A] cursor-pointer"
+          }`}
+        >
+          <FiArrowLeft size={25} />
+        </button>
+
+        <button
+          onClick={handleNext}
+          disabled={index + cardsPerView >= cards.length}
+          className={`ml-8 ${
+            index + cardsPerView >= cards.length
+              ? "text-gray-300 cursor-not-allowed"
+              : "text-[#5D4A4A] cursor-pointer"
+          }`}
+        >
+          <FiArrowRight size={25} />
+        </button>
       </div>
       <div className="mt-6 overflow-hidden pb-12">
         <div className="flex gap-6 transition-transform duration-500 ease-in-out justify-center">
-          {cards
-            .slice(index, index + cardsPerView)
-            .map((item, i) => (
-              <div
-                key={i}
-                className="relative flex-none overflow-hidden shadow-md w-full p-3 rounded-tl-4xl rounded-br-4xl bg-[#FEF3C7] hover:bg-[#A0522D] transition-all duration-200 group"
-                style={{
-                  maxWidth: `calc(${100 / cardsPerView}% - ${((cardsPerView - 1) * 24) / cardsPerView}px)`,
-                }}
-              >
-                <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl">
-                  <Image
-                    src={item.img || "/img/table-form/themes/theme1.png"}
-                    alt={item.title || "Category Image"}
-                    fill
-                    className="object-cover"
-                    priority={i === 0}
-                    unoptimized
-                  />
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%]">
-                    <button
-                      className="w-full py-3 border border-white text-lg font-medium text-white group-hover:text-black bg-[#A0522D] rounded-xl cursor-pointer group-hover:bg-[#FEF3C7] transition-all duration-200"
-                      onClick={handleThemeClick}
-                    >
-                      Try This Theme
-                    </button>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-[#1C2C56] group-hover:text-white text-[18px] font-semibold">
-                    {item.title}
-                  </h3>
-                  <p className="text-[#6B7280] group-hover:text-white text-[14px] mt-2 leading-tight line-clamp-2">
-                    {item.desc}
-                  </p>
+          {cards.slice(index, index + cardsPerView).map((item, i) => (
+            <div
+              key={i}
+              className="relative flex-none overflow-hidden shadow-md w-full p-3 rounded-tl-4xl rounded-br-4xl bg-[#FEF3C7] hover:bg-[#A0522D] transition-all duration-200 group"
+              style={{
+                maxWidth: `calc(${100 / cardsPerView}% - ${((cardsPerView - 1) * 24) / cardsPerView}px)`,
+              }}
+            >
+              <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl">
+                <Image
+                  src={item.img || "/img/table-form/themes/theme1.png"}
+                  alt={item.title || "Category Image"}
+                  fill
+                  className="object-cover"
+                  priority={i === 0}
+                  unoptimized
+                />
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%]">
+                  <button
+                    className="w-full py-3 border border-white text-lg font-medium text-white group-hover:text-black bg-[#A0522D] rounded-xl cursor-pointer group-hover:bg-[#FEF3C7] transition-all duration-200"
+                    onClick={handleThemeClick}
+                  >
+                    Try This Theme
+                  </button>
                 </div>
               </div>
-            ))}
+              <div className="p-4">
+                <h3 className="text-[#1C2C56] group-hover:text-white text-[18px] font-semibold">
+                  {item.title}
+                </h3>
+                <p className="text-[#6B7280] group-hover:text-white text-[14px] mt-2 leading-tight line-clamp-2">
+                  {item.desc}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -200,4 +219,3 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
 };
 
 export default UniformBusinessEnquiry;
-
