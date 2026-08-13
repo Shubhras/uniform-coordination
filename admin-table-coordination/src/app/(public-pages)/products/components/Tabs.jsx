@@ -7,18 +7,21 @@ import {
   FiGrid,
   FiBox
 } from "react-icons/fi";
+import { useTranslations } from "next-intl";
+
 
 const tabs = [
-  { key: "Fabrics", label: "Fabrics", icon: FiLayers },
-  { key: "Colors", label: "Colors", icon: FiDroplet },
-  { key: "TableShape", label: "Table Shape", icon: FiGrid },
-  { key: "Closure", label: "Closure", icon: FiSliders },
-  { key: "Style", label: "Style", icon: FiBookmark },
-  { key: "Size", label: "Size", icon: FiMaximize2 },
-  { key: "Pattern", label: "Pattern", icon: FiBox },
+  { key: "Fabrics", label: "fabrics", icon: FiLayers },
+  { key: "Colors", label: "colors", icon: FiDroplet },
+  { key: "TableShape", label: "tableShape", icon: FiGrid },
+  { key: "Closure", label: "closure", icon: FiSliders },
+  { key: "Style", label: "style", icon: FiBookmark },
+  { key: "Size", label: "size", icon: FiMaximize2 },
+  { key: "Pattern", label: "pattern", icon: FiBox },
 ];
 
 const Tabs = ({ activeTab, setActiveTab }) => {
+    const t = useTranslations("productSpecification.tabs");
   return (
     <div className="flex gap-6 border-b border-[#90A3BF9C] mt-6 overflow-x-auto">
       {tabs.map(({ key, label, icon: Icon }) => (
@@ -32,7 +35,7 @@ const Tabs = ({ activeTab, setActiveTab }) => {
           }`}
         >
           <Icon size={16} />
-          {label}
+          {t(label)}
         </button>
       ))}
     </div>

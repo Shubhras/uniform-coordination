@@ -184,43 +184,59 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
                   onClick={() => router.push(item.path)}
                   title={collapsed ? label : undefined}
                   className={`
-                                        group relative flex items-center gap-3 w-full
-                                        rounded-lg text-sm font-medium
-                                        transition-all duration-200 cursor-pointer
-                                        ${collapsed ? "px-3 py-3 justify-center" : "px-3 py-2.5"}
-                                        ${
-                                          active
-                                            ? "bg-[#D1D9E9] text-[#1C2C56] shadow-none"
-                                            : "text-[#1C2C56] hover:bg-[#F1F5F9] hover:text-[#1C2C56]"
-                                        }
-                                    `}
+        group relative flex items-center gap-3 w-full
+        rounded-lg text-sm font-medium
+        transition-all duration-200 cursor-pointer
+        text-left
+        ${collapsed
+                      ? "px-3 py-3 justify-center"
+                      : "px-3 py-2.5 min-h-[44px]"
+                    }
+        ${active
+                      ? "bg-[#D1D9E9] text-[#1C2C56] shadow-none"
+                      : "text-[#1C2C56] hover:bg-[#F1F5F9] hover:text-[#1C2C56]"
+                    }
+      `}
                 >
                   <Icon
                     size={20}
-                    className={`flex-shrink-0 transition-colors duration-200
-                                            ${active ? "text-[#1C2C56]" : "text-[#1C2C56] group-hover:text-[#1C2C56]"}
-                                        `}
+                    className={`
+          flex-shrink-0 transition-colors duration-200
+          ${active
+                        ? "text-[#1C2C56]"
+                        : "text-[#1C2C56] group-hover:text-[#1C2C56]"
+                      }
+        `}
                   />
+
                   {!collapsed && (
-                    <span className="truncate leading-snug">{label}</span>
+                    <span className="flex-1 min-w-0 leading-snug whitespace-normal break-words">
+                      {label}
+                    </span>
                   )}
 
                   {/* Tooltip on collapsed */}
                   {collapsed && (
                     <div
                       className="
-                                            absolute left-full ml-3 px-3 py-1.5
-                                            bg-[#1C2C56] text-white text-xs font-medium
-                                            rounded-md whitespace-nowrap
-                                            opacity-0 invisible
-                                            group-hover:opacity-100 group-hover:visible
-                                            transition-all duration-200
-                                            pointer-events-none z-50
-                                            shadow-lg
-                                        "
+            absolute left-full ml-3 px-3 py-1.5
+            bg-[#1C2C56] text-white text-xs font-medium
+            rounded-md whitespace-nowrap
+            opacity-0 invisible
+            group-hover:opacity-100 group-hover:visible
+            transition-all duration-200
+            pointer-events-none z-50
+            shadow-lg
+          "
                     >
                       {label}
-                      <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 bg-[#1C2C56] rotate-45" />
+
+                      <div
+                        className="
+              absolute top-1/2 -translate-y-1/2 -left-1
+              w-2 h-2 bg-[#1C2C56] rotate-45
+            "
+                      />
                     </div>
                   )}
                 </button>

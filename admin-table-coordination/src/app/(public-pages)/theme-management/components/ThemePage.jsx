@@ -317,7 +317,7 @@ const ThemePage = () => {
                       <th className="text-left px-4 py-3 font-medium">
                         {t("itemsIncluded")}
                       </th>
-                      <th className="text-left px-4 py-3 font-medium"> {t("usage")}</th>
+                      {/* <th className="text-left px-4 py-3 font-medium"> {t("usage")}</th> */}
                       <th className="text-left px-4 py-3 font-medium">
                          {t("actions")}
                       </th>
@@ -354,7 +354,7 @@ const ThemePage = () => {
 
                             <td className="px-4 py-3">{totalItems}</td>
 
-                            <td className="px-4 py-3"> {theme.usage || "-"}</td>
+                            {/* <td className="px-4 py-3"> {theme.usage || "-"}</td> */}
 
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-0">

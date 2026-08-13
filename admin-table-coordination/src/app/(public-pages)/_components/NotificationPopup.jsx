@@ -121,12 +121,12 @@ const t = useTranslations("notifications");
                     topNotifications.map((item) => (
                         <div
                             key={item.id}
-                            className={`px-5 py-3.5 hover:bg-[#F8FAFC] transition-colors cursor-pointer ${!item.is_seen ? 'bg-[#F8FAFF]' : ''}`}
+                            className={`px-5 py-3.5 hover:bg-[#F8FAFC] transition-colors cursor-pointer ${!item.is_seen ? 'bg-[#FCF7F3]' : ''}`}
                         >
                             <div className="flex items-start gap-3">
                                 {/* Icon — dark blue bg, white icon */}
-                                <div className="w-8 h-8 rounded-full bg-[#1C2C56] flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <IoNotificationsOutline size={14} className="text-white" />
+                                <div className="w-8 h-8 rounded-full bg-[#A0522D] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <IoNotificationsOutline size={16} className="text-white" />
                                 </div>
 
                                 <div className="flex-1 min-w-0">

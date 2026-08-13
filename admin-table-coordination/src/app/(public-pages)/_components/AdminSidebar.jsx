@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import {
   FiGrid,
@@ -24,86 +25,86 @@ import { IoColorPaletteOutline } from "react-icons/io5";
 
 const sidebarMenu = [
   {
-    label: "Dashboard",
+    label: "dashboard",
     icon: FiGrid,
     path: "/admin-form",
     slug: "dashboard",
   },
   {
-    label: "Product & Specification",
+    label: "productSpecification",
     icon: FiBox,
     path: "/products",
     slug: "product_specification",
   },
   {
-    label: "Content & Media",
+    label: "contentMedia",
     icon: FiImage,
     path: "/contents",
     slug: "content_media",
   },
   {
-    label: "Theme Management",
+    label: "themeManagement",
     icon: IoColorPaletteOutline,
     path: "/theme-management",
     slug: "theme_management",
   },
 
   {
-    label: "Inventory Management",
+    label: "inventoryManagement",
     icon: FiClipboard,
     path: "/inventory-management",
     slug: "inventory_management",
   },
   {
-    label: "Orders & Rentals",
+    label: "orderRentals",
     icon: FiShoppingCart,
     path: "/orders",
     slug: "order_rentals", // Assigned 'order_manage' here based on API
   },
   {
-    label: "Pricing & Packages",
+    label: "pricingPackages",
     icon: FiDollarSign,
     path: "/pricing-packages",
     slug: "pricing_packages",
   },
   {
-    label: "Contracts & Policies",
+    label: "contractsPolicies",
     icon: FiFileText,
     path: "/contracts-policies",
     slug: "contracts_policies",
   },
   {
-    label: "Notifications",
+    label: "notifications",
     icon: FiBell,
     path: "/notifications",
     slug: "notifications",
   },
   {
-    label: "AI & Automation",
+    label: "aiAutomation",
     icon: FiCpu,
     path: "/ai-automation",
     slug: "ai_automation",
   },
   {
-    label: "Users & Permissions",
+    label: "usersPermissions",
     icon: FiUsers,
     path: "/users-permissions",
     slug: "user_permission",
   },
   {
-    label: "Simulation Assets",
+    label: "simulationAssets",
     icon: FiLayers,
     path: "/simulation-assets",
     slug: "simulation_assets",
   },
   {
-    label: "Reports & Analytics",
+    label: "reportsAnalytics",
     icon: FiBarChart2,
     path: "/reports-analytics",
     slug: "reports_analytics",
   },
   {
-    label: "System Settings",
+    label: "systemSettings",
     icon: FiSettings,
     path: "/system-settings",
     slug: "system_settings",
@@ -135,6 +136,7 @@ const sidebarMenu = [
 ];
 
 const AdminSidebar = ({ collapsed, onToggle }) => {
+  const t = useTranslations("adminSidebar");
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
@@ -224,7 +226,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
               <li key={item.path}>
                 <button
                   onClick={() => router.push(item.path)}
-                  title={collapsed ? item.label : undefined}
+                  title={collapsed ? t(item.label) : undefined}
                   className={`
                                         group relative flex items-center gap-3 w-full
                                         rounded-lg text-sm font-medium
@@ -244,7 +246,9 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
                                         `}
                   />
                   {!collapsed && (
-                    <span className="truncate leading-snug">{item.label}</span>
+                    <span className="truncate leading-snug">
+                      {t(item.label)}
+                    </span>
                   )}
 
                   {/* Tooltip on collapsed */}
@@ -261,7 +265,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
                                             shadow-lg
                                         "
                     >
-                      {item.label}
+                      {t(item.label)}
                       <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 bg-[#3B3B3B] rotate-45" />
                     </div>
                   )}

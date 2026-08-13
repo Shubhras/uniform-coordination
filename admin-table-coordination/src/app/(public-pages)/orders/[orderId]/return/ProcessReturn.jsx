@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiProcessReturnDetails } from "@/services/OrderRentals";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FiArrowLeft, FiAlertCircle, FiClock } from "react-icons/fi";
 import Spinner from "@/components/ui/Spinner";
 import { useTranslations } from "next-intl";
@@ -11,6 +11,16 @@ import { useTranslations } from "next-intl";
 export default function ProcessReturn({ orderId }) {
   const t = useTranslations("orderRetals.processReturn");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState("inventory");
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -88,9 +98,7 @@ export default function ProcessReturn({ orderId }) {
 
         <div className="flex gap-3">
           <button
-            onClick={() =>
-              router.push("/inventory-management?tab=Inspection%20Queue")
-            }
+            onClick={() => router.push("/inventory-management?tab=inspection")}
             className="px-4 py-2 rounded-lg bg-[#F0EBE5] border border-[#E7DDD5] text-[#8C4A2F] text-sm font-semibold"
           >
             {t("continueInspection")}
@@ -156,48 +164,45 @@ export default function ProcessReturn({ orderId }) {
             </thead>
 
             <tbody>
-              {orderDetails?.items?.map((item) => (
-                <tr
-                  key={item.id}
-                  className="border-t border-[#F4EFEB] hover:bg-[#FCFAF8]"
-                >
-                  <td className="px-6 py-5 font-medium text-[#2C1A0E]">
-                    {item.product_name}
-                  </td>
-
-                  <td className="text-center text-[#666]">{item.quantity}</td>
-
-                  <td className="text-center text-[#666]">
-                    {item.returned_quantity}
-                  </td>
-
-                  <td
-                    className={`text-center font-semibold ${
-                      item.missing !== "-" ? "text-[#DC2626]" : "text-[#888]"
-                    }`}
+              {orderDetails?.items?.length > 0 ? (
+                orderDetails?.items?.map((item) => (
+                  <tr
+                    key={item.id}
+                    className="border-t border-[#F4EFEB] hover:bg-[#FCFAF8]"
                   >
-                    {item.lost_quantity > 0 ? item.lost_quantity : "-"}
-                  </td>
+                    <td className="px-6 py-5 font-medium text-[#2C1A0E]">
+                      {item.product_name}
+                    </td>
 
-                  <td
-                    className={`text-center font-semibold ${
-                      item.damaged !== "-" ? "text-[#DC2626]" : "text-[#888]"
-                    }`}
-                  >
-                    {item.is_damaged ? t("yes") : "-"}
-                  </td>
+                    <td className="text-center text-[#666]">{item.quantity}</td>
 
-                  <td
-                    className={`text-center font-semibold ${
-                      item.late === "Yes" ? "text-[#DC2626]" : "text-[#888]"
-                    }`}
-                  >
-                    {orderDetails?.actual_return_date ? t("yes") : t("no")}
-                  </td>
+                    <td className="text-center text-[#666]">
+                      {item.returned_quantity}
+                    </td>
 
-                  <td className="text-center">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium $
+                    <td
+                      className="text-center font-semibold"
+                    >
+                      {item.lost_quantity}
+                    </td>
+
+                    <td
+                      className="text-center font-semibold"
+                    >
+                      {item.is_damaged ? t("yes") : "0"}
+                    </td>
+
+                    <td
+                      className={`text-center font-semibold ${
+                        item.late === "Yes" ? "text-[#DC2626]" : "text-[#888]"
+                      }`}
+                    >
+                      {orderDetails?.actual_return_date ? t("yes") : t("no")}
+                    </td>
+
+                    <td className="text-center">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium $
                         {
                        getStatusBadge(
                         item.is_lost
@@ -207,16 +212,26 @@ export default function ProcessReturn({ orderId }) {
                             : "Available"
                         )
                         }`}
-                    >
-                      {item.is_lost
-                        ? t("statusMissingDamaged")
-                        : item.is_damaged
-                          ? t("statusDamaged")
-                          : t("statusAvailable")}
-                    </span>
+                      >
+                        {item.is_lost
+                          ? t("statusMissingDamaged")
+                          : item.is_damaged
+                            ? t("statusDamaged")
+                            : t("statusAvailable")}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="py-10 text-center text-[#888] text-sm"
+                  >
+                    {t("noData")}
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

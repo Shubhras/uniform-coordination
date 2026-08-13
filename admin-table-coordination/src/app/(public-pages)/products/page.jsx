@@ -39,15 +39,34 @@ const ProductSpecificationPage = () => {
       case "Colors":
         return <ColorsTab />;
       case "TableShape":
-        return <AttributeTab attributeTitle="Table Shape" service={TableShapesService} />;
+        return (
+          <AttributeTab
+            attributeTitle={t("tableShape")}
+            service={TableShapesService}
+          />
+        );
       case "Closure":
-        return <AttributeTab attributeTitle="Closure" service={ClosuresService} />;
+        return (
+          <AttributeTab
+            attributeTitle={t("tableShape")}
+            service={ClosuresService}
+          />
+        );
       case "Style":
-        return <AttributeTab attributeTitle="Style" service={StylesService} />;
+        return (
+          <AttributeTab attributeTitle={t("style")} service={StylesService} />
+        );
       case "Size":
-        return <AttributeTab attributeTitle="Size" service={SizesService} />;
+        return (
+          <AttributeTab attributeTitle={t("size")} service={SizesService} />
+        );
       case "Pattern":
-        return <AttributeTab attributeTitle="Pattern" service={PatternsService} />;
+        return (
+          <AttributeTab
+            attributeTitle={t("pattern")}
+            service={PatternsService}
+          />
+        );
       case "Template":
         return <TemplatesTab />;
       case "Products":
