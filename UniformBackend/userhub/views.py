@@ -559,7 +559,7 @@ class UserForgotPasswordAPIView(APIView):
 
             # Build reset link
             # frontend_url = "http://localhost:7000/reset-password"
-            frontend_url = "http://104.64.206.82/reset-password"
+            frontend_url = "https://uniform.dxtspace.com/reset-password"
             reset_link = f"{frontend_url}?user_id={user_id}"
 
             # -------------------------------  
