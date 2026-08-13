@@ -15,10 +15,8 @@ const HeroContent = ({ categoryData }) => {
   const router = useRouter();
 
   const dynamicImageSrc =
-    categoryData?.categoryImage ||
     categoryData?.bannerImage ||
-    categoryData?.heroImage ||
-    categoryData?.image ||
+    categoryData?.categoryImage ||
     "/img/medical-form/hero/doctors.png";
 
   return (

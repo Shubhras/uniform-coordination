@@ -1901,6 +1901,28 @@ class CreateOrderAPIView(APIView):
                 if product.available_quantity < 0:
                     product.available_quantity = 0
                 product.save()
+
+            # Create Rental and RentalItems so they show up as "On Rent" in inventory
+            from userhub.models import Rental, RentalItem
+            rental = Rental.objects.create(
+                order=order,
+                customer=order.customer,
+                start_date=order.rental_start_date,
+                end_date=order.rental_end_date,
+                shipping_address=getattr(order.customer, "address_line_1", "") or getattr(order.customer, "address", "") or "No Address",
+                shipping_fee=order.shipping_charge or 0,
+                tax=order.tax or 0,
+                total_amount=order.total_amount or 0,
+                status='rented'
+            )
+            for item in order_items:
+                RentalItem.objects.create(
+                    rental=rental,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price_per_day=item.price_per_day or 0,
+                    subtotal=item.subtotal or 0
+                )
                 
                 
             # Clear the cart after order creation
@@ -2406,11 +2428,14 @@ class UserCancelOrderAPIView(APIView):
                 item.product.available_quantity += item.quantity
                 item.product.save()
 
-    
             order.status = "cancelled"
             order.cancel_reason = reason
             order.cancelled_by = "customer"
             order.save()
+
+            # Delete the associated Rental if it exists
+            if hasattr(order, 'rental') and order.rental:
+                order.rental.delete()
 
         return Response({
             "statusCode": 200,

@@ -7,20 +7,28 @@ import PartsTab from "./components/parts/PartsTab";
 import TemplatesTab from "./components/templates/TemplatesTab";
 import ColorsTab from "./components/colors/ColorsTab";
 import ProductsTab from "./components/products/ProductsTab";
+import AttributeTab from "./components/attributes/AttributeTab";
+import {
+  TableShapesService,
+  ClosuresService,
+  StylesService,
+  SizesService,
+  PatternsService,
+} from "@/services/AttributeService";
 import Tabs from "./components/Tabs";
 import { useTranslations } from "next-intl";
 
 const ProductSpecificationPage = () => {
   const t = useTranslations("productSpecification.fabric");
   const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState("Fabrics");
+
   useEffect(() => {
     const tab = searchParams.get("tab");
-
     if (tab) {
       setActiveTab(tab);
     }
   }, [searchParams]);
-  const [activeTab, setActiveTab] = useState("Fabrics");
 
   const renderTab = () => {
     switch (activeTab) {
@@ -30,6 +38,16 @@ const ProductSpecificationPage = () => {
         return <PartsTab />;
       case "Colors":
         return <ColorsTab />;
+      case "TableShape":
+        return <AttributeTab attributeTitle="Table Shape" service={TableShapesService} />;
+      case "Closure":
+        return <AttributeTab attributeTitle="Closure" service={ClosuresService} />;
+      case "Style":
+        return <AttributeTab attributeTitle="Style" service={StylesService} />;
+      case "Size":
+        return <AttributeTab attributeTitle="Size" service={SizesService} />;
+      case "Pattern":
+        return <AttributeTab attributeTitle="Pattern" service={PatternsService} />;
       case "Template":
         return <TemplatesTab />;
       case "Products":
@@ -41,12 +59,6 @@ const ProductSpecificationPage = () => {
 
   return (
     <div className="px-5 md:px-8 lg:px-8 py-6 bg-white min-h-screen">
-      {/* Page Header */}
-      {/* <p className="text-sm text-[#486284] mb-2">
-        Admin Dashboard /{" "}
-        <span className="text-[#1C2C56]">Product & Specification</span>
-      </p> */}
-
       <h1 className="text-2xl font-semibold text-[#1C2C56]">
         {t("productManagement")}
       </h1>

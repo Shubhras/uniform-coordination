@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.shortcuts import get_object_or_404
-from .models import Category, Product, SimulationStructure, Fabric, Colors
+from .models import Category, Product, SimulationStructure, Fabric, Colors, TableShape, Closure, Style, Size, Pattern
 from uniformAdmin.fabric import IsAdministrator
 
 DEFAULT_STRUCTURES = {
@@ -253,7 +253,8 @@ class SimulationOptionsAPIView(APIView):
                     fabrics_list.append({
                         "id": str(prod.fabric.id),
                         "label": prod.fabric.fabricName,
-                        "image": fallback_img
+                        "image": fallback_img,
+                        "materialType": prod.fabric.materialType
                     })
                     
                 # Style
@@ -274,7 +275,8 @@ class SimulationOptionsAPIView(APIView):
                         "id": str(prod.color.id),
                         "label": prod.color.colorName,
                         "colorCode": prod.color.colorCode or "#ffffff",
-                        "image": fallback_img
+                        "image": fallback_img,
+                        "compatibleFabric": prod.color.compatibleFabric or []
                     })
                 
                 # Size
@@ -285,13 +287,45 @@ class SimulationOptionsAPIView(APIView):
                         "label": prod.size
                     })
 
-            # If no fabrics/styles/colors match dynamic database query, fallback to some defaults 
-            # to prevent a completely empty screen during initial set up.
+            # Query DB attribute models for dynamic admin-configured options
+            db_table_shapes = TableShape.objects.filter(isActive=True, isDeleted=False)
+            table_shapes_list = [
+                {"id": str(ts.id), "label": ts.name, "image": request.build_absolute_uri(ts.image.url) if ts.image else "/img/table-form/table-style/style-round.png"}
+                for ts in db_table_shapes
+            ]
+
+            db_closures = Closure.objects.filter(isActive=True, isDeleted=False)
+            closures_list = [
+                {"id": str(c.id), "label": c.name, "image": request.build_absolute_uri(c.image.url) if c.image else "/img/table-form/chair-cover/color-white.png"}
+                for c in db_closures
+            ]
+
+            db_styles = Style.objects.filter(isActive=True, isDeleted=False)
+            if db_styles.exists():
+                styles_list = [
+                    {"id": str(s.id), "label": s.name, "image": request.build_absolute_uri(s.image.url) if s.image else "/img/others/table-image1.png"}
+                    for s in db_styles
+                ]
+
+            db_sizes = Size.objects.filter(isActive=True, isDeleted=False)
+            if db_sizes.exists():
+                sizes_list = [
+                    {"id": str(sz.id), "label": sz.name, "image": request.build_absolute_uri(sz.image.url) if sz.image else None}
+                    for sz in db_sizes
+                ]
+
+            db_patterns = Pattern.objects.filter(isActive=True, isDeleted=False)
+            patterns_list = [
+                {"id": str(pt.id), "label": pt.name, "image": request.build_absolute_uri(pt.image.url) if pt.image else "/img/table-form/tablecloth/fabric1.png"}
+                for pt in db_patterns
+            ]
+
+            # If no fabrics/styles/colors match dynamic database query, fallback to defaults
             if not fabrics_list:
                 fabrics_list = [
-                    { "id": "crushed-velvet", "label": "Crushed Velvet", "image": "/img/top-left-image/fabric/image 72.png" },
-                    { "id": "damask-linen", "label": "Damask Linen", "image": "/img/top-left-image/fabric/image 73.png" },
-                    { "id": "gingham-cotton", "label": "Gingham Cotton", "image": "/img/top-left-image/fabric/image 74.png" },
+                    { "id": "crushed-velvet", "label": "Crushed Velvet", "image": "/img/top-left-image/fabric/image 72.png", "materialType": "cotton" },
+                    { "id": "damask-linen", "label": "Damask Linen", "image": "/img/top-left-image/fabric/image 73.png", "materialType": "linen" },
+                    { "id": "gingham-cotton", "label": "Gingham Cotton", "image": "/img/top-left-image/fabric/image 74.png", "materialType": "cotton" },
                 ]
             if not styles_list:
                 styles_list = [
@@ -300,9 +334,9 @@ class SimulationOptionsAPIView(APIView):
                 ]
             if not colors_list:
                 colors_list = [
-                    { "id": "white", "label": "White", "image": "/img/top-left-image/fabric/image 76.png", "colorCode": "#ffffff" },
-                    { "id": "ivory", "label": "Ivory", "image": "/img/top-left-image/fabric/image 77.png", "colorCode": "#fffff0" },
-                    { "id": "beige", "label": "Beige", "image": "/img/top-left-image/fabric/image 78.png", "colorCode": "#f5f5dc" },
+                    { "id": "white", "label": "White", "image": "/img/top-left-image/fabric/image 76.png", "colorCode": "#ffffff", "compatibleFabric": ["cotton", "linen"] },
+                    { "id": "ivory", "label": "Ivory", "image": "/img/top-left-image/fabric/image 77.png", "colorCode": "#fffff0", "compatibleFabric": ["cotton"] },
+                    { "id": "beige", "label": "Beige", "image": "/img/top-left-image/fabric/image 78.png", "colorCode": "#f5f5dc", "compatibleFabric": ["linen"] },
                 ]
 
             return Response({
@@ -312,7 +346,10 @@ class SimulationOptionsAPIView(APIView):
                     "fabrics": fabrics_list,
                     "styles": styles_list,
                     "colors": colors_list,
-                    "sizes": sizes_list
+                    "sizes": sizes_list,
+                    "closures": closures_list,
+                    "patterns": patterns_list,
+                    "table_shapes": table_shapes_list,
                 }
             }, status=status.HTTP_200_OK)
             

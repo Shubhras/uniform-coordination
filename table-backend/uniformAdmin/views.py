@@ -30,7 +30,7 @@ from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
 stripe.api_key = settings.STRIPE_SECRET_KEY
 from .utils import render_quotation_template , generate_quotation_template_pdf
-from userhub.utils import send_return_received_email
+from userhub.utils import send_return_received_email, send_shipping_email
 from .auth import IsAdminUserJWT,MultiRoleJWTAuth
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 from userhub.views import get_docusign_token
@@ -268,6 +268,8 @@ class AdminListProductsAPIView(APIView):
             search = request.query_params.get("search")
             is_active = request.query_params.get("isActive")
             rfid_tracking = request.query_params.get("rfid_tracking_enabled")
+            show_in_simulation = request.query_params.get("showInSimulation")
+
 
             # -------------------------
             # productType is required
@@ -323,6 +325,12 @@ class AdminListProductsAPIView(APIView):
                 products = products.filter(
                     rfid_tracking_enabled=rfid_tracking.lower() == "true"
                 )
+
+            if show_in_simulation is not None:
+                products = products.filter(
+                    show_in_simulation=show_in_simulation.lower() == "true"
+                )
+                
             # -------------------------
             # Ordering
             # -------------------------
@@ -357,18 +365,6 @@ class AdminListProductsAPIView(APIView):
                 "previous": pagination.get_previous_link(),
                 "data": serializer.data
             }, status=status.HTTP_200_OK)
-            # serializer = ProductSerializer(
-            #     products,
-            #     many=True,
-            #     context={"request": request}
-            # )
-
-            # return Response({
-            #     "status": True,
-            #     "statusCode": 200,
-            #     "message": "Products fetched successfully.",
-            #     "data": serializer.data
-            # }, status=status.HTTP_200_OK)
 
         except Exception as exc:
             return Response({
@@ -2451,6 +2447,12 @@ class AdminOrderUpdateAPIView(APIView):
         elif new_status == 'returned' and hasattr(order, 'user'):
             send_return_received_email(order.user, order)
             
+        # Send Shipping Notification Email
+        if new_status == 'out_for_delivery' and hasattr(order, 'customer') and hasattr(order.customer, 'user'):
+            send_shipping_email(order.customer.user, order)
+        elif new_status == 'out_for_delivery' and hasattr(order, 'user'):
+            send_shipping_email(order.user, order)
+            
         return Response({
             "status": True,
             "statusCode": 200,
@@ -2635,6 +2637,10 @@ class AdminOrderCancelAPIView(APIView):
             order.cancelled_by = request.user.name
             order.admin_cancel_reason = reason
             order.save()
+
+            # Delete the associated Rental if it exists
+            if hasattr(order, 'rental') and order.rental:
+                order.rental.delete()
             return Response({
                 "statusCode":200,
                 "status":True,

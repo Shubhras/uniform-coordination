@@ -878,6 +878,8 @@ class CustomUpdateModelsSerializer(serializers.ModelSerializer):
         return product.type if product else None
     
     def get_table_shape(self, obj):
+        if obj.design_specifications and "table_shape" in obj.design_specifications:
+            return obj.design_specifications["table_shape"]
         product = getattr(obj.model_info, "product", None)
         return product.table_shape if product else None
     
@@ -914,6 +916,7 @@ class CustomUpdateThemesSerializer(serializers.ModelSerializer):
             "ThemeImage",
             "category",
             "description",
+            "config_json",
             "design_specifications",
             "json_file_path",
             "json_file_url",

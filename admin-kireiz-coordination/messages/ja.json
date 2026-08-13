@@ -30,8 +30,7 @@
       "quoteStatus": {
         "quoteStatusDistribution": "見積ステータスの内訳",
         "total": "合計",
-        "noData": "データなし",
-        "quotes": "件"
+        "noData": "データなし"
       },
       "quotationVolume": {
         "quotationVolume": "見積件数",
@@ -129,6 +128,241 @@
       "orderEditDesc": "注文詳細の編集",
       "orderCreateDesc": "新規注文の作成",
       "orderDetailsDesc": "注文の詳細情報"
+    },
+    "contentMedia": {
+        "breadcrumbDashboard": "管理ダッシュボード",
+        "breadcrumbCurrent": "コンテンツとメディア",
+        "pageTitle": "コンテンツとメディア",
+        "pageSubtitle": "生地、パーツ、カラー、オプション、テンプレートを管理します",
+        "tabs": {
+            "categories": "カテゴリー",
+            "catalogImages": "カタログ画像",
+            "blog": "ブログ",
+            "faq": "よくある質問",
+            "pdfTemplates": "PDFテンプレート"
+        },
+        "categories": {
+            "title": "商品カテゴリー",
+            "subtitle": "商品カテゴリーの管理と整理",
+            "addNew": "カテゴリを追加",
+            "searchPlaceholder": "カテゴリーを検索...",
+            "noData": "カテゴリーが見つかりません",
+            "showingRange": "表示中 ",
+            "createCategoryModal": {
+                "modalTitle": "カテゴリーを作成",
+                "nameLabel": "名称",
+                "namePlaceholder": "例: 外科医",
+                "imageLabel": "画像",
+                "uploadImageButton": "画像をアップロード",
+                "dragDropText": "画像ファイルをここにドラッグ＆ドロップ",
+                "orText": "または",
+                "clickToBrowse": "クリックしてファイルを選択",
+                "allowedFormats": "JPG、PNG、WEBPファイル",
+                "maxDimension": "最大サイズ 1000×1000px",
+                "descriptionLabel": "説明",
+                "descriptionPlaceholder": "説明を入力",
+                "cancel": "キャンセル",
+                "saveAndAddAnother": "保存して続けて追加",
+                "save": "保存",
+                "editModalTitle": "カテゴリを編集",
+                "update": "更新",
+                "previewAlt": "プレビュー",
+                "saveFailed": "カテゴリを保存できませんでした。もう一度お試しください。",
+                "validation": {
+                    "nameRequired": "カテゴリ名は必須です",
+                    "descriptionRequired": "説明は必須です",
+                    "imageRequired": "画像は必須です",
+                    "onlyImages": "画像ファイルのみアップロードできます",
+                    "maxSize": "画像サイズは2MB以下にしてください"
+                },
+                "imageValidated": "画像を確認しました"
+            },
+            "successTitle": "成功",
+            "subcategories": {
+                "noData": "サブカテゴリが見つかりません",
+                "addNew": "サブカテゴリを追加"
+            },
+            "deleteDialog": {
+                "categoryTitle": "カテゴリを削除",
+                "subcategoryTitle": "サブカテゴリを削除",
+                "categoryMessage": "このカテゴリを削除してもよろしいですか？この操作は取り消せません。",
+                "subcategoryMessage": "このサブカテゴリを削除してもよろしいですか？この操作は取り消せません。"
+            },
+            "addSubcategoryModal": {
+                "modalTitle": "サブカテゴリを追加",
+                "editModalTitle": "サブカテゴリを編集",
+                "nameLabel": "名称",
+                "namePlaceholder": "例: メディカルスクラブ",
+                "categoryLabel": "カテゴリ",
+                "categoryPlaceholder": "カテゴリを選択...",
+                "loadingCategories": "カテゴリを読み込み中...",
+                "noCategories": "カテゴリが見つかりません",
+                "imageLabel": "画像",
+                "uploadImageButton": "画像をアップロード",
+                "previewAlt": "プレビュー",
+                "descriptionLabel": "説明",
+                "descriptionPlaceholder": "サブカテゴリの説明...",
+                "cancel": "キャンセル",
+                "save": "保存",
+                "update": "更新",
+                "nameRequired": "サブカテゴリ名は必須です",
+                "saveFailed": "サブカテゴリを保存できませんでした。もう一度お試しください。"
+            }
+        },
+        "catalogImages": {
+            "title": "カタログ画像",
+            "subtitle": "カタログ写真のアップロードと管理",
+            "addNew": "画像をアップロード",
+            "searchPlaceholder": "カタログを検索...",
+            "noData": "カタログ画像が見つかりません",
+            "showingRange": "表示中 ",
+            "successTitle": "成功",
+            "deleteDialog": {
+                "title": "カタログ画像を削除",
+                "message": "このカタログ画像を削除してもよろしいですか？この操作は取り消せません。"
+            },
+            "addCatalogImageModal": {
+                "modalTitle": "カタログ画像を追加",
+                "editModalTitle": "カタログ画像を編集",
+                "nameLabel": "名称",
+                "namePlaceholder": "カタログ名を入力",
+                "categoryLabel": "カテゴリー",
+                "categoryPlaceholder": "カテゴリーを選択",
+                "imageLabel": "画像",
+                "uploadImageButton": "画像をアップロード",
+                "dragDropText": "画像ファイルをここにドラッグ＆ドロップ",
+                "orText": "または",
+                "clickToBrowse": "クリックしてファイルを選択",
+                "allowedFormats": "JPG、PNG、WEBPファイル",
+                "maxDimension": "最大サイズ 1000×1000px",
+                "cancel": "キャンセル",
+                "save": "保存",
+                "update": "更新",
+                "saveFailed": "カタログ画像の保存に失敗しました。もう一度お試しください。",
+                "validation": {
+                    "nameRequired": "名前は必須です",
+                    "categoryRequired": "カテゴリーは必須です",
+                    "imageRequired": "画像は必須です",
+                    "maxSize": "画像サイズは2MBを超えてはなりません"
+                },
+                "imageValidated": "画像を確認しました"
+            }
+        },
+        "blog": {
+            "title": "ブログ",
+            "subtitle": "ブログ記事の管理",
+            "arrangeOrder": "並び順を変更",
+            "addNew": "ブログを追加",
+            "searchPlaceholder": "ブログ記事を検索...",
+            "noData": "ブログ記事が見つかりません",
+            "showingRange": "表示中 ",
+            "successTitle": "成功",
+            "deleteDialog": {
+                "title": "ブログを削除",
+                "message": "このブログ記事を削除してもよろしいですか？この操作は取り消せません。"
+            },
+            "createBlogModal": {
+                "modalTitle": "ブログを作成",
+                "editModalTitle": "ブログを編集",
+                "titleLabel": "タイトル",
+                "titlePlaceholder": "ブログのタイトルを入力",
+                "categoryLabel": "カテゴリー",
+                "categoryPlaceholder": "カテゴリーを選択",
+                "imageLabel": "画像",
+                "uploadImageButton": "画像をアップロード",
+                "dragDropText": "画像をここにドラッグ＆ドロップ",
+                "orText": "または",
+                "clickToBrowse": "クリックしてファイルを選択",
+                "allowedFormats": "JPG、PNG、WEBPファイル",
+                "recommendedSize": "推奨サイズ 1200×800px",
+                "descriptionLabel": "説明",
+                "descriptionPlaceholder": "説明を入力",
+                "cancel": "キャンセル",
+                "saveAndAddAnother": "保存して続けて追加",
+                "save": "保存",
+                "update": "更新",
+                "saveFailed": "ブログの保存に失敗しました。もう一度お試しください。",
+                "validation": {
+                    "titleRequired": "タイトルは必須です",
+                    "categoryRequired": "カテゴリーは必須です",
+                    "descriptionRequired": "説明は必須です",
+                    "imageRequired": "画像は必須です",
+                    "maxSize": "画像サイズは2MBを超えてはなりません"
+                },
+                "imageValidated": "画像を確認しました"
+            }
+        },
+        "faq": {
+            "title": "よくある質問",
+            "subtitle": "よくある質問の管理",
+            "addNew": "FAQを追加",
+            "noData": "FAQが見つかりません",
+            "createFaqModal": {
+                "modalTitle": "FAQを作成",
+                "titleLabel": "タイトル",
+                "titlePlaceholder": "質問を入力してください",
+                "descriptionsLabel": "説明",
+                "addMore": "さらに追加",
+                "descriptionPlaceholder": "説明を入力",
+                "cancel": "キャンセル",
+                "saveAndAddAnother": "保存して続けて追加",
+                "save": "保存",
+                "editModalTitle": "FAQを編集",
+                "update": "更新",
+                "saveFailed": "FAQを保存できませんでした。もう一度お試しください。",
+                "validation": {
+                    "titleRequired": "タイトルは必須です",
+                    "descriptionRequired": "説明は必須です",
+                    "atLeastOneDescription": "説明を1つ以上入力してください"
+                }
+            },
+            "sectionHeading": "デザインとコーディネートの流れについて",
+            "successTitle": "成功",
+            "deleteDialog": {
+                "title": "FAQを削除",
+                "message": "このFAQを削除してもよろしいですか？この操作は取り消せません。"
+            }
+        },
+        "pdfTemplates": {
+            "title": "PDFテンプレートライブラリ",
+            "subtitle": "カタログテンプレートの管理",
+            "addNew": "テンプレートを追加",
+            "noData": "PDFテンプレートはまだありません",
+            "noDataSubtitle": "最初のテンプレートを作成して始めましょう。",
+            "addPdfTemplatePage": {
+                "pageTitle": "PDFテンプレートを追加",
+                "pageSubtitle": "見積レイアウトのデザインとプレビュー",
+                "templateNameLabel": "テンプレート名",
+                "templateNamePlaceholder": "例: 標準見積書",
+                "pageSizeLabel": "ページサイズ",
+                "pageSizeA4": "A4",
+                "placeholderHelperText": "<code>'{CLIENT_NAME}'</code>、<code>'{ITEM_TYPE}'</code>、<code>'{QUANTITY}'</code> のようなプレースホルダーを使用してください。見積作成時に自動で置き換えられます。ライブラリでは異なるプレースホルダーの数を「カスタマイズ可能な項目」として数えます。",
+                "cancel": "キャンセル",
+                "saveTemplate": "テンプレートを保存",
+                "editPageTitle": "PDFテンプレートを編集",
+                "pageSizeLetter": "レター",
+                "saving": "保存中...",
+                "errorTitle": "エラー",
+                "successTitle": "成功",
+                "requiredTitle": "入力必須",
+                "nameRequired": "テンプレート名を入力してください",
+                "emptyContent": "テンプレートの内容を空にはできません",
+                "notFound": "テンプレートが見つかりません",
+                "loadFailed": "テンプレートを読み込めませんでした",
+                "saveFailed": "テンプレートを保存できませんでした",
+                "createSuccess": "テンプレートを作成しました",
+                "updateSuccess": "テンプレートを更新しました"
+            },
+            "errorTitle": "エラー",
+            "successTitle": "成功",
+            "loadFailed": "PDFテンプレートを読み込めませんでした",
+            "reorderFailed": "新しい並び順を保存できませんでした",
+            "deleteSuccess": "「{name}」を削除しました",
+            "deleteFailed": "テンプレートを削除できませんでした",
+            "editTemplateTooltip": "テンプレートを編集",
+            "deleteTemplateTooltip": "テンプレートを削除",
+            "reorderFailedRaw": "並び替えに失敗しました"
+        }
     },
     "conceptsAccount": {
       "account": "アカウント",
@@ -340,7 +574,8 @@
     "quoteStatus": {
       "quoteStatusDistribution": "見積ステータスの内訳",
       "total": "合計",
-      "noData": "データなし"
+      "noData": "データなし",
+      "quotes": "件"
     },
     "quotationVolume": {
       "quotationVolume": "見積件数",
@@ -703,7 +938,9 @@
         "nameLabel": "名称",
         "namePlaceholder": "例: 外科医",
         "imageLabel": "画像",
+        "bannerImageLabel": "バナー画像",
         "uploadImageButton": "画像をアップロード",
+        "uploadBannerImageButton": "バナー画像をアップロード",
         "dragDropText": "画像ファイルをここにドラッグ＆ドロップ",
         "orText": "または",
         "clickToBrowse": "クリックしてファイルを選択",
@@ -722,6 +959,7 @@
           "nameRequired": "カテゴリ名は必須です",
           "descriptionRequired": "説明は必須です",
           "imageRequired": "画像は必須です",
+          "bannerImageRequired": "バナー画像は必須です",
           "onlyImages": "画像ファイルのみアップロードできます",
           "maxSize": "画像サイズは2MB以下にしてください"
         },
