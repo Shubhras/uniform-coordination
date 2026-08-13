@@ -7,7 +7,7 @@ import ColorPickerPopup from './ColorPickerPopup'
 // const SAMPLE_MODEL = '/img/3dmodels/doctor_uniform.glb'
 const FALLBACK_MODEL = '' //'https://modelviewer.dev/shared-assets/models/Astronaut.glb'
 import Button from '@/components/ui/Button';
-import { useRouter, useParams, usePathname } from 'next/navigation';
+import { useRouter, useParams, usePathname, useSearchParams } from 'next/navigation';
 import UniformCanvas from './UniformCanvas'
 import { controlsApi } from './UniformCanvas'
 import { uniformState } from './uniformStore'
@@ -15,6 +15,7 @@ import { FiCheck } from "react-icons/fi";
 import { apiModelInfoCreate, apiSaveDesign } from '@/services/SaveDesignService'
 import { apiGetProductDetailsById } from '@/services/ProductService'
 import { apiGetSimulationOptions } from '@/services/SimulationService'
+import { apiGetTemplateById } from '@/services/CategoryService'
 import { useSession } from 'next-auth/react'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -256,6 +257,8 @@ const RAIL_META = {
 const Uniform3DmoduleDegisn = () => {
   // 
   const { id } = useParams();
+  const searchParams = useSearchParams();
+  const templateId = searchParams.get('template');
   const { data: session } = useSession();
   const pathname = usePathname();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -411,6 +414,12 @@ const Uniform3DmoduleDegisn = () => {
   const [simFabrics, setSimFabrics] = useState([]);
   const [simColors, setSimColors] = useState([]);
   const [simParts, setSimParts] = useState([]);
+  // Per-attribute choices from Product & Specification -> Options, keyed by tool.
+  const [simOptions, setSimOptions] = useState({});
+  const [template, setTemplate] = useState(null);
+  // Preset entries this product cannot offer, so the shopper is told rather than left to
+  // wonder why the template looked different on the card.
+  const [presetSkipped, setPresetSkipped] = useState([]);
   const [simLoading, setSimLoading] = useState(true);
   const [simBlocked, setSimBlocked] = useState(false);
 
@@ -460,6 +469,7 @@ const Uniform3DmoduleDegisn = () => {
         setSimAttributes(optionsRes.data?.attributes || []);
         setSimFabrics(optionsRes.data?.fabrics || []);
         setSimColors(optionsRes.data?.colors || []);
+        setSimOptions(optionsRes.data?.attribute_options || {});
 
         // This product's own parts, with images and stacking order. product/get/ returns
         // parts without their images, so the layer data has to come from here.
@@ -512,6 +522,28 @@ const Uniform3DmoduleDegisn = () => {
         : // Static fallback: same shape, so the renderer has one case to handle.
         PANELS.color.data.map((hex, i) => ({ key: `s${i}`, code: hex, name: hex })),
     };
+
+    /*
+     * Admin-managed choices per attribute. Where the admin has options for a tool they
+     * replace the artwork bundled in PANELS above; where there are none, the static list
+     * stays so the tool is never left empty.
+     *
+     * Size is a list of labels, the rest are pictures, so they render differently.
+     */
+    Object.entries(simOptions).forEach(([key, options]) => {
+      if (!options?.length || !merged[key]) return;
+
+      if (key === "size") {
+        merged.size = { ...PANELS.size, data: options.map((o) => o.name) };
+        return;
+      }
+
+      merged[key] = {
+        title: PANELS[key]?.title || key,
+        type: "adminOptions",
+        data: options,
+      };
+    });
 
     // Parts are per product, not a fixed list, so there is no static fallback for this
     // one — no parts configured means no Parts tool.
@@ -571,9 +603,91 @@ const Uniform3DmoduleDegisn = () => {
     .filter((a) => !panelKeyFor(a.attribute))
     .map((a) => a.attribute);
 
-  // A tool can disappear when the garment half changes; don't leave its panel open.
   // Keyed on a joined string because railKeys is rebuilt on every render.
   const railKey = railKeys.join(",");
+
+  /*
+   * Apply the template the shopper arrived with.
+   *
+   * Runs once the admin config has landed, because a preset is only applied when this
+   * product actually offers that tool — the rail is built from the attributes the admin
+   * enabled for the category, and a colour preset is pointless if Colour is not among
+   * them. Anything dropped is collected in `presetSkipped` and shown, rather than the
+   * shopper silently getting a different look from the one on the template card.
+   */
+  useEffect(() => {
+    let cancelled = false;
+
+    const applyTemplate = async () => {
+      if (!templateId || simLoading) return;
+
+      let tpl = template;
+      if (!tpl) {
+        try {
+          const res = await apiGetTemplateById(templateId);
+          if (cancelled || !res?.status) return;
+          tpl = res.data;
+          setTemplate(tpl);
+        } catch (err) {
+          console.error("Failed to load the template:", err);
+          return;
+        }
+      }
+      if (cancelled || !tpl) return;
+
+      const available = new Set(railKeys);
+      const skipped = [];
+      const patch = {};
+
+      // Colour: stored per garment half, so it goes on the half this product is.
+      if (tpl.preset_color) {
+        const key = `c${tpl.preset_color}`;
+        const known = (panels.color?.data || []).some((c) => c.key === key);
+        if (available.has("color") && known) {
+          const half = simProduct?.type === "bottom" ? "bottom" : "top";
+          patch.colors = { ...designJSON.colors, [half]: tpl.presetColorCode };
+          patch.colorKeys = { ...designJSON.colorKeys, [half]: key };
+        } else {
+          skipped.push(`Colour (${tpl.presetColorName || "preset"})`);
+        }
+      }
+
+      // Fabric: admin fabrics are scoped per category, so a preset from elsewhere may
+      // simply not be on offer here.
+      if (tpl.preset_fabric) {
+        const known = simFabrics.some((f) => f.id === tpl.preset_fabric);
+        if (available.has("fabric") && known) {
+          patch.fabric = tpl.presetFabricName;
+        } else {
+          skipped.push(`Fabric (${tpl.presetFabricName || "preset"})`);
+        }
+      }
+
+      // Part: templates name a starting part, which only exists on some products.
+      if (tpl.presetPartName) {
+        const known = simParts.some((prt) => prt.name === tpl.presetPartName);
+        if (available.has("parts") && known) {
+          patch.part = tpl.presetPartName;
+        } else {
+          skipped.push(`Part (${tpl.presetPartName})`);
+        }
+      }
+
+      if (Object.keys(patch).length) {
+        setDesignJSON((prev) => ({ ...prev, ...patch }));
+        if (patch.colors) applyBaseColorToModel(tpl.presetColorCode);
+      }
+      setPresetSkipped(skipped);
+    };
+
+    applyTemplate();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templateId, simLoading, railKey]);
+
+  // A tool can disappear when the garment half changes; don't leave its panel open.
   useEffect(() => {
     if (active && !railKeys.includes(active)) setActive("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -726,6 +840,33 @@ const Uniform3DmoduleDegisn = () => {
 
   return (
     <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-11 ">
+      {/*
+        Which template the shopper started from. The product's own image stays on the
+        canvas — the template is a style, not a different garment — so this strip is what
+        tells them the style was applied, and what could not be.
+      */}
+      {template && (
+        <div className="w-full border border-[#C7D7F5] bg-[#F5F8FF] rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span className="text-sm font-medium text-[#1C2C56]">
+            Using template: {template.templateName}
+          </span>
+
+          {presetSkipped.length > 0 && (
+            <span className="text-xs text-amber-700">
+              Not available on this uniform: {presetSkipped.join(", ")}
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={() => router.push(`/dashboards/uniform-3d-design/${id}`)}
+            className="ml-auto text-xs text-[#1C4FA8] underline"
+          >
+            Clear template
+          </button>
+        </div>
+      )}
+
       <div className="flex gap-6">
         <div className="w-[80px] flex flex-col items-center" >
           {/*
@@ -1005,6 +1146,59 @@ const Uniform3DmoduleDegisn = () => {
                           </span>
                           {selected && (
                             <FiCheck size={14} className="text-[#1C4FA8] flex-shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/*
+                Admin-managed choices for this tool. Same tile layout as the bundled
+                options, but each one carries a name the admin typed, so it is labelled
+                rather than left as an unexplained picture.
+              */}
+              {panels[active].type === "adminOptions" && (
+                <div className="w-full max-h-[300px] overflow-y-auto pr-1">
+                  <div className="grid grid-cols-3 gap-3">
+                    {panels[active].data.map((opt) => {
+                      const selected = designJSON.options?.[active] === opt.name;
+                      return (
+                        <button
+                          key={opt.id}
+                          onClick={() => {
+                            setDesignJSON((prev) => ({
+                              ...prev,
+                              options: {
+                                ...prev.options,
+                                [active]: opt.name,
+                              },
+                            }));
+                          }}
+                          title={opt.name}
+                          className={`relative p-1.5 rounded-lg shadow transition ${selected ? "ring-2 ring-[#1C4FA8]" : "hover:shadow-md"
+                            }`}
+                        >
+                          <span className="block w-full h-[52px] rounded overflow-hidden bg-gray-50">
+                            {opt.image && (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img
+                                src={opt.image}
+                                alt={opt.name}
+                                className="w-full h-full object-contain"
+                              />
+                            )}
+                          </span>
+
+                          <span className="block mt-1 text-[9px] leading-tight text-gray-600 truncate">
+                            {opt.name}
+                          </span>
+
+                          {selected && (
+                            <span className="absolute top-1 right-1 bg-[#1C4FA8] rounded-full p-0.5">
+                              <FiCheck size={10} className="text-white" />
+                            </span>
                           )}
                         </button>
                       );

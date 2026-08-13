@@ -4,6 +4,12 @@ from .fabric import *
 from .parts import *
 from .colours import *
 from .templates import *
+from .attribute_options import (
+    AttributeOptionListAPIView,
+    AttributeOptionCreateAPIView,
+    AttributeOptionUpdateAPIView,
+    AttributeOptionDeleteAPIView,
+)
 from .faqs import *
 from .blog import *
 from .category import *
@@ -70,6 +76,12 @@ urlpatterns = [
     path("colors/delete/<int:id>/", ColorsDeleteView.as_view(), name="delete-color"),
 
     # Template URLs
+    # Product & Specification -> Options tab: the choices per simulation attribute
+    # (collar styles, cuffs, the size run). GET is public for the storefront.
+    path("attribute-options/list/", AttributeOptionListAPIView.as_view(), name="attribute-option-list"),
+    path("attribute-options/create/", AttributeOptionCreateAPIView.as_view(), name="attribute-option-create"),
+    path("attribute-options/<int:pk>/update/", AttributeOptionUpdateAPIView.as_view(), name="attribute-option-update"),
+    path("attribute-options/<int:pk>/delete/", AttributeOptionDeleteAPIView.as_view(), name="attribute-option-delete"),
     path("templates/create/", TemplateCreateView.as_view(), name="create-template"),
     path("templates/list/", TemplateListView.as_view(), name="list-templates"),
     path("templates/<int:id>/", TemplateDetailView.as_view(), name="get-template"),

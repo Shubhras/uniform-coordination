@@ -25,7 +25,8 @@ export async function apiCategoryById(id, filterId = "", sortId = "") {
  * @returns {Promise<Object>} API response with template list.
  */
 export async function apiGetTemplateByCategory(categoryId, search = "") {
-  let url = `/v1/uniformAdmin/templates/list/?category_id=${categoryId}&search=${search}`;
+  // active_only: a template the admin switched off must not appear on the storefront.
+  let url = `/v1/uniformAdmin/templates/list/?category_id=${categoryId}&search=${search}&active_only=1`;
 
   return ApiService.fetchDataWithAxios({
     url,
@@ -33,3 +34,19 @@ export async function apiGetTemplateByCategory(categoryId, search = "") {
   });
 }
 
+
+/**
+ * Fetches a single template by ID.
+ *
+ * Used when a shopper carries a template into the design flow, so the storefront can show
+ * which template is active and apply its preset style.
+ *
+ * @param {string|number} id - Template ID.
+ * @returns {Promise<Object>} API response with the template.
+ */
+export async function apiGetTemplateById(id) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/templates/${id}/`,
+    method: "get",
+  });
+}

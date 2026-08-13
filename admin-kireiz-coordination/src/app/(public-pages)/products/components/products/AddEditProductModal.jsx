@@ -424,11 +424,11 @@ const AddEditProductModal = ({
       formData.append("description", values.description || "");
 
       if (values.category?.value) {
-        formData.append("category", values.category.value);
+        formData.append("category_id", values.category.value);
       }
 
       if (values.subcategory?.value) {
-        formData.append("subcategory", values.subcategory.value);
+        formData.append("subcategory_id", values.subcategory.value);
       }
 
       if (values.price) {
@@ -440,8 +440,16 @@ const AddEditProductModal = ({
       }
 
       if (imageFile) {
-        formData.append("ProductImage", imageFile);
+        // ProductImage is the read field; writes go through ProductImage_file.
+        formData.append("ProductImage_file", imageFile);
       }
+
+      // Parts were collected and validated by this form but never sent, so every product
+      // saved with none. The backend takes parts_ids as a JSON array.
+      formData.append(
+        "parts_ids",
+        JSON.stringify((values.selectedParts || []).map((p) => p.value)),
+      );
 
       let response;
       if (isEdit && initialData?.id) {
