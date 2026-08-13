@@ -1,6 +1,5 @@
 {
-  "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js",
-  "/(public-pages)/ai-automation/page": "app/(public-pages)/ai-automation/page.js",
-  "/(public-pages)/users-permissions/page": "app/(public-pages)/users-permissions/page.js",
-  "/(public-pages)/notifications/page": "app/(public-pages)/notifications/page.js"
+  "/page": "app/page.js",
+  "/(auth-pages)/sign-in/page": "app/(auth-pages)/sign-in/page.js",
+  "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js"
 }
