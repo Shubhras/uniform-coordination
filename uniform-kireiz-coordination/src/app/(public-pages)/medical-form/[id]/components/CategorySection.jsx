@@ -83,8 +83,8 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                     {/* FILTER + SORT BAR */}
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
 
-                        {/* FILTERS */}
-                        <div className="flex flex-wrap items-center gap-5 border border-[#1C2C56] bg-[#F5F8FF] rounded-lg px-3 py-2">
+                       
+                        {/* <div className="flex flex-wrap items-center gap-5 border border-[#1C2C56] bg-[#F5F8FF] rounded-lg px-3 py-2">
                             <span className="text-sm text-[#1C2C56] font-medium mr-1">
                                 Filters :
                             </span>
@@ -103,10 +103,9 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                                     {item.name}
                                 </button>
                             ))}
-                        </div>
+                        </div> */}
 
-                        {/* SORT DROPDOWN */}
-                        <div className="relative min-w-[220px] ">
+                        {/* <div className="relative min-w-[220px] ">
                             <Select
                                 options={sortOptions.map(opt => ({ value: opt.id, label: `${opt.name}` }))}
                                 value={{ value: sortBy.id, label: `Sort By : ${sortBy.name}` }}
@@ -133,7 +132,7 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                                     placeholder: () => ({ color: '#1C2C56', fontSize: '14px' })
                                 }}
                             />
-                        </div>
+                        </div> */}
                     </div>
                 </div>
                 {loading ? (
@@ -166,8 +165,8 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                                         {item.name}
                                     </h3>
 
-                                    <p className="text-[#6B7280] text-sm mb-1">
-                                        {item.description}
+                                    <p className="whitespace-pre-line text-[#6B7280] text-sm mb-1">
+                                        {item.description?.replace(/\s*•\s*/g, '\n• ')}
                                     </p>
 
                                     {/* <ul className="text-[#6B7280] text-sm space-y-1 mb-6">

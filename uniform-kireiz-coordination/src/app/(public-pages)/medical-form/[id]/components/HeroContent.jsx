@@ -17,7 +17,7 @@ const HeroContent = ({ categoryData }) => {
   const dynamicImageSrc =
     categoryData?.bannerImage ||
     categoryData?.categoryImage ||
-    "/img/medical-form/hero/doctors.png";
+    null;
 
   return (
     <section className="w-full bg-white pt-14 md:px-0 lg:px-0">

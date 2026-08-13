@@ -192,7 +192,7 @@ const UniformSingle = () => {
                             />
                             <div className="relative z-10">
                                 <img
-                                    src={product?.ProductImage || '/img/uniform/uniform.png'}
+                                    src={product?.ProductImage}
                                     alt={product?.productName || 'Uniform'}
                                     className="w-[450px] max-w-full object-contain"
                                 />
