@@ -2,9 +2,11 @@
 <html>
 <head>
 <style>
-  body { font-family: sans-serif; color: #222; }
-  .header { display: flex; justify-content: space-between; }
-  h1 { font-size: 22px; margin-bottom: 0; }
+  body { font-family: sans-serif; color: #222; margin: 0; }
+  .content { padding: 24px 32px; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; }
+  .logo { height: 40px; margin-bottom: 12px; }
+  h1 { font-size: 22px; margin: 0 0 4px; color: #1C2C56; }
   table { width: 100%; border-collapse: collapse; margin-top: 20px; }
   th { text-align: left; border-bottom: 1px solid #333; padding: 6px 0; }
   td { padding: 10px 0; vertical-align: top; }
@@ -13,8 +15,12 @@
 </style>
 </head>
 <body>
+  <div class="content">
   <div class="header">
     <div>
+      {% if logo_data_uri %}
+      <img class="logo" src="{{ logo_data_uri }}" alt="KIREIZ FORM">
+      {% endif %}
       <h1>QUOTATION</h1>
       <p>#{{ quotation.quotation_id }}</p>
     </div>
@@ -42,5 +48,6 @@
   </table>
 
   <h3 class="right">Total: ${{ total_amount }}</h3>
+  </div>
 </body>
 </html>
