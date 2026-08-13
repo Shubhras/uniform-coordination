@@ -31,7 +31,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from uniformAdmin.models import Category, Colors, Fabric, Parts, Product
+from uniformAdmin.models import AttributeOption, Category, Colors, Fabric, Parts, Product
 from uniformAdmin.simulation_assets import category_attributes
 
 UNIFORM_TYPE = "uniform"
@@ -272,6 +272,24 @@ class SimulationOptionsAPIView(APIView):
                 ]
                 attributes.sort(key=lambda a: _order_key(a.get("order")))
 
+            # The choices per attribute (collar styles, cuffs, the size run) from
+            # Product & Specification -> Options. Grouped by attribute so the customiser
+            # can look up the tool it is rendering. Options with no category are global,
+            # the same rule the fabric palette follows.
+            option_qs = AttributeOption.objects.filter(isDeleted=False, isActive=True)
+            if category:
+                option_qs = option_qs.filter(
+                    Q(category_id=category.id) | Q(category__isnull=True)
+                )
+
+            attribute_options = {}
+            for opt in option_qs.order_by("attribute", "order", "id"):
+                attribute_options.setdefault(opt.attribute, []).append({
+                    "id": opt.id,
+                    "name": opt.name,
+                    "image": _absolute(request, opt.image),
+                })
+
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -279,6 +297,7 @@ class SimulationOptionsAPIView(APIView):
                 "data": {
                     "products": product_rows,
                     "attributes": attributes,
+                    "attribute_options": attribute_options,
                     "fabrics": [
                         {
                             "id": f.id,

@@ -5,12 +5,17 @@ import {
   FiDroplet,
   FiFileText,
   FiPackage,
+  FiSliders,
 } from "react-icons/fi";
 
 const tabItems = [
   { id: "Fabrics", key: "fabrics", icon: FiLayers },
   { id: "Parts", key: "parts", icon: FiGrid },
   { id: "Colors", key: "colors", icon: FiDroplet },
+  // The size run customers pick from. Stored in the general AttributeOption table,
+  // but sizes are the only attribute handed to the admin — the rest keep the artwork
+  // bundled in the storefront.
+  { id: "Size", key: "size", icon: FiSliders },
   { id: "Template", key: "template", icon: FiFileText },
   { id: "Products", key: "products", icon: FiPackage },
 ];

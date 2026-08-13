@@ -19,6 +19,11 @@ import {
   apiUpdateTemplate,
 } from "@/services/TemplateService";
 import { apiGetPartsList } from "@/services/PartsService";
+import {
+  apiFabricCategoryList,
+  apiGetFabricList,
+} from "@/services/FabricService";
+import { apiGetColorsList } from "@/services/ColorsService";
 
 const AddEditTemplateModal = ({
   isOpen,
@@ -37,6 +42,9 @@ const AddEditTemplateModal = ({
 
   const [partOptions, setPartOptions] = useState([]);
   const [loadingParts, setLoadingParts] = useState(false);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [colorOptions, setColorOptions] = useState([]);
+  const [fabricOptions, setFabricOptions] = useState([]);
 
   // Form states
   const [imageFile, setImageFile] = useState(null);
@@ -59,6 +67,19 @@ const AddEditTemplateModal = ({
     part: z.any().refine((val) => val?.value, {
       message: "Part is required",
     }),
+
+    // Which storefront industry page this template appears on.
+    category: z.any().refine((val) => val?.value, {
+      message: "Category is required",
+    }),
+
+    // Pre-selected style, applied when a shopper opens a product with this template.
+    // Optional: a template can be published before its colour or fabric is decided.
+    presetColor: z.any().optional(),
+    presetFabric: z.any().optional(),
+
+    // One bullet per line, shown on the customer template card.
+    specifications: z.string().optional(),
 
     partUsageCount: z
       .string()
@@ -85,6 +106,10 @@ const AddEditTemplateModal = ({
     defaultValues: {
       templateName: "",
       part: null,
+      category: null,
+      presetColor: null,
+      presetFabric: null,
+      specifications: "",
       partUsageCount: "1",
       image: null,
     },
@@ -134,7 +159,53 @@ const AddEditTemplateModal = ({
       }
     };
 
+    const fetchCategories = async () => {
+      try {
+        const res = await apiFabricCategoryList(accessToken);
+        if (res?.status && res?.data) {
+          setCategoryOptions(
+            res.data.map((c) => ({ value: c.id, label: c.categoryName })),
+          );
+        }
+      } catch (err) {
+        console.error("Failed to load categories:", err);
+      }
+    };
+
+    const fetchPresetSources = async () => {
+      try {
+        const [colors, fabrics] = await Promise.all([
+          apiGetColorsList(accessToken, 1, 200),
+          apiGetFabricList(1, 200),
+        ]);
+
+        if (colors?.status && colors?.data) {
+          setColorOptions(
+            colors.data.map((c) => ({
+              value: c.id,
+              // Several colour rows can share a code, so the code is part of the label —
+              // otherwise two entries look identical in this dropdown.
+              label: `${c.colorName} (${c.colorCode})`,
+            })),
+          );
+        }
+
+        if (fabrics?.status && fabrics?.data) {
+          setFabricOptions(
+            fabrics.data.map((f) => ({
+              value: f.id,
+              label: f.fabricName,
+            })),
+          );
+        }
+      } catch (err) {
+        console.error("Failed to load preset sources:", err);
+      }
+    };
+
     fetchParts();
+    fetchCategories();
+    fetchPresetSources();
   }, [isOpen, accessToken]);
 
   /* ---------- PREFILL ON EDIT ---------- */
@@ -146,10 +217,24 @@ const AddEditTemplateModal = ({
       setPreview(initialData.templateImage || null);
 
       const matchedPart = partOptions.find((p) => p.value === initialData.part);
+      const matchedCategory = categoryOptions.find(
+        (c) => c.value === initialData.category,
+      );
+      const matchedColor = colorOptions.find(
+        (c) => c.value === initialData.preset_color,
+      );
+      const matchedFabric = fabricOptions.find(
+        (f) => f.value === initialData.preset_fabric,
+      );
 
       reset({
         templateName: initialData.templateName || "",
         part: matchedPart || null,
+        category: matchedCategory || null,
+        presetColor: matchedColor || null,
+        presetFabric: matchedFabric || null,
+        // Stored as a list; edited here as one bullet per line.
+        specifications: (initialData.specifications || []).join("\n"),
         partUsageCount: String(initialData.partUsageCount ?? 1),
       });
       setImageFile(null);
@@ -163,13 +248,17 @@ const AddEditTemplateModal = ({
       reset({
         templateName: "",
         part: null,
+        category: null,
+        presetColor: null,
+        presetFabric: null,
+        specifications: "",
         partUsageCount: "1",
       });
     }
 
     setError("");
     setImageError("");
-  }, [mode, initialData, isOpen, partOptions, reset]);
+  }, [mode, initialData, isOpen, partOptions, categoryOptions, colorOptions, fabricOptions, reset]);
 
   /* ---------- FILE HANDLERS ---------- */
   const handleFile = (file) => {
@@ -237,6 +326,23 @@ const AddEditTemplateModal = ({
       if (values.part?.value) {
         formData.append("part", values.part.value);
       }
+
+      if (values.category?.value) {
+        formData.append("category", values.category.value);
+      }
+
+      // Presets are clearable, so send an empty value to detach rather than omitting
+      // the key — omitting it would leave the previous preset in place on edit.
+      formData.append("preset_color", values.presetColor?.value ?? "");
+      formData.append("preset_fabric", values.presetFabric?.value ?? "");
+
+      // One bullet per line in the textarea; sent as a JSON array because the request is
+      // multipart and the backend expects a list.
+      const specLines = (values.specifications || "")
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+      formData.append("specifications", JSON.stringify(specLines));
 
       formData.append(
         "partUsageCount",
@@ -348,6 +454,117 @@ const AddEditTemplateModal = ({
                         typeof document !== "undefined" ? document.body : null
                       }
                       menuPosition="fixed"
+                    />
+                  )}
+                />
+              </FormItem>
+            </div>
+
+            {/* Category — which storefront industry page this template appears on */}
+            <div>
+              <label className="text-base font-medium text-[#1C2C56]">
+                {tm("categoryLabel")}
+                <span className="text-red-500">*</span>
+              </label>
+              <FormItem
+                invalid={Boolean(errors.category)}
+                errorMessage={errors.category?.message}
+              >
+                <Controller
+                  name="category"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={categoryOptions}
+                      styles={selectStyles}
+                      placeholder={tm("categoryPlaceholder")}
+                      isClearable
+                      menuPortalTarget={
+                        typeof document !== "undefined" ? document.body : null
+                      }
+                      menuPosition="fixed"
+                    />
+                  )}
+                />
+              </FormItem>
+            </div>
+
+            {/* Preset style — pre-selected when a shopper applies this template */}
+            <div>
+              <label className="text-base font-medium text-[#1C2C56]">
+                {tm("presetColorLabel")}
+              </label>
+              <p className="text-xs text-[#64748B] mt-0.5 mb-1">
+                {tm("presetHint")}
+              </p>
+              <FormItem>
+                <Controller
+                  name="presetColor"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={colorOptions}
+                      styles={selectStyles}
+                      placeholder={tm("presetColorPlaceholder")}
+                      isClearable
+                      menuPortalTarget={
+                        typeof document !== "undefined" ? document.body : null
+                      }
+                      menuPosition="fixed"
+                    />
+                  )}
+                />
+              </FormItem>
+            </div>
+
+            <div>
+              <label className="text-base font-medium text-[#1C2C56]">
+                {tm("presetFabricLabel")}
+              </label>
+              <FormItem>
+                <Controller
+                  name="presetFabric"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={fabricOptions}
+                      styles={selectStyles}
+                      placeholder={tm("presetFabricPlaceholder")}
+                      isClearable
+                      menuPortalTarget={
+                        typeof document !== "undefined" ? document.body : null
+                      }
+                      menuPosition="fixed"
+                    />
+                  )}
+                />
+              </FormItem>
+            </div>
+
+            {/* Specifications — the bullet list on the customer template card */}
+            <div>
+              <label className="text-base font-medium text-[#1C2C56]">
+                {tm("specificationsLabel")}
+              </label>
+              <p className="text-xs text-[#64748B] mt-0.5 mb-1">
+                {tm("specificationsHint")}
+              </p>
+              <FormItem
+                invalid={Boolean(errors.specifications)}
+                errorMessage={errors.specifications?.message}
+              >
+                <Controller
+                  name="specifications"
+                  control={control}
+                  render={({ field }) => (
+                    <textarea
+                      {...field}
+                      rows={4}
+                      placeholder={tm("specificationsPlaceholder")}
+                      className="w-full border border-[#CBD5E1] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#1C2C56] resize-y"
                     />
                   )}
                 />

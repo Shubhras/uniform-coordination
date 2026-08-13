@@ -120,7 +120,9 @@ class TemplateListView(APIView):
             search = request.query_params.get("search", "").strip()
             part_id = request.query_params.get("part_id") or request.query_params.get("part")
             category_id = request.query_params.get("category_id") or request.query_params.get("category")
+            part_category_id = request.query_params.get("part_category_id")
             subcategory_id = request.query_params.get("subcategory_id") or request.query_params.get("subcategory")
+            active_only = request.query_params.get("active_only") in ("1", "true", "True")
 
             templates = Template.objects.filter(isDeleted=False)
 
@@ -128,15 +130,28 @@ class TemplateListView(APIView):
                 templates = templates.filter(
                     Q(templateName__icontains=search) |
                     Q(part__partName__icontains=search) |
+                    Q(category__categoryName__icontains=search) |
                     Q(part__category__categoryName__icontains=search)
                 )
 
             if part_id:
                 templates = templates.filter(part_id=part_id)
+
+            # `category_id` means the template's own industry category. It used to filter
+            # on the part's category instead, which is a different thing entirely — parts
+            # are grouped as Pockets, Caps and so on, never as Medical & Nursing Care. The
+            # admin's own category filter therefore matched nothing. `part_category_id`
+            # keeps the old behaviour available for anything that wants it.
             if category_id:
-                templates = templates.filter(part__category_id=category_id)
+                templates = templates.filter(category_id=category_id)
+            if part_category_id:
+                templates = templates.filter(part__category_id=part_category_id)
             if subcategory_id:
                 templates = templates.filter(part__subcategory_id=subcategory_id)
+
+            # Storefront pages only ever want live templates.
+            if active_only:
+                templates = templates.filter(isActive=True)
 
             templates = templates.order_by("-id")
 

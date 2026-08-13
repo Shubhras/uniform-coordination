@@ -11,40 +11,25 @@
       "static/chunks/main-app.js",
       "static/chunks/app/not-found.js"
     ],
-    "/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
-    ],
     "/(public-pages)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/layout.js"
     ],
-    "/(public-pages)/admin-form/page": [
+    "/(public-pages)/simulation-assets/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/admin-form/page.js"
+      "static/chunks/app/(public-pages)/simulation-assets/page.js"
     ],
     "/(public-pages)/products/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/products/page.js"
     ],
-    "/(public-pages)/contents/page": [
+    "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/contents/page.js"
-    ],
-    "/(public-pages)/system-settings/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/system-settings/page.js"
-    ],
-    "/(public-pages)/reports-analytics/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/reports-analytics/page.js"
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

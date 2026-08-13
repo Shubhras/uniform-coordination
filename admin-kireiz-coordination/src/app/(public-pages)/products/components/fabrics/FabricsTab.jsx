@@ -24,6 +24,9 @@ const FabricsTab = () => {
   const accessToken = session?.user?.accessToken;
 
   const [fabrics, setFabrics] = useState([]);
+  // Display currency comes from System Settings via the API, so this page cannot
+  // drift from Reports and Quotation History. It printed a hardcoded ₹ before.
+  const [currencySymbol, setCurrencySymbol] = useState("$");
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -70,6 +73,9 @@ const FabricsTab = () => {
 
         if (response?.status && response?.data) {
           setFabrics(response.data);
+          if (response.currency?.symbol) {
+            setCurrencySymbol(response.currency.symbol);
+          }
           if (response.pagination) {
             setPagination(response.pagination);
           }
@@ -242,7 +248,8 @@ const FabricsTab = () => {
                   </td>
 
                   <td className="px-5 py-4 text-[#1C2C56] font-medium">
-                    ₹{Number(fabric.pricePerUnit).toLocaleString()}
+                    {currencySymbol}
+                    {Number(fabric.pricePerUnit).toLocaleString()}
                   </td>
 
                   <td className="px-5 py-4">
