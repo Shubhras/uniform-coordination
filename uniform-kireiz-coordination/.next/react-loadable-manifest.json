@@ -5,6 +5,10 @@
       "static/chunks/_app-pages-browser_src_app_auth-pages_reset-password__components_ResetPasswordClient_jsx.js"
     ]
   },
+  "components/template/MobileNav.jsx -> @/components/template/VerticalMenuContent": {
+    "id": "components/template/MobileNav.jsx -> @/components/template/VerticalMenuContent",
+    "files": []
+  },
   "i18n/dateLocales.js -> dayjs/locale/ar": {
     "id": "i18n/dateLocales.js -> dayjs/locale/ar",
     "files": [

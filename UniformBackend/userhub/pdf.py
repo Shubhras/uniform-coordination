@@ -11,9 +11,22 @@ from django.http import FileResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
 import io
+import base64
+import os
+from django.conf import settings
 from rest_framework.permissions import AllowAny
 
-    
+
+def _get_logo_data_uri():
+    logo_path = os.path.join(settings.BASE_DIR, "userhub", "static", "userhub", "img", "logo.png")
+    try:
+        with open(logo_path, "rb") as logo_file:
+            encoded = base64.b64encode(logo_file.read()).decode("ascii")
+        return f"data:image/png;base64,{encoded}"
+    except FileNotFoundError:
+        return ""
+
+
 class QuotationDetailView(APIView):
     """
     GET /api/quotations/<uuid:pk>/
@@ -69,6 +82,7 @@ class QuotationPDFView(APIView):
             "quotation": quotation,
             "items": data["line_items"],
             "total_amount": data["total_amount"],
+            "logo_data_uri": _get_logo_data_uri(),
         })
 
         pdf_file = io.BytesIO()
