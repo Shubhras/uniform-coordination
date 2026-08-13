@@ -29,7 +29,7 @@ from django.conf import settings
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
 stripe.api_key = settings.STRIPE_SECRET_KEY
-from .utils import render_quotation_template , generate_quotation_template_pdf
+from .utils import render_quotation_template , generate_quotation_template_pdf, send_user_deactivation_email
 from userhub.utils import send_return_received_email, send_shipping_email
 from .auth import IsAdminUserJWT,MultiRoleJWTAuth
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
@@ -2250,6 +2250,87 @@ class UserByIdAPIView(APIView):
                 "message": "Something went wrong.",
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @extend_schema(
+        tags=["Users"],
+        summary="Update User Status (Activate/Deactivate)",
+        description="Deactivate or reactivate a user account. Requires reason if deactivating.",
+        responses={
+            200: OpenApiResponse(description="User status updated successfully"),
+            400: OpenApiResponse(description="Reason required or invalid data"),
+            404: OpenApiResponse(description="User not found"),
+        },
+    )
+    def patch(self, request, id):
+        try:
+            user = Users.objects.filter(id=id).first()
+
+            if not user:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "User not found."
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            is_active_input = request.data.get("isActive")
+            if is_active_input is None:
+                is_active_input = request.data.get("is_active")
+            if is_active_input is None:
+                is_active_input = request.data.get("status")
+
+            if is_active_input is None:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "isActive status is required."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            is_active = str(is_active_input).lower() == "true" or is_active_input is True
+            reason = request.data.get("reason", "").strip()
+
+            if not is_active:
+                if not reason:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "Deactivation reason is required."
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+                user.isActive = False
+                user.deactivation_reason = reason
+                user.save()
+
+                email_sent = send_user_deactivation_email(user, reason)
+
+                serializer = UserListSerializer(user, context={"request": request})
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": f"User deactivated successfully.{' Email notification sent.' if email_sent else ''}",
+                    "email_sent": email_sent,
+                    "data": serializer.data
+                }, status=status.HTTP_200_OK)
+            else:
+                user.isActive = True
+                user.deactivation_reason = None
+                user.save()
+
+                serializer = UserListSerializer(user, context={"request": request})
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "User reactivated successfully.",
+                    "data": serializer.data
+                }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Something went wrong.",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             
             
 #<-------------orderUpdate----------->

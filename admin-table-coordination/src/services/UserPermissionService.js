@@ -55,3 +55,15 @@ export async function apiUpdatePermissionList(accessToken, payload) {
     },
   });
 }
+
+export async function apiUpdateUserStatus(accessToken, id, payload) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/users/${id}/`,
+    method: "patch",
+    data: payload,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+

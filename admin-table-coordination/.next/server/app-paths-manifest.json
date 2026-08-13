@@ -1,8 +1,6 @@
 {
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/(public-pages)/inventory-management/page": "app/(public-pages)/inventory-management/page.js",
-  "/(public-pages)/orders/[orderId]/return/late-fee/page": "app/(public-pages)/orders/[orderId]/return/late-fee/page.js",
-  "/(public-pages)/orders/[orderId]/return/compensation/page": "app/(public-pages)/orders/[orderId]/return/compensation/page.js",
   "/(public-pages)/simulation-assets/page": "app/(public-pages)/simulation-assets/page.js",
-  "/(public-pages)/system-settings/page": "app/(public-pages)/system-settings/page.js"
+  "/(public-pages)/reports-analytics/page": "app/(public-pages)/reports-analytics/page.js",
+  "/(public-pages)/system-settings/page": "app/(public-pages)/system-settings/page.js",
+  "/(public-pages)/products/page": "app/(public-pages)/products/page.js"
 }

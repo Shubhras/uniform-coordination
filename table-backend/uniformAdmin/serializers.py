@@ -159,6 +159,14 @@ class FabricSerializer(serializers.ModelSerializer):
             }
         return representation
 
+    def validate_fabricName(self, value):
+        query = Fabric.objects.filter(fabricName__iexact=value, isDeleted=False)
+        if self.instance:
+            query = query.exclude(pk=self.instance.pk)
+        if query.exists():
+            raise serializers.ValidationError("This fabric name already exists.")
+        return value
+
     def validate(self, data):
         fabric_type = data.get("fabricType")
         theme = data.get("theme")
@@ -326,7 +334,10 @@ class ColorsSerializer(serializers.ModelSerializer):
         return value
 
     def validate_colorName(self, value):
-        if Colors.objects.filter(colorName__iexact=value, isDeleted=False).exists():
+        query = Colors.objects.filter(colorName__iexact=value, isDeleted=False)
+        if self.instance:
+            query = query.exclude(pk=self.instance.pk)
+        if query.exists():
             raise serializers.ValidationError("This color name already exists.")
         return value
 
@@ -1946,6 +1957,7 @@ class CustomerDetailSerializer(serializers.ModelSerializer):
             "push_notifications",
             "is_verify",
             "isActive",
+            "deactivation_reason",
             "is_currently_login",
             "role_name",
             "lastLogin",
@@ -2051,8 +2063,8 @@ class UserListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'email', 'userType', 'phone', 'userName', 'firstName', 'lastName',
             'language', 'gender', 'profileImage', 'role', 'lastLogin', 'isActive',
-            'loginType', 'email_notifications', 'push_notifications', 'is_verify',
-            'createdAt', 'updatedAt','is_currently_login'
+            'deactivation_reason', 'loginType', 'email_notifications', 'push_notifications',
+            'is_verify', 'createdAt', 'updatedAt','is_currently_login'
         ]
 
     def get_role(self, obj):

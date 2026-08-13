@@ -264,6 +264,22 @@ const AddEditFabricModal = ({
     setSubCategory(sub || null);
   }, [subCategoryOptions, mode, initialData]);
 
+  useEffect(() => {
+    if (
+      mode === "edit" &&
+      initialData?.category?.id &&
+      categoryOptions.length > 0
+    ) {
+      const cat = categoryOptions.find(
+        (o) => o.value === initialData.category.id,
+      );
+      if (cat) {
+        setCategory(cat);
+        reset((prev) => ({ ...prev, category: cat }));
+      }
+    }
+  }, [categoryOptions, mode, initialData]);
+
   const handleSave = async (values) => {
     console.log("Save clicked");
     console.log(values);

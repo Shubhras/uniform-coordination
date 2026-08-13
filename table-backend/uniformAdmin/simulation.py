@@ -223,37 +223,15 @@ class SimulationOptionsAPIView(APIView):
             colors_list = []
             sizes_list = []
             
-            # Map fallback static images to align with premium look
-            fabric_images_fallback = [
-                "/img/top-left-image/fabric/image 72.png",
-                "/img/top-left-image/fabric/image 73.png",
-                "/img/top-left-image/fabric/image 74.png",
-                "/img/top-left-image/fabric/image 75.png",
-            ]
-            color_images_fallback = [
-                "/img/top-left-image/fabric/image 76.png",
-                "/img/top-left-image/fabric/image 77.png",
-                "/img/top-left-image/fabric/image 78.png",
-                "/img/top-left-image/fabric/image 79.png",
-                "/img/top-left-image/fabric/image 80.png",
-                "/img/top-left-image/fabric/image 81.png",
-                "/img/top-left-image/fabric/image 82.png",
-                "/img/top-left-image/fabric/image 83.png",
-            ]
-            
-            fabric_idx = 0
-            color_idx = 0
-            
             for prod in products:
                 # Fabric
                 if prod.fabric and prod.fabric.id not in fabrics_set:
                     fabrics_set.add(prod.fabric.id)
-                    fallback_img = fabric_images_fallback[fabric_idx % len(fabric_images_fallback)]
-                    fabric_idx += 1
+                    fb_img = getattr(prod.fabric, "image", None)
                     fabrics_list.append({
                         "id": str(prod.fabric.id),
                         "label": prod.fabric.fabricName,
-                        "image": fallback_img,
+                        "image": request.build_absolute_uri(fb_img.url) if (fb_img and hasattr(fb_img, "url")) else None,
                         "materialType": prod.fabric.materialType
                     })
                     
@@ -263,19 +241,17 @@ class SimulationOptionsAPIView(APIView):
                     styles_list.append({
                         "id": prod.style.lower(),
                         "label": prod.style.capitalize(),
-                        "image": "/img/others/table-image1.png"
+                        "image": None
                     })
                     
                 # Color
                 if prod.color and prod.color.id not in colors_set:
                     colors_set.add(prod.color.id)
-                    fallback_img = color_images_fallback[color_idx % len(color_images_fallback)]
-                    color_idx += 1
                     colors_list.append({
                         "id": str(prod.color.id),
                         "label": prod.color.colorName,
                         "colorCode": prod.color.colorCode or "#ffffff",
-                        "image": fallback_img,
+                        "image": None,
                         "compatibleFabric": prod.color.compatibleFabric or []
                     })
                 
@@ -287,57 +263,109 @@ class SimulationOptionsAPIView(APIView):
                         "label": prod.size
                     })
 
-            # Query DB attribute models for dynamic admin-configured options
+            # Query DB attribute models for dynamic admin-configured options strictly filtered by category
+            db_fabrics = Fabric.objects.filter(isActive=True, isDeleted=False)
+            if category_name:
+                db_fabrics = db_fabrics.filter(category__categoryName__iexact=category_name)
+
+            if db_fabrics.exists():
+                for fb in db_fabrics:
+                    if str(fb.id) not in fabrics_set and fb.fabricName not in fabrics_set:
+                        fabrics_set.add(str(fb.id))
+                        fabrics_set.add(fb.fabricName)
+                        fb_img = getattr(fb, "image", None)
+                        fabrics_list.append({
+                            "id": str(fb.id),
+                            "label": fb.fabricName,
+                            "image": request.build_absolute_uri(fb_img.url) if (fb_img and hasattr(fb_img, "url")) else None,
+                            "materialType": fb.materialType or "cotton"
+                        })
+
+            db_colors = Colors.objects.filter(isActive=True, isDeleted=False)
+            if category_name:
+                db_colors = db_colors.filter(category__categoryName__iexact=category_name)
+
+            if db_colors.exists():
+                for cl in db_colors:
+                    if str(cl.id) not in colors_set and cl.colorName not in colors_set:
+                        colors_set.add(str(cl.id))
+                        colors_set.add(cl.colorName)
+                        colors_list.append({
+                            "id": str(cl.id),
+                            "label": cl.colorName,
+                            "colorCode": cl.colorCode or "#ffffff",
+                            "image": None,
+                            "compatibleFabric": cl.compatibleFabric or []
+                        })
+
             db_table_shapes = TableShape.objects.filter(isActive=True, isDeleted=False)
+            if category_name:
+                cat_table_shapes = db_table_shapes.filter(category__categoryName__iexact=category_name)
+                if cat_table_shapes.exists():
+                    db_table_shapes = cat_table_shapes
+
             table_shapes_list = [
-                {"id": str(ts.id), "label": ts.name, "image": request.build_absolute_uri(ts.image.url) if ts.image else "/img/table-form/table-style/style-round.png"}
+                {"id": str(ts.id), "label": ts.name, "image": request.build_absolute_uri(ts.image.url) if (getattr(ts, "image", None) and hasattr(ts.image, "url")) else None}
                 for ts in db_table_shapes
             ]
 
             db_closures = Closure.objects.filter(isActive=True, isDeleted=False)
+            if category_name:
+                db_closures = db_closures.filter(category__categoryName__iexact=category_name)
+
             closures_list = [
-                {"id": str(c.id), "label": c.name, "image": request.build_absolute_uri(c.image.url) if c.image else "/img/table-form/chair-cover/color-white.png"}
+                {"id": str(c.id), "label": c.name, "image": request.build_absolute_uri(c.image.url) if (getattr(c, "image", None) and hasattr(c.image, "url")) else None}
                 for c in db_closures
             ]
 
             db_styles = Style.objects.filter(isActive=True, isDeleted=False)
+            if category_name:
+                db_styles = db_styles.filter(category__categoryName__iexact=category_name)
+
             if db_styles.exists():
                 styles_list = [
-                    {"id": str(s.id), "label": s.name, "image": request.build_absolute_uri(s.image.url) if s.image else "/img/others/table-image1.png"}
+                    {"id": str(s.id), "label": s.name, "image": request.build_absolute_uri(s.image.url) if (getattr(s, "image", None) and hasattr(s.image, "url")) else None}
                     for s in db_styles
                 ]
 
             db_sizes = Size.objects.filter(isActive=True, isDeleted=False)
+            if category_name:
+                db_sizes = db_sizes.filter(category__categoryName__iexact=category_name)
+
             if db_sizes.exists():
                 sizes_list = [
-                    {"id": str(sz.id), "label": sz.name, "image": request.build_absolute_uri(sz.image.url) if sz.image else None}
+                    {"id": str(sz.id), "label": sz.name, "image": request.build_absolute_uri(sz.image.url) if (getattr(sz, "image", None) and hasattr(sz.image, "url")) else None}
                     for sz in db_sizes
                 ]
 
             db_patterns = Pattern.objects.filter(isActive=True, isDeleted=False)
+            if category_name:
+                db_patterns = db_patterns.filter(category__categoryName__iexact=category_name)
+
             patterns_list = [
-                {"id": str(pt.id), "label": pt.name, "image": request.build_absolute_uri(pt.image.url) if pt.image else "/img/table-form/tablecloth/fabric1.png"}
+                {"id": str(pt.id), "label": pt.name, "image": request.build_absolute_uri(pt.image.url) if (getattr(pt, "image", None) and hasattr(pt.image, "url")) else None}
                 for pt in db_patterns
             ]
 
-            # If no fabrics/styles/colors match dynamic database query, fallback to defaults
-            if not fabrics_list:
-                fabrics_list = [
-                    { "id": "crushed-velvet", "label": "Crushed Velvet", "image": "/img/top-left-image/fabric/image 72.png", "materialType": "cotton" },
-                    { "id": "damask-linen", "label": "Damask Linen", "image": "/img/top-left-image/fabric/image 73.png", "materialType": "linen" },
-                    { "id": "gingham-cotton", "label": "Gingham Cotton", "image": "/img/top-left-image/fabric/image 74.png", "materialType": "cotton" },
-                ]
-            if not styles_list:
-                styles_list = [
-                    { "id": "round", "label": "Round", "image": "/img/others/table-image1.png" },
-                    { "id": "square", "label": "Square", "image": "/img/others/table-image1.png" },
-                ]
-            if not colors_list:
-                colors_list = [
-                    { "id": "white", "label": "White", "image": "/img/top-left-image/fabric/image 76.png", "colorCode": "#ffffff", "compatibleFabric": ["cotton", "linen"] },
-                    { "id": "ivory", "label": "Ivory", "image": "/img/top-left-image/fabric/image 77.png", "colorCode": "#fffff0", "compatibleFabric": ["cotton"] },
-                    { "id": "beige", "label": "Beige", "image": "/img/top-left-image/fabric/image 78.png", "colorCode": "#f5f5dc", "compatibleFabric": ["linen"] },
-                ]
+            # Only fallback to static defaults if NO category is specified
+            if not category_name:
+                if not fabrics_list:
+                    fabrics_list = [
+                        { "id": "crushed-velvet", "label": "Crushed Velvet", "image": None, "materialType": "cotton" },
+                        { "id": "damask-linen", "label": "Damask Linen", "image": None, "materialType": "linen" },
+                        { "id": "gingham-cotton", "label": "Gingham Cotton", "image": None, "materialType": "cotton" },
+                    ]
+                if not styles_list:
+                    styles_list = [
+                        { "id": "round", "label": "Round", "image": None },
+                        { "id": "square", "label": "Square", "image": None },
+                    ]
+                if not colors_list:
+                    colors_list = [
+                        { "id": "white", "label": "White", "image": None, "colorCode": "#ffffff", "compatibleFabric": ["cotton", "linen"] },
+                        { "id": "ivory", "label": "Ivory", "image": None, "colorCode": "#fffff0", "compatibleFabric": ["cotton"] },
+                        { "id": "beige", "label": "Beige", "image": None, "colorCode": "#f5f5dc", "compatibleFabric": ["linen"] },
+                    ]
 
             return Response({
                 "status": True,
