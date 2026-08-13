@@ -4,8 +4,10 @@ import { useState } from "react";
 import { FiEye, FiSearch } from "react-icons/fi";
 import { apiOrderDeliveryList } from "@/services/AiAutomation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { useTranslations } from "next-intl";
 
 const OrderDelivery = () => {
+  const t = useTranslations("aiAutomation.orderDelivery");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -28,10 +30,10 @@ const OrderDelivery = () => {
       if (res?.success && res?.data) {
         setOrderData(res.data);
       } else {
-        setApiMessage(res?.message || "No order found.");
+        setApiMessage(res?.message || t("noOrder"));
       }
     } catch (error) {
-      setApiMessage("Something went wrong.");
+      setApiMessage(t("somethingWentWrong"));
     } finally {
       setLoading(false);
     }
@@ -40,17 +42,17 @@ const OrderDelivery = () => {
   return (
     <div className="mt-6">
       <h2 className="text-[24px] font-semibold leading-tight text-[#2A1A0E]">
-        Order &amp; Delivery Inquiry
+        {t("deliveryInjury")}
       </h2>
 
       <p className="mt-1 text-[13px] text-[#B29D8C]">
-        Read-only order lookup — no editing permitted
+        {t("subtitle")}
       </p>
 
       <div className="mt-4 rounded-lg border border-[#D9E4F3] bg-[#F5F9FF] px-4 py-3 text-[11px] text-[#7990AF]">
         <div className="flex items-center gap-2">
           <FiEye size={12} />
-          Read-only mode — this tool does not modify any order data
+          {t("readOnlyMode")}
         </div>
       </div>
 
@@ -64,7 +66,7 @@ const OrderDelivery = () => {
                 : "bg-[#F7EFE9] text-[#6B615A]"
             }`}
           >
-            Order ID
+            {t("orderIdMode")}
           </button>
 
           <button
@@ -75,7 +77,7 @@ const OrderDelivery = () => {
                 : "bg-[#F7EFE9] text-[#6B615A]"
             }`}
           >
-            Customer Name
+            {t("customerNameMode")}
           </button>
         </div>
 
@@ -87,8 +89,8 @@ const OrderDelivery = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={
                 searchMode === "orderId"
-                  ? "e.g. ORD-KRZ-2024-0847"
-                  : "e.g. Sophia Mitchell"
+                  ? t("eg")
+                  : t("egCustomer")
               }
               className="w-full bg-transparent text-[15px] text-[#6C615A] outline-none placeholder:text-[#D4C2B5]"
             />
@@ -102,7 +104,7 @@ const OrderDelivery = () => {
             }`}
           >
             <FiSearch size={16} />
-            {loading ? "Searching..." : "Search"}
+            {loading ? t("searching") : t("search")}
           </button>
         </div>
         {apiMessage && (
@@ -110,7 +112,7 @@ const OrderDelivery = () => {
         )}
 
         <p className="mt-3 text-[11px] text-[#D7C7BC]">
-          Try: ORD-KRZ-2024-0847
+          {t("tryExample")}
         </p>
 
         {orderData && (

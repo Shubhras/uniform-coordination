@@ -1,4 +1,15 @@
 {
+    "header": {
+        "home": "Inicio",
+        "uniformDesign": "Diseño de Uniforme",
+        "tableDesign": "Diseño de Mesa",
+        "blog": "Blog",
+        "faq": "Preguntas Frecuentes",
+        "navigation": "Navegación",
+        "login": "Iniciar Sesión",
+        "signup": "Registrarse",
+        "signOut": "Cerrar Sesión"
+    },
     "nav": {
         "dashboard": {
             "dashboard": "Tablero",
@@ -239,6 +250,123 @@
             "sharedComponentDoc": "Componente Compartido",
             "utilsDoc": "Utilidades",
             "changeLog": "Registro de Cambios"
+        },
+        "reportsAnalytics": "Informes y Analítica"
+    },
+    "reportsAnalytics": {
+        "pageTitle": "Informes y Analítica",
+        "pageSubtitle": "Rastrea el inventario, el estado del stock y la disponibilidad de productos.",
+        "exportData": "Exportar Datos",
+        "exporting": "Exportando...",
+        "count": "Cantidad",
+        "summaryCards": {
+            "totalRevenue": "INGRESOS TOTALES",
+            "totalOrders": "PEDIDOS TOTALES",
+            "activeRentals": "ALQUILERES ACTIVOS",
+            "inventoryItems": "ARTÍCULOS DE INVENTARIO",
+            "lateReturns": "DEVOLUCIONES ATRASADAS",
+            "customers": "CLIENTES"
+        },
+        "panels": {
+            "customerGrowth": "Crecimiento de Clientes (Últimos 6 meses)",
+            "customerSegments": "Segmentos de Clientes",
+            "topRentedCategories": "Categorías Más Alquiladas",
+            "inventoryStatus": "Estado del Inventario",
+            "growth": "crecimiento"
+        }
+    },
+    "systemSettings": {
+        "pageTitle": "Configuración del Sistema",
+        "pageSubtitle": "Administra la identidad de la empresa, preferencias regionales y configuraciones predeterminadas.",
+        "tabs": {
+            "generalSettings": "Configuración General",
+            "paymentSettings": "Configuración de Pago",
+            "emailNotifications": "Correo y Notificaciones"
+        },
+        "generalSettings": {
+            "companyNameLabel": "Nombre de la Empresa",
+            "businessAddressLabel": "Dirección Comercial",
+            "supportEmailLabel": "Correo de Soporte",
+            "contactNumberLabel": "Número de Contacto",
+            "defaultLanguageLabel": "Idioma Predeterminado",
+            "defaultCurrencyLabel": "Moneda Predeterminada",
+            "timeZoneLabel": "Zona Horaria",
+            "dateFormatLabel": "Formato de Fecha",
+            "logoLabel": "Logotipo",
+            "companyLogoAlt": "Logotipo de la Empresa",
+            "uploadLogo": "Subir Logotipo",
+            "edit": "Editar",
+            "cancel": "Cancelar",
+            "saveChanges": "Guardar Cambios"
+        },
+        "paymentSettings": {
+            "sectionTitle": "Métodos de Pago Activados",
+            "sectionSubtitle": "Activa o desactiva las integraciones de pasarela de pago disponibles en el pago.",
+            "stripeSectionTitle": "Credenciales de API de Stripe",
+            "stripeSectionSubtitle": "Configura las claves de pago de Stripe para procesar tarjetas de crédito de forma segura.",
+            "stripePublishableKeyLabel": "Clave Publicable de Stripe",
+            "stripeSecretKeyLabel": "Clave Secreta de Stripe",
+            "stripeWebhookSecretLabel": "Secreto de Webhook de Stripe",
+            "bankSectionTitle": "Detalles de Cuenta Bancaria",
+            "bankSectionSubtitle": "Configura la información bancaria para transferencias manuales.",
+            "bankNameLabel": "Nombre del Banco",
+            "branchLabel": "Nombre de la Sucursal",
+            "accountNumberLabel": "Número de Cuenta",
+            "accountHolderLabel": "Titular de la Cuenta",
+            "edit": "Editar",
+            "cancel": "Cancelar",
+            "saveChanges": "Guardar Cambios",
+            "gateways": {
+                "kakebaraiLabel": "NP Kakebarai (Corporativo B2B)",
+                "kakebaraiDesc": "Permite a los clientes corporativos pagar con factura a crédito.",
+                "creditCardLabel": "Tarjeta de Crédito (Stripe)",
+                "creditCardDesc": "Procesamiento de pago en línea directo a través de la API de Stripe.",
+                "paypayLabel": "PayPay",
+                "paypayDesc": "Acepta el pago móvil por código QR líder en Japón.",
+                "conbiniLabel": "Tienda de Conveniencia",
+                "conbiniDesc": "Permite el pago en tiendas de conveniencia japonesas.",
+                "bankTransferLabel": "Transferencia Bancaria",
+                "bankTransferDesc": "Opción de pago manual por transferencia bancaria directa.",
+                "applePayLabel": "Apple Pay (Opcional)",
+                "applePayDesc": "Soporta pago exprés para usuarios de iOS y macOS.",
+                "googlePayLabel": "Google Pay (Opcional)",
+                "googlePayDesc": "Soporta pago exprés para usuarios de Android y Chrome."
+            }
+        },
+        "emailNotifications": {
+            "pageTitle": "Correo y Notificaciones",
+            "smtpTitle": "Configuración del Servidor SMTP",
+            "smtpSubtitle": "Configura los detalles del proveedor de correo saliente para enviar correos transaccionales.",
+            "smtpHostLabel": "Servidor SMTP",
+            "smtpPortLabel": "Puerto SMTP",
+            "usernameLabel": "Nombre de Usuario",
+            "passwordLabel": "Contraseña",
+            "senderNameLabel": "Nombre del Remitente",
+            "senderEmailLabel": "Dirección de Correo del Remitente",
+            "useTlsLabel": "Usar conexión segura TLS (Recomendado)",
+            "customerNotificationTitle": "Correos de Notificación al Cliente",
+            "customerNotificationSubtitle": "Activa o desactiva activadores automáticos basados en eventos del cliente.",
+            "edit": "Editar",
+            "cancel": "Cancelar",
+            "saveChanges": "Guardar Cambios",
+            "items": {
+                "registrationLabel": "Confirmación de Registro de Cuenta",
+                "registrationDesc": "Notifica a los usuarios al instante tras un registro de cuenta exitoso.",
+                "orderPlacedLabel": "Confirmación de Pedido",
+                "orderPlacedDesc": "Envía el recibo y los detalles cuando se realiza un pedido/alquiler.",
+                "paymentSuccessLabel": "Confirmación de Pago",
+                "paymentSuccessDesc": "Envía confirmación tras la recepción exitosa del pago con tarjeta o transferencia.",
+                "paymentFailureLabel": "Alerta de Fallo de Pago",
+                "paymentFailureDesc": "Alerta a los clientes cuando falla un intento de pago.",
+                "shippingLabel": "Notificación de Envío",
+                "shippingDesc": "Envía el ID de seguimiento y detalles de despacho al cliente.",
+                "returnReceivedLabel": "Confirmación de Devolución Recibida",
+                "returnReceivedDesc": "Notifica a los clientes cuando se inspecciona su paquete devuelto.",
+                "returnOverdueLabel": "Recordatorio de Devolución Vencida",
+                "returnOverdueDesc": "Envía un aviso de advertencia si no se reciben los productos alquilados.",
+                "lateFeeLabel": "Notificación de Cargo por Mora",
+                "lateFeeDesc": "Informa a los clientes sobre los cargos por mora aplicables."
+            }
         }
     }
 }

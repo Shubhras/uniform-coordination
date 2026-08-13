@@ -25,6 +25,7 @@ from rest_framework.views import APIView
 
 from uniformAdmin.auth import IsAdminUserJWT
 from uniformAdmin.currency import get_currency
+from uniformAdmin.mailer import send_email
 from uniformAdmin.models import QuotationTemplate
 from userhub.models import QuotationRequest
 
@@ -245,17 +246,17 @@ class QuotationResendAPIView(APIView):
             body_html = body_html.replace(token, str(value))
 
         subject = f"Quotation {quotation.quotation_id}"
-        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or settings.EMAIL_HOST_USER
 
+        # Routed through the central mailer so this follows the admin's System
+        # Settings — SMTP connection, sender identity, reply-to, footer and the
+        # "quotation status change" notification toggle.
         try:
-            message = EmailMultiAlternatives(
+            sent = send_email(
                 subject=subject,
-                body="Please view this email in an HTML-capable client.",
-                from_email=from_email,
                 to=[quotation.email],
+                html_body=body_html,
+                notification="customer_on_status_change",
             )
-            message.attach_alternative(body_html, "text/html")
-            message.send(fail_silently=False)
         except Exception as e:
             # Surface a distinct code so the UI can say "email failed", not "save failed".
             return Response({
@@ -264,6 +265,18 @@ class QuotationResendAPIView(APIView):
                 "message": "Could not send the quotation email",
                 "error": str(e),
             }, status=status.HTTP_502_BAD_GATEWAY)
+
+        if not sent:
+            # Admin has switched this notification off — not an error, but nothing
+            # was delivered, so the quotation must not be marked as sent.
+            return Response({
+                "status": False,
+                "statusCode": 409,
+                "message": (
+                    "Quotation status-change emails are turned off in "
+                    "System Settings → Email & Notifications, so nothing was sent."
+                ),
+            }, status=status.HTTP_409_CONFLICT)
 
         # Only stamp/promote after the send actually succeeded.
         quotation.last_sent_at = now()

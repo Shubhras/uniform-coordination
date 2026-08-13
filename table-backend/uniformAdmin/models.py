@@ -213,6 +213,7 @@ class Fabric(models.Model):
     color = models.CharField(max_length=100)
     materialType = models.CharField(max_length=60, choices=MATERIAL_CHOICES)
     fabricType = models.CharField(max_length=20,choices=FABRIC_TYPE_CHOICES,default='uniform')
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="fabrics")
     theme = models.ForeignKey('TableTheme',on_delete=models.SET_NULL,null=True,blank=True,related_name="fabrics")
     pricePerUnit = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     isActive = models.BooleanField(default=True)
@@ -1055,4 +1056,65 @@ class SimulationStructure(models.Model):
 
     def __str__(self):
         return f"Simulation Structure for {self.category.categoryName}"
+
+
+class TableShape(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+    image = models.ImageField(upload_to='attribute_images/table_shapes/', blank=True, null=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Closure(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+    image = models.ImageField(upload_to='attribute_images/closures/', blank=True, null=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Style(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+    image = models.ImageField(upload_to='attribute_images/styles/', blank=True, null=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Size(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+    image = models.ImageField(upload_to='attribute_images/sizes/', blank=True, null=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Pattern(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+    image = models.ImageField(upload_to='attribute_images/patterns/', blank=True, null=True)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
 

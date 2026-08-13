@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { FiTrash2 } from "react-icons/fi";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
+import { useTranslations } from "next-intl";
 import Spinner from "@/components/ui/Spinner";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
@@ -22,6 +23,9 @@ const DEFAULT_CATEGORIES = [
 ];
 
 const SimulationStructure = () => {
+  const t = useTranslations("simulationAssets.simulationStructure");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -109,8 +113,8 @@ const SimulationStructure = () => {
   const handleCancel = () => {
     fetchStructure();
     toast.push(
-      <Notification title="Cancelled" type="info">
-        Changes reverted to last saved state.
+      <Notification title={t("cancelledTitle")} type="info">
+        {t("changesReverted")}
       </Notification>
     );
   };
@@ -123,22 +127,22 @@ const SimulationStructure = () => {
       const res = await apiSaveSimulationStructure(accessToken, activeCategory, attributes);
       if (res?.status) {
         toast.push(
-          <Notification title="Success" type="success">
-            {res.message || `Simulation structure for ${activeCategory} saved successfully.`}
+          <Notification title={ts("success")} type="success">
+            {res.message || t("savedSuccess", { category: activeCategory })}
           </Notification>
         );
       } else {
         toast.push(
-          <Notification title="Error" type="danger">
-            {res?.message || "Failed to save simulation structure."}
+          <Notification title={te("error")} type="danger">
+            {res?.message || t("saveFailed")}
           </Notification>
         );
       }
     } catch (err) {
       console.error("Error saving structure", err);
       toast.push(
-        <Notification title="Error" type="danger">
-          An error occurred while saving structure.
+        <Notification title={te("error")} type="danger">
+          {t("saveError")}
         </Notification>
       );
     } finally {
@@ -151,16 +155,16 @@ const SimulationStructure = () => {
   return (
     <div className="mt-5">
       <h2 className="text-[16px] font-semibold text-[#2A211D]">
-        Simulation Structure
+        {t("simulationStructure")}
       </h2>
       <p className="mt-1 text-[12px] text-[#B29D8C]">
-        Define the categories and attributes that appear in the simulation tool.
+        {t("defineLine")}
       </p>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[160px_minmax(0,1fr)]">
         <div className="rounded-[10px] border border-[#F0E4DB] bg-white p-4">
           <p className="text-[12px] font-medium text-[#3F332C] border-b pb-2">
-            Simulation Categories
+            {t("simulationCategories")}
           </p>
 
           <div className="mt-4 space-y-1">
@@ -193,10 +197,10 @@ const SimulationStructure = () => {
             <table className="min-w-[520px] w-full">
               <thead>
                 <tr className="bg-[#FBF5F0] text-left text-[11px] font-medium text-[#8F7B6E]">
-                  <th className="px-4 py-3">Attribute</th>
-                  <th className="px-4 py-3">Show in Simulation</th>
-                  <th className="px-4 py-3">Display Order</th>
-                  <th className="px-4 py-3">Action</th>
+                  <th className="px-4 py-3">{t("attribute")}</th>
+                  <th className="px-4 py-3">{t("showIn")}</th>
+                  <th className="px-4 py-3">{t("displayOrder")}</th>
+                  <th className="px-4 py-3">{t("action")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -245,7 +249,7 @@ const SimulationStructure = () => {
                 ) : (
                   <tr>
                     <td colSpan={4} className="py-10 text-center text-gray-500">
-                      No attributes configured for this category.
+                      {t("noAttributes")}
                     </td>
                   </tr>
                 )}
@@ -254,7 +258,7 @@ const SimulationStructure = () => {
           </div>
 
           <div className="mt-4 rounded-[8px] border border-[#F3DDD1] bg-[#FFF6F1] px-3 py-2 text-[10px] text-[#D28B61]">
-            Note: Attributes that are enabled here will appear as accordions/filters in the customer simulation tool
+            {t("note")}
           </div>
         </div>
       </div>
@@ -266,7 +270,7 @@ const SimulationStructure = () => {
           disabled={saving || loading}
           className="rounded-full border border-[#EAD9CD] px-5 py-2 text-[12px] text-[#7F736B] hover:bg-gray-50 transition disabled:opacity-50"
         >
-          Cancel
+          {t("cancel")}
         </button>
         <button
           type="button"
@@ -274,7 +278,7 @@ const SimulationStructure = () => {
           disabled={saving || loading}
           className="rounded-full bg-[#B56735] px-5 py-2 text-[12px] font-medium text-white hover:bg-[#a25628] transition disabled:opacity-50 flex items-center gap-2"
         >
-          {saving ? "Saving..." : "Save Structure"}
+          {saving ? t("saving") : t("saveStructure")}
         </button>
       </div>
     </div>

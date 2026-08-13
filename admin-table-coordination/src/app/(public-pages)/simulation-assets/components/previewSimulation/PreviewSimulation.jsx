@@ -13,6 +13,7 @@ import {
   FiZoomIn,
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { useTranslations } from "next-intl";
 import Spinner from "@/components/ui/Spinner";
 import {
   apiGetSimulationOptions,
@@ -21,8 +22,8 @@ import {
 import { apiGetCategoryList } from "@/services/CategoryService";
 
 const navItems = [
-  { id: "table-shape", label: "Table Shape", icon: FiTag },
-  { id: "categories", label: "Categories", icon: FiLayers },
+  { id: "table-shape", labelKey: "tableShape", icon: FiTag },
+  { id: "categories", labelKey: "categories", icon: FiLayers },
 ];
 
 const CircleTableIcon = ({ size = 26 }) => (
@@ -52,22 +53,24 @@ const SquareTableIcon = ({ size = 26 }) => (
   </svg>
 );
 
-const shapes = [
-  { id: "circle", label: "Circle", Icon: CircleTableIcon },
-  { id: "rectangle", label: "Rectangle", Icon: RectangleTableIcon },
-  { id: "square", label: "Square", Icon: SquareTableIcon },
-];
-
-const DEFAULT_CATEGORIES = [
-  { id: "Tablecloths", label: "Tablecloths" },
-  { id: "Chair Covers", label: "Chair Covers" },
-  { id: "Napkins", label: "Napkins" },
-  { id: "Centerpieces", label: "Centerpieces" },
-  { id: "Tableware", label: "Tableware" },
-  { id: "Additional Decor", label: "Additional Decor" },
-];
-
 const PreviewSimulation = () => {
+  const t = useTranslations("simulationAssets.previewSimulation");
+
+  const shapes = [
+    { id: "circle", label: t("shapeCircle"), Icon: CircleTableIcon },
+    { id: "rectangle", label: t("shapeRectangle"), Icon: RectangleTableIcon },
+    { id: "square", label: t("shapeSquare"), Icon: SquareTableIcon },
+  ];
+
+  const DEFAULT_CATEGORIES = [
+    { id: "Tablecloths", label: t("catTablecloths") },
+    { id: "Chair Covers", label: t("catChairCovers") },
+    { id: "Napkins", label: t("catNapkins") },
+    { id: "Centerpieces", label: t("catCenterpieces") },
+    { id: "Tableware", label: t("catTableware") },
+    { id: "Additional Decor", label: t("catAdditionalDecor") },
+  ];
+
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -330,7 +333,7 @@ const PreviewSimulation = () => {
             type="button"
             className="rounded-[6px] border p-2 text-center text-[9px] font-semibold bg-white border-[#D58F67] text-[#A65D33]"
           >
-            Default Option
+            {t("defaultOption")}
           </button>
         </div>
       </div>
@@ -340,15 +343,15 @@ const PreviewSimulation = () => {
   return (
     <div className="mt-5">
       <h2 className="text-[16px] font-semibold text-[#2A211D]">
-        Preview Simulation
+        {t("title")}
       </h2>
       <p className="mt-1 text-[12px] text-[#B29D8C]">
-        Choose which inventory items will be available in the simulation
+        {t("sustitle")}
       </p>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[72px_188px_minmax(0,1fr)]">
         <div className="flex gap-2 lg:flex-col">
-          {navItems.map(({ id, label, icon: Icon }) => (
+          {navItems.map(({ id, labelKey, icon: Icon }) => (
             <button
               key={id}
               type="button"
@@ -373,7 +376,7 @@ const PreviewSimulation = () => {
                   activePanel === id ? "text-[#3F3A37]" : "text-[#8A7F76]"
                 }`}
               >
-                {label}
+                {t(labelKey)}
               </span>
             </button>
           ))}
@@ -382,7 +385,9 @@ const PreviewSimulation = () => {
         <div className="rounded-[8px] border border-[#F0DED3] bg-[#FFF9F6] p-3">
           {activePanel === "table-shape" ? (
             <>
-              <h3 className="text-[12px] font-medium text-[#352A24]">Table Shape</h3>
+              <h3 className="text-[12px] font-medium text-[#352A24]">
+                {t("tableShape")}
+              </h3>
 
               <div className="mt-4 grid grid-cols-3 gap-2">
                 {shapes.map(({ id, label, Icon }) => (
@@ -403,14 +408,18 @@ const PreviewSimulation = () => {
               </div>
 
               <div className="mt-4">
-                <p className="text-[10px] text-[#7F736B]">Table Scale</p>
+                <p className="text-[10px] text-[#7F736B]">
+                  {t("tableScale")}
+                </p>
                 <div className="mt-2 h-[4px] rounded-full bg-[#DDD4CF]">
                   <div className="h-[4px] w-[38%] rounded-full bg-[#C67747]" />
                 </div>
               </div>
 
               <div className="mt-4 flex items-center justify-between">
-                <p className="text-[10px] text-[#7F736B]">Table Sitting</p>
+                <p className="text-[10px] text-[#7F736B]">
+                  {t("tableSitting")}
+                </p>
                 <div className="flex items-center gap-2 rounded-[4px] border border-[#E7D8CE] bg-white px-2 py-1 text-[10px] text-[#7F736B]">
                   <button type="button">
                     <FiMinus size={10} />
@@ -423,15 +432,15 @@ const PreviewSimulation = () => {
               </div>
 
               <div className="mt-5 rounded-[6px] border border-[#E8B38F] bg-white px-3 py-3 text-[9px] leading-5 text-[#8D6D5A]">
-                Tip:
+                {t("tip")}
                 <br />
-                select an item on the table to edit its property, or drag items from the left sidebar onto the table.
+                {t("tipText")}
               </div>
             </>
           ) : !selectedCategory ? (
             <>
               <h3 className="text-[12px] font-medium text-[#352A24]">
-                Categories &amp; Inventory
+                {t("categoriesInventory")}
               </h3>
 
               <div className="mt-4 space-y-2">
@@ -469,7 +478,7 @@ const PreviewSimulation = () => {
                 </div>
               ) : (
                 <p className="mt-6 text-[10px] text-center text-gray-500 italic">
-                  No attributes enabled for this category in Simulation Structure.
+                  {t("noAttributesEnabled")}
                 </p>
               )}
             </>
@@ -484,22 +493,22 @@ const PreviewSimulation = () => {
                   <div className="relative mx-auto h-12 w-12 overflow-hidden rounded-[8px]">
                     <Image
                       src="/img/others/table-image1.png"
-                      alt="table preview"
+                      alt={t("tablePreviewAlt")}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <p className="mt-2 text-[11px] font-semibold text-[#4A3D36]">155k</p>
-                  <p className="mt-1 text-[8px] text-[#B5A59A]">Total Order</p>
+                  <p className="mt-1 text-[8px] text-[#B5A59A]">{t("totalOrder")}</p>
                   <p className="mt-2 inline-flex rounded-full bg-[#F7F2EE] px-1.5 py-0.5 text-[7px] text-[#9B8D82]">
-                    Last 4 Month
+                    {t("lastMonths")}
                   </p>
                 </div>
 
                 <div className="relative h-[250px] w-full max-w-[420px]">
                   <Image
                     src="/img/others/table-image1.png"
-                    alt="Simulation preview"
+                    alt={t("simulationPreviewAlt")}
                     fill
                     className="object-contain"
                   />
@@ -507,14 +516,14 @@ const PreviewSimulation = () => {
 
                 <div className="absolute bottom-[62px] right-[13%] z-10 rounded-[10px] border border-[#F1E4DA] bg-white px-3 py-2 shadow-[0_10px_24px_rgba(188,142,110,0.12)]">
                   <p className="text-[11px] font-semibold text-[#4A3D36]">8,458</p>
-                  <p className="mt-1 text-[8px] text-[#B5A59A]">New Customers</p>
+                  <p className="mt-1 text-[8px] text-[#B5A59A]">{t("newCustomers")}</p>
                 </div>
               </>
             ) : (
               <div className="relative h-[300px] w-full max-w-[430px] overflow-hidden rounded-[22px] bg-[#FAF7F4]">
                 <Image
                   src="/img/others/table-image.png"
-                  alt="Inventory preview"
+                  alt={t("inventoryPreviewAlt")}
                   fill
                   className="object-contain"
                 />

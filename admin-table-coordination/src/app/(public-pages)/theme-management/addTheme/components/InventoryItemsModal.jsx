@@ -7,8 +7,11 @@ import { FiSearch, FiX, FiChevronDown, FiCheckCircle } from "react-icons/fi";
 import { apiGetProductList } from "@/services/ProductService";
 import { apiGetCategoryList } from "@/services/CategoryService";
 import { apiGetFabricList } from "@/services/FabricService";
+import { useTranslations } from "next-intl";
 
 export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
+  const t = useTranslations("themeManagement.addtheme");
+  const inventoryT = useTranslations("inventoryManagement.inventoryLists");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const [selected, setSelected] = useState([]);
@@ -24,12 +27,12 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
 
   const [category, setCategory] = useState({
     value: "all",
-    label: "All Categories",
+    label: inventoryT("allCategories"),
   });
 
   const [material, setMaterial] = useState({
     value: "all",
-    label: "All Fabrics",
+    label: inventoryT("allFabrics"),
   });
 
   useEffect(() => {
@@ -103,7 +106,7 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
   const categoryOptions = [
     {
       value: "all",
-      label: "All Categories",
+      label: inventoryT("allCategories"),
     },
     ...categoryList.map((item) => ({
       value: item.id,
@@ -114,7 +117,7 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
   const materialOptions = [
     {
       value: "all",
-      label: "All Fabrics",
+      label: inventoryT("allFabrics"),
     },
     ...fabricList.map((item) => ({
       value: item.id,
@@ -172,11 +175,11 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
         <div className="flex justify-between items-start px-6 py-5 border-b">
           <div>
             <h2 className="text-lg font-semibold text-[#1A1410]">
-              Add Inventory Items
+              {t("addInvItems")}
             </h2>
 
             <p className="text-sm text-[#8D8178] mt-1">
-              Table Setup · Select items to include
+              {t("tableSetup")} · {t("selectItems")}
             </p>
           </div>
 
@@ -197,7 +200,7 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
             />
 
             <input
-              placeholder="Search inventory..."
+              placeholder={`${t("searchInven")}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-11 border rounded-full pl-10 pr-4 text-sm outline-none focus:border-[#A0522D]"
@@ -231,10 +234,14 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
           {/* Count */}
 
           <div className="flex justify-between text-[13px] text-[#8A8078] mb-3">
-            <span>{inventoryData.length} results</span>
+            <span>
+              {inventoryData.length} {t("reuslts")}
+            </span>
 
             {/* <span>{selected ? "1 selected" : "0 selected"}</span> */}
-            <span>{selected.length} selected</span>
+            <span>
+              {selected.length} {t("selected")}
+            </span>
           </div>
 
           {/* List */}
@@ -295,7 +302,7 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
             onClick={onClose}
             className="flex-1 h-11 rounded-xl border border-[#E6DDD6] font-medium"
           >
-            Cancel
+            {t("cancel")}
           </button>
 
           <button
@@ -312,7 +319,7 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
             className="flex-1 h-11 rounded-xl bg-[#A0522D] text-white font-medium hover:bg-[#8D4524]"
           >
             {/* Add Selected ({selected ? 1 : 0}) */}
-            Add Selected ({selected.length})
+            {t("addSelected")} ({selected.length})
           </button>
         </div>
       </div>

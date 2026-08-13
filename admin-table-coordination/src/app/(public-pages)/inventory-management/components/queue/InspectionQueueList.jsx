@@ -21,6 +21,7 @@ import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
+import { useTranslations } from "next-intl";
 
 const selectStyles = {
   control: (base) => ({
@@ -61,6 +62,9 @@ const selectStyles = {
 };
 
 const InspectionQueueList = ({ onDetailModeChange }) => {
+  const t = useTranslations("inventoryManagement.inspectionQueue");
+  const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
   const [searchQuery, setSearchQuery] = useState("");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -145,24 +149,24 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
 
       if (res?.status) {
         toast.push(
-          <Notification type="success" title="Success">
-            Inspection passed. Item moved to Cleaning.
+          <Notification type="success" title={ts("success")}>
+            {t("inspectionPassed")}
           </Notification>
         );
         setSelectedPassItem(null);
         fetchInspectionQueue();
       } else {
         toast.push(
-          <Notification type="danger" title="Error">
-            {res?.message || "Failed to process inspection"}
+          <Notification type="danger" title={te("error")}>
+            {res?.message || t("processFailed")}
           </Notification>
         );
       }
     } catch (err) {
       console.error(err);
-      const errMsg = err.response?.data?.message || err.message || "Failed to process inspection";
+      const errMsg = err.response?.data?.message || err.message || t("processFailed");
       toast.push(
-        <Notification type="danger" title="Error">
+        <Notification type="danger" title={te("error")}>
           {errMsg}
         </Notification>
       );
@@ -208,8 +212,8 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
 
     if (goodQty + damagedQty !== failItem.returned_qty) {
       toast.push(
-        <Notification type="danger" title="Error">
-          Good + Damaged quantity must equal Returned quantity
+        <Notification type="danger" title={te("error")}>
+          {t("qtyMismatch")}
         </Notification>
       );
       return;
@@ -228,24 +232,24 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
       const res = await apiProcessInspection(accessToken, failItem.id, formData);
       if (res?.status) {
         toast.push(
-          <Notification type="success" title="Success">
-            Inspection failed. {damagedQty} unit(s) moved to Damaged.
+          <Notification type="success" title={ts("success")}>
+            {t("inspectionFailed", { count: damagedQty })}
           </Notification>
         );
         setFailItem(null);
         fetchInspectionQueue();
       } else {
         toast.push(
-          <Notification type="danger" title="Error">
-            {res?.message || "Failed to process inspection"}
+          <Notification type="danger" title={te("error")}>
+            {res?.message || t("processFailed")}
           </Notification>
         );
       }
     } catch (err) {
       console.error(err);
-      const errMsg = err.response?.data?.message || err.message || "Failed to process inspection";
+      const errMsg = err.response?.data?.message || err.message || t("processFailed");
       toast.push(
-        <Notification type="danger" title="Error">
+        <Notification type="danger" title={te("error")}>
           {errMsg}
         </Notification>
       );
@@ -266,7 +270,7 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
             <FiArrowLeft size={24} />
           </button>
           <h1 className="text-[28px] font-semibold text-[#1A1410]">
-            Inspection Queue
+            {t("inspection")}
           </h1>
         </div>
 
@@ -289,10 +293,10 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
           </div>
           <div className="text-right">
             <p className="text-sm font-semibold text-gray-900">
-              Order ID: <span className="text-[#A85A32]">#ORD-{failItem.id}</span>
+              {t("orderId")}: <span className="text-[#A85A32]">#ORD-{failItem.id}</span>
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Return Date:{" "}
+              {t("returnDate")}:{" "}
               {new Date(failItem.inspected_at).toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "short",
@@ -307,13 +311,13 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
           {/* Condition Assessment Section */}
           <div>
             <h3 className="text-xs font-bold text-[#8B6D4E] uppercase tracking-wider mb-4">
-              Condition Assessment
+              {t("conditionAssessment")}
             </h3>
             <div className="flex items-center justify-center gap-6 md:gap-10 py-6 bg-[#FAF7F4] border border-[#EFE5DD] rounded-xl">
               {/* Returned */}
               <div className="flex flex-col items-center justify-center w-28 h-20 bg-[#F5EFEA] border border-[#E6DDD5] rounded-xl">
                 <span className="text-2xl font-bold text-[#5C4033]">{failItem.returned_qty}</span>
-                <span className="text-[10px] font-semibold text-[#A88C74] uppercase mt-1">Returned</span>
+                <span className="text-[10px] font-semibold text-[#A88C74] uppercase mt-1">{t("returned")}</span>
               </div>
 
               <span className="text-2xl font-semibold text-[#A88C74]">=</span>
@@ -342,7 +346,7 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
                     +
                   </button>
                 </div>
-                <span className="text-[10px] font-semibold text-[#059669] uppercase mt-2">Good</span>
+                <span className="text-[10px] font-semibold text-[#059669] uppercase mt-2">{t("good")}</span>
               </div>
 
               <span className="text-2xl font-semibold text-[#A88C74]">+</span>
@@ -371,7 +375,7 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
                     +
                   </button>
                 </div>
-                <span className="text-[10px] font-semibold text-[#DC2626] uppercase mt-2">Damaged</span>
+                <span className="text-[10px] font-semibold text-[#DC2626] uppercase mt-2">{t("damaged")}</span>
               </div>
             </div>
           </div>
@@ -379,12 +383,12 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
           {/* Inspection Notes Section */}
           <div className="mt-6">
             <label className="block text-xs font-bold text-[#8B6D4E] uppercase tracking-wider mb-2">
-              Inspection Notes
+              {t("inspectionNotes")}
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Describe condition details, damage notes, or handling instructions..."
+              placeholder={t("notesPlaceholder")}
               className="w-full min-h-[100px] p-3 rounded-lg border border-[#EFE5DD] outline-none text-sm text-gray-700 focus:border-[#C08457]"
             />
           </div>
@@ -392,7 +396,7 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
           {/* Photos Upload Section */}
           <div className="mt-6">
             <label className="block text-xs font-bold text-[#8B6D4E] uppercase tracking-wider mb-2">
-              Photos
+              {t("photos")}
             </label>
             <div className="border-2 border-dashed border-[#EFE5DD] rounded-xl p-6 flex flex-col items-center justify-center bg-[#FCFAF9] cursor-pointer hover:bg-orange-50/20 transition relative">
               <input
@@ -403,8 +407,8 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
               />
               <FiCamera className="text-gray-400 text-3xl mb-2" />
-              <span className="text-sm font-medium text-gray-600">Upload damage photos</span>
-              <span className="text-xs text-gray-400 mt-1">Click or drag images to upload</span>
+              <span className="text-sm font-medium text-gray-600">{t("uploadDamagePhotos")}</span>
+              <span className="text-xs text-gray-400 mt-1">{t("clickOrDrag")}</span>
             </div>
             {selectedPhotos.length > 0 && (
               <div className="flex flex-wrap gap-3 mt-4">
@@ -416,7 +420,7 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
                     <img
                       src={URL.createObjectURL(photo)}
                       className="w-full h-full object-cover"
-                      alt="damage-preview"
+                      alt={t("damagePreviewAlt")}
                     />
                     <button
                       type="button"
@@ -439,7 +443,7 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
               disabled={submittingFail}
               className="px-6 h-10 border border-[#EFE5DD] rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer font-semibold"
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               variant="solid"
@@ -447,7 +451,7 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
               loading={submittingFail}
               className="px-6 h-10 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg flex items-center justify-center"
             >
-              Fail Inspection
+              {t("failInspection")}
             </Button>
           </div>
         </div>
@@ -464,7 +468,7 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#C08457] text-sm" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder={t("searchProducts")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-11 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4 text-sm outline-none focus:border-[#C08457]"
@@ -486,11 +490,11 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
           <table className="w-full text-sm">
             <thead className="bg-[#F1F5F9] text-[#486284]">
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                <th className="text-left px-4 py-3 font-normal">Product Name</th>
-                <th className="text-left px-4 py-3 font-normal">Order ID</th>
-                <th className="text-left px-4 py-3 font-normal">Returned Qty</th>
-                <th className="text-left px-4 py-3 font-normal">Return Date</th>
-                <th className="text-left px-4 py-3 font-normal">Action</th>
+                <th className="text-left px-4 py-3 font-normal">{t("productName")}</th>
+                <th className="text-left px-4 py-3 font-normal">{t("orderId")}</th>
+                <th className="text-left px-4 py-3 font-normal">{t("returnedQty")}</th>
+                <th className="text-left px-4 py-3 font-normal">{t("returnDate")}</th>
+                <th className="text-left px-4 py-3 font-normal">{t("action")}</th>
               </tr>
             </thead>
 
@@ -524,7 +528,7 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
                     </td>
 
                     <td className="px-5 py-3 text-[#2C1A0E] font-semibold text-[14px]">
-                      {item.returned_qty} Units
+                      {item.returned_qty} {t("units")}
                     </td>
 
                     <td className="px-5 py-3 text-[#2C1A0E] font-semibold text-[14px]">
@@ -541,13 +545,13 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
                           onClick={() => setSelectedPassItem(item)}
                           className="min-w-[68px] h-7 rounded-md border border-[#B8F1D4] bg-[#F2FFF7] text-[#0E9F6E] text-[13px] font-semibold cursor-pointer"
                         >
-                          Pass
+                          {t("pass")}
                         </button>
                         <button
                           onClick={() => handleOpenFailView(item)}
                           className="min-w-[68px] h-7 rounded-md border border-[#FFD0D7] bg-white text-[#E11D48] text-[13px] font-semibold cursor-pointer"
                         >
-                          Fail
+                          {t("fail")}
                         </button>
                       </div>
                     </td>
@@ -556,7 +560,7 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
               ) : (
                 <tr>
                   <td colSpan={5} className="py-10 text-center text-gray-500">
-                    No inspection records found.
+                    {t("noInspection")}
                   </td>
                 </tr>
               )}
@@ -591,9 +595,9 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
           <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-4">
             <FiAlertTriangle size={28} className="text-emerald-500" />
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Mark item as Passed</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">{t("markAsPassed")}</h3>
           <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-            Are you sure you want to mark this item as passed? It will be sent for cleaning before being added back to available inventory.
+            {t("markAsPassedContent")}
           </p>
           <div className="flex gap-3 w-full">
             <button
@@ -601,7 +605,7 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
               className="flex-1 px-4 h-10 border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg font-semibold cursor-pointer"
               disabled={submittingPass}
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               onClick={handlePassInspection}
@@ -613,7 +617,7 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
               ) : (
                 <>
                   <FiCheckCircle />
-                  Pass Inspection
+                  {t("passInspection")}
                 </>
               )}
             </button>

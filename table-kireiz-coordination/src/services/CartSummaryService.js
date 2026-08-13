@@ -50,7 +50,7 @@ export async function apiAddToCart(token, product_id, quantity = 1, custom_theme
     payload.product_id = product_id;
     payload.quantity = quantity;
   }
-  return ApiService.fetchDataWithAxios({
+  const response = await ApiService.fetchDataWithAxios({
     url: `/v1/space/userhub/cart/add/`,
     method: "post",
     headers: {
@@ -58,6 +58,10 @@ export async function apiAddToCart(token, product_id, quantity = 1, custom_theme
     },
     data: payload,
   });
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("cartUpdated"));
+  }
+  return response;
 }
 
 /**
@@ -72,7 +76,7 @@ export async function apiUpdateItemQuantity(token, itemId, count) {
   const payload = {
     quantity: count,
   };
-  return ApiService.fetchDataWithAxios({
+  const response = await ApiService.fetchDataWithAxios({
     url: `/v1/space/userhub/cart/item/${itemId}/update/`,
     method: "patch",
     headers: {
@@ -80,6 +84,10 @@ export async function apiUpdateItemQuantity(token, itemId, count) {
     },
     data: payload,
   });
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("cartUpdated"));
+  }
+  return response;
 }
 
 /**
@@ -93,7 +101,7 @@ export async function apiDeleteItem(token, itemId) {
   const payload = {
     item_id: itemId,
   };
-  return ApiService.fetchDataWithAxios({
+  const response = await ApiService.fetchDataWithAxios({
     url: `/v1/space/userhub/cart/item/${itemId}/delete/`,
     method: "delete",
     headers: {
@@ -101,5 +109,9 @@ export async function apiDeleteItem(token, itemId) {
     },
     data: payload,
   });
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("cartUpdated"));
+  }
+  return response;
 }
 

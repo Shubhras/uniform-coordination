@@ -41,12 +41,12 @@ const InventoryList = () => {
 
   const [category, setCategory] = useState({
     value: "all",
-    label: "All Categories",
+    label: t("allCategories"),
   });
 
   const [material, setMaterial] = useState({
     value: "all",
-    label: "All Fabrics",
+    label: t("allFabrics"),
   });
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -109,7 +109,7 @@ const InventoryList = () => {
   }, [debouncedSearch, category, material]);
 
   const categoryOptions = [
-    { value: "all", label: "All Categories" },
+    { value: "all", label: t("allCategories") },
     ...categoryList.map((item) => ({
       value: item.id,
       label: item.categoryName,
@@ -117,7 +117,7 @@ const InventoryList = () => {
   ];
 
   const materialOptions = [
-    { value: "all", label: "All Fabrics" },
+    { value: "all", label: t("allFabrics") },
     ...fabricList.map((item) => ({
       value: item.id,
       label: item.fabricName,
@@ -138,7 +138,7 @@ const InventoryList = () => {
     try {
       const res = await apiDeleteProduct(accessToken, fabricToDelete.id);
       toast.push(
-        <Notification title="Success" type="success">
+        <Notification title={ts("success")} type="success">
           {res.message}
         </Notification>,
       );
@@ -217,12 +217,12 @@ const InventoryList = () => {
 
     setCategory({
       value: "all",
-      label: "All Categories",
+      label: t("allCategories"),
     });
 
     setMaterial({
       value: "all",
-      label: "All Fabrics",
+      label: t("allFabrics"),
     });
 
     setCurrentPage(1);
@@ -282,7 +282,7 @@ const InventoryList = () => {
 
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder={t("searchProducts")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full h-11 rounded-lg border border-[#EFE5DD] pl-10 pr-4 text-sm outline-none focus:border-[#A0522D]"
@@ -364,7 +364,7 @@ const InventoryList = () => {
 
                     <td className="px-4 py-3">{item.category?.categoryName}</td>
 
-                    <td className="px-4 py-3">{item.fabric}</td>
+                    <td className="px-4 py-3">{item.fabric_details?.name}</td>
 
                     <td className="px-4 py-3">{item.total_quantity}</td>
 

@@ -3,22 +3,27 @@
 import { useState, useEffect } from "react";
 import { FiAlertTriangle, FiClock } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiMarkAlertsReviewed } from "@/services/DashboardService";
 
 const defaultAlerts = [
   {
     level: "HIGH",
-    message: "5 Items Waiting Inspection",
-    action: "Review Now",
+    levelKey: "priorityHigh",
+    messageKey: "itemsWaitingInspection",
+    messageCount: 5,
+    actionKey: "reviewNow",
     icon: "alert",
     color: "text-red-500",
     path: "/inventory-management?tab=Inspection Queue",
   },
   {
     level: "MEDIUM",
-    message: "3 Late Returns",
-    action: "View Details",
+    levelKey: "priorityMedium",
+    messageKey: "lateReturns",
+    messageCount: 3,
+    actionKey: "viewDetails",
     icon: "clock",
     color: "text-orange-500",
     path: "/orders",
@@ -32,6 +37,7 @@ const iconMap = {
 
 const ActiveAlerts = ({ data, onRefresh }) => {
   const router = useRouter();
+  const t = useTranslations("dashboard.activeAlerts");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const [isCleared, setIsCleared] = useState(false);
@@ -75,8 +81,10 @@ const ActiveAlerts = ({ data, onRefresh }) => {
       ? [
           {
             level: "HIGH",
-            message: apiAlerts.high?.label,
-            action: "Review Now",
+            levelKey: "priorityHigh",
+            messageKey: "itemsWaitingInspection",
+            messageCount: apiAlerts.high?.count || 0,
+            actionKey: "reviewNow",
             icon: "alert",
             color: "text-red-500",
             count: apiAlerts.high?.count || 0,
@@ -84,8 +92,10 @@ const ActiveAlerts = ({ data, onRefresh }) => {
           },
           {
             level: "MEDIUM",
-            message: apiAlerts.medium?.label,
-            action: "View Details",
+            levelKey: "priorityMedium",
+            messageKey: "lateReturns",
+            messageCount: apiAlerts.medium?.count || 0,
+            actionKey: "viewDetails",
             icon: "clock",
             color: "text-orange-500",
             count: apiAlerts.medium?.count || 0,
@@ -105,7 +115,7 @@ const ActiveAlerts = ({ data, onRefresh }) => {
       <div className="bg-white rounded-xl shadow-lg p-5">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
-            <h3 className="text-[#1C2C56] font-semibold">Active Alerts</h3>
+            <h3 className="text-[#1C2C56] font-semibold">{t("title")}</h3>
             <span className="bg-[#E0E7FF] text-[#1C2C56] text-xs font-medium px-2 py-0.5 rounded-full">
               {alertCount}
             </span>
@@ -115,7 +125,7 @@ const ActiveAlerts = ({ data, onRefresh }) => {
             onClick={handleMarkAllRead}
             className="text-sm text-[#1C2C56] hover:underline cursor-pointer"
           >
-            Mark All Read
+            {t("markAllRead")}
           </button>
         </div>
 
@@ -139,9 +149,11 @@ const ActiveAlerts = ({ data, onRefresh }) => {
 
                     <div>
                       <p className="text-sm font-semibold text-[#1C2C56]">
-                        {alert.level}
+                        {t(alert.levelKey)}
                       </p>
-                      <p className="text-sm text-[#64748B]">{alert.message}</p>
+                      <p className="text-sm text-[#64748B]">
+                        {t(alert.messageKey, { count: alert.messageCount })}
+                      </p>
                     </div>
                   </div>
 
@@ -161,7 +173,7 @@ const ActiveAlerts = ({ data, onRefresh }) => {
       cursor-pointer
     "
                     >
-                      {alert.action}
+                      {t(alert.actionKey)}
                     </button>
                   </div>
                 </div>
@@ -169,8 +181,8 @@ const ActiveAlerts = ({ data, onRefresh }) => {
             })
           ) : (
             <div className="flex flex-col items-center justify-center py-10 text-gray-500 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E2E8F0]">
-              <p className="text-sm font-semibold text-[#64748B]">All caught up!</p>
-              <p className="text-xs text-[#94A3B8] mt-1">No active alerts require your attention.</p>
+              <p className="text-sm font-semibold text-[#64748B]">{t("allCaughtUp")}</p>
+              <p className="text-xs text-[#94A3B8] mt-1">{t("allCaughtUpDesc")}</p>
             </div>
           )}
         </div>

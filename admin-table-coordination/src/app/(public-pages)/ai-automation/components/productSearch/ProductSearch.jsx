@@ -5,13 +5,7 @@ import { FiSearch } from "react-icons/fi";
 import { HiSparkles } from "react-icons/hi2";
 import { apiProductSearch } from "@/services/AiAutomation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-
-const productSearchChips = [
-  "White tablecloth for 8-seat round table",
-  "Navy rectangular runner, 10 guests",
-  "Gold chair sashes, wedding, 150 pcs",
-  "Sheer organza overlay, blush pink",
-];
+import { useTranslations } from "next-intl";
 
 const productResults = [
   {
@@ -83,6 +77,15 @@ const productResults = [
 ];
 
 const ProductSearch = () => {
+  const t = useTranslations("aiAutomation.productSearch");
+
+  const productSearchChips = [
+    t("sample1"),
+    t("sample2"),
+    t("sample3"),
+    t("sample4"),
+  ];
+
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -111,12 +114,12 @@ const ProductSearch = () => {
         setInterpretedQuery(res?.data?.filters || []);
         setHasProductSearchResults(true);
       } else {
-        setApiMessage(res?.message || "No products found.");
+        setApiMessage(res?.message || t("noProducts"));
         setHasProductSearchResults(false);
       }
     } catch (err) {
       console.error(err);
-      setApiMessage("Something went wrong.");
+      setApiMessage(t("somethingWentWrong"));
       setHasProductSearchResults(false);
     } finally {
       setLoading(false);
@@ -124,17 +127,17 @@ const ProductSearch = () => {
   };
 
   const [productSearchQuery, setProductSearchQuery] = useState(
-    "White tablecloth for 8-seat round table",
+    t("sample1"),
   );
   const [hasProductSearchResults, setHasProductSearchResults] = useState(false);
 
   return (
     <div className="mt-6">
       <h2 className="text-[24px] font-semibold leading-tight text-[#2A1A0E] sm:text-[24px]">
-        Natural Language Product Search
+        {t("title")}
       </h2>
       <p className="mt-1 text-[12px] text-[#B29D8C]">
-        Describe what you need — AI converts your query into structured filters
+        {t("subtitle")}
       </p>
 
       <div className="mt-5 rounded-2xl border border-[#F1E5DC] bg-white p-4 sm:p-5">
@@ -146,7 +149,7 @@ const ProductSearch = () => {
               value={productSearchQuery}
               onChange={(e) => setProductSearchQuery(e.target.value)}
               className="w-full bg-transparent text-[12px] text-[#6C615A] outline-none placeholder:text-[#C7B4A8]"
-              placeholder='Try: "White tablecloth for 8-seat round table"'
+              placeholder={t("searchPlaceholder")}
             />
           </div>
           <button
@@ -160,7 +163,7 @@ const ProductSearch = () => {
             }`}
           >
             <HiSparkles size={16} className="shrink-0" />
-            {loading ? "Searching..." : "AI Search"}
+            {loading ? t("searching") : t("aiSearch")}
           </button>
         </div>
 
@@ -186,18 +189,17 @@ const ProductSearch = () => {
             <FiSearch size={18} />
           </div>
           <h3 className="mt-6 text-[20px] font-semibold text-[#3A2F2A]">
-            Start with a natural language query
+            {t("languateQuery")}
           </h3>
           <p className="mx-auto mt-2 max-w-[420px] text-[14px] leading-6 text-[#8B7355]">
-            Describe the product you need — size, color, occasion, quantity —
-            and our AI will handle the rest.
+            {t("describetheProduct")}
           </p>
         </div>
       ) : (
         <>
           <div className="mt-5 flex flex-wrap gap-2">
             <span className="rounded-full bg-[#FFF2E8] px-3 py-1 text-[10px] text-[#A66D48]">
-              AI interpreted your query as:
+              {t("aiInterpreted")}
             </span>
             <span className="rounded-full bg-[#FFF7F1] px-3 py-1 text-[10px] text-[#A66D48]">
               Color: White / Ivory
@@ -215,9 +217,9 @@ const ProductSearch = () => {
 
           <div className="mt-6 flex items-center justify-between">
             <p className="text-[12px] font-medium text-[#3A2F2A]">
-              6 products matched
+              {t("productsMatched", { count: productResults.length })}
             </p>
-            <p className="text-[10px] text-[#B29D8C]">Sorted by relevance</p>
+            <p className="text-[10px] text-[#B29D8C]">{t("sortedByRelevance")}</p>
           </div>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

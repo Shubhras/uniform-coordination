@@ -15,6 +15,7 @@ const QuotationsByStatusChart = ({ data }) => {
 
   // Fallback if no data
   const hasData = values.some((v) => v > 0);
+  const total = values.reduce((sum, v) => sum + v, 0);
 
   const options = {
     chart: {
@@ -27,6 +28,12 @@ const QuotationsByStatusChart = ({ data }) => {
       labels: {
         colors: "#64748B",
       },
+      formatter: (seriesName, opts) => {
+        if (!hasData) return seriesName;
+        const value = opts.w.globals.series[opts.seriesIndex];
+        const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+        return `${seriesName}: ${percent}% (${value} ${t("quotes")})`;
+      },
     },
     dataLabels: {
       enabled: false,
@@ -34,12 +41,12 @@ const QuotationsByStatusChart = ({ data }) => {
     plotOptions: {
       pie: {
         donut: {
-          size: "70%",
+          size: "60%",
           labels: {
             show: true,
             total: {
               show: true,
-              label: t("total"),
+              label: "",
               fontSize: "14px",
               color: "#64748B",
             },
@@ -59,7 +66,7 @@ const QuotationsByStatusChart = ({ data }) => {
         options={options}
         series={hasData ? values : [1]}
         type="donut"
-        height={250}
+        height={300}
       />
     </div>
   );

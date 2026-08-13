@@ -13,7 +13,7 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick, variant = 'header' 
   }
 
   return (
-    <div className={variant === 'drawer' ? 'flex flex-col gap-2' : 'flex'}>
+    <div className={variant === 'drawer' ? 'flex flex-col gap-2' : 'flex gap-5'}>
       {propTabs.map((tab) => {
         const isActive = pathname === tab.url || pathname.startsWith(`${tab.url}/`)
         
@@ -22,7 +22,7 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick, variant = 'header' 
             key={tab.title}
             onClick={() => handleRedirect(tab)}
             className={classNames(
-              'relative px-4 py-2 rounded-xl font-medium transition-colors',
+              'relative px-5 py-2 rounded-xl font-medium transition-colors',
               variant === 'header'
                 ? 'text-white'
                 : 'text-[#1C2C56] w-full text-left rounded-lg hover:bg-[#1C2C56]/10',

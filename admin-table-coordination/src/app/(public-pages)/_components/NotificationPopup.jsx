@@ -5,8 +5,8 @@ import { IoNotificationsOutline } from 'react-icons/io5'
 import { useRouter } from 'next/navigation'
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import { apiGetNotificationList } from '@/services/NotificationService'
-
 const priorityOrder = { high: 0, medium: 1, low: 2 }
+import { useTranslations } from "next-intl";
 
 const timeAgo = (dateString) => {
     if (!dateString) return ''
@@ -74,7 +74,7 @@ const NotificationPopup = ({ onClose }) => {
         onClose()
         router.push('/notifications')
     }
-
+const t = useTranslations("notifications");
     return (
         <div className="fixed md:absolute left-4 right-4 md:left-auto md:right-0 top-18 md:top-full md:mt-2 md:w-80 bg-white rounded-xl shadow-lg border border-[#E2E8F0] z-50 overflow-hidden">
 
@@ -85,7 +85,7 @@ const NotificationPopup = ({ onClose }) => {
                         <IoNotificationsOutline size={16} className="text-white font-semibold" />
                     </div>
                     <h3 className="text-base font-semibold text-[#1C2C56]">
-                        Notifications
+                        {t("title")}
                     </h3>
                 </div>
                 {unseenCount > 0 && (
@@ -115,7 +115,7 @@ const NotificationPopup = ({ onClose }) => {
                 ) : topNotifications.length === 0 ? (
                     <div className="px-5 py-8 text-center">
                         <IoNotificationsOutline size={28} className="mx-auto mb-2 text-[#CBD5E1]" />
-                        <p className="text-sm text-[#94A3B8]">No notifications</p>
+                        <p className="text-sm text-[#94A3B8]">{t("notfoundnotification")}</p>
                     </div>
                 ) : (
                     topNotifications.map((item) => (
@@ -162,7 +162,7 @@ const NotificationPopup = ({ onClose }) => {
                     onClick={handleViewAll}
                     className="w-full text-center border border-[#1C2C56] text-[#1C2C56] rounded-lg py-2 text-sm font-semibold hover:bg-[#FCF7F3] transition-colors"
                 >
-                    View all Notification
+                    {t("viewAllNotify")}
                 </button>
             </div>
         </div>

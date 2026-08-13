@@ -173,7 +173,7 @@ const AddEditFaqModal = ({
       onSaveSuccess?.();
     } catch (err) {
       setError(
-        err?.response?.data?.message || "Failed to save FAQ. Please try again.",
+        err?.response?.data?.message || t("saveError"),
       );
     } finally {
       setSaving(false);

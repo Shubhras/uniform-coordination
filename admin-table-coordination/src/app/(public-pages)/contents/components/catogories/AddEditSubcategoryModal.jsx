@@ -8,6 +8,7 @@ import { FiUpload } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiCreateSubcategory, apiUpdateSubcategory } from "@/services/SubcategoryService";
 import { apiGetCategoryList } from "@/services/CategoryService";
+import { useTranslations } from "next-intl";
 
 const selectStyles = {
     control: (base, state) => ({
@@ -39,6 +40,7 @@ const AddEditSubcategoryModal = ({
     onSaveSuccess,
     defaultCategoryId,
 }) => {
+    const t = useTranslations("contentMedia.categories.subcategory");
     const fileRef = useRef(null);
     const { session } = useCurrentSession();
     const accessToken = session?.user?.accessToken;
@@ -94,7 +96,7 @@ const AddEditSubcategoryModal = ({
             setPreview(initialData.subcategoryImage || null);
 
             if (initialData.category) {
-                setCategory({ value: initialData.category, label: `Category #${initialData.category}` });
+                setCategory({ value: initialData.category, label: t("categoryFallback", { id: initialData.category }) });
             } else {
                 setCategory(null);
             }
@@ -106,7 +108,7 @@ const AddEditSubcategoryModal = ({
 
             // Pre-select category if defaultCategoryId is provided (adding from within a category dropdown)
             if (defaultCategoryId) {
-                setCategory({ value: defaultCategoryId, label: `Category #${defaultCategoryId}` });
+                setCategory({ value: defaultCategoryId, label: t("categoryFallback", { id: defaultCategoryId }) });
             } else {
                 setCategory(null);
             }
@@ -137,7 +139,7 @@ const AddEditSubcategoryModal = ({
     /* ---------- SAVE ---------- */
     const handleSave = async () => {
         if (!name.trim()) {
-            setError("Subcategory name is required");
+            setError(t("nameRequired"));
             return;
         }
 
@@ -169,7 +171,7 @@ const AddEditSubcategoryModal = ({
             }
         } catch (err) {
             console.error("Subcategory save error:", err);
-            setError(err?.response?.data?.message || "Failed to save subcategory. Please try again.");
+            setError(err?.response?.data?.message || t("saveFailed"));
         } finally {
             setSaving(false);
         }
@@ -187,7 +189,7 @@ const AddEditSubcategoryModal = ({
 
                 <div className="border-b px-6 py-4">
                     <h2 className="text-2xl font-semibold text-[#1C2C56]">
-                        {mode === "edit" ? "Edit Subcategory" : "Add Subcategory"}
+                        {mode === "edit" ? t("editSubcategory") : t("addSubcategory")}
                     </h2>
                 </div>
 
@@ -203,12 +205,12 @@ const AddEditSubcategoryModal = ({
                     {/* Name */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
-                            Name<span className="text-red-500">*</span>
+                            {t("name")}<span className="text-red-500">*</span>
                         </label>
                         <input
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Eg:- Medical Scrubs"
+                            placeholder={t("namePlaceholder")}
                             className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                         />
                     </div>
@@ -216,17 +218,17 @@ const AddEditSubcategoryModal = ({
                     {/* Category (React Select from API) */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
-                            Category<span className="text-red-500">*</span>
+                            {t("category")}<span className="text-red-500">*</span>
                         </label>
                         <Select
                             options={categoryOptions}
                             value={category}
                             onChange={setCategory}
                             styles={selectStyles}
-                            placeholder="Select category..."
+                            placeholder={t("selectCategory")}
                             isLoading={loadingCategories}
-                            loadingMessage={() => "Loading categories..."}
-                            noOptionsMessage={() => "No categories found"}
+                            loadingMessage={() => t("loadingCategories")}
+                            noOptionsMessage={() => t("noCategoriesFound")}
                             isClearable
                             menuPortalTarget={typeof document !== "undefined" ? document.body : null}
                             menuPosition="fixed"
@@ -237,7 +239,7 @@ const AddEditSubcategoryModal = ({
                     {/* Image Upload */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
-                            Image
+                            {t("image")}
                         </label>
 
                         <button
@@ -245,7 +247,7 @@ const AddEditSubcategoryModal = ({
                             className="mt-2 w-full bg-[#1C2C56] text-white py-2 rounded-md text-sm flex items-center justify-center gap-2"
                         >
                             <FiUpload size={16} />
-                            Upload Image
+                            {t("uploadImage")}
                         </button>
 
                         <input
@@ -261,7 +263,7 @@ const AddEditSubcategoryModal = ({
                         <div className="flex justify-center">
                             <img
                                 src={preview}
-                                alt="Preview"
+                                alt={t("preview")}
                                 className="w-32 h-32 object-cover rounded-lg shadow"
                             />
                         </div>
@@ -270,13 +272,13 @@ const AddEditSubcategoryModal = ({
                     {/* Description */}
                     <div>
                         <label className="text-base font-medium text-[#1C2C56]">
-                            Description
+                            {t("description")}
                         </label>
                         <textarea
                             rows={3}
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Subcategory description..."
+                            placeholder={t("descriptionPlaceholder")}
                             className="mt-1 w-full border border-[#CBD5E1] rounded-md px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                         />
                     </div>
@@ -284,7 +286,7 @@ const AddEditSubcategoryModal = ({
 
                 <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
                     <Button variant="plain" onClick={onClose} size="sm" disabled={saving}>
-                        Cancel
+                        {t("cancel")}
                     </Button>
                     <Button
                         variant="solid"
@@ -293,7 +295,7 @@ const AddEditSubcategoryModal = ({
                         onClick={handleSave}
                         loading={saving}
                     >
-                        {mode === "edit" ? "Update" : "Save"}
+                        {mode === "edit" ? t("update") : t("save")}
                     </Button>
                 </div>
 

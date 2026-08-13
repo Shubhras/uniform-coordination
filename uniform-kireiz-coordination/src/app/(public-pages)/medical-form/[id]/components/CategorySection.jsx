@@ -84,7 +84,7 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
 
                         {/* FILTERS */}
-                        <div className="flex flex-wrap items-center gap-2 border border-[#1C2C56] bg-[#F5F8FF] rounded-lg px-3 py-2">
+                        <div className="flex flex-wrap items-center gap-5 border border-[#1C2C56] bg-[#F5F8FF] rounded-lg px-3 py-2">
                             <span className="text-sm text-[#1C2C56] font-medium mr-1">
                                 Filters :
                             </span>
@@ -93,7 +93,7 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                                 <button
                                     key={item.id}
                                     onClick={() => setActiveFilter(item)}
-                                    className={`text-sm px-3 py-1 rounded-md transition
+                                    className={`text-sm px-3 py-2 rounded-md transition
                                 ${activeFilter.id === item.id
                                             ? 'bg-[#1C2C56] text-white'
                                             : 'text-[#1C2C56] hover:bg-[#1C2C5615]'

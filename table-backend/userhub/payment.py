@@ -260,9 +260,85 @@ class CreatePaymentAPIView(APIView):
                 "client_secret": existing_payment.client_secret
             }, status=status.HTTP_200_OK)
 
+        req_payment_method = request.data.get("payment_method")
+        if req_payment_method:
+            if req_payment_method == "card":
+                req_payment_method = "stripe"
+            elif req_payment_method == "bank":
+                req_payment_method = "bank_transfer"
+            elif req_payment_method == "kakebarai":
+                req_payment_method = "np_kakebarai"
+            order.payment_method = req_payment_method
+            order.save(update_fields=["payment_method"])
+
         payment_method = getattr(order, "payment_method", "stripe")
 
-        if payment_method == "bank_transfer":
+        if payment_method == "paypal":
+            payment = Payment.objects.create(
+                order=order,
+                custom_theme=order.custom_theme,
+                payment_id=payment_method_id or f"PAYPAL-{order.order_id}",
+                customer_id="",
+                payment_method_id=payment_method_id or "",
+                payment_method="paypal",
+                amount=order.total_amount,
+                currency=currency.upper(),
+                payment_status="success",
+                paid_at=timezone.now(),
+                client_secret="",
+            )
+
+            order.status = "confirmed"
+            order.is_paid = True
+            order.save(update_fields=["status", "is_paid"])
+
+            cart = Cart.objects.filter(user=request.user, is_active=True).first()
+            if cart:
+                cart.items.all().delete()
+                cart.delete()
+                
+            send_payment_success_email(order.customer.user, payment)    
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "PayPal payment confirmed successfully.",
+                "order_id": str(order.order_id),
+                "payment_id": payment.payment_id,
+                "payment_status": payment.payment_status
+            }, status=status.HTTP_200_OK)
+
+        elif payment_method == "conbini":
+            payment = Payment.objects.create(
+                order=order,
+                custom_theme=order.custom_theme,
+                payment_id=f"CONBINI-{order.order_id}",
+                customer_id="",
+                payment_method_id="",
+                payment_method="conbini",
+                amount=order.total_amount,
+                currency=currency.upper(),
+                payment_status="pending",
+                client_secret="",
+            )
+
+            cart = Cart.objects.filter(user=request.user, is_active=True).first()
+            if cart:
+                cart.items.all().delete()
+                cart.delete()
+                
+            send_payment_success_email(order.customer.user, payment)    
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Convenience store payment pending.",
+                "order_id": str(order.order_id),
+                "payment_id": payment.payment_id,
+                "payment_status": payment.payment_status
+            }, status=status.HTTP_200_OK)
+
+        elif payment_method == "bank_transfer":
             payment = Payment.objects.create(
                 order=order,
                 custom_theme=order.custom_theme,

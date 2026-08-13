@@ -24,6 +24,7 @@ from .menu import *
 from .permissions import *
 from .system_settings_views import *
 from .simulation import *
+from .attributes import *
 
 
 
@@ -59,6 +60,41 @@ urlpatterns = [
     path("colors/<int:id>/", ColorsDetailView.as_view(), name="get-color"),
     path("colors/update/<int:id>/", ColorsUpdateView.as_view(), name="update-color"),
     path("colors/delete/<int:id>/", ColorsDeleteView.as_view(), name="delete-color"),
+
+    # Table Shapes URLs
+    path("table-shapes/create/", TableShapeCreateView.as_view(), name="create-table-shape"),
+    path("table-shapes/list/", TableShapeListView.as_view(), name="list-table-shapes"),
+    path("table-shapes/<int:id>/", TableShapeDetailView.as_view(), name="get-table-shape"),
+    path("table-shapes/update/<int:id>/", TableShapeUpdateView.as_view(), name="update-table-shape"),
+    path("table-shapes/delete/<int:id>/", TableShapeDeleteView.as_view(), name="delete-table-shape"),
+
+    # Closures URLs
+    path("closures/create/", ClosureCreateView.as_view(), name="create-closure"),
+    path("closures/list/", ClosureListView.as_view(), name="list-closures"),
+    path("closures/<int:id>/", ClosureDetailView.as_view(), name="get-closure"),
+    path("closures/update/<int:id>/", ClosureUpdateView.as_view(), name="update-closure"),
+    path("closures/delete/<int:id>/", ClosureDeleteView.as_view(), name="delete-closure"),
+
+    # Styles URLs
+    path("styles/create/", StyleCreateView.as_view(), name="create-style"),
+    path("styles/list/", StyleListView.as_view(), name="list-styles"),
+    path("styles/<int:id>/", StyleDetailView.as_view(), name="get-style"),
+    path("styles/update/<int:id>/", StyleUpdateView.as_view(), name="update-style"),
+    path("styles/delete/<int:id>/", StyleDeleteView.as_view(), name="delete-style"),
+
+    # Sizes URLs
+    path("sizes/create/", SizeCreateView.as_view(), name="create-size"),
+    path("sizes/list/", SizeListView.as_view(), name="list-sizes"),
+    path("sizes/<int:id>/", SizeDetailView.as_view(), name="get-size"),
+    path("sizes/update/<int:id>/", SizeUpdateView.as_view(), name="update-size"),
+    path("sizes/delete/<int:id>/", SizeDeleteView.as_view(), name="delete-size"),
+
+    # Patterns URLs
+    path("patterns/create/", PatternCreateView.as_view(), name="create-pattern"),
+    path("patterns/list/", PatternListView.as_view(), name="list-patterns"),
+    path("patterns/<int:id>/", PatternDetailView.as_view(), name="get-pattern"),
+    path("patterns/update/<int:id>/", PatternUpdateView.as_view(), name="update-pattern"),
+    path("patterns/delete/<int:id>/", PatternDeleteView.as_view(), name="delete-pattern"),
 
     # Template URLs
     path("templates/create/", TemplateCreateView.as_view(), name="create-template"),

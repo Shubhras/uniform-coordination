@@ -315,7 +315,7 @@ const AddEditBlogModal = ({
           <div>
             {/* <input
               type="text"
-              placeholder="Type blog title"
+              placeholder={t("titlePlaceholder")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
@@ -346,7 +346,7 @@ const AddEditBlogModal = ({
               value={category}
               onChange={setCategory}
               styles={selectStyles}
-              placeholder="Select category..."
+              placeholder={t("selectCategory")}
               isLoading={loadingCategories}
               loadingMessage={() => "Loading categories..."}
               noOptionsMessage={() => "No categories found"}
@@ -433,7 +433,7 @@ const AddEditBlogModal = ({
             <div className="flex justify-center">
               <img
                 src={preview}
-                alt="Preview"
+                alt={t("preview")}
                 className="w-40 h-28 object-cover rounded-lg shadow"
               />
             </div>
@@ -445,7 +445,7 @@ const AddEditBlogModal = ({
               Description<span className="text-red-500">*</span>
             </label>
             <textarea
-              placeholder="Type blog description..."
+              placeholder={t("descriptionPlaceholder")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="mt-1 w-full border rounded-md px-3 py-2 text-sm h-[150px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
