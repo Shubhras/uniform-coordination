@@ -12,8 +12,7 @@ import {
   FiX,
   FiEye,
 } from "react-icons/fi";
-import toast from "@/components/ui/toast";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetBlogList, apiDeleteBlog } from "@/services/BlogService";
@@ -24,16 +23,21 @@ import Pagination from "@/components/ui/Pagination";
 
 const trimText = (text, wordLimit = 10) => {
   if (!text) return "";
-  const words = text.split(" ");
+  if (/[^\x00-\x7F]/.test(text)) {
+    const charLimit = wordLimit * 4;
+    return text.length > charLimit ? `${text.slice(0, charLimit)}...` : text;
+  }
+  const words = text.split(/\s+/);
   return words.length > wordLimit
     ? `${words.slice(0, wordLimit).join(" ")}...`
     : text;
 };
 
-const formatDate = (isoDate) => {
+const formatDate = (isoDate, locale = "en-US") => {
   if (!isoDate) return "";
   const d = new Date(isoDate);
-  return d.toLocaleDateString("en-US", {
+  const targetLocale = locale === "ja" ? "ja-JP" : "en-US";
+  return d.toLocaleDateString(targetLocale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -41,6 +45,7 @@ const formatDate = (isoDate) => {
 };
 
 const BlogTab = () => {
+  const locale = useLocale();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -262,7 +267,7 @@ const BlogTab = () => {
 
                 <div className="px-5 pb-6 flex flex-col gap-3">
                   <p className="text-xs text-gray-500 mb-2">
-                    {formatDate(post.created_at)} &nbsp;&nbsp;{" "}
+                    {formatDate(post.created_at, locale)} &nbsp;&nbsp;{" "}
                     {post.categoryName}
                   </p>
 

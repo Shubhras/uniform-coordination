@@ -2,9 +2,57 @@
 
 import { useState, useEffect } from "react";
 import { FiX, FiUploadCloud } from "react-icons/fi";
+import Select from "react-select";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { apiFabricCategoryList } from "@/services/FabricService";
+
+const API_BASE = (
+  process.env.NEXT_PUBLIC_IMAGE_URL ||
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "http://127.0.0.1:8002"
+).replace(/\/api\/v1\/?$/, "").replace(/\/$/, "");
+
+const getImageUrl = (path) => {
+  if (!path) return "";
+  let clean = path;
+  if (clean.includes("table-admin.dxtspace.com")) {
+    clean = clean.replace(/https?:\/\/table-admin\.dxtspace\.com/, "");
+  }
+  if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("blob:")) {
+    return clean;
+  }
+  const cleanPath = clean.startsWith("/") ? clean : `/${clean}`;
+  return `${API_BASE}${cleanPath}`;
+};
+
+const selectStyles = {
+  control: (base) => ({
+    ...base,
+    minHeight: "38px",
+    borderRadius: "8px",
+    borderColor: "#00345F",
+    boxShadow: "none",
+    "&:hover": {
+      borderColor: "#A0522D",
+    },
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? "#A0522D"
+      : state.isFocused
+      ? "#EEF2FF"
+      : "white",
+    color: state.isSelected ? "white" : "#1E293B",
+    fontSize: "14px",
+  }),
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+};
 
 const AddEditAttributeModal = ({
   isOpen,
@@ -19,24 +67,51 @@ const AddEditAttributeModal = ({
   const accessToken = session?.user?.accessToken;
 
   const [name, setName] = useState("");
+  const [category, setCategory] = useState(null);
+  const [categoryOptions, setCategoryOptions] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!accessToken || !isOpen) return;
+
+    const getCategories = async () => {
+      try {
+        const res = await apiFabricCategoryList(accessToken);
+        const options =
+          res?.data?.map((item) => ({
+            value: item.id,
+            label: item.categoryName,
+            type: item.type,
+          })) || [];
+        setCategoryOptions(options);
+      } catch (err) {
+        console.error("Category list error", err);
+      }
+    };
+
+    getCategories();
+  }, [isOpen, accessToken]);
+
+  useEffect(() => {
     if (isOpen) {
       if (mode === "edit" && initialData) {
         setName(initialData.name || "");
-        setImagePreview(initialData.image || "");
+        setImagePreview(getImageUrl(initialData.image));
+        const initialCatId = initialData.category?.id || initialData.category;
+        const cat = categoryOptions.find((o) => o.value === initialCatId);
+        setCategory(cat || null);
       } else {
         setName("");
+        setCategory(null);
         setImageFile(null);
         setImagePreview("");
       }
       setError("");
     }
-  }, [isOpen, mode, initialData]);
+  }, [isOpen, mode, initialData, categoryOptions]);
 
   if (!isOpen) return null;
 
@@ -62,6 +137,9 @@ const AddEditAttributeModal = ({
 
       const formData = new FormData();
       formData.append("name", name.trim());
+      if (category) {
+        formData.append("category_id", category.value);
+      }
       if (imageFile) {
         formData.append("image", imageFile);
       }
@@ -129,6 +207,23 @@ const AddEditAttributeModal = ({
               placeholder={`Enter ${attributeTitle.toLowerCase()} name`}
               className="w-full border border-[#00345F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0522D]"
               required
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#1C2C56] mb-1">
+              Category
+            </label>
+            <Select
+              options={categoryOptions}
+              styles={selectStyles}
+              value={category}
+              onChange={(selected) => setCategory(selected)}
+              placeholder="Select Category"
+              isClearable
+              className="mt-1"
+              menuPortalTarget={typeof document !== "undefined" ? document.body : null}
+              menuPosition="fixed"
             />
           </div>
 

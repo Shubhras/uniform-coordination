@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Pagination from "@/components/ui/Pagination";
 import Select from "react-select";
 import {
@@ -18,10 +18,6 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetUsersList } from "@/services/UserPermissionService";
 import PermissionPage from "./PermissionPage";
 import Spinner from "@/components/ui/Spinner";
-
-
-
-
 
 const getApiErrorMessage = (error) =>
   error?.response?.data?.message ||
@@ -97,7 +93,7 @@ const getDisplayUserType = (user) => {
   return "B2C";
 };
 
-const formatDate = (value) => {
+const formatDate = (value, locale = "en-US") => {
   if (!value) return "-";
 
   const date = new Date(value);
@@ -105,14 +101,15 @@ const formatDate = (value) => {
     return value;
   }
 
-  return new Intl.DateTimeFormat("en-GB", {
+  const targetLocale = locale === "ja" ? "ja-JP" : "en-GB";
+  return new Intl.DateTimeFormat(targetLocale, {
     day: "2-digit",
     month: "short",
     year: "2-digit",
   }).format(date);
 };
 
-const normalizeUser = (user) => ({
+const normalizeUser = (user, locale = "en-US") => ({
   ...user,
   id: user?.id ?? user?.user_id ?? user?.pk,
   fullName: getDisplayName(user),
@@ -124,6 +121,7 @@ const normalizeUser = (user) => ({
       user?.created_at ||
       user?.date_joined ||
       user?.createdAt,
+    locale
   ),
   statusLabel: getDisplayStatus(user),
   isActive: getDisplayStatus(user) === "Active",
@@ -199,6 +197,7 @@ const selectStyles = {
 const UsersPermissionsPage = () => {
   const t = useTranslations("userPermissions.users");
   const tp = useTranslations("userPermissions.permissions");
+  const locale = useLocale();
 
   const typeOptions = [
     { value: "all", label: t("allTypes") },
@@ -273,7 +272,7 @@ const UsersPermissionsPage = () => {
         payload?.items ||
         (Array.isArray(payload) ? payload : []);
       const responsePagination = payload?.pagination || response?.pagination;
-      const normalizedUsers = list.map(normalizeUser);
+      const normalizedUsers = list.map((user) => normalizeUser(user, locale));
       const totalItems =
         responsePagination?.total_items ??
         payload?.count ??

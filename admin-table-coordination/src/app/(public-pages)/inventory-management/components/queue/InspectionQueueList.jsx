@@ -22,6 +22,7 @@ import Button from "@/components/ui/Button";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 
 const selectStyles = {
   control: (base) => ({
@@ -65,7 +66,10 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
   const t = useTranslations("inventoryManagement.inspectionQueue");
   const ts = useTranslations("successTitle");
   const te = useTranslations("errorTitle");
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchParams = useSearchParams();
+  const searchUrlParam = searchParams?.get("search") || "";
+
+  const [searchQuery, setSearchQuery] = useState(searchUrlParam);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -74,7 +78,14 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchUrlParam);
+
+  useEffect(() => {
+    if (searchUrlParam) {
+      setSearchQuery(searchUrlParam);
+      setDebouncedSearch(searchUrlParam);
+    }
+  }, [searchUrlParam]);
 
   // Pass Inspection Dialog State
   const [selectedPassItem, setSelectedPassItem] = useState(null);
@@ -293,7 +304,14 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
           </div>
           <div className="text-right">
             <p className="text-sm font-semibold text-gray-900">
-              {t("orderId")}: <span className="text-[#A85A32]">#ORD-{failItem.id}</span>
+              {t("orderId")}:{" "}
+              <span className="text-[#A85A32]">
+                {failItem.order_id
+                  ? failItem.order_id.startsWith("#")
+                    ? failItem.order_id
+                    : `#${failItem.order_id}`
+                  : `#ORD-${failItem.id}`}
+              </span>
             </p>
             <p className="text-xs text-gray-500 mt-1">
               {t("returnDate")}:{" "}
@@ -524,7 +542,11 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
                     </td>
 
                     <td className="px-5 py-3 text-[#2C1A0E] font-semibold text-[14px]">
-                      #ORD-{item.id}
+                      {item.order_id
+                        ? item.order_id.startsWith("#")
+                          ? item.order_id
+                          : `#${item.order_id}`
+                        : `#ORD-${item.id}`}
                     </td>
 
                     <td className="px-5 py-3 text-[#2C1A0E] font-semibold text-[14px]">
@@ -540,20 +562,30 @@ const InspectionQueueList = ({ onDetailModeChange }) => {
                     </td>
 
                     <td className="px-5 py-3">
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => setSelectedPassItem(item)}
-                          className="min-w-[68px] h-7 rounded-md border border-[#B8F1D4] bg-[#F2FFF7] text-[#0E9F6E] text-[13px] font-semibold cursor-pointer"
-                        >
-                          {t("pass")}
-                        </button>
-                        <button
-                          onClick={() => handleOpenFailView(item)}
-                          className="min-w-[68px] h-7 rounded-md border border-[#FFD0D7] bg-white text-[#E11D48] text-[13px] font-semibold cursor-pointer"
-                        >
-                          {t("fail")}
-                        </button>
-                      </div>
+                      {item.result === "pass" ? (
+                        <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-[#F2FFF7] text-[#0E9F6E] border border-[#B8F1D4]">
+                          Passed
+                        </span>
+                      ) : item.result === "fail" ? (
+                        <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-[#FFF5F5] text-[#E11D48] border border-[#FFD0D7]">
+                          Failed
+                        </span>
+                      ) : (
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => setSelectedPassItem(item)}
+                            className="min-w-[68px] h-7 rounded-md border border-[#B8F1D4] bg-[#F2FFF7] text-[#0E9F6E] text-[13px] font-semibold cursor-pointer hover:bg-[#e0fbe9]"
+                          >
+                            {t("pass")}
+                          </button>
+                          <button
+                            onClick={() => handleOpenFailView(item)}
+                            className="min-w-[68px] h-7 rounded-md border border-[#FFD0D7] bg-white text-[#E11D48] text-[13px] font-semibold cursor-pointer hover:bg-rose-50"
+                          >
+                            {t("fail")}
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))

@@ -62,3 +62,45 @@ export async function apiProcessReturnDetails(
     },
   });
 }
+
+export async function apiGetOrCreateLateFeeInvoice(accessToken, orderId) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/rental-order/late-fee/${orderId}/`,
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+
+export async function apiNotifyLateFeeCustomer(accessToken, orderId, payload) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/rental-order/late-fee/${orderId}/notify/`,
+    method: "post",
+    data: payload,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+
+export async function apiGetOrCreateCompensationInvoice(accessToken, orderId) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/rental-order/compensation/${orderId}/`,
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+
+export async function apiGenerateCompensationInvoice(accessToken, orderId, payload = {}) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/rental-order/compensation/${orderId}/generate/`,
+    method: "post",
+    data: payload,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}

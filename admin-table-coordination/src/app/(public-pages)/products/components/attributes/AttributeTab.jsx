@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { FiSearch, FiPlus, FiX } from "react-icons/fi";
+import { useLocale } from "next-intl";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -10,9 +11,43 @@ import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
 import Spinner from "@/components/ui/Spinner";
 
+const attributeTitleMap = {
+  "Table Shape": { en: "Table Shape", ja: "テーブル形状" },
+  Closure: { en: "Closure", ja: "クロージャー" },
+  Style: { en: "Style", ja: "スタイル" },
+  Size: { en: "Size", ja: "サイズ" },
+  Pattern: { en: "Pattern", ja: "パターン" },
+  Fabric: { en: "Fabric", ja: "生地" },
+  Color: { en: "Color", ja: "カラー" },
+};
+
+const API_BASE = (
+  process.env.NEXT_PUBLIC_IMAGE_URL ||
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "http://127.0.0.1:8002"
+).replace(/\/api\/v1\/?$/, "").replace(/\/$/, "");
+
+const getImageUrl = (path) => {
+  if (!path) return "";
+  let clean = path;
+  if (clean.includes("table-admin.dxtspace.com")) {
+    clean = clean.replace(/https?:\/\/table-admin\.dxtspace\.com/, "");
+  }
+  if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("blob:")) {
+    return clean;
+  }
+  const cleanPath = clean.startsWith("/") ? clean : `/${clean}`;
+  return `${API_BASE}${cleanPath}`;
+};
+
 const AttributeTab = ({ attributeTitle, service }) => {
+  const locale = useLocale();
+  const isJa = locale === "ja";
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
+
+  const translatedTitle =
+    attributeTitleMap[attributeTitle]?.[isJa ? "ja" : "en"] || attributeTitle;
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -93,8 +128,11 @@ const AttributeTab = ({ attributeTitle, service }) => {
       const response = await service.delete(accessToken, itemToDelete.id);
 
       toast.push(
-        <Notification title="Success" type="success">
-          {response.message || `${attributeTitle} deleted successfully`}
+        <Notification title={isJa ? "成功" : "Success"} type="success">
+          {response.message ||
+            (isJa
+              ? `${translatedTitle}を削除しました`
+              : `${attributeTitle} deleted successfully`)}
         </Notification>
       );
       setDeleteDialogOpen(false);
@@ -112,9 +150,13 @@ const AttributeTab = ({ attributeTitle, service }) => {
       <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
           <div>
-            <h2 className="text-2xl font-semibold text-[#1C2C56]">{attributeTitle} Management</h2>
+            <h2 className="text-2xl font-semibold text-[#1C2C56]">
+              {isJa ? `${translatedTitle}の管理` : `${attributeTitle} Management`}
+            </h2>
             <p className="text-sm text-[#486284]">
-              {pagination.total_items} {attributeTitle} Available
+              {isJa
+                ? `${pagination.total_items} 種類の${translatedTitle}が利用可能`
+                : `${pagination.total_items} ${attributeTitle} Available`}
             </p>
           </div>
 
@@ -123,7 +165,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
             className="bg-[#A0522D] text-white px-4 py-2 font-semibold rounded-md text-sm flex items-center gap-2 hover:bg-[#8B4513] transition-colors"
           >
             <FiPlus size={14} />
-            Add {attributeTitle}
+            {isJa ? `${translatedTitle}を追加` : `Add ${attributeTitle}`}
           </button>
         </div>
 
@@ -132,7 +174,11 @@ const AttributeTab = ({ attributeTitle, service }) => {
           <FiSearch className="absolute left-3 top-2.5 text-[#64748B]" size={16} />
           <input
             type="text"
-            placeholder={`Search ${attributeTitle.toLowerCase()}...`}
+            placeholder={
+              isJa
+                ? `${translatedTitle}を検索...`
+                : `Search ${attributeTitle.toLowerCase()}...`
+            }
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0522D]"
@@ -154,7 +200,9 @@ const AttributeTab = ({ attributeTitle, service }) => {
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
-            No {attributeTitle.toLowerCase()} found
+            {isJa
+              ? `${translatedTitle}が見つかりません`
+              : `No ${attributeTitle.toLowerCase()} found`}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -166,7 +214,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
                 <div className="h-40 bg-gray-50 flex items-center justify-center p-3 border-b border-gray-100 overflow-hidden">
                   {item.image ? (
                     <img
-                      src={item.image}
+                      src={getImageUrl(item.image)}
                       alt={item.name}
                       className="h-full object-contain hover:scale-105 transition-transform duration-300"
                     />
@@ -179,10 +227,19 @@ const AttributeTab = ({ attributeTitle, service }) => {
 
                 <div className="p-4 flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-sm font-semibold text-[#1C2C56]">{item.name}</h3>
+                    <h3 className="text-sm font-semibold text-[#1C2C56]">
+                      {item.name}
+                    </h3>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      Status: {item.isActive ? "Active" : "Inactive"}
+                      {isJa
+                        ? `ステータス: ${item.isActive ? "有効" : "無効"}`
+                        : `Status: ${item.isActive ? "Active" : "Inactive"}`}
                     </p>
+                    {item.category?.categoryName && (
+                      <p className="text-xs text-gray-500 font-medium mt-0.5">
+                        {isJa ? "カテゴリー: " : "Category: "}{item.category.categoryName}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex gap-2 mt-4">
@@ -190,7 +247,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
                       onClick={() => handleEdit(item)}
                       className="flex-1 bg-[#A0522D] text-white text-xs py-1.5 rounded-md hover:bg-[#8B4513] transition-colors"
                     >
-                      Edit
+                      {isJa ? "編集" : "Edit"}
                     </button>
                     <button
                       onClick={() => {
@@ -199,7 +256,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
                       }}
                       className="flex-1 border border-red-200 text-red-500 text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                     >
-                      Delete
+                      {isJa ? "削除" : "Delete"}
                     </button>
                   </div>
                 </div>
@@ -242,8 +299,16 @@ const AttributeTab = ({ attributeTitle, service }) => {
           setItemToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title={`Delete ${attributeTitle}`}
-        message={`Are you sure you want to delete this ${attributeTitle.toLowerCase()}?`}
+        title={
+          isJa
+            ? `${translatedTitle}を削除`
+            : `Delete ${attributeTitle}`
+        }
+        message={
+          isJa
+            ? `この${translatedTitle}を削除してもよろしいですか？`
+            : `Are you sure you want to delete this ${attributeTitle.toLowerCase()}?`
+        }
         itemName={itemToDelete?.name}
         loading={deleteLoading}
       />

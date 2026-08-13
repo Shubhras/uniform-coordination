@@ -1,5 +1,6 @@
 from .models import *
 from uniformAdmin.serializers import *
+from .translations import get_localized_msg
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated ,BasePermission,AllowAny
@@ -124,7 +125,7 @@ class CategoryListAPIView(APIView):
                 "total_items": paginator.page.paginator.count,
                 "statusCode": 200,
                 "status": True,
-                "message": "Category list fetched successfully.",
+                "message": get_localized_msg(request, "Category list fetched successfully."),
                 "data": serializer.data,
             }
 

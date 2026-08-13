@@ -175,7 +175,7 @@ const AddEditFabricModal = ({
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isSelected
-        ? "#1C2C56"
+        ? "#A0522D"
         : state.isFocused
           ? "#EEF2FF"
           : "white",
@@ -351,7 +351,7 @@ const AddEditFabricModal = ({
       console.error("Fabric save error:", err);
       setError(
         err?.response?.data?.message ||
-          t("saveFailed"),
+        t("saveFailed"),
       );
     } finally {
       setSaving(false);
@@ -410,7 +410,7 @@ const AddEditFabricModal = ({
       console.error("Fabric save error:", err);
       setError(
         err?.response?.data?.message ||
-          t("saveFailed"),
+        t("saveFailed"),
       );
     } finally {
       setSaving(false);
@@ -423,7 +423,7 @@ const AddEditFabricModal = ({
       onClose={onClose}
       onRequestClose={onClose}
       className="w-full md:min-w-[720px] mx-auto"
-      // contentClassName="!p-0 !h-auto"
+    // contentClassName="!p-0 !h-auto"
     >
       <Form onSubmit={handleSubmit(handleSave)}>
         <div className="flex flex-col">

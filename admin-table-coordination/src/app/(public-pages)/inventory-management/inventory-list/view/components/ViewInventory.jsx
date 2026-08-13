@@ -316,14 +316,16 @@ export default function ViewInventory() {
                   {t("rentalHistory")}
                 </h3>
 
-                {rentalHistory.length > 1 && (
-                  <button
-                    onClick={() => setShowAllHistory(!showAllHistory)}
-                    className="text-[14px] font-medium text-[#B85C2F] hover:underline"
-                  >
-                    {showAllHistory ? t("viewLess") : t("viewAll")}
-                  </button>
-                )}
+                <button
+                  onClick={() =>
+                    router.push(
+                      `/inventory-management/inventory-list/rental-history?id=${productId}`,
+                    )
+                  }
+                  className="text-[14px] font-medium text-[#B85C2F] hover:underline"
+                >
+                  {t("viewAll")}
+                </button>
               </div>
 
               {displayedHistory.length > 0 ? (
