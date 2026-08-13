@@ -5,6 +5,7 @@ import { FiX, FiUploadCloud } from "react-icons/fi";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { useTranslations } from "next-intl";
 
 const AddEditAttributeModal = ({
   isOpen,
@@ -17,6 +18,8 @@ const AddEditAttributeModal = ({
 }) => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
+  const t = useTranslations("productSpecification.fabric");
+  const ts = useTranslations("successTitle");
 
   const [name, setName] = useState("");
   const [imageFile, setImageFile] = useState(null);
@@ -75,9 +78,9 @@ const AddEditAttributeModal = ({
 
       if (response?.status || response?.statusCode === 200) {
         toast.push(
-          <Notification title="Success" type="success">
+          <Notification title={ts("success")} type="success">
             {response.message || `${attributeTitle} saved successfully!`}
-          </Notification>
+          </Notification>,
         );
         onSaveSuccess();
       } else {
@@ -101,7 +104,9 @@ const AddEditAttributeModal = ({
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
         <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
           <h3 className="text-lg font-semibold text-[#1C2C56]">
-            {mode === "add" ? `Add ${attributeTitle}` : `Edit ${attributeTitle}`}
+            {mode === "add"
+              ? t("addAttribute", { attribute: attributeTitle })
+              : t("editAttribute", { attribute: attributeTitle })}
           </h3>
           <button
             onClick={onClose}
@@ -120,13 +125,15 @@ const AddEditAttributeModal = ({
 
           <div>
             <label className="block text-xs font-semibold text-[#1C2C56] mb-1">
-              {attributeTitle} Name *
+              {attributeTitle} {t("name")} *
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={`Enter ${attributeTitle.toLowerCase()} name`}
+              placeholder={t("enterName", {
+                attribute: attributeTitle.toLowerCase(),
+              })}
               className="w-full border border-[#00345F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0522D]"
               required
             />
@@ -134,7 +141,7 @@ const AddEditAttributeModal = ({
 
           <div>
             <label className="block text-xs font-semibold text-[#1C2C56] mb-1">
-              Image (Optional)
+              {t("imageOptional")}
             </label>
             <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center relative hover:bg-gray-50 transition-colors">
               <input
@@ -151,13 +158,13 @@ const AddEditAttributeModal = ({
                     className="h-24 object-contain rounded mb-2"
                   />
                   <span className="text-xs text-[#A0522D] font-medium">
-                    Click to change image
+                    {t("clickToChangeImage")}
                   </span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center text-gray-400">
                   <FiUploadCloud size={28} className="mb-1" />
-                  <span className="text-xs">Click or drag image to upload</span>
+                  <span className="text-xs"> {t("clickToChangeImage")}</span>
                 </div>
               )}
             </div>
@@ -169,14 +176,18 @@ const AddEditAttributeModal = ({
               onClick={onClose}
               className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
               disabled={loading}
               className="bg-[#A0522D] text-white px-5 py-2 text-xs font-semibold rounded-lg hover:bg-[#8B4513] disabled:opacity-50 transition-colors"
             >
-              {loading ? "Saving..." : mode === "add" ? "Add Item" : "Save Changes"}
+              {loading
+                ? t("saving")
+                : mode === "add"
+                  ? t("addItem")
+                  : t("saveChanges")}
             </button>
           </div>
         </form>

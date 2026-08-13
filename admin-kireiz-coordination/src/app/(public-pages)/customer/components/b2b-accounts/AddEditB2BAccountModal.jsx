@@ -172,7 +172,18 @@ const AddEditB2BAccountModal = ({
       onClose?.();
     } catch (err) {
       console.error("B2B account save error:", err);
-      setError(err?.response?.data?.message || "Failed to save account.");
+
+      const fieldErrors = err?.response?.data?.errors;
+      const fieldErrorMessage =
+        fieldErrors && typeof fieldErrors === "object"
+          ? Object.values(fieldErrors).flat().join(" ")
+          : "";
+
+      setError(
+        fieldErrorMessage ||
+          err?.response?.data?.message ||
+          "Failed to save account.",
+      );
     } finally {
       setSaving(false);
     }
