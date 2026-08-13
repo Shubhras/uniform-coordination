@@ -649,7 +649,9 @@
                 "nameLabel": "名称",
                 "namePlaceholder": "例: 外科医",
                 "imageLabel": "画像",
+                "bannerImageLabel": "バナー画像",
                 "uploadImageButton": "画像をアップロード",
+                "uploadBannerImageButton": "バナー画像をアップロード",
                 "dragDropText": "画像ファイルをここにドラッグ＆ドロップ",
                 "orText": "または",
                 "clickToBrowse": "クリックしてファイルを選択",
@@ -668,6 +670,7 @@
                     "nameRequired": "カテゴリ名は必須です",
                     "descriptionRequired": "説明は必須です",
                     "imageRequired": "画像は必須です",
+                    "bannerImageRequired": "バナー画像は必須です",
                     "onlyImages": "画像ファイルのみアップロードできます",
                     "maxSize": "画像サイズは2MB以下にしてください"
                 },

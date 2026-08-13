@@ -189,6 +189,7 @@ class SubCategoryListAPIView(APIView):
                         "categoryName": cat.categoryName,
                         "slug": cat.slug,
                         "categoryImage": request.build_absolute_uri(cat.categoryImage.url) if cat.categoryImage else "",
+                        "bannerImage": request.build_absolute_uri(cat.bannerImage.url) if cat.bannerImage else "",
                         "description": cat.description,
                         "type": cat.type,
                         "isActive": cat.isActive,

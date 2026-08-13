@@ -305,7 +305,8 @@ class Category(models.Model):
     ]
     categoryName = models.CharField(max_length=250)
     categoryImage = models.ImageField(upload_to="category/", blank=True, null=True)
-    description = models.CharField(max_length=250,blank=True, null=True) 
+    bannerImage = models.ImageField(upload_to="category/banner/", blank=True, null=True)
+    description = models.CharField(max_length=250,blank=True, null=True)
     type = models.CharField(max_length=20,choices=CATEGORY_TYPE,default='uniform')    
     slug = models.CharField(max_length=255, blank=True, null=True)
     order = models.PositiveIntegerField(default=0,db_index=True) #new

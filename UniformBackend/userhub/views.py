@@ -67,7 +67,7 @@ class SignupAPIView(APIView):
                 email = user.email               
                 # verify_link = request.build_absolute_uri(f"http://localhost:7000/account-verified-page?user_id={uid}&email={email}")
                 
-                verify_link = request.build_absolute_uri(f" http://104.64.206.82/account-verified-page?user_id={uid}&email={email}")
+                verify_link = request.build_absolute_uri(f"http://104.64.206.82/account-verified-page?user_id={uid}&email={email}")
 
                 # EMAIL VERIFICATION
                 # uid = urlsafe_base64_encode(force_bytes(user.id))
