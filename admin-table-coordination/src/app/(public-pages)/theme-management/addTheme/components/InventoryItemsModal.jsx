@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import Spinner from "@/components/ui/Spinner";
 import { FiSearch, FiX, FiChevronDown, FiCheckCircle } from "react-icons/fi";
 import { apiGetProductList } from "@/services/ProductService";
 import { apiGetCategoryList } from "@/services/CategoryService";
@@ -247,54 +248,63 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
           {/* List */}
 
           <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-            {inventoryData.map((item) => {
-              // const active = selected?.id === item.id;
-              const active = selected.some((i) => i.id === item.id);
+            {loading ? (
+              <div className="flex justify-center items-center h-[180px]">
+                <Spinner size={40} customColorClass="text-[#A0522D]" />
+              </div>
+            ) : inventoryData.length > 0 ? (
+              inventoryData.map((item) => {
+                // const active = selected?.id === item.id;
+                const active = selected.some((i) => i.id === item.id);
 
-              return (
-                <div
-                  key={item.id}
-                  // onClick={() => setSelected(item)}
-                  onClick={() => handleSelect(item)}
-                  className={`flex items-center justify-between rounded-2xl border px-4 py-3 cursor-pointer transition ${
-                    active
-                      ? "border-[#C56E42] bg-[#FFF5EF]"
-                      : "border-[#EFE7E1] hover:border-[#D8C1B3]"
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                        active
-                          ? "border-[#A0522D] bg-[#A0522D]"
-                          : "border-gray-300"
-                      }`}
-                    >
-                      {active && (
-                        <FiCheckCircle size={12} className="text-white" />
-                      )}
-                    </div>
+                return (
+                  <div
+                    key={item.id}
+                    // onClick={() => setSelected(item)}
+                    onClick={() => handleSelect(item)}
+                    className={`flex items-center justify-between rounded-2xl border px-4 py-3 cursor-pointer transition ${
+                      active
+                        ? "border-[#C56E42] bg-[#FFF5EF]"
+                        : "border-[#EFE7E1] hover:border-[#D8C1B3]"
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                          active
+                            ? "border-[#A0522D] bg-[#A0522D]"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        {active && (
+                          <FiCheckCircle size={12} className="text-white" />
+                        )}
+                      </div>
 
-                    <img
-                      src={item.ProductImage}
-                      className="w-12 h-12 rounded-full object-cover"
-                      alt=""
-                    />
+                      <img
+                        src={item.ProductImage}
+                        className="w-12 h-12 rounded-full object-cover"
+                        alt=""
+                      />
 
-                    <div>
-                      <h4 className="font-medium">{item.productName}</h4>
+                      <div>
+                        <h4 className="font-medium">{item.productName}</h4>
 
-                      <p className="text-xs text-gray-500">
-                        {item.category?.categoryName} • {item.fabric}
-                      </p>
+                        <p className="text-xs text-gray-500">
+                          {item.category?.categoryName} • {item.fabric}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            ) : (
+              <div className="flex justify-center items-center py-3">
+                <p className="text-sm text-[#8A8078]">{t("noItemsFound")}</p>
+              </div>
+            )}
           </div>
         </div>
-
         {/* Footer */}
 
         <div className="border-t px-5 py-4 flex gap-4 bg-white">
