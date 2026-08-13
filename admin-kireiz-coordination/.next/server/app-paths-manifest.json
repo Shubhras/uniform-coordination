@@ -1,7 +1,11 @@
 {
   "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js",
   "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js",
+  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
+  "/(public-pages)/quotation-requests/page": "app/(public-pages)/quotation-requests/page.js",
   "/(public-pages)/system-settings/page": "app/(public-pages)/system-settings/page.js",
-  "/(public-pages)/reports-analytics/page": "app/(public-pages)/reports-analytics/page.js",
-  "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js"
+  "/(public-pages)/simulation-configuration/page": "app/(public-pages)/simulation-configuration/page.js",
+  "/(public-pages)/pricing/page": "app/(public-pages)/pricing/page.js",
+  "/(public-pages)/customer/page": "app/(public-pages)/customer/page.js"
 }
