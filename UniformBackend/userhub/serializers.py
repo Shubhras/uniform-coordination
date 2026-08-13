@@ -49,7 +49,7 @@ class UserSignupSerializer(serializers.ModelSerializer):
                 isDeleted=False
             ).exists():
                 raise serializers.ValidationError(
-                    "User with this email and userType already exists."
+                    "User with this email already exists."
                 )
 
         return attrs
