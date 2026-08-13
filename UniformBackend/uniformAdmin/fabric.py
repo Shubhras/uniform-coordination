@@ -11,6 +11,7 @@ from .models import Fabric
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 import logging  
+from uniformAdmin.currency import get_currency
 logger = logging.getLogger(__name__)
 
 class IsAdministrator(BasePermission):
@@ -143,6 +144,10 @@ class FabricListView(APIView):
                 "statusCode": 200,
                 "status": True,
                 "message": "Fabric list fetched successfully",
+                # Display currency travels with the prices, the same way Reports and
+                # Quotation History do it, so the page never has to assume a symbol.
+                # This list was printing a hardcoded ₹ while the system currency is USD.
+                "currency": get_currency(),
                 "data": serializer.data,
                 "pagination": {
                     "page": paginator.page.number,

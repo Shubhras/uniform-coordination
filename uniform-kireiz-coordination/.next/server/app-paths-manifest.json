@@ -1,0 +1,7 @@
+{
+  "/(public-pages)/kireiz-form/page": "app/(public-pages)/kireiz-form/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(public-pages)/dashboards/design-result/[id]/page": "app/(public-pages)/dashboards/design-result/[id]/page.js",
+  "/(public-pages)/dashboards/uniform-3d-design/page": "app/(public-pages)/dashboards/uniform-3d-design/page.js",
+  "/(public-pages)/dashboards/uniform-3d-design/[id]/page": "app/(public-pages)/dashboards/uniform-3d-design/[id]/page.js"
+}
