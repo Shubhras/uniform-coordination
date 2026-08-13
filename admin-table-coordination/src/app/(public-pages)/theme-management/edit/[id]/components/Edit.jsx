@@ -730,11 +730,11 @@ const Edit = () => {
 
           <button
             onClick={handleUpdateTheme}
-            loading={saving}
+            // loading={saving}
             disabled={saving}
             className="bg-[#A0522D] transition text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium"
           >
-            {t("updateTheme")}
+            {saving ? "Updating..." : t("updateTheme")}
           </button>
         </div>
       </div>
