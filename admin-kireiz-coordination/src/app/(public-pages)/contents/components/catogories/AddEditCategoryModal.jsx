@@ -40,6 +40,7 @@ const AddEditCategoryModal = ({
   const [bannerFile, setBannerFile] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
   const [bannerValidated, setBannerValidated] = useState(false);
+  const [active, setActive] = useState(true);
 
    const categorySchema = z.object({
     categoryName: z.string().trim().min(1, tm("validation.nameRequired")),
@@ -101,6 +102,7 @@ const AddEditCategoryModal = ({
       setBannerPreview(initialData.bannerImage || null);
       setBannerFile(null);
       setBannerValidated(Boolean(initialData.bannerImage));
+      setActive(initialData.isActive ?? true);
       reset({
         categoryName: initialData.categoryName || initialData.name || "",
         description: initialData.description || "",
@@ -118,6 +120,7 @@ const AddEditCategoryModal = ({
       setBannerPreview(null);
       setBannerValidated(false);
       setBannerError("");
+      setActive(true);
       reset({
         categoryName: "",
         description: "",
@@ -230,6 +233,7 @@ const AddEditCategoryModal = ({
     setBannerPreview(null);
     setBannerValidated(false);
     setBannerError("");
+    setActive(true);
     setError("");
     reset({
       categoryName: "",
@@ -256,6 +260,7 @@ const AddEditCategoryModal = ({
       if (bannerFile) {
         formData.append("bannerImage", bannerFile);
       }
+      formData.append("isActive", active ? "true" : "false");
 
       // if (mode === "edit" && initialData?.id) {
       //   await apiUpdateCategory(accessToken, initialData.id, formData);
@@ -486,6 +491,27 @@ const AddEditCategoryModal = ({
                 />
               </div>
             )}
+
+            {/* Status */}
+            <div>
+              <label className="text-[#1C2C56] text-base font-medium">
+                {tm("statusLabel")}
+              </label>
+              <div className="flex items-center gap-3 mt-2">
+                <button
+                  type="button"
+                  onClick={() => setActive(!active)}
+                  className={`w-12 h-6 rounded-full flex items-center px-1 transition ${active ? "bg-[#1C2C56]" : "bg-gray-300"}`}
+                >
+                  <span
+                    className={`bg-white w-4 h-4 rounded-full transition ${active ? "translate-x-6" : ""}`}
+                  />
+                </button>
+                <span className="text-sm text-[#1C2C56]">
+                  {active ? tm("statusActive") : tm("statusInactive")}
+                </span>
+              </div>
+            </div>
 
             {/* Description */}
             <div>
