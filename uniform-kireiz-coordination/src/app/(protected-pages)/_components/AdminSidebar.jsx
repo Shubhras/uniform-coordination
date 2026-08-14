@@ -47,12 +47,12 @@ const sidebarMenu = [
     //     path: '/profile/order-history',
     //     slug: "profile",
     // },
-    // {
-    //     label: 'Notifications',
-    //     icon: FiBell,
-    //     path: '/profile/notifications',
-    //     slug: "profile",
-    // },
+    {
+        label: 'Notifications',
+        icon: FiBell,
+        path: '/profile/notifications',
+        slug: "profile",
+    },
     {
         label: 'My Quotations',
         icon: FiFileText,

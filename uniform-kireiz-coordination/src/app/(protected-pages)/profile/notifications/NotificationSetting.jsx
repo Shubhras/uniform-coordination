@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
+import useCurrentSession from "@/utils/hooks/useCurrentSession"
 import { apiGetNotifications } from "@/services/AuthProfileService"
 import {
   IoNotificationsOutline,
@@ -10,22 +10,22 @@ import {
 
 
 
-const ITEMS_PER_PAGE = 6
-
 const NotificationSetting = () => {
-  const { data: session } = useSession()
+  const { session } = useCurrentSession()
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      if (session?.accessToken) {
+      if (session?.user?.accessToken) {
         setLoading(true)
         try {
-          const res = await apiGetNotifications(session.accessToken)
+          const res = await apiGetNotifications(session.user.accessToken, currentPage)
           const data = res?.data || []
           setNotifications(Array.isArray(data) ? data : [])
+          setTotalPages(res?.total_pages || 1)
         } catch (error) {
           console.error("Error fetching notifications:", error)
         } finally {
@@ -34,27 +34,7 @@ const NotificationSetting = () => {
       }
     }
     fetchNotifications()
-  }, [session?.accessToken])
-
-  const totalPages = Math.ceil(notifications.length / ITEMS_PER_PAGE) || 1
-
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const currentNotifications = notifications.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE
-  )
-
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1)
-    }
-  }
-
-  const handlePrev = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1)
-    }
-  }
+  }, [session?.user?.accessToken, currentPage])
 
   return (
     <div className="w-full bg-[#E8EEF842] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
@@ -84,7 +64,7 @@ const NotificationSetting = () => {
         </div>
       ) : (
         <div className="flex flex-col gap-3 mb-6">
-          {currentNotifications.map((item) => (
+          {notifications.map((item) => (
             <div
               key={item.id}
               className={`p-4 flex justify-between items-start rounded-xl ${!item.is_seen ? 'bg-white' : 'bg-white border border-[#E2E8F0]'}`}

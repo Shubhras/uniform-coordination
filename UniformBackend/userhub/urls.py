@@ -15,6 +15,7 @@ urlpatterns = [
     path("reset-password/", ResetPasswordAPIView.as_view(), name="reset_password"),
     path("update-password/", UpdatePasswordAPIView.as_view(), name="update-password"),
     path("verify-user/", VerifyUserAPIView.as_view(), name="verify-user"),
+    path("notifications/get-list/", UserNotificationListAPIView.as_view(), name="user-notifications-list"),
     # path('favourite/toggle/', ToggleFavouriteAPIView.as_view(), name='toggle-favourite'),
 
 

@@ -1900,7 +1900,8 @@
     "tabs": {
       "generalSettings": "一般設定",
       "paymentSettings": "支払い設定",
-      "emailNotifications": "メールと通知"
+      "emailNotifications": "メールと通知",
+      "systemAlerts": "システムアラート"
     },
     "generalSettings": {
       "companyNameLabel": "会社名",
@@ -1961,6 +1962,10 @@
       "notificationsSubtitle": "システムが送信するメールを選択します。",
       "notifyNewQuotationRequest": "新しい見積依頼（管理者宛）",
       "notifyNewQuotationRequestHint": "顧客が依頼を送信した際に、下記のアドレスへ通知します。",
+      "notifyNewUserRegistration": "新規ユーザー登録（管理者宛）",
+      "notifyNewUserRegistrationHint": "新しいユーザーが登録した際に、下記のアドレスへ通知します。",
+      "notifyAdminLogin": "管理者ログイン（管理者宛）",
+      "notifyAdminLoginHint": "管理者がログインするたびに、下記のアドレスへ通知します。",
       "notifyRegistrationConfirmation": "登録完了通知（顧客宛）",
       "notifyRequestReceivedConfirmation": "依頼受付確認（顧客宛）",
       "notifyQuotationStatusChange": "見積ステータスの変更（顧客宛）",
@@ -1982,6 +1987,17 @@
       "smtpPasswordSetHint": "A password is currently saved.",
       "smtpPasswordUnsetHint": "No password saved yet.",
       "smtpFallbackNotice": "When SMTP Host is blank, emails use the server's environment configuration. Fill these in to manage sending from here instead. The password is stored write-only and is never shown again."
+    },
+    "systemAlerts": {
+      "sectionTitle": "有効なアラート",
+      "sectionSubtitle": "ダッシュボードの「有効なアラート」に表示するイベントと、それぞれの起算日数を選択します。",
+      "pendingReviewLabel": "確認待ちの見積",
+      "pendingReviewHint": "下記のSLAより古い確認待ちの見積を期限超過として表示します。",
+      "awaitingCustomerLabel": "顧客への連絡が必要な見積依頼",
+      "awaitingCustomerHint": "下記のSLAを過ぎても顧客から返信のない送信済み見積を表示します。",
+      "daysLabel": "日",
+      "cancel": "キャンセル",
+      "saveChanges": "変更を保存"
     }
   },
   "notificationsPage": {

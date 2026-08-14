@@ -5,6 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from uniformAdmin.models import AdminUser
 from django.utils.timezone import now
 from rest_framework.permissions import IsAuthenticated ,AllowAny
+from rest_framework.pagination import PageNumberPagination
 from .utils import *
 from django.core.mail import send_mail
 from django.conf import settings
@@ -61,7 +62,8 @@ class SignupAPIView(APIView):
             if serializer.is_valid():
                 user = serializer.save()
                 send_registration_email(user)
-                
+                send_admin_registration_email(user)
+
                  # EMAIL VERIFICATION 
                 uid = user.id  #urlsafe_base64_encode(force_bytes(user.id)) 
                 email = user.email               
@@ -2583,4 +2585,38 @@ class DocuSignWebhookAPIView(APIView):
 
         except QuotationRequest.DoesNotExist:
             return Response({"statusCode":400,"status":False,"message": "Quotation not found"}, status=400)
+
+
+class NotificationPagination(PageNumberPagination):
+    page_size = 6
+    page_size_query_param = "page_size"
+    max_page_size = 50
+
+
+class UserNotificationListAPIView(APIView):
+    """Notifications for the logged-in customer only."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            notifications = UserNotification.objects.filter(user=request.user)
+            paginator = NotificationPagination()
+            page = paginator.paginate_queryset(notifications, request)
+            serializer = UserNotificationSerializer(page, many=True)
+            return Response({
+                "statusCode": 200,
+                "status": True,
+                "message": "Notifications fetched successfully",
+                "count": paginator.page.paginator.count,
+                "page": paginator.page.number,
+                "total_pages": paginator.page.paginator.num_pages,
+                "data": serializer.data,
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "statusCode": 500,
+                "status": False,
+                "message": "Something went wrong on server.",
+                "error": str(e),
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

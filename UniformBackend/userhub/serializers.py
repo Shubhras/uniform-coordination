@@ -796,7 +796,13 @@ class QuotationSummarySerializer(serializers.ModelSerializer):
             "Standard shipping via FedEx Ground (3-5 business days).",
             "50% deposit required upon acceptance to begin production.",
             "Returns only accepted for manufacturing defects.",
-        ])      
-        
+        ])
+
+
+class UserNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserNotification
+        fields = ["id", "title", "message", "is_seen", "created_at"]
+
         
             

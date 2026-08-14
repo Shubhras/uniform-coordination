@@ -1709,14 +1709,12 @@ class AdminNotificationDeleteAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # ---------------- Dashboard Active Alerts ----------------
-# Thresholds in days. Tune these to match the agreed SLA.
-ALERT_REVIEW_SLA_DAYS = 3         # a pending quote older than this is an overdue review
-ALERT_CUSTOMER_FOLLOWUP_DAYS = 3  # a sent quote untouched this long needs a follow-up
-
-
 def compute_active_alerts():
     """
     Build the dashboard Active Alerts from live quotation data.
+
+    Which alert types are enabled, and their SLA (days), come from
+    Admin -> System Settings -> System Alerts (SystemSettings.load()).
 
     Each alert carries a `fingerprint` of its own counts. That is what read-state is
     stored against (see DashboardAlertRead) — so marking an alert read hides exactly
@@ -1725,58 +1723,62 @@ def compute_active_alerts():
     Only alerts with a non-zero count are returned, so an empty pipeline yields an
     empty list rather than zeroed-out placeholders.
     """
+    settings_row = SystemSettings.load()
     now_dt = now()
-    review_cutoff = now_dt - timedelta(days=ALERT_REVIEW_SLA_DAYS)
-    followup_cutoff = now_dt - timedelta(days=ALERT_CUSTOMER_FOLLOWUP_DAYS)
-
-    pending_review_total = QuotationRequest.objects.filter(
-        isDeleted=False, quotation_status="pending"
-    ).count()
-
-    overdue_review = QuotationRequest.objects.filter(
-        isDeleted=False,
-        quotation_status="pending",
-        created_at__lt=review_cutoff,
-    ).count()
-
-    # updated_at, not created_at: it tracks when the quote was last actioned
-    # (i.e. when it was sent), which is what a follow-up is timed from.
-    awaiting_customer = QuotationRequest.objects.filter(
-        isDeleted=False,
-        quotation_status="sent",
-        updated_at__lt=followup_cutoff,
-    ).count()
-
     alerts = []
 
-    if pending_review_total:
-        message = f"{pending_review_total} quotes pending review"
-        if overdue_review:
-            message += f" - {overdue_review} overdue"
-        alerts.append({
-            "type": "pending_review",
-            "level": "HIGH" if overdue_review else "MEDIUM",
-            "message": message,
-            "action": "Review Now",
-            "icon": "alert" if overdue_review else "clock",
-            "color": "text-red-500" if overdue_review else "text-orange-500",
-            "count": pending_review_total,
-            "overdue_count": overdue_review,
-            "fingerprint": f"{pending_review_total}:{overdue_review}",
-        })
+    if settings_row.alert_pending_review_enabled:
+        review_cutoff = now_dt - timedelta(days=settings_row.alert_pending_review_sla_days)
 
-    if awaiting_customer:
-        alerts.append({
-            "type": "awaiting_customer",
-            "level": "MEDIUM",
-            "message": f"{awaiting_customer} Quotation request - Contact customers required",
-            "action": "View Details",
-            "icon": "clock",
-            "color": "text-orange-500",
-            "count": awaiting_customer,
-            "overdue_count": 0,
-            "fingerprint": f"{awaiting_customer}:0",
-        })
+        pending_review_total = QuotationRequest.objects.filter(
+            isDeleted=False, quotation_status="pending"
+        ).count()
+
+        overdue_review = QuotationRequest.objects.filter(
+            isDeleted=False,
+            quotation_status="pending",
+            created_at__lt=review_cutoff,
+        ).count()
+
+        if pending_review_total:
+            message = f"{pending_review_total} quotes pending review"
+            if overdue_review:
+                message += f" - {overdue_review} overdue"
+            alerts.append({
+                "type": "pending_review",
+                "level": "HIGH" if overdue_review else "MEDIUM",
+                "message": message,
+                "action": "Review Now",
+                "icon": "alert" if overdue_review else "clock",
+                "color": "text-red-500" if overdue_review else "text-orange-500",
+                "count": pending_review_total,
+                "overdue_count": overdue_review,
+                "fingerprint": f"{pending_review_total}:{overdue_review}",
+            })
+
+    if settings_row.alert_awaiting_customer_enabled:
+        followup_cutoff = now_dt - timedelta(days=settings_row.alert_awaiting_customer_sla_days)
+
+        # updated_at, not created_at: it tracks when the quote was last actioned
+        # (i.e. when it was sent), which is what a follow-up is timed from.
+        awaiting_customer = QuotationRequest.objects.filter(
+            isDeleted=False,
+            quotation_status="sent",
+            updated_at__lt=followup_cutoff,
+        ).count()
+
+        if awaiting_customer:
+            alerts.append({
+                "type": "awaiting_customer",
+                "level": "MEDIUM",
+                "message": f"{awaiting_customer} Quotation request - Contact customers required",
+                "action": "View Details",
+                "icon": "clock",
+                "color": "text-orange-500",
+                "count": awaiting_customer,
+                "overdue_count": 0,
+                "fingerprint": f"{awaiting_customer}:0",
+            })
 
     return alerts
 
