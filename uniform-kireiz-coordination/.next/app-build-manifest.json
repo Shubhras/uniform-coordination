@@ -11,15 +11,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/not-found.js"
     ],
-    "/(public-pages)/medical-form/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/medical-form/[id]/page.js"
-    ],
     "/(public-pages)/kireiz-form/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/kireiz-form/page.js"
+    ],
+    "/(public-pages)/medical-form/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/medical-form/[id]/page.js"
     ],
     "/(public-pages)/dashboards/layout": [
       "static/chunks/webpack.js",
@@ -30,71 +30,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/dashboards/uniform-3d-design/page.js"
-    ],
-    "/(public-pages)/dashboards/uniform-design/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/dashboards/uniform-design/[id]/page.js"
-    ],
-    "/(public-pages)/dashboards/uniform-single/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/dashboards/uniform-single/[id]/page.js"
-    ],
-    "/(public-pages)/dashboards/uniform-3d-design/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/dashboards/uniform-3d-design/[id]/page.js"
-    ],
-    "/(public-pages)/dashboards/design-result/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/dashboards/design-result/[id]/page.js"
-    ],
-    "/(public-pages)/dashboards/delivery-request/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/dashboards/delivery-request/[id]/page.js"
-    ],
-    "/_not-found/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
-    ],
-    "/(auth-pages)/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(auth-pages)/layout.js"
-    ],
-    "/(auth-pages)/sign-in/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(auth-pages)/sign-in/page.js"
-    ],
-    "/(protected-pages)/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/layout.js"
-    ],
-    "/(protected-pages)/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/loading.js"
-    ],
-    "/(protected-pages)/profile/my-profile/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/profile/my-profile/page.js"
-    ],
-    "/(protected-pages)/profile/my-quotations/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/profile/my-quotations/page.js"
-    ],
-    "/(protected-pages)/profile/simulation-history/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(protected-pages)/profile/simulation-history/page.js"
     ]
   }
 }

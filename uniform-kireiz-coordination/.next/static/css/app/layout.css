@@ -411,9 +411,6 @@
   .top-\[48px\] {
     top: 48px;
   }
-  .top-\[75vh\] {
-    top: 75vh;
-  }
   .top-full {
     top: 100%;
   }
@@ -2218,6 +2215,9 @@
   .gap-y-6 {
     row-gap: calc(var(--spacing) * 6);
   }
+  .gap-y-8 {
+    row-gap: calc(var(--spacing) * 8);
+  }
   .gap-y-10 {
     row-gap: calc(var(--spacing) * 10);
   }
@@ -2706,9 +2706,6 @@
   }
   .bg-\[\#BEE0FF\] {
     background-color: #BEE0FF;
-  }
-  .bg-\[\#BFE3F9\] {
-    background-color: #BFE3F9;
   }
   .bg-\[\#C7D3E6\] {
     background-color: #C7D3E6;
