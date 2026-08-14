@@ -11,12 +11,12 @@ import {
 } from "react-icons/fi";
 
 const actions = [
-  { labelKey: "addProduct", icon: FiBox ,route: "/inventory-management/add" },
-  { labelKey: "totalOrders", icon: FiBarChart2 ,route: "/orders" },
-  { labelKey: "managePricing", icon: FiUsers ,route: "/pricing-packages" },
-  { labelKey: "themes", icon: FiGrid ,route: "/theme-management" },
-  { labelKey: "reports", icon: FiFileText ,route: "/reports-analytics" },
-  { labelKey: "rentalUsageReport", icon: FiSettings ,route: "/" },
+  { labelKey: "addProduct", icon: FiBox, route: "/inventory-management/add" },
+  { labelKey: "totalOrders", icon: FiBarChart2, route: "/orders" },
+  { labelKey: "managePricing", icon: FiUsers, route: "/pricing-packages" },
+  { labelKey: "themes", icon: FiGrid, route: "/theme-management" },
+  { labelKey: "reports", icon: FiFileText, route: "/reports-analytics" },
+  // { labelKey: "rentalUsageReport", icon: FiSettings ,route: "/" },
 ];
 
 const QuickActionsCard = () => {
@@ -29,7 +29,7 @@ const QuickActionsCard = () => {
         {t("title")}
       </h3>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {actions.map((item, index) => {
           const Icon = item.icon;
 

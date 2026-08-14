@@ -580,7 +580,7 @@ class ForgotPasswordAPIView(APIView):
         # Generate frontend URL based on type
         if user_type.lower() == "uniform":
             # base_url = "http://23.23.88.239:7002"
-            base_url = "http://104.64.206.82:7002"
+            base_url = "https://uniform-admin.dxtspace.com"
         elif user_type.lower() == "table":
             base_url = "http://23.23.88.239:7001"
         else:

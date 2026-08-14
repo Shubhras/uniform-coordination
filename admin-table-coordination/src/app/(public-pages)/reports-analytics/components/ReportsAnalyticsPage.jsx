@@ -166,7 +166,7 @@ const ReportsAnalyticsPage = () => {
     {
       key: "totalRevenue",
       label: t("summaryCards.totalRevenue"),
-      value: `¥${Number(reportData?.kpi?.total_revenue ?? 0).toLocaleString()}`,
+      value: `$${Number(reportData?.kpi?.total_revenue ?? 0).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 })}`,
     },
     {
       key: "totalOrders",

@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { apiGetSimulationOptions } from '@/services/SimulationService'
+import { apiGetTemplateById } from '@/services/CategoryService'
 
 /*
  * Landing screen for /dashboards/uniform-3d-design with no product in the URL.
@@ -18,8 +19,15 @@ import { apiGetSimulationOptions } from '@/services/SimulationService'
 
 const SimulationProductPicker = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Arriving from a template: ?category=<id>&template=<id>. The template is a style, so
+  // it travels with the shopper until a product is chosen and then gets applied there.
+  const templateId = searchParams.get('template')
+  const categoryFromUrl = searchParams.get('category')
 
   const [products, setProducts] = useState([])
+  const [template, setTemplate] = useState(null)
   const [category, setCategory] = useState('')
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState(false)
@@ -52,6 +60,35 @@ const SimulationProductPicker = () => {
     }
   }, [])
 
+  useEffect(() => {
+    let cancelled = false
+
+    const loadTemplate = async () => {
+      if (!templateId) return
+      try {
+        const res = await apiGetTemplateById(templateId)
+        if (!cancelled && res?.status) setTemplate(res.data)
+      } catch (err) {
+        // Losing the template only costs the banner and the preset; the picker still works.
+        console.error('Failed to load the template:', err)
+      }
+    }
+
+    loadTemplate()
+    return () => {
+      cancelled = true
+    }
+  }, [templateId])
+
+  // Narrow to the template's category so the shopper only sees uniforms it applies to.
+  useEffect(() => {
+    if (!categoryFromUrl || products.length === 0) return
+    const match = products.find(
+      (p) => String(p.category_id) === String(categoryFromUrl),
+    )
+    if (match?.category) setCategory(match.category)
+  }, [categoryFromUrl, products])
+
   // Built from the products actually on offer, so the filter can never point at a
   // category with nothing behind it.
   const categories = useMemo(() => {
@@ -66,7 +103,12 @@ const SimulationProductPicker = () => {
     ? products.filter((p) => p.category === category)
     : products
 
-  const open = (id) => router.push(`/dashboards/uniform-3d-design/${id}`)
+  const open = (id) =>
+    router.push(
+      templateId
+        ? `/dashboards/uniform-3d-design/${id}?template=${templateId}`
+        : `/dashboards/uniform-3d-design/${id}`,
+    )
 
   return (
     <section className="w-full bg-white px-5 md:px-8 lg:px-12 py-8 mt-11">
@@ -77,9 +119,40 @@ const SimulationProductPicker = () => {
           </h1>
           <div className="w-20 h-1 bg-[#1C2C56] mx-auto mt-2 rounded-full" />
           <p className="text-sm text-[#6B7280] mt-3">
-            Pick a uniform to open it in the design tool.
+            {template
+              ? 'Pick the uniform you want this style applied to.'
+              : 'Pick a uniform to open it in the design tool.'}
           </p>
         </div>
+
+        {template && (
+          <div className="mt-6 max-w-2xl mx-auto border border-[#C7D7F5] bg-[#F5F8FF] rounded-xl px-4 py-3 flex items-center gap-3">
+            {template.templateImage && (
+              <span className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-white">
+                <Image
+                  src={template.templateImage}
+                  alt={template.templateName}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              </span>
+            )}
+            <span className="min-w-0">
+              <span className="block text-sm font-medium text-[#1C2C56] truncate">
+                Using template: {template.templateName}
+              </span>
+              <span className="block text-xs text-[#64748B] truncate">
+                {[
+                  template.presetColorName && `Colour: ${template.presetColorName}`,
+                  template.presetFabricName && `Fabric: ${template.presetFabricName}`,
+                ]
+                  .filter(Boolean)
+                  .join(' • ') || 'No preset style on this template'}
+              </span>
+            </span>
+          </div>
+        )}
 
         {categories.length > 1 && (
           <div className="flex flex-wrap justify-center gap-2 mt-6">

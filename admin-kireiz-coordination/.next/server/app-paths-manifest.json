@@ -1,7 +1,0 @@
-{
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js",
-  "/(public-pages)/system-settings/page": "app/(public-pages)/system-settings/page.js",
-  "/(public-pages)/reports-analytics/page": "app/(public-pages)/reports-analytics/page.js",
-  "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js"
-}

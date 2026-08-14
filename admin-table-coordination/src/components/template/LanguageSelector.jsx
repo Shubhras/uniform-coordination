@@ -22,9 +22,13 @@ const _LanguageSelector = ({ className }) => {
     return languageList.find((lang) => lang.value === locale)?.flag;
   }, [locale]);
 
-  const handleUpdateLocale = async (locale) => {
-    await setLocale(locale);
+  const handleUpdateLocale = async (newLocale) => {
+    if (typeof document !== "undefined") {
+      document.cookie = `locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    }
+    await setLocale(newLocale);
   };
+
   const selectedLang = useMemo(() => {
     return languageList.find((lang) => lang.value === locale);
   }, [locale]);

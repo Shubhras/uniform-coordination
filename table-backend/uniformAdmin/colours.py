@@ -11,6 +11,21 @@ from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,O
 
 
 
+def sync_color_category_to_fabrics(color):
+    if not color or not color.category:
+        return
+    query = Q()
+    if color.compatibleFabric and isinstance(color.compatibleFabric, list) and len(color.compatibleFabric) > 0:
+        query |= Q(materialType__in=color.compatibleFabric)
+    if color.colorCode:
+        query |= Q(color__iexact=color.colorCode)
+    if color.colorName:
+        query |= Q(color__iexact=color.colorName)
+
+    if query:
+        Fabric.objects.filter(isDeleted=False).filter(query).update(category=color.category)
+
+
 @extend_schema(
     tags=["Colors"],
     summary="Create a new color",
@@ -30,7 +45,8 @@ class ColorsCreateView(APIView):
             serializer = ColorsSerializer(data=request.data)
 
             if serializer.is_valid():
-                serializer.save()
+                color_obj = serializer.save()
+                sync_color_category_to_fabrics(color_obj)
                 return Response({
                     "statusCode": 200,
                     "status": True,
@@ -176,7 +192,8 @@ class ColorsUpdateView(APIView):
             serializer = ColorsSerializer(color, data=request.data, partial=True)
 
             if serializer.is_valid():
-                serializer.save()
+                color_obj = serializer.save()
+                sync_color_category_to_fabrics(color_obj)
 
                 return Response({
                     "statusCode": 200,

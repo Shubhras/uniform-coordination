@@ -29,18 +29,61 @@ const notify = (title, type, message) =>
 /*
  * Attributes that can be added here.
  *
- * Deliberately only the three that have real admin data behind them — Fabric, Parts and
- * Color are actual tables the customer simulation can read options from. Offering
- * freehand attribute names would let the admin enable something with no options to
- * show, which reads as a broken toggle on the customer side.
+ * Only the four whose choices the admin actually manages: Fabric, Parts and Color from
+ * their own tabs under Product & Specification, and Size from the Size tab. Adding one of
+ * these gives the admin the whole attribute — whether it appears, in what order, and what
+ * a shopper can pick.
+ *
+ * Collar, Sleeves, Cap, Zipper, Cuff, Pocket, Pant and Apron are deliberately absent. The
+ * storefront has working tools for them, but their choices are fixed artwork with no admin
+ * screen behind them, so offering them here would mean adding an attribute and then having
+ * nowhere to manage its options.
+ *
+ * Rows already saved under those names still show in the table below and keep working —
+ * this list only governs what can be added.
  */
-const ADDABLE_ATTRIBUTES = ["Fabric", "Parts", "Color"];
+const ADDABLE_ATTRIBUTES = ["Fabric", "Parts", "Color", "Size"];
 
 // "Colors" and "Color", "Fabrics" and "Fabric" are the same attribute. Existing rows
 // were seeded with singular names, so compare on a normalised stem rather than the
 // literal string.
 const normalise = (name) =>
   (name || "").trim().toLowerCase().replace(/s$/, "");
+
+/*
+ * Which customer tool an attribute name drives.
+ *
+ * Mirrors ATTRIBUTE_TO_PANEL in the storefront's Uniform3DmoduleDegisn — the two must
+ * stay in step, and this copy exists so the dropdown can hide an attribute whose tool is
+ * already covered under a different name. Seeded rows use names like "Apron Type",
+ * "Cap Type" and "Closure", which drive the same tools as "Apron", "Cap" and "Zipper";
+ * matching on the name alone would offer both and leave the admin with two rows for one
+ * tool.
+ */
+const ATTRIBUTE_TO_PANEL = [
+  [["fabric", "material"], "fabric"],
+  [["colour", "color"], "color"],
+  [["part"], "parts"],
+  [["size"], "size"],
+  [["collar"], "collar"],
+  [["sleeve"], "sleeves"],
+  [["cap"], "cap"],
+  [["cuff"], "cuff"],
+  [["pocket"], "pocket"],
+  [["apron"], "aprons"],
+  [["zip", "closure"], "zipper"],
+  [["pant", "trouser", "bottom"], "pants"],
+  [["top"], "top"],
+  [["leg"], "legy"],
+];
+
+const panelKeyFor = (name) => {
+  const n = (name || "").toLowerCase();
+  const hit = ATTRIBUTE_TO_PANEL.find(([needles]) =>
+    needles.some((x) => n.includes(x)),
+  );
+  return hit ? hit[1] : null;
+};
 
 const SimulationStructure = () => {
   const t = useTranslations("simulationAssets");
@@ -88,9 +131,15 @@ const SimulationStructure = () => {
 
   const dirty = JSON.stringify(structures) !== saved;
 
-  // Only what this category does not already have.
-  const taken = new Set(rows.map((r) => normalise(r.attribute)));
-  const available = ADDABLE_ATTRIBUTES.filter((a) => !taken.has(normalise(a)));
+  // Only what this category does not already have — matched by name and by the tool the
+  // name drives, so "Apron" is not offered when "Apron Type" is already listed.
+  const takenNames = new Set(rows.map((r) => normalise(r.attribute)));
+  const takenPanels = new Set(
+    rows.map((r) => panelKeyFor(r.attribute)).filter(Boolean),
+  );
+  const available = ADDABLE_ATTRIBUTES.filter(
+    (a) => !takenNames.has(normalise(a)) && !takenPanels.has(panelKeyFor(a)),
+  );
 
   useEffect(() => {
     const onClickOutside = (e) => {
@@ -240,7 +289,7 @@ const SimulationStructure = () => {
               </button>
 
               {addOpen && available.length > 0 && (
-                <div className="absolute right-0 top-full mt-1 z-30 w-[190px] bg-white border border-[#E2E8F0] rounded-lg shadow-lg overflow-hidden">
+                <div className="absolute right-0 top-full mt-1 z-30 w-[190px] max-h-64 overflow-y-auto bg-white border border-[#E2E8F0] rounded-lg shadow-lg">
                   {available.map((name) => (
                     <button
                       key={name}

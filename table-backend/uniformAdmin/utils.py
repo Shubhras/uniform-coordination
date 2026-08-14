@@ -340,7 +340,88 @@ def new_build_media_url(file_field):
     if settings.DEBUG and ("sslip.io" in domain or "localhost" in domain or "table-admin.dxtspace.com" in domain):
         domain = "http://127.0.0.1:8002"
 
-    return f"{domain.rstrip('/')}{file_field.url}"    
+    return f"{domain.rstrip('/')}{file_field.url}"
+
+
+def send_user_deactivation_email(user, reason):
+    """
+    Sends an email notification to the user informing them that their account has been deactivated, along with the specified reason.
+    """
+    subject = "Account Deactivation Notice - KIREIZ Space"
+    recipient_email = user.email
+    if not recipient_email:
+        return False
+
+    user_name = f"{user.firstName or ''} {user.lastName or ''}".strip() or user.userName or "Valued Customer"
+
+    message_text = f"""Hello {user_name},
+
+Your account on KIREIZ Space has been deactivated by an administrator.
+
+Reason for Deactivation:
+{reason}
+
+If you believe this was done in error or have any questions regarding your account status, please contact our support team.
+
+Best regards,
+KIREIZ Space Support Team
+"""
+
+    html_message = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body {{ font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333; margin: 0; padding: 20px; }}
+        .card {{ max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #efe5dd; }}
+        .header {{ border-bottom: 2px solid #a85a32; padding-bottom: 15px; margin-bottom: 20px; }}
+        .title {{ color: #a85a32; font-size: 22px; font-weight: bold; margin: 0; }}
+        .reason-box {{ background: #fff5f5; border-left: 4px solid #f04444; padding: 15px; margin: 20px 0; border-radius: 6px; }}
+        .reason-title {{ font-weight: bold; color: #991b1b; margin-bottom: 6px; }}
+        .reason-content {{ color: #4b5563; font-size: 15px; line-height: 1.5; white-space: pre-wrap; }}
+        .footer {{ margin-top: 30px; font-size: 13px; color: #777; border-top: 1px solid #eee; padding-top: 15px; }}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="header">
+          <h2 class="title">KIREIZ Space</h2>
+        </div>
+        <p>Hello <strong>{user_name}</strong>,</p>
+        <p>Your account on <strong>KIREIZ Space</strong> has been deactivated by an administrator.</p>
+
+        <div class="reason-box">
+          <div class="reason-title">Reason for Deactivation:</div>
+          <div class="reason-content">{reason}</div>
+        </div>
+
+        <p>If you believe this decision was made in error or if you have any questions, please contact our support team.</p>
+
+        <div class="footer">
+          <p>&copy; KIREIZ Space. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+    """
+
+    try:
+        from django.core.mail import EmailMultiAlternatives
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', 'noreply@kireiz.com')
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=message_text,
+            from_email=from_email,
+            to=[recipient_email],
+        )
+        email.attach_alternative(html_message, "text/html")
+        email.send(fail_silently=False)
+        return True
+    except Exception as e:
+        print(f"Error sending deactivation email to {recipient_email}: {e}")
+        return False
+    
 
 # for local
 # from django.conf import settings

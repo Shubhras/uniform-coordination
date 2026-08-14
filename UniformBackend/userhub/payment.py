@@ -8,7 +8,8 @@ from .models import *
 from .serializers import *
 from uniformAdmin.fabric import IsAdministrator
 import stripe
-from uniformAdmin.auth import *
+from django.db import transaction
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from .utils import generate_payment_pdf
 import json
 from django.views.decorators.csrf import csrf_exempt

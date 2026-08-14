@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Select from "react-select";
 import {
   FiAlertCircle,
@@ -27,7 +27,7 @@ const isNotificationNotFoundError = (error) =>
   error?.response?.status === 404 &&
   getApiErrorMessage(error).toLowerCase().includes("no notification");
 
-const formatDate = (value) => {
+const formatDate = (value, locale = "en-US") => {
   if (!value) return "-";
 
   const date = new Date(value);
@@ -35,7 +35,8 @@ const formatDate = (value) => {
     return value;
   }
 
-  return new Intl.DateTimeFormat("en-GB", {
+  const targetLocale = locale === "ja" ? "ja-JP" : "en-GB";
+  return new Intl.DateTimeFormat(targetLocale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -75,7 +76,7 @@ const getNotificationStatus = (item) => {
   return "Sent";
 };
 
-const normalizeNotification = (item) => ({
+const normalizeNotification = (item, locale = "en-US") => ({
   ...item,
   id: item?.id ?? item?.notification_id ?? item?.pk,
   recipient:
@@ -100,10 +101,11 @@ const normalizeNotification = (item) => ({
   statusLabel: getNotificationStatus(item),
   sentAt: formatDate(
     item?.sent_at ||
-      item?.created_at ||
-      item?.updated_at ||
-      item?.timestamp ||
-      item?.date,
+    item?.created_at ||
+    item?.updated_at ||
+    item?.timestamp ||
+    item?.date,
+    locale
   ),
 });
 
@@ -170,6 +172,7 @@ const selectStyles = {
 
 const NotificationPage = () => {
   const t = useTranslations("notifications");
+  const locale = useLocale();
 
   const statusOptions = [
     { value: "all", label: t("statusFilter") },
@@ -206,7 +209,7 @@ const NotificationPage = () => {
         payload?.items ||
         (Array.isArray(payload) ? payload : []);
 
-      setNotifications(list.map(normalizeNotification));
+      setNotifications(list.map((item) => normalizeNotification(item, locale)));
     } catch (error) {
       if (!isNotificationNotFoundError(error)) {
         console.error("Failed to fetch notifications:", error);
@@ -369,87 +372,89 @@ const NotificationPage = () => {
           <tbody>
             {loading
               ? Array.from({ length: itemsPerPage }).map((_, index) => (
+                <tr
+                  key={`loading-${index}`}
+                  className="odd:bg-white even:bg-[#FBF8F6]"
+                >
+                  <td className="px-3 py-3">
+                    <div className="h-4 w-28 animate-pulse rounded bg-[#F5ECE6]" />
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="h-4 w-40 animate-pulse rounded bg-[#F5ECE6]" />
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="h-4 w-20 animate-pulse rounded bg-[#F5ECE6]" />
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="h-6 w-16 animate-pulse rounded-full bg-[#F5ECE6]" />
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="h-4 w-24 animate-pulse rounded bg-[#F5ECE6]" />
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="mx-auto h-6 w-14 animate-pulse rounded-full bg-[#F5ECE6]" />
+                  </td>
+                </tr>
+              ))
+              : paginatedNotifications.map((item) => {
+                const isSent = item.statusLabel === "Sent";
+                const targetOrderId =
+                  item.orderId && item.orderId !== "-"
+                    ? item.orderId
+                    : item.id;
+                const canView = Boolean(targetOrderId);
+
+                return (
                   <tr
-                    key={`loading-${index}`}
+                    key={item.id}
                     className="odd:bg-white even:bg-[#FBF8F6]"
                   >
-                    <td className="px-3 py-3">
-                      <div className="h-4 w-28 animate-pulse rounded bg-[#F5ECE6]" />
+                    <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
+                      {item.recipient}
                     </td>
-                    <td className="px-3 py-3">
-                      <div className="h-4 w-40 animate-pulse rounded bg-[#F5ECE6]" />
+                    <td className="whitespace-nowrap px-3 py-3 text-[#4A3D36]">
+                      {item.email}
                     </td>
-                    <td className="px-3 py-3">
-                      <div className="h-4 w-20 animate-pulse rounded bg-[#F5ECE6]" />
+                    <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
+                      {item.orderId}
                     </td>
-                    <td className="px-3 py-3">
-                      <div className="h-6 w-16 animate-pulse rounded-full bg-[#F5ECE6]" />
+                    <td className="whitespace-nowrap px-3 py-3">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${isSent
+                          ? "bg-[#E8FAF2] text-[#007A55]"
+                          : "bg-[#FFE9E8] text-[#F04444]"
+                          }`}
+                      >
+                        {isSent ? (
+                          <FiCheckCircle size={11} />
+                        ) : (
+                          <FiAlertCircle size={11} />
+                        )}
+                        {isSent ? t("statusSent") : t("statusFailed")}
+                      </span>
                     </td>
-                    <td className="px-3 py-3">
-                      <div className="h-4 w-24 animate-pulse rounded bg-[#F5ECE6]" />
+                    <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
+                      {item.sentAt}
                     </td>
-                    <td className="px-3 py-3">
-                      <div className="mx-auto h-6 w-14 animate-pulse rounded-full bg-[#F5ECE6]" />
+                    <td className="px-3 py-3 text-start">
+                      <button
+                        type="button"
+                        disabled={!canView}
+                        onClick={() => {
+                          if (canView) {
+                            router.push(`/orders/${targetOrderId}`);
+                          }
+                        }}
+                        className={`inline-flex items-center gap-1 rounded-lg border border-[#EDD8CA] bg-white px-3 py-1 text-[10px] font-medium text-[#C17443] transition hover:bg-[#FCF4EE] ${canView ? "" : "cursor-default opacity-60"
+                          }`}
+                      >
+                        <FiEye size={11} />
+                        {t("view")}
+                      </button>
                     </td>
                   </tr>
-                ))
-              : paginatedNotifications.map((item) => {
-                  const isSent = item.statusLabel === "Sent";
-                  const canView = Boolean(item.id);
-
-                  return (
-                    <tr
-                      key={item.id}
-                      className="odd:bg-white even:bg-[#FBF8F6]"
-                    >
-                      <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
-                        {item.recipient}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3 text-[#4A3D36]">
-                        {item.email}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
-                        {item.orderId}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${
-                            isSent
-                              ? "bg-[#E8FAF2] text-[#007A55]"
-                              : "bg-[#FFE9E8] text-[#F04444]"
-                          }`}
-                        >
-                          {isSent ? (
-                            <FiCheckCircle size={11} />
-                          ) : (
-                            <FiAlertCircle size={11} />
-                          )}
-                          {isSent ? t("statusSent") : t("statusFailed")}
-                        </span>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
-                        {item.sentAt}
-                      </td>
-                      <td className="px-3 py-3 text-center">
-                        <button
-                          type="button"
-                          disabled={!canView}
-                          onClick={() => {
-                            if (canView) {
-                              router.push(`/notifications/${item.id}`);
-                            }
-                          }}
-                          className={`inline-flex items-center gap-1 rounded-full border border-[#EDD8CA] bg-white px-3 py-1 text-[10px] font-medium text-[#C17443] transition hover:bg-[#FCF4EE] ${
-                            canView ? "" : "cursor-default opacity-60"
-                          }`}
-                        >
-                          <FiEye size={11} />
-                          {t("view")}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                );
+              })}
           </tbody>
         </table>
       </div>
@@ -487,11 +492,10 @@ const NotificationPage = () => {
                 key={page}
                 type="button"
                 onClick={() => goToPage(page)}
-                className={`flex h-8 min-w-[30px] items-center justify-center rounded px-2 ${
-                  currentPage === page
-                    ? "bg-[#D88957] text-white"
-                    : "text-[#8C7C73] hover:bg-[#FCF4EF]"
-                }`}
+                className={`flex h-8 min-w-[30px] items-center justify-center rounded px-2 ${currentPage === page
+                  ? "bg-[#D88957] text-white"
+                  : "text-[#8C7C73] hover:bg-[#FCF4EF]"
+                  }`}
               >
                 {page}
               </button>

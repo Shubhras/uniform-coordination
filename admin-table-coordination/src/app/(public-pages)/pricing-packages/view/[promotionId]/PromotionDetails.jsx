@@ -90,15 +90,14 @@ const PromotionDetails = ({ promotionId }) => {
               <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
                 {promotion?.promocodeType === "percentage"
                   ? `${promotion?.amount}%`
-                  : `₹ ${promotion?.amount}`}
+                  : `$${promotion?.amount}`}
               </p>
             </div>
             <span
-              className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-medium ${
-                promotion?.isActive
-                  ? "bg-[#E8FAF2] text-[#007A55]"
-                  : "bg-[#FFE9E8] text-[#F04444]"
-              }`}
+              className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-medium ${promotion?.isActive
+                ? "bg-[#E8FAF2] text-[#007A55]"
+                : "bg-[#FFE9E8] text-[#F04444]"
+                }`}
             >
               {promotion?.isActive ? t("statusActive") : t("statusInactive")}
             </span>

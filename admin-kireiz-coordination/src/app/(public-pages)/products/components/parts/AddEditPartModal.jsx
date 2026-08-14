@@ -163,7 +163,7 @@ const AddEditPartModal = ({
     const fetchSubcategories = async () => {
       try {
         setLoadingSubcategories(true);
-        const res = await apiGetSubcategoryList(selectedCategory.value);
+        const res = await apiGetSubcategoryList(accessToken,selectedCategory.value);
         if (res?.status && res?.data) {
           const opts = res.data.map((sc) => ({
             value: sc.id,

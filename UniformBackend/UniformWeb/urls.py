@@ -11,6 +11,8 @@ urlpatterns = [
     path("api/docs/swagger/",SpectacularSwaggerView.as_view(url_name="schema"),name="swagger-ui",),
     path("api/docs/redoc/",SpectacularRedocView.as_view(url_name="schema"),name="redoc",),
     path('api/v1/uniformAdmin/', include('uniformAdmin.urls')),
+    path('api/v1/space/uniformAdmin/', include('uniformAdmin.urls')),
     path('api/v1/userhub/', include('userhub.urls')),
+    path('api/v1/space/userhub/', include('userhub.urls')),
     #path('api/v1/contracts/', include('contracts.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
