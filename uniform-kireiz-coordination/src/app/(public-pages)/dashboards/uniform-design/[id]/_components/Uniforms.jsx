@@ -38,7 +38,7 @@ const Uniforms = () => {
         { key: 'bottom', name: 'Bottoms' },
         { key: 'set', name: 'Sets' },
         { key: 'best_seller', name: 'Best Sellers' },
-        { key: 'newest', name: 'New Arrivals' }
+        // { key: 'newest', name: 'New Arrivals' }
     ]
 
     const sortOptions = [

@@ -195,7 +195,6 @@ const DeliveryRequestForm = () => {
                             <FormItem
                                 invalid={Boolean(errors.company_name)}
                                 errorMessage={errors.company_name?.message}
-                                className="mb-2"
                             >
                                 <Controller
                                     name="company_name"
@@ -209,7 +208,6 @@ const DeliveryRequestForm = () => {
                             <FormItem
                                 invalid={Boolean(errors.contact_person)}
                                 errorMessage={errors.contact_person?.message}
-                                className="mb-2"
                             >
                                 <Controller
                                     name="contact_person"
@@ -223,7 +221,6 @@ const DeliveryRequestForm = () => {
                             <FormItem
                                 invalid={Boolean(errors.email)}
                                 errorMessage={errors.email?.message}
-                                className="mb-2"
                             >
                                 <Controller
                                     name="email"
@@ -237,7 +234,6 @@ const DeliveryRequestForm = () => {
                             <FormItem
                                 invalid={Boolean(errors.phone_number)}
                                 errorMessage={errors.phone_number?.message}
-                                className="mb-2"
                             >
                                 <Controller
                                     name="phone_number"
@@ -255,7 +251,6 @@ const DeliveryRequestForm = () => {
                             <FormItem
                                 invalid={Boolean(errors.item_type)}
                                 errorMessage={errors.item_type?.message}
-                                className="mb-2"
                             >
                                 <Controller
                                     name="item_type"
@@ -269,7 +264,6 @@ const DeliveryRequestForm = () => {
                             <FormItem
                                 invalid={Boolean(errors.material)}
                                 errorMessage={errors.material?.message}
-                                className="mb-2"
                             >
                                 <Controller
                                     name="material"
@@ -283,7 +277,6 @@ const DeliveryRequestForm = () => {
                             <FormItem
                                 invalid={Boolean(errors.size_quantity)}
                                 errorMessage={errors.size_quantity?.message}
-                                className="mb-2"
                             >
                                 <Controller
                                     name="size_quantity"
@@ -297,7 +290,6 @@ const DeliveryRequestForm = () => {
                             <FormItem
                                 invalid={Boolean(errors.delivery_date)}
                                 errorMessage={errors.delivery_date?.message}
-                                className="mb-2"
                             >
                                 <Controller
                                     name="delivery_date"
@@ -317,7 +309,6 @@ const DeliveryRequestForm = () => {
                         <FormItem
                             invalid={Boolean(errors.additional_note)}
                             errorMessage={errors.additional_note?.message}
-                            className="mb-2"
                         >
                             <Controller
                                 name="additional_note"
@@ -335,13 +326,12 @@ const DeliveryRequestForm = () => {
                         <FormItem
                             invalid={Boolean(errors.agreed_to_terms)}
                             errorMessage={errors.agreed_to_terms?.message}
-                            className="mb-2"
                         >
                             <Controller
                                 name="agreed_to_terms"
                                 control={control}
                                 render={({ field }) => (
-                                    <Checkbox {...field}>
+                                    <Checkbox {...field} checkboxClass="text-[#1C4FA8]">
                                         I agree to privacy
                                         <span
                                             className="text-[#87CEEB] cursor-pointer ml-2"

@@ -83,13 +83,103 @@ class PromocodeCreateAPIView(BaseAPIView):
 
 
 
+# class PromocodeListAPIView(BaseAPIView):
+#     permission_classes = [AllowAny]
+    
+#     @extend_schema(
+#         tags=["Promocode"],
+#         summary="List Promocodes",
+#         description="Get paginated list of promocodes",
+#         parameters=[
+#             OpenApiParameter(
+#                 name="search",
+#                 description="Search by promocode name",
+#                 required=False,
+#                 type=OpenApiTypes.STR,
+#                 location=OpenApiParameter.QUERY,
+#             ),
+#             OpenApiParameter(
+#                 name="page",
+#                 description="Page number",
+#                 required=False,
+#                 type=OpenApiTypes.INT,
+#                 location=OpenApiParameter.QUERY,
+#             ),
+#             OpenApiParameter(
+#                 name="page_size",
+#                 description="Items per page",
+#                 required=False,
+#                 type=OpenApiTypes.INT,
+#                 location=OpenApiParameter.QUERY,
+#             ),
+#         ],
+#         responses={
+#             200: OpenApiResponse(description="Promocode list fetched"),
+#             500: OpenApiResponse(description="Internal server error"),
+#         },
+#         auth=[],  # public
+#     )
+
+#     def get(self, request):
+#         try:
+#             search_query = request.query_params.get("search", "").strip()
+
+#             queryset = Promocode.objects.filter(isDeleted=False)
+
+#             if search_query:
+#                 queryset = queryset.filter(
+#                     Q(promocodeName__icontains=search_query)
+#                 )
+
+#             queryset = queryset.order_by("-id")
+
+#             paginator = CustomPagination()
+#             page = paginator.paginate_queryset(queryset, request)
+
+#             serializer = PromocodeSerializer(
+#                 page,
+#                 many=True,
+#                 context={"request": request}
+#             )
+
+#             response = {
+#                 "count": paginator.page.paginator.count,
+#                 "next": paginator.get_next_link(),
+#                 "previous": paginator.get_previous_link(),
+#                 "statusCode": 200,
+#                 "status": True,
+#                 "message": "Promocode list fetched",
+#                 "data": serializer.data,
+#                 "pagination": {
+#                     "page": paginator.page.number,
+#                     "page_size": paginator.get_page_size(request),
+#                     "total_pages": paginator.page.paginator.num_pages,
+#                     "total_items": paginator.page.paginator.count,
+#                 },
+#             }
+
+#             return Response(response, status=status.HTTP_200_OK)
+
+#         except Exception as e:
+#             return self.error_response(f"Internal server error: {str(e)}")
+
+from django.db.models import Q
+from django.utils import timezone
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    OpenApiTypes,
+    OpenApiResponse,
+)
+
+
 class PromocodeListAPIView(BaseAPIView):
     permission_classes = [AllowAny]
-    
+
     @extend_schema(
         tags=["Promocode"],
         summary="List Promocodes",
-        description="Get paginated list of promocodes",
+        description="Get paginated list of promocodes with search and filters",
         parameters=[
             OpenApiParameter(
                 name="search",
@@ -97,6 +187,22 @@ class PromocodeListAPIView(BaseAPIView):
                 required=False,
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="status",
+                description="Filter by status: active, inactive, expired",
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                enum=["active", "inactive", "expired"],
+            ),
+            OpenApiParameter(
+                name="type",
+                description="Filter by promocode type: percentage, fixed",
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                enum=["percentage", "fixed"],
             ),
             OpenApiParameter(
                 name="page",
@@ -117,24 +223,84 @@ class PromocodeListAPIView(BaseAPIView):
             200: OpenApiResponse(description="Promocode list fetched"),
             500: OpenApiResponse(description="Internal server error"),
         },
-        auth=[],  # public
+        auth=[],
     )
-
     def get(self, request):
         try:
-            search_query = request.query_params.get("search", "").strip()
+            search_query = request.query_params.get(
+                "search", ""
+            ).strip()
 
-            queryset = Promocode.objects.filter(isDeleted=False)
+            status_filter = request.query_params.get(
+                "status", ""
+            ).strip().lower()
 
+            type_filter = request.query_params.get(
+                "type", ""
+            ).strip().lower()
+
+            queryset = Promocode.objects.filter(
+                isDeleted=False
+            )
+
+            # -------------------------
+            # Search
+            # -------------------------
             if search_query:
                 queryset = queryset.filter(
                     Q(promocodeName__icontains=search_query)
                 )
 
+            # -------------------------
+            # Status Filter
+            # -------------------------
+            now = timezone.now()
+
+            if status_filter == "active":
+                queryset = queryset.filter(
+                    isActive=True
+                ).filter(
+                    Q(started_at__isnull=True) |
+                    Q(started_at__lte=now)
+                ).filter(
+                    Q(ended_at__isnull=True) |
+                    Q(ended_at__gte=now)
+                )
+
+            elif status_filter == "inactive":
+                queryset = queryset.filter(
+                    isActive=False
+                )
+
+            elif status_filter == "expired":
+                queryset = queryset.filter(
+                    ended_at__isnull=False,
+                    ended_at__lt=now,
+                )
+
+            # -------------------------
+            # Promocode Type Filter
+            # -------------------------
+            if type_filter == "percentage":
+                queryset = queryset.filter(
+                    promocodeType="discount"
+                )
+
+            elif type_filter == "fixed":
+                queryset = queryset.filter(
+                    promocodeType="fix_price"
+                )
+
             queryset = queryset.order_by("-id")
 
+            # -------------------------
+            # Pagination
+            # -------------------------
             paginator = CustomPagination()
-            page = paginator.paginate_queryset(queryset, request)
+            page = paginator.paginate_queryset(
+                queryset,
+                request
+            )
 
             serializer = PromocodeSerializer(
                 page,
@@ -158,12 +324,15 @@ class PromocodeListAPIView(BaseAPIView):
                 },
             }
 
-            return Response(response, status=status.HTTP_200_OK)
+            return Response(
+                response,
+                status=status.HTTP_200_OK
+            )
 
         except Exception as e:
-            return self.error_response(f"Internal server error: {str(e)}")
-
-
+            return self.error_response(
+                f"Internal server error: {str(e)}"
+            )
 
 
 

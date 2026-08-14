@@ -132,11 +132,6 @@ class AdminDetailSerializer(serializers.ModelSerializer):
 
 
 class FabricSerializer(serializers.ModelSerializer):
-    theme = serializers.PrimaryKeyRelatedField(
-        queryset=TableTheme.objects.filter(is_active=True, isDeleted=False),
-        required=False,
-        allow_null=True
-    )
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.filter(isActive=True, isDeleted=False),
         source="category",
@@ -166,24 +161,6 @@ class FabricSerializer(serializers.ModelSerializer):
         if query.exists():
             raise serializers.ValidationError("This fabric name already exists.")
         return value
-
-    def validate(self, data):
-        fabric_type = data.get("fabricType")
-        theme = data.get("theme")
-
-        # Table → theme REQUIRED
-        if fabric_type == "table" and not theme:
-            raise serializers.ValidationError({
-                "theme": "Theme is required when fabric type is table."
-            })
-
-        # Uniform → theme NOT allowed
-        if fabric_type == "uniform" and theme:
-            raise serializers.ValidationError({
-                "theme": "Theme is not allowed in uniform."
-            })
-
-        return data
 
 
 
@@ -349,13 +326,10 @@ def get_attribute_image_url(instance, request=None):
     if request:
         return request.build_absolute_uri(url)
     if url.startswith(("http://", "https://")):
-        if "table-admin.dxtspace.com" in url:
-            url = url.replace("https://table-admin.dxtspace.com", "").replace("http://table-admin.dxtspace.com", "")
-        else:
-            return url
+        return url
     clean_url = url if url.startswith("/") else f"/{url}"
     domain = getattr(settings, "SITE_URL", "http://127.0.0.1:8002").rstrip("/")
-    if "dxtspace.com" in domain:
+    if settings.DEBUG and ("sslip.io" in domain or "localhost" in domain):
         domain = "http://127.0.0.1:8002"
     return f"{domain}{clean_url}"
 

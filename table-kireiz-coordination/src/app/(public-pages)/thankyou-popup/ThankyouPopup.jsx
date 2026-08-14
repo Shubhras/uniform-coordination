@@ -91,8 +91,8 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
     const currencyCode = order?.currency || orderPaymentDetail?.currency || 'USD'
 
     const subtotal = order?.subtotal
-    const shipping = order?.shipping_charge
-    const discount = order?.discount
+    const shipping = order?.shipping_charge ?? order?.shipping
+    const discount = order?.discount ?? order?.promo_amount ?? order?.discount_amount
     const tax = order?.tax
     const totalAmount = order?.total_amount ?? orderPaymentDetail?.amount
 
@@ -164,7 +164,7 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
                                     {orderItems.map((item, idx) => {
                                         const itemName = item.product_name || item.name || `Item ${idx + 1}`
                                         const qty = item.quantity || 1
-                                        const price = item.total_price || item.price || 0
+                                        const price = item.subtotal ?? item.total_price ?? item.price ?? (item.price_per_day && item.quantity ? (Number(item.price_per_day) * Number(item.quantity) * (order?.rental_days || 1)) : 0)
                                         const pricePerDay = item.price_per_day
 
                                         return (

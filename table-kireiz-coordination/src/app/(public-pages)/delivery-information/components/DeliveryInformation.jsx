@@ -59,6 +59,7 @@ const DeliveryInformation = () => {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState("");
   const [couponSuccess, setCouponSuccess] = useState("");
+  const [couponApplied, setCouponApplied] = useState(false);
 
   const {
     control,
@@ -135,10 +136,10 @@ const DeliveryInformation = () => {
   const rentalDays =
     start_date && return_date
       ? Math.max(
-          0,
-          (new Date(return_date) - new Date(start_date)) /
-            (1000 * 60 * 60 * 24),
-        )
+        0,
+        (new Date(return_date) - new Date(start_date)) /
+        (1000 * 60 * 60 * 24),
+      )
       : 0;
 
   /**
@@ -241,6 +242,7 @@ const DeliveryInformation = () => {
       if (res?.status) {
         setCouponSuccess(res?.message || "Discount applied successfully");
         setCouponError("");
+        setCouponApplied(true);
 
         toast.push(
           <Notification title="Success!" type="success">
@@ -358,7 +360,7 @@ const DeliveryInformation = () => {
                           .slice(0, 10);
                         field.onChange(value);
                       }}
-                      //   {...field}
+                    //   {...field}
                     />
                   )}
                 />
@@ -565,7 +567,7 @@ const DeliveryInformation = () => {
                   <button
                     type="button"
                     onClick={handleApplyCoupon}
-                    disabled={couponLoading}
+                    disabled={couponLoading || couponApplied}
                     className="px-4 py-2 bg-[#8B4513] text-white rounded-md disabled:opacity-60 shrink-0"
                   >
                     {couponLoading ? "Applying..." : "Apply"}
