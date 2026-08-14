@@ -144,7 +144,7 @@ class SignupAPIView(APIView):
                  # EMAIL VERIFICATION 
                 uid = user.id  #urlsafe_base64_encode(force_bytes(user.id))       
                 email = user.email         
-                verify_link = request.build_absolute_uri(f"http://table.104.64.206.82.sslip.io/account-verified-page?user_id={uid}&email={email}")
+                verify_link = request.build_absolute_uri(f"https://table.dxtspace.com/account-verified-page?user_id={uid}&email={email}")
 
                 # EMAIL VERIFICATION
                 # uid = urlsafe_base64_encode(force_bytes(user.id))
@@ -640,7 +640,7 @@ class ForgotPasswordAPIView(APIView):
             user_id = user.id
 
             # Build reset link
-            frontend_url = "http://table.104.64.206.82.sslip.io/reset-password"
+            frontend_url = "https://table.dxtspace.com/reset-password"
             reset_link = f"{frontend_url}?user_id={user_id}"
 
             # -------------------------------
