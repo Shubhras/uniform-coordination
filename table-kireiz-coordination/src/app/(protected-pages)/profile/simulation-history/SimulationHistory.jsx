@@ -164,12 +164,12 @@ const SimulationHistory = () => {
             )}
 
             <div className="mb-6">
-                <h3 className="text-base sm:text-[18px] font-semibold flex items-center gap-2">
+                <h3 className="text-2xl sm:text-2xl font-semibold flex items-center gap-2">
                     <LuPalette size={20} className="sm:hidden" />
                     <LuPalette size={23} className="hidden sm:block" />
                     Simulation History
                 </h3>
-                <p className="text-[#6B7280] text-xs sm:text-[14px] mt-1">
+                <p className="text-[#6B7280] text-sm sm:text-[14px] mt-1">
                     Your recent designs and customizations
                 </p>
             </div>
