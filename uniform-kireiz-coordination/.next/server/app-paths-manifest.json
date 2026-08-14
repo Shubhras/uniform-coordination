@@ -1,8 +1,0 @@
-{
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/(public-pages)/dashboards/uniform-3d-design/[id]/page": "app/(public-pages)/dashboards/uniform-3d-design/[id]/page.js",
-  "/(public-pages)/dashboards/design-result/[id]/page": "app/(public-pages)/dashboards/design-result/[id]/page.js",
-  "/(public-pages)/dashboards/delivery-request/[id]/page": "app/(public-pages)/dashboards/delivery-request/[id]/page.js",
-  "/(protected-pages)/profile/my-profile/page": "app/(protected-pages)/profile/my-profile/page.js",
-  "/(protected-pages)/profile/notifications/page": "app/(protected-pages)/profile/notifications/page.js"
-}
