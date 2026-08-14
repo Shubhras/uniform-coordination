@@ -159,6 +159,14 @@ class FabricSerializer(serializers.ModelSerializer):
             }
         return representation
 
+    def validate_fabricName(self, value):
+        query = Fabric.objects.filter(fabricName__iexact=value, isDeleted=False)
+        if self.instance:
+            query = query.exclude(pk=self.instance.pk)
+        if query.exists():
+            raise serializers.ValidationError("This fabric name already exists.")
+        return value
+
     def validate(self, data):
         fabric_type = data.get("fabricType")
         theme = data.get("theme")
@@ -287,6 +295,13 @@ class ColorsSerializer(serializers.ModelSerializer):
         child=serializers.ChoiceField(choices=Colors.MATERIAL_CHOICES), 
         required=True
     )
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = Colors
@@ -295,11 +310,23 @@ class ColorsSerializer(serializers.ModelSerializer):
             "colorName",
             "colorCode",
             "compatibleFabric",
+            "category",
+            "category_id",
             "isActive",
             "isDeleted",
             "created_at",
             "updated_at"
         ]
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.category:
+            representation['category'] = {
+                'id': instance.category.id,
+                'categoryName': instance.category.categoryName,
+                'type': instance.category.type
+            }
+        return representation
 
     def validate_compatibleFabric(self, value):
         if len(value) == 0:
@@ -307,39 +334,160 @@ class ColorsSerializer(serializers.ModelSerializer):
         return value
 
     def validate_colorName(self, value):
-        if Colors.objects.filter(colorName__iexact=value, isDeleted=False).exists():
+        query = Colors.objects.filter(colorName__iexact=value, isDeleted=False)
+        if self.instance:
+            query = query.exclude(pk=self.instance.pk)
+        if query.exists():
             raise serializers.ValidationError("This color name already exists.")
         return value
 
 
+def get_attribute_image_url(instance, request=None):
+    if not instance or not getattr(instance, "image", None):
+        return None
+    url = instance.image.url if hasattr(instance.image, "url") else str(instance.image)
+    if request:
+        return request.build_absolute_uri(url)
+    if url.startswith(("http://", "https://")):
+        if "table-admin.dxtspace.com" in url:
+            url = url.replace("https://table-admin.dxtspace.com", "").replace("http://table-admin.dxtspace.com", "")
+        else:
+            return url
+    clean_url = url if url.startswith("/") else f"/{url}"
+    domain = getattr(settings, "SITE_URL", "http://127.0.0.1:8002").rstrip("/")
+    if "dxtspace.com" in domain:
+        domain = "http://127.0.0.1:8002"
+    return f"{domain}{clean_url}"
+
+
 class TableShapeSerializer(serializers.ModelSerializer):
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = TableShape
-        fields = ["id", "name", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+        fields = ["id", "name", "category", "category_id", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        request = self.context.get("request")
+        rep["image"] = get_attribute_image_url(instance, request)
+        if instance.category:
+            rep["category"] = {
+                "id": instance.category.id,
+                "categoryName": instance.category.categoryName,
+                "type": instance.category.type
+            }
+        return rep
 
 
 class ClosureSerializer(serializers.ModelSerializer):
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = Closure
-        fields = ["id", "name", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+        fields = ["id", "name", "category", "category_id", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        request = self.context.get("request")
+        rep["image"] = get_attribute_image_url(instance, request)
+        if instance.category:
+            rep["category"] = {
+                "id": instance.category.id,
+                "categoryName": instance.category.categoryName,
+                "type": instance.category.type
+            }
+        return rep
 
 
 class StyleSerializer(serializers.ModelSerializer):
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = Style
-        fields = ["id", "name", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+        fields = ["id", "name", "category", "category_id", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        request = self.context.get("request")
+        rep["image"] = get_attribute_image_url(instance, request)
+        if instance.category:
+            rep["category"] = {
+                "id": instance.category.id,
+                "categoryName": instance.category.categoryName,
+                "type": instance.category.type
+            }
+        return rep
 
 
 class SizeSerializer(serializers.ModelSerializer):
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = Size
-        fields = ["id", "name", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+        fields = ["id", "name", "category", "category_id", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        request = self.context.get("request")
+        rep["image"] = get_attribute_image_url(instance, request)
+        if instance.category:
+            rep["category"] = {
+                "id": instance.category.id,
+                "categoryName": instance.category.categoryName,
+                "type": instance.category.type
+            }
+        return rep
 
 
 class PatternSerializer(serializers.ModelSerializer):
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = Pattern
-        fields = ["id", "name", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+        fields = ["id", "name", "category", "category_id", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        request = self.context.get("request")
+        rep["image"] = get_attribute_image_url(instance, request)
+        if instance.category:
+            rep["category"] = {
+                "id": instance.category.id,
+                "categoryName": instance.category.categoryName,
+                "type": instance.category.type
+            }
+        return rep
 
 
 class TemplateSerializer(serializers.ModelSerializer):
@@ -801,6 +949,13 @@ class ThemeItemSerializer(serializers.ModelSerializer):
 
 class TableThemeSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
     category_name = serializers.CharField(
         source='category.categoryName',
         read_only=True
@@ -829,6 +984,7 @@ class TableThemeSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'category',
+            'category_id',
             'category_name',
             'description',
             'image',
@@ -1801,6 +1957,7 @@ class CustomerDetailSerializer(serializers.ModelSerializer):
             "push_notifications",
             "is_verify",
             "isActive",
+            "deactivation_reason",
             "is_currently_login",
             "role_name",
             "lastLogin",
@@ -1906,8 +2063,8 @@ class UserListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'email', 'userType', 'phone', 'userName', 'firstName', 'lastName',
             'language', 'gender', 'profileImage', 'role', 'lastLogin', 'isActive',
-            'loginType', 'email_notifications', 'push_notifications', 'is_verify',
-            'createdAt', 'updatedAt','is_currently_login'
+            'deactivation_reason', 'loginType', 'email_notifications', 'push_notifications',
+            'is_verify', 'createdAt', 'updatedAt','is_currently_login'
         ]
 
     def get_role(self, obj):
@@ -2292,5 +2449,105 @@ class RentalListSerializer(serializers.ModelSerializer):
         if obj.customer:
             return f"{obj.customer.first_name} {obj.customer.last_name}"
         return None
+
+class LateFeeInvoiceSerializer(serializers.ModelSerializer):
+    order_id = serializers.CharField(source="order.order_id", read_only=True)
+    customer_name = serializers.SerializerMethodField()
+    customer_email = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LateFeeInvoice
+        fields = [
+            "id",
+            "invoice_number",
+            "order_id",
+            "customer_name",
+            "customer_email",
+            "expected_return_date",
+            "actual_return_date",
+            "days_late",
+            "rate_per_day",
+            "total_late_fee",
+            "notification_message",
+            "status",
+            "is_notified",
+            "notified_at",
+            "created_at",
+            "updated_at",
+        ]
+
+    def get_customer_name(self, obj):
+        if obj.order:
+            if obj.order.customer:
+                return f"{obj.order.customer.first_name} {obj.order.customer.last_name}".strip()
+            if obj.order.user:
+                return f"{obj.order.user.firstName or ''} {obj.order.user.lastName or ''}".strip() or obj.order.user.userName
+        return "Customer"
+
+    def get_customer_email(self, obj):
+        if obj.order:
+            if obj.order.customer and obj.order.customer.email:
+                return obj.order.customer.email
+            if obj.order.user and obj.order.user.email:
+                return obj.order.user.email
+        return None
+
+
+class CompensationInvoiceItemSerializer(serializers.ModelSerializer):
+    product_name_display = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CompensationInvoiceItem
+        fields = [
+            "id",
+            "product",
+            "product_name",
+            "product_name_display",
+            "issue_type",
+            "quantity",
+            "replacement_cost",
+            "penalty_cost",
+            "total_cost",
+        ]
+
+    def get_product_name_display(self, obj):
+        if obj.product_name:
+            return obj.product_name
+        if obj.product:
+            return obj.product.productName
+        return "Item"
+
+
+class CompensationInvoiceSerializer(serializers.ModelSerializer):
+    order_id = serializers.CharField(source="order.order_id", read_only=True)
+    customer_name = serializers.SerializerMethodField()
+    items = CompensationInvoiceItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = CompensationInvoice
+        fields = [
+            "id",
+            "invoice_number",
+            "order_id",
+            "customer_name",
+            "missing_count",
+            "damaged_count",
+            "total_replacement_cost",
+            "total_penalty_cost",
+            "grand_total",
+            "notes",
+            "status",
+            "items",
+            "created_at",
+            "updated_at",
+        ]
+
+    def get_customer_name(self, obj):
+        if obj.order:
+            if obj.order.customer:
+                return f"{obj.order.customer.first_name} {obj.order.customer.last_name}".strip()
+            if obj.order.user:
+                return f"{obj.order.user.firstName or ''} {obj.order.user.lastName or ''}".strip() or obj.order.user.userName
+        return "Customer"
     
                 

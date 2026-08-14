@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FiTrash2 } from "react-icons/fi";
+import { FiTrash2, FiPlus } from "react-icons/fi";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import { useTranslations } from "next-intl";
@@ -22,6 +22,16 @@ const DEFAULT_CATEGORIES = [
   "Additional Decor",
 ];
 
+const AVAILABLE_ATTRIBUTES = [
+  "Fabric",
+  "Color",
+  "Table Shape",
+  "Closure",
+  "Style",
+  "Size",
+  "Pattern",
+];
+
 const SimulationStructure = () => {
   const t = useTranslations("simulationAssets.simulationStructure");
   const ts = useTranslations("successTitle");
@@ -34,6 +44,32 @@ const SimulationStructure = () => {
   const [structures, setStructures] = useState({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [selectedAttrToAdd, setSelectedAttrToAdd] = useState("");
+
+  const handleAddAttribute = (attrName) => {
+    if (!attrName) return;
+    setStructures((prev) => {
+      const activeList = prev[activeCategory] || [];
+      const exists = activeList.some(
+        (item) => item.attribute.toLowerCase() === attrName.toLowerCase()
+      );
+      if (exists) {
+        toast.push(
+          <Notification title="Already Exists" type="info">
+            {attrName} is already present in {activeCategory} structure.
+          </Notification>
+        );
+        return prev;
+      }
+      const newItem = {
+        attribute: attrName,
+        enabled: true,
+        order: String(activeList.length + 1),
+      };
+      return { ...prev, [activeCategory]: [...activeList, newItem] };
+    });
+    setSelectedAttrToAdd("");
+  };
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -186,12 +222,41 @@ const SimulationStructure = () => {
         </div>
 
         <div className="rounded-[10px] border border-[#F0E4DB] bg-white p-4">
-          <h3 className="text-[13px] font-semibold text-[#2F241F]">
-            {activeCategory} Structure
-          </h3>
-          <p className="mt-1 text-[11px] text-[#B29D8C]">
-            Select and arrange the attributes that will be shown for {activeCategory}.
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F8EEE8] pb-3">
+            <div>
+              <h3 className="text-[13px] font-semibold text-[#2F241F]">
+                {activeCategory} Structure
+              </h3>
+              <p className="mt-0.5 text-[11px] text-[#B29D8C]">
+                Select and arrange the attributes that will be shown for {activeCategory}.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedAttrToAdd}
+                onChange={(e) => setSelectedAttrToAdd(e.target.value)}
+                className="h-8 rounded-[6px] border border-[#E9DCD3] bg-white px-2.5 text-[11px] text-[#4E423B] outline-none focus:border-[#B56735]"
+              >
+                <option value="">-- Add Attribute --</option>
+                {AVAILABLE_ATTRIBUTES.map((attr) => (
+                  <option key={attr} value={attr}>
+                    {attr}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={() => handleAddAttribute(selectedAttrToAdd)}
+                disabled={!selectedAttrToAdd}
+                className="flex h-8 items-center gap-1.5 rounded-[6px] bg-[#B56735] px-3 text-[11px] font-medium text-white transition hover:bg-[#a25628] disabled:opacity-50"
+              >
+                <FiPlus size={14} />
+                Add
+              </button>
+            </div>
+          </div>
 
           <div className="mt-4 overflow-x-auto">
             <table className="min-w-[520px] w-full">

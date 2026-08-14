@@ -74,6 +74,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     "corsheaders.middleware.CorsMiddleware",
+    # 'uniformAdmin.middleware.APILanguageMiddleware',  use for language middleware
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -173,14 +174,17 @@ STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-SITE_DOMAIN = "https://uniform-admin.dxtspace.com"  # server
-# SITE_DOMAIN = "https://t8sjq87n-8001.inc1.devtunnels.ms"   # local host
-# SITE_DOMAIN = "http://localhost:8005"   # local host
-
-# SITE_URL = "https://t8sjq87n-8001.inc1.devtunnels.ms"
-# SITE_URL = "http://104.64.206.82"
-
-SITE_URL = "https://uniform-admin.dxtspace.com"
+# Host prefixed onto media URLs in API responses.
+#
+# These were hardcoded to the production host with the local values commented out, so any
+# file uploaded on a developer machine came back as a production URL — the image existed
+# locally but the browser fetched it from a server that had never seen it, and every
+# freshly uploaded image looked broken.
+#
+# Env-driven now, defaulting to production so deployed behaviour is unchanged. Set
+# SITE_DOMAIN and SITE_URL in .env for local work (e.g. http://localhost:8005).
+SITE_DOMAIN = config("SITE_DOMAIN", default="https://uniform-admin.dxtspace.com")
+SITE_URL = config("SITE_URL", default="https://uniform-admin.dxtspace.com")
 
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
@@ -195,8 +199,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        # "rest_framework_simplejwt.authentication.JWTAuthentication",  
-        "rest_framework.authentication.SessionAuthentication",
+        # "rest_framework_simplejwt.authentication.JWTAuthentication",
         "userhub.authentication.CustomUserJWTAuthentication",# For Customers
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

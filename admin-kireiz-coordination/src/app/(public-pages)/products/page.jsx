@@ -7,6 +7,7 @@ import FabricsTab from "./components/fabrics/FabricsTab";
 import PartsTab from "./components/parts/PartsTab";
 import TemplatesTab from "./components/templates/TemplatesTab";
 import ColorsTab from "./components/colors/ColorsTab";
+import SizeTab from "./components/options/SizeTab";
 import ProductsTab from "./components/products/ProductsTab";
 import Tabs from "./components/Tabs";
 
@@ -30,6 +31,8 @@ const ProductSpecificationPage = () => {
         return <PartsTab />;
       case "Colors":
         return <ColorsTab />;
+      case "Size":
+        return <SizeTab />;
       case "Template":
         return <TemplatesTab />;
       case "Products":

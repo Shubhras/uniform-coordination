@@ -115,6 +115,7 @@ const Edit = () => {
       const formData = new FormData();
 
       formData.append("title", title);
+      formData.append("category", category.value);
       formData.append("category_id", category.value);
       formData.append("description", description);
       const sectionMap = {
@@ -241,7 +242,21 @@ const Edit = () => {
 
     setShowInventoryModal(false);
   };
-  const [category, setCategory] = useState(categoryOptions[0]);
+  const [category, setCategory] = useState(null);
+
+  useEffect(() => {
+    if (categoryList.length > 0 && category?.value) {
+      const match = categoryList.find(
+        (c) => c.id === category.value || c.id === Number(category.value)
+      );
+      if (match) {
+        setCategory({
+          value: match.id,
+          label: match.categoryName,
+        });
+      }
+    }
+  }, [categoryList]);
 
   const selectStyles = {
     control: (base) => ({
@@ -310,10 +325,12 @@ const Edit = () => {
           setTitle(data.title);
           setDescription(data.description);
 
-          setCategory({
-            value: data.category,
-            label: data.category_name,
-          });
+          if (data.category) {
+            setCategory({
+              value: data.category,
+              label: data.category_name || "Select Category",
+            });
+          }
 
           setThumbnailPreview(data.image);
           setCoverImages(data.cover_images || []);
@@ -730,11 +747,11 @@ const Edit = () => {
 
           <button
             onClick={handleUpdateTheme}
-            loading={saving}
+            // loading={saving}
             disabled={saving}
             className="bg-[#A0522D] transition text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium"
           >
-            {t("updateTheme")}
+            {saving ? "Updating..." : t("updateTheme")}
           </button>
         </div>
       </div>

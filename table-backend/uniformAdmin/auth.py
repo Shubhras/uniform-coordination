@@ -350,6 +350,43 @@ class AdminLoginAPIView(APIView):
         user.is_currently_login = True
         user.save(update_fields=["last_login","is_currently_login"])
 
+        # Fetch menu/submenu permissions for user's role
+        role = user.role
+        permissions_list = []
+        if role:
+            allowed_menu_ids = RoleMenuPermission.objects.filter(
+                role=role, can_view=True
+            ).values_list("menu_id", flat=True)
+
+            allowed_submenu_ids = RoleSubMenuPermission.objects.filter(
+                role=role, can_view=True
+            ).values_list("submenu_id", flat=True)
+
+            menus = Menu.objects.filter(
+                id__in=allowed_menu_ids, isDeleted=False, isActive=True
+            ).order_by("order")
+
+            for menu in menus:
+                submenus_list = []
+                for sub in menu.submenus.filter(
+                    id__in=allowed_submenu_ids, isDeleted=False, isActive=True
+                ).order_by("order"):
+                    submenus_list.append({
+                        "id": sub.id,
+                        "name": sub.name,
+                        "slug": sub.slug,
+                        "route": sub.route
+                    })
+                
+                permissions_list.append({
+                    "id": menu.id,
+                    "name": menu.name,
+                    "slug": menu.slug,
+                    "icon": menu.icon,
+                    "route": menu.route,
+                    "submenus": submenus_list
+                })
+
         return Response({
             "status": True,
             "statusCode": 200,
@@ -359,12 +396,30 @@ class AdminLoginAPIView(APIView):
                     "id": user.id,
                     "email": user.email,
                     "name": user.name,
-                    "role": user.role.role_name if user.role else None
+                    "role": user.role.role_name if user.role else None,
+                    # "permissions": permissions_list
                 },
+                "permissions": permissions_list,
                 "access_token": str(refresh.access_token),
                 "refresh_token": str(refresh)
             }
         }, status=200)
+
+        # return Response({
+        #     "status": True,
+        #     "statusCode": 200,
+        #     "message": "Login successful",
+        #     "data": {
+        #         "user": {
+        #             "id": user.id,
+        #             "email": user.email,
+        #             "name": user.name,
+        #             "role": user.role.role_name if user.role else None
+        #         },
+        #         "access_token": str(refresh.access_token),
+        #         "refresh_token": str(refresh)
+        #     }
+        # }, status=200)
  
     
 class ChangePasswordAPIView(APIView):
@@ -654,7 +709,7 @@ class ForgotPasswordAPIView(APIView):
         if user_type.lower() == "uniform":
             base_url = "http://23.23.88.239:7000"
         elif user_type.lower() == "table":
-            base_url = "http://104.64.206.82:7003"
+            base_url = "https://table-admin.dxtspace.com"    # server domain url
         else:
             return Response({
                 "status": False,

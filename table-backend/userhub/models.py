@@ -42,6 +42,7 @@ class Users(models.Model):
     role = models.ForeignKey("uniformAdmin.Role", on_delete=models.SET_NULL, null=True, blank=True)
     lastLogin = models.DateTimeField(null=True, blank=True)
     isActive = models.BooleanField(default=True)
+    deactivation_reason = models.TextField(blank=True, null=True)
     appleID = models.CharField(max_length=255, null=True, blank=True)
     stripeOrderCustomerId= models.CharField(max_length=255, null=True, blank=True)
     isDeleted = models.BooleanField(default=False)

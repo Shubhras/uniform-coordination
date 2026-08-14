@@ -77,6 +77,8 @@ export default function Orders() {
 
   const statusOptions = [
     { value: "all", label: t("allStatus") },
+    { value: "confirmed", label: t("statusConfirmed") },
+    { value: "pending", label: t("pending") },
     { value: "delivered", label: t("statusDelivered") },
     { value: "returned", label: t("statusReturned") },
     { value: "shipped", label: t("statusShipped") },
@@ -160,9 +162,7 @@ export default function Orders() {
             {t("orderTitle")}
           </h1>
 
-          <p className="text-[16px] text-[#757575] mt-1">
-            {t("orderContent")}
-          </p>
+          <p className="text-[16px] text-[#757575] mt-1">{t("orderContent")}</p>
         </div>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
           <div className="relative w-full lg:max-w-xl">
@@ -228,7 +228,9 @@ export default function Orders() {
           <table className="w-full text-sm">
             <thead className="bg-[#F1F5F9] text-[#486284]">
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                <th className="text-left px-4 py-3 font-medium">{t("orderid")}</th>
+                <th className="text-left px-4 py-3 font-medium">
+                  {t("orderid")}
+                </th>
 
                 <th className="text-left px-4 py-3 font-medium">
                   {t("customerName")}
@@ -237,20 +239,33 @@ export default function Orders() {
                 <th className="text-left px-4 py-3 font-medium">
                   {t("rentalPeriod")}
                 </th>
-                <th className="text-left px-4 py-3 font-medium">{t("amount")}</th>
-                <th className="text-left px-4 py-3 font-medium">{t("status")}</th>
-                <th className="text-left px-4 py-3 font-medium">{t("action")}</th>
+                <th className="text-left px-4 py-3 font-medium">
+                  {t("amount")}
+                </th>
+                <th className="text-left px-4 py-3 font-medium">
+                  {t("status")}
+                </th>
+                <th className="text-left px-4 py-3 font-medium">
+                  {t("action")}
+                </th>
               </tr>
             </thead>
 
             <tbody>
-              {ordersData.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="py-10">
+                    <div className="flex justify-center items-center">
+                      <Spinner size={40} customColorClass="text-[#A0522D]" />
+                    </div>
+                  </td>
+                </tr>
+              ) : ordersData.length > 0 ? (
                 ordersData.map((order, index) => (
                   <tr
                     key={order.id}
-                    className={`border-t border-[#F3ECE7] text-[14px] ${
-                      index % 2 === 0 ? "bg-white" : "bg-[#FCF9F6]"
-                    }`}
+                    className={`border-t border-[#F3ECE7] text-[14px] ${index % 2 === 0 ? "bg-white" : "bg-[#FCF9F6]"
+                      }`}
                   >
                     <td className="px-5 py-5 font-semibold text-[#2C1A0E]">
                       {order.order_id}
@@ -261,13 +276,12 @@ export default function Orders() {
                     </td>
                     <td className="px-5 py-5">
                       <span
-                        className={`inline-flex items-center rounded-l px-3 py-1 text-[11px] font-semibold uppercase border ${
-                          order.customer?.role === "b2b"
-                            ? "bg-[#EEF4FF] text-[#2563EB] border-[#C8DAFF]"
-                            : order.customer?.role === "b2c"
-                              ? "bg-[#F0F9FF] text-[#0069A8] border-[#B8E6FE]"
-                              : "bg-[#F3F4F6] text-[#4B5563] border-[#D1D5DB]"
-                        }`}
+                        className={`inline-flex items-center rounded-l px-3 py-1 text-[11px] font-semibold uppercase border ${order.customer?.role === "b2b"
+                          ? "bg-[#EEF4FF] text-[#2563EB] border-[#C8DAFF]"
+                          : order.customer?.role === "b2c"
+                            ? "bg-[#F0F9FF] text-[#0069A8] border-[#B8E6FE]"
+                            : "bg-[#F3F4F6] text-[#4B5563] border-[#D1D5DB]"
+                          }`}
                       >
                         {order.customer?.role || "-"}
                       </span>
@@ -281,21 +295,19 @@ export default function Orders() {
                     </td>
                     <td className="px-5 py-5">
                       <span className="text-[12px] text-[#2C1A0E] font-semibold">
-                        {order.payment?.currency || t("na")}{" "}
-                        {order.total_amount || "-"}
+                        ${order.total_amount || "-"}
                       </span>
                     </td>
                     <td className="px-4 py-5">
                       <span
-                        className={`inline-flex rounded-full px-3 py-1 text-[12px] font-semibold capitalize ${
-                          order.status === "pending"
-                            ? "bg-[#FFFBEB] text-[#BB4D00] border border-[#FEE685]"
-                            : order.status === "delivered"
-                              ? "bg-[#E8FFF5] text-[#0E9F6E] border border-[#B6E7D2]"
-                              : order.status === "returned"
-                                ? "bg-[#FAF5FF] text-[#9333EA] border border-[#E9D4FF]"
-                                : "bg-[#EEF4FF] text-[#2563EB] border border-[#C8DAFF]"
-                        }`}
+                        className={`inline-flex rounded-full px-3 py-1 text-[12px] font-semibold capitalize ${order.status === "pending"
+                          ? "bg-[#FFFBEB] text-[#BB4D00] border border-[#FEE685]"
+                          : order.status === "delivered"
+                            ? "bg-[#E8FFF5] text-[#0E9F6E] border border-[#B6E7D2]"
+                            : order.status === "returned"
+                              ? "bg-[#FAF5FF] text-[#9333EA] border border-[#E9D4FF]"
+                              : "bg-[#EEF4FF] text-[#2563EB] border border-[#C8DAFF]"
+                          }`}
                       >
                         {order.status}
                       </span>
@@ -318,15 +330,9 @@ export default function Orders() {
               ) : (
                 <tr>
                   <td colSpan={7} className="py-10">
-                    {loading ? (
-                      <div className="flex justify-center">
-                        <Spinner size={40} customColorClass="text-[#A0522D]" />
-                      </div>
-                    ) : (
-                      <div className="text-center text-gray-500">
-                        {t("noOrders")}
-                      </div>
-                    )}
+                    <div className="text-center text-gray-500">
+                      {t("noOrders")}
+                    </div>
                   </td>
                 </tr>
               )}
@@ -342,10 +348,10 @@ export default function Orders() {
             pageSize={pageSize}
             total={pagination.total_items}
             onChange={(page) => setCurrentPage(page)}
-            // onPageSizeChange={(size) => {
-            //   setPageSize(size);
-            //   setCurrentPage(1);
-            // }}
+          // onPageSizeChange={(size) => {
+          //   setPageSize(size);
+          //   setCurrentPage(1);
+          // }}
           />
         </div>
       </div>

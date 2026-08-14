@@ -18,13 +18,22 @@ const InventoryManagement = () => {
   const [isDetailMode, setIsDetailMode] = useState(false);
 
   useEffect(() => {
-    const tab = searchParams.get("tab");
-
-    if (tab) {
-      setActiveTab(tab);
-      router.replace("/inventory-management");
+    const tabParam = searchParams.get("tab");
+    if (tabParam) {
+      const lower = tabParam.toLowerCase();
+      if (lower.includes("inspect")) {
+        setActiveTab("inspection");
+      } else if (lower.includes("damage")) {
+        setActiveTab("damaged");
+      } else if (lower.includes("clean")) {
+        setActiveTab("cleaning");
+      } else if (lower.includes("inventory")) {
+        setActiveTab("inventory");
+      } else {
+        setActiveTab(tabParam);
+      }
     }
-  }, [searchParams, router]);
+  }, [searchParams]);
 
   useEffect(() => {
     setIsDetailMode(false);

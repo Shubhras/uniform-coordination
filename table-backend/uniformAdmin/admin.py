@@ -526,43 +526,43 @@ class SubCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Colors)
 class ColorsAdmin(admin.ModelAdmin):
-    list_display = ("colorName", "colorCode", "compatibleFabric", "isActive", "isDeleted", "created_at")
-    list_filter = ("isActive", "isDeleted")
+    list_display = ("colorName", "colorCode", "category", "compatibleFabric", "isActive", "isDeleted", "created_at")
+    list_filter = ("category", "isActive", "isDeleted")
     search_fields = ("colorName", "colorCode")
 
 
 @admin.register(TableShape)
 class TableShapeAdmin(admin.ModelAdmin):
-    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
-    list_filter = ("isActive", "isDeleted")
+    list_display = ("name", "category", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("category", "isActive", "isDeleted")
     search_fields = ("name",)
 
 
 @admin.register(Closure)
 class ClosureAdmin(admin.ModelAdmin):
-    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
-    list_filter = ("isActive", "isDeleted")
+    list_display = ("name", "category", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("category", "isActive", "isDeleted")
     search_fields = ("name",)
 
 
 @admin.register(Style)
 class StyleAdmin(admin.ModelAdmin):
-    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
-    list_filter = ("isActive", "isDeleted")
+    list_display = ("name", "category", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("category", "isActive", "isDeleted")
     search_fields = ("name",)
 
 
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
-    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
-    list_filter = ("isActive", "isDeleted")
+    list_display = ("name", "category", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("category", "isActive", "isDeleted")
     search_fields = ("name",)
 
 
 @admin.register(Pattern)
 class PatternAdmin(admin.ModelAdmin):
-    list_display = ("name", "image", "isActive", "isDeleted", "created_at")
-    list_filter = ("isActive", "isDeleted")
+    list_display = ("name", "category", "image", "isActive", "isDeleted", "created_at")
+    list_filter = ("category", "isActive", "isDeleted")
     search_fields = ("name",)
 
 
@@ -668,6 +668,38 @@ class PromocodeAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("promocodeName",)}
 
     readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(LateFeeInvoice)
+class LateFeeInvoiceAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'invoice_number',
+        'order_id',
+        'days_late',
+        'total_late_fee',
+        'notification_message',
+        'status',
+        'created_at',
+        'updated_at',
+    )
+
+    list_filter = (
+        'status',
+        'created_at',
+        'updated_at',
+    )
+
+    search_fields = (
+        'invoice_number',
+        'order_id',
+    )
+
+    ordering = ('-created_at',)
+
+    readonly_fields = ('created_at', 'updated_at')
+
+
 
 
 @admin.register(PrivacyPolicy)

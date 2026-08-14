@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Pagination from "@/components/ui/Pagination";
 import Select from "react-select";
 import {
@@ -15,13 +15,13 @@ import {
   FiX,
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiGetUsersList } from "@/services/UserPermissionService";
+import { apiGetUsersList, apiUpdateUserStatus } from "@/services/UserPermissionService";
 import PermissionPage from "./PermissionPage";
 import Spinner from "@/components/ui/Spinner";
-
-
-
-
+import Dialog from "@/components/ui/Dialog";
+import Button from "@/components/ui/Button";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 
 const getApiErrorMessage = (error) =>
   error?.response?.data?.message ||
@@ -97,7 +97,7 @@ const getDisplayUserType = (user) => {
   return "B2C";
 };
 
-const formatDate = (value) => {
+const formatDate = (value, locale = "en-US") => {
   if (!value) return "-";
 
   const date = new Date(value);
@@ -105,14 +105,15 @@ const formatDate = (value) => {
     return value;
   }
 
-  return new Intl.DateTimeFormat("en-GB", {
+  const targetLocale = locale === "ja" ? "ja-JP" : "en-GB";
+  return new Intl.DateTimeFormat(targetLocale, {
     day: "2-digit",
     month: "short",
     year: "2-digit",
   }).format(date);
 };
 
-const normalizeUser = (user) => ({
+const normalizeUser = (user, locale = "en-US") => ({
   ...user,
   id: user?.id ?? user?.user_id ?? user?.pk,
   fullName: getDisplayName(user),
@@ -124,6 +125,7 @@ const normalizeUser = (user) => ({
       user?.created_at ||
       user?.date_joined ||
       user?.createdAt,
+    locale
   ),
   statusLabel: getDisplayStatus(user),
   isActive: getDisplayStatus(user) === "Active",
@@ -199,6 +201,7 @@ const selectStyles = {
 const UsersPermissionsPage = () => {
   const t = useTranslations("userPermissions.users");
   const tp = useTranslations("userPermissions.permissions");
+  const locale = useLocale();
 
   const typeOptions = [
     { value: "all", label: t("allTypes") },
@@ -233,6 +236,65 @@ const UsersPermissionsPage = () => {
     total_items: 0,
   });
   const hasActiveFilters = userType.value !== "all" || status.value !== "all";
+
+  const [selectedUserForStatus, setSelectedUserForStatus] = useState(null);
+  const [deactivationReason, setDeactivationReason] = useState("");
+  const [statusActionLoading, setStatusActionLoading] = useState(false);
+  const [statusError, setStatusError] = useState("");
+
+  const handleOpenStatusModal = (user) => {
+    setSelectedUserForStatus(user);
+    setDeactivationReason("");
+    setStatusError("");
+  };
+
+  const handleConfirmStatusChange = async () => {
+    if (!selectedUserForStatus) return;
+
+    const isDeactivating = selectedUserForStatus.isActive;
+    if (isDeactivating && !deactivationReason.trim()) {
+      setStatusError("Please provide a reason for deactivating this user.");
+      return;
+    }
+
+    setStatusError("");
+    setStatusActionLoading(true);
+
+    try {
+      const payload = {
+        isActive: !isDeactivating,
+        reason: isDeactivating ? deactivationReason.trim() : "",
+      };
+
+      const response = await apiUpdateUserStatus(
+        accessToken,
+        selectedUserForStatus.id,
+        payload
+      );
+
+      toast.push(
+        <Notification title="Success" type="success">
+          {response?.message ||
+            (isDeactivating
+              ? "User deactivated successfully."
+              : "User reactivated successfully.")}
+        </Notification>
+      );
+
+      setSelectedUserForStatus(null);
+      setDeactivationReason("");
+      fetchUsers();
+    } catch (err) {
+      console.error("Failed to update user status:", err);
+      setStatusError(
+        err?.response?.data?.message ||
+          err?.response?.data?.detail ||
+          "Failed to update user status. Please try again."
+      );
+    } finally {
+      setStatusActionLoading(false);
+    }
+  };
 
   useEffect(() => {
     setCurrentPage(1);
@@ -273,7 +335,7 @@ const UsersPermissionsPage = () => {
         payload?.items ||
         (Array.isArray(payload) ? payload : []);
       const responsePagination = payload?.pagination || response?.pagination;
-      const normalizedUsers = list.map(normalizeUser);
+      const normalizedUsers = list.map((user) => normalizeUser(user, locale));
       const totalItems =
         responsePagination?.total_items ??
         payload?.count ??
@@ -555,11 +617,15 @@ const UsersPermissionsPage = () => {
                             </button>
                             <button
                               type="button"
-                              className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
-
-                              // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                              onClick={() => handleOpenStatusModal(user)}
+                              title={user.isActive ? "Deactivate User" : "Reactivate User"}
+                              className={`flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg ${
+                                user.isActive
+                                  ? "hover:bg-red-50 text-[#7D6C63] hover:text-red-600"
+                                  : "hover:bg-green-50 text-red-500 hover:text-emerald-600"
+                              }`}
                             >
-                              <FiSlash size={17} />
+                              {user.isActive ? <FiSlash size={17} /> : <FiRotateCcw size={17} />}
                             </button>
                           </div>
                         </td>
@@ -591,6 +657,129 @@ const UsersPermissionsPage = () => {
         </>
       )}
       {activeTab === "Permissions" && <PermissionPage />}
+
+      {/* Deactivate / Reactivate User Dialog */}
+      <Dialog
+        isOpen={Boolean(selectedUserForStatus)}
+        onClose={() => {
+          if (!statusActionLoading) {
+            setSelectedUserForStatus(null);
+            setDeactivationReason("");
+            setStatusError("");
+          }
+        }}
+        onRequestClose={() => {
+          if (!statusActionLoading) {
+            setSelectedUserForStatus(null);
+            setDeactivationReason("");
+            setStatusError("");
+          }
+        }}
+        className="w-full max-w-lg mx-auto"
+      >
+        <div className="flex flex-col p-2">
+          <div className="border-b pb-3 flex justify-between items-center">
+            <h3 className="text-xl font-semibold text-[#1C2C56]">
+              {selectedUserForStatus?.isActive
+                ? "Deactivate User Account"
+                : "Reactivate User Account"}
+            </h3>
+            <button
+              type="button"
+              disabled={statusActionLoading}
+              onClick={() => {
+                setSelectedUserForStatus(null);
+                setDeactivationReason("");
+                setStatusError("");
+              }}
+              className="text-gray-400 hover:text-gray-600 p-1 rounded-md"
+            >
+              <FiX size={20} />
+            </button>
+          </div>
+
+          {statusError && (
+            <div className="mt-4 bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-md">
+              {statusError}
+            </div>
+          )}
+
+          <div className="py-4 space-y-4">
+            <p className="text-gray-700 text-sm">
+              {selectedUserForStatus?.isActive ? (
+                <>
+                  Are you sure you want to deactivate the account for{" "}
+                  <span className="font-semibold text-gray-900">
+                    {selectedUserForStatus?.fullName || selectedUserForStatus?.email}
+                  </span>
+                  ? The user will be unable to access their account while deactivated.
+                </>
+              ) : (
+                <>
+                  Are you sure you want to reactivate the account for{" "}
+                  <span className="font-semibold text-gray-900">
+                    {selectedUserForStatus?.fullName || selectedUserForStatus?.email}
+                  </span>
+                  ? The user will regain access to their account.
+                </>
+              )}
+            </p>
+
+            {selectedUserForStatus?.isActive && (
+              <div>
+                <label className="block text-sm font-medium text-[#1C2C56] mb-1">
+                  Deactivation Reason <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={deactivationReason}
+                  onChange={(e) => {
+                    setDeactivationReason(e.target.value);
+                    if (statusError) setStatusError("");
+                  }}
+                  placeholder="Please enter the reason for deactivating this user..."
+                  className="w-full border rounded-md p-2.5 text-sm h-28 resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  An email containing this reason will be automatically sent to{" "}
+                  <span className="font-medium">{selectedUserForStatus?.email}</span>.
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="border-t pt-4 flex justify-end gap-3">
+            <Button
+              variant="plain"
+              size="sm"
+              disabled={statusActionLoading}
+              onClick={() => {
+                setSelectedUserForStatus(null);
+                setDeactivationReason("");
+                setStatusError("");
+              }}
+              className="bg-gray-100 rounded-lg px-4"
+            >
+              Cancel
+            </Button>
+
+            <Button
+              variant="solid"
+              size="sm"
+              loading={statusActionLoading}
+              onClick={handleConfirmStatusChange}
+              className={`px-5 text-white rounded-md ${
+                selectedUserForStatus?.isActive
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-emerald-600 hover:bg-emerald-700"
+              }`}
+            >
+              {selectedUserForStatus?.isActive
+                ? "Deactivate User & Send Email"
+                : "Reactivate User"}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 };

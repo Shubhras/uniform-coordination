@@ -58,6 +58,7 @@ const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
 
       formData.append("title", themeData.title);
       formData.append("category", themeData.category.value);
+      formData.append("category_id", themeData.category.value);
       formData.append("description", themeData.description);
       formData.append("image", themeData.image);
       formData.append("order", themeData.order);

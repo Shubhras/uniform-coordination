@@ -291,6 +291,12 @@ const ColorsTab = () => {
                     {color.colorCode} &nbsp; {hexToRgb(color.colorCode)}
                   </p>
 
+                  {color.category?.categoryName && (
+                    <p className="text-xs text-[#486284] font-medium mt-1">
+                      Category: {color.category.categoryName}
+                    </p>
+                  )}
+
                   {/* Compatible Fabrics from API */}
                   {color.compatibleFabric &&
                     color.compatibleFabric.length > 0 && (

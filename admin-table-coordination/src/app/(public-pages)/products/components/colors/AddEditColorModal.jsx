@@ -14,6 +14,7 @@ import Input from "@/components/ui/Input";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import { apiCreateColor, apiUpdateColor } from "@/services/ColorsService";
+import { apiFabricCategoryList } from "@/services/FabricService";
 
 const AddEditColorModal = ({
   isOpen,
@@ -28,6 +29,30 @@ const AddEditColorModal = ({
   const tm = useTranslations("productSpecification.materials");
   const ts = useTranslations("successTitle");
   const te = useTranslations("errorTitle");
+
+  const [category, setCategory] = useState(null);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+
+  useEffect(() => {
+    if (!accessToken || !isOpen) return;
+
+    const getCategories = async () => {
+      try {
+        const res = await apiFabricCategoryList(accessToken);
+        const options =
+          res?.data?.map((item) => ({
+            value: item.id,
+            label: item.categoryName,
+            type: item.type,
+          })) || [];
+        setCategoryOptions(options);
+      } catch (err) {
+        console.error("Category list error", err);
+      }
+    };
+
+    getCategories();
+  }, [isOpen, accessToken]);
 
   const fabricOptions = [
     { value: "cotton", label: tm("cotton") },
@@ -139,12 +164,17 @@ const AddEditColorModal = ({
           );
         }) || [];
 
+      const catId = initialData?.category?.id || initialData?.category;
+      const matchedCat = categoryOptions.find((c) => c.value === catId);
+      setCategory(matchedCat || null);
+
       reset({
         name: initialData.colorName || "",
         hex: initialData.colorCode || "#000000",
         compatibleFabric: preSelected,
       });
     } else {
+      setCategory(null);
       reset({
         name: "",
         hex: "#000000",
@@ -152,7 +182,7 @@ const AddEditColorModal = ({
       });
     }
     setError("");
-  }, [mode, initialData, isOpen]);
+  }, [mode, initialData, isOpen, categoryOptions]);
 
   const handleSave = async (values) => {
     if (!values.name.trim()) {
@@ -173,6 +203,10 @@ const AddEditColorModal = ({
       colorCode: values.hex,
       compatibleFabric: values.compatibleFabric.map((f) => f.value),
     };
+
+    if (category) {
+      payload.category_id = category.value;
+    }
 
     try {
       if (mode === "edit" && initialData?.id) {
@@ -313,6 +347,23 @@ const AddEditColorModal = ({
                     </div>
                   </>
                 )}
+              />
+            </div>
+
+            <div>
+              <label className="text-[#1C2C56] text-sm font-medium">
+                Category
+              </label>
+              <Select
+                options={categoryOptions}
+                styles={selectStyles}
+                value={category}
+                onChange={(selected) => setCategory(selected)}
+                placeholder="Select Category"
+                isClearable
+                className="mt-1"
+                menuPortalTarget={typeof document !== "undefined" ? document.body : null}
+                menuPosition="fixed"
               />
             </div>
 
