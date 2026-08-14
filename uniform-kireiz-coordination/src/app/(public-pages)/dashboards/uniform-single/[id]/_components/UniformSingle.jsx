@@ -50,15 +50,15 @@ const UniformSingle = () => {
     const handleUniformDesigning = () => {
         const destination = `/dashboards/uniform-3d-design/${id}`
 
-        if (!session?.user?.email) {
-            toast.push(
-                <Notification title="Login Required" type="warning">
-                    Please sign in first to continue.
-                </Notification>
-            )
-            router.push(`/sign-in?${REDIRECT_URL_KEY}=${destination}`)
-            return
-        }
+        // if (!session?.user?.email) {
+        //     toast.push(
+        //         <Notification title="Login Required" type="warning">
+        //             Please sign in first to continue.
+        //         </Notification>
+        //     )
+        //     router.push(`/sign-in?${REDIRECT_URL_KEY}=${destination}`)
+        //     return
+        // }
 
         router.push(destination)
     };
@@ -155,9 +155,9 @@ const UniformSingle = () => {
                                             {product.description || 'No description available'}
                                         </p>
 
-                                        <p className="text-[#6B7280] text-sm leading-relaxed">
+                                        {/* <p className="text-[#6B7280] text-sm leading-relaxed">
                                             Price: ${product.price}
-                                        </p>
+                                        </p> */}
 
                                         {product.type && (
                                             <p className="text-[#6B7280] text-sm leading-relaxed capitalize">
@@ -165,11 +165,11 @@ const UniformSingle = () => {
                                             </p>
                                         )}
 
-                                        <p className="text-[#6B7280] text-sm leading-relaxed">
+                                        {/* <p className="text-[#6B7280] text-sm leading-relaxed">
                                             Available Quantity: {product.available_quantity} / {product.total_quantity}
-                                        </p>
+                                        </p> */}
 
-                                        {Number(product.rental_price_per_day) > 0 && (
+                                        {/* {Number(product.rental_price_per_day) > 0 && (
                                             <p className="text-[#6B7280] text-sm leading-relaxed">
                                                 Rental Price: ${product.rental_price_per_day} / day
                                             </p>
@@ -179,7 +179,7 @@ const UniformSingle = () => {
                                             <p className="text-[#6B7280] text-sm leading-relaxed">
                                                 Security Deposit: ${product.security_deposit}
                                             </p>
-                                        )}
+                                        )} */}
                                     </div>
                                 </>
                             )}

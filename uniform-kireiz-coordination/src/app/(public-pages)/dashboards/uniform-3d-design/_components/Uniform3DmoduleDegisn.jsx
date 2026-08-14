@@ -704,7 +704,7 @@ const Uniform3DmoduleDegisn = () => {
 
 
   const handleUniformDesignResult = async () => {
-    if (!session?.accessToken) {
+    if (!session?.user?.email) {
       toast.push(
         <Notification title="Login Required" type="warning">
           Please sign in first to continue.
@@ -1355,9 +1355,9 @@ const Uniform3DmoduleDegisn = () => {
           {/* BOTTOM TOOLBAR */}
           {/* <div className="absolute bottom-[100px] flex"> */}
           <div className="
-              absolute 
-              top-[75vh]
               flex
+              mt-6
+              mb-10
             ">
             <div className="z-20 mt-6 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl px-3 py-2 flex items-center gap-4">
               <button className="p-1 rounded-md">
