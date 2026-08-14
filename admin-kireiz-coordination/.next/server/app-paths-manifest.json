@@ -1,7 +1,9 @@
 {
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/_not-found/page": "app/_not-found/page.js",
   "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js",
   "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js",
-  "/(public-pages)/system-settings/page": "app/(public-pages)/system-settings/page.js"
+  "/(public-pages)/system-settings/page": "app/(public-pages)/system-settings/page.js",
+  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
+  "/(public-pages)/simulation-assets/page": "app/(public-pages)/simulation-assets/page.js",
+  "/(public-pages)/customer/page": "app/(public-pages)/customer/page.js",
+  "/(public-pages)/reports-analytics/page": "app/(public-pages)/reports-analytics/page.js"
 }

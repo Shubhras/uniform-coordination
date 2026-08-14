@@ -29,7 +29,7 @@ const HeroContent = ({ categoryData }) => {
             <div className="absolute left-0 w-[45%] h-[75vh] z-0 -bottom-10">
               <div className="h-full flex flex-col justify-center bg-gradient-to-r to-[#dce4f7] from-white rounded-tl-[60px] rounded-tr-[60px] rounded-br-[60px] px-16 shadow-[0_30px_80px_rgba(28,44,86,0.15)]">
                 <h1 className="text-[#1C2C56] text-5xl font-bold leading-tight mb-4">
-                  {categoryData?.categoryName || "Medical Care Uniforms"}
+                  {categoryData?.categoryName || ""}
                 </h1>
                 <p className="text-[#6B7280] text-base mb-6 font-medium max-w-md">
                   {categoryData?.description ||
@@ -48,7 +48,7 @@ const HeroContent = ({ categoryData }) => {
             <div className="absolute right-0 bottom-0 w-[62%] h-[75vh] z-10 overflow-hidden rounded-bl-[60px] lg:rounded-bl-[100px]">
               <img
                 src={dynamicImageSrc}
-                alt={categoryData?.categoryName || "Category"}
+                alt={categoryData?.categoryName || ""}
                 className="w-full h-full object-cover object-top rounded-bl-[60px] lg:rounded-bl-[100px]"
               />
             </div>
@@ -59,7 +59,7 @@ const HeroContent = ({ categoryData }) => {
             <div className="relative w-full min-h-96 rounded-b-[50px] overflow-hidden">
               <Image
                 src={dynamicImageSrc}
-                alt={categoryData?.categoryName || "Medical Team"}
+                alt={categoryData?.categoryName || ""}
                 fill
                 className="object-cover object-top"
                 priority
@@ -69,7 +69,7 @@ const HeroContent = ({ categoryData }) => {
 
             <div className="text-center px-2 pb-8">
               <h1 className="text-[#1C2C56] text-3xl md:text-4xl font-bold mb-3">
-                {categoryData?.categoryName || "Medical Care Uniforms"}
+                {categoryData?.categoryName || ""}
               </h1>
               <p className="text-[#6B7280] text-sm md:text-base mb-5">
                 {categoryData?.description ||

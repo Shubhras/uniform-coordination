@@ -7,7 +7,7 @@ const HeroContent = () => {
   const router = useRouter();
 
   const handleStartDesigning = () => {
-    router.push("/kireiz-form");
+    router.push("/dashboards/uniform-3d-design");
   };
 
   return (

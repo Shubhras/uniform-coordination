@@ -40,6 +40,26 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/_not-found/page.js"
+    ],
+    "/(public-pages)/products/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/products/page.js"
+    ],
+    "/(public-pages)/simulation-assets/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/simulation-assets/page.js"
+    ],
+    "/(public-pages)/customer/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/customer/page.js"
+    ],
+    "/(public-pages)/reports-analytics/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/reports-analytics/page.js"
     ]
   }
 }
