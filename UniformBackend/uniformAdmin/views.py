@@ -14,7 +14,11 @@ from django.contrib.auth.tokens import default_token_generator
 from uniformAdmin.fabric import CustomPagination
 from rest_framework.parsers import MultiPartParser, FormParser
 from .models import *
-from userhub.models import QuotationRequest, CustomUpdateModels, CustomUpdateThemes
+from userhub.models import QuotationRequest, CustomUpdateModels
+try:
+    from userhub.models import CustomUpdateThemes
+except ImportError:
+    CustomUpdateThemes = None
 from userhub.serializers import QuotationRequestSerializer
 from django.db.models import Q
 from .fabric import CustomPagination
@@ -2787,9 +2791,12 @@ class AdminSavedSimulationsAPIView(APIView):
             ).order_by('-created_at')
 
             # 2. Fetch user custom theme models
-            theme_customs = CustomUpdateThemes.objects.filter(isDeleted=False).select_related(
-                'user', 'theme', 'theme__category'
-            ).order_by('-created_at')
+            if CustomUpdateThemes is not None:
+                theme_customs = CustomUpdateThemes.objects.filter(isDeleted=False).select_related(
+                    'user', 'theme', 'theme__category'
+                ).order_by('-created_at')
+            else:
+                theme_customs = []
 
             saved_simulations = []
 
