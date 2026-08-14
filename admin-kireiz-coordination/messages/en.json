@@ -1901,7 +1901,8 @@
     "tabs": {
       "generalSettings": "General Settings",
       "paymentSettings": "Payment Settings",
-      "emailNotifications": "Email & Notifications"
+      "emailNotifications": "Email & Notifications",
+      "systemAlerts": "System Alerts"
     },
     "generalSettings": {
       "companyNameLabel": "Company Name",
@@ -1962,6 +1963,10 @@
       "notificationsSubtitle": "Choose which emails the system sends.",
       "notifyNewQuotationRequest": "New quotation request (to admin)",
       "notifyNewQuotationRequestHint": "Alerts the addresses below when a customer submits a request.",
+      "notifyNewUserRegistration": "New user registration (to admin)",
+      "notifyNewUserRegistrationHint": "Alerts the addresses below when a new user signs up.",
+      "notifyAdminLogin": "Admin login (to admin)",
+      "notifyAdminLoginHint": "Alerts the addresses below whenever an admin logs in.",
       "notifyRegistrationConfirmation": "Registration confirmation (to customer)",
       "notifyRequestReceivedConfirmation": "Request received confirmation (to customer)",
       "notifyQuotationStatusChange": "Quotation status change (to customer)",
@@ -1983,6 +1988,17 @@
       "smtpPasswordSetHint": "A password is currently saved.",
       "smtpPasswordUnsetHint": "No password saved yet.",
       "smtpFallbackNotice": "When SMTP Host is blank, emails use the server's environment configuration. Fill these in to manage sending from here instead. The password is stored write-only and is never shown again."
+    },
+    "systemAlerts": {
+      "sectionTitle": "Active Alerts",
+      "sectionSubtitle": "Choose which events raise a card on the dashboard's Active Alerts list, and how many days each is timed from.",
+      "pendingReviewLabel": "Quotes pending review",
+      "pendingReviewHint": "Flags pending quotations older than the SLA below as overdue.",
+      "awaitingCustomerLabel": "Quotation requests awaiting customer contact",
+      "awaitingCustomerHint": "Flags sent quotations with no customer response after the SLA below.",
+      "daysLabel": "days",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes"
     }
   },
   "notificationsPage": {

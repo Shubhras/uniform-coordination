@@ -13,8 +13,16 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.enums import TA_RIGHT, TA_CENTER,TA_LEFT
 from reportlab.platypus import Flowable
 from django.core.mail import send_mail
+from django.utils import timezone
 
 from userhub.models import Users
+from uniformAdmin.models import SystemSettings
+
+
+def _admin_recipient_list():
+    """Admin addresses configured under System Settings -> Email Notifications."""
+    raw = (SystemSettings.load().admin_notification_emails or "")
+    return [addr.strip() for addr in raw.split(",") if addr.strip()]
 
 def generate_custom_tokens(user):
     """Generate custom access & refresh tokens for normal Users."""
@@ -724,6 +732,13 @@ def generate_payment_pdf(payment, user, request=None):
 
 
 def send_admin_quotation_email(quotation):
+    if not SystemSettings.load().notify_admin_on_new_request:
+        return
+
+    recipients = _admin_recipient_list()
+    if not recipients:
+        return
+
     subject = f"New Quotation create {quotation.quotation_id}"
 
     message = f"""
@@ -746,20 +761,52 @@ def send_admin_quotation_email(quotation):
     Created At       :  {quotation.created_at}
     """
 
-    # admin_emails = list(
-    #     Users.objects.filter(userType="admin")
-    #     .exclude(email="")
-    #     .values_list("email", flat=True)
-    # )
+    send_mail(subject, message, settings.EMAIL_HOST_USER, recipients)
 
-    send_mail(
-        subject,
-        message,
-        settings.EMAIL_HOST_USER,
-        ["rt61240@gmail.com"],  )
-        # admin_emails
-        
-        
+
+def send_admin_registration_email(user):
+    if not SystemSettings.load().notify_admin_on_new_registration:
+        return
+
+    recipients = _admin_recipient_list()
+    if not recipients:
+        return
+
+    subject = "New User Registration"
+    message = f"""
+    A new user has registered.
+
+    Name     :    {user.firstName or ''} {user.lastName or ''}
+    Email    :    {user.email}
+    User Type:    {user.userType}
+    Joined   :    {user.created_at if hasattr(user, 'created_at') else ''}
+    """
+
+    send_mail(subject, message, settings.EMAIL_HOST_USER, recipients)
+
+
+def send_admin_login_alert_email(admin_user):
+    if not SystemSettings.load().notify_admin_on_login:
+        return
+
+    recipients = _admin_recipient_list()
+    if not recipients:
+        return
+
+    subject = "Admin Login Alert"
+    message = f"""
+    An admin has logged in.
+
+    Name : {admin_user.name}
+    Email: {admin_user.email}
+    Time : {timezone.now()}
+
+    If this was not you, please secure this account immediately.
+    """
+
+    send_mail(subject, message, settings.EMAIL_HOST_USER, recipients)
+
+
         
 def send_registration_email(user):
     send_mail(

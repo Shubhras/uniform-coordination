@@ -268,7 +268,8 @@
             "usersPermissions": "Users & Permissions",
             "simulationAssets": "Simulation Assets",
             "reportsAnalytics": "Reports & Analytics",
-            "systemSettings": "System Settings"
+            "systemSettings": "System Settings",
+            "paymentsDashboard":"Payments"
         },
     "dashboard": {
         "welcomeTitle": "Welcome Back, {name}!",

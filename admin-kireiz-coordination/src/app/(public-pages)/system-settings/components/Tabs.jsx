@@ -9,6 +9,7 @@ const Tabs = ({ activeTab, setActiveTab }) => {
     { id: "General Settings", label: t("generalSettings") },
     { id: "Payment Settings", label: t("paymentSettings") },
     { id: "Email & Notifications", label: t("emailNotifications") },
+    { id: "System Alerts", label: t("systemAlerts") },
   ];
 
   return (

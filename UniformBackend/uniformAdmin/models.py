@@ -178,9 +178,18 @@ class SystemSettings(models.Model):
     admin_notification_emails = models.TextField(blank=True, null=True)
 
     notify_admin_on_new_request = models.BooleanField(default=True)
+    notify_admin_on_new_registration = models.BooleanField(default=True)
+    notify_admin_on_login = models.BooleanField(default=True)
     notify_customer_on_registration = models.BooleanField(default=True)
     notify_customer_on_request_received = models.BooleanField(default=True)
     notify_customer_on_status_change = models.BooleanField(default=True)
+
+    # ---------------- System Alerts (dashboard "Active Alerts") ----------------
+    # Which events raise a dashboard alert, and the SLA (days) each is timed from.
+    alert_pending_review_enabled = models.BooleanField(default=True)
+    alert_pending_review_sla_days = models.PositiveSmallIntegerField(default=3)
+    alert_awaiting_customer_enabled = models.BooleanField(default=True)
+    alert_awaiting_customer_sla_days = models.PositiveSmallIntegerField(default=3)
 
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -266,7 +266,8 @@
             "usersPermissions": "ユーザー・権限",
             "simulationAssets": "シミュレーションアセット",
             "reportsAnalytics": "レポート・分析",
-            "systemSettings": "システム設定"
+            "systemSettings": "システム設定",
+            "paymentsDashboard": "支払いダッシュボード"
         },
     "dashboard": {
         "welcomeTitle": "おかえりなさい、{name}さん！",

@@ -19,9 +19,9 @@ import {
   FiShoppingCart,
   FiBox,
   FiImage,
-  FiLayers,
   FiBookmark,
   FiCreditCard,
+  FiLayers,FiCreditCard
 } from "react-icons/fi";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { MdPayment } from "react-icons/md";
@@ -124,6 +124,12 @@ const sidebarMenu = [
     path: "/system-settings",
     slug: "system_settings",
   },
+  //  {
+  //   label: "paymentsDashboard",
+  //   icon: FiCreditCard,
+  //   path: "/payments",
+  //   slug: "payments",
+  // },
   // {
   //     label: 'Content & Media',
   //     icon: FiFileText,
