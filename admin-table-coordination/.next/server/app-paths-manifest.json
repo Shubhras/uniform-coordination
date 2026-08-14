@@ -1,6 +1,1 @@
-{
-  "/(public-pages)/simulation-assets/page": "app/(public-pages)/simulation-assets/page.js",
-  "/(public-pages)/reports-analytics/page": "app/(public-pages)/reports-analytics/page.js",
-  "/(public-pages)/system-settings/page": "app/(public-pages)/system-settings/page.js",
-  "/(public-pages)/products/page": "app/(public-pages)/products/page.js"
-}
+{}
