@@ -15,6 +15,7 @@ from rest_framework.permissions import BasePermission
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from threading import Thread
 from .utils import send_reset_email
+from userhub.utils import send_admin_login_alert_email
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from .fabric import CustomPagination
@@ -276,6 +277,7 @@ class AdminLoginAPIView(APIView):
         user.last_login = timezone.now()
         user.is_currently_login = True
         user.save(update_fields=["last_login","is_currently_login"])
+        send_admin_login_alert_email(user)
 
         # Fetch menu/submenu permissions for user's role
         role = user.role
