@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Select from "react-select";
-import { FiChevronLeft, FiChevronRight, FiEye, FiRotateCcw, FiSearch, FiX } from "react-icons/fi";
+import {
+  FiChevronLeft,
+  FiChevronRight,
+  FiEye,
+  FiRotateCcw,
+  FiSearch,
+  FiX,
+} from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetContractsList } from "@/services/ContractsPoliciesService";
 import Spinner from "@/components/ui/Spinner";
@@ -13,44 +20,38 @@ import { useTranslations } from "next-intl";
 const selectStyles = {
   control: (base) => ({
     ...base,
-    minHeight: "42px",
-    borderColor: "#F0E6DE",
-    borderRadius: "8px",
+    minHeight: "40px",
+    borderColor: "#EFE5DD",
     boxShadow: "none",
+    borderRadius: "8px",
     "&:hover": {
-      borderColor: "#D7C3B7",
+      borderColor: "#C08457",
     },
   }),
 
-  valueContainer: (base) => ({
-    ...base,
-    paddingLeft: "10px",
-    paddingRight: "10px",
-  }),
-
-  indicatorSeparator: () => ({
-    display: "none",
-  }),
-
-  dropdownIndicator: (base) => ({
+  singleValue: (base) => ({
     ...base,
     color: "#A85A32B2",
-    padding: "0 10px 0 0",
+  }),
+
+  placeholder: (base) => ({
+    ...base,
+    color: "#A85A32B2",
   }),
 
   menu: (base) => ({
     ...base,
-    zIndex: 20,
+    zIndex: 9999,
   }),
 
   option: (base, state) => ({
     ...base,
     backgroundColor: state.isSelected
-      ? "#A85A32"
+      ? "#A0522D"
       : state.isFocused
-        ? "#FAF3EE"
-        : "#FFFFFF",
-    color: state.isSelected ? "#FFFFFF" : "#6F625B",
+        ? "#F8F2ED"
+        : "#fff",
+    color: state.isSelected ? "#fff" : "#444",
   }),
 };
 
@@ -95,7 +96,7 @@ const ContractsPoliciesPage = () => {
         currentPage,
         pageSize,
         debouncedSearch,
-        status.value
+        status.value,
       );
 
       if (res?.status) {
@@ -165,9 +166,7 @@ const ContractsPoliciesPage = () => {
           {t("title")}
         </h1>
 
-        <p className="mt-1 text-sm text-[#8B817A]">
-          {t("subHeading")}
-        </p>
+        <p className="mt-1 text-sm text-[#8B817A]">{t("subHeading")}</p>
       </div>
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -263,11 +262,23 @@ const ContractsPoliciesPage = () => {
                   </td>
 
                   <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#7E736C]">
-                    {row.created_at ? new Date(row.created_at).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }) : "—"}
+                    {row.created_at
+                      ? new Date(row.created_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "—"}
                   </td>
 
                   <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#4A3D36]">
-                    {row.signed_at ? new Date(row.signed_at).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }) : "—"}
+                    {row.signed_at
+                      ? new Date(row.signed_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "—"}
                   </td>
 
                   <td className="whitespace-nowrap px-4 py-4">
@@ -336,7 +347,7 @@ const ContractsPoliciesPage = () => {
               >
                 {page}
               </button>
-            )
+            ),
           )}
 
           <button

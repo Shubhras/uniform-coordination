@@ -22,6 +22,23 @@ const fabricOptions = [
   { value: "linen", label: "Linen" },
 ];
 
+const getApiErrorMessage = (message) => {
+  if (typeof message === "string") return message;
+
+  if (message && typeof message === "object") {
+    return Object.values(message)
+      .flatMap((value) => (Array.isArray(value) ? value : [value]))
+      .flatMap((value) =>
+        typeof value === "object" && value !== null
+          ? Object.values(value).flat()
+          : [value],
+      )
+      .join(" ");
+  }
+
+  return "";
+};
+
 const AddEditColorModal = ({
   isOpen,
   onClose,
@@ -130,7 +147,7 @@ const AddEditColorModal = ({
       const payload = {
         colorName: values.name.trim(),
         colorCode: hex || values.hex,
-        compatibleFabric: (values.compatibleFabric || []).map((f) => f.label),
+        compatibleFabric: (values.compatibleFabric || []).map((f) => f.value),
       };
 
       let response;
@@ -138,6 +155,10 @@ const AddEditColorModal = ({
         response = await apiUpdateColor(accessToken, initialData.id, payload);
       } else {
         response = await apiCreateColor(accessToken, payload);
+      }
+      if (response?.status === false || response?.statusCode >= 400) {
+        setError(getApiErrorMessage(response?.message) || tm("saveFailed"));
+        return;
       }
 
       toast.push(
@@ -149,7 +170,9 @@ const AddEditColorModal = ({
       if (onSaveSuccess) onSaveSuccess();
     } catch (err) {
       console.error("Save failed:", err);
-      setError(err?.response?.data?.message || tm("saveFailed"));
+      setError(
+        getApiErrorMessage(err?.response?.data?.message) || tm("saveFailed"),
+      );
     } finally {
       setSaving(false);
     }

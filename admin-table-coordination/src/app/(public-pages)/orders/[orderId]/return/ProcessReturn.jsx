@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiProcessReturnDetails } from "@/services/OrderRentals";
-import { useRouter } from "next/navigation";
 import { FiArrowLeft, FiAlertCircle, FiClock, FiCheckCircle } from "react-icons/fi";
+import { useRouter, useSearchParams } from "next/navigation";
 import Spinner from "@/components/ui/Spinner";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -12,6 +12,16 @@ export default function ProcessReturn({ orderId }) {
   const t = useTranslations("orderRetals.processReturn");
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState("inventory");
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;

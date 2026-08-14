@@ -131,9 +131,7 @@ const ActiveAlerts = ({ data, onAlertsRead }) => {
                         const messageLabel = alert.messageKey
                             ? t(alert.messageKey, alert.messageValues)
                             : alert.message;
-                        const actionLabel = alert.actionKey
-                            ? t(alert.actionKey)
-                            : alert.action;
+                        const actionLabel = t(alert.actionKey || "viewDetails");
 
                         return (
                             <div

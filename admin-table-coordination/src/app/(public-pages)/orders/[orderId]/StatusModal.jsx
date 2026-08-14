@@ -19,9 +19,8 @@ export default function StatusModal({
   const t = useTranslations("orderRetals.viewOrder");
   const ts = useTranslations("successTitle");
 
-  if (!open) return null;
-
   const [loading, setLoading] = useState(false);
+  if (!open) return null;
 
   const nextStatusMap = {
     pending: "processing",

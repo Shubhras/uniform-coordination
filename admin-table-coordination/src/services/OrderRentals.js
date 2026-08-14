@@ -5,7 +5,7 @@ export async function apiOrderRentalLists(
   page = 1,
   pageSize = 10,
   search = "",
-  role = "",
+  customer_type = "",
   status = "",
 ) {
   const params = new URLSearchParams({
@@ -16,7 +16,8 @@ export async function apiOrderRentalLists(
   if (search) {
     params.append("search", search);
   }
-  if (role && role !== "all") params.append("role", role);
+  if (customer_type && customer_type !== "all")
+    params.append("customer_type", customer_type);
   if (status && status !== "all") params.append("status", status);
 
   return ApiService.fetchDataWithAxios({

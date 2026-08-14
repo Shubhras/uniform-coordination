@@ -10,6 +10,7 @@ import AddEditAttributeModal from "./AddEditAttributeModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
 import Spinner from "@/components/ui/Spinner";
+import { useTranslations } from "next-intl";
 
 const attributeTitleMap = {
   "Table Shape": { en: "Table Shape", ja: "テーブル形状" },
@@ -45,6 +46,8 @@ const AttributeTab = ({ attributeTitle, service }) => {
   const isJa = locale === "ja";
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
+  const t = useTranslations("productSpecification.fabric");
+  const ts = useTranslations("successTitle");
 
   const translatedTitle =
     attributeTitleMap[attributeTitle]?.[isJa ? "ja" : "en"] || attributeTitle;
@@ -85,7 +88,12 @@ const AttributeTab = ({ attributeTitle, service }) => {
 
       try {
         setLoading(true);
-        const response = await service.list(accessToken, page, pageSize, search);
+        const response = await service.list(
+          accessToken,
+          page,
+          pageSize,
+          search,
+        );
 
         if (response?.status && response?.data) {
           setItems(response.data);
@@ -101,7 +109,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
         setLoading(false);
       }
     },
-    [accessToken, service, pageSize, attributeTitle]
+    [accessToken, service, pageSize, attributeTitle],
   );
 
   useEffect(() => {
@@ -128,12 +136,9 @@ const AttributeTab = ({ attributeTitle, service }) => {
       const response = await service.delete(accessToken, itemToDelete.id);
 
       toast.push(
-        <Notification title={isJa ? "成功" : "Success"} type="success">
-          {response.message ||
-            (isJa
-              ? `${translatedTitle}を削除しました`
-              : `${attributeTitle} deleted successfully`)}
-        </Notification>
+        <Notification title={ts("success")} type="success">
+          {response.message || `${attributeTitle} deleted successfully`}
+        </Notification>,
       );
       setDeleteDialogOpen(false);
       setItemToDelete(null);
@@ -151,12 +156,10 @@ const AttributeTab = ({ attributeTitle, service }) => {
         <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
-              {isJa ? `${translatedTitle}の管理` : `${attributeTitle} Management`}
+              {attributeTitle} {t("management")}
             </h2>
             <p className="text-sm text-[#486284]">
-              {isJa
-                ? `${pagination.total_items} 種類の${translatedTitle}が利用可能`
-                : `${pagination.total_items} ${attributeTitle} Available`}
+              {pagination.total_items} {attributeTitle} {t("available")}
             </p>
           </div>
 
@@ -165,20 +168,19 @@ const AttributeTab = ({ attributeTitle, service }) => {
             className="bg-[#A0522D] text-white px-4 py-2 font-semibold rounded-md text-sm flex items-center gap-2 hover:bg-[#8B4513] transition-colors"
           >
             <FiPlus size={14} />
-            {isJa ? `${translatedTitle}を追加` : `Add ${attributeTitle}`}
+            {t("add")} {attributeTitle}
           </button>
         </div>
 
         {/* Search */}
         <div className="relative w-full md:w-72 mb-6">
-          <FiSearch className="absolute left-3 top-2.5 text-[#64748B]" size={16} />
+          <FiSearch
+            className="absolute left-3 top-2.5 text-[#64748B]"
+            size={16}
+          />
           <input
             type="text"
-            placeholder={
-              isJa
-                ? `${translatedTitle}を検索...`
-                : `Search ${attributeTitle.toLowerCase()}...`
-            }
+            placeholder={`${t("search")} ${attributeTitle.toLowerCase()}...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0522D]"
@@ -200,9 +202,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
-            {isJa
-              ? `${translatedTitle}が見つかりません`
-              : `No ${attributeTitle.toLowerCase()} found`}
+            {t("noFound")} {attributeTitle.toLowerCase()} {t("found")}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -231,9 +231,8 @@ const AttributeTab = ({ attributeTitle, service }) => {
                       {item.name}
                     </h3>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      {isJa
-                        ? `ステータス: ${item.isActive ? "有効" : "無効"}`
-                        : `Status: ${item.isActive ? "Active" : "Inactive"}`}
+                      {t("status")}:{" "}
+                      {item.isActive ? t("active") : t("inactive")}
                     </p>
                     {item.category?.categoryName && (
                       <p className="text-xs text-gray-500 font-medium mt-0.5">
@@ -247,7 +246,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
                       onClick={() => handleEdit(item)}
                       className="flex-1 bg-[#A0522D] text-white text-xs py-1.5 rounded-md hover:bg-[#8B4513] transition-colors"
                     >
-                      {isJa ? "編集" : "Edit"}
+                      {t("edit")}
                     </button>
                     <button
                       onClick={() => {
@@ -256,7 +255,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
                       }}
                       className="flex-1 border border-red-200 text-red-500 text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                     >
-                      {isJa ? "削除" : "Delete"}
+                      {t("delete")}
                     </button>
                   </div>
                 </div>
@@ -299,16 +298,10 @@ const AttributeTab = ({ attributeTitle, service }) => {
           setItemToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
-        title={
-          isJa
-            ? `${translatedTitle}を削除`
-            : `Delete ${attributeTitle}`
-        }
-        message={
-          isJa
-            ? `この${translatedTitle}を削除してもよろしいですか？`
-            : `Are you sure you want to delete this ${attributeTitle.toLowerCase()}?`
-        }
+        title={`${t("delete")} ${attributeTitle}`}
+        message={t("deleteConfirmation", {
+          attribute: attributeTitle.toLowerCase(),
+        })}
         itemName={itemToDelete?.name}
         loading={deleteLoading}
       />

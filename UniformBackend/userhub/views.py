@@ -67,7 +67,7 @@ class SignupAPIView(APIView):
                 email = user.email               
                 # verify_link = request.build_absolute_uri(f"http://localhost:7000/account-verified-page?user_id={uid}&email={email}")
                 
-                verify_link = request.build_absolute_uri(f" http://104.64.206.82/account-verified-page?user_id={uid}&email={email}")
+                verify_link = request.build_absolute_uri(f"https://uniform.dxtspace.com/account-verified-page?user_id={uid}&email={email}")
 
                 # EMAIL VERIFICATION
                 # uid = urlsafe_base64_encode(force_bytes(user.id))
@@ -559,7 +559,7 @@ class UserForgotPasswordAPIView(APIView):
 
             # Build reset link
             # frontend_url = "http://localhost:7000/reset-password"
-            frontend_url = "http://104.64.206.82/reset-password"
+            frontend_url = "https://uniform.dxtspace.com/reset-password"
             reset_link = f"{frontend_url}?user_id={user_id}"
 
             # -------------------------------  

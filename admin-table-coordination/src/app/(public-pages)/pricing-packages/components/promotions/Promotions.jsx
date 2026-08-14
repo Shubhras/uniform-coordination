@@ -26,7 +26,7 @@ import { useTranslations } from "next-intl";
 const selectStyles = {
   control: (base) => ({
     ...base,
-    minHeight: "44px",
+    minHeight: "40px",
     borderColor: "#EFE5DD",
     boxShadow: "none",
     borderRadius: "8px",
@@ -231,7 +231,7 @@ const Promotions = () => {
               placeholder={t("searchPromotion")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-11 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#1C4FA8]"
+              className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#1C4FA8]"
             />
 
             {searchQuery && (

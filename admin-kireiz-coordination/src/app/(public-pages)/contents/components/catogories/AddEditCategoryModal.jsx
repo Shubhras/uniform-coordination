@@ -28,6 +28,7 @@ const AddEditCategoryModal = ({
   const t = useTranslations("contentMedia.categories");
   const tm = useTranslations("contentMedia.categories.createCategoryModal");
   const fileInputRef = useRef(null);
+  const bannerInputRef = useRef(null);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -36,6 +37,10 @@ const AddEditCategoryModal = ({
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [validated, setValidated] = useState(false);
+  const [bannerFile, setBannerFile] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState(null);
+  const [bannerValidated, setBannerValidated] = useState(false);
+  const [active, setActive] = useState(true);
 
    const categorySchema = z.object({
     categoryName: z.string().trim().min(1, tm("validation.nameRequired")),
@@ -51,6 +56,13 @@ const AddEditCategoryModal = ({
         : z.any().refine((file) => file instanceof File, {
             message: tm("validation.imageRequired"),
           }),
+
+    bannerImage:
+      mode === "edit"
+        ? z.any().optional()
+        : z.any().refine((file) => file instanceof File, {
+            message: tm("validation.bannerImageRequired"),
+          }),
   });
 
   const {
@@ -65,6 +77,7 @@ const AddEditCategoryModal = ({
       categoryName: "",
       description: "",
       image: null,
+      bannerImage: null,
     },
   });
 
@@ -73,6 +86,7 @@ const AddEditCategoryModal = ({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [imageError, setImageError] = useState("");
+  const [bannerError, setBannerError] = useState("");
   const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
   /* ---------- RESET / PREFILL ---------- */
@@ -85,10 +99,15 @@ const AddEditCategoryModal = ({
       setPreview(initialData.categoryImage || initialData.image || null);
       setImageFile(null);
       setValidated(Boolean(initialData.categoryImage || initialData.image));
+      setBannerPreview(initialData.bannerImage || null);
+      setBannerFile(null);
+      setBannerValidated(Boolean(initialData.bannerImage));
+      setActive(initialData.isActive ?? true);
       reset({
         categoryName: initialData.categoryName || initialData.name || "",
         description: initialData.description || "",
         image: null,
+        bannerImage: null,
       });
     } else {
       // setCategoryName("");
@@ -97,10 +116,16 @@ const AddEditCategoryModal = ({
       setPreview(null);
       setValidated(false);
       setImageError("");
+      setBannerFile(null);
+      setBannerPreview(null);
+      setBannerValidated(false);
+      setBannerError("");
+      setActive(true);
       reset({
         categoryName: "",
         description: "",
         image: null,
+        bannerImage: null,
       });
     }
     setError("");
@@ -151,6 +176,51 @@ const AddEditCategoryModal = ({
     handleFile(e.target.files[0]);
   };
 
+  const handleBannerFile = (file) => {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setBannerError(tm("validation.onlyImages"));
+      setBannerValidated(false);
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setBannerError(tm("validation.maxSize"));
+      setBannerFile(null);
+      setBannerPreview(null);
+      setBannerValidated(false);
+
+      setValue("bannerImage", null, {
+        shouldValidate: true,
+      });
+
+      if (bannerInputRef.current) {
+        bannerInputRef.current.value = "";
+      }
+
+      return;
+    }
+
+    setBannerError("");
+    setBannerFile(file);
+    setBannerPreview(URL.createObjectURL(file));
+    setBannerValidated(true);
+
+    setValue("bannerImage", file, {
+      shouldValidate: true,
+    });
+  };
+
+  const handleBannerDrop = (e) => {
+    e.preventDefault();
+    handleBannerFile(e.dataTransfer.files[0]);
+  };
+
+  const handleBannerBrowse = (e) => {
+    handleBannerFile(e.target.files[0]);
+  };
+
   /* ---------- RESET ---------- */
   const resetForm = () => {
     // setCategoryName("");
@@ -159,6 +229,11 @@ const AddEditCategoryModal = ({
     setPreview(null);
     setValidated(false);
     setImageError("");
+    setBannerFile(null);
+    setBannerPreview(null);
+    setBannerValidated(false);
+    setBannerError("");
+    setActive(true);
     setError("");
     reset({
       categoryName: "",
@@ -182,6 +257,10 @@ const AddEditCategoryModal = ({
       if (imageFile) {
         formData.append("categoryImage", imageFile);
       }
+      if (bannerFile) {
+        formData.append("bannerImage", bannerFile);
+      }
+      formData.append("isActive", active ? "true" : "false");
 
       // if (mode === "edit" && initialData?.id) {
       //   await apiUpdateCategory(accessToken, initialData.id, formData);
@@ -342,6 +421,97 @@ const AddEditCategoryModal = ({
                 />
               </div>
             )}
+
+            {/* Banner Image */}
+            <div>
+              <label className="text-[#1C2C56] text-base font-medium">
+                {tm("bannerImageLabel")}
+                <span className="text-red-500">*</span>
+              </label>
+
+              <button
+                type="button"
+                className="w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm mt-2 flex items-center justify-center gap-2"
+                onClick={() => bannerInputRef.current.click()}
+              >
+                <FiUpload size={16} />
+                {tm("uploadBannerImageButton")}
+              </button>
+              {bannerError && (
+                <p className="text-red-500 text-sm mt-1">{bannerError}</p>
+              )}
+
+              <div
+                onDrop={handleBannerDrop}
+                onDragOver={(e) => e.preventDefault()}
+                className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
+              >
+                {tm("dragDropText")}
+                <br />
+                {tm("orText")}{" "}
+                <span
+                  className="text-[#1C2C56] underline cursor-pointer"
+                  onClick={() => bannerInputRef.current.click()}
+                >
+                  {tm("clickToBrowse")}
+                </span>
+                <p className="text-xs mt-2 text-[#64748B]">
+                  {tm("allowedFormats")}
+                </p>
+                <p className="text-xs mt-2 text-[#64748B]">
+                  {tm("maxDimension")}
+                </p>
+              </div>
+
+              <FormItem
+                invalid={Boolean(errors.bannerImage)}
+                errorMessage={errors.bannerImage?.message}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={bannerInputRef}
+                  className="hidden"
+                  onChange={handleBannerBrowse}
+                />
+              </FormItem>
+            </div>
+
+            {bannerValidated && (
+              <p className="text-sm text-green-600 flex items-center gap-1">
+                ✔ {tm("imageValidated")}
+              </p>
+            )}
+            {bannerPreview && (
+              <div className="flex justify-center">
+                <img
+                  src={bannerPreview}
+                  alt={tm("previewAlt")}
+                  className="w-32 h-32 object-contain rounded-lg shadow"
+                />
+              </div>
+            )}
+
+            {/* Status */}
+            <div>
+              <label className="text-[#1C2C56] text-base font-medium">
+                {tm("statusLabel")}
+              </label>
+              <div className="flex items-center gap-3 mt-2">
+                <button
+                  type="button"
+                  onClick={() => setActive(!active)}
+                  className={`w-12 h-6 rounded-full flex items-center px-1 transition ${active ? "bg-[#1C2C56]" : "bg-gray-300"}`}
+                >
+                  <span
+                    className={`bg-white w-4 h-4 rounded-full transition ${active ? "translate-x-6" : ""}`}
+                  />
+                </button>
+                <span className="text-sm text-[#1C2C56]">
+                  {active ? tm("statusActive") : tm("statusInactive")}
+                </span>
+              </div>
+            </div>
 
             {/* Description */}
             <div>

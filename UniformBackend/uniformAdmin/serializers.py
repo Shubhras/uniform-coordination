@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from django.conf import settings
+import json
 import re
 from django.utils import timezone
 from .models import *
@@ -520,9 +521,108 @@ class ColorsSerializer(serializers.ModelSerializer):
         return value
 
 
+class SpecificationListField(serializers.Field):
+    """
+    A list of short bullet strings that also accepts a JSON-encoded string.
+
+    The admin template form is multipart because it uploads an image, so this value
+    arrives as text rather than a parsed array.
+    """
+
+    def to_representation(self, value):
+        return value or []
+
+    def to_internal_value(self, data):
+        if isinstance(data, str):
+            text = data.strip()
+            if not text:
+                return []
+            try:
+                data = json.loads(text)
+            except ValueError:
+                raise serializers.ValidationError(
+                    "Must be a JSON array of strings."
+                )
+
+        if not isinstance(data, list):
+            raise serializers.ValidationError("Must be a list of strings.")
+
+        cleaned = [str(item).strip() for item in data if str(item).strip()]
+        if len(cleaned) > 10:
+            raise serializers.ValidationError(
+                "A template can have at most 10 specification lines."
+            )
+        return cleaned
+
+
+class AttributeOptionSerializer(serializers.ModelSerializer):
+    """
+    One choice for one simulation attribute. `image` is returned as an absolute URL and
+    accepted as an upload under the same name, so the admin form has nothing to translate.
+    """
+
+    categoryName = serializers.CharField(
+        source="category.categoryName", read_only=True
+    )
+    attributeLabel = serializers.CharField(
+        source="get_attribute_display", read_only=True
+    )
+    imageUrl = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AttributeOption
+        fields = [
+            "id", "attribute", "attributeLabel", "name",
+            "image", "imageUrl",
+            "category", "categoryName",
+            "order", "isActive", "isDeleted",
+            "created_at", "updated_at",
+        ]
+        read_only_fields = ["isDeleted", "created_at", "updated_at"]
+        extra_kwargs = {"image": {"write_only": True, "required": False}}
+
+    def get_imageUrl(self, obj):
+        return new_build_media_url(obj.image)
+
+    def validate(self, attrs):
+        attribute = attrs.get("attribute") or getattr(self.instance, "attribute", None)
+        image = attrs.get("image", getattr(self.instance, "image", None))
+
+        # Size is a run of labels with nothing to picture; every other attribute is
+        # chosen from artwork, so an option with no image would render as a blank tile.
+        if attribute and attribute != "size" and not image:
+            raise serializers.ValidationError(
+                {"image": "An image is required for this attribute."}
+            )
+
+        return attrs
+
+
 class TemplateSerializer(serializers.ModelSerializer):
     partName = serializers.CharField(source='part.partName',read_only=True)
     partCategory = serializers.CharField(source='part.category',read_only=True)
+    # The industry category, distinct from partCategory above — that one is the part's
+    # own grouping (Pockets, Caps) and is not what the storefront pages filter on.
+    categoryName = serializers.CharField(
+        source='category.categoryName', read_only=True
+    )
+    # The style this template pre-selects in the design tool. Names and the colour code
+    # travel with it so the storefront can show what a template applies without a second
+    # round of lookups.
+    presetColorName = serializers.CharField(
+        source='preset_color.colorName', read_only=True
+    )
+    presetColorCode = serializers.CharField(
+        source='preset_color.colorCode', read_only=True
+    )
+    presetFabricName = serializers.CharField(
+        source='preset_fabric.fabricName', read_only=True
+    )
+    presetPartName = serializers.CharField(
+        source='part.partName', read_only=True
+    )
+    specifications = SpecificationListField(required=False)
+
     class Meta:
         model = Template
         fields = "__all__"
@@ -738,8 +838,9 @@ class CategorySerializer(serializers.ModelSerializer):
             "id",
             "categoryName",
             "slug",
-            "type", 
-            "categoryImage",  
+            "type",
+            "categoryImage",
+            "bannerImage",
             "description",
             "isActive",
             "order",
@@ -1207,19 +1308,53 @@ class ProductSerializer(serializers.ModelSerializer):
             "show_in_simulation",
 ]
 
+    # This serializer reads and writes its relations under different names: `category`,
+    # `subcategory`, `parts` and `ProductImage` are the read shapes (nested objects and a
+    # built URL) and so are read-only, while writes go through `category_id`,
+    # `subcategory_id`, `parts_ids` and `ProductImage_file`.
+    #
+    # Both admin front-ends post the read names. A read-only field raises no error when
+    # supplied, so every one of those values was dropped in silence — products saved with
+    # no category, no subcategory and no image, and the edit form then had nothing to
+    # prefill. Accepting the read names as aliases fixes the callers as they stand.
+    WRITE_ALIASES = {
+        "category": "category_id",
+        "subcategory": "subcategory_id",
+        "parts": "parts_ids",
+        "ProductImage": "ProductImage_file",
+    }
+
     def to_internal_value(self, data):
         data = data.copy()
- 
+
+        for sent, expected in self.WRITE_ALIASES.items():
+            # An explicit `category_id` always wins; the alias only fills a gap.
+            if sent in data and not data.get(expected):
+                value = data.get(sent)
+                # Skip a read shape echoed back — a nested dict, or an image URL string
+                # where an upload belongs. Neither is something to write from.
+                if isinstance(value, dict):
+                    continue
+                if expected == "ProductImage_file" and isinstance(value, str):
+                    continue
+                data[expected] = value
+
         parts = data.get("parts_ids")
         if parts and isinstance(parts, str):
             try:
-                data.setlist("parts_ids", json.loads(parts))
+                parsed = json.loads(parts)
             except (json.JSONDecodeError, TypeError):
                 raise serializers.ValidationError({
                     "parts_ids": "Invalid format. Use [1,2,3]."
                 })
- 
+            # setlist exists on QueryDict (form posts); JSON requests give a plain dict.
+            if hasattr(data, "setlist"):
+                data.setlist("parts_ids", parsed)
+            else:
+                data["parts_ids"] = parsed
+
         return super().to_internal_value(data)
+
     def validate_productName(self, value):
         queryset = Product.objects.filter(
             productName__iexact=value,
@@ -1287,24 +1422,11 @@ class ProductSerializer(serializers.ModelSerializer):
         if image:
             product.ProductImage = image
             product.save()
-        return product    
- 
-  
-    def to_internal_value(self, data):
-        data = data.copy()
- 
-        parts = data.get("parts_ids")
-        if parts and isinstance(parts, str):
-            try:
-                data.setlist("parts_ids", json.loads(parts))
-            except (json.JSONDecodeError, TypeError):
-                raise serializers.ValidationError({
-                    "parts_ids": "Invalid format. Use [1,2,3]."
-                })
- 
-        return super().to_internal_value(data)
-    
-    
+        return product
+
+    # A second copy of to_internal_value used to sit here. Being later in the class body,
+    # it silently replaced the one above — so the alias handling never ran.
+
     def update(self, instance, validated_data):
         image = validated_data.pop("ProductImage_file", None)
         parts = validated_data.pop("parts", None)

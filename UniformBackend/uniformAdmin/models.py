@@ -289,10 +289,108 @@ class Colors(models.Model):
         return self.colorName
 
 
+class AttributeOption(models.Model):
+    """
+    The choices a shopper sees for one simulation attribute — the four collar styles, the
+    five cuffs, the size run, and so on.
+
+    One table rather than a Collar table, a Sleeve table and so on. The attribute set is
+    admin-defined under Simulation Assets → Simulation Structure, so a per-attribute table
+    would mean a migration and a new admin screen every time the client adds an attribute.
+    Fabric, Parts and Colors keep their own tables because they carry their own data
+    (price, material, layer order); these options carry nothing but a name and artwork.
+
+    `attribute` matches the tool key the storefront customiser uses, which is the contract
+    between the two sides.
+    """
+
+    ATTRIBUTE_CHOICES = [
+        ("collar", "Collar"),
+        ("sleeves", "Sleeves"),
+        ("cap", "Cap"),
+        ("zipper", "Zipper"),
+        ("cuff", "Cuff"),
+        ("pocket", "Pocket"),
+        ("pants", "Pant"),
+        ("aprons", "Apron"),
+        ("size", "Size"),
+    ]
+
+    attribute = models.CharField(max_length=30, choices=ATTRIBUTE_CHOICES)
+    name = models.CharField(max_length=150)
+
+    # Optional because Size is a run of labels (XS…XXXL) with nothing to picture.
+    image = models.ImageField(upload_to="attribute_options/", blank=True, null=True)
+
+    # Null means the option is offered in every category. Same rule as fabrics, so the two
+    # behave alike rather than each having its own idea of scope.
+    category = models.ForeignKey(
+        "Category",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="attribute_options",
+    )
+
+    order = models.PositiveIntegerField(default=0)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["attribute", "order", "id"]
+
+    def __str__(self):
+        return f"{self.get_attribute_display()}: {self.name}"
+
+
 class Template(models.Model):
     templateName = models.CharField(max_length=250)
     templateImage = models.ImageField(upload_to='template_images/', blank=True, null=True)
     part = models.ForeignKey(Parts, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # The industry this template is offered under — Medical & Nursing Care, Food Service
+    # & Dining, and so on. Needed because `part` leads to a part category (Pockets, Caps),
+    # which says nothing about which storefront page the template belongs on.
+    # Quoted reference: Category is declared further down this module.
+    category = models.ForeignKey(
+        "Category",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="templates",
+    )
+
+    # Bullet points shown on the customer template card, e.g.
+    # ["Premium Cotton Blend", "Executive Style"]. A list rather than fixed columns so the
+    # admin is not forced into exactly four.
+    specifications = models.JSONField(default=list, blank=True)
+
+    # A template is a *style*, not a garment: the shopper picks the template, then picks
+    # which product in this category to apply it to. So there is deliberately no product
+    # link here — one template serves every product in its category, and each design still
+    # ends up against a single product, which is what the quotation line items expect.
+    #
+    # The preset below is what gets pre-selected in the design tool. Only colour and
+    # fabric are here because they are the attributes the admin actually keeps tables for;
+    # collar, sleeve, cap and the rest have no admin source, so a template cannot set them.
+    # The starting part is `part` above, which this model already carries.
+    preset_color = models.ForeignKey(
+        "Colors",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="templates",
+    )
+    preset_fabric = models.ForeignKey(
+        "Fabric",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="templates",
+    )
+
     partUsageCount = models.IntegerField(default=0)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
@@ -312,7 +410,8 @@ class Category(models.Model):
     ]
     categoryName = models.CharField(max_length=250)
     categoryImage = models.ImageField(upload_to="category/", blank=True, null=True)
-    description = models.CharField(max_length=250,blank=True, null=True) 
+    bannerImage = models.ImageField(upload_to="category/banner/", blank=True, null=True)
+    description = models.CharField(max_length=250,blank=True, null=True)
     type = models.CharField(max_length=20,choices=CATEGORY_TYPE,default='uniform')    
     slug = models.CharField(max_length=255, blank=True, null=True)
     order = models.PositiveIntegerField(default=0,db_index=True) #new
