@@ -227,16 +227,16 @@ const AttributeTab = ({ attributeTitle, service }) => {
 
                 <div className="p-4 flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-sm font-semibold text-[#1C2C56]">
+                    <h3 className="text-[15px] font-semibold text-[#1C2C56]">
                       {item.name}
                     </h3>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {t("status")}:{" "}
-                      {item.isActive ? t("active") : t("inactive")}
+                    <p className="text-[14px] text-[#1C2C56] font-semibold mt-1">
+                      {t("status")} :{" "}
+                     <span className="text-[13px] text-gray-500 mt-1"> {item.isActive ? t("active") : t("inactive")}</span>
                     </p>
                     {item.category?.categoryName && (
-                      <p className="text-xs text-gray-500 font-medium mt-0.5">
-                        {isJa ? "カテゴリー: " : "Category: "}{item.category.categoryName}
+                      <p className="text-[14px] text-[#1C2C56] font-semibold mt-1">
+                        {isJa ? "カテゴリー: " : "Category: "}  <span className="text-[13px] text-gray-500 mt-1">{item.category.categoryName}</span>
                       </p>
                     )}
                   </div>
@@ -244,7 +244,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
                   <div className="flex gap-2 mt-4">
                     <button
                       onClick={() => handleEdit(item)}
-                      className="flex-1 bg-[#A0522D] text-white text-xs py-1.5 rounded-md hover:bg-[#8B4513] transition-colors"
+                      className="flex-1 bg-[#A0522D] text-white text-[13px] py-1.5 rounded-md hover:bg-[#8B4513] transition-colors"
                     >
                       {t("edit")}
                     </button>
@@ -253,7 +253,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
                         setItemToDelete(item);
                         setDeleteDialogOpen(true);
                       }}
-                      className="flex-1 border border-red-200 text-red-500 text-xs py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
+                      className="flex-1 border border-red-200 text-red-500 text-[13px] py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-red-50 transition-colors"
                     >
                       {t("delete")}
                     </button>
