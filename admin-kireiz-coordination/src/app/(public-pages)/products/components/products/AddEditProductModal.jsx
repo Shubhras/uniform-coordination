@@ -22,11 +22,6 @@ import {
 
 import { apiGetPartsList } from "@/services/PartsService";
 
-const TypeOptions = [
-  { value: "top", label: "Top" },
-  { value: "bottom", label: "Bottom" },
-  { value: "set", label: "Set" },
-];
 
 const selectStyles = {
   control: (base, state) => ({
@@ -127,6 +122,14 @@ const AddEditProductModal = ({
 }) => {
   const t = useTranslations("productSpecification.products");
   const tm = useTranslations("productSpecification.products.addProductModal");
+  const TypeOptions = useMemo(
+    () => [
+      { value: "top", label: tm("typeOptionTop") },
+      { value: "bottom", label: tm("typeOptionBottom") },
+      { value: "set", label: tm("typeOptionSet") },
+    ],
+    [tm],
+  );
   const fileInputRef = useRef(null);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -143,6 +146,7 @@ const AddEditProductModal = ({
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [imageValidated, setImageValidated] = useState(false);
+  const [active, setActive] = useState(true);
 
   // Dynamic options from API
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -354,12 +358,14 @@ const AddEditProductModal = ({
       setPreview(initialData.ProductImage || null);
       setImageFile(null);
       setImageValidated(false);
+      setActive(initialData.isActive ?? true);
     } else {
       reset(EMPTY_PRODUCT_FORM_VALUES);
       setPreview(null);
       setImageFile(null);
       setImageError("");
       setImageValidated(false);
+      setActive(true);
       setError("");
 
       if (fileInputRef.current) {
@@ -438,6 +444,8 @@ const AddEditProductModal = ({
       if (values.type?.value) {
         formData.append("type", values.type.value);
       }
+
+      formData.append("isActive", active ? "true" : "false");
 
       if (imageFile) {
         // ProductImage is the read field; writes go through ProductImage_file.
@@ -721,6 +729,27 @@ const AddEditProductModal = ({
               )}
             />
           </FormItem>
+
+          {/* Status */}
+          <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              {tm("statusLabel")}
+            </label>
+            <div className="flex items-center gap-3 mt-2">
+              <button
+                type="button"
+                onClick={() => setActive(!active)}
+                className={`w-12 h-6 rounded-full flex items-center px-1 transition ${active ? "bg-[#1C2C56]" : "bg-gray-300"}`}
+              >
+                <span
+                  className={`bg-white w-4 h-4 rounded-full transition ${active ? "translate-x-6" : ""}`}
+                />
+              </button>
+              <span className="text-sm text-[#1C2C56]">
+                {active ? tm("statusActive") : tm("statusInactive")}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
