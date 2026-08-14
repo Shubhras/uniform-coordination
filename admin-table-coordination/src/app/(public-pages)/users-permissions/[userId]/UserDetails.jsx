@@ -28,6 +28,10 @@ const getDisplayPhone = (user) =>
   "-";
 
 const getDisplayStatus = (user) => {
+  if (typeof user?.isActive === "boolean") {
+    return user.isActive ? "Active" : "Inactive";
+  }
+
   if (typeof user?.status === "boolean") {
     return user.status ? "Active" : "Inactive";
   }
@@ -43,7 +47,9 @@ const getDisplayStatus = (user) => {
     user?.state;
 
   if (typeof rawStatus === "string") {
-    return rawStatus.toLowerCase() === "active" ? "Active" : "Inactive";
+    return rawStatus.trim().toLowerCase() === "active"
+      ? "Active"
+      : "Inactive";
   }
 
   return "Inactive";
@@ -101,10 +107,10 @@ const normalizeUser = (user) => ({
   userType: getDisplayUserType(user),
   registrationDate: formatDate(
     user?.registrationDate ||
-      user?.registration_date ||
-      user?.created_at ||
-      user?.date_joined ||
-      user?.createdAt,
+    user?.registration_date ||
+    user?.created_at ||
+    user?.date_joined ||
+    user?.createdAt,
   ),
   statusLabel: getDisplayStatus(user),
   isActive: getDisplayStatus(user) === "Active",
@@ -224,11 +230,10 @@ const UserDetails = ({ userId }) => {
               </p>
               <div className="mt-1">
                 <span
-                  className={`rounded px-2 py-0.5 text-[9px] font-medium ${
-                    user.userType === "B2C"
-                      ? "bg-[#EAF4FF] text-[#4B93D4]"
-                      : "bg-[#FFF0E8] text-[#C58A62]"
-                  }`}
+                  className={`rounded px-2 py-0.5 text-[9px] font-medium ${user.userType === "B2C"
+                    ? "bg-[#EAF4FF] text-[#4B93D4]"
+                    : "bg-[#FFF0E8] text-[#C58A62]"
+                    }`}
                 >
                   {user.userType}
                 </span>
@@ -244,11 +249,10 @@ const UserDetails = ({ userId }) => {
 
             <div className="md:text-right">
               <span
-                className={`inline-flex rounded-full px-3 py-1 text-[11px] font-medium ${
-                  isActive
-                    ? "bg-[#E8FAF2] text-[#007A55]"
-                    : "bg-[#FFE9E8] text-[#F04444]"
-                }`}
+                className={`inline-flex rounded-full px-3 py-1 text-[11px] font-medium ${isActive
+                  ? "bg-[#E8FAF2] text-[#007A55]"
+                  : "bg-[#FFE9E8] text-[#F04444]"
+                  }`}
               >
                 {isActive ? t("active") : t("inactive")}
               </span>

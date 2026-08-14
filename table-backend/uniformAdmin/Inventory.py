@@ -118,10 +118,10 @@ class AdminInspectionQueueListAPIView(APIView):
         except ValueError:
             return Response({
                 "status": False,
-                "statusCode": 400,
+                "statusCode": 200,
                 "message": "Invalid page or page_size",
                 "data": []
-            }, status=400)
+            }, status=200)
 
         paginator = Paginator(inspections, page_size)
 

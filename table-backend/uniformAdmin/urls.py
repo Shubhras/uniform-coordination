@@ -260,6 +260,7 @@ urlpatterns = [
     
     path('rental-order/items/', RentalListAPIView.as_view(), name='rental-order/items'),
     path('inventory/inspection-queue/', AdminInspectionQueueListAPIView.as_view(), name='admin-inspection-queue-list'),
+    path('inventory/inspection-queue/<int:pk>/process/', AdminProcessInspectionAPIView.as_view(), name='admin-inspection-queue-process'),
     path('rental-order/late-fee/<str:order_id>/', AdminGetOrCreateLateFeeInvoiceAPIView.as_view(), name='admin-late-fee-invoice'),
     path('rental-order/late-fee/<str:order_id>/notify/', AdminNotifyLateFeeCustomerAPIView.as_view(), name='admin-late-fee-notify'),
     path('rental-order/compensation/<str:order_id>/', AdminGetOrCreateCompensationInvoiceAPIView.as_view(), name='admin-compensation-invoice'),
