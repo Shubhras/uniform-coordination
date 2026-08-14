@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import Spinner from "@/components/ui/Spinner";
 import StatusModal from "./StatusModal";
+import CancelOrderModal from "./CancelOrderModal";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -20,6 +21,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
   const locale = useLocale();
   const router = useRouter();
   const [openReturnModal, setOpenReturnModal] = useState(false);
+  const [openCancelModal, setOpenCancelModal] = useState(false);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -92,6 +94,15 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
   const currentAction = statusConfig[order?.status?.toLowerCase()] || {
     action: t("updateStatusAction"),
   };
+  const isCancelled = order?.status?.toLowerCase() === "cancelled";
+
+  const canCancelOrder = [
+    "pending",
+    "confirmed",
+    "processing",
+    "out_for_delivery",
+    "shipped",
+  ].includes(order?.status?.toLowerCase());
 
   const handleAction = () => {
     if (currentAction.isProcessReturn) {
@@ -143,13 +154,40 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
             </div>
           </div>
 
-          <button
-            // onClick={() => setOpenReturnModal(true)}
+          {/* <button
             onClick={handleAction}
             className="bg-[#8C4A2F] text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-[#723A24]"
           >
             {currentAction.action}
-          </button>
+          </button> */}
+          <div className="flex items-center gap-3">
+            {canCancelOrder && (
+              <button
+                type="button"
+                onClick={() => setOpenCancelModal(true)}
+                className="rounded-lg border border-red-200 bg-white px-5 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
+              >
+                Cancel Order
+              </button>
+            )}
+
+            {isCancelled ? (
+              <button
+                type="button"
+                className="rounded-lg bg-[#A85A32] px-5 py-2.5 text-sm font-medium text-white"
+              >
+                Refund
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleAction}
+                className="rounded-lg bg-[#A85A32] px-5 py-2.5 text-sm font-medium text-white"
+              >
+                {currentAction.action}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Top Cards */}
@@ -422,6 +460,13 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
         onClose={() => setOpenReturnModal(false)}
         orderId={order?.order_id}
         status={order?.status}
+        accessToken={accessToken}
+        fetchOrder={fetchOrder}
+      />
+      <CancelOrderModal
+        open={openCancelModal}
+        onClose={() => setOpenCancelModal(false)}
+        orderId={orderId}
         accessToken={accessToken}
         fetchOrder={fetchOrder}
       />
