@@ -101,11 +101,11 @@ const normalizeNotification = (item, locale = "en-US") => ({
   statusLabel: getNotificationStatus(item),
   sentAt: formatDate(
     item?.sent_at ||
-    item?.created_at ||
-    item?.updated_at ||
-    item?.timestamp ||
-    item?.date,
-    locale
+      item?.created_at ||
+      item?.updated_at ||
+      item?.timestamp ||
+      item?.date,
+    locale,
   ),
 });
 
@@ -135,38 +135,37 @@ const selectStyles = {
   control: (base) => ({
     ...base,
     minHeight: "40px",
-    borderColor: "#F2E5DD",
-    borderRadius: "6px",
+    borderColor: "#EFE5DD",
     boxShadow: "none",
-    fontSize: "11px",
+    borderRadius: "8px",
     "&:hover": {
-      borderColor: "#E2CFC2",
+      borderColor: "#C08457",
     },
   }),
-  valueContainer: (base) => ({
+
+  singleValue: (base) => ({
     ...base,
-    paddingLeft: "8px",
-    paddingRight: "8px",
+    color: "#A85A32B2",
   }),
-  indicatorSeparator: () => ({ display: "none" }),
-  dropdownIndicator: (base) => ({
+
+  placeholder: (base) => ({
     ...base,
-    color: "#B7774D",
-    padding: "0 8px 0 0",
+    color: "#A85A32B2",
   }),
+
   menu: (base) => ({
     ...base,
-    zIndex: 30,
+    zIndex: 9999,
   }),
+
   option: (base, state) => ({
     ...base,
-    fontSize: "11px",
     backgroundColor: state.isSelected
-      ? "#B56735"
+      ? "#A0522D"
       : state.isFocused
-        ? "#FCF4EF"
-        : "#FFFFFF",
-    color: state.isSelected ? "#FFFFFF" : "#6F625B",
+        ? "#F8F2ED"
+        : "#fff",
+    color: state.isSelected ? "#fff" : "#444",
   }),
 };
 
@@ -303,7 +302,7 @@ const NotificationPage = () => {
         <h1 className="text-[24px] font-semibold leading-tight text-[#241915] sm:text-[28px]">
           {t("title")}
         </h1>
-        <p className="mt-1 text-[12px] text-[#94867C] sm:text-xs">
+        <p className="mt-1 text-[13px] text-[#94867C] sm:text-sm">
           {t("subtitle")}
         </p>
       </div>
@@ -312,14 +311,14 @@ const NotificationPage = () => {
         <div className="relative w-full sm:flex-1">
           <FiSearch
             className="absolute left-3 top-1/2 -translate-y-1/2 text-[#D1A48A]"
-            size={13}
+            size={16}
           />
           <input
             type="text"
             placeholder={t("searchby")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-10 w-full rounded-md border border-[#F3E7DE] bg-white pl-8 pr-8 text-[11px] text-[#6F625B] outline-none placeholder:text-[#C28E73] focus:border-[#D7B7A3]"
+            className="h-10 w-full rounded-md border border-[#F3E7DE] bg-white pl-8 pr-8 text-[#6F625B] outline-none placeholder:text-[#C28E73] focus:border-[#D7B7A3]"
           />
           {searchQuery && (
             <button
@@ -328,15 +327,13 @@ const NotificationPage = () => {
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#9A8E86]"
               aria-label={t("clearSearch")}
             >
-              <FiX size={13} />
+              <FiX className="text-gray-500" />
             </button>
           )}
         </div>
 
-        <div className="w-full sm:w-[96px]">
+        <div className="w-56">
           <Select
-            // instanceId="notifications-status-filter"
-            // inputId="notifications-status-filter"
             value={status}
             onChange={(selectedOption) =>
               setStatus(selectedOption ?? statusOptions[0])
@@ -350,9 +347,9 @@ const NotificationPage = () => {
         <button
           type="button"
           onClick={handleReset}
-          className="flex h-10 w-full items-center justify-center gap-1 rounded-md border border-[#F2E5DD] bg-white px-3 text-sm font-medium text-[#B7774D] transition hover:bg-[#FCF4EF] sm:w-auto"
+          className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
         >
-          <FiRotateCcw size={12} />
+          <FiRotateCcw size={14} />
           {t("reset")}
         </button>
       </div>
@@ -361,10 +358,16 @@ const NotificationPage = () => {
         <table className="w-full text-sm">
           <thead className="bg-[#F1F5F9] text-[#486284]">
             <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-              <th className="text-left px-4 py-3 font-medium">{t("recipient")}</th>
+              <th className="text-left px-4 py-3 font-medium">
+                {t("recipient")}
+              </th>
               <th className="text-left px-4 py-3 font-medium">{t("email")}</th>
-              <th className="text-left px-4 py-3 font-medium">{t("orderId")}</th>
-              <th className="text-left px-4 py-3 font-medium">{t("statusFilter")}</th>
+              <th className="text-left px-4 py-3 font-medium">
+                {t("orderId")}
+              </th>
+              <th className="text-left px-4 py-3 font-medium">
+                {t("statusFilter")}
+              </th>
               <th className="text-left px-4 py-3 font-medium">{t("sentAt")}</th>
               <th className="text-left px-4 py-3 font-medium">{t("action")}</th>
             </tr>
@@ -372,89 +375,91 @@ const NotificationPage = () => {
           <tbody>
             {loading
               ? Array.from({ length: itemsPerPage }).map((_, index) => (
-                <tr
-                  key={`loading-${index}`}
-                  className="odd:bg-white even:bg-[#FBF8F6]"
-                >
-                  <td className="px-3 py-3">
-                    <div className="h-4 w-28 animate-pulse rounded bg-[#F5ECE6]" />
-                  </td>
-                  <td className="px-3 py-3">
-                    <div className="h-4 w-40 animate-pulse rounded bg-[#F5ECE6]" />
-                  </td>
-                  <td className="px-3 py-3">
-                    <div className="h-4 w-20 animate-pulse rounded bg-[#F5ECE6]" />
-                  </td>
-                  <td className="px-3 py-3">
-                    <div className="h-6 w-16 animate-pulse rounded-full bg-[#F5ECE6]" />
-                  </td>
-                  <td className="px-3 py-3">
-                    <div className="h-4 w-24 animate-pulse rounded bg-[#F5ECE6]" />
-                  </td>
-                  <td className="px-3 py-3">
-                    <div className="mx-auto h-6 w-14 animate-pulse rounded-full bg-[#F5ECE6]" />
-                  </td>
-                </tr>
-              ))
-              : paginatedNotifications.map((item) => {
-                const isSent = item.statusLabel === "Sent";
-                const targetOrderId =
-                  item.orderId && item.orderId !== "-"
-                    ? item.orderId
-                    : item.id;
-                const canView = Boolean(targetOrderId);
-
-                return (
                   <tr
-                    key={item.id}
+                    key={`loading-${index}`}
                     className="odd:bg-white even:bg-[#FBF8F6]"
                   >
-                    <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
-                      {item.recipient}
+                    <td className="px-3 py-3">
+                      <div className="h-4 w-28 animate-pulse rounded bg-[#F5ECE6]" />
                     </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-[#4A3D36]">
-                      {item.email}
+                    <td className="px-3 py-3">
+                      <div className="h-4 w-40 animate-pulse rounded bg-[#F5ECE6]" />
                     </td>
-                    <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
-                      {item.orderId}
+                    <td className="px-3 py-3">
+                      <div className="h-4 w-20 animate-pulse rounded bg-[#F5ECE6]" />
                     </td>
-                    <td className="whitespace-nowrap px-3 py-3">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${isSent
-                          ? "bg-[#E8FAF2] text-[#007A55]"
-                          : "bg-[#FFE9E8] text-[#F04444]"
-                          }`}
-                      >
-                        {isSent ? (
-                          <FiCheckCircle size={11} />
-                        ) : (
-                          <FiAlertCircle size={11} />
-                        )}
-                        {isSent ? t("statusSent") : t("statusFailed")}
-                      </span>
+                    <td className="px-3 py-3">
+                      <div className="h-6 w-16 animate-pulse rounded-full bg-[#F5ECE6]" />
                     </td>
-                    <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
-                      {item.sentAt}
+                    <td className="px-3 py-3">
+                      <div className="h-4 w-24 animate-pulse rounded bg-[#F5ECE6]" />
                     </td>
-                    <td className="px-3 py-3 text-start">
-                      <button
-                        type="button"
-                        disabled={!canView}
-                        onClick={() => {
-                          if (canView) {
-                            router.push(`/orders/${targetOrderId}`);
-                          }
-                        }}
-                        className={`inline-flex items-center gap-1 rounded-lg border border-[#EDD8CA] bg-white px-3 py-1 text-[10px] font-medium text-[#C17443] transition hover:bg-[#FCF4EE] ${canView ? "" : "cursor-default opacity-60"
-                          }`}
-                      >
-                        <FiEye size={11} />
-                        {t("view")}
-                      </button>
+                    <td className="px-3 py-3">
+                      <div className="mx-auto h-6 w-14 animate-pulse rounded-full bg-[#F5ECE6]" />
                     </td>
                   </tr>
-                );
-              })}
+                ))
+              : paginatedNotifications.map((item) => {
+                  const isSent = item.statusLabel === "Sent";
+                  const targetOrderId =
+                    item.orderId && item.orderId !== "-"
+                      ? item.orderId
+                      : item.id;
+                  const canView = Boolean(targetOrderId);
+
+                  return (
+                    <tr
+                      key={item.id}
+                      className="odd:bg-white even:bg-[#FBF8F6]"
+                    >
+                      <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
+                        {item.recipient}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3 text-[#4A3D36]">
+                        {item.email}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
+                        {item.orderId}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${
+                            isSent
+                              ? "bg-[#E8FAF2] text-[#007A55]"
+                              : "bg-[#FFE9E8] text-[#F04444]"
+                          }`}
+                        >
+                          {isSent ? (
+                            <FiCheckCircle size={11} />
+                          ) : (
+                            <FiAlertCircle size={11} />
+                          )}
+                          {isSent ? t("statusSent") : t("statusFailed")}
+                        </span>
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3 font-semibold text-[#4A3D36]">
+                        {item.sentAt}
+                      </td>
+                      <td className="px-5 py-3 text-start">
+                        <button
+                          type="button"
+                          disabled={!canView}
+                          onClick={() => {
+                            if (canView) {
+                              router.push(`/orders/${targetOrderId}`);
+                            }
+                          }}
+                          className={`inline-flex items-center gap-2 rounded-md border border-[#E6CDBB] bg-white px-4 py-1.5 text-[13px] font-medium text-[#A85A32] hover:bg-[#FFF7F2] ${
+                            canView ? "" : "cursor-default opacity-60"
+                          }`}
+                        >
+                          <FiEye size={14} />
+                          {t("view")}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
           </tbody>
         </table>
       </div>
@@ -492,10 +497,11 @@ const NotificationPage = () => {
                 key={page}
                 type="button"
                 onClick={() => goToPage(page)}
-                className={`flex h-8 min-w-[30px] items-center justify-center rounded px-2 ${currentPage === page
-                  ? "bg-[#D88957] text-white"
-                  : "text-[#8C7C73] hover:bg-[#FCF4EF]"
-                  }`}
+                className={`flex h-8 min-w-[30px] items-center justify-center rounded px-2 ${
+                  currentPage === page
+                    ? "bg-[#D88957] text-white"
+                    : "text-[#8C7C73] hover:bg-[#FCF4EF]"
+                }`}
               >
                 {page}
               </button>
