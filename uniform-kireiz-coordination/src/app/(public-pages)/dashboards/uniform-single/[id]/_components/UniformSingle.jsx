@@ -138,14 +138,12 @@ const UniformSingle = () => {
                                             )}
                                         </div>
                                     </div>
-
                                     <button
                                         className="w-full bg-[#1C4FA8] text-white py-3 rounded-md text-sm font-medium mt-6"
                                         onClick={handleUniformDesigning}
                                     >
                                         Customize
                                     </button>
-
                                     <div className="pt-4 space-y-3 flex-1">
                                         <h4 className="text-[#1C2C56] font-semibold">
                                             Description
@@ -158,11 +156,23 @@ const UniformSingle = () => {
                                         {/* <p className="text-[#6B7280] text-sm leading-relaxed">
                                             Price: ${product.price}
                                         </p> */}
-
                                         {product.type && (
                                             <p className="text-[#6B7280] text-sm leading-relaxed capitalize">
                                                 Type: {product.type}
                                             </p>
+                                        )}
+
+                                        {Array.isArray(product.parts) && product.parts.length > 0 && (
+                                            <div className="text-[#6B7280] text-sm leading-relaxed">
+                                                <span>Parts: </span>
+                                                {product.parts.map((part, index) => (
+                                                    <span key={part.id}>
+                                                        {part.partName}
+                                                        {part.category?.categoryName ? ` (${part.category.categoryName})` : ''}
+                                                        {index < product.parts.length - 1 ? ', ' : ''}
+                                                    </span>
+                                                ))}
+                                            </div>
                                         )}
 
                                         {/* <p className="text-[#6B7280] text-sm leading-relaxed">

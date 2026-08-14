@@ -284,7 +284,7 @@ const DesignResultPage = () => {
                                 </p>
                             </div>
                             <div className="relative flex justify-center items-center h-[720px] w-full">
-                                <div style={{ position: "absolute", top: "45px" }} className="absolute sm:w-[350px] sm:h-[350px] w-[300px] h-[300px] bg-[#BFE3F9] rounded-full" />
+                                <div style={{ position: "absolute", top: "45px" }} className="absolute sm:w-[350px] sm:h-[350px] w-[300px] h-[300px]  rounded-full" />
                                 {/* The designed product's own image. The serializer resolves
                                     it from model_info -> product, so no extra call is needed.
                                     Held back while loading so the fallback picture does not
@@ -348,7 +348,7 @@ const DesignResultPage = () => {
                                     )}
 
                                     {!loading && (
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
                                             <div className="border border-[#E5E7EB] rounded-xl px-4 py-3 bg-white sm:col-span-1">
                                                 <p className="text-xs text-gray-500 mb-3">Size Range</p>
 

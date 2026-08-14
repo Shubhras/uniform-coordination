@@ -16,7 +16,7 @@ import { apiModelInfoCreate, apiSaveDesign } from '@/services/SaveDesignService'
 import { apiGetProductDetailsById } from '@/services/ProductService'
 import { apiGetSimulationOptions } from '@/services/SimulationService'
 import { apiGetTemplateById } from '@/services/CategoryService'
-import { useSession } from 'next-auth/react'
+import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
@@ -259,7 +259,7 @@ const Uniform3DmoduleDegisn = () => {
   const { id } = useParams();
   const searchParams = useSearchParams();
   const templateId = searchParams.get('template');
-  const { data: session } = useSession();
+  const { session } = useCurrentSession();
   const pathname = usePathname();
   const [isSubmitting, setIsSubmitting] = useState(false);
   //console.log("Current Product ID:", id);
@@ -452,13 +452,6 @@ const Uniform3DmoduleDegisn = () => {
         // tools for either half.
         if (product.type === "bottom") setPosition("bottom");
         else setPosition("top");
-
-        // The admin can take a product out of the simulation entirely. Honour that
-        // here, otherwise a shopper could still reach the customiser by URL.
-        if (product.show_in_simulation === false) {
-          setSimBlocked(true);
-          return;
-        }
 
         const categoryId = product.category?.id;
         if (!categoryId) return;
@@ -704,16 +697,17 @@ const Uniform3DmoduleDegisn = () => {
 
 
   const handleUniformDesignResult = async () => {
+
+    console.log("FINAL DESIGN JSON:", session);
     if (!session?.user?.email) {
       toast.push(
         <Notification title="Login Required" type="warning">
           Please sign in first to continue.
         </Notification>
       );
-      router.push(`/sign-in?${REDIRECT_URL_KEY}=${pathname}`);
+      //router.push(`/sign-in?${REDIRECT_URL_KEY}=${pathname}`);
       return;
     }
-
     console.log("FINAL DESIGN JSON:", designJSON);
 
     setIsSubmitting(true);
@@ -724,7 +718,7 @@ const Uniform3DmoduleDegisn = () => {
     formData.append("description", "School uniform 3D model");
 
     try {
-      const response = await apiModelInfoCreate(formData, session?.accessToken);
+      const response = await apiModelInfoCreate(formData, session?.user?.accessToken);
       // console.log("Design create Successfully:", response);
 
       if (response?.status) {
@@ -758,14 +752,14 @@ const Uniform3DmoduleDegisn = () => {
 
 
   const handleSaveDesign = async (modelId) => {
-    if (!session?.accessToken) {
-      toast.push(
-        <Notification title="Login Required" type="warning">
-          Please sign in first to continue.
-        </Notification>
-      );
-      return;
-    }
+    // if (!session?.user?.accessToken) {
+    //   toast.push(
+    //     <Notification title="Login Required" type="warning">
+    //       Please sign in first to continue.
+    //     </Notification>
+    //   );
+    //   return;
+    // }
     setIsSaving(true);
 
     // The shopper's real choices. This used to send fixed sample values
@@ -788,7 +782,7 @@ const Uniform3DmoduleDegisn = () => {
     }
 
     try {
-      const response = await apiSaveDesign(payload, session.accessToken);
+      const response = await apiSaveDesign(payload, session.user.accessToken);
       console.log("Design Saved Successfully:", response);
       toast.push(
         <Notification title="Success!" type="success">
@@ -1296,7 +1290,7 @@ const Uniform3DmoduleDegisn = () => {
 
         {/* CENTER MODEL VIEWER */}
         <div className="relative flex-1 flex flex-col items-center mt-0">
-          <div className="absolute top-30 w-[400px] h-[400px] bg-[#BEE0FF] rounded-full"></div>
+          <div className="absolute top-30 w-[400px] h-[400px] rounded-full"></div>
           {/* {mounted && (
                         <model-viewer
                             ref={mvRef}
