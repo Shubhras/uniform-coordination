@@ -659,19 +659,27 @@ class ProductOrderListSerializer(serializers.ModelSerializer):
 
 # from rest_framework import serializers
 
-# class NotificationSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Notifications
-#         fields = [
-#             "id",
-#             "type",
-#             "is_enabled",
-#             "isActive",
-#             "isDeleted",
-#             "created_at",
-#             "updated_at",
-#         ]
-#         read_only_fields = ["id", "created_at", "updated_at"]
+from .models import UserNotification
+
+class UserNotificationSerializer(serializers.ModelSerializer):
+    order_id = serializers.CharField(source="order.order_id", read_only=True, default=None)
+
+    class Meta:
+        model = UserNotification
+        fields = [
+            "id",
+            "title",
+            "message",
+            "notification_type",
+            "order",
+            "order_id",
+            "is_read",
+            "isActive",
+            "isDeleted",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
 
 #     def validate(self, attrs):
 #         if "type" in attrs and not attrs["type"]:

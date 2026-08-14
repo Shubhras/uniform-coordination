@@ -751,12 +751,53 @@ class UserPaymentDetailAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class AdminPaymentListAPIView(APIView):
-    permission_classes = [IsAdministrator]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         try:
-            payments = Payment.objects.all().order_by('-created_at', '-id')
+            from django.db.models import Sum, Q
+
+            search = request.query_params.get("search", "").strip()
+            status_param = request.query_params.get("status", "").strip().lower()
+
+            payments = Payment.objects.all()
+
+            if search:
+                payments = payments.filter(
+                    Q(order__order_id__icontains=search) |
+                    Q(payment_id__icontains=search) |
+                    Q(order__user__email__icontains=search) |
+                    Q(order__user__userName__icontains=search) |
+                    Q(order__user__firstName__icontains=search) |
+                    Q(order__user__lastName__icontains=search) |
+                    Q(order__customer__email__icontains=search) |
+                    Q(order__customer__name__icontains=search)
+                )
+
+            if status_param and status_param != "all":
+                payments = payments.filter(payment_status=status_param)
+
+            payments = payments.order_by('-created_at', '-id')
+
+            # Aggregate statistics across all payments (unfiltered or filtered context)
+            all_payments = Payment.objects.all()
+            total_payments_count = all_payments.count()
+            total_amount = all_payments.aggregate(total=Sum('amount'))['total'] or 0
+
+            successful_qs = all_payments.filter(payment_status='success')
+            successful_amount = successful_qs.aggregate(total=Sum('amount'))['total'] or 0
+            successful_count = successful_qs.count()
+
+            pending_qs = all_payments.filter(payment_status__in=['pending', 'processing'])
+            pending_amount = pending_qs.aggregate(total=Sum('amount'))['total'] or 0
+            pending_count = pending_qs.count()
+
+            failed_qs = all_payments.filter(payment_status='failed')
+            failed_amount = failed_qs.aggregate(total=Sum('amount'))['total'] or 0
+            failed_count = failed_qs.count()
+
+            refunds_amount = Refund.objects.filter(status='processed').aggregate(total=Sum('refund_amount'))['total'] or 0
 
             paginator = CustomPagination()
             page = paginator.paginate_queryset(payments, request)
@@ -769,6 +810,21 @@ class AdminPaymentListAPIView(APIView):
                 "statusCode": 200,
                 "status": True,
                 "message": "Payment list fetched successfully.",
+                "summary": {
+                    "total_payments_count": total_payments_count,
+                    "total_amount": float(total_amount),
+                    "successful_amount": float(successful_amount),
+                    "successful_count": successful_count,
+                    "successful_percentage": round((successful_amount / total_amount * 100), 2) if total_amount > 0 else 0,
+                    "refunds_amount": float(refunds_amount),
+                    "refunds_percentage": round((refunds_amount / total_amount * 100), 2) if total_amount > 0 else 0,
+                    "pending_amount": float(pending_amount),
+                    "pending_count": pending_count,
+                    "pending_percentage": round((pending_amount / total_amount * 100), 2) if total_amount > 0 else 0,
+                    "failed_amount": float(failed_amount),
+                    "failed_count": failed_count,
+                    "failed_percentage": round((failed_amount / total_amount * 100), 2) if total_amount > 0 else 0,
+                },
                 "data": serializer.data,
                 "pagination": {
                     "page": paginator.page.number,

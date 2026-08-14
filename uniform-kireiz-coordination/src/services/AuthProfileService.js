@@ -173,10 +173,11 @@ export async function apiGetQuotation(token, params = {}) {
  * @param {string} token - User authentication Bearer token.
  * @returns {Promise<Object>} API response with user notifications list.
  */
-export async function apiGetNotifications(token) {
+export async function apiGetNotifications(token, page = 1) {
   return ApiService.fetchDataWithAxios({
-    url: '/v1/uniformAdmin/notifications/get-list/',
+    url: '/v1/userhub/notifications/get-list/',
     method: 'get',
+    params: { page },
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -1715,4 +1715,95 @@ def generate_theme_customization_pdf(obj, user):
     doc.build(elements)
     return f"{settings.MEDIA_URL}exports/{file_name}"
 
+
+def create_user_notification(user, title, message, notification_type='general', order=None):
+    """
+    Utility helper to create in-app UserNotification.
+    """
+    from .models import UserNotification, Users
+    from django.db.models import Q
+    try:
+        target_user = user
+        if not isinstance(target_user, Users):
+            user_email = getattr(user, 'email', None)
+            user_id = getattr(user, 'id', None)
+            found_user = Users.objects.filter(Q(email=user_email) | Q(id=user_id)).first() if (user_email or user_id) else None
+            if found_user:
+                target_user = found_user
+            else:
+                return None
+
+        notification = UserNotification.objects.create(
+            user=target_user,
+            title=title,
+            message=message,
+            notification_type=notification_type,
+            order=order
+        )
+        return notification
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Failed to create user notification: {e}")
+        return None
+
+
+def send_return_not_received_email(user, order):
+    from uniformAdmin.models import SystemSettings
+    settings_obj = SystemSettings.load()
+    if hasattr(settings_obj, 'email_notify_return_overdue') and not settings_obj.email_notify_return_overdue:
+        return
+
+    send_dynamic_email(
+        subject="Action Required: Return Items Not Received - KIREIZ SPACE",
+        message=f"""
+Dear {user.firstName if getattr(user, 'lastName', None) else "User"},
+
+We have not yet received the returned items for your order #{order.order_id}.
+
+Please return the items as soon as possible to avoid late fees or lost item charges.
+If you have already dispatched the shipment, please update your tracking information or contact support.
+
+Best Regards,
+KIREIZ SPACE Team
+""",
+        recipient_list=[user.email],
+    )
+
+
+def send_late_fee_email(user, invoice_or_order, fee_amount=0):
+    send_dynamic_email(
+        subject="Late Fee Invoice Notice - KIREIZ SPACE",
+        message=f"""
+Dear {user.firstName if getattr(user, 'lastName', None) else "User"},
+
+A late fee of ${fee_amount} has been assessed due to overdue rental items.
+
+Please log in to your account dashboard to view details and clear outstanding charges.
+
+Best Regards,
+KIREIZ SPACE Team
+""",
+        recipient_list=[user.email],
+    )
+
+
+def send_lost_item_compensation_email(user, detail_msg=""):
+    send_dynamic_email(
+        subject="Compensation Charge Notice - KIREIZ SPACE",
+        message=f"""
+Dear {user.firstName if getattr(user, 'lastName', None) else "User"},
+
+This is a notice regarding damaged or lost rental items on your account.
+
+Details: {detail_msg}
+
+Please view your account notifications or contact customer support for further information.
+
+Best Regards,
+KIREIZ SPACE Team
+""",
+        recipient_list=[user.email],
+    )
+
+
     

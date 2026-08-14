@@ -340,6 +340,13 @@ class QuotationRequestCreateAPIView(APIView):
                 message=f"A new quotation request has been created by {quotation.company_name}.",
                 priority="high"
             )
+            customer = getattr(quotation.customupdatemodel, "user", None)
+            if customer:
+                UserNotification.objects.create(
+                    user=customer,
+                    title=f"Quotation Request Received: {quotation.quotation_id}",
+                    message=f"We've received your quotation request for {quotation.item_type}.",
+                )
             return Response({
                     'statusCode':201,
                     'status':True,

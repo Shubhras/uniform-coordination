@@ -117,15 +117,38 @@ export async function apiSimulationExportPdf(token, id, isTheme = false) {
         },
     });
 }
-// export async function apiGetNotifications(token) {
-//   return ApiService.fetchDataWithAxios({
-//     url: "/v1/uniformAdmin/notifications/get-list/",
-//     method: "get",
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//     },
-//   });
-// }
+export async function apiGetUserNotifications(token) {
+    return ApiService.fetchDataWithAxios({
+        url: "/v1/space/userhub/notifications/list/",
+        method: "get",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+}
+
+export async function apiMarkNotificationRead(token, id = null) {
+    const url = id 
+        ? `/v1/space/userhub/notifications/mark-read/${id}/`
+        : `/v1/space/userhub/notifications/mark-read/`
+    return ApiService.fetchDataWithAxios({
+        url: url,
+        method: "post",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+}
+
+export async function apiDeleteNotification(token, id) {
+    return ApiService.fetchDataWithAxios({
+        url: `/v1/space/userhub/notifications/delete/${id}/`,
+        method: "delete",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+}
 
 /**
  * Toggles favorite status of a product.

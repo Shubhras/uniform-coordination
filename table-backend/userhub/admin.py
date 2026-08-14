@@ -435,6 +435,53 @@ class RefundAdmin(admin.ModelAdmin):
 
 #     ordering = ("-id",)
 
+
+
+
+
+
+@admin.register(UserNotification)
+class UserNotificationAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "title",
+        "notification_type",
+        "order",
+        "is_read",
+        "isActive",
+        "isDeleted",
+        "created_at",
+        "updated_at",
+    )
+
+    list_filter = (
+        "notification_type",
+        "is_read",
+        "isActive",
+        "isDeleted",
+        "created_at",
+    )
+
+    search_fields = (
+        "title",
+        "message",
+        "user__email",
+        "user__userName",
+        "user__firstName",
+        "user__lastName",
+        "order__order_id",
+    )
+
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+    )
+
+    ordering = ("-created_at",)
+
+    list_per_page = 25
+
 @admin.register(ModelInfo)
 class ModelInfoAdmin(admin.ModelAdmin):
     list_display = (

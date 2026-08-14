@@ -19,9 +19,12 @@ import {
   FiShoppingCart,
   FiBox,
   FiImage,
+  FiBookmark,
+  FiCreditCard,
   FiLayers,
 } from "react-icons/fi";
 import { IoColorPaletteOutline } from "react-icons/io5";
+import { MdPayment } from "react-icons/md";
 
 const sidebarMenu = [
   {
@@ -33,14 +36,14 @@ const sidebarMenu = [
   {
     label: "productSpecification",
     icon: FiBox,
-    path: "/products",
-    slug: "product_specification",
+    path: "/simulation-assets",
+    slug: "simulation_assets",
   },
   {
     label: "contentMedia",
     icon: FiImage,
-    path: "/contents",
-    slug: "content_media",
+    path: "/media",
+    slug: "media_management",
   },
   {
     label: "themeManagement",
@@ -62,10 +65,22 @@ const sidebarMenu = [
     slug: "order_rentals", // Assigned 'order_manage' here based on API
   },
   {
+    label: "savedSimulations",
+    icon: FiBookmark,
+    path: "/saved-simulations",
+    slug: "saved_simulations",
+  },
+  {
     label: "pricingPackages",
     icon: FiDollarSign,
     path: "/pricing-packages",
     slug: "pricing_packages",
+  },
+  {
+    label: "payments",
+    icon: MdPayment,
+    path: "/payments",
+    slug: "payments",
   },
   {
     label: "contractsPolicies",
@@ -109,6 +124,12 @@ const sidebarMenu = [
     path: "/system-settings",
     slug: "system_settings",
   },
+  //  {
+  //   label: "paymentsDashboard",
+  //   icon: FiCreditCard,
+  //   path: "/payments",
+  //   slug: "payments",
+  // },
   // {
   //     label: 'Content & Media',
   //     icon: FiFileText,

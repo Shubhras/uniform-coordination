@@ -51,3 +51,14 @@ export async function apiGetSimulationOptions(accessToken, categoryName, tableSh
     },
   });
 }
+
+export async function apiGetSavedSimulations(accessToken) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/simulations/saved/`,
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+

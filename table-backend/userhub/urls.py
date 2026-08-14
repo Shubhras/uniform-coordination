@@ -68,6 +68,8 @@ urlpatterns = [
     path("order/<str:order_id>/get/",OrderDetailAPIView.as_view()),
     path("order/id/",OrderDetailAPIView.as_view()),
     path('user/order/list/', UserOrderListAPIView.as_view(), name='order-list'),  
+    path('order/<str:order_id>/reorder/', ReorderOrderAPIView.as_view(), name='reorder_order'),
+    path('order/reorder/', ReorderOrderAPIView.as_view(), name='reorder_order_post'),
     path('order/<str:order_id>/cancel/', UserCancelOrderAPIView.as_view(), name='user_cancel_order'),
     # Return an order (post-shipment)
     path('order/return/',ReturnOrderAPIView.as_view(), name='user_return_order'),
@@ -85,8 +87,9 @@ urlpatterns = [
     path('paypay/webhook/', paypay_webhook, name='paypay-webhook'),
     path('np-kakebarai/webhook/', np_kakebarai_webhook, name='np-kakebarai-webhook'),
 
-    path("admin/payments/",AdminPaymentListAPIView.as_view()),
-    path("admin/payments/detail/<str:payment_id>/",AdminPaymentDetailAPIView.as_view()),
+    path("admin/payments/", AdminPaymentListAPIView.as_view()),
+    path("admin/payments/list/", AdminPaymentListAPIView.as_view()),
+    path("admin/payments/detail/<str:payment_id>/", AdminPaymentDetailAPIView.as_view()),
     
     # path('user/refunds/', UserRefundRequestAPIView.as_view(), name='user-refund-list'),
     
@@ -95,9 +98,11 @@ urlpatterns = [
     #<-------------OrderHistory---------------------->
     path("orderhistory/get-list/",OrderHistoryAPIView.as_view(),name='get-list'),
     path('docusign/webhook/', DocuSignWebhookAPIView.as_view(), name='docusign-webhook'),
-    path('cloudsign/webhook/', CloudSignWebhookAPIView.as_view(), name='cloudsign-webhook'),
-   
-
+    #<-------------Notifications---------------------->
+    path("notifications/list/", UserNotificationListAPIView.as_view(), name='user-notifications-list'),
+    path("notifications/mark-read/", UserNotificationMarkReadAPIView.as_view(), name='user-notifications-mark-read'),
+    path("notifications/mark-read/<int:pk>/", UserNotificationMarkReadAPIView.as_view(), name='user-notification-mark-read-single'),
+    path("notifications/delete/<int:pk>/", UserNotificationDeleteAPIView.as_view(), name='user-notification-delete'),
 ]
    
     
