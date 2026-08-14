@@ -287,4 +287,5 @@ urlpatterns = [
     # ==========================================
     path('settings/system/', SystemSettingsRetrieveView.as_view(), name='system-settings-get'),
     path('settings/system/update/', SystemSettingsUpdateView.as_view(), name='system-settings-update'),
+    path('simulations/saved/', AdminSavedSimulationsAPIView.as_view(), name='admin-saved-simulations'),
 ]
