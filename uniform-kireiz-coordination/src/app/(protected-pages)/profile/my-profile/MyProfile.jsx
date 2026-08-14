@@ -638,7 +638,7 @@ const MyProfile = () => {
               <Button
                 variant="default"
                 className="h-10 w-full justify-center rounded-[10px] border border-[#6D95D8] bg-[#F8FBFF] px-4 text-sm font-medium text-[#1F3F75] hover:bg-[#F3F8FF]"
-                onClick={() => router.push("/dashboards")}
+                onClick={() => router.push("/dashboards/uniform-3d-design")}
               >
                 Create New Simulation
               </Button>

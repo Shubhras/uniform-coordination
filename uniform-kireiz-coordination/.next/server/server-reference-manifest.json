@@ -41,6 +41,18 @@
         "app/(auth-pages)/sign-in/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
+        },
+        "app/(protected-pages)/profile/my-profile/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(protected-pages)/profile/my-quotations/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(protected-pages)/profile/simulation-history/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
         }
       },
       "layer": {
@@ -53,7 +65,10 @@
         "app/(public-pages)/dashboards/design-result/[id]/page": "rsc",
         "app/(public-pages)/dashboards/delivery-request/[id]/page": "rsc",
         "app/_not-found/page": "rsc",
-        "app/(auth-pages)/sign-in/page": "rsc"
+        "app/(auth-pages)/sign-in/page": "rsc",
+        "app/(protected-pages)/profile/my-profile/page": "rsc",
+        "app/(protected-pages)/profile/my-quotations/page": "rsc",
+        "app/(protected-pages)/profile/simulation-history/page": "rsc"
       }
     },
     "00088bbe3381bf17fe25d1c100622cb02ec637e1a0": {
@@ -97,6 +112,18 @@
         "app/(auth-pages)/sign-in/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
+        },
+        "app/(protected-pages)/profile/my-profile/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(protected-pages)/profile/my-quotations/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(protected-pages)/profile/simulation-history/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
         }
       },
       "layer": {
@@ -109,7 +136,10 @@
         "app/(public-pages)/dashboards/design-result/[id]/page": "rsc",
         "app/(public-pages)/dashboards/delivery-request/[id]/page": "rsc",
         "app/_not-found/page": "rsc",
-        "app/(auth-pages)/sign-in/page": "rsc"
+        "app/(auth-pages)/sign-in/page": "rsc",
+        "app/(protected-pages)/profile/my-profile/page": "rsc",
+        "app/(protected-pages)/profile/my-quotations/page": "rsc",
+        "app/(protected-pages)/profile/simulation-history/page": "rsc"
       }
     },
     "404a1bfacc34b35325f0863055a7d5b83af21b8e99": {
@@ -153,6 +183,18 @@
         "app/(auth-pages)/sign-in/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
+        },
+        "app/(protected-pages)/profile/my-profile/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(protected-pages)/profile/my-quotations/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(protected-pages)/profile/simulation-history/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
         }
       },
       "layer": {
@@ -165,7 +207,10 @@
         "app/(public-pages)/dashboards/design-result/[id]/page": "rsc",
         "app/(public-pages)/dashboards/delivery-request/[id]/page": "rsc",
         "app/_not-found/page": "rsc",
-        "app/(auth-pages)/sign-in/page": "rsc"
+        "app/(auth-pages)/sign-in/page": "rsc",
+        "app/(protected-pages)/profile/my-profile/page": "rsc",
+        "app/(protected-pages)/profile/my-quotations/page": "rsc",
+        "app/(protected-pages)/profile/simulation-history/page": "rsc"
       }
     },
     "0040d844f450b0e3792d2dfd625a460a110b2de17c": {
@@ -209,6 +254,18 @@
         "app/(auth-pages)/sign-in/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
+        },
+        "app/(protected-pages)/profile/my-profile/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(protected-pages)/profile/my-quotations/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(protected-pages)/profile/simulation-history/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
         }
       },
       "layer": {
@@ -221,7 +278,10 @@
         "app/(public-pages)/dashboards/design-result/[id]/page": "rsc",
         "app/(public-pages)/dashboards/delivery-request/[id]/page": "rsc",
         "app/_not-found/page": "rsc",
-        "app/(auth-pages)/sign-in/page": "rsc"
+        "app/(auth-pages)/sign-in/page": "rsc",
+        "app/(protected-pages)/profile/my-profile/page": "rsc",
+        "app/(protected-pages)/profile/my-quotations/page": "rsc",
+        "app/(protected-pages)/profile/simulation-history/page": "rsc"
       }
     },
     "40b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a": {
@@ -265,6 +325,18 @@
         "app/(auth-pages)/sign-in/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
+        },
+        "app/(protected-pages)/profile/my-profile/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(protected-pages)/profile/my-quotations/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/(protected-pages)/profile/simulation-history/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fuser%2FvalidateCredential.js%22%2C%5B%7B%22id%22%3A%227f8060f88efa2340a98a8da6e8ce0f4c3e1d8a3d92%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Ftheme.js%22%2C%5B%7B%22id%22%3A%2200088bbe3381bf17fe25d1c100622cb02ec637e1a0%22%2C%22exportedName%22%3A%22getTheme%22%7D%2C%7B%22id%22%3A%22404a1bfacc34b35325f0863055a7d5b83af21b8e99%22%2C%22exportedName%22%3A%22setTheme%22%7D%5D%5D%2C%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Flocale.js%22%2C%5B%7B%22id%22%3A%220040d844f450b0e3792d2dfd625a460a110b2de17c%22%2C%22exportedName%22%3A%22getLocale%22%7D%2C%7B%22id%22%3A%2240b272bf6b8b97ec3d5d96820e5a1c9e5ee313561a%22%2C%22exportedName%22%3A%22setLocale%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
         }
       },
       "layer": {
@@ -277,7 +349,10 @@
         "app/(public-pages)/dashboards/design-result/[id]/page": "rsc",
         "app/(public-pages)/dashboards/delivery-request/[id]/page": "rsc",
         "app/_not-found/page": "rsc",
-        "app/(auth-pages)/sign-in/page": "rsc"
+        "app/(auth-pages)/sign-in/page": "rsc",
+        "app/(protected-pages)/profile/my-profile/page": "rsc",
+        "app/(protected-pages)/profile/my-quotations/page": "rsc",
+        "app/(protected-pages)/profile/simulation-history/page": "rsc"
       }
     },
     "7fb9c538ee13f87ce4b25da97cf2721ab82526d72d": {
@@ -313,6 +388,18 @@
         "app/(public-pages)/dashboards/delivery-request/[id]/page": {
           "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227fb9c538ee13f87ce4b25da97cf2721ab82526d72d%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
           "async": false
+        },
+        "app/(protected-pages)/profile/my-profile/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227fb9c538ee13f87ce4b25da97cf2721ab82526d72d%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/(protected-pages)/profile/my-quotations/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227fb9c538ee13f87ce4b25da97cf2721ab82526d72d%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/(protected-pages)/profile/simulation-history/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fdigi-4%2Fproject%2FUniform%20Coordination%20Web%20Application%2Funiform-coordination%2Funiform-kireiz-coordination%2Fsrc%2Fserver%2Factions%2Fauth%2FhandleSignOut.js%22%2C%5B%7B%22id%22%3A%227fb9c538ee13f87ce4b25da97cf2721ab82526d72d%22%2C%22exportedName%22%3A%22default%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
         }
       },
       "layer": {
@@ -323,7 +410,10 @@
         "app/(public-pages)/dashboards/uniform-single/[id]/page": "action-browser",
         "app/(public-pages)/dashboards/uniform-3d-design/[id]/page": "action-browser",
         "app/(public-pages)/dashboards/design-result/[id]/page": "action-browser",
-        "app/(public-pages)/dashboards/delivery-request/[id]/page": "action-browser"
+        "app/(public-pages)/dashboards/delivery-request/[id]/page": "action-browser",
+        "app/(protected-pages)/profile/my-profile/page": "action-browser",
+        "app/(protected-pages)/profile/my-quotations/page": "action-browser",
+        "app/(protected-pages)/profile/simulation-history/page": "action-browser"
       }
     },
     "7f7c1feb204015392f27700c553430f262972fd057": {

@@ -25,7 +25,6 @@ const PANELS = {
   color: {
     title: "Color",
     type: "colors",
-    data: ["#1A73E8", "#34A853", "#EA4335", "#FBBC05", "#FF7043", "#8E24AA", "#00ACC1", "#43A047", "#C2185B", "#6D4C41",]
   },
   legy: {
     title: "Legy",
@@ -43,38 +42,6 @@ const PANELS = {
       "/img/top-left-image/top/top.png",
     ]
   },
-  fabric: {
-    title: "Fabric",
-    type: "textures",
-    data: [
-      "/img/top-left-image/fabric/image 72.png",
-      "/img/top-left-image/fabric/image 73.png",
-      "/img/top-left-image/fabric/image 74.png",
-      "/img/top-left-image/fabric/image 75.png",
-      "/img/top-left-image/fabric/image 76.png",
-      "/img/top-left-image/fabric/image 77.png",
-      "/img/top-left-image/fabric/image 78.png",
-      "/img/top-left-image/fabric/image 79.png",
-      "/img/top-left-image/fabric/image 80.png",
-      "/img/top-left-image/fabric/image 81.png",
-      "/img/top-left-image/fabric/image 82.png",
-      "/img/top-left-image/fabric/image 83.png",
-      "/img/top-left-image/fabric/image 84.png",
-      "/img/top-left-image/fabric/image 85.png",
-      "/img/top-left-image/fabric/image 86.png",
-      "/img/top-left-image/fabric/image 87.png",
-      "/img/top-left-image/fabric/image 88.png",
-      "/img/top-left-image/fabric/image 89.png",
-      "/img/top-left-image/fabric/image 90.png",
-      "/img/top-left-image/fabric/image 91.png",
-      "/img/top-left-image/fabric/image 92.png",
-      "/img/top-left-image/fabric/image 93.png",
-      "/img/top-left-image/fabric/image 94.png",
-      "/img/top-left-image/fabric/image 95.png",
-      "/img/top-left-image/fabric/image 96.png",
-    ]
-  },
-
   collar: {
     title: "Collar",
     type: "options",
@@ -89,7 +56,6 @@ const PANELS = {
   size: {
     title: "Size",
     type: "size",
-    data: ["XS", "S", "M", "L", "XL", "XXL", "XXXL"]
   },
 
   sleeves: {
@@ -163,22 +129,15 @@ const PANELS = {
   },
 };
 
-/*
- * Admin -> customer wiring for the customiser.
- *
- * Which tools appear in the left rail, and in what order, comes from
- * Admin -> Simulation Assets -> Simulation Structure for this product's category.
- * Colours come from the admin Colors table and fabrics from the admin Fabric table.
- * PANELS above stays as the fallback for attributes the admin has no data source for.
- */
+// Left-rail tools + order come from Admin -> Simulation Assets -> Simulation
+// Structure for this product's category. PANELS is the fallback for attributes
+// with no admin data source.
 
-// The admin types attribute names as free text, so match on substrings rather than
-// exact strings — "Sleeve", "Sleeves" and "Sleeve Length" all mean the sleeve tool.
+// Matched by substring since admins type attribute names freely — "Sleeve",
+// "Sleeves", "Sleeve Length" all mean the sleeve tool.
 const ATTRIBUTE_TO_PANEL = [
   [["fabric", "material"], "fabric"],
   [["colour", "color"], "color"],
-  // "part" before "pant": the two never overlap as substrings, but keeping them
-  // adjacent makes it obvious they are different tools.
   [["part"], "parts"],
   [["size"], "size"],
   [["collar"], "collar"],
@@ -193,42 +152,34 @@ const ATTRIBUTE_TO_PANEL = [
   [["leg"], "legy"],
 ];
 
-// Attributes the admin can enable that this customiser has no tool for — Style, Fit,
-// Waist, Hem, Inner Mesh and anything else typed freehand. They are skipped rather
-// than rendered as an empty panel, and reported in `unsupportedAttributes` so the gap
-// is visible instead of silent.
+// Admin attributes with no matching tool (Style, Fit, Waist, ...) are skipped,
+// not rendered empty, and surfaced via `unsupportedAttributes`.
 const panelKeyFor = (attributeName) => {
   const n = (attributeName || "").toLowerCase();
   const hit = ATTRIBUTE_TO_PANEL.find(([needles]) => needles.some((x) => n.includes(x)));
   return hit ? hit[1] : null;
 };
 
-// A garment half is a property of the 3D model, not of the admin config: a collar tool
-// makes no sense while the trousers are selected. Admin decides *whether* a tool is
-// offered; this decides *when* it is reachable.
+// Which garment half each tool applies to. Admin decides *whether* a tool is
+// offered; this decides *when* it's reachable (e.g. no collar tool on trousers).
 const PANEL_POSITIONS = {
-  // Apply to any garment.
   color: ["top", "bottom"],
   size: ["top", "bottom"],
   fabric: ["top", "bottom"],
   pocket: ["top", "bottom"],
   parts: ["top", "bottom"],
-  // Genuinely upper-body.
   top: ["top"],
   collar: ["top"],
   sleeves: ["top"],
   cap: ["top"],
   zipper: ["top"],
   cuff: ["top"],
-  // Genuinely lower-body.
   pants: ["bottom"],
   aprons: ["bottom"],
   legy: ["bottom"],
 };
 
-// Stacked-layers glyph for the Parts tool. Drawn inline because there is no parts icon
-// in /img/top-left-image, and the parts themselves are per-product so no fixed image
-// would be right.
+// Inline Parts icon — no static asset for it since parts are per-product.
 const PartsIcon = () => (
   <svg width="34" height="34" viewBox="0 0 24 24" fill="none" className="mb-1">
     <path d="M12 3L21 7.5L12 12L3 7.5L12 3Z" stroke="#1C2A4A" strokeWidth="1.4" strokeLinejoin="round" />
@@ -270,8 +221,7 @@ const Uniform3DmoduleDegisn = () => {
       bottom: ""
     },
 
-    // Which admin colour row was picked per half. Kept alongside the hex because rows
-    // can share a hex, so the value alone cannot identify the choice.
+    // Colour row picked per half — kept since rows can share a hex.
     colorKeys: {
       top: "",
       bottom: ""
@@ -417,8 +367,7 @@ const Uniform3DmoduleDegisn = () => {
   // Per-attribute choices from Product & Specification -> Options, keyed by tool.
   const [simOptions, setSimOptions] = useState({});
   const [template, setTemplate] = useState(null);
-  // Preset entries this product cannot offer, so the shopper is told rather than left to
-  // wonder why the template looked different on the card.
+  // Preset entries this product can't offer, shown to the shopper rather than silently dropped.
   const [presetSkipped, setPresetSkipped] = useState([]);
   const [simLoading, setSimLoading] = useState(true);
   const [simBlocked, setSimBlocked] = useState(false);
@@ -427,9 +376,7 @@ const Uniform3DmoduleDegisn = () => {
     let cancelled = false;
 
     const loadAdminConfig = async () => {
-      // No product in the URL: nothing to load, and leaving simLoading true would hold
-      // the rail on its skeletons forever. The route without an id renders the product
-      // picker instead, so this is only a safety net.
+      // No id: nothing to load. Safety net — the id-less route renders the product picker instead.
       if (!id) {
         setSimLoading(false);
         return;
@@ -447,9 +394,7 @@ const Uniform3DmoduleDegisn = () => {
         }
         setSimProduct(product);
 
-        // Which garment half this is, taken from the product rather than asked of the
-        // shopper. A "set" covers both, so leave it on top and let the rail offer the
-        // tools for either half.
+        // Garment half comes from the product, not the shopper. "set" covers both, so default to top.
         if (product.type === "bottom") setPosition("bottom");
         else setPosition("top");
 
@@ -464,8 +409,7 @@ const Uniform3DmoduleDegisn = () => {
         setSimColors(optionsRes.data?.colors || []);
         setSimOptions(optionsRes.data?.attribute_options || {});
 
-        // This product's own parts, with images and stacking order. product/get/ returns
-        // parts without their images, so the layer data has to come from here.
+        // Parts with images + stacking order — product/get/ omits part images.
         const row = (optionsRes.data?.products || []).find(
           (p) => String(p.id) === String(id),
         );
@@ -485,21 +429,16 @@ const Uniform3DmoduleDegisn = () => {
     };
   }, [id]);
 
-  // PANELS, with colour and fabric swapped for the admin's own records. Attributes
-  // the admin has no table for (Collar, Sleeves, Cap, ...) keep their static images —
-  // the admin controls whether they appear, not what they contain.
+  // Color, Fabric and Size come only from admin data — no admin data, no tool.
+  // Attributes with no admin table (Collar, Sleeves, Cap, ...) keep static images.
   const panels = (() => {
     const merged = { ...PANELS };
+    delete merged.fabric;
+    delete merged.color;
+    delete merged.size;
 
-    /*
-     * Every colour the admin has, one swatch each — no deduping. Rows can share a hex
-     * (two of the current ones are both #7e3e3e), and they are still separate admin
-     * records, so hiding one would mean the customer sees fewer colours than the admin
-     * configured.
-     *
-     * Each entry carries a stable `key`, and selection is tracked by that key rather
-     * than by colour value. Comparing by hex made every row sharing a hex tick at once.
-     */
+    // One swatch per admin colour, no deduping — two records can share a hex.
+    // Selection tracks by `key`, not hex, so shared-hex rows don't tick together.
     const adminColors = simColors
       .filter((c) => (c.code || "").trim())
       .map((c) => ({
@@ -508,23 +447,14 @@ const Uniform3DmoduleDegisn = () => {
         name: c.name,
       }));
 
-    merged.color = {
-      ...PANELS.color,
-      data: adminColors.length
-        ? adminColors
-        : // Static fallback: same shape, so the renderer has one case to handle.
-        PANELS.color.data.map((hex, i) => ({ key: `s${i}`, code: hex, name: hex })),
-    };
+    if (adminColors.length) {
+      merged.color = { ...PANELS.color, data: adminColors };
+    }
 
-    /*
-     * Admin-managed choices per attribute. Where the admin has options for a tool they
-     * replace the artwork bundled in PANELS above; where there are none, the static list
-     * stays so the tool is never left empty.
-     *
-     * Size is a list of labels, the rest are pictures, so they render differently.
-     */
+    // Admin options replace the static PANELS artwork per attribute; no options,
+    // no tool. Size is a label list, the rest are pictures.
     Object.entries(simOptions).forEach(([key, options]) => {
-      if (!options?.length || !merged[key]) return;
+      if (!options?.length || !PANELS[key]) return;
 
       if (key === "size") {
         merged.size = { ...PANELS.size, data: options.map((o) => o.name) };
@@ -538,8 +468,7 @@ const Uniform3DmoduleDegisn = () => {
       };
     });
 
-    // Parts are per product, not a fixed list, so there is no static fallback for this
-    // one — no parts configured means no Parts tool.
+    // No static fallback for Parts — per-product, so none configured means no tool.
     if (simParts.length) {
       merged.parts = {
         title: "Parts",
@@ -551,8 +480,7 @@ const Uniform3DmoduleDegisn = () => {
     if (simFabrics.length) {
       merged.fabric = {
         title: "Fabric",
-        // Distinct type: admin fabrics carry no swatch image (the Fabric model has no
-        // image field), so they render as name + colour chip instead of a texture tile.
+        // No swatch image on Fabric records, so render as name + colour chip.
         type: "fabricRecords",
         data: simFabrics,
       };
@@ -564,25 +492,20 @@ const Uniform3DmoduleDegisn = () => {
   // Tools the admin enabled for this category, in the admin's order, limited to the
   // ones that apply to the garment half currently selected.
   const railKeys = (() => {
-    // Nothing until the admin config has landed. Rendering the fallback first would
-    // flash a full set of tools and then drop to the admin's shorter list.
+    // Wait for admin config, else the fallback tools flash before the real list.
     if (simLoading) return [];
 
     const fromAdmin = simAttributes
       .map((a) => panelKeyFor(a.attribute))
       .filter(Boolean);
 
-    // When the admin has configured this category, show exactly that — no extra
-    // filtering by garment half. Simulation Structure is defined per category, and a
-    // category holds both tops and bottoms, so the admin has no way to say "Collar for
-    // tops only". Second-guessing the toggle here would make it look broken: the admin
-    // ticks Collar, nothing appears, and nothing explains why.
+    // Admin-configured category: show exactly that, no garment-half filtering —
+    // Simulation Structure is per category, not per half.
     if (fromAdmin.length) {
       return [...new Set(fromAdmin)].filter((k) => panels[k]);
     }
 
-    // No structure saved for this category — fall back to the built-in set, and here the
-    // garment half is worth honouring since nobody has expressed an intent to respect.
+    // No structure saved — fall back to the built-in set, filtered by garment half.
     return ["color", "size", "fabric", "collar", "sleeves", "cap", "zipper", "cuff", "pants", "pocket", "aprons"]
       .filter(
         (k) =>
@@ -599,15 +522,8 @@ const Uniform3DmoduleDegisn = () => {
   // Keyed on a joined string because railKeys is rebuilt on every render.
   const railKey = railKeys.join(",");
 
-  /*
-   * Apply the template the shopper arrived with.
-   *
-   * Runs once the admin config has landed, because a preset is only applied when this
-   * product actually offers that tool — the rail is built from the attributes the admin
-   * enabled for the category, and a colour preset is pointless if Colour is not among
-   * them. Anything dropped is collected in `presetSkipped` and shown, rather than the
-   * shopper silently getting a different look from the one on the template card.
-   */
+  // Apply the template's presets once admin config has landed — only for tools the
+  // rail actually offers. Anything dropped is recorded in `presetSkipped` and shown.
   useEffect(() => {
     let cancelled = false;
 
@@ -632,7 +548,7 @@ const Uniform3DmoduleDegisn = () => {
       const skipped = [];
       const patch = {};
 
-      // Colour: stored per garment half, so it goes on the half this product is.
+      // Colour is stored per garment half.
       if (tpl.preset_color) {
         const key = `c${tpl.preset_color}`;
         const known = (panels.color?.data || []).some((c) => c.key === key);
@@ -645,8 +561,7 @@ const Uniform3DmoduleDegisn = () => {
         }
       }
 
-      // Fabric: admin fabrics are scoped per category, so a preset from elsewhere may
-      // simply not be on offer here.
+      // Fabrics are scoped per category — a preset from elsewhere may not be offered here.
       if (tpl.preset_fabric) {
         const known = simFabrics.some((f) => f.id === tpl.preset_fabric);
         if (available.has("fabric") && known) {
@@ -656,7 +571,7 @@ const Uniform3DmoduleDegisn = () => {
         }
       }
 
-      // Part: templates name a starting part, which only exists on some products.
+      // Preset part names only exist on some products.
       if (tpl.presetPartName) {
         const known = simParts.some((prt) => prt.name === tpl.presetPartName);
         if (available.has("parts") && known) {
@@ -762,10 +677,7 @@ const Uniform3DmoduleDegisn = () => {
     // }
     setIsSaving(true);
 
-    // The shopper's real choices. This used to send fixed sample values
-    // (grey / M / cotton, "My Brand"), so everything picked in the customiser was
-    // collected into designJSON and then thrown away — which left the Design Result
-    // screen with nothing to render.
+    // The shopper's actual choices, not fixed sample values.
     const payload = {
       "user": session?.user?.id,
       "model_info": modelId,
@@ -807,8 +719,7 @@ const Uniform3DmoduleDegisn = () => {
   };
 
 
-  // The admin can withdraw a product from the simulation. Reaching the customiser by
-  // URL must not get around that, so this stops before any tool is rendered.
+  // No matching product for this id.
   if (simBlocked) {
     return (
       <section className="w-full mx-auto bg-white px-6 lg:px-4 py-20 mt-11">
@@ -834,11 +745,7 @@ const Uniform3DmoduleDegisn = () => {
 
   return (
     <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-11 ">
-      {/*
-        Which template the shopper started from. The product's own image stays on the
-        canvas — the template is a style, not a different garment — so this strip is what
-        tells them the style was applied, and what could not be.
-      */}
+      {/* Shows the applied template style and anything it couldn't preset. */}
       {template && (
         <div className="w-full border border-[#C7D7F5] bg-[#F5F8FF] rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
           <span className="text-sm font-medium text-[#1C2C56]">
@@ -863,12 +770,6 @@ const Uniform3DmoduleDegisn = () => {
 
       <div className="flex gap-6">
         <div className="w-[80px] flex flex-col items-center" >
-          {/*
-            The Top / Bottom picker used to sit here. Removed: the product already
-            records which half it is (Product.type = top | bottom | set), so `position`
-            is derived from it instead of asked of the shopper.
-          */}
-
           {/* Left rail: one tool per attribute the admin enabled, in the admin's order. */}
           <div className="flex flex-col gap-2 w-full">
             {railKeys.map((key) => {
@@ -908,11 +809,7 @@ const Uniform3DmoduleDegisn = () => {
               </p>
             )}
 
-            {/*
-              Attributes the admin enabled that this customiser has no tool for.
-              Shown rather than dropped silently, so the mismatch is visible to
-              whoever is testing instead of looking like the admin toggle did nothing.
-            */}
+            {/* Admin-enabled attributes with no matching tool — shown, not dropped silently. */}
             {!simLoading && unsupportedAttributes.length > 0 && (
               <p className="w-[70px] text-[9px] leading-tight text-amber-700">
                 No tool yet: {unsupportedAttributes.join(", ")}
@@ -1044,11 +941,7 @@ const Uniform3DmoduleDegisn = () => {
                 </div>
               )}
 
-              {/*
-                The product's parts, as the admin built it under Simulation Assets.
-                Shown top of the stack first so the list reads the way the garment is
-                layered. Selecting one records it on the design.
-              */}
+              {/* Parts, top of stack first to match how the garment is layered. */}
               {panels[active].type === "parts" && (
                 <div className="w-full max-h-[280px] overflow-y-auto pr-1">
                   <div className="space-y-2">
@@ -1096,12 +989,7 @@ const Uniform3DmoduleDegisn = () => {
                 </div>
               )}
 
-              {/*
-                Admin fabrics. The Fabric model has no image field, so there is no
-                texture tile to show — name, material and the colour it records are all
-                the admin actually stores. Painting an invented swatch would show the
-                shopper something the catalogue does not contain.
-              */}
+              {/* Admin fabrics — no image field, so name/material/colour only. */}
               {panels[active].type === "fabricRecords" && (
                 <div className="w-full max-h-[280px] overflow-y-auto pr-1">
                   <div className="grid grid-cols-2 gap-2">
@@ -1148,11 +1036,7 @@ const Uniform3DmoduleDegisn = () => {
                 </div>
               )}
 
-              {/*
-                Admin-managed choices for this tool. Same tile layout as the bundled
-                options, but each one carries a name the admin typed, so it is labelled
-                rather than left as an unexplained picture.
-              */}
+              {/* Admin-managed choices, labelled with the name the admin typed. */}
               {panels[active].type === "adminOptions" && (
                 <div className="w-full max-h-[300px] overflow-y-auto pr-1">
                   <div className="grid grid-cols-3 gap-3">
@@ -1308,18 +1192,9 @@ const Uniform3DmoduleDegisn = () => {
                     )} */}
 
           {/* <UniformCanvas /> */}
-          {/*
-            The product's own catalogue image. The 3D canvas above is commented out, so
-            this is what the shopper actually sees — it used to be a fixed doctor PNG,
-            which showed the wrong garment for every product.
-
-            `unoptimized` because these come from the API host at runtime; the Next image
-            optimiser would need each host whitelisted in next.config.
-          */}
+          {/* Product image (3D canvas is commented out). `unoptimized`: host isn't whitelisted in next.config. */}
           <div className="relative z-10 py-16">
-            {/* Nothing stand-in while the product loads. Rendering the fallback image
-                straight away flashed the old fixed doctor picture on every refresh
-                before the real product arrived. */}
+            {/* Skeleton while loading, so the old fixed image doesn't flash on refresh. */}
             {simLoading ? (
               <div className="w-[450px] max-w-full h-[500px] rounded-2xl bg-[#F5F8FF] animate-pulse" />
             ) : (
