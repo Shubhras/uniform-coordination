@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
-import { apiSindleOrderDetials } from '@/services/OrderService'
+import { apiSindleOrderDetials, apiReorderOrder } from '@/services/OrderService'
 import { formatDate } from '@/utils/formatDate'
 import { formatCurrency } from '@/utils/formatCurrency'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
+import Notification from '@/components/ui/Notification'
+import toast from '@/components/ui/toast'
 import {
     FiArrowLeft,
     FiCalendar,
@@ -15,6 +17,7 @@ import {
     FiPhone,
     FiUser,
     FiFileText,
+    FiRefreshCw,
 } from 'react-icons/fi'
 
 // Order item image preview component
@@ -91,8 +94,43 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
     // Single order detail state
     const [orderDetailData, setOrderDetailData] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [reordering, setReordering] = useState(false)
 
     const orderId = params?.id || 'ORD-2024-0091'
+
+    // Reorder handler
+    const handleReorder = async (targetOrderId) => {
+        if (!session?.accessToken || !targetOrderId) return
+        try {
+            setReordering(true)
+            const res = await apiReorderOrder(session.accessToken, targetOrderId)
+            if (res?.status) {
+                toast.push(
+                    <Notification title="Success!" type="success">
+                        {res?.message || 'Reorder created successfully! Redirecting to payment...'}
+                    </Notification>
+                )
+                const redirectUrl = res?.data?.redirect_url || `/overview?orderId=${res?.data?.order_id || targetOrderId}`
+                router.push(redirectUrl)
+            } else {
+                toast.push(
+                    <Notification title="Reorder Unavailable" type="danger">
+                        {res?.message || 'Item is currently unavailable for reorder.'}
+                    </Notification>
+                )
+            }
+        } catch (err) {
+            console.error('Reorder error:', err)
+            const errMsg = err?.response?.data?.message || err?.message || 'Failed to reorder items.'
+            toast.push(
+                <Notification title="Reorder Failed" type="danger">
+                    {errMsg}
+                </Notification>
+            )
+        } finally {
+            setReordering(false)
+        }
+    }
 
     // Fetch order details by ID
     useEffect(() => {
@@ -277,12 +315,27 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                         <span>Payment Date</span>
                                         <span>{orderData?.payment_summary?.paid_at ? formatDate(orderData?.payment_summary?.paid_at) : ''}</span>
                                     </div>
-                                    <button
-                                        type="button"
-                                        className="mt-5 w-full rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
-                                    >
-                                        Track Order
-                                    </button>
+                                    <div className="mt-5 flex gap-3">
+                                        <button
+                                            type="button"
+                                            className="flex-1 rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
+                                        >
+                                            Track Order
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleReorder(orderData?.order_id || orderId)}
+                                            disabled={reordering}
+                                            className="flex-1 rounded-md border border-[#B66636] bg-[#B66636] px-4 py-2 text-sm font-medium text-white hover:bg-[#9E5328] disabled:opacity-50 transition flex items-center justify-center gap-1.5"
+                                        >
+                                            {reordering ? (
+                                                <span className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
+                                            ) : (
+                                                <FiRefreshCw size={14} />
+                                            )}
+                                            Reorder
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -14,7 +14,7 @@ from django.contrib.auth.tokens import default_token_generator
 from uniformAdmin.fabric import CustomPagination
 from rest_framework.parsers import MultiPartParser, FormParser
 from .models import *
-from userhub.models import QuotationRequest
+from userhub.models import QuotationRequest, CustomUpdateModels, CustomUpdateThemes
 from userhub.serializers import QuotationRequestSerializer
 from django.db.models import Q
 from .fabric import CustomPagination
@@ -2055,6 +2055,39 @@ class AdminDashAPIView(APIView):
             # Active Alerts — computed live, then filtered by this admin's read-state
             active_alerts = filter_read_alerts(compute_active_alerts(), request.user)
 
+            # Fetch Recent Orders of Today
+            today_orders_qs = Order.objects.filter(created_at__date=today_dt.date(), is_deleted=False).select_related('customer', 'user').order_by('-created_at')
+            today_orders_count = today_orders_qs.count()
+
+            if today_orders_count == 0:
+                display_orders_qs = Order.objects.filter(is_deleted=False).select_related('customer', 'user').order_by('-created_at')[:5]
+            else:
+                display_orders_qs = today_orders_qs[:10]
+
+            recent_orders_list = []
+            for ord_item in display_orders_qs:
+                cust_name = ""
+                cust_email = ""
+                if getattr(ord_item, 'customer', None):
+                    cust_name = getattr(ord_item.customer, 'full_name', '') or getattr(ord_item.customer, 'name', '') or f"{getattr(ord_item.customer, 'first_name', '')} {getattr(ord_item.customer, 'last_name', '')}".strip()
+                    cust_email = getattr(ord_item.customer, 'email', '') or ""
+                elif getattr(ord_item, 'user', None):
+                    cust_name = getattr(ord_item.user, 'name', '') or f"{getattr(ord_item.user, 'first_name', '')} {getattr(ord_item.user, 'last_name', '')}".strip()
+                    cust_email = getattr(ord_item.user, 'email', '') or ""
+
+                recent_orders_list.append({
+                    "id": ord_item.id,
+                    "order_id": ord_item.order_id,
+                    "customer_name": cust_name or "Customer",
+                    "customer_email": cust_email,
+                    "total_amount": str(ord_item.total_amount or "0.00"),
+                    "currency": ord_item.currency or "USD",
+                    "status": ord_item.status or "pending",
+                    "is_paid": ord_item.is_paid,
+                    "created_at": ord_item.created_at.strftime("%Y-%m-%d %H:%M:%S") if ord_item.created_at else "",
+                    "formatted_date": ord_item.created_at.strftime("%b %d, %Y %I:%M %p") if ord_item.created_at else ""
+                })
+
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -2074,6 +2107,8 @@ class AdminDashAPIView(APIView):
                     # data.active_alerts / data.alert_count
                     "active_alerts": active_alerts,
                     "alert_count": len(active_alerts),
+                    "Recent_Orders_Today": recent_orders_list,
+                    "Today_Orders_Count": today_orders_count,
                 }
             }, status=status.HTTP_200_OK)
         except Exception as e:
@@ -2729,3 +2764,128 @@ class AdminOrderCancelAPIView(APIView):
                 "status":True,
                 "message":"Order cancelled successfully & stock restored"
             },status=status.HTTP_200_OK)
+
+
+class AdminSavedSimulationsAPIView(APIView):
+    """
+    API endpoint for Admin to list all saved product & theme simulations/customizations
+    created by users.
+    """
+    authentication_classes = [IsAdminUserJWT]
+
+    @extend_schema(
+        tags=["Admin Dashboard"],
+        summary="List all user saved simulations",
+        description="Fetch all user customized products and themes with configurations and specs.",
+        responses={200: OpenApiResponse(description="Saved simulations fetched successfully")},
+    )
+    def get(self, request):
+        try:
+            # 1. Fetch user custom product models
+            product_customs = CustomUpdateModels.objects.filter(isDeleted=False).select_related(
+                'user', 'model_info', 'model_info__product', 'model_info__product__category'
+            ).order_by('-created_at')
+
+            # 2. Fetch user custom theme models
+            theme_customs = CustomUpdateThemes.objects.filter(isDeleted=False).select_related(
+                'user', 'theme', 'theme__category'
+            ).order_by('-created_at')
+
+            saved_simulations = []
+
+            for p in product_customs:
+                user_obj = p.user
+                user_name = ""
+                user_email = ""
+                if user_obj:
+                    user_name = getattr(user_obj, 'name', '') or f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip() or getattr(user_obj, 'email', '')
+                    user_email = getattr(user_obj, 'email', '') or ""
+
+                prod = p.model_info.product if p.model_info else None
+                image_url = ""
+                if prod and getattr(prod, 'productImage', None):
+                    try:
+                        image_url = request.build_absolute_uri(prod.productImage.url)
+                    except Exception:
+                        image_url = str(prod.productImage)
+                elif p.model_info and p.model_info.model_file:
+                    try:
+                        image_url = request.build_absolute_uri(p.model_info.model_file.url)
+                    except Exception:
+                        image_url = str(p.model_info.model_file)
+
+                saved_simulations.append({
+                    "id": p.id,
+                    "simulation_type": "product",
+                    "user_id": user_obj.id if user_obj else None,
+                    "user_name": user_name or "Anonymous User",
+                    "user_email": user_email,
+                    "item_id": prod.id if prod else None,
+                    "item_name": prod.productName if prod else "Custom Product Simulation",
+                    "item_code": getattr(prod, 'productCode', '') if prod else f"PROD-{p.id}",
+                    "category_name": prod.category.categoryName if (prod and prod.category) else "Uncategorized",
+                    "image_url": image_url,
+                    "config_json": p.config_json or {},
+                    "design_specifications": p.design_specifications or {},
+                    "json_file_path": p.json_file_path or "",
+                    "is_active": p.isActive,
+                    "created_at": p.created_at.strftime("%Y-%m-%d %H:%M:%S") if p.created_at else "",
+                    "formatted_date": p.created_at.strftime("%b %d, %Y %I:%M %p") if p.created_at else ""
+                })
+
+            for t in theme_customs:
+                user_obj = t.user
+                user_name = ""
+                user_email = ""
+                if user_obj:
+                    user_name = getattr(user_obj, 'name', '') or f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip() or getattr(user_obj, 'email', '')
+                    user_email = getattr(user_obj, 'email', '') or ""
+
+                theme_obj = t.theme
+                image_url = ""
+                if theme_obj and getattr(theme_obj, 'image', None):
+                    try:
+                        image_url = request.build_absolute_uri(theme_obj.image.url)
+                    except Exception:
+                        image_url = str(theme_obj.image)
+
+                saved_simulations.append({
+                    "id": t.id,
+                    "simulation_type": "theme",
+                    "user_id": user_obj.id if user_obj else None,
+                    "user_name": user_name or "Anonymous User",
+                    "user_email": user_email,
+                    "item_id": theme_obj.id if theme_obj else None,
+                    "item_name": theme_obj.title if theme_obj else "Custom Theme Simulation",
+                    "item_code": f"THEME-{theme_obj.id}" if theme_obj else f"THEME-{t.id}",
+                    "category_name": theme_obj.category.categoryName if (theme_obj and theme_obj.category) else "Theme",
+                    "image_url": image_url,
+                    "config_json": t.config_json or {},
+                    "design_specifications": t.design_specifications or {},
+                    "json_file_path": t.json_file_path or "",
+                    "is_active": t.isActive,
+                    "created_at": t.created_at.strftime("%Y-%m-%d %H:%M:%S") if t.created_at else "",
+                    "formatted_date": t.created_at.strftime("%b %d, %Y %I:%M %p") if t.created_at else ""
+                })
+
+            # Sort combined list by created_at descending
+            saved_simulations.sort(key=lambda x: x["created_at"], reverse=True)
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Saved simulations fetched successfully",
+                "total_count": len(saved_simulations),
+                "product_count": len(product_customs),
+                "theme_count": len(theme_customs),
+                "data": saved_simulations
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Failed to fetch saved simulations",
+                "error": str(e),
+                "trace": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

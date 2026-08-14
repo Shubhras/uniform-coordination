@@ -115,3 +115,12 @@ export async function apiReorderSimulationAssets(accessToken, order) {
     headers: authHeader(accessToken),
   });
 }
+
+export async function apiGetSavedSimulations(accessToken) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/space/uniformAdmin/simulations/saved/",
+    method: "get",
+    headers: authHeader(accessToken),
+  });
+}
+

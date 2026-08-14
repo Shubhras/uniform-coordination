@@ -19,6 +19,7 @@ import {
   FiClipboard,
   FiImage,
   FiLayers,
+  FiBookmark,
 } from "react-icons/fi";
 
 // labelKey resolves against the "adminSidebar" namespace in messages/<locale>.json
@@ -59,6 +60,12 @@ const sidebarMenu = [
     icon: FiSettings,
     path: "/simulation-configuration",
     slug: "pdf_simulation_configuration",
+  },
+  {
+    labelKey: "savedSimulations",
+    icon: FiBookmark,
+    path: "/saved-simulations",
+    slug: "saved_simulations",
   },
   {
     labelKey: "simulationAssets",

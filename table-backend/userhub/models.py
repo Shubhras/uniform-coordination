@@ -389,36 +389,49 @@ class Refund(models.Model):
 #-----------------Notification --------------------
 
 
-# NOTIFICATION_TYPE_CHOICES = [
-#     ('uniform_order', 'Uniform Order Updates'),
-#     ('table_order', 'Table Order Updates'),
-#     ('system', 'System Updates'),
-#     ('promotion', 'Promotions'),
-#     ('security', 'Security Alerts'),
-# ]
+NOTIFICATION_TYPE_CHOICES = [
+    ('shipping', 'Shipping Notification'),
+    ('return_reminder', 'Return Reminder Notification'),
+    ('return_received', 'Return Received Notification'),
+    ('return_not_received', 'Return Not Received Notification'),
+    ('late_fee', 'Late Fee Notification'),
+    ('lost_item', 'Lost Item Notification'),
+    ('compensation_charge', 'Compensation Charge Notice'),
+    ('order_status', 'Order Status Update'),
+    ('general', 'General Notification'),
+]
 
-# class Notifications(models.Model):
-#     user = models.ForeignKey(
-#         settings.AUTH_USER_MODEL,
-#         on_delete=models.CASCADE,
-#         related_name="notification_preferences"
-#     )
+class UserNotification(models.Model):
+    user = models.ForeignKey(
+        'Users',
+        on_delete=models.CASCADE,
+        related_name="notifications"
+    )
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    notification_type = models.CharField(
+        max_length=50,
+        choices=NOTIFICATION_TYPE_CHOICES,
+        default='general'
+    )
+    order = models.ForeignKey(
+        'Order',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='user_notifications'
+    )
+    is_read = models.BooleanField(default=False)
+    isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-#     type = models.CharField(
-#         max_length=50,
-#         choices=NOTIFICATION_TYPE_CHOICES,
-#         null=True,
-#         blank=True
-#     )
+    class Meta:
+        ordering = ['-created_at']
 
-#     is_enabled = models.BooleanField(default=True, null=True, blank=True)
-#     isActive = models.BooleanField(default=True)
-#     isDeleted = models.BooleanField(default=False)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-#     def __str__(self):
-#         return f"{self.user} - {self.type}"
+    def __str__(self):
+        return f"{self.user} - {self.title}"
 
 
 

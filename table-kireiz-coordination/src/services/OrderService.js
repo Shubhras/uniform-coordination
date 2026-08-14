@@ -135,3 +135,20 @@ export async function apiGetCustomerDetails(token) {
     },
   });
 }
+
+/**
+ * Reorders an existing order if items are available and returns new order details for payment.
+ *
+ * @param {string} token - User authentication Bearer token.
+ * @param {string|number} orderId - Original order ID to reorder.
+ * @returns {Promise<Object>} API response with new order ID and redirect URL.
+ */
+export async function apiReorderOrder(token, orderId) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/userhub/order/${orderId}/reorder/`,
+    method: "post",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
