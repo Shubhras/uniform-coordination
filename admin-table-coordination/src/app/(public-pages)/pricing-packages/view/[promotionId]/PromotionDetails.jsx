@@ -67,7 +67,7 @@ const PromotionDetails = ({ promotionId }) => {
       <div className="mt-5 rounded-[14px] border border-[#F0E4DB] bg-white p-5">
         <div className="grid gap-x-10 gap-y-5 md:grid-cols-3">
           <div>
-            <p className="text-[13px] font-semibold text-[#B3A096]">
+            <p className="text-[13px] uppercase tracking-[0.12em] font-semibold text-[#B3A096]">
               {t("promotionName")}
             </p>
             <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
@@ -84,7 +84,7 @@ const PromotionDetails = ({ promotionId }) => {
           </div>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-[9px] font-semibold text-[#B3A096]">
+              <p className="text-[13px] uppercase tracking-[0.12em] font-semibold text-[#B3A096]">
                 {t("discountValue")}
               </p>
               <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
@@ -103,7 +103,7 @@ const PromotionDetails = ({ promotionId }) => {
             </span>
           </div>
           <div>
-            <p className="text-[9px] font-semibold text-[#B3A096]">
+            <p className="text-[13px] font-semibold text-[#B3A096]">
               {t("startDate")}
             </p>
             <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
@@ -113,7 +113,7 @@ const PromotionDetails = ({ promotionId }) => {
             </p>
           </div>
           <div>
-            <p className="text-[9px] font-semibold text-[#B3A096]">{t("endDate")}</p>
+            <p className="text-[13px] font-semibold text-[#B3A096]">{t("endDate")}</p>
             <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
               {promotion?.ended_at
                 ? new Date(promotion.ended_at).toLocaleDateString(locale)
@@ -121,7 +121,7 @@ const PromotionDetails = ({ promotionId }) => {
             </p>
           </div>
           <div>
-            <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#B3A096]">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[#B3A096]">
               {t("eligibleCustomers")}
             </p>
             <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
@@ -129,7 +129,7 @@ const PromotionDetails = ({ promotionId }) => {
             </p>
           </div>
           <div className="md:col-span-3">
-            <p className="text-[9px] font-semibold text-[#B3A096]">
+            <p className="text-[13px] uppercase tracking-[0.12em] font-semibold text-[#B3A096]">
               {t("descriptionLabel")}
             </p>
             <p className="mt-2 text-[14px] font-semibold uppercase text-[#3F332C]">

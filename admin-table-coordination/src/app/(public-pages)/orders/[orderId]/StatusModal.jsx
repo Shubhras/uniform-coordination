@@ -23,7 +23,9 @@ export default function StatusModal({
   if (!open) return null;
 
   const nextStatusMap = {
-    pending: "processing",
+    // pending: "processing",
+    pending: "confirmed",
+    confirmed: "processing",
     processing: "out_for_delivery",
     out_for_delivery: "delivered",
     delivered: "returned",
@@ -65,19 +67,38 @@ export default function StatusModal({
   };
 
   const statusConfig = {
+    // pending: {
+    //   title: t("markAsShipped"),
+    //   button: t("markShipped"),
+    //   description:
+    //     "You are about to mark order as shipped. The customer will be notified that the order has been shipped.",
+    // },
+    // processing: {
+    //   title: t("markAsDeliver"),
+    //   button: t("markDeliver"),
+    //   description:
+    //     "You are about to mark order as delivered. The customer will be notified that the order has been delivered.",
+    // },
     pending: {
+      title: t("markAsConfirmed"),
+      button: t("markConfirmed"),
+      description:
+        "You are about to mark order as confirmed. The customer will be notified that the order has been confirmed.",
+    },
+
+    confirmed: {
       title: t("markAsShipped"),
       button: t("markShipped"),
       description:
         "You are about to mark order as shipped. The customer will be notified that the order has been shipped.",
     },
+
     processing: {
       title: t("markAsDeliver"),
       button: t("markDeliver"),
       description:
         "You are about to mark order as delivered. The customer will be notified that the order has been delivered.",
     },
-
     shipped: {
       title: t("markAsDeliver"),
       button: t("markDeliver"),

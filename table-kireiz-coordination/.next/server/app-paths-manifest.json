@@ -1,4 +1,0 @@
-{
-  "/(public-pages)/cart-summary/page": "app/(public-pages)/cart-summary/page.js",
-  "/(public-pages)/delivery-information/[id]/page": "app/(public-pages)/delivery-information/[id]/page.js"
-}
