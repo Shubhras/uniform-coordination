@@ -2133,15 +2133,17 @@ class UserDetailAPIView(APIView):
                 )
 
             # -------------------------
-            # Filter by Role
+            # Filter by Role (ID or role_name/slug)
             # -------------------------
-            # if role_id:
-            #     users = users.filter(role_id=role_id)
-
-            role_name = request.query_params.get("role")
-
-            if role_name:
-                users = users.filter(role__name__iexact=role_name)     
+            role_param = request.query_params.get("role")
+            if role_param:
+                if role_param.isdigit():
+                    users = users.filter(role_id=int(role_param))
+                else:
+                    users = users.filter(
+                        Q(role__role_name__iexact=role_param) |
+                        Q(role__slug__iexact=role_param)
+                    )
 
             # -------------------------
             # Filter by User Type
