@@ -57,7 +57,7 @@ export const ForgotPassword = ({
           setEmailSent={setEmailSent}
           onForgotPasswordSubmit={onForgotPasswordSubmit}
         >
-          <Button block variant="solid" type="button" className="bg-[#1C2C56] hover:bg-[#152243] text-white" onClick={handleContinue}>
+          <Button block variant="solid" type="button" className="bg-[#A0522D] hover:bg-[#A0522D] text-white" onClick={handleContinue}>
             Continue
           </Button>
         </ForgotPasswordForm>

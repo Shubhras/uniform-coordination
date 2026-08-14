@@ -214,7 +214,6 @@ class Fabric(models.Model):
     materialType = models.CharField(max_length=60, choices=MATERIAL_CHOICES)
     fabricType = models.CharField(max_length=20,choices=FABRIC_TYPE_CHOICES,default='uniform')
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="fabrics")
-    theme = models.ForeignKey('TableTheme',on_delete=models.SET_NULL,null=True,blank=True,related_name="fabrics")
     pricePerUnit = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)    

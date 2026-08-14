@@ -1,60 +1,25 @@
 {
   "pages": {
-    "/not-found": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/not-found.js"
-    ],
-    "/_not-found/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
-    ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
+    "/not-found": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/not-found.js"
+    ],
     "/(public-pages)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/layout.js"
     ],
-    "/(public-pages)/orders/page": [
+    "/(public-pages)/theme-management/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/orders/page.js"
-    ],
-    "/(public-pages)/orders/[orderId]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/orders/[orderId]/page.js"
-    ],
-    "/(public-pages)/pricing-packages/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/pricing-packages/page.js"
-    ],
-    "/(public-pages)/contracts-policies/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/contracts-policies/page.js"
-    ],
-    "/(public-pages)/contracts-policies/[contractId]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/contracts-policies/[contractId]/page.js"
-    ],
-    "/(public-pages)/notifications/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/notifications/page.js"
-    ],
-    "/(public-pages)/ai-automation/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/ai-automation/page.js"
+      "static/chunks/app/(public-pages)/theme-management/page.js"
     ],
     "/(public-pages)/users-permissions/page": [
       "static/chunks/webpack.js",
@@ -66,40 +31,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(public-pages)/users-permissions/[userId]/page.js"
     ],
-    "/(public-pages)/simulation-assets/page": [
+    "/(public-pages)/products/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/simulation-assets/page.js"
-    ],
-    "/(public-pages)/inventory-management/inventory-list/view/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/inventory-management/inventory-list/view/page.js"
-    ],
-    "/(public-pages)/reports-analytics/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/reports-analytics/page.js"
-    ],
-    "/(public-pages)/system-settings/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/system-settings/page.js"
-    ],
-    "/(public-pages)/theme-management/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/theme-management/page.js"
-    ],
-    "/(public-pages)/pricing-packages/view/[promotionId]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/pricing-packages/view/[promotionId]/page.js"
-    ],
-    "/(public-pages)/inventory-management/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/inventory-management/page.js"
+      "static/chunks/app/(public-pages)/products/page.js"
     ]
   }
 }

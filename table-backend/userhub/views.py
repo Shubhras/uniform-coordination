@@ -1666,9 +1666,9 @@ class CustomerDetailsRetrieveAPIView(APIView):
                 }, status=status.HTTP_200_OK)
             return Response({
                 "status": False,
-                "statusCode": 404,
+                "statusCode": 200,
                 "message": "Customer details not found"
-            }, status=status.HTTP_404_NOT_FOUND)
+            }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({
                 "status": False,
@@ -1850,7 +1850,7 @@ class CreateOrderAPIView(APIView):
                     "message": "Total discount exceeds subtotal"
                 })
 
-            shipping_charge = getattr(settings, 'FLAT_ROUND_TRIP_SHIPPING_FEE', Decimal("1500.00"))
+            shipping_charge = getattr(settings, 'FLAT_ROUND_TRIP_SHIPPING_FEE', Decimal("150.00"))
             taxable_amount = subtotal - discount_amount + shipping_charge
             if taxable_amount < 0:
                 taxable_amount = Decimal("0.00")

@@ -239,9 +239,9 @@ class CreatePaymentAPIView(APIView):
         if successful_payment or order.status in ["confirmed", "paid"] or order.is_paid:
             return Response({
                 "status": False,
-                "statusCode": 400,
+                "statusCode": 200,
                 "message": "Order already paid"
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_200_OK)
 
 
         existing_payment = Payment.objects.filter(

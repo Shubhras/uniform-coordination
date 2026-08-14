@@ -1,8 +1,4 @@
 {
-  "/(public-pages)/pricing-packages/view/[promotionId]/page": "app/(public-pages)/pricing-packages/view/[promotionId]/page.js",
-  "/(public-pages)/pricing-packages/page": "app/(public-pages)/pricing-packages/page.js",
-  "/(public-pages)/users-permissions/page": "app/(public-pages)/users-permissions/page.js",
-  "/(public-pages)/orders/page": "app/(public-pages)/orders/page.js",
-  "/(public-pages)/orders/[orderId]/page": "app/(public-pages)/orders/[orderId]/page.js",
-  "/(public-pages)/inventory-management/page": "app/(public-pages)/inventory-management/page.js"
+  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
+  "/(public-pages)/users-permissions/page": "app/(public-pages)/users-permissions/page.js"
 }

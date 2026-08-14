@@ -14,7 +14,7 @@ import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { RiTable2 } from 'react-icons/ri'
 import { TbTable } from 'react-icons/tb'
 import { IoIosArrowForward } from 'react-icons/io'
-import { FiMinus, FiPlus } from "react-icons/fi";
+import { FiMinus, FiPlus, FiTag, FiLayers, FiBox } from "react-icons/fi";
 import { apiModelInfoCreate, apiSaveDesign, apiSaveThemeDesign } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
 import toast from '@/components/ui/toast'
@@ -156,11 +156,26 @@ const ATTRIBUTE_OPTIONS = {
 
 const ATTRIBUTE_API_MAPPING = {
   "Fabric": "fabrics",
+  "Material": "fabrics",
   "Color": "colors",
+  "Table Centrepiece": "colors",
   "Style": "styles",
+  "Fit Type": "styles",
+  "Fold Style": "styles",
+  "Flowers": "styles",
+  "Base Type": "styles",
+  "Finish": "styles",
+  "Collection": "styles",
+  "Placement": "styles",
+  "Item Type": "styles",
+  "Set Type": "styles",
   "Size": "sizes",
+  "Height": "sizes",
+  "Pieces": "sizes",
   "Closure": "closures",
+  "Stretch": "closures",
   "Pattern": "patterns",
+  "Trim": "patterns",
   "Table Shape": "table_shapes"
 };
 
@@ -168,8 +183,13 @@ const Uniform3DmoduleDegisn = () => {
   const searchParams = useSearchParams()
   // product id
   const { id } = useParams();
-  // theme id
   const themeIdParam = searchParams.get('themeId')
+  const [isThemeMode, setIsThemeMode] = useState(false);
+
+  useEffect(() => {
+    const tid = themeIdParam || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('themeId') : null);
+    setIsThemeMode(Boolean(tid));
+  }, [themeIdParam]);
   const [singleProductData, setSingleProductData] = useState(null)
   const { data: session } = useSession();
   const [tableSitting, setTableSitting] = useState(6)
@@ -204,6 +224,54 @@ const Uniform3DmoduleDegisn = () => {
   })
   const [tableShape, setTableShape] = useState("Circle");
   const [tableScale, setTableScale] = useState(300);
+  const [adminTableShapes, setAdminTableShapes] = useState([]);
+  const [allSimulationProducts, setAllSimulationProducts] = useState([]);
+  const [loadingAllSimProducts, setLoadingAllSimProducts] = useState(false);
+
+  useEffect(() => {
+    const fetchGeneralOptions = async () => {
+      try {
+        const res = await apiGetSimulationOptions("", "");
+        if (res?.status && res?.data?.table_shapes && res.data.table_shapes.length > 0) {
+          setAdminTableShapes(res.data.table_shapes);
+        }
+      } catch (err) {
+        console.error("Error fetching general table shapes:", err);
+      }
+    };
+    fetchGeneralOptions();
+  }, []);
+
+  useEffect(() => {
+    if (active === "simulationProducts") {
+      const fetchAllSimProducts = async () => {
+        try {
+          setLoadingAllSimProducts(true);
+          const res = await apiGetProductById({
+            productType: 'table',
+            showInSimulation: 'true'
+          });
+          if (res?.status && Array.isArray(res.data)) {
+            setAllSimulationProducts(res.data);
+          } else {
+            setAllSimulationProducts([]);
+          }
+        } catch (err) {
+          console.error("Error fetching all simulation products:", err);
+          setAllSimulationProducts([]);
+        } finally {
+          setLoadingAllSimProducts(false);
+        }
+      };
+      fetchAllSimProducts();
+    }
+  }, [active]);
+
+  useEffect(() => {
+    if (isThemeMode && active === "simulationProducts") {
+      setActive("tableShape");
+    }
+  }, [isThemeMode, active]);
 
 
 
@@ -260,22 +328,6 @@ const Uniform3DmoduleDegisn = () => {
         const res = await apiGetSimulationCategories()
         if (res && res.status === true && Array.isArray(res.data)) {
           setSimulationCategories(res.data)
-          
-          // Pre-populate default selected options for attributes
-          const initialOptions = {}
-          res.data.forEach(cat => {
-            initialOptions[cat.name] = {}
-            cat.attributes.forEach(attr => {
-              if (attr.enabled) {
-                // Pick the first option by default
-                const options = ATTRIBUTE_OPTIONS[attr.attribute] || [];
-                if (options.length > 0) {
-                  initialOptions[cat.name][attr.attribute] = options[0].name;
-                }
-              }
-            })
-          })
-          setSelectedOptions(initialOptions)
         }
       } catch (error) {
         console.error("Error fetching simulation categories:", error)
@@ -339,14 +391,8 @@ const Uniform3DmoduleDegisn = () => {
                     const attrKey = ATTRIBUTE_API_MAPPING[attr.attribute];
                     const dynamicOptions = res.data[attrKey] || [];
                     if (dynamicOptions.length > 0) {
-                      currentCatOptions[attr.attribute] = dynamicOptions[0].label;
+                      currentCatOptions[attr.attribute] = dynamicOptions[0].label || dynamicOptions[0].name;
                       updated = true;
-                    } else {
-                      const staticOpts = ATTRIBUTE_OPTIONS[attr.attribute] || [];
-                      if (staticOpts.length > 0) {
-                        currentCatOptions[attr.attribute] = staticOpts[0].name;
-                        updated = true;
-                      }
                     }
                   }
                 });
@@ -654,23 +700,29 @@ const Uniform3DmoduleDegisn = () => {
         {/* Left Toolbar: Navigation Selector */}
         <div className="w-[80px] flex flex-col items-center gap-4 py-4">
           {[
-            { key: "tableShape", label: "Table Shape", img: "/img/top-left-image/collar.png" },
-            { key: "category", label: "Categories", img: "/img/top-left-image/sleeves.png" },
-          ].map(item => (
-            <button
-              key={item.key}
-              onClick={() => onIconClick(item.key)}
-              className={`w-[75px] h-[100px] rounded-lg p-2 flex flex-col justify-center items-center transition ${active === item.key
-                ? "border-l-[0px] border-b-[0px] border-t-[3.5px] border-r-[3.5px] border-[#A0522D]  shadow-md"
-                : "bg-white border border-gray-200 shadow-sm hover:bg-gray-50"
+            { key: "tableShape", label: "Table Shape", icon: FiTag },
+            { key: "category", label: "Categories", icon: FiLayers },
+            ...(!isThemeMode ? [{ key: "simulationProducts", label: "Simulation Products", icon: FiBox }] : []),
+          ].map(item => {
+            const Icon = item.icon;
+            const isActive = active === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => onIconClick(item.key)}
+                className={`w-[75px] h-[100px] rounded-lg p-2 flex flex-col justify-center items-center transition ${
+                  isActive
+                    ? "border-l-[0px] border-b-[0px] border-t-[3.5px] border-r-[3.5px] border-[#A0522D] shadow-md bg-white"
+                    : "bg-white border border-gray-200 shadow-sm hover:bg-gray-50"
                 }`}
-            >
-              <img src={item.img} className="w-8 h-8 object-contain mb-1" alt={item.label} />
-              <span className={`text-xs font-medium text-center leading-tight ${active === item.key ? "font-semibold" : "text-gray-600"}`}>
-                {item.label}
-              </span>
-            </button>
-          ))}
+              >
+                <Icon className={`w-6 h-6 mb-1.5 ${isActive ? "text-[#A0522D]" : "text-gray-500"}`} />
+                <span className={`text-xs font-medium text-center leading-tight ${isActive ? "font-semibold text-[#A0522D]" : "text-gray-600"}`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Configuration Side Panel */}
@@ -683,40 +735,55 @@ const Uniform3DmoduleDegisn = () => {
             >
               {/* Table Shape Selector */}
               <div className="mb-6">
-                <p className="text-sm text-[#1C2C56] block mb-1">
+                <p className="text-sm text-[#1C2C56] block mb-2 font-medium">
                   Table Shape
                 </p>
 
                 <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { name: "Circle", img: "/img/table-form/table-shape/round.png" },
-                    { name: "Rectangle", img: "/img/table-form/table-shape/rectangle.png" },
-                    { name: "Square", img: "/img/table-form/table-shape/square.png" },
-                  ].map((item) => (
-                    <button
-                      key={item.name}
-                      onClick={() => setTableShape(item.name)}
-                      className="relative"
-                    >
-                      <img
-                        src={item.img}
-                        alt={item.name}
-                        className={`rounded-sm object-contain border p-2 w-full border-[#A0522D4D] h-[70px]
-                          ${tableShape === item.name ? "bg-[#A0522D33] border-[#A0522D4D]" : "bg-white"}`}
-                      />
+                  {(adminTableShapes.length > 0
+                    ? adminTableShapes
+                    : [
+                        { id: "Circle", label: "Circle", name: "Circle", img: "/img/table-form/table-shape/round.png" },
+                        { id: "Rectangle", label: "Rectangle", name: "Rectangle", img: "/img/table-form/table-shape/rectangle.png" },
+                        { id: "Square", label: "Square", name: "Square", img: "/img/table-form/table-shape/square.png" },
+                      ]
+                  ).map((item) => {
+                    const shapeName = item.label || item.name;
+                    const shapeImg = item.image || item.img;
+                    const isSelected = tableShape.toLowerCase() === shapeName.toLowerCase();
+                    return (
+                      <button
+                        key={item.id || shapeName}
+                        onClick={() => setTableShape(shapeName)}
+                        className="relative"
+                      >
+                        <div className={`rounded-sm border p-2 w-full h-[70px] flex items-center justify-center ${
+                          isSelected ? "bg-[#A0522D33] border-[#A0522D]" : "bg-white border-[#A0522D4D]"
+                        }`}>
+                          {shapeImg ? (
+                            <img
+                              src={shapeImg}
+                              alt={shapeName}
+                              className="w-full h-full object-contain"
+                            />
+                          ) : (
+                            <span className="text-[10px] font-medium text-gray-700">{shapeName}</span>
+                          )}
+                        </div>
 
-                      {/* Selected Item Indicator */}
-                      {tableShape === item.name && (
-                        <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                          ✓
-                        </span>
-                      )}
+                        {/* Selected Item Indicator */}
+                        {isSelected && (
+                          <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
+                            ✓
+                          </span>
+                        )}
 
-                      <p className="text-[10px] mt-1 text-center">
-                        {item.name}
-                      </p>
-                    </button>
-                  ))}
+                        <p className="text-[10px] mt-1 text-center font-medium text-[#1C2C56]">
+                          {shapeName}
+                        </p>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -840,7 +907,7 @@ const Uniform3DmoduleDegisn = () => {
                     </button>
 
                     {/* Simulation Products Section */}
-                    {!themeIdParam && (
+                    {!isThemeMode && (
                       <div className="mb-6 border-b border-[#F3D3C8] pb-5">
                         <p className="text-xs font-semibold text-[#1C2C56] mb-3">Simulation Products</p>
                         {loadingProducts ? (
@@ -901,113 +968,173 @@ const Uniform3DmoduleDegisn = () => {
                           ? categoryOptions[selectedCat.name][attrKey]
                           : [];
 
-                        // Map options from API structure or fall back to static ATTRIBUTE_OPTIONS
-                        const mappedOptions = apiOptionsList.length > 0
-                          ? apiOptionsList.map(opt => ({
-                              name: opt.label,
-                              img: opt.image || null,
-                              colorCode: opt.colorCode || null,
-                              materialType: opt.materialType || null,
-                              compatibleFabric: opt.compatibleFabric || []
-                            }))
-                          : (ATTRIBUTE_OPTIONS[attrName] || []).map(opt => ({
-                              name: opt.name,
-                              img: opt.img || null,
-                              colorCode: opt.colorCode || null,
-                              materialType: opt.materialType || opt.material || null,
-                              compatibleFabric: opt.compatibleFabric || []
-                            }));
+                        // Map options from API structure strictly without fake static fallbacks
+                        const mappedOptions = apiOptionsList.map(opt => ({
+                          id: opt.id,
+                          name: opt.label || opt.name,
+                          img: opt.image || opt.img || null,
+                          colorCode: opt.colorCode || null,
+                          materialType: opt.materialType || null,
+                          compatibleFabric: opt.compatibleFabric || []
+                        }));
 
                         // Find the selected fabric name
-                        const selectedFabricName = selectedOptions[selectedCat.name]?.["Fabric"];
-                        const fabricsOptions = (categoryOptions[selectedCat.name]?.["fabrics"] || []).length > 0
-                          ? categoryOptions[selectedCat.name]["fabrics"]
-                          : (ATTRIBUTE_OPTIONS["Fabric"] || []);
+                        const selectedFabricName = selectedOptions[selectedCat.name]?.["Fabric"] || selectedOptions[selectedCat.name]?.["Material"];
+                        const fabricsOptions = categoryOptions[selectedCat.name]?.["fabrics"] || [];
                         const selectedFabricObj = fabricsOptions.find(f => (f.label || f.name) === selectedFabricName);
-                        const selectedFabricMaterial = selectedFabricObj?.materialType || selectedFabricObj?.material || null;
+                        const selectedFabricMaterial = selectedFabricObj?.materialType || null;
 
                         // Find the selected color name
                         const selectedColorName = selectedOptions[selectedCat.name]?.["Color"];
-                        const colorsOptions = (categoryOptions[selectedCat.name]?.["colors"] || []).length > 0
-                          ? categoryOptions[selectedCat.name]["colors"]
-                          : (ATTRIBUTE_OPTIONS["Color"] || []);
+                        const colorsOptions = categoryOptions[selectedCat.name]?.["colors"] || [];
                         const selectedColorObj = colorsOptions.find(c => (c.label || c.name) === selectedColorName);
                         const selectedColorCompFabrics = selectedColorObj?.compatibleFabric || [];
 
                         // Filter options based on compatibility
                         let displayedOptions = [...mappedOptions];
-                        if (attrName === "Color" && selectedFabricMaterial) {
+                        if ((attrName === "Color" || attrName.toLowerCase().includes("color")) && selectedFabricMaterial) {
                           displayedOptions = mappedOptions.filter(opt => 
                             !opt.compatibleFabric || 
                             opt.compatibleFabric.length === 0 ||
                             opt.compatibleFabric.some(f => f.toLowerCase() === selectedFabricMaterial.toLowerCase())
                           );
-                        } else if (attrName === "Fabric" && selectedColorName && selectedColorCompFabrics.length > 0) {
+                        } else if ((attrName === "Fabric" || attrName === "Material") && selectedColorName && selectedColorCompFabrics.length > 0) {
                           displayedOptions = mappedOptions.filter(opt => 
                             !opt.materialType || 
                             selectedColorCompFabrics.some(f => f.toLowerCase() === opt.materialType.toLowerCase())
                           );
                         }
 
+                        const isColorAttr = attrName.toLowerCase().includes("color");
+
                         return (
-                          <div key={attrName}>
+                          <div key={attrName} className="mb-4">
                             <p className="text-xs font-semibold text-[#1C2C56] mb-2">{attrName}</p>
-                            <div className="grid grid-cols-3 gap-3">
-                              {displayedOptions.map(opt => {
-                                const isSelected = selectedOptions[selectedCat.name]?.[attrName] === opt.name;
-                                return (
-                                  <button
-                                    key={opt.name}
-                                    onClick={() => {
-                                      setSelectedOptions(prev => {
-                                        const currentCatOptions = { ...(prev[selectedCat.name] || {}) };
-                                        if (currentCatOptions[attrName] === opt.name) {
-                                          delete currentCatOptions[attrName];
-                                        } else {
-                                          currentCatOptions[attrName] = opt.name;
-                                        }
-                                        return {
-                                          ...prev,
-                                          [selectedCat.name]: currentCatOptions
-                                        };
-                                      });
-                                    }}
-                                    className="relative flex flex-col items-center"
-                                  >
-                                    <div className="rounded-sm w-full h-[70px] overflow-hidden border flex items-center justify-center bg-white">
-                                      {opt.colorCode ? (
-                                        <div
-                                          className="w-full h-full border border-gray-200"
-                                          style={{ backgroundColor: opt.colorCode }}
-                                        />
-                                      ) : opt.img ? (
-                                        <img
-                                          src={opt.img}
-                                          className="w-full h-full object-cover"
-                                          alt={opt.name}
-                                        />
-                                      ) : (
-                                        <div className="text-[10px] text-gray-400 text-center px-1">
-                                          {opt.name}
-                                        </div>
+                            {displayedOptions.length === 0 ? (
+                              <p className="text-xs text-gray-500 italic">No {attrName.toLowerCase()} options available.</p>
+                            ) : (
+                              <div className={isColorAttr ? "grid grid-cols-4 gap-2" : "grid grid-cols-3 gap-3"}>
+                                {displayedOptions.map(opt => {
+                                  const isSelected = selectedOptions[selectedCat.name]?.[attrName] === opt.name;
+                                  return (
+                                    <button
+                                      key={opt.id || opt.name}
+                                      onClick={() => {
+                                        setSelectedOptions(prev => {
+                                          const currentCatOptions = { ...(prev[selectedCat.name] || {}) };
+                                          if (currentCatOptions[attrName] === opt.name) {
+                                            delete currentCatOptions[attrName];
+                                          } else {
+                                            currentCatOptions[attrName] = opt.name;
+                                          }
+                                          return {
+                                            ...prev,
+                                            [selectedCat.name]: currentCatOptions
+                                          };
+                                        });
+                                      }}
+                                      className={`relative flex flex-col items-center p-1 rounded-lg border transition ${
+                                        isSelected 
+                                          ? "border-[#A0522D] bg-[#FFF5F1] shadow-sm ring-1 ring-[#A0522D]" 
+                                          : "border-gray-200 bg-white hover:border-gray-300"
+                                      }`}
+                                    >
+                                      <div className="rounded-md w-full h-[55px] overflow-hidden flex items-center justify-center bg-gray-50 relative">
+                                        {opt.colorCode ? (
+                                          <div
+                                            className="w-6 h-6 rounded-full border border-gray-300 shadow-sm"
+                                            style={{ backgroundColor: opt.colorCode }}
+                                          />
+                                        ) : opt.img ? (
+                                          <img
+                                            src={opt.img}
+                                            className="w-full h-full object-cover"
+                                            alt={opt.name}
+                                          />
+                                        ) : (
+                                          <div className="text-[10px] text-gray-500 text-center px-1 font-medium">
+                                            {opt.name}
+                                          </div>
+                                        )}
+                                      </div>
+                                      {isSelected && (
+                                        <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full shadow-md z-10">
+                                          ✓
+                                        </span>
                                       )}
-                                    </div>
-                                    {isSelected && (
-                                      <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-sm shadow-md">
-                                        ✓
-                                      </span>
-                                    )}
-                                    <p className="text-[10px] mt-1 text-center font-medium text-gray-700">{opt.name}</p>
-                                  </button>
-                                );
-                              })}
-                            </div>
+                                      <p className="text-[10px] mt-1 text-center font-medium text-gray-700 truncate w-full px-0.5">
+                                        {opt.name}
+                                      </p>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
                   </div>
                 );
               })()}
+            </div>
+          )}
+
+          {active === "simulationProducts" && !isThemeMode && (
+            <div
+              ref={panelRef}
+              className="min-w-sm h-[calc(100vh-178px)] overflow-y-auto overflow-x-hidden bg-[#FFF5F1] border border-[#F3D3C8] rounded-2xl p-5 shadow-lg custom-scroll"
+            >
+              <h4 className="text-sm font-semibold text-[#1C2C56] mb-4">
+                Simulation Products
+              </h4>
+
+              {loadingAllSimProducts ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#A0522D]"></div>
+                </div>
+              ) : allSimulationProducts.length === 0 ? (
+                <p className="text-xs text-gray-500 italic">No products currently marked for simulation.</p>
+              ) : (
+                <div className="space-y-3">
+                  {allSimulationProducts.map((prod) => {
+                    const isSelected = singleProductData?.id === prod.id;
+                    const prodImage = prod.ProductImage || prod.productImage || prod.image || "/img/table-form/3dtable.png";
+                    const catName = prod.category?.categoryName || prod.categoryName || "General";
+                    return (
+                      <button
+                        key={prod.id}
+                        onClick={() => handleProductSelect(prod)}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${
+                          isSelected
+                            ? "border-[#A0522D] bg-white ring-1 ring-[#A0522D] shadow-sm"
+                            : "border-[#F3D3C8] bg-white hover:border-[#A0522D]"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 shrink-0 border border-gray-100">
+                            <img
+                              src={prodImage}
+                              className="w-full h-full object-contain"
+                              alt={prod.productName}
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-[#1C2C56] truncate">
+                              {prod.productName}
+                            </p>
+                            <p className="text-[10px] text-gray-500 truncate">
+                              {catName}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="shrink-0 ml-2 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[9px] font-semibold">
+                          Simulation
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </div>
