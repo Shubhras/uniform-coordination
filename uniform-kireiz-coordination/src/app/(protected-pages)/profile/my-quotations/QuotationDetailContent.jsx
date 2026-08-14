@@ -103,10 +103,10 @@ const QuotationDetailContent = ({
                             <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Phone Number</p>
                             <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.phoneNumber}</p>
                         </div>
-                        <div>
+                        {/* <div>
                             <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Tier</p>
                             <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.tier}</p>
-                        </div>
+                        </div> */}
                     </div>
                 </section>
 
