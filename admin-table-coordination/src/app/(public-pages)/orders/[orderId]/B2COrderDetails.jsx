@@ -28,29 +28,29 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
       name: "Crystal Chandelier Set (6 pcs)",
       qty: 2,
       days: "14d",
-      price: "¥85.00",
-      subtotal: "¥2380.00",
+      price: "$85.00",
+      subtotal: "$2380.00",
     },
     {
       name: "Velvet Banquet Chair",
       qty: 60,
       days: "14d",
-      price: "¥4.50",
-      subtotal: "¥3780.00",
+      price: "$4.50",
+      subtotal: "$3780.00",
     },
     {
       name: "Marble Top Table (180cm)",
       qty: 10,
       days: "14d",
-      price: "¥28.00",
-      subtotal: "¥3920.00",
+      price: "$28.00",
+      subtotal: "$3920.00",
     },
     {
       name: "Marble Top Table (180cm)",
       qty: 10,
       days: "14d",
-      price: "¥28.00",
-      subtotal: "¥3920.00",
+      price: "$28.00",
+      subtotal: "$3920.00",
     },
   ];
 
@@ -278,12 +278,12 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                       <td className="px-4 py-3">{item.rental_days}d</td>
 
                       <td className="px-4 py-3">
-                        {order?.payment_summary?.currency || ""}{" "}
-                        {item.price_per_day}
+
+                        ${item.price_per_day}
                       </td>
 
                       <td className="px-4 py-3 font-semibold text-[#1A1714]">
-                        {order?.payment_summary?.currency || ""} {item.subtotal}
+                        ${item.subtotal}
                       </td>
                     </tr>
                   ))}
@@ -318,16 +318,14 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
               <div className="flex justify-between">
                 <span className="text-[#7A6E66]">{t("subtotal")}</span>
                 <span>
-                  {order?.payment_summary?.currency}{" "}
-                  {order?.payment_summary?.subtotal}
+                  ${order?.payment_summary?.subtotal}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-[#7A6E66]">{t("deliveryFee")}</span>
                 <span>
-                  {order?.payment_summary?.currency}{" "}
-                  {order?.payment_summary?.shipping_charge}
+                  ${order?.payment_summary?.shipping_charge}
                 </span>
               </div>
 
@@ -342,8 +340,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                 <span>{t("rentalSubtotal")}</span>
 
                 <span className="text-[#A85A32] text-[15px]">
-                  {order?.payment_summary?.currency}{" "}
-                  {order?.payment_summary?.total_amount}
+                  ${order?.payment_summary?.total_amount}
                 </span>
               </div>
             </div>

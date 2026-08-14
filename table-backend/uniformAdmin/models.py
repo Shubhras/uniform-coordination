@@ -267,6 +267,7 @@ class Colors(models.Model):
     colorCode = models.TextField(null=True, blank=True)
     # compatibleFabric = models.ManyToManyField(Fabric, blank=True)
     compatibleFabric = models.JSONField(default=list)  
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="colors")
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -915,16 +916,28 @@ class CompensationInvoice(models.Model):
         ("sent", "Sent"),
         ("paid", "Paid")
     ]
+    invoice_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
     order = models.ForeignKey("userhub.Order", on_delete=models.CASCADE, related_name="compensation_invoices")
+    missing_count = models.PositiveIntegerField(default=0)
+    damaged_count = models.PositiveIntegerField(default=0)
     total_replacement_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_penalty_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     grand_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    notes = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.invoice_number:
+            from django.utils import timezone
+            date_str = timezone.now().strftime("%Y%m%d")
+            order_pk = self.order.pk if self.order else 0
+            self.invoice_number = f"CP-{date_str}-{order_pk:03d}"
+        super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"Compensation Invoice for Order {self.order.order_id}"
+        return f"Compensation Invoice {self.invoice_number or self.id} for Order {self.order.order_id if self.order else ''}"
 
 class CompensationInvoiceItem(models.Model):
     ISSUE_CHOICES = [
@@ -932,7 +945,8 @@ class CompensationInvoiceItem(models.Model):
         ("damaged", "Damaged")
     ]
     invoice = models.ForeignKey(CompensationInvoice, on_delete=models.CASCADE, related_name="items")
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    product_name = models.CharField(max_length=255, blank=True, null=True)
     issue_type = models.CharField(max_length=20, choices=ISSUE_CHOICES)
     quantity = models.PositiveIntegerField(default=1)
     replacement_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -940,7 +954,39 @@ class CompensationInvoiceItem(models.Model):
     total_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"{self.quantity}x {self.product.productName} ({self.issue_type})"
+        item_name = self.product_name or (self.product.productName if self.product else 'Item')
+        return f"{self.quantity}x {item_name} ({self.issue_type})"
+
+class LateFeeInvoice(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("sent", "Sent"),
+        ("paid", "Paid")
+    ]
+    invoice_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    order = models.OneToOneField("userhub.Order", on_delete=models.CASCADE, related_name="late_fee_invoice")
+    expected_return_date = models.DateField(null=True, blank=True)
+    actual_return_date = models.DateField(null=True, blank=True)
+    days_late = models.IntegerField(default=0)
+    rate_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_late_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    notification_message = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    is_notified = models.BooleanField(default=False)
+    notified_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.invoice_number:
+            from django.utils import timezone
+            date_str = timezone.now().strftime("%Y%m%d")
+            order_pk = self.order.pk if self.order else 0
+            self.invoice_number = f"LF-{date_str}-{order_pk:03d}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Late Fee Invoice {self.invoice_number} for Order {self.order.order_id if self.order else ''}"
 
 class PricingPackage(models.Model):
     package_name = models.CharField(max_length=150)
@@ -1060,6 +1106,7 @@ class SimulationStructure(models.Model):
 
 class TableShape(models.Model):
     name = models.CharField(max_length=150, unique=True)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="table_shapes")
     image = models.ImageField(upload_to='attribute_images/table_shapes/', blank=True, null=True)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
@@ -1072,6 +1119,7 @@ class TableShape(models.Model):
 
 class Closure(models.Model):
     name = models.CharField(max_length=150, unique=True)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="closures")
     image = models.ImageField(upload_to='attribute_images/closures/', blank=True, null=True)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
@@ -1084,6 +1132,7 @@ class Closure(models.Model):
 
 class Style(models.Model):
     name = models.CharField(max_length=150, unique=True)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="styles")
     image = models.ImageField(upload_to='attribute_images/styles/', blank=True, null=True)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
@@ -1096,6 +1145,7 @@ class Style(models.Model):
 
 class Size(models.Model):
     name = models.CharField(max_length=150, unique=True)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="sizes")
     image = models.ImageField(upload_to='attribute_images/sizes/', blank=True, null=True)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)
@@ -1108,6 +1158,7 @@ class Size(models.Model):
 
 class Pattern(models.Model):
     name = models.CharField(max_length=150, unique=True)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="patterns")
     image = models.ImageField(upload_to='attribute_images/patterns/', blank=True, null=True)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)

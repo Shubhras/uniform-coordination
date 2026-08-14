@@ -74,11 +74,8 @@ const Promotions = () => {
 
   const typeOptions = [
     { value: "all", label: t("allTypes") },
-    { value: "percentage", label: t("typePercentage") },
-    { value: "first purchase", label: t("typeFirstPurchase") },
-    { value: "repeat customer", label: t("typeRepeatCustomer") },
-    { value: "limited time", label: t("typeLimitedTime") },
-    { value: "fixed amount", label: t("typeFixedAmount") },
+    { value: "fix_price", label: t("typeFixedAmount") },
+    { value: "discount", label: t("typePercentage") },
   ];
 
   const statusOptions = [
@@ -86,7 +83,6 @@ const Promotions = () => {
     { value: "active", label: t("statusActive") },
     { value: "inactive", label: t("statusInactive") },
     { value: "expired", label: t("statusExpired") },
-    { value: "scheduled", label: t("statusScheduled") },
   ];
 
   const router = useRouter();
@@ -132,6 +128,17 @@ const Promotions = () => {
     }
   }, [accessToken, currentPage]);
 
+  const getPromotionStatus = (promotion) => {
+    if (promotion.ended_at) {
+      const endDate = new Date(promotion.ended_at);
+      const now = new Date();
+      if (endDate < now) {
+        return "expired";
+      }
+    }
+    return promotion.isActive ? "active" : "inactive";
+  };
+
   const filteredPromotions = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
@@ -139,13 +146,28 @@ const Promotions = () => {
       const matchesSearch =
         !query || promotion.promocodeName?.toLowerCase().includes(query);
 
-      const matchesType =
-        type.value === "all" || promotion.promocodeType === type.value;
+      let matchesType = true;
+      if (type && type.value !== "all") {
+        const pType = (promotion.promocodeType || "").toLowerCase();
+        if (type.value === "fix_price") {
+          matchesType =
+            pType === "fix_price" ||
+            pType === "fixed amount" ||
+            pType === "fix price";
+        } else if (type.value === "discount") {
+          matchesType =
+            pType === "discount" ||
+            pType === "percentage";
+        } else {
+          matchesType = pType === type.value;
+        }
+      }
 
-      const promotionStatus = promotion.isActive ? "active" : "inactive";
-
-      const matchesStatus =
-        status.value === "all" || promotionStatus === status.value;
+      let matchesStatus = true;
+      if (status && status.value !== "all") {
+        const currentStatus = getPromotionStatus(promotion);
+        matchesStatus = currentStatus === status.value;
+      }
 
       return matchesSearch && matchesType && matchesStatus;
     });
@@ -278,11 +300,11 @@ const Promotions = () => {
                   >
                     <td className="px-4 py-3">{promotion.promocodeName}</td>
 
-                    <td className="px-4 py-3">
-                      {promotion.promocodeType.replace("_", " ")}
+                    <td className="px-4 py-3 font-medium capitalize">
+                      {(promotion.promocodeType || "").replace("_", " ")}
                     </td>
 
-                    <td className="px-4 py-3">₹ {promotion.amount}</td>
+                    <td className="px-4 py-3">${promotion.amount}</td>
 
                     <td className="px-4 py-3">
                       <div>
@@ -295,15 +317,28 @@ const Promotions = () => {
                     </td>
 
                     <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
-                          promotion.isActive
-                            ? "bg-[#E8FAF2] text-[#007A55]"
-                            : "bg-[#FFE9E8] text-[#F04444]"
-                        }`}
-                      >
-                        {promotion.isActive ? "Active" : "Inactive"}
-                      </span>
+                      {(() => {
+                        const currentStatus = getPromotionStatus(promotion);
+                        if (currentStatus === "active") {
+                          return (
+                            <span className="inline-flex rounded-full px-3 py-1 text-xs font-medium bg-[#E8FAF2] text-[#007A55]">
+                              Active
+                            </span>
+                          );
+                        }
+                        if (currentStatus === "expired") {
+                          return (
+                            <span className="inline-flex rounded-full px-3 py-1 text-xs font-medium bg-[#FFE9E8] text-[#F04444]">
+                              Expired
+                            </span>
+                          );
+                        }
+                        return (
+                          <span className="inline-flex rounded-full px-3 py-1 text-xs font-medium bg-[#FFF6E7] text-[#E6A11E]">
+                            Inactive
+                          </span>
+                        );
+                      })()}
                     </td>
 
                     <td className="px-4 py-3">

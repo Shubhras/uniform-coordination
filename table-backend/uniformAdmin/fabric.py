@@ -8,6 +8,7 @@ from rest_framework import status
 
 from .serializers import FabricSerializer
 from .models import Fabric
+from .translations import get_localized_msg
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 import logging  
@@ -142,7 +143,7 @@ class FabricListView(APIView):
                 "previous": paginator.get_previous_link(),
                 "statusCode": 200,
                 "status": True,
-                "message": "Fabric list fetched successfully",
+                "message": get_localized_msg(request, "Fabric list fetched successfully"),
                 "data": serializer.data,
                 "pagination": {
                     "page": paginator.page.number,

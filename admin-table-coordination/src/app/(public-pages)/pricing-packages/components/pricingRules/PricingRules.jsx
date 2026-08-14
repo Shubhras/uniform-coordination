@@ -133,7 +133,7 @@ const PricingRules = () => {
                 <div className="mt-4">
                   <div className="inline-flex items-end rounded-2xl border border-[#F3E9E2] bg-[#FCF7F3] px-5 py-4">
                     <span className="text-[37px] font-semibold leading-none text-[#2F241F]">
-                      ₹{rule.flat_shipping_fee}
+                      ${rule.flat_shipping_fee}
                     </span>
 
                     <span className="ml-2 text-[17px] text-[#9C8476]">

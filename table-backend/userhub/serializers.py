@@ -648,8 +648,12 @@ class ProductOrderListSerializer(serializers.ModelSerializer):
         ]
 
     def get_customer_name(self, obj):
-        if obj.order.customer:
-            return getattr(obj.order.customer, "userName", None)
+        if obj.order and obj.order.customer:
+            c = obj.order.customer
+            name = f"{c.first_name or ''} {c.last_name or ''}".strip()
+            if name:
+                return name
+            return c.userName or c.email
         return None
 
 

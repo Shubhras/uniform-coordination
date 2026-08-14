@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { FiSearch, FiPlus, FiX } from "react-icons/fi";
+import { useLocale } from "next-intl";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -11,11 +12,45 @@ import Pagination from "@/components/ui/Pagination";
 import Spinner from "@/components/ui/Spinner";
 import { useTranslations } from "next-intl";
 
+const attributeTitleMap = {
+  "Table Shape": { en: "Table Shape", ja: "テーブル形状" },
+  Closure: { en: "Closure", ja: "クロージャー" },
+  Style: { en: "Style", ja: "スタイル" },
+  Size: { en: "Size", ja: "サイズ" },
+  Pattern: { en: "Pattern", ja: "パターン" },
+  Fabric: { en: "Fabric", ja: "生地" },
+  Color: { en: "Color", ja: "カラー" },
+};
+
+const API_BASE = (
+  process.env.NEXT_PUBLIC_IMAGE_URL ||
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "http://127.0.0.1:8002"
+).replace(/\/api\/v1\/?$/, "").replace(/\/$/, "");
+
+const getImageUrl = (path) => {
+  if (!path) return "";
+  let clean = path;
+  if (clean.includes("table-admin.dxtspace.com")) {
+    clean = clean.replace(/https?:\/\/table-admin\.dxtspace\.com/, "");
+  }
+  if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("blob:")) {
+    return clean;
+  }
+  const cleanPath = clean.startsWith("/") ? clean : `/${clean}`;
+  return `${API_BASE}${cleanPath}`;
+};
+
 const AttributeTab = ({ attributeTitle, service }) => {
+  const locale = useLocale();
+  const isJa = locale === "ja";
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const t = useTranslations("productSpecification.fabric");
   const ts = useTranslations("successTitle");
+
+  const translatedTitle =
+    attributeTitleMap[attributeTitle]?.[isJa ? "ja" : "en"] || attributeTitle;
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -179,7 +214,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
                 <div className="h-40 bg-gray-50 flex items-center justify-center p-3 border-b border-gray-100 overflow-hidden">
                   {item.image ? (
                     <img
-                      src={item.image}
+                      src={getImageUrl(item.image)}
                       alt={item.name}
                       className="h-full object-contain hover:scale-105 transition-transform duration-300"
                     />
@@ -199,6 +234,11 @@ const AttributeTab = ({ attributeTitle, service }) => {
                       {t("status")}:{" "}
                       {item.isActive ? t("active") : t("inactive")}
                     </p>
+                    {item.category?.categoryName && (
+                      <p className="text-xs text-gray-500 font-medium mt-0.5">
+                        {isJa ? "カテゴリー: " : "Category: "}{item.category.categoryName}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex gap-2 mt-4">
