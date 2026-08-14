@@ -1,4 +1,0 @@
-{
-  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
-  "/(public-pages)/users-permissions/page": "app/(public-pages)/users-permissions/page.js"
-}
