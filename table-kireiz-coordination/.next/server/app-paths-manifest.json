@@ -1,4 +1,7 @@
 {
+  "/(public-pages)/browse-by-color/page": "app/(public-pages)/browse-by-color/page.js",
   "/(public-pages)/cart-summary/page": "app/(public-pages)/cart-summary/page.js",
-  "/(public-pages)/delivery-information/[id]/page": "app/(public-pages)/delivery-information/[id]/page.js"
+  "/(protected-pages)/profile/my-profile/page": "app/(protected-pages)/profile/my-profile/page.js",
+  "/(protected-pages)/profile/my-order-rentals/[id]/page": "app/(protected-pages)/profile/my-order-rentals/[id]/page.js",
+  "/(protected-pages)/profile/my-order-rentals/page": "app/(protected-pages)/profile/my-order-rentals/page.js"
 }

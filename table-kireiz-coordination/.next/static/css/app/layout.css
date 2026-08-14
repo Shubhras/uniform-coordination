@@ -5536,11 +5536,6 @@
       font-size: 16px;
     }
   }
-  .sm\:text-\[18px\] {
-    @media (width >= 640px) {
-      font-size: 18px;
-    }
-  }
   .sm\:text-\[20px\] {
     @media (width >= 640px) {
       font-size: 20px;
