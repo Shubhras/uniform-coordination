@@ -140,7 +140,8 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
-  // const userPermissions = session?.user?.permissions || []
+  const userPermissions = session?.user?.permissions || [];
+  const userRole = session?.user?.authority?.[0]?.toLowerCase();
 
   const isActive = (path) => {
     if (path === "/admin-form") {
@@ -215,9 +216,18 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3">
         <ul className="space-y-1">
           {sidebarMenu.map((item) => {
-            // if (item.slug && !userPermissions.includes(item.slug)) {
-            //     return null;
-            // }
+            // Superadmins ('admin') see all menus; non-admins are filtered by permissions
+            if (userRole && userRole !== 'admin') {
+              const hasPermission = userPermissions.some((permSlug) => 
+                permSlug === item.slug ||
+                (item.slug === 'order_rentals' && permSlug === 'order_manage') ||
+                (item.slug === 'user_permission' && (permSlug === 'customer_sales_representative' || permSlug === 'users_permissions'))
+              );
+
+              if (item.slug && !hasPermission) {
+                return null;
+              }
+            }
 
             const Icon = item.icon;
             const active = isActive(item.path);
