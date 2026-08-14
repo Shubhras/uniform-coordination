@@ -14,7 +14,7 @@ import {
   FiCopy,
   FiCheck,
 } from "react-icons/fi";
-import { IoColorPaletteOutline } from "react-[#1C2C56] react-icons/io5";
+import { IoColorPaletteOutline } from "react-icons/io5";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import Spinner from "@/components/ui/Spinner";
 import Pagination from "@/components/ui/Pagination";
