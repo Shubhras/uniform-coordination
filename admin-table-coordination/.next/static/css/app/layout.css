@@ -2046,9 +2046,6 @@
   .shrink-0 {
     flex-shrink: 0;
   }
-  .flex-grow {
-    flex-grow: 1;
-  }
   .grow {
     flex-grow: 1;
   }
@@ -3436,9 +3433,6 @@
   }
   .bg-\[\#F8FAFC\] {
     background-color: #F8FAFC;
-  }
-  .bg-\[\#F8FAFF\] {
-    background-color: #F8FAFF;
   }
   .bg-\[\#F04444\] {
     background-color: #F04444;
@@ -5215,9 +5209,6 @@
   }
   .text-amber-700 {
     color: var(--color-amber-700);
-  }
-  .text-black {
-    color: var(--color-black);
   }
   .text-blue-500 {
     color: var(--color-blue-500);

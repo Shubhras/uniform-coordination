@@ -11,40 +11,30 @@
       "static/chunks/main-app.js",
       "static/chunks/app/not-found.js"
     ],
-    "/(public-pages)/layout": [
+    "/(auth-pages)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/layout.js"
+      "static/chunks/app/(auth-pages)/layout.js"
     ],
-    "/(public-pages)/products/page": [
+    "/(auth-pages)/sign-in/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/products/page.js"
+      "static/chunks/app/(auth-pages)/sign-in/page.js"
     ],
     "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/_not-found/page.js"
     ],
-    "/(public-pages)/theme-management/page": [
+    "/(public-pages)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/theme-management/page.js"
+      "static/chunks/app/(public-pages)/layout.js"
     ],
-    "/(public-pages)/theme-management/addTheme/page": [
+    "/(public-pages)/admin-form/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/theme-management/addTheme/page.js"
-    ],
-    "/(public-pages)/theme-management/edit/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/theme-management/edit/[id]/page.js"
-    ],
-    "/(public-pages)/orders/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(public-pages)/orders/page.js"
+      "static/chunks/app/(public-pages)/admin-form/page.js"
     ]
   }
 }
