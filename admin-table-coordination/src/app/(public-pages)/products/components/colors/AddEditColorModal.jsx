@@ -116,7 +116,7 @@ const AddEditColorModal = ({
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isSelected
-        ? "#1C2C56"
+        ? "#A0522D"
         : state.isFocused
           ? "#EEF2FF"
           : "white",

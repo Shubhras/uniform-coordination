@@ -15,7 +15,10 @@ import {
   FiX,
 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiGetUsersList, apiUpdateUserStatus } from "@/services/UserPermissionService";
+import {
+  apiGetUsersList,
+  apiUpdateUserStatus,
+} from "@/services/UserPermissionService";
 import PermissionPage from "./PermissionPage";
 import Spinner from "@/components/ui/Spinner";
 import Dialog from "@/components/ui/Dialog";
@@ -70,6 +73,24 @@ const getDisplayStatus = (user) => {
 };
 
 const getDisplayUserType = (user) => {
+  const rawRole = user?.role;
+
+  if (typeof rawRole === "string") {
+    const normalizedRole = rawRole.trim().toLowerCase();
+
+    if (normalizedRole === "b2b") {
+      return "B2B";
+    }
+
+    if (normalizedRole === "b2c") {
+      return "B2C";
+    }
+
+    if (normalizedRole === "user") {
+      return "User";
+    }
+  }
+
   const rawType =
     user?.display_user_type ||
     user?.user_type_label ||
@@ -88,10 +109,10 @@ const getDisplayUserType = (user) => {
     if (["b2c", "customer", "individual", "consumer"].includes(normalized)) {
       return "B2C";
     }
-  }
 
-  if (typeof user?.role === "number") {
-    return user.role === 2 ? "B2C" : "B2B";
+    if (normalized === "user") {
+      return "User";
+    }
   }
 
   return "B2C";
@@ -125,7 +146,7 @@ const normalizeUser = (user, locale = "en-US") => ({
       user?.created_at ||
       user?.date_joined ||
       user?.createdAt,
-    locale
+    locale,
   ),
   statusLabel: getDisplayStatus(user),
   isActive: getDisplayStatus(user) === "Active",
@@ -269,7 +290,7 @@ const UsersPermissionsPage = () => {
       const response = await apiUpdateUserStatus(
         accessToken,
         selectedUserForStatus.id,
-        payload
+        payload,
       );
 
       toast.push(
@@ -278,7 +299,7 @@ const UsersPermissionsPage = () => {
             (isDeactivating
               ? "User deactivated successfully."
               : "User reactivated successfully.")}
-        </Notification>
+        </Notification>,
       );
 
       setSelectedUserForStatus(null);
@@ -289,7 +310,7 @@ const UsersPermissionsPage = () => {
       setStatusError(
         err?.response?.data?.message ||
           err?.response?.data?.detail ||
-          "Failed to update user status. Please try again."
+          "Failed to update user status. Please try again.",
       );
     } finally {
       setStatusActionLoading(false);
@@ -309,21 +330,30 @@ const UsersPermissionsPage = () => {
     try {
       setLoading(true);
 
+      // const queryParams = new URLSearchParams();
       const queryParams = new URLSearchParams();
+
+      if (userType.value !== "all") {
+        queryParams.set("role", userType.value);
+      }
+
+      if (searchQuery.trim()) {
+        queryParams.set("search", searchQuery.trim());
+      }
       const requestPage = hasActiveFilters ? 1 : currentPage;
       const requestPageSize = hasActiveFilters
         ? filteredModePageSize
         : itemsPerPage;
 
-      if (searchQuery.trim()) {
-        queryParams.set("search", searchQuery.trim());
-      }
+      // if (searchQuery.trim()) {
+      //   queryParams.set("search", searchQuery.trim());
+      // }
 
       const response = await apiGetUsersList(
         accessToken,
         requestPage,
         requestPageSize,
-        `&${queryParams.toString()}`,
+        queryParams.toString() ? `&${queryParams.toString()}` : "",
       );
 
       const payload = response?.data?.data || response?.data || response;
@@ -446,9 +476,7 @@ const UsersPermissionsPage = () => {
       <h1 className="text-[30px] font-semibold leading-tight text-[#2A211D]">
         {t("title")}
       </h1>
-      <p className="mt-1 text-[13px] text-[#B29D8C]">
-        {t("subtitle")}
-      </p>
+      <p className="mt-1 text-[13px] text-[#B29D8C]">{t("subtitle")}</p>
 
       <div className="mt-5 flex gap-8 border-b border-[#E8DDD4]">
         {[
@@ -618,14 +646,22 @@ const UsersPermissionsPage = () => {
                             <button
                               type="button"
                               onClick={() => handleOpenStatusModal(user)}
-                              title={user.isActive ? "Deactivate User" : "Reactivate User"}
+                              title={
+                                user.isActive
+                                  ? "Deactivate User"
+                                  : "Reactivate User"
+                              }
                               className={`flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg ${
                                 user.isActive
                                   ? "hover:bg-red-50 text-[#7D6C63] hover:text-red-600"
                                   : "hover:bg-green-50 text-red-500 hover:text-emerald-600"
                               }`}
                             >
-                              {user.isActive ? <FiSlash size={17} /> : <FiRotateCcw size={17} />}
+                              {user.isActive ? (
+                                <FiSlash size={17} />
+                              ) : (
+                                <FiRotateCcw size={17} />
+                              )}
                             </button>
                           </div>
                         </td>
@@ -681,8 +717,8 @@ const UsersPermissionsPage = () => {
           <div className="border-b pb-3 flex justify-between items-center">
             <h3 className="text-xl font-semibold text-[#1C2C56]">
               {selectedUserForStatus?.isActive
-                ? "Deactivate User Account"
-                : "Reactivate User Account"}
+                ? t("deactivateUserAccount")
+                : t("reactivateUserAccount")}
             </h3>
             <button
               type="button"
@@ -708,19 +744,27 @@ const UsersPermissionsPage = () => {
             <p className="text-gray-700 text-sm">
               {selectedUserForStatus?.isActive ? (
                 <>
-                  Are you sure you want to deactivate the account for{" "}
+                  {t("deactivateConfirmation")}{" "}
+                  {/* <span className="font-semibold text-gray-900">
+                    {selectedUserForStatus?.fullName ||
+                      selectedUserForStatus?.email}
+                  </span> */}
                   <span className="font-semibold text-gray-900">
-                    {selectedUserForStatus?.fullName || selectedUserForStatus?.email}
+                    {selectedUserForStatus?.fullName &&
+                    selectedUserForStatus.fullName !== "-"
+                      ? selectedUserForStatus.fullName
+                      : selectedUserForStatus?.email}
                   </span>
-                  ? The user will be unable to access their account while deactivated.
+                  {t("deactivateConfirmationSuffix")}
                 </>
               ) : (
                 <>
-                  Are you sure you want to reactivate the account for{" "}
+                  {t("reactivateConfirmation")}{" "}
                   <span className="font-semibold text-gray-900">
-                    {selectedUserForStatus?.fullName || selectedUserForStatus?.email}
+                    {selectedUserForStatus?.fullName ||
+                      selectedUserForStatus?.email}
                   </span>
-                  ? The user will regain access to their account.
+                  {t("reactivateConfirmationSuffix")}
                 </>
               )}
             </p>
@@ -728,7 +772,8 @@ const UsersPermissionsPage = () => {
             {selectedUserForStatus?.isActive && (
               <div>
                 <label className="block text-sm font-medium text-[#1C2C56] mb-1">
-                  Deactivation Reason <span className="text-red-500">*</span>
+                  {t("deactivationReason")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={deactivationReason}
@@ -736,12 +781,15 @@ const UsersPermissionsPage = () => {
                     setDeactivationReason(e.target.value);
                     if (statusError) setStatusError("");
                   }}
-                  placeholder="Please enter the reason for deactivating this user..."
+                  placeholder={t("deactivationReasonPlaceholder")}
                   className="w-full border rounded-md p-2.5 text-sm h-28 resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  An email containing this reason will be automatically sent to{" "}
-                  <span className="font-medium">{selectedUserForStatus?.email}</span>.
+                  {t("reasonEmailNote")}{" "}
+                  <span className="font-medium">
+                    {selectedUserForStatus?.email}
+                  </span>
+                  .
                 </p>
               </div>
             )}
@@ -759,7 +807,7 @@ const UsersPermissionsPage = () => {
               }}
               className="bg-gray-100 rounded-lg px-4"
             >
-              Cancel
+              {t("cancel")}
             </Button>
 
             <Button
@@ -774,8 +822,8 @@ const UsersPermissionsPage = () => {
               }`}
             >
               {selectedUserForStatus?.isActive
-                ? "Deactivate User & Send Email"
-                : "Reactivate User"}
+                ? t("deactivateAndSendEmail")
+                : t("reactivateUser")}
             </Button>
           </div>
         </div>

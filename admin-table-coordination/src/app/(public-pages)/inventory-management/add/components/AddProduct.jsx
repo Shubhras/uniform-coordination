@@ -23,6 +23,11 @@ import {
   apiUpdateProduct,
   apiGetProductDetails,
 } from "@/services/ProductService";
+import {
+  TableShapesService,
+  StylesService,
+  SizesService,
+} from "@/services/AttributeService";
 import { useTranslations } from "next-intl";
 
 const AddProduct = () => {
@@ -50,6 +55,29 @@ const AddProduct = () => {
   const [colorList, setColorList] = useState([]);
   const [color, setColor] = useState(null);
   const [errors, setErrors] = useState({});
+  const [tableShapeList, setTableShapeList] = useState([]);
+  const [styleList, setStyleList] = useState([]);
+  const [sizeList, setSizeList] = useState([]);
+
+  const [tableShape, setTableShape] = useState(null);
+  const [style, setStyle] = useState(null);
+  const [size, setSize] = useState(null);
+
+  const tableShapeOptions = tableShapeList.map((item) => ({
+    value: item.id,
+    label: item.name,
+  }));
+
+  const styleOptions = styleList.map((item) => ({
+    value: item.id,
+    label: item.name,
+  }));
+
+  const sizeOptions = sizeList.map((item) => ({
+    value: item.id,
+    label: item.name,
+  }));
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -176,6 +204,36 @@ const AddProduct = () => {
 
     if (accessToken) {
       fetchColors();
+    }
+  }, [accessToken]);
+
+  useEffect(() => {
+    const fetchAttributes = async () => {
+      try {
+        const [shapeRes, styleRes, sizeRes] = await Promise.all([
+          TableShapesService.list(accessToken, 1, 100),
+          StylesService.list(accessToken, 1, 100),
+          SizesService.list(accessToken, 1, 100),
+        ]);
+
+        if (shapeRes?.status && shapeRes?.data) {
+          setTableShapeList(shapeRes.data);
+        }
+
+        if (styleRes?.status && styleRes?.data) {
+          setStyleList(styleRes.data);
+        }
+
+        if (sizeRes?.status && sizeRes?.data) {
+          setSizeList(sizeRes.data);
+        }
+      } catch (error) {
+        console.log("Attribute List Error:", error);
+      }
+    };
+
+    if (accessToken) {
+      fetchAttributes();
     }
   }, [accessToken]);
 
@@ -465,7 +523,6 @@ const AddProduct = () => {
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
               {t("tableShape")}
             </label>
-
             <div className="relative">
               <select className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 appearance-none outline-none focus:border-[#A85A32]">
                 <option>{t("round")}</option>
@@ -473,12 +530,44 @@ const AddProduct = () => {
                 <option>{t("square")}</option>
                 <option>{t("oval")}</option>
               </select>
-
               <FiChevronDown
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7A6C]"
                 size={18}
               />
             </div>
+            {/* <div>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
+                {t("tableShape")}
+              </label>
+
+              <div className="relative">
+                <select
+                  value={formData.tableShape}
+                  onChange={(e) => {
+                    handleChange("tableShape", e.target.value);
+
+                    setErrors((prev) => ({
+                      ...prev,
+                      tableShape: "",
+                    }));
+                  }}
+                  className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 pr-10 appearance-none outline-none focus:border-[#A85A32] text-[#2C1A0E]"
+                >
+                  <option value="">Select Table Shape</option>
+
+                  {tableShapeList.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+
+                <FiChevronDown
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7A6C] pointer-events-none"
+                  size={18}
+                />
+              </div>
+            </div> */}
           </div>
 
           {/* Style */}
@@ -494,13 +583,40 @@ const AddProduct = () => {
                 <option>{t("luxury")}</option>
                 <option>{t("modern")}</option>
               </select>
-
-              <FiChevronDown
+               <FiChevronDown
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7A6C]"
                 size={18}
               />
             </div>
           </div>
+          {/* <div>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
+              {t("style")}
+            </label>
+
+            <div className="relative">
+              <select
+                value={formData.style}
+                onChange={(e) => {
+                  handleChange("style", e.target.value);
+                }}
+                className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 pr-10 appearance-none outline-none focus:border-[#A85A32] text-[#2C1A0E]"
+              >
+                <option value="">Select Style</option>
+
+                {styleList.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+
+              <FiChevronDown
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7A6C] pointer-events-none"
+                size={18}
+              />
+            </div>
+          </div> */}
 
           {/* Fabric */}
           <div>
@@ -555,6 +671,43 @@ const AddProduct = () => {
           </div>
 
           {/* Table Size */}
+          {/* <div>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
+              {t("tableSize")}
+            </label>
+
+            <div className="relative">
+              <select
+                value={formData.size}
+                onChange={(e) => {
+                  handleChange("size", e.target.value);
+
+                  setErrors((prev) => ({
+                    ...prev,
+                    size: "",
+                  }));
+                }}
+                className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 pr-10 appearance-none outline-none focus:border-[#A85A32] bg-[#FCFAF8] text-[#2C1A0E]"
+              >
+                <option value="">Select Table Size</option>
+
+                {sizeList.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+
+              <FiChevronDown
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7A6C] pointer-events-none"
+                size={18}
+              />
+            </div>
+
+            {errors.size && (
+              <p className="text-red-500 text-sm mt-1">{errors.size}</p>
+            )}
+          </div> */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
               {t("tableSize")}
@@ -572,7 +725,7 @@ const AddProduct = () => {
                     size: "",
                   }));
                 }}
-              placeholder={t("tableSizePlaceholder")}
+                placeholder={t("tableSizePlaceholder")}
                 className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 pr-10 outline-none focus:border-[#A85A32]"
               />
               {errors.size && (
@@ -689,9 +842,7 @@ const AddProduct = () => {
             {t("uploadImage")}
           </h3>
 
-          <p className="text-[13px] text-[#9E8D80] mt-1">
-            {t("imageHint")}
-          </p>
+          <p className="text-[13px] text-[#9E8D80] mt-1">{t("imageHint")}</p>
 
           <label className="mt-5 cursor-pointer">
             <input

@@ -55,9 +55,20 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
   ];
 
   const statusConfig = {
+    // pending: {
+    //   action: t("markAsShippedAction"),
+    // },
+    // processing: {
+    //   action: t("markAsDeliveredAction"),
+    // },
     pending: {
+      action: t("markAsConfirmedAction"),
+    },
+
+    confirmed: {
       action: t("markAsShippedAction"),
     },
+
     processing: {
       action: t("markAsDeliveredAction"),
     },
@@ -119,12 +130,13 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
               <span
                 className={`px-3 py-1 rounded-lg border text-xs font-semibold capitalize
-    ${order?.status === "completed"
-                    ? "bg-[#E9F9F0] text-[#22A06B] border-[#22A06B]"
-                    : order?.status === "pending"
-                      ? "bg-[#FFF4E5] text-[#BB4D00] border-[#FEE685]"
-                      : "bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]"
-                  }`}
+    ${
+      order?.status === "completed"
+        ? "bg-[#E9F9F0] text-[#22A06B] border-[#22A06B]"
+        : order?.status === "pending"
+          ? "bg-[#FFF4E5] text-[#BB4D00] border-[#FEE685]"
+          : "bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]"
+    }`}
               >
                 {order?.status}
               </span>
@@ -236,11 +248,17 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
               <table className="w-full text-sm">
                 <thead className="bg-[#F1F5F9] text-[#486284]">
                   <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                    <th className="text-left px-4 py-3 font-medium">{t("item")}</th>
+                    <th className="text-left px-4 py-3 font-medium">
+                      {t("item")}
+                    </th>
 
-                    <th className="text-left px-2 py-3 font-medium">{t("qty")}</th>
+                    <th className="text-left px-2 py-3 font-medium">
+                      {t("qty")}
+                    </th>
 
-                    <th className="text-left px-4 py-3 font-medium">{t("days")}</th>
+                    <th className="text-left px-4 py-3 font-medium">
+                      {t("days")}
+                    </th>
 
                     <th className="text-left px-4 py-3 font-medium">
                       {t("unitPrice")}
@@ -277,10 +295,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
                       <td className="px-4 py-3">{item.rental_days}d</td>
 
-                      <td className="px-4 py-3">
-
-                        ${item.price_per_day}
-                      </td>
+                      <td className="px-4 py-3">${item.price_per_day}</td>
 
                       <td className="px-4 py-3 font-semibold text-[#1A1714]">
                         ${item.subtotal}
@@ -317,16 +332,12 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
               <div className="flex justify-between">
                 <span className="text-[#7A6E66]">{t("subtotal")}</span>
-                <span>
-                  ${order?.payment_summary?.subtotal}
-                </span>
+                <span>${order?.payment_summary?.subtotal}</span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-[#7A6E66]">{t("deliveryFee")}</span>
-                <span>
-                  ${order?.payment_summary?.shipping_charge}
-                </span>
+                <span>${order?.payment_summary?.shipping_charge}</span>
               </div>
 
               {/* <div className="flex justify-between">
@@ -346,7 +357,9 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
             </div>
 
             <div className="mt-7">
-              <p className="text-[13px] text-[#7A6E66] mb-2">{t("paymentMethod")}</p>
+              <p className="text-[13px] text-[#7A6E66] mb-2">
+                {t("paymentMethod")}
+              </p>
 
               <div className="border rounded-lg p-3 h-10 flex items-center gap-3">
                 <FiCreditCard />
@@ -362,10 +375,11 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                 </p>
 
                 <span
-                  className={`px-3 py-1 rounded-md text-[11px] font-semibold uppercase ${order?.payment_summary?.payment_status === "success"
-                    ? "bg-[#EAF9F0] text-[#22A06B] border border-[#B7E8C9]"
-                    : "bg-[#FEE2E2] text-[#DC2626]"
-                    }`}
+                  className={`px-3 py-1 rounded-md text-[11px] font-semibold uppercase ${
+                    order?.payment_summary?.payment_status === "success"
+                      ? "bg-[#EAF9F0] text-[#22A06B] border border-[#B7E8C9]"
+                      : "bg-[#FEE2E2] text-[#DC2626]"
+                  }`}
                 >
                   {order?.payment_summary?.payment_status === "success"
                     ? t("paid")
