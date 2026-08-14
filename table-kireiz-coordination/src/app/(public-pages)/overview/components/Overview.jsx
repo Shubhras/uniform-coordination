@@ -225,7 +225,7 @@ const Overview = () => {
                                             {cartItems.map((item, index) => {
                                                 const itemName = item?.name || item?.product_name || `Item ${index + 1}`
                                                 const itemQty = item?.quantity || 1
-                                                const itemPrice = item?.total_price || item?.price || 0
+                                                const itemPrice = item?.subtotal ?? item?.total_price ?? item?.price ?? 0
                                                 const itemThumb = item?.product_image || item?.thumbnail || item?.image
 
                                                 return (
@@ -278,12 +278,15 @@ const Overview = () => {
                                                 </div>
                                             )}
 
-                                            {cartSummary?.amount !== undefined && cartSummary?.amount !== null && Number(cartSummary.amount) > 0 && (
-                                                <div className="flex justify-between text-base text-green-600 font-medium">
-                                                    <span>Discount:</span>
-                                                    <span>-${Number(cartSummary.amount).toLocaleString()}</span>
-                                                </div>
-                                            )}
+                                            {(() => {
+                                                const discountVal = cartSummary?.discount ?? cartSummary?.promo_discount ?? cartSummary?.promo_amount ?? cartSummary?.amount
+                                                return discountVal !== undefined && discountVal !== null && Number(discountVal) > 0 ? (
+                                                    <div className="flex justify-between text-base text-green-600 font-medium">
+                                                        <span>Discount:</span>
+                                                        <span>-${Number(discountVal).toLocaleString()}</span>
+                                                    </div>
+                                                ) : null
+                                            })()}
 
                                             {cartSummary?.tax !== undefined && cartSummary?.tax !== null && (
                                                 <div className="flex justify-between text-base text-[#374151] font-medium">

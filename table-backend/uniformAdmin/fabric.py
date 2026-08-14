@@ -70,23 +70,7 @@ class FabricCreateView(APIView):
                 return Response(response)
 
 
-            # ONLY ADDITION STARTS HERE
-            if "theme" in serializer.errors:
-                error_msg = serializer.errors["theme"][0]
 
-                if "not allowed" in error_msg:
-                    return Response({
-                        "status": False,
-                        "statusCode": 400,
-                        "message": "Theme is not allowed for Uniform"
-                    }, status=status.HTTP_200_OK)
-
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "message": "Validation failed;Please Select Themes"
-                }, status=status.HTTP_200_OK)
-            # ONLY ADDITION ENDS HERE
 
             response = {
                 "statusCode": 400,

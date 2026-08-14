@@ -2135,8 +2135,13 @@ class UserDetailAPIView(APIView):
             # -------------------------
             # Filter by Role
             # -------------------------
-            if role_id:
-                users = users.filter(role_id=role_id)
+            # if role_id:
+            #     users = users.filter(role_id=role_id)
+
+            role_name = request.query_params.get("role")
+
+            if role_name:
+                users = users.filter(role__name__iexact=role_name)     
 
             # -------------------------
             # Filter by User Type

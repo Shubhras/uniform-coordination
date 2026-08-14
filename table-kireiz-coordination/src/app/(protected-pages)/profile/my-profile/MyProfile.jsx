@@ -363,7 +363,7 @@ const MyProfile = () => {
           {/* Linked Orders List */}
           <div className="px-6 py-4">
             <p className="text-[12px] font-semibold text-[#484848] mb-3">
-              Linked Quotes & Orders
+              Linked Orders
             </p>
 
             <div className="space-y-2">
