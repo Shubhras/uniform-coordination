@@ -21,7 +21,7 @@ import {
   FiImage,
   FiBookmark,
   FiCreditCard,
-  FiLayers,FiCreditCard
+  FiLayers,
 } from "react-icons/fi";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { MdPayment } from "react-icons/md";
