@@ -197,14 +197,14 @@ class FabricSerializer(serializers.ModelSerializer):
     subcategory = SubCategoryMiniSerializer(read_only=True)
 
     category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        queryset=Category.objects.filter(isDeleted=False),
         source="category",
         write_only=True,
         required=False,
         allow_null=True
     )
     subcategory_id = serializers.PrimaryKeyRelatedField(
-        queryset=SubCategory.objects.filter(isActive=True, isDeleted=False),
+        queryset=SubCategory.objects.filter(isDeleted=False),
         source="subcategory",
         write_only=True,
         required=False,
@@ -265,14 +265,14 @@ class PartsSerializer(serializers.ModelSerializer):
     subcategory = SubCategoryMiniSerializer(read_only=True)
 
     category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        queryset=Category.objects.filter(isDeleted=False),
         source="category",
         write_only=True,
         required=False,
         allow_null=True
     )
     subcategory_id = serializers.PrimaryKeyRelatedField(
-        queryset=SubCategory.objects.filter(isActive=True, isDeleted=False),
+        queryset=SubCategory.objects.filter(isDeleted=False),
         source="subcategory",
         write_only=True,
         required=False,
@@ -1260,21 +1260,23 @@ class ProductSerializer(serializers.ModelSerializer):
     ProductImage_file = serializers.ImageField(write_only=True, required=False) 
  
     category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.filter(isActive=True, isDeleted=False),
+        queryset=Category.objects.filter(isDeleted=False),
         source="category",
         write_only=True,
-        required=False
+        required=False,
+        allow_null=True
     )
  
     subcategory_id = serializers.PrimaryKeyRelatedField(
-        queryset=SubCategory.objects.filter(isActive=True, isDeleted=False),
+        queryset=SubCategory.objects.filter(isDeleted=False),
         source="subcategory",
         write_only=True,
-        required=False
+        required=False,
+        allow_null=True
     )
  
     parts_ids = serializers.PrimaryKeyRelatedField(
-        queryset=Parts.objects.filter(isActive=True, isDeleted=False),
+        queryset=Parts.objects.filter(isDeleted=False),
         source="parts",
         many=True,
         write_only=True,
