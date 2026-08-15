@@ -115,15 +115,24 @@ const SavedSimulations = () => {
     
     const badges = [];
 
-    if (specs.color || config.color) badges.push(`Color: ${specs.color || config.color}`);
-    if (specs.fabric || config.fabric) badges.push(`Fabric: ${specs.fabric || config.fabric}`);
-    if (specs.table_shape || config.table_shape) badges.push(`Shape: ${specs.table_shape || config.table_shape}`);
-    if (specs.size || config.size) badges.push(`Size: ${specs.size || config.size}`);
-    if (specs.seating || config.seating) badges.push(`Seating: ${specs.seating || config.seating}`);
+    const colorVal = specs.color || config.color;
+    if (colorVal && colorVal !== "N/A") badges.push(`Color: ${colorVal}`);
+
+    const fabricVal = specs.fabric || config.fabric;
+    if (fabricVal && fabricVal !== "N/A") badges.push(`Fabric: ${fabricVal}`);
+
+    const shapeVal = specs.table_shape || config.table_shape;
+    if (shapeVal && shapeVal !== "N/A") badges.push(`Shape: ${shapeVal}`);
+
+    const sizeVal = specs.size || config.size;
+    if (sizeVal && sizeVal !== "N/A") badges.push(`Size: ${sizeVal}`);
+
+    const seatingVal = specs.seating || config.seating;
+    if (seatingVal && seatingVal !== "N/A") badges.push(`Seating: ${seatingVal}`);
 
     if (badges.length === 0 && Object.keys(specs).length > 0) {
       Object.entries(specs).slice(0, 3).forEach(([key, val]) => {
-        if (typeof val === 'string' || typeof val === 'number') {
+        if ((typeof val === 'string' || typeof val === 'number') && val !== "N/A") {
           badges.push(`${key}: ${val}`);
         }
       });
@@ -493,16 +502,24 @@ const SavedSimulations = () => {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {Object.entries(selectedSimulation.design_specifications).map(([key, val]) => {
                       const displayVal = (() => {
-                        if (val === null || val === undefined || val === "") return "N/A";
+                        if (val === null || val === undefined || val === "" || val === "N/A") return null;
                         if (Array.isArray(val)) {
-                          if (val.length === 0) return "None";
-                          return val.map((v) => (typeof v === "object" ? v?.name || v?.categoryName || JSON.stringify(v) : String(v))).join(", ");
+                          if (val.length === 0) return null;
+                          const str = val
+                            .map((v) => (typeof v === "object" ? v?.name || v?.categoryName || JSON.stringify(v) : String(v)))
+                            .filter(Boolean)
+                            .join(", ");
+                          return (str && str !== "N/A") ? str : null;
                         }
                         if (typeof val === "object") {
-                          return val.categoryName || val.name || val.label || JSON.stringify(val);
+                          const res = val.categoryName || val.name || val.label || JSON.stringify(val);
+                          return (res && res !== "N/A") ? res : null;
                         }
-                        return String(val);
+                        const strVal = String(val).trim();
+                        return (strVal === "N/A" || strVal === "null" || strVal === "undefined") ? null : strVal;
                       })();
+
+                      if (!displayVal) return null;
 
                       return (
                         <div key={key} className="p-3 rounded-lg border border-[#EFE5DD] bg-white">
