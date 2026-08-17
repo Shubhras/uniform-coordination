@@ -317,7 +317,7 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
       <div className="mx-auto bg-[#EEF3FB] rounded-tr-[120px]">
         {/* TITLE */}
         <h2 className="text-center text-3xl font-semibold text-[#1C2C56] pt-14">
-          How KIREIZ Helps Your Business
+          How KIREIZ FORM Helps Your Business
         </h2>
 
         {/* TOP FEATURE CARDS (UNCHANGED) */}
