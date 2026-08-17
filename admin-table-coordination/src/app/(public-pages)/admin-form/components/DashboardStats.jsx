@@ -17,6 +17,7 @@ const DashboardStats = ({ data }) => {
   const availableInventory = data?.Available_Inventory ?? 0;
   const pendingQuotations = data?.Pending_Orders ?? 0;
   const activeRentals = data?.Active_Rentals ?? 0;
+  const upcomingReturns = data?.Upcoming_Returns ?? 0;
 
   const templates = data?.Templates?.total ?? 0;
 
@@ -25,7 +26,7 @@ const DashboardStats = ({ data }) => {
 
   return (
     <section className="w-full mt-5 px-5 md:px-8 lg:px-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
             <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
@@ -33,26 +34,6 @@ const DashboardStats = ({ data }) => {
             </p>
             <h2 className="text-[30px] font-bold mt-2">{availableInventory}</h2>
           </div>
-
-          {/* <div className="mt-4 flex items-center gap-2 text-sm">
-            {quoteChange >= 0 ? (
-              <>
-                <FiTrendingUp className="text-base text-green-400" />
-                <span className="font-medium text-green-400">
-                  {quoteChange}%
-                </span>
-                <span className="text-[#486284]">Up from yesterday</span>
-              </>
-            ) : (
-              <>
-                <FiTrendingDown className="text-base text-red-400" />
-                <span className="font-medium text-red-400">
-                  {Math.abs(quoteChange)}%
-                </span>
-                <span className="text-[#486284]">Down from yesterday</span>
-              </>
-            )}
-          </div> */}
         </div>
         <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
@@ -63,39 +44,26 @@ const DashboardStats = ({ data }) => {
           </div>
         </div>
 
-        {/* B2B Users */}
+        {/* Pending Orders */}
         <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
             <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
               {t("stats.pendingOrders")}
             </p>
             <h2 className="text-[30px] font-bold mt-2">
-              {" "}
-              {pendingQuotations}{" "}
+              {pendingQuotations}
             </h2>
           </div>
+        </div>
 
-          {/* {b2bChange !== 0 && (
-            <div className="mt-4 flex items-center gap-2 text-sm">
-              {b2bChange >= 0 ? (
-                <>
-                  <FiTrendingUp className="text-green-400" />
-                  <span className="text-green-400 font-medium">
-                    {b2bChange}%
-                  </span>
-                  <span className="text-[#486284]">Up from yesterday</span>
-                </>
-              ) : (
-                <>
-                  <FiTrendingDown className="text-red-400" />
-                  <span className="text-red-400 font-medium">
-                    {Math.abs(b2bChange)}%
-                  </span>
-                  <span className="text-[#486284]">Down from yesterday</span>
-                </>
-              )}
-            </div>
-          )} */}
+        {/* Upcoming Returns */}
+        <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
+          <div>
+            <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
+              {t("stats.upcomingReturns")}
+            </p>
+            <h2 className="text-[30px] font-bold mt-2">{upcomingReturns}</h2>
+          </div>
         </div>
       </div>
 

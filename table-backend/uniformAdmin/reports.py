@@ -11,7 +11,8 @@ from datetime import datetime
 
 from .fabric import IsAdministrator
 from .models import Product, CleaningItem, DamagedItem
-from userhub.models import Order, OrderItem, Rental, RentalItem, Users
+from userhub.models import Order, OrderItem, Rental, RentalItem, Users, Payment
+from django.db.models import Sum, Count, Q, F
 
 def get_months_ago_range(base_date, months_ago):
     year = base_date.year
@@ -84,7 +85,22 @@ class ReportsAnalyticsAPIView(APIView):
             # ---------------------------------------------------------
             # 2. KPI Metrics Calculations
             # ---------------------------------------------------------
-            total_revenue = orders_qs.aggregate(total=Sum('total_amount'))['total'] or 0.0
+            # Calculate total revenue based on successful paid order payments
+            paid_payments_qs = Payment.objects.filter(
+                payment_status='success',
+                order__is_deleted=False
+            )
+            if product_type in ['uniform', 'table']:
+                paid_payments_qs = paid_payments_qs.filter(order__order_type=product_type)
+            if is_date_filtered:
+                paid_payments_qs = paid_payments_qs.filter(order__created_at__date__range=[start_date, end_date])
+
+            total_revenue = paid_payments_qs.aggregate(total=Sum('amount'))['total'] or 0.0
+            
+            # Fallback if payments table has no records but orders are marked paid
+            if total_revenue == 0.0:
+                paid_orders_qs = orders_qs.filter(Q(is_paid=True) | Q(status__in=['confirmed', 'paid']))
+                total_revenue = paid_orders_qs.aggregate(total=Sum('total_amount'))['total'] or 0.0
             total_orders = orders_qs.count()
             active_rentals = rentals_qs.filter(status__in=['rented', 'late', 'partial_return']).count()
             inventory_items = products_qs.aggregate(total=Sum('total_quantity'))['total'] or 0

@@ -281,7 +281,8 @@
         "stats": {
             "availableInventory": "利用可能な在庫",
             "activeRentals": "進行中のレンタル",
-            "pendingOrders": "保留中の注文"
+            "pendingOrders": "保留中の注文",
+            "upcomingReturns": "今後の返却"
         },
         "mostRentedTheme": {
             "title": "最も利用されたテーマ",
