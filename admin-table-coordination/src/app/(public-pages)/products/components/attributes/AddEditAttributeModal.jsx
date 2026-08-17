@@ -12,7 +12,9 @@ const API_BASE = (
   process.env.NEXT_PUBLIC_IMAGE_URL ||
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   "http://127.0.0.1:8002"
-).replace(/\/api\/v1\/?$/, "").replace(/\/$/, "");
+)
+  .replace(/\/api\/v1\/?$/, "")
+  .replace(/\/$/, "");
 
 const getImageUrl = (path) => {
   if (!path) return "";
@@ -20,7 +22,11 @@ const getImageUrl = (path) => {
   if (clean.includes("table-admin.dxtspace.com")) {
     clean = clean.replace(/https?:\/\/table-admin\.dxtspace\.com/, "");
   }
-  if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("blob:")) {
+  if (
+    clean.startsWith("http://") ||
+    clean.startsWith("https://") ||
+    clean.startsWith("blob:")
+  ) {
     return clean;
   }
   const cleanPath = clean.startsWith("/") ? clean : `/${clean}`;
@@ -43,8 +49,8 @@ const selectStyles = {
     backgroundColor: state.isSelected
       ? "#A0522D"
       : state.isFocused
-      ? "#EEF2FF"
-      : "white",
+        ? "#EEF2FF"
+        : "white",
     color: state.isSelected ? "white" : "#1E293B",
     fontSize: "14px",
   }),
@@ -75,7 +81,23 @@ const AddEditAttributeModal = ({
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!name.trim()) {
+      newErrors.name = `${attributeTitle} name is required*`;
+    }
+
+    if (!category) {
+      newErrors.category = "Category is required*";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
 
   useEffect(() => {
     if (!accessToken || !isOpen) return;
@@ -112,7 +134,7 @@ const AddEditAttributeModal = ({
         setImageFile(null);
         setImagePreview("");
       }
-      setError("");
+      setErrors({});
     }
   }, [isOpen, mode, initialData, categoryOptions]);
 
@@ -128,15 +150,15 @@ const AddEditAttributeModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim()) {
-      setError(`Please enter a valid ${attributeTitle} name.`);
+
+    if (!validateForm()) {
       return;
     }
     if (!accessToken || !service) return;
 
     try {
       setLoading(true);
-      setError("");
+      setErrors({});
 
       const formData = new FormData();
       formData.append("name", name.trim());
@@ -195,11 +217,11 @@ const AddEditAttributeModal = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {error && (
+          {/* {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 text-xs p-3 rounded-lg">
               {error}
             </div>
-          )}
+          )} */}
 
           <div>
             <label className="block text-xs font-semibold text-[#1C2C56] mb-1">
@@ -208,13 +230,22 @@ const AddEditAttributeModal = ({
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  name: "",
+                }));
+              }}
               placeholder={t("enterName", {
                 attribute: attributeTitle.toLowerCase(),
               })}
               className="w-full border border-[#00345F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0522D]"
-              required
             />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            )}
           </div>
 
           <div>
@@ -225,18 +256,29 @@ const AddEditAttributeModal = ({
               options={categoryOptions}
               styles={selectStyles}
               value={category}
-              onChange={(selected) => setCategory(selected)}
+              onChange={(selected) => {
+                setCategory(selected);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  category: "",
+                }));
+              }}
               placeholder="Select Category"
               isClearable
               className="mt-1"
-              menuPortalTarget={typeof document !== "undefined" ? document.body : null}
+              menuPortalTarget={
+                typeof document !== "undefined" ? document.body : null
+              }
               menuPosition="fixed"
             />
+            {errors.category && (
+              <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+            )}
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-[#1C2C56] mb-1">
-              Image (Optional)
               {t("imageOptional")}
             </label>
             <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center relative hover:bg-gray-50 transition-colors">
