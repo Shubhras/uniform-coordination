@@ -205,17 +205,17 @@ const NotificationSetting = () => {
   }
 
   return (
-    <div className="w-full bg-white md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md border border-[#E2E8F0]">
+    <div className="w-full bg-white md:p-5 p-4 rounded-2xl max-w-7xl mx-auto shadow-md border border-[#E2E8F0]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#E2E8F0]">
         <div>
           <div className="flex items-center gap-2">
-            <IoNotificationsOutline size={24} className="text-[#A85A32]" />
-            <h3 className="text-xl font-bold text-[#1C2C56]">
+            {/* <IoNotificationsOutline size={24} className="text-[#A85A32]" /> */}
+            <h3 className="text-2xl font-bold text-[#1C2C56]">
               Notifications & Alerts
             </h3>
           </div>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500">
             Stay updated with your shipping, rentals, returns, and order activity
           </p>
         </div>
@@ -262,11 +262,11 @@ const NotificationSetting = () => {
 
                   {/* Content */}
                   <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <h4 className="font-bold text-sm text-[#1C2C56]">
+                    <div className="flex flex-wrap items-center gap-3 mb-1">
+                      <h4 className="text-[15px]">
                         {item.title}
                       </h4>
-                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${badge.color}`}>
+                      <span className={`text-[12px] font-semibold px-2 py-0.5 rounded-full border ${badge.color}`}>
                         {badge.label}
                       </span>
                       {!item.is_read && (
@@ -276,8 +276,8 @@ const NotificationSetting = () => {
                     <p className="text-sm text-gray-600 leading-snug">
                       {item.message || item.description}
                     </p>
-                    <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
-                      <IoTimeOutline size={13} />
+                    <p className="text-[13px] text-gray-500 mt-1.5 flex items-center gap-1">
+                      <IoTimeOutline size={14} />
                       {formatDate(item.created_at || item.time)}
                     </p>
                   </div>
@@ -305,7 +305,7 @@ const NotificationSetting = () => {
                     title="Delete notification"
                     className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
                   >
-                    <IoTrashOutline size={17} />
+                    <IoTrashOutline size={19} />
                   </button>
                 </div>
               </div>
