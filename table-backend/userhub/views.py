@@ -1591,11 +1591,21 @@ class ItemSummaryAPIView(APIView):
                     "discount": discount_amount
                 })
 
-            shipping = cart.shipping_amount if hasattr(cart, "shipping_amount") else 0
-            tax = cart.tax_amount if hasattr(cart, "tax_amount") else 0
-            fees = cart.fees_amount if hasattr(cart, "fees_amount") else 0
+            policy = RentalPolicySettings.load()
+            shipping = Decimal(str(policy.flat_shipping_fee or "0.00"))
+            taxable_amount = Decimal(subtotal) - Decimal(total_discount) + shipping
+            if taxable_amount < Decimal("0.00"):
+                taxable_amount = Decimal("0.00")
 
-            grand_total = subtotal + shipping + tax + fees
+            if policy.enable_consumption_tax:
+                tax_rate = Decimal(str(policy.tax_percentage or "0.00"))
+                tax = (taxable_amount * tax_rate) / Decimal("100")
+            else:
+                tax = Decimal("0.00")
+
+            fees = cart.fees_amount if hasattr(cart, "fees_amount") else Decimal("0.00")
+
+            grand_total = Decimal(subtotal) - Decimal(total_discount) + shipping + tax + Decimal(fees)
             total_products = cart_items.count()
 
             return Response({
@@ -1824,11 +1834,18 @@ class CreateOrderAPIView(APIView):
                     "message": "Total discount exceeds subtotal"
                 })
 
-            shipping_charge = getattr(settings, 'FLAT_ROUND_TRIP_SHIPPING_FEE', Decimal("150.00"))
+            policy = RentalPolicySettings.load()
+            shipping_charge = Decimal(str(policy.flat_shipping_fee or "0.00"))
             taxable_amount = subtotal - discount_amount + shipping_charge
-            if taxable_amount < 0:
+            if taxable_amount < Decimal("0.00"):
                 taxable_amount = Decimal("0.00")
-            tax_amount = (taxable_amount * Decimal("10")) / Decimal("100")
+
+            if policy.enable_consumption_tax:
+                tax_rate = Decimal(str(policy.tax_percentage or "0.00"))
+                tax_amount = (taxable_amount * tax_rate) / Decimal("100")
+            else:
+                tax_amount = Decimal("0.00")
+
             total_amount = subtotal - discount_amount + shipping_charge + tax_amount
 
             # Check if any cart item has an associated custom theme

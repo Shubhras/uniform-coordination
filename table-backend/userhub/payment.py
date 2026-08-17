@@ -772,7 +772,8 @@ class AdminPaymentListAPIView(APIView):
                     Q(order__user__firstName__icontains=search) |
                     Q(order__user__lastName__icontains=search) |
                     Q(order__customer__email__icontains=search) |
-                    Q(order__customer__name__icontains=search)
+                    Q(order__customer__first_name__icontains=search) |
+                    Q(order__customer__last_name__icontains=search)
                 )
 
             if status_param and status_param != "all":

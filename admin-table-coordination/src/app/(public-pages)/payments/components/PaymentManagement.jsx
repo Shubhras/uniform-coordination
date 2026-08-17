@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import Pagination from "@/components/ui/Pagination";
 import {
   FiDollarSign,
   FiCreditCard,
@@ -49,26 +50,32 @@ export default function PaymentManagement() {
   const [paymentSummary, setPaymentSummary] = useState(null);
   const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [paymentSearch, setPaymentSearch] = useState("");
+  const [debouncedPaymentSearch, setDebouncedPaymentSearch] = useState("");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
   const [paymentPage, setPaymentPage] = useState(1);
   const [paymentTotalPages, setPaymentTotalPages] = useState(1);
+  const [paymentTotalItems, setPaymentTotalItems] = useState(0);
 
   // State for Refunds
   const [refunds, setRefunds] = useState([]);
   const [refundsLoading, setRefundsLoading] = useState(false);
   const [refundSearch, setRefundSearch] = useState("");
+  const [debouncedRefundSearch, setDebouncedRefundSearch] = useState("");
   const [refundStatusFilter, setRefundStatusFilter] = useState("all");
   const [refundPage, setRefundPage] = useState(1);
   const [refundTotalPages, setRefundTotalPages] = useState(1);
+  const [refundTotalItems, setRefundTotalItems] = useState(0);
 
   // State for Promocodes & Coupons
   const [promocodes, setPromocodes] = useState([]);
   const [promocodesLoading, setPromocodesLoading] = useState(false);
   const [promocodeSearch, setPromocodeSearch] = useState("");
+  const [debouncedPromocodeSearch, setDebouncedPromocodeSearch] = useState("");
   const [promocodeStatusFilter, setPromocodeStatusFilter] = useState("all");
   const [promocodeTypeFilter, setPromocodeTypeFilter] = useState("all");
   const [promocodePage, setPromocodePage] = useState(1);
   const [promocodeTotalPages, setPromocodeTotalPages] = useState(1);
+  const [promocodeTotalItems, setPromocodeTotalItems] = useState(0);
 
   // Modals & Action States
   const [selectedPayment, setSelectedPayment] = useState(null);
@@ -104,6 +111,31 @@ export default function PaymentManagement() {
   });
   const [promoSubmitting, setPromoSubmitting] = useState(false);
 
+  // Debounce search inputs
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedPaymentSearch(paymentSearch);
+      setPaymentPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [paymentSearch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedRefundSearch(refundSearch);
+      setRefundPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [refundSearch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedPromocodeSearch(promocodeSearch);
+      setPromocodePage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [promocodeSearch]);
+
   // Toast Helper
   const showToast = (message, type = "success") => {
     setNotification({ show: true, message, type });
@@ -124,7 +156,7 @@ export default function PaymentManagement() {
       const res = await apiGetAdminPayments(accessToken, {
         page: paymentPage,
         pageSize: 10,
-        search: paymentSearch,
+        search: debouncedPaymentSearch,
         status: paymentStatusFilter === "all" ? "" : paymentStatusFilter,
       });
       if (res) {
@@ -153,8 +185,12 @@ export default function PaymentManagement() {
         }
         if (res.pagination) {
           setPaymentTotalPages(res.pagination.total_pages || 1);
+          setPaymentTotalItems(res.pagination.total_items || 0);
         } else if (res.count) {
           setPaymentTotalPages(Math.ceil(res.count / 10) || 1);
+          setPaymentTotalItems(res.count || 0);
+        } else {
+          setPaymentTotalItems(paymentList.length);
         }
       }
     } catch (err) {
@@ -162,7 +198,7 @@ export default function PaymentManagement() {
     } finally {
       setPaymentsLoading(false);
     }
-  }, [accessToken, paymentPage, paymentSearch, paymentStatusFilter]);
+  }, [accessToken, paymentPage, debouncedPaymentSearch, paymentStatusFilter]);
 
   // Fetch Refunds
   const fetchRefunds = useCallback(async () => {
@@ -172,19 +208,28 @@ export default function PaymentManagement() {
       const res = await apiGetAdminRefunds(accessToken, {
         page: refundPage,
         pageSize: 10,
-        search: refundSearch,
+        search: debouncedRefundSearch,
         status: refundStatusFilter === "all" ? "" : refundStatusFilter,
       });
       if (res) {
-        setRefunds(res.data || (Array.isArray(res) ? res : []));
-        if (res.pagination) setRefundTotalPages(res.pagination.total_pages || 1);
+        const refundList = res.data || (Array.isArray(res) ? res : []);
+        setRefunds(refundList);
+        if (res.pagination) {
+          setRefundTotalPages(res.pagination.total_pages || 1);
+          setRefundTotalItems(res.pagination.total_items || 0);
+        } else if (res.count) {
+          setRefundTotalPages(Math.ceil(res.count / 10) || 1);
+          setRefundTotalItems(res.count || 0);
+        } else {
+          setRefundTotalItems(refundList.length);
+        }
       }
     } catch (err) {
       console.error("Error fetching refunds:", err);
     } finally {
       setRefundsLoading(false);
     }
-  }, [accessToken, refundPage, refundSearch, refundStatusFilter]);
+  }, [accessToken, refundPage, debouncedRefundSearch, refundStatusFilter]);
 
   // Fetch Promocodes
   const fetchPromocodes = useCallback(async () => {
@@ -194,20 +239,29 @@ export default function PaymentManagement() {
       const res = await apiGetPromocodes(accessToken, {
         page: promocodePage,
         pageSize: 10,
-        search: promocodeSearch,
+        search: debouncedPromocodeSearch,
         status: promocodeStatusFilter === "all" ? "" : promocodeStatusFilter,
         type: promocodeTypeFilter === "all" ? "" : promocodeTypeFilter,
       });
       if (res) {
-        setPromocodes(res.data || (Array.isArray(res) ? res : []));
-        if (res.pagination) setPromocodeTotalPages(res.pagination.total_pages || 1);
+        const promoList = res.data || (Array.isArray(res) ? res : []);
+        setPromocodes(promoList);
+        if (res.pagination) {
+          setPromocodeTotalPages(res.pagination.total_pages || 1);
+          setPromocodeTotalItems(res.pagination.total_items || 0);
+        } else if (res.count) {
+          setPromocodeTotalPages(Math.ceil(res.count / 10) || 1);
+          setPromocodeTotalItems(res.count || 0);
+        } else {
+          setPromocodeTotalItems(promoList.length);
+        }
       }
     } catch (err) {
       console.error("Error fetching promocodes:", err);
     } finally {
       setPromocodesLoading(false);
     }
-  }, [accessToken, promocodePage, promocodeSearch, promocodeStatusFilter, promocodeTypeFilter]);
+  }, [accessToken, promocodePage, debouncedPromocodeSearch, promocodeStatusFilter, promocodeTypeFilter]);
 
   useEffect(() => {
     fetchPayments();
@@ -809,26 +863,13 @@ export default function PaymentManagement() {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between pt-2 text-sm text-gray-500">
-            <span>
-              Page {paymentPage} of {paymentTotalPages}
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPaymentPage((p) => Math.max(1, p - 1))}
-                disabled={paymentPage === 1}
-                className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
-                <FiChevronLeft />
-              </button>
-              <button
-                onClick={() => setPaymentPage((p) => Math.min(paymentTotalPages, p + 1))}
-                disabled={paymentPage >= paymentTotalPages}
-                className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
-                <FiChevronRight />
-              </button>
-            </div>
+          <div className="flex justify-end mt-3 px-2">
+            <Pagination
+              currentPage={paymentPage}
+              pageSize={10}
+              total={paymentTotalItems}
+              onChange={(page) => setPaymentPage(page)}
+            />
           </div>
         </div>
       )}
@@ -941,26 +982,13 @@ export default function PaymentManagement() {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between pt-2 text-sm text-gray-500">
-            <span>
-              Page {refundPage} of {refundTotalPages}
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setRefundPage((p) => Math.max(1, p - 1))}
-                disabled={refundPage === 1}
-                className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-40"
-              >
-                <FiChevronLeft />
-              </button>
-              <button
-                onClick={() => setRefundPage((p) => Math.min(refundTotalPages, p + 1))}
-                disabled={refundPage >= refundTotalPages}
-                className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-40"
-              >
-                <FiChevronRight />
-              </button>
-            </div>
+          <div className="flex justify-end mt-3 px-2">
+            <Pagination
+              currentPage={refundPage}
+              pageSize={10}
+              total={refundTotalItems}
+              onChange={(page) => setRefundPage(page)}
+            />
           </div>
         </div>
       )}
@@ -1123,6 +1151,16 @@ export default function PaymentManagement() {
               ))
             )}
           </div>
+
+          {/* Pagination */}
+          <div className="flex justify-end mt-3 px-2">
+            <Pagination
+              currentPage={promocodePage}
+              pageSize={10}
+              total={promocodeTotalItems}
+              onChange={(page) => setPromocodePage(page)}
+            />
+          </div>
         </div>
       )}
 
@@ -1211,6 +1249,16 @@ export default function PaymentManagement() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="flex justify-end mt-3 px-2">
+            <Pagination
+              currentPage={paymentPage}
+              pageSize={10}
+              total={paymentTotalItems}
+              onChange={(page) => setPaymentPage(page)}
+            />
           </div>
         </div>
       )}
