@@ -373,6 +373,11 @@ class ClosureSerializer(serializers.ModelSerializer):
         model = Closure
         fields = ["id", "name", "category", "category_id", "image", "isActive", "isDeleted", "created_at", "updated_at"]
 
+    def create(self, validated_data):
+        if "isActive" not in self.initial_data:
+            validated_data["isActive"] = True
+        return super().create(validated_data)    
+
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         request = self.context.get("request")
@@ -398,6 +403,12 @@ class StyleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Style
         fields = ["id", "name", "category", "category_id", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+
+
+    def create(self, validated_data):
+        if "isActive" not in self.initial_data:
+            validated_data["isActive"] = True
+        return super().create(validated_data)    
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -425,6 +436,11 @@ class SizeSerializer(serializers.ModelSerializer):
         model = Size
         fields = ["id", "name", "category", "category_id", "image", "isActive", "isDeleted", "created_at", "updated_at"]
 
+    def create(self, validated_data):
+        if "isActive" not in self.initial_data:
+            validated_data["isActive"] = True
+        return super().create(validated_data)    
+
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         request = self.context.get("request")
@@ -450,6 +466,12 @@ class PatternSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pattern
         fields = ["id", "name", "category", "category_id", "image", "isActive", "isDeleted", "created_at", "updated_at"]
+    
+
+    def create(self, validated_data):
+        if "isActive" not in self.initial_data:
+            validated_data["isActive"] = True
+        return super().create(validated_data)    
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -490,76 +512,6 @@ class TemplateSerializer(serializers.ModelSerializer):
         return value
 
 
-# correct 
-# class BlogSerializer(serializers.ModelSerializer):
-#     categoryName = serializers.CharField(
-#         source="category.categoryName",
-#         read_only=True
-#     )
-
-#     #  WRITE image to DB
-#     image = serializers.ImageField(required=False, allow_null=True)
-#     slug = serializers.SerializerMethodField()
-#     isActive = serializers.BooleanField(default=True)
-
-#     class Meta:
-#         model = Blog
-#         fields = [
-#             "id",
-#             "title",
-#             "slug",
-#             "category",
-#             "categoryName",
-#             "type",
-#             "image",        #  ONLY ONE image field
-#             "description",
-#             "isActive",
-#             "created_at",
-#             "updated_at",
-#         ]
-
-#     # -----------------------------
-#     # Replace dash (-) with underscore (_)
-#     # -----------------------------
-#     def get_slug(self, obj):
-#         if obj.slug:
-#             return obj.slug.replace("-", "_")
-#         return None
-
-#     # -----------------------------
-#     # Return ABSOLUTE image URL using SAME field
-#     # -----------------------------
-#     def to_representation(self, instance):
-#         data = super().to_representation(instance)
-#         request = self.context.get("request")
-
-#         if instance.image:
-#             image_name = instance.image.name
-#             if image_name.startswith("http://") or image_name.startswith("https://"):
-#                 data["image"] = image_name
-#             elif request:
-#                 data["image"] = request.build_absolute_uri(instance.image.url)
-#             else:
-#                 data["image"] = instance.image.url
-#         else:
-#             data["image"] = None
-
-#         return data
-
-#     # def validate_title(self, value):
-#     #     if not value.strip():
-#     #         raise serializers.ValidationError("Title is required.")
-#     #     return value
-
-#     def validate_title(self, value):
-#         qs = Blog.objects.filter(title__iexact=value,isDeleted=False)
-#         if self.instance:
-#             qs = qs.exclude(id=self.instance.id)
-
-#         if qs.exists():
-#             raise serializers.ValidationError("Blog with this title already exists.")
-
-#         return value
 
 # for new url /////////////////////////////
 
