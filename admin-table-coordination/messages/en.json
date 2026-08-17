@@ -316,6 +316,21 @@
             "viewDetails": "View Details",
             "allCaughtUp": "All caught up!",
             "allCaughtUpDesc": "No active alerts require your attention."
+        },
+        "recentOrders":{
+            "title":"Recent Orders (Today)",
+            "today":"Today",
+            "subtitle":"Orders placed by customers today",
+            "viewall":"View All",
+            "orderId":"Order ID",
+            "customer":"Customer",
+            "datetime":"Date & Time",
+            "amount":"Amount",
+            "status":"Status",
+            "action":"Action",
+            "details":"Details",
+            "noOrders":" No orders received today yet.",
+            "view": "View"
         }
     },
     "productSpecification": {

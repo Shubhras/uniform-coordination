@@ -316,7 +316,22 @@
             "viewDetails": "詳細を表示",
             "allCaughtUp": "すべて確認済みです",
             "allCaughtUpDesc": "対応が必要なアラートはありません。"
-        }
+        },
+        "recentOrders": {
+            "title": "最近の注文（今日）",
+            "today": "今日",
+            "subtitle": "今日お客様が行った注文",
+            "viewall": "すべて表示",
+            "orderId": "注文ID",
+            "customer": "顧客",
+            "datetime": "日付と時刻",
+            "amount": "金額",
+            "status": "ステータス",
+            "action": "アクション",
+            "details": "詳細",
+            "noOrders": "今日はまだ注文を受け付けていません。",
+            "view": "表示"
+}
     },
     "productSpecification": {
          "tabs": {
