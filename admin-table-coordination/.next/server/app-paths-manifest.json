@@ -1,0 +1,9 @@
+{
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/(public-pages)/pricing-packages/edit-pricing-rules/page": "app/(public-pages)/pricing-packages/edit-pricing-rules/page.js",
+  "/(public-pages)/pricing-packages/create-promotion/[id]/page": "app/(public-pages)/pricing-packages/create-promotion/[id]/page.js",
+  "/(public-pages)/pricing-packages/view/[promotionId]/page": "app/(public-pages)/pricing-packages/view/[promotionId]/page.js",
+  "/(public-pages)/pricing-packages/create-promotion/page": "app/(public-pages)/pricing-packages/create-promotion/page.js",
+  "/(public-pages)/payments/page": "app/(public-pages)/payments/page.js",
+  "/(public-pages)/pricing-packages/page": "app/(public-pages)/pricing-packages/page.js"
+}

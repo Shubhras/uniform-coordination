@@ -512,7 +512,7 @@ export default function PaymentManagement() {
   };
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-4 pb-6 px-3 py-3">
       {/* Toast Notification */}
       {notification.show && (
         <div
@@ -688,8 +688,8 @@ export default function PaymentManagement() {
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-                <thead className="bg-gray-50/50 dark:bg-gray-800/50 text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800">
-                  <tr>
+                <thead className="bg-[#F1F5F9] text-[#486284]">
+                  <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
                     <th className="px-6 py-3.5">Payment ID</th>
                     <th className="px-6 py-3.5">Order ID</th>
                     <th className="px-6 py-3.5">Method</th>

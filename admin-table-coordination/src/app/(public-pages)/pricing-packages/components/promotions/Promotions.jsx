@@ -155,9 +155,7 @@ const Promotions = () => {
             pType === "fixed amount" ||
             pType === "fix price";
         } else if (type.value === "discount") {
-          matchesType =
-            pType === "discount" ||
-            pType === "percentage";
+          matchesType = pType === "discount" || pType === "percentage";
         } else {
           matchesType = pType === type.value;
         }
@@ -301,7 +299,12 @@ const Promotions = () => {
                     <td className="px-4 py-3">{promotion.promocodeName}</td>
 
                     <td className="px-4 py-3 font-medium capitalize">
-                      {(promotion.promocodeType || "").replace("_", " ")}
+                      {/* {(promotion.promocodeType || "").replace("_", " ")} */}
+                      {promotion.promocodeType === "discount"
+                        ? "Percentage"
+                        : promotion.promocodeType === "fix_price"
+                          ? "Fixed Amount"
+                          : promotion.promocodeType || "-"}
                     </td>
 
                     <td className="px-4 py-3">${promotion.amount}</td>
