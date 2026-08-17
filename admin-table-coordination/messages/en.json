@@ -283,7 +283,8 @@
         "stats": {
             "availableInventory": "AVAILABLE INVENTORY",
             "activeRentals": "ACTIVE RENTALS",
-            "pendingOrders": "PENDING ORDERS"
+            "pendingOrders": "PENDING ORDERS",
+            "upcomingReturns": "UPCOMING RETURNS"
         },
         "mostRentedTheme": {
             "title": "Most Rented Theme",

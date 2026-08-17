@@ -33,17 +33,19 @@ const sidebarMenu = [
     path: "/admin-form",
     slug: "dashboard",
   },
+
   {
     label: "productSpecification",
     icon: FiBox,
-    path: "/simulation-assets",
-    slug: "simulation_assets",
+    path: "/products",
+    slug: "product_specification",
   },
+
   {
     label: "contentMedia",
     icon: FiImage,
-    path: "/media",
-    slug: "media_management",
+    path: "/contents",
+    slug: "content_media",
   },
   {
     label: "themeManagement",
@@ -239,7 +241,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
           {sidebarMenu.map((item) => {
             // Superadmins ('admin') see all menus; non-admins are filtered by permissions
             if (userRole && userRole !== 'admin') {
-              const hasPermission = userPermissions.some((permSlug) => 
+              const hasPermission = userPermissions.some((permSlug) =>
                 permSlug === item.slug ||
                 (item.slug === 'order_rentals' && permSlug === 'order_manage') ||
                 (item.slug === 'user_permission' && (permSlug === 'customer_sales_representative' || permSlug === 'users_permissions'))
@@ -263,11 +265,10 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
                                         rounded-lg text-sm font-medium
                                         transition-all duration-200 cursor-pointer
                                         ${collapsed ? "px-3 py-3 justify-center" : "px-3 py-2.5"}
-                                        ${
-                                          active
-                                            ? "bg-[#E1D1C7] text-[#3B3B3B] shadow-none"
-                                            : "text-[#3B3B3B] hover:bg-[#E1D1C7] hover:text-[#3B3B3B]"
-                                        }
+                                        ${active
+                      ? "bg-[#E1D1C7] text-[#3B3B3B] shadow-none"
+                      : "text-[#3B3B3B] hover:bg-[#E1D1C7] hover:text-[#3B3B3B]"
+                    }
                                     `}
                 >
                   <Icon

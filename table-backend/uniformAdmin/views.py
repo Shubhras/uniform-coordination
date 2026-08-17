@@ -1702,6 +1702,14 @@ class AdminDashAPIView(APIView):
             
             pending_orders = Order.objects.filter(status='pending', is_deleted=False).count()
             
+            today_date = today_dt.date()
+            tomorrow_date = today_date + timedelta(days=1)
+            upcoming_returns = Order.objects.filter(
+                Q(rental_end_date__gte=today_date, rental_end_date__lte=tomorrow_date) | Q(rental__end_date__gte=today_date, rental__end_date__lte=tomorrow_date),
+                is_deleted=False,
+                is_returned=False
+            ).exclude(status__in=['cancelled', 'returned']).distinct().count()
+            
             most_rented_themes_qs = (
                 RentalItem.objects
                 .filter(isDeleted=False, isActive=True, product__theme_associations__theme__isnull=False)
@@ -1782,6 +1790,7 @@ class AdminDashAPIView(APIView):
                     "Available_Inventory": available_inventory,
                     "Active_Rentals": active_rentals,
                     "Pending_Orders": pending_orders,
+                    "Upcoming_Returns": upcoming_returns,
                     "Most_Rented_Theme": most_rented_themes,
                     "Requests_This_Week": yearly_data,
                     "Orders_This_Week": orders_weekly_data,
