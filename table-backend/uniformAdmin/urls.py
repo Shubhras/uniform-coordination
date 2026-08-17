@@ -237,6 +237,7 @@ urlpatterns = [
     path("quotationstatus/admin/",QuotationStatusUpdateAPIView.as_view(), name = "QuotationStatus-post"),
 
     # path('order/update/<str:order_id>/', AdminOrderUpdateAPIView.as_view(), name='admin-order-update'),
+    path('refund/list/', AdminRefundListAPIView.as_view(), name='admin-refund-list'),
     path('refund/<int:refund_id>/', AdminRefundProcessAPIView.as_view(), name='admin-refund-process'),
     path('refund/',AdminOrderRefundAPI.as_view(),name='refund-process-order_id'),
     path("users/",UserDetailAPIView.as_view(),name="users-Detail"),  
@@ -332,5 +333,6 @@ urlpatterns = [
     path('product/toggle-simulation/', ProductSimulationVisibilityAPIView.as_view(), name='product-toggle-simulation'),
     path('simulation/options/', SimulationOptionsAPIView.as_view(), name='simulation-options'),
     path('simulation/categories/', SimulationCategoryListAPIView.as_view(), name='simulation-categories'),
+    path('simulations/saved/', AdminSavedSimulationsAPIView.as_view(), name='admin-saved-simulations'),
 ]
 

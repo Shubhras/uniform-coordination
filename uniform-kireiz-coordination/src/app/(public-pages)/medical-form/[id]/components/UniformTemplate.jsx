@@ -88,9 +88,10 @@ const UniformTemplate = () => {
      * itself — every product in the category can carry it.
      */
     const useTemplate = (item) => {
-        router.push(
-            `/dashboards/uniform-3d-design?category=${categoryId}&template=${item.id}`,
-        );
+        // router.push(
+        //     `/dashboards/uniform-3d-design?category=${categoryId}&template=${item.id}`,
+        // );
+        router.push(`/dashboards/uniform-3d-design`,);
     };
 
     return (

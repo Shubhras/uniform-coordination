@@ -381,9 +381,17 @@ class SystemSettingsSerializer(serializers.ModelSerializer):
             'email_footer_note',
             'admin_notification_emails',
             'notify_admin_on_new_request',
+            'notify_admin_on_new_registration',
+            'notify_admin_on_login',
             'notify_customer_on_registration',
             'notify_customer_on_request_received',
             'notify_customer_on_status_change',
+
+            # System Alerts tab
+            'alert_pending_review_enabled',
+            'alert_pending_review_sla_days',
+            'alert_awaiting_customer_enabled',
+            'alert_awaiting_customer_sla_days',
 
             'updated_at',
         ]

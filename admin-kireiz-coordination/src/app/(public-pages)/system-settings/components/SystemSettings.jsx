@@ -7,6 +7,7 @@ import Tabs from "./Tabs";
 import GeneralSettings from "./generalSettings/GeneralSettings";
 import PaymentSettings from "./paymentSettings/PaymentSettings";
 import EmailNotifications from "./emailNotifications/EmailNotifications";
+import SystemAlerts from "./systemAlerts/SystemAlerts";
 
 const SystemSettings = () => {
   const t = useTranslations("systemSettings");
@@ -18,6 +19,7 @@ const SystemSettings = () => {
   const [activeTab, setActiveTab] = useState(() => {
     if (tabFromUrl === "payment") return "Payment Settings";
     if (tabFromUrl === "notifications") return "Email & Notifications";
+    if (tabFromUrl === "alerts") return "System Alerts";
     return "General Settings";
   });
 
@@ -26,6 +28,8 @@ const SystemSettings = () => {
       setActiveTab("Payment Settings");
     } else if (tabFromUrl === "notifications") {
       setActiveTab("Email & Notifications");
+    } else if (tabFromUrl === "alerts") {
+      setActiveTab("System Alerts");
     } else if (tabFromUrl === "general") {
       setActiveTab("General Settings");
     }
@@ -36,6 +40,7 @@ const SystemSettings = () => {
     let slug = "general";
     if (tabName === "Payment Settings") slug = "payment";
     if (tabName === "Email & Notifications") slug = "notifications";
+    if (tabName === "System Alerts") slug = "alerts";
     router.push(`/system-settings?tab=${slug}`, { scroll: false });
   };
 
@@ -47,6 +52,8 @@ const SystemSettings = () => {
         return <PaymentSettings />;
       case "Email & Notifications":
         return <EmailNotifications />;
+      case "System Alerts":
+        return <SystemAlerts />;
       default:
         return null;
     }

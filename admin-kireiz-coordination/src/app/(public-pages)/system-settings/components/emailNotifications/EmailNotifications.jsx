@@ -71,6 +71,16 @@ const EmailNotifications = () => {
       hint: t("notifyNewQuotationRequestHint"),
     },
     {
+      name: "notify_admin_on_new_registration",
+      label: t("notifyNewUserRegistration"),
+      hint: t("notifyNewUserRegistrationHint"),
+    },
+    {
+      name: "notify_admin_on_login",
+      label: t("notifyAdminLogin"),
+      hint: t("notifyAdminLoginHint"),
+    },
+    {
       name: "notify_customer_on_registration",
       label: t("notifyRegistrationConfirmation"),
     },
@@ -110,6 +120,9 @@ const EmailNotifications = () => {
           email_reply_to: d.email_reply_to || "",
           email_footer_note: d.email_footer_note || "",
           notify_admin_on_new_request: d.notify_admin_on_new_request ?? true,
+          notify_admin_on_new_registration:
+            d.notify_admin_on_new_registration ?? true,
+          notify_admin_on_login: d.notify_admin_on_login ?? true,
           notify_customer_on_registration:
             d.notify_customer_on_registration ?? true,
           notify_customer_on_request_received:

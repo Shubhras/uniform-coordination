@@ -5,6 +5,7 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetDashboard } from "@/services/DashboardService";
 import HeroContent from "./HeroContent";
 import DashboardStats from "./DashboardStats";
+import RecentOrdersCard from "./RecentOrdersCard";
 import QuickActionsCard from "./QuickActionsCard";
 import RecentlyCards from "./RecentlyCards";
 import ActiveAlerts from "./ActiveAlerts";
@@ -64,14 +65,13 @@ const AdminHome = () => {
     <main className="text-base bg-white pb-20">
       <HeroContent data={dashboardData} />
       <DashboardStats data={dashboardData} />
+      <div className="mt-5 px-5 md:px-8 lg:px-8">
+        <RecentOrdersCard data={dashboardData} />
+      </div>
       <div className='mt-5 px-5 md:px-8 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-5'>
         <MostUsedIndustriesChart data={dashboardData} />
         <QuotationRequestsChart chartData={dashboardData?.Orders_This_Week} />
       </div>
-      {/* <div className=' mt-5 px-5 md:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-2 gap-5'>
-        <RecentlyCards data={dashboardData} />
-        <QuotationsByStatusChart data={dashboardData} />
-      </div> */}
       <div className="mt-5 px-5 md:px-8 lg:px-8">
         <QuickActionsCard />
       </div>

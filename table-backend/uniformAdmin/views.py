@@ -14,7 +14,7 @@ from django.contrib.auth.tokens import default_token_generator
 from uniformAdmin.fabric import CustomPagination
 from rest_framework.parsers import MultiPartParser, FormParser
 from .models import *
-from userhub.models import QuotationRequest
+from userhub.models import QuotationRequest, CustomUpdateModels, CustomUpdateThemes
 from userhub.serializers import QuotationRequestSerializer,userOrderSerializer
 from django.db.models import Q
 from .fabric import CustomPagination
@@ -23,14 +23,22 @@ import stripe
 from decimal import Decimal
 from django.db.models import Sum
 from django.utils.timezone import now
-# from .fabric import  IsAdministrator 
+from .fabric import IsAdministrator
 from .auth import IsAdminUserJWT
 from django.conf import settings
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractWeekDay
 stripe.api_key = settings.STRIPE_SECRET_KEY
-from .utils import render_quotation_template , generate_quotation_template_pdf, send_user_deactivation_email
-from userhub.utils import send_return_received_email, send_shipping_email
+from .utils import render_quotation_template, generate_quotation_template_pdf, send_user_deactivation_email, create_admin_notification
+from userhub.utils import (
+    create_user_notification,
+    send_return_received_email,
+    send_shipping_email,
+    send_rental_return_reminder_email,
+    send_return_not_received_email,
+    send_late_fee_email,
+    send_lost_item_compensation_email
+)
 from .auth import IsAdminUserJWT,MultiRoleJWTAuth
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 from userhub.views import get_docusign_token
@@ -1694,6 +1702,14 @@ class AdminDashAPIView(APIView):
             
             pending_orders = Order.objects.filter(status='pending', is_deleted=False).count()
             
+            today_date = today_dt.date()
+            tomorrow_date = today_date + timedelta(days=1)
+            upcoming_returns = Order.objects.filter(
+                Q(rental_end_date__gte=today_date, rental_end_date__lte=tomorrow_date) | Q(rental__end_date__gte=today_date, rental__end_date__lte=tomorrow_date),
+                is_deleted=False,
+                is_returned=False
+            ).exclude(status__in=['cancelled', 'returned']).distinct().count()
+            
             most_rented_themes_qs = (
                 RentalItem.objects
                 .filter(isDeleted=False, isActive=True, product__theme_associations__theme__isnull=False)
@@ -1723,6 +1739,39 @@ class AdminDashAPIView(APIView):
                 }
             }
 
+            # Fetch Recent Orders of Today
+            today_orders_qs = Order.objects.filter(created_at__date=today_dt.date(), is_deleted=False).select_related('customer', 'user').order_by('-created_at')
+            today_orders_count = today_orders_qs.count()
+
+            if today_orders_count == 0:
+                display_orders_qs = Order.objects.filter(is_deleted=False).select_related('customer', 'user').order_by('-created_at')[:5]
+            else:
+                display_orders_qs = today_orders_qs[:10]
+
+            recent_orders_list = []
+            for ord_item in display_orders_qs:
+                cust_name = ""
+                cust_email = ""
+                if getattr(ord_item, 'customer', None):
+                    cust_name = getattr(ord_item.customer, 'full_name', '') or getattr(ord_item.customer, 'name', '') or f"{getattr(ord_item.customer, 'first_name', '')} {getattr(ord_item.customer, 'last_name', '')}".strip()
+                    cust_email = getattr(ord_item.customer, 'email', '') or ""
+                elif getattr(ord_item, 'user', None):
+                    cust_name = getattr(ord_item.user, 'name', '') or f"{getattr(ord_item.user, 'first_name', '')} {getattr(ord_item.user, 'last_name', '')}".strip()
+                    cust_email = getattr(ord_item.user, 'email', '') or ""
+
+                recent_orders_list.append({
+                    "id": ord_item.id,
+                    "order_id": ord_item.order_id,
+                    "customer_name": cust_name or "Customer",
+                    "customer_email": cust_email,
+                    "total_amount": str(ord_item.total_amount or "0.00"),
+                    "currency": ord_item.currency or "USD",
+                    "status": ord_item.status or "pending",
+                    "is_paid": ord_item.is_paid,
+                    "created_at": ord_item.created_at.strftime("%Y-%m-%d %H:%M:%S") if ord_item.created_at else "",
+                    "formatted_date": ord_item.created_at.strftime("%b %d, %Y %I:%M %p") if ord_item.created_at else ""
+                })
+
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -1741,10 +1790,13 @@ class AdminDashAPIView(APIView):
                     "Available_Inventory": available_inventory,
                     "Active_Rentals": active_rentals,
                     "Pending_Orders": pending_orders,
+                    "Upcoming_Returns": upcoming_returns,
                     "Most_Rented_Theme": most_rented_themes,
                     "Requests_This_Week": yearly_data,
                     "Orders_This_Week": orders_weekly_data,
                     "Active_Alerts": active_alerts,
+                    "Recent_Orders_Today": recent_orders_list,
+                    "Today_Orders_Count": today_orders_count,
                 }
             }, status=status.HTTP_200_OK)
         except Exception as e:
@@ -1756,6 +1808,62 @@ class AdminDashAPIView(APIView):
                 "trace": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+class AdminRefundListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        try:
+            from userhub.models import Refund
+            from .serializers import AdminRefundSerializer
+
+            search = request.query_params.get("search", "").strip()
+            status_param = request.query_params.get("status", "").strip().lower()
+
+            refunds = Refund.objects.all()
+
+            if search:
+                refunds = refunds.filter(
+                    Q(order__order_id__icontains=search) |
+                    Q(user__username__icontains=search) |
+                    Q(user__email__icontains=search) |
+                    Q(reason__icontains=search)
+                )
+
+            if status_param and status_param != "all":
+                refunds = refunds.filter(status=status_param)
+
+            refunds = refunds.order_by('-created_at', '-id')
+
+            paginator = CustomPagination()
+            page = paginator.paginate_queryset(refunds, request)
+            serializer = AdminRefundSerializer(page, many=True)
+
+            return Response({
+                "count": paginator.page.paginator.count,
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link(),
+                "statusCode": 200,
+                "status": True,
+                "message": "Refund list fetched successfully.",
+                "data": serializer.data,
+                "pagination": {
+                    "page": paginator.page.number,
+                    "page_size": paginator.get_page_size(request),
+                    "total_pages": paginator.page.paginator.num_pages,
+                    "total_items": paginator.page.paginator.count
+                }
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Something went wrong",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class AdminRefundProcessAPIView(APIView):
@@ -2529,17 +2637,100 @@ class AdminOrderUpdateAPIView(APIView):
                     }
                 )
 
-        # Send Return Received Email
-        if new_status == 'returned' and hasattr(order, 'customer') and hasattr(order.customer, 'user'):
-            send_return_received_email(order.customer.user, order)
-        elif new_status == 'returned' and hasattr(order, 'user'):
-            send_return_received_email(order.user, order)
-            
-        # Send Shipping Notification Email
-        if new_status == 'out_for_delivery' and hasattr(order, 'customer') and hasattr(order.customer, 'user'):
-            send_shipping_email(order.customer.user, order)
-        elif new_status == 'out_for_delivery' and hasattr(order, 'user'):
-            send_shipping_email(order.user, order)
+        user_obj = getattr(order, 'user', None) or (order.customer.user if hasattr(order, 'customer') and hasattr(order.customer, 'user') else None)
+
+        if user_obj:
+            if new_status in ['out_for_delivery', 'shipped']:
+                send_shipping_email(user_obj, order)
+                create_user_notification(
+                    user=user_obj,
+                    title="Shipping Notification",
+                    message=f"Your order #{order.order_id} is out for delivery!",
+                    notification_type="shipping",
+                    order=order
+                )
+                create_admin_notification(
+                    instance=order,
+                    title="Shipping Notification",
+                    message=f"Order #{order.order_id} is shipped / out for delivery.",
+                    priority="low"
+                )
+            elif new_status in ['returned', 'return_received']:
+                send_return_received_email(user_obj, order)
+                create_user_notification(
+                    user=user_obj,
+                    title="Return Received Notification",
+                    message=f"We have successfully received the returned items for order #{order.order_id}.",
+                    notification_type="return_received",
+                    order=order
+                )
+                create_admin_notification(
+                    instance=order,
+                    title="Return Received",
+                    message=f"Return items received for order #{order.order_id}.",
+                    priority="low"
+                )
+            elif new_status in ['return_reminder', 'return_pending']:
+                return_deadline = getattr(order, 'return_date', None) or "Soon"
+                send_rental_return_reminder_email(user_obj, order, return_deadline)
+                create_user_notification(
+                    user=user_obj,
+                    title="Return Reminder Notification",
+                    message=f"Reminder: Return deadline for order #{order.order_id} is approaching.",
+                    notification_type="return_reminder",
+                    order=order
+                )
+                create_admin_notification(
+                    instance=order,
+                    title="Return Reminder Issued",
+                    message=f"Return reminder issued for order #{order.order_id}.",
+                    priority="medium"
+                )
+            elif new_status in ['overdue', 'return_not_received']:
+                send_return_not_received_email(user_obj, order)
+                create_user_notification(
+                    user=user_obj,
+                    title="Return Not Received Notification",
+                    message=f"Action Required: Return deadline passed for order #{order.order_id}.",
+                    notification_type="return_not_received",
+                    order=order
+                )
+                create_admin_notification(
+                    instance=order,
+                    title="Late Return Alert",
+                    message=f"Action Required: Order #{order.order_id} is overdue / return not received.",
+                    priority="high"
+                )
+            elif new_status in ['late_fee', 'fee_assessed']:
+                send_late_fee_email(user_obj, order, fee_amount=25)
+                create_user_notification(
+                    user=user_obj,
+                    title="Late Fee Notification",
+                    message=f"A late fee notice has been issued for overdue rental items in order #{order.order_id}.",
+                    notification_type="late_fee",
+                    order=order
+                )
+                create_admin_notification(
+                    instance=order,
+                    title="Late Fee Assessed",
+                    message=f"Late fee notice issued for order #{order.order_id}.",
+                    priority="high"
+                )
+            elif new_status in ['lost', 'damaged', 'compensation_charge']:
+                send_lost_item_compensation_email(user_obj, f"Order #{order.order_id} item damage or loss notice.")
+                create_user_notification(
+                    user=user_obj,
+                    title="Compensation Charge Notice",
+                    message=f"A compensation charge notice has been issued for order #{order.order_id}.",
+                    notification_type="compensation_charge",
+                    order=order
+                )
+                create_admin_notification(
+                    instance=order,
+                    title="Lost / Damaged Item Alert",
+                    message=f"Compensation charge notice issued for lost/damaged items in order #{order.order_id}.",
+                    priority="high"
+                )
             
         return Response({
             "status": True,
@@ -3107,3 +3298,128 @@ class AdminContractDetailAPIView(APIView):
             "statusCode": 200,
             "data": data
         }, status=200)
+
+
+class AdminSavedSimulationsAPIView(APIView):
+    """
+    API endpoint for Admin to list all saved product & theme simulations/customizations
+    created by users.
+    """
+    authentication_classes = [IsAdminUserJWT]
+
+    @extend_schema(
+        tags=["Admin Dashboard"],
+        summary="List all user saved simulations",
+        description="Fetch all user customized products and themes with configurations and specs.",
+        responses={200: OpenApiResponse(description="Saved simulations fetched successfully")},
+    )
+    def get(self, request):
+        try:
+            # 1. Fetch user custom product models
+            product_customs = CustomUpdateModels.objects.filter(isDeleted=False).select_related(
+                'user', 'model_info', 'model_info__product', 'model_info__product__category'
+            ).order_by('-created_at')
+
+            # 2. Fetch user custom theme models
+            theme_customs = CustomUpdateThemes.objects.filter(isDeleted=False).select_related(
+                'user', 'theme', 'theme__category'
+            ).order_by('-created_at')
+
+            saved_simulations = []
+
+            for p in product_customs:
+                user_obj = p.user
+                user_name = ""
+                user_email = ""
+                if user_obj:
+                    user_name = getattr(user_obj, 'name', '') or f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip() or getattr(user_obj, 'email', '')
+                    user_email = getattr(user_obj, 'email', '') or ""
+
+                prod = p.model_info.product if p.model_info else None
+                image_url = ""
+                if prod and getattr(prod, 'productImage', None):
+                    try:
+                        image_url = request.build_absolute_uri(prod.productImage.url)
+                    except Exception:
+                        image_url = str(prod.productImage)
+                elif p.model_info and p.model_info.model_file:
+                    try:
+                        image_url = request.build_absolute_uri(p.model_info.model_file.url)
+                    except Exception:
+                        image_url = str(p.model_info.model_file)
+
+                saved_simulations.append({
+                    "id": p.id,
+                    "simulation_type": "product",
+                    "user_id": user_obj.id if user_obj else None,
+                    "user_name": user_name or "Anonymous User",
+                    "user_email": user_email,
+                    "item_id": prod.id if prod else None,
+                    "item_name": prod.productName if prod else "Custom Product Simulation",
+                    "item_code": getattr(prod, 'productCode', '') if prod else f"PROD-{p.id}",
+                    "category_name": prod.category.categoryName if (prod and prod.category) else "Uncategorized",
+                    "image_url": image_url,
+                    "config_json": p.config_json or {},
+                    "design_specifications": p.design_specifications or {},
+                    "json_file_path": p.json_file_path or "",
+                    "is_active": p.isActive,
+                    "created_at": p.created_at.strftime("%Y-%m-%d %H:%M:%S") if p.created_at else "",
+                    "formatted_date": p.created_at.strftime("%b %d, %Y %I:%M %p") if p.created_at else ""
+                })
+
+            for t in theme_customs:
+                user_obj = t.user
+                user_name = ""
+                user_email = ""
+                if user_obj:
+                    user_name = getattr(user_obj, 'name', '') or f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip() or getattr(user_obj, 'email', '')
+                    user_email = getattr(user_obj, 'email', '') or ""
+
+                theme_obj = t.theme
+                image_url = ""
+                if theme_obj and getattr(theme_obj, 'image', None):
+                    try:
+                        image_url = request.build_absolute_uri(theme_obj.image.url)
+                    except Exception:
+                        image_url = str(theme_obj.image)
+
+                saved_simulations.append({
+                    "id": t.id,
+                    "simulation_type": "theme",
+                    "user_id": user_obj.id if user_obj else None,
+                    "user_name": user_name or "Anonymous User",
+                    "user_email": user_email,
+                    "item_id": theme_obj.id if theme_obj else None,
+                    "item_name": theme_obj.title if theme_obj else "Custom Theme Simulation",
+                    "item_code": f"THEME-{theme_obj.id}" if theme_obj else f"THEME-{t.id}",
+                    "category_name": theme_obj.category.categoryName if (theme_obj and theme_obj.category) else "Theme",
+                    "image_url": image_url,
+                    "config_json": t.config_json or {},
+                    "design_specifications": t.design_specifications or {},
+                    "json_file_path": t.json_file_path or "",
+                    "is_active": t.isActive,
+                    "created_at": t.created_at.strftime("%Y-%m-%d %H:%M:%S") if t.created_at else "",
+                    "formatted_date": t.created_at.strftime("%b %d, %Y %I:%M %p") if t.created_at else ""
+                })
+
+            # Sort combined list by created_at descending
+            saved_simulations.sort(key=lambda x: x["created_at"], reverse=True)
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Saved simulations fetched successfully",
+                "total_count": len(saved_simulations),
+                "product_count": len(product_customs),
+                "theme_count": len(theme_customs),
+                "data": saved_simulations
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Failed to fetch saved simulations",
+                "error": str(e),
+                "trace": traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

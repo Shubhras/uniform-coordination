@@ -974,129 +974,103 @@ class VerifyUserAPIView(APIView):
 #                 "data": None
 #             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# class NotificationListAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
+class UserNotificationListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
-#     def get(self, request):
-#         try:
-#             notifications = Notifications.objects.filter(
-#                 user=request.user,
-#                 isDeleted=False
-#             ).order_by("-created_at")
+    def get(self, request):
+        try:
+            target_user = request.user
+            if not isinstance(target_user, Users):
+                user_obj = Users.objects.filter(Q(email=getattr(request.user, 'email', None)) | Q(id=getattr(request.user, 'id', None))).first()
+                if user_obj:
+                    target_user = user_obj
 
-#             serializer = NotificationSerializer(notifications, many=True)
+            notifications = UserNotification.objects.filter(
+                user=target_user,
+                isDeleted=False,
+                isActive=True
+            ).order_by("-created_at")
 
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": "Notifications fetched successfully",
-#                 "data": serializer.data
-#             }, status=status.HTTP_200_OK)
+            serializer = UserNotificationSerializer(notifications, many=True)
 
-#         except Exception as e:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "message": str(e),
-#                 "data": None
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "User notifications fetched successfully",
+                "count": notifications.count(),
+                "unread_count": notifications.filter(is_read=False).count(),
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
 
-
-# class NotificationDetailAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request, pk):
-#         try:
-#             notification = get_object_or_404(
-#                 Notifications,
-#                 pk=pk,
-#                 user=request.user,
-#                 isDeleted=False
-#             )
-
-#             serializer = NotificationSerializer(notification)
-
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": "Notification details fetched successfully",
-#                 "data": serializer.data
-#             }, status=status.HTTP_200_OK)
-
-#         except Exception as e:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 404,
-#                 "message": str(e),
-#                 "data": None
-#             }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": str(e),
+                "data": []
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# class NotificationUpdateAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
+class UserNotificationMarkReadAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
-#     def put(self, request, pk):
-#         try:
-#             notification = get_object_or_404(
-#                 Notifications,
-#                 pk=pk,
-#                 user=request.user,
-#                 isDeleted=False
-#             )
+    def post(self, request, pk=None):
+        try:
+            target_user = request.user
+            if not isinstance(target_user, Users):
+                user_obj = Users.objects.filter(Q(email=getattr(request.user, 'email', None)) | Q(id=getattr(request.user, 'id', None))).first()
+                if user_obj:
+                    target_user = user_obj
 
-#             serializer = NotificationSerializer(
-#                 notification,
-#                 data=request.data,
-#                 partial=True
-#             )
+            if pk:
+                notification = get_object_or_404(UserNotification, pk=pk, user=target_user, isDeleted=False)
+                notification.is_read = True
+                notification.save(update_fields=["is_read"])
+            else:
+                UserNotification.objects.filter(user=target_user, isDeleted=False).update(is_read=True)
 
-#             if serializer.is_valid():
-#                 serializer.save()
-#                 return Response({
-#                     "status": True,
-#                     "statusCode": 200,
-#                     "message": "Notification updated successfully",
-#                     "data": serializer.data
-#                 }, status=status.HTTP_200_OK)
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Notification(s) marked as read successfully"
+            }, status=status.HTTP_200_OK)
 
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 400,
-#                 "message": serializer.errors,
-#                 "data": None
-#             }, status=status.HTTP_400_BAD_REQUEST)
-
-#         except Exception as e:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "message": str(e),
-#                 "data": None
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# class NotificationDeleteAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
+class UserNotificationDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
-#     def delete(self, request, pk):
-#         try:
-#             notification = get_object_or_404(
-#                 Notifications,
-#                 pk=pk,
-#                 user=request.user,
-#                 isDeleted=False
-#             )
+    def delete(self, request, pk):
+        try:
+            target_user = request.user
+            if not isinstance(target_user, Users):
+                user_obj = Users.objects.filter(Q(email=getattr(request.user, 'email', None)) | Q(id=getattr(request.user, 'id', None))).first()
+                if user_obj:
+                    target_user = user_obj
 
-#             notification.isDeleted = True
-#             notification.isActive = False
-#             notification.save()
+            notification = get_object_or_404(UserNotification, pk=pk, user=target_user, isDeleted=False)
+            notification.isDeleted = True
+            notification.isActive = False
+            notification.save(update_fields=["isDeleted", "isActive"])
 
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": "Notification deleted successfully",
-#                 "data": None
-#             }, status=status.HTTP_200_OK)
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Notification deleted successfully"
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 #         except Exception as e:
 #             return Response({
@@ -1617,11 +1591,21 @@ class ItemSummaryAPIView(APIView):
                     "discount": discount_amount
                 })
 
-            shipping = cart.shipping_amount if hasattr(cart, "shipping_amount") else 0
-            tax = cart.tax_amount if hasattr(cart, "tax_amount") else 0
-            fees = cart.fees_amount if hasattr(cart, "fees_amount") else 0
+            policy = RentalPolicySettings.load()
+            shipping = Decimal(str(policy.flat_shipping_fee or "0.00"))
+            taxable_amount = Decimal(subtotal) - Decimal(total_discount) + shipping
+            if taxable_amount < Decimal("0.00"):
+                taxable_amount = Decimal("0.00")
 
-            grand_total = subtotal + shipping + tax + fees
+            if policy.enable_consumption_tax:
+                tax_rate = Decimal(str(policy.tax_percentage or "0.00"))
+                tax = (taxable_amount * tax_rate) / Decimal("100")
+            else:
+                tax = Decimal("0.00")
+
+            fees = cart.fees_amount if hasattr(cart, "fees_amount") else Decimal("0.00")
+
+            grand_total = Decimal(subtotal) - Decimal(total_discount) + shipping + tax + Decimal(fees)
             total_products = cart_items.count()
 
             return Response({
@@ -1850,11 +1834,18 @@ class CreateOrderAPIView(APIView):
                     "message": "Total discount exceeds subtotal"
                 })
 
-            shipping_charge = getattr(settings, 'FLAT_ROUND_TRIP_SHIPPING_FEE', Decimal("150.00"))
+            policy = RentalPolicySettings.load()
+            shipping_charge = Decimal(str(policy.flat_shipping_fee or "0.00"))
             taxable_amount = subtotal - discount_amount + shipping_charge
-            if taxable_amount < 0:
+            if taxable_amount < Decimal("0.00"):
                 taxable_amount = Decimal("0.00")
-            tax_amount = (taxable_amount * Decimal("10")) / Decimal("100")
+
+            if policy.enable_consumption_tax:
+                tax_rate = Decimal(str(policy.tax_percentage or "0.00"))
+                tax_amount = (taxable_amount * tax_rate) / Decimal("100")
+            else:
+                tax_amount = Decimal("0.00")
+
             total_amount = subtotal - discount_amount + shipping_charge + tax_amount
 
             # Check if any cart item has an associated custom theme
@@ -3166,4 +3157,160 @@ class ToggleThemeFavouriteAPIView(APIView):
                 "is_favourite": fav.is_like
             }
         }, status=status.HTTP_200_OK)
+
+
+class ReorderOrderAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @transaction.atomic
+    def post(self, request, order_id=None):
+        try:
+            user = request.user
+            target_user = user
+            if not isinstance(target_user, Users):
+                found = Users.objects.filter(Q(email=getattr(user, 'email', None)) | Q(id=getattr(user, 'id', None))).first()
+                if found:
+                    target_user = found
+
+            oid = order_id or request.data.get("order_id")
+            if not oid:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "order_id is required."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Retrieve original order
+            query = Q(order_id=oid)
+            if str(oid).isdigit():
+                query |= Q(id=int(oid))
+
+            original_order = Order.objects.filter(query, user=target_user).first()
+            if not original_order:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": f"Original order '{oid}' not found."
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            # Check item availability & stock
+            original_items = OrderItem.objects.filter(order=original_order)
+            if not original_items.exists():
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "No items found in original order to reorder."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            for item in original_items:
+                prod = item.product
+                if not prod or prod.isDeleted or not prod.isActive:
+                    p_name = prod.productName if prod else "Item"
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": f"Product '{p_name}' is currently unavailable for reorder."
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+                if prod.available_quantity < item.quantity:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": f"Insufficient stock for '{prod.productName}'. Available: {prod.available_quantity}, Requested: {item.quantity}."
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Calculate dates
+            today = timezone.now().date()
+            rental_days = original_order.rental_days or 1
+            start_date = today
+            end_date = today + timedelta(days=rental_days)
+
+            # Create new order
+            new_order = Order.objects.create(
+                user=target_user,
+                customer=original_order.customer,
+                rental_start_date=start_date,
+                rental_end_date=end_date,
+                rental_days=rental_days,
+                subtotal=original_order.subtotal,
+                total_amount=original_order.total_amount,
+                shipping_charge=original_order.shipping_charge,
+                tax=original_order.tax,
+                currency=original_order.currency or "USD",
+                promocode=original_order.promocode,
+                custom_theme=original_order.custom_theme,
+                status="pending",
+                is_paid=False
+            )
+
+            new_order_items = []
+            for item in original_items:
+                new_item = OrderItem(
+                    order=new_order,
+                    product=item.product,
+                    rental_days=rental_days,
+                    quantity=item.quantity,
+                    price_per_day=item.price_per_day,
+                    subtotal=item.subtotal,
+                    custom_theme=item.custom_theme
+                )
+                new_order_items.append(new_item)
+
+            OrderItem.objects.bulk_create(new_order_items)
+
+            # Deduct stock
+            for item in original_items:
+                prod = item.product
+                prod.available_quantity = max(0, prod.available_quantity - item.quantity)
+                prod.save(update_fields=["available_quantity"])
+
+            # Create Rental & RentalItem entries
+            from userhub.models import Rental, RentalItem
+            rental = Rental.objects.create(
+                order=new_order,
+                customer=new_order.customer,
+                start_date=new_order.rental_start_date,
+                end_date=new_order.rental_end_date,
+                shipping_address=getattr(new_order.customer, "address_line_1", "") or getattr(new_order.customer, "address", "") or "No Address",
+                shipping_fee=new_order.shipping_charge or 0,
+                tax=new_order.tax or 0,
+                total_amount=new_order.total_amount or 0,
+                status='rented'
+            )
+            for item in new_order_items:
+                RentalItem.objects.create(
+                    rental=rental,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price_per_day=item.price_per_day or 0,
+                    subtotal=item.subtotal or 0
+                )
+
+            # Trigger in-app notification
+            create_user_notification(
+                target_user,
+                title="Reorder Initiated",
+                message=f"Reorder #{new_order.order_id} created successfully. Please complete payment.",
+                notification_type="order_status",
+                order=new_order
+            )
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Reorder created successfully! Redirecting to payment...",
+                "data": {
+                    "order_id": new_order.order_id,
+                    "id": new_order.id,
+                    "total_amount": str(new_order.total_amount),
+                    "redirect_url": f"/overview?orderId={new_order.order_id}"
+                }
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": f"Failed to reorder: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

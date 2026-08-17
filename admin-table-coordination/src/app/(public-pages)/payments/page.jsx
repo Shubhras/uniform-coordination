@@ -1,7 +1,5 @@
-import Payments from "./components/Payments";
+import PaymentManagement from "./components/PaymentManagement";
 
-const Page = () => {
-  return <Payments />;
-};
-
-export default Page;
+export default function PaymentsPage() {
+  return <PaymentManagement />;
+}

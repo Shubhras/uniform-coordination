@@ -1,9 +1,11 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import useTheme from '@/utils/hooks/useTheme'
+import { apiGetUserNotifications } from '@/services/AuthProfileService'
 import {
     FiGrid,
     FiUser,
@@ -42,28 +44,16 @@ const sidebarMenu = [
         path: '/profile/simulation-history',
         slug: "profile",
     },
-    // {
-    //     label: 'Order History',
-    //     icon: FiBox,
-    //     path: '/profile/order-history',
-    //     slug: "profile",
-    // },
-    // {
-    //     label: 'Notifications',
-    //     icon: FiBell,
-    //     path: '/profile/notifications',
-    //     slug: "profile",
-    // },
-    // {
-    //     label: 'My Quotations',
-    //     icon: FiFileText,
-    //     path: '/profile/my-quotations',
-    //     slug: "profile",
-    // },
     {
         label: 'My Order & Rentals',
         icon: FiFileText,
         path: '/profile/my-order-rentals',
+        slug: "profile",
+    },
+    {
+        label: 'Notifications',
+        icon: FiBell,
+        path: '/profile/notifications',
         slug: "profile",
     },
 ]
@@ -72,12 +62,57 @@ const AdminSidebar = ({ collapsed: propCollapsed, onToggle, isFixed = false }) =
     const pathname = usePathname()
     const router = useRouter()
     const { data: session } = useSession()
+    const [unreadCount, setUnreadCount] = useState(0)
     const userPermissions = session?.user?.permissions || []
 
     const themeSideNavCollapse = useTheme((state) => state.layout.sideNavCollapse)
     const setSideNavCollapse = useTheme((state) => state.setSideNavCollapse)
 
     const collapsed = propCollapsed !== undefined ? propCollapsed : themeSideNavCollapse
+
+    useEffect(() => {
+        let isMounted = true
+        const fetchUnreadCount = async () => {
+            if (session?.user?.accessToken) {
+                try {
+                    const res = await apiGetUserNotifications(session.user.accessToken)
+                    if (isMounted) {
+                        if (res?.unread_count !== undefined) {
+                            setUnreadCount(res.unread_count)
+                        } else if (Array.isArray(res?.data)) {
+                            const unread = res.data.filter((item) => !item.is_read).length
+                            setUnreadCount(unread)
+                        } else {
+                            setUnreadCount(0)
+                        }
+                    }
+                } catch (err) {
+                    if (isMounted) setUnreadCount(0)
+                }
+            } else {
+                if (isMounted) setUnreadCount(0)
+            }
+        }
+
+        fetchUnreadCount()
+        const interval = setInterval(fetchUnreadCount, 15000)
+
+        const handleNotificationsUpdated = () => {
+            fetchUnreadCount()
+        }
+
+        if (typeof window !== 'undefined') {
+            window.addEventListener('notificationsUpdated', handleNotificationsUpdated)
+        }
+
+        return () => {
+            isMounted = false
+            clearInterval(interval)
+            if (typeof window !== 'undefined') {
+                window.removeEventListener('notificationsUpdated', handleNotificationsUpdated)
+            }
+        }
+    }, [session?.user?.accessToken, pathname])
 
     const handleToggle = () => {
         if (onToggle) {
@@ -156,10 +191,9 @@ const AdminSidebar = ({ collapsed: propCollapsed, onToggle, isFixed = false }) =
             <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3">
                 <ul className="space-y-1">
                     {sidebarMenu.map((item) => {
-
-
                         const Icon = item.icon
                         const active = isActive(item.path)
+                        const isNotification = item.path === '/profile/notifications'
 
                         return (
                             <li key={item.path}>
@@ -177,12 +211,20 @@ const AdminSidebar = ({ collapsed: propCollapsed, onToggle, isFixed = false }) =
                                         }
                                     `}
                                 >
-                                    <Icon
-                                        size={20}
-                                        className={`flex-shrink-0 transition-colors duration-200
-                                            ${active ? 'text-[#A85A32]' : 'text-[#1C2C56] group-hover:text-[#1C2C56]'}
-                                        `}
-                                    />
+                                    <div className="relative flex items-center justify-center">
+                                        <Icon
+                                            size={20}
+                                            className={`flex-shrink-0 transition-colors duration-200
+                                                ${active ? 'text-[#A85A32]' : 'text-[#1C2C56] group-hover:text-[#1C2C56]'}
+                                            `}
+                                        />
+                                        {isNotification && unreadCount > 0 && (
+                                            <span className="absolute -top-1.5 -right-2.5 bg-red-500 text-white text-[10px] font-bold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center border border-white shadow-sm leading-none">
+                                                {unreadCount > 99 ? '99+' : unreadCount}
+                                            </span>
+                                        )}
+                                    </div>
+
                                     {!collapsed && (
                                         <span className={`truncate leading-snug ${active ? 'border-b-[1.5px] border-[#A85A32] pb-[2px]' : ''}`}>
                                             {item.label}
@@ -201,7 +243,7 @@ const AdminSidebar = ({ collapsed: propCollapsed, onToggle, isFixed = false }) =
                                             pointer-events-none z-50
                                             shadow-lg
                                         ">
-                                            {item.label}
+                                            {item.label} {isNotification && unreadCount > 0 ? `(${unreadCount})` : ''}
                                             <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 bg-[#1C2C56] rotate-45" />
                                         </div>
                                     )}
