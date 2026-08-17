@@ -1518,5 +1518,151 @@
             "Maintenance": "Maintenance",
             "Damaged": "Damaged"
         }
+    },
+    "paymentManagement":{
+        "payManage":"Payment Management",
+        "subtitle":"Monitor USD transactions, process refunds, manage promotional campaigns, and generate invoices.",
+        "createPromo":"Create Promocode",
+
+        "paymentDashboard": "Payment Dashboard",
+        "paymentTransactions": "Payment Transactions",
+        "refundManagement": "Refund Management",
+        "couponManagement": "Coupon Management",
+        "promotionalCampaigns": "Promotional Campaigns",
+        "invoiceManagement": "Invoice Management",
+
+        "totalRevenue": "Total Revenue",
+        "totalTransactions": "total transactions",
+        "successful": "Successful",
+        "paid": "paid",
+        "refunded": "Refunded",
+        "ofRevenue": "of revenue",
+        "pending": "Pending",
+        "inProgress": "in progress",
+        "failed": "Failed",
+
+        "recentTransactions": "Recent Transactions",
+        "latestCustomerPaymentActivity": "Latest customer payment activity",
+        "viewAllTransactions": "View All Transactions",
+
+        "paymentId": "Payment ID",
+        "orderId": "Order ID",
+        "method": "Method",
+        "amountUsd": "Amount (USD)",
+        "status": "Status",
+        "date": "Date",
+        "actions": "Actions",
+
+        "loadingRecentTransactions": "Loading recent transactions...",
+        "noRecentTransactions": "No recent transactions found.",
+        "view": "View",
+
+        "searchOrderPayment": "Search Order ID, Payment ID...",
+        "allPaymentStatuses": "All Payment Statuses",
+        "success": "Success",
+        "customer": "Customer",
+        "paymentMethod": "Payment Method",
+
+        "loadingPaymentTransactions": "Loading payment transactions...",
+        "noPaymentTransactions": "No payment transactions match your filters.",
+
+        "viewDetails": "View Details",
+        "downloadInvoicePdf": "Download Invoice PDF",
+        "searchRefundOrder": "Search Refund / Order ID...",
+        "allRefundStatuses": "All Refund Statuses",
+        "requested": "Requested",
+        "processed": "Processed",
+        "rejected": "Rejected",
+
+        "refundId": "Refund ID",
+        "refundAmount": "Refund Amount",
+        "reason": "Reason",
+        "": "Actions",
+
+        "loadingRefundRequests": "Loading refund requests...",
+        "noRefundRequests": "No refund requests found.",
+        "customerRequestedRefund": "Customer requested refund",
+        "process": "Process",
+        "completed": "Completed",
+        "searchPromocode": "Search Promocode...",
+        "allStatuses": "All Statuses",
+        "active": "Active",
+        "inactive": "Inactive",
+        "expired": "Expired",
+
+        "allDiscountTypes": "All Discount Types",
+        "percentageDiscount": "Percentage Discount",
+        "fixedPriceAmount": "Fixed Price Amount",
+
+        "newCode": "New Code",
+        "fixedPrice": "Fixed Price",
+        "discount": "Discount",
+        "copyPromocode": "Copy Promocode",
+        "noSpecificPromotionalTerms": "No specific promotional terms specified.",
+
+        "valueDiscount": "Value / Discount",
+        "off": "OFF",
+        "minOrderValue": "Min Order Value",
+        "usageLimit": "Usage Limit",
+        "unlimited": "Unlimited",
+        "uses": "uses",
+
+        "expires": "Expires",
+        "noExpiry": "No Expiry",
+
+        "editPromocode": "Edit Promocode",
+        "deletePromocode": "Delete Promocode",
+
+        "loadingPromocodes": "Loading promocodes...",
+        "noPromotionalCodes": "No promotional codes found. Create a new promo code to get started!",
+
+        "invoiceReceipts": "Invoices & Receipts",
+        "invoiceDescription": "Download generated PDF invoices for customer payment orders",
+        "searchInvoiceOrder": "Search Invoice / Order...",
+        "invoicePaymentId": "Invoice / Payment ID",
+        "customerName": "Customer Name",
+        "billingAmountUsd": "Billing Amount (USD)",
+        "action": "Action",
+        "loadingInvoiceRecords": "Loading invoice records...",
+        "noInvoicesAvailable": "No invoices available.",
+        "pdfInvoice": "PDF Invoice",
+        "paymentTransactionDetails": "Payment Transaction Details",
+        "paymentIdLabel": "Payment ID:",
+        "orderIdLabel": "Order ID:",
+        "paymentMethodLabel": "Payment Method:",
+        "statusLabel": "Status:",
+        "amountPaid": "Amount Paid:",
+        "paidTimestamp": "Paid Timestamp:",
+        "close": "Close",
+        "downloadInvoice": "Download Invoice",
+        "createNewPromocode": "Create New Promocode",
+        "promocodeNameCode": "Promocode Name / Code *",
+        "promocodePlaceholder": "e.g. SUMMER2026",
+        "description": "Description",
+        "promocodeTermsDetails": "Promocode offer terms & details...",
+
+        "discountType": "Discount Type *",
+        "fixedAmount": "Fixed Amount ($)",
+
+        "amountValue": "Amount / Value *",
+        "percentagePlaceholder": "e.g. 15 (%)",
+        "fixedAmountPlaceholder": "e.g. 50 ($)",
+
+        "minimumOrderValue": "Minimum Order Value ($)",
+        "optionalMinimumCartTotal": "Optional minimum cart total",
+
+        "limitMaximumUses": "Limit Maximum Total Uses",
+        "maxUsesCount": "Max Uses Count",
+        "maxUsesPlaceholder": "e.g. 100",
+
+        "startDate": "Start Date",
+        "endDate": "End Date",
+
+        "promocodeActive": "Promocode is Active",
+
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "updatePromocode": "Update Promocode",
+        "savePromocode": "Save Promocode"
     }
 }

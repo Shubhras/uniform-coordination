@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import Pagination from "@/components/ui/Pagination";
+import { useTranslations } from "next-intl";
+import Select from "react-select";
 import {
   FiDollarSign,
   FiCreditCard,
@@ -26,6 +28,7 @@ import {
   FiChevronRight,
   FiCheck,
 } from "react-icons/fi";
+import Spinner from "@/components/ui/Spinner";
 import {
   apiGetAdminPayments,
   apiGetAdminPaymentDetails,
@@ -38,9 +41,48 @@ import {
   apiGetPaymentPdf,
 } from "@/services/PaymentService";
 
+const selectStyles = {
+  control: (base) => ({
+    ...base,
+    minHeight: "40px",
+    borderColor: "#EFE5DD",
+    boxShadow: "none",
+    borderRadius: "8px",
+    "&:hover": {
+      borderColor: "#C08457",
+    },
+  }),
+
+  singleValue: (base) => ({
+    ...base,
+    color: "#A85A32B2",
+  }),
+
+  placeholder: (base) => ({
+    ...base,
+    color: "#A85A32B2",
+  }),
+
+  menu: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? "#A0522D"
+      : state.isFocused
+        ? "#F8F2ED"
+        : "#fff",
+    color: state.isSelected ? "#fff" : "#444",
+  }),
+};
+
 export default function PaymentManagement() {
   const { data: session } = useSession();
   const accessToken = session?.user?.accessToken || session?.accessToken;
+  const t = useTranslations("paymentManagement");
 
   // Active Sub-Tab
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -93,7 +135,36 @@ export default function PaymentManagement() {
 
   const [pdfLoadingId, setPdfLoadingId] = useState(null);
   const [copiedCode, setCopiedCode] = useState("");
-  const [notification, setNotification] = useState({ show: false, message: "", type: "success" });
+  const [notification, setNotification] = useState({
+    show: false,
+    message: "",
+    type: "success",
+  });
+
+  const paymentStatusOptions = [
+    { value: "all", label: t("allPaymentStatuses") },
+    { value: "success", label: t("success") },
+    { value: "pending", label: t("pending") },
+    { value: "failed", label: t("failed") },
+  ];
+  const refundStatusOptions = [
+    { value: "all", label: t("allRefundStatuses") },
+    { value: "requested", label: t("requested") },
+    { value: "processed", label: t("processed") },
+    { value: "rejected", label: t("rejected") },
+  ];
+  const promocodeStatusOptions = [
+    { value: "all", label: t("allStatuses") },
+    { value: "active", label: t("active") },
+    { value: "inactive", label: t("inactive") },
+    { value: "expired", label: t("expired") },
+  ];
+
+  const promocodeTypeOptions = [
+    { value: "all", label: t("allDiscountTypes") },
+    { value: "percentage", label: t("percentageDiscount") },
+    { value: "fixed", label: t("fixedPriceAmount") },
+  ];
 
   // Promocode Form State
   const [promoForm, setPromoForm] = useState({
@@ -139,7 +210,10 @@ export default function PaymentManagement() {
   // Toast Helper
   const showToast = (message, type = "success") => {
     setNotification({ show: true, message, type });
-    setTimeout(() => setNotification({ show: false, message: "", type: "success" }), 4000);
+    setTimeout(
+      () => setNotification({ show: false, message: "", type: "success" }),
+      4000,
+    );
   };
 
   // Format Currency (USD by default)
@@ -166,7 +240,10 @@ export default function PaymentManagement() {
           setPaymentSummary(res.summary);
         } else {
           // Fallback summary calculation if needed
-          const totalAmt = paymentList.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+          const totalAmt = paymentList.reduce(
+            (acc, curr) => acc + parseFloat(curr.amount || 0),
+            0,
+          );
           setPaymentSummary({
             total_payments_count: paymentList.length,
             total_amount: totalAmt,
@@ -261,7 +338,13 @@ export default function PaymentManagement() {
     } finally {
       setPromocodesLoading(false);
     }
-  }, [accessToken, promocodePage, debouncedPromocodeSearch, promocodeStatusFilter, promocodeTypeFilter]);
+  }, [
+    accessToken,
+    promocodePage,
+    debouncedPromocodeSearch,
+    promocodeStatusFilter,
+    promocodeTypeFilter,
+  ]);
 
   useEffect(() => {
     fetchPayments();
@@ -272,7 +355,8 @@ export default function PaymentManagement() {
   }, [activeTab, fetchRefunds]);
 
   useEffect(() => {
-    if (activeTab === "coupons" || activeTab === "promocodes") fetchPromocodes();
+    if (activeTab === "coupons" || activeTab === "promocodes")
+      fetchPromocodes();
   }, [activeTab, fetchPromocodes]);
 
   // Open Payment Details Modal
@@ -281,7 +365,10 @@ export default function PaymentManagement() {
     setIsDetailModalOpen(true);
     if (payment.payment_id) {
       try {
-        const detailRes = await apiGetAdminPaymentDetails(accessToken, payment.payment_id);
+        const detailRes = await apiGetAdminPaymentDetails(
+          accessToken,
+          payment.payment_id,
+        );
         if (detailRes && detailRes.data) {
           setSelectedPayment(detailRes.data);
         }
@@ -318,10 +405,15 @@ export default function PaymentManagement() {
     try {
       const payload = {};
       if (refundAmount) payload.refund_amount = parseFloat(refundAmount);
-      if (refundPercentage) payload.refund_percentage = parseFloat(refundPercentage);
+      if (refundPercentage)
+        payload.refund_percentage = parseFloat(refundPercentage);
       if (refundNote) payload.admin_note = refundNote;
 
-      const res = await apiProcessRefund(accessToken, selectedRefund.id, payload);
+      const res = await apiProcessRefund(
+        accessToken,
+        selectedRefund.id,
+        payload,
+      );
       if (res && res.status) {
         showToast(res.message || "Refund processed successfully!", "success");
         setIsRefundModalOpen(false);
@@ -331,7 +423,10 @@ export default function PaymentManagement() {
         showToast(res?.message || "Failed to process refund", "error");
       }
     } catch (err) {
-      showToast(err.response?.data?.message || err.message || "Error processing refund", "error");
+      showToast(
+        err.response?.data?.message || err.message || "Error processing refund",
+        "error",
+      );
     } finally {
       setRefundSubmitting(false);
     }
@@ -382,10 +477,13 @@ export default function PaymentManagement() {
       formData.append("description", promoForm.description);
       formData.append("promocodeType", promoForm.promocodeType);
       if (promoForm.amount) formData.append("amount", promoForm.amount);
-      if (promoForm.min_order_value) formData.append("min_order_value", promoForm.min_order_value);
+      if (promoForm.min_order_value)
+        formData.append("min_order_value", promoForm.min_order_value);
       formData.append("limit_uses", promoForm.limit_uses);
-      if (promoForm.limit_uses && promoForm.max_uses) formData.append("max_uses", promoForm.max_uses);
-      if (promoForm.started_at) formData.append("started_at", promoForm.started_at);
+      if (promoForm.limit_uses && promoForm.max_uses)
+        formData.append("max_uses", promoForm.max_uses);
+      if (promoForm.started_at)
+        formData.append("started_at", promoForm.started_at);
       if (promoForm.ended_at) formData.append("ended_at", promoForm.ended_at);
       formData.append("isActive", promoForm.isActive);
 
@@ -395,15 +493,21 @@ export default function PaymentManagement() {
 
       let res;
       if (selectedPromocode) {
-        res = await apiUpdatePromocode(accessToken, selectedPromocode.id, formData);
+        res = await apiUpdatePromocode(
+          accessToken,
+          selectedPromocode.id,
+          formData,
+        );
       } else {
         res = await apiCreatePromocode(accessToken, formData);
       }
 
       if (res && (res.status || res.statusCode === 200)) {
         showToast(
-          selectedPromocode ? "Promocode updated successfully!" : "Promocode created successfully!",
-          "success"
+          selectedPromocode
+            ? "Promocode updated successfully!"
+            : "Promocode created successfully!",
+          "success",
         );
         setIsPromocodeModalOpen(false);
         fetchPromocodes();
@@ -411,7 +515,10 @@ export default function PaymentManagement() {
         showToast(res?.message || "Failed to save promocode", "error");
       }
     } catch (err) {
-      showToast(err.response?.data?.message || err.message || "Error saving promocode", "error");
+      showToast(
+        err.response?.data?.message || err.message || "Error saving promocode",
+        "error",
+      );
     } finally {
       setPromoSubmitting(false);
     }
@@ -419,7 +526,8 @@ export default function PaymentManagement() {
 
   // Delete Promocode
   const handleDeletePromo = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this promocode?")) return;
+    if (!window.confirm("Are you sure you want to delete this promocode?"))
+      return;
     try {
       const res = await apiDeletePromocode(accessToken, id);
       if (res && res.status) {
@@ -463,7 +571,12 @@ export default function PaymentManagement() {
   // Render Status Badges
   const renderStatusBadge = (status) => {
     const st = (status || "pending").toLowerCase();
-    if (st === "success" || st === "processed" || st === "confirmed" || st === "paid") {
+    if (
+      st === "success" ||
+      st === "processed" ||
+      st === "confirmed" ||
+      st === "paid"
+    ) {
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/40">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -538,20 +651,20 @@ export default function PaymentManagement() {
             <span className="p-2.5 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
               <FiCreditCard className="text-xl" />
             </span>
-            Payment Management
+            {t("payManage")}
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Monitor USD transactions, process refunds, manage promotional campaigns, and generate invoices.
+            {t("subtitle")}
           </p>
         </div>
 
         {(activeTab === "coupons" || activeTab === "promocodes") && (
           <button
             onClick={() => handleOpenPromoModal(null)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition shadow-sm hover:shadow"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#A0522D] text-white font-medium text-sm transition shadow-sm hover:shadow"
           >
             <FiPlus className="text-lg" />
-            Create Promocode
+            {t("createPromo")}
           </button>
         )}
       </div>
@@ -559,12 +672,16 @@ export default function PaymentManagement() {
       {/* Tab Navigation */}
       <div className="flex items-center gap-1.5 p-1.5 overflow-x-auto bg-gray-100/80 dark:bg-gray-800/80 rounded-2xl border border-gray-200/50 dark:border-gray-700/50">
         {[
-          { id: "dashboard", label: "Payment Dashboard", icon: FiDollarSign },
-          { id: "transactions", label: "Payment Transactions", icon: FiCreditCard },
-          { id: "refunds", label: "Refund Management", icon: FiRefreshCw },
-          { id: "coupons", label: "Coupon Management", icon: FiTag },
-          { id: "promocodes", label: "Promotional Campaigns", icon: FiCopy },
-          { id: "invoices", label: "Invoice Management", icon: FiFileText },
+          { id: "dashboard", label: t("paymentDashboard"), icon: FiDollarSign },
+          {
+            id: "transactions",
+            label: t("paymentTransactions"),
+            icon: FiCreditCard,
+          },
+          { id: "refunds", label: t("refundManagement"), icon: FiRefreshCw },
+          { id: "coupons", label: t("couponManagement"), icon: FiTag },
+          // { id: "promocodes", label: t("promotionalCampaigns"), icon: FiCopy },
+          { id: "invoices", label: t("invoiceManagement"), icon: FiFileText },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -578,7 +695,13 @@ export default function PaymentManagement() {
                   : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
               }`}
             >
-              <Icon className={isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-400"} />
+              <Icon
+                className={
+                  isActive
+                    ? "text-blue-600 dark:text-blue-400"
+                    : "text-gray-400"
+                }
+              />
               {tab.label}
             </button>
           );
@@ -593,7 +716,9 @@ export default function PaymentManagement() {
             {/* Total Revenue */}
             <div className="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
               <div className="flex items-center justify-between text-gray-500 dark:text-gray-400 mb-3">
-                <span className="text-xs font-semibold uppercase tracking-wider">Total Revenue</span>
+                <span className="text-xs font-semibold uppercase tracking-wider">
+                  {t("totalRevenue")}
+                </span>
                 <span className="p-2 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400">
                   <FiDollarSign />
                 </span>
@@ -602,14 +727,17 @@ export default function PaymentManagement() {
                 {formatUSD(paymentSummary?.total_amount)}
               </div>
               <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {paymentSummary?.total_payments_count || 0} total transactions
+                {paymentSummary?.total_payments_count || 0}{" "}
+                {t("totalTransactions")}
               </div>
             </div>
 
             {/* Successful Payments */}
             <div className="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
               <div className="flex items-center justify-between text-gray-500 dark:text-gray-400 mb-3">
-                <span className="text-xs font-semibold uppercase tracking-wider">Successful</span>
+                <span className="text-xs font-semibold uppercase tracking-wider">
+                  {t("successful")}
+                </span>
                 <span className="p-2 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
                   <FiCheckCircle />
                 </span>
@@ -618,14 +746,17 @@ export default function PaymentManagement() {
                 {formatUSD(paymentSummary?.successful_amount)}
               </div>
               <div className="mt-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                {paymentSummary?.successful_count || 0} paid ({paymentSummary?.successful_percentage || 0}%)
+                {paymentSummary?.successful_count || 0} {t("paid")} (
+                {paymentSummary?.successful_percentage || 0}%)
               </div>
             </div>
 
             {/* Refunds Processed */}
             <div className="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
               <div className="flex items-center justify-between text-gray-500 dark:text-gray-400 mb-3">
-                <span className="text-xs font-semibold uppercase tracking-wider">Refunded</span>
+                <span className="text-xs font-semibold uppercase tracking-wider">
+                  {t("refunded")}
+                </span>
                 <span className="p-2 rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950 dark:text-purple-400">
                   <FiRefreshCw />
                 </span>
@@ -634,14 +765,16 @@ export default function PaymentManagement() {
                 {formatUSD(paymentSummary?.refunds_amount)}
               </div>
               <div className="mt-1 text-xs text-purple-600 dark:text-purple-400 font-medium">
-                {paymentSummary?.refunds_percentage || 0}% of revenue
+                {paymentSummary?.refunds_percentage || 0}% {t("ofRevenue")}
               </div>
             </div>
 
             {/* Pending Payments */}
             <div className="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
               <div className="flex items-center justify-between text-gray-500 dark:text-gray-400 mb-3">
-                <span className="text-xs font-semibold uppercase tracking-wider">Pending</span>
+                <span className="text-xs font-semibold uppercase tracking-wider">
+                  {t("pending")}
+                </span>
                 <span className="p-2 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400">
                   <FiClock />
                 </span>
@@ -650,14 +783,16 @@ export default function PaymentManagement() {
                 {formatUSD(paymentSummary?.pending_amount)}
               </div>
               <div className="mt-1 text-xs text-amber-600 dark:text-amber-400 font-medium">
-                {paymentSummary?.pending_count || 0} in progress
+                {paymentSummary?.pending_count || 0} {t("inProgress")}
               </div>
             </div>
 
             {/* Failed Payments */}
             <div className="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
               <div className="flex items-center justify-between text-gray-500 dark:text-gray-400 mb-3">
-                <span className="text-xs font-semibold uppercase tracking-wider">Failed</span>
+                <span className="text-xs font-semibold uppercase tracking-wider">
+                  {t("failed")}
+                </span>
                 <span className="p-2 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950 dark:text-rose-400">
                   <FiXCircle />
                 </span>
@@ -666,7 +801,7 @@ export default function PaymentManagement() {
                 {formatUSD(paymentSummary?.failed_amount)}
               </div>
               <div className="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">
-                {paymentSummary?.failed_count || 0} failed
+                {paymentSummary?.failed_count || 0} {t("failed")}
               </div>
             </div>
           </div>
@@ -675,14 +810,18 @@ export default function PaymentManagement() {
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white text-base">Recent Transactions</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Latest customer payment activity</p>
+                <h3 className="font-semibold text-[17px]">
+                  {t("recentTransactions")}
+                </h3>
+                <p className="text-xs text-gray-500 text-[12px] mt-0.5">
+                  {t("latestCustomerPaymentActivity")}
+                </p>
               </div>
               <button
                 onClick={() => setActiveTab("transactions")}
-                className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                className="text-[13px] font-semibold text-blue-600 hover:underline dark:text-blue-400"
               >
-                View All Transactions &rarr;
+                {t("viewAllTransactions")} &rarr;
               </button>
             </div>
 
@@ -690,52 +829,69 @@ export default function PaymentManagement() {
               <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
                 <thead className="bg-[#F1F5F9] text-[#486284]">
                   <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                    <th className="px-6 py-3.5">Payment ID</th>
-                    <th className="px-6 py-3.5">Order ID</th>
-                    <th className="px-6 py-3.5">Method</th>
-                    <th className="px-6 py-3.5">Amount (USD)</th>
-                    <th className="px-6 py-3.5">Status</th>
-                    <th className="px-6 py-3.5">Date</th>
-                    <th className="px-6 py-3.5 text-right">Actions</th>
+                    <th className="px-6 py-3.5">{t("paymentId")}</th>
+                    <th className="px-6 py-3.5">{t("orderId")}</th>
+                    <th className="px-6 py-3.5">{t("method")}</th>
+                    <th className="px-6 py-3.5">{t("amountUsd")}</th>
+                    <th className="px-6 py-3.5">{t("status")}</th>
+                    <th className="px-6 py-3.5">{t("date")}</th>
+                    <th className="px-6 py-3.5">{t("actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                   {paymentsLoading ? (
                     <tr>
-                      <td colSpan={7} className="px-6 py-10 text-center text-gray-400">
-                        Loading recent transactions...
+                      <td colSpan={8} className="px-6 py-12">
+                        <div className="flex justify-center items-center h-[400px]">
+                          <Spinner
+                            size={40}
+                            customColorClass="text-[#A0522D]"
+                          />
+                        </div>
                       </td>
                     </tr>
                   ) : payments.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-6 py-10 text-center text-gray-400">
-                        No recent transactions found.
+                      <td
+                        colSpan={7}
+                        className="px-6 py-10 text-center text-gray-400"
+                      >
+                        {t("noRecentTransactions")}
                       </td>
                     </tr>
                   ) : (
                     payments.slice(0, 5).map((pay) => (
-                      <tr key={pay.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition">
-                        <td className="px-6 py-4 font-mono text-xs font-semibold text-gray-900 dark:text-white">
+                      <tr
+                        key={pay.id}
+                        className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition"
+                      >
+                        <td className="px-6 py-4 text-[13px] text-xs font-semibold text-gray-900">
                           {pay.payment_id || `PAY-${pay.id}`}
                         </td>
-                        <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                        <td className="px-6 py-4 text-[13px] font-medium text-gray-900 dark:text-white">
                           {pay.order?.order_id || pay.order_id || "-"}
                         </td>
-                        <td className="px-6 py-4">{renderMethodBadge(pay.payment_method)}</td>
-                        <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                        <td className="px-6 py-4 text-[13px]">
+                          {renderMethodBadge(pay.payment_method)}
+                        </td>
+                        <td className="px-6 py-4 font-semibold text-[13px] text-gray-900 dark:text-white">
                           {formatUSD(pay.amount)}
                         </td>
-                        <td className="px-6 py-4">{renderStatusBadge(pay.payment_status)}</td>
-                        <td className="px-6 py-4 text-xs text-gray-500">
-                          {pay.created_at ? new Date(pay.created_at).toLocaleDateString() : "-"}
+                        <td className="px-6 py-4">
+                          {renderStatusBadge(pay.payment_status)}
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-6 py-4 text-xs text-gray-500 text-[13px]">
+                          {pay.created_at
+                            ? new Date(pay.created_at).toLocaleDateString()
+                            : "-"}
+                        </td>
+                        <td className="px-6 py-4">
                           <button
                             onClick={() => handleOpenDetails(pay)}
-                            className="p-1.5 text-gray-500 hover:text-blue-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                            title="View Details"
+                            className="inline-flex items-center gap-2 rounded-md border border-[#E6CDBB] bg-white px-4 py-1.5 text-[13px] font-medium text-[#A85A32] hover:bg-[#FFF7F2]"
                           >
-                            <FiEye />
+                            <FiEye size={14} />
+                            {t("view")}
                           </button>
                         </td>
                       </tr>
@@ -754,104 +910,130 @@ export default function PaymentManagement() {
           {/* Controls Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="relative w-full sm:w-80">
-              <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <FiSearch
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
+                size={16}
+              />{" "}
               <input
                 type="text"
-                placeholder="Search Order ID, Payment ID..."
+                placeholder={t("searchOrderPayment")}
                 value={paymentSearch}
                 onChange={(e) => {
                   setPaymentSearch(e.target.value);
                   setPaymentPage(1);
                 }}
-                className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
               />
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <FiFilter className="text-gray-400" />
-              <select
-                value={paymentStatusFilter}
-                onChange={(e) => {
-                  setPaymentStatusFilter(e.target.value);
-                  setPaymentPage(1);
-                }}
-                className="px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              >
-                <option value="all">All Payment Statuses</option>
-                <option value="success">Success</option>
-                <option value="pending">Pending</option>
-                <option value="failed">Failed</option>
-              </select>
+              <div className="w-56">
+                <Select
+                  value={paymentStatusOptions.find(
+                    (option) => option.value === paymentStatusFilter,
+                  )}
+                  onChange={(selected) => {
+                    setPaymentStatusFilter(selected?.value || "all");
+                    setPaymentPage(1);
+                  }}
+                  options={paymentStatusOptions}
+                  styles={selectStyles}
+                  isSearchable={false}
+                />
+              </div>
             </div>
           </div>
 
           {/* Table */}
           <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-800">
             <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-              <thead className="bg-gray-50/70 dark:bg-gray-800/70 text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800">
-                <tr>
-                  <th className="px-5 py-3.5">Payment ID</th>
-                  <th className="px-5 py-3.5">Order ID</th>
-                  <th className="px-5 py-3.5">Customer</th>
-                  <th className="px-5 py-3.5">Payment Method</th>
-                  <th className="px-5 py-3.5">Amount (USD)</th>
-                  <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5">Date</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+              <thead className="bg-[#F1F5F9] text-[#486284]">
+                <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
+                  <th className="px-5 py-3.5">{t("paymentId")}</th>
+                  <th className="px-5 py-3.5">{t("orderId")}</th>
+                  <th className="px-5 py-3.5">{t("customer")}</th>
+                  <th className="px-5 py-3.5">{t("paymentMethod")}</th>
+                  <th className="px-5 py-3.5">{t("amountUsd")}</th>
+                  <th className="px-5 py-3.5">{t("status")}</th>
+                  <th className="px-5 py-3.5">Dat{t("date")}e</th>
+                  <th className="px-5 py-3.5 text-right">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                 {paymentsLoading ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-400">
-                      Loading payment transactions...
+                    <td colSpan={8} className="px-6 py-12">
+                      <div className="flex justify-center items-center h-[400px]">
+                        <Spinner size={40} customColorClass="text-[#A0522D]" />
+                      </div>
                     </td>
                   </tr>
                 ) : payments.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-400">
-                      No payment transactions match your filters.
+                    <td
+                      colSpan={8}
+                      className="px-6 py-12 text-center text-gray-400"
+                    >
+                      {t("noPaymentTransactions")}
                     </td>
                   </tr>
                 ) : (
                   payments.map((pay) => (
-                    <tr key={pay.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition">
-                      <td className="px-5 py-4 font-mono text-xs font-semibold text-gray-900 dark:text-white">
+                    <tr
+                      key={pay.id}
+                      className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition"
+                    >
+                      <td className="px-5 py-4 font-mono text-sm font-semibold text-gray-900 dark:text-white">
                         {pay.payment_id || `PAY-${pay.id}`}
                       </td>
                       <td className="px-5 py-4 font-medium text-gray-900 dark:text-white">
                         {pay.order?.order_id || pay.order_id || "-"}
                       </td>
-                      <td className="px-5 py-4 text-xs">
+                      <td className="px-5 py-4">
                         <div className="font-medium text-gray-900 dark:text-white">
-                          {pay.order?.customer?.name || pay.order?.user?.userName || "Customer"}
+                          {pay.order?.customer?.name ||
+                            pay.order?.user?.userName ||
+                            "Customer"}
                         </div>
-                        <div className="text-gray-400">{pay.order?.customer?.email || pay.order?.user?.email || ""}</div>
+                        <div className="text-gray-400 text-sm">
+                          {pay.order?.customer?.email ||
+                            pay.order?.user?.email ||
+                            ""}
+                        </div>
                       </td>
-                      <td className="px-5 py-4">{renderMethodBadge(pay.payment_method)}</td>
-                      <td className="px-5 py-4 font-semibold text-gray-900 dark:text-white">
+                      <td className="px-5 py-4 text-[13px]">
+                        {renderMethodBadge(pay.payment_method)}
+                      </td>
+                      <td className="px-5 py-4 font-semibold text-gray-900 text-sm">
                         {formatUSD(pay.amount)}
                       </td>
-                      <td className="px-5 py-4">{renderStatusBadge(pay.payment_status)}</td>
-                      <td className="px-5 py-4 text-xs text-gray-500">
-                        {pay.created_at ? new Date(pay.created_at).toLocaleDateString() : "-"}
+                      <td className="px-5 py-4">
+                        {renderStatusBadge(pay.payment_status)}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-gray-500">
+                        {pay.created_at
+                          ? new Date(pay.created_at).toLocaleDateString()
+                          : "-"}
                       </td>
                       <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => handleOpenDetails(pay)}
-                            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
-                            title="View Details"
+                            className="p-2 text-gray-500 dark:hover:bg-gray-800 rounded-lg transition"
                           >
-                            <FiEye />
+                            <FiEye size={17} />
                           </button>
                           <button
                             onClick={() => handleDownloadInvoice(pay.id)}
                             disabled={pdfLoadingId === pay.id}
-                            className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition disabled:opacity-50"
-                            title="Download Invoice PDF"
+                            className="p-2 text-gray-500 dark:hover:bg-gray-800 rounded-lg transition disabled:opacity-50"
                           >
-                            <FiDownload className={pdfLoadingId === pay.id ? "animate-spin" : ""} />
+                            <FiDownload
+                              size={17}
+                              className={
+                                pdfLoadingId === pay.id ? "animate-spin" : ""
+                              }
+                            />
                           </button>
                         </div>
                       </td>
@@ -880,34 +1062,37 @@ export default function PaymentManagement() {
           {/* Controls Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="relative w-full sm:w-80">
-              <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <FiSearch
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
+                size={16}
+              />{" "}
               <input
                 type="text"
-                placeholder="Search Refund / Order ID..."
+                placeholder={t("searchRefundOrder")}
                 value={refundSearch}
                 onChange={(e) => {
                   setRefundSearch(e.target.value);
                   setRefundPage(1);
                 }}
-                className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
               />
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <FiFilter className="text-gray-400" />
-              <select
-                value={refundStatusFilter}
-                onChange={(e) => {
-                  setRefundStatusFilter(e.target.value);
-                  setRefundPage(1);
-                }}
-                className="px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              >
-                <option value="all">All Refund Statuses</option>
-                <option value="requested">Requested</option>
-                <option value="processed">Processed</option>
-                <option value="rejected">Rejected</option>
-              </select>
+              <div className="w-56">
+                <Select
+                  value={refundStatusOptions.find(
+                    (option) => option.value === refundStatusFilter,
+                  )}
+                  onChange={(selected) => {
+                    setRefundStatusFilter(selected?.value || "all");
+                    setRefundPage(1);
+                  }}
+                  options={refundStatusOptions}
+                  styles={selectStyles}
+                  isSearchable={false}
+                />
+              </div>
             </div>
           </div>
 
@@ -916,32 +1101,40 @@ export default function PaymentManagement() {
             <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
               <thead className="bg-gray-50/70 dark:bg-gray-800/70 text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800">
                 <tr>
-                  <th className="px-5 py-3.5">Refund ID</th>
-                  <th className="px-5 py-3.5">Order ID</th>
-                  <th className="px-5 py-3.5">Customer</th>
-                  <th className="px-5 py-3.5">Refund Amount</th>
-                  <th className="px-5 py-3.5">Reason</th>
-                  <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5">Date</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+                  <th className="px-5 py-3.5">{t("refundId")}</th>
+                  <th className="px-5 py-3.5">{t("orderId")}</th>
+                  <th className="px-5 py-3.5">{t("customer")}</th>
+                  <th className="px-5 py-3.5">{t("refundAmount")}</th>
+                  <th className="px-5 py-3.5">{t("reason")}</th>
+                  <th className="px-5 py-3.5">{t("status")}</th>
+                  <th className="px-5 py-3.5">{t("date")}</th>
+                  <th className="px-5 py-3.5 text-right">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                 {refundsLoading ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-400">
-                      Loading refund requests...
+                    <td colSpan={8} className="px-6 py-12">
+                      <div className="flex justify-center items-center h-[400px]">
+                        <Spinner size={40} customColorClass="text-[#A0522D]" />
+                      </div>
                     </td>
                   </tr>
                 ) : refunds.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-400">
-                      No refund requests found.
+                    <td
+                      colSpan={8}
+                      className="px-6 py-12 text-center text-gray-400"
+                    >
+                      {t("noRefundRequests")}
                     </td>
                   </tr>
                 ) : (
                   refunds.map((ref) => (
-                    <tr key={ref.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition">
+                    <tr
+                      key={ref.id}
+                      className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition"
+                    >
                       <td className="px-5 py-4 font-mono text-xs font-semibold text-gray-900 dark:text-white">
                         REF-{ref.id}
                       </td>
@@ -949,17 +1142,21 @@ export default function PaymentManagement() {
                         {ref.order_id || ref.order?.order_id || "-"}
                       </td>
                       <td className="px-5 py-4 text-xs font-medium text-gray-900 dark:text-white">
-                        {ref.user_name || "Customer"}
+                        {ref.user_name || t("customer")}
                       </td>
                       <td className="px-5 py-4 font-semibold text-purple-600 dark:text-purple-400">
                         {formatUSD(ref.refund_amount)}
                       </td>
                       <td className="px-5 py-4 text-xs text-gray-500 max-w-xs truncate">
-                        {ref.reason || "Customer requested refund"}
+                        {ref.reason || t("customerRequestedRefund")}
                       </td>
-                      <td className="px-5 py-4">{renderStatusBadge(ref.status)}</td>
+                      <td className="px-5 py-4">
+                        {renderStatusBadge(ref.status)}
+                      </td>
                       <td className="px-5 py-4 text-xs text-gray-500">
-                        {ref.created_at ? new Date(ref.created_at).toLocaleDateString() : "-"}
+                        {ref.created_at
+                          ? new Date(ref.created_at).toLocaleDateString()
+                          : "-"}
                       </td>
                       <td className="px-5 py-4 text-right">
                         {ref.status !== "processed" ? (
@@ -968,10 +1165,12 @@ export default function PaymentManagement() {
                             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-medium dark:bg-purple-950/60 dark:text-purple-300 transition"
                           >
                             <FiRefreshCw />
-                            Process
+                            {t("process")}
                           </button>
                         ) : (
-                          <span className="text-xs text-emerald-600 font-medium">Completed</span>
+                          <span className="text-xs text-emerald-600 font-medium">
+                            {t("completed")}
+                          </span>
                         )}
                       </td>
                     </tr>
@@ -999,53 +1198,59 @@ export default function PaymentManagement() {
           {/* Search & Action Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="relative w-full sm:w-80">
-              <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <FiSearch
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
+                size={16}
+              />{" "}
               <input
                 type="text"
-                placeholder="Search Promocode..."
+                placeholder={t("searchPromocode")}
                 value={promocodeSearch}
                 onChange={(e) => {
                   setPromocodeSearch(e.target.value);
                   setPromocodePage(1);
                 }}
-                className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
               />
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <select
-                value={promocodeStatusFilter}
-                onChange={(e) => {
-                  setPromocodeStatusFilter(e.target.value);
-                  setPromocodePage(1);
-                }}
-                className="px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none"
-              >
-                <option value="all">All Statuses</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="expired">Expired</option>
-              </select>
+              <div className="w-44">
+                <Select
+                  value={promocodeStatusOptions.find(
+                    (option) => option.value === promocodeStatusFilter,
+                  )}
+                  onChange={(selected) => {
+                    setPromocodeStatusFilter(selected?.value || "all");
+                    setPromocodePage(1);
+                  }}
+                  options={promocodeStatusOptions}
+                  styles={selectStyles}
+                  isSearchable={false}
+                />
+              </div>
 
-              <select
-                value={promocodeTypeFilter}
-                onChange={(e) => {
-                  setPromocodeTypeFilter(e.target.value);
-                  setPromocodePage(1);
-                }}
-                className="px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none"
-              >
-                <option value="all">All Discount Types</option>
-                <option value="percentage">Percentage Discount</option>
-                <option value="fixed">Fixed Price Amount</option>
-              </select>
+              <div className="w-48">
+                <Select
+                  value={promocodeTypeOptions.find(
+                    (option) => option.value === promocodeTypeFilter,
+                  )}
+                  onChange={(selected) => {
+                    setPromocodeTypeFilter(selected?.value || "all");
+                    setPromocodePage(1);
+                  }}
+                  options={promocodeTypeOptions}
+                  styles={selectStyles}
+                  isSearchable={false}
+                />
+              </div>
 
               <button
                 onClick={() => handleOpenPromoModal(null)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#A0522D] text-white font-medium text-sm transition"
               >
                 <FiPlus />
-                New Code
+                {t("newCode")}
               </button>
             </div>
           </div>
@@ -1053,10 +1258,12 @@ export default function PaymentManagement() {
           {/* Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
             {promocodesLoading ? (
-              <div className="col-span-full py-12 text-center text-gray-400">Loading promocodes...</div>
+              <div className="col-span-full py-12 flex justify-center items-center">
+                <Spinner size={40} customColorClass="text-[#A0522D]" />
+              </div>
             ) : promocodes.length === 0 ? (
               <div className="col-span-full py-12 text-center text-gray-400">
-                No promotional codes found. Create a new promo code to get started!
+                {t("noPromotionalCodes")}
               </div>
             ) : (
               promocodes.map((promo) => (
@@ -1068,14 +1275,16 @@ export default function PaymentManagement() {
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div>
                         <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                          {promo.promocodeType === "fix_price" ? "Fixed Price" : "Discount"}
+                          {promo.promocodeType === "fix_price"
+                            ? t("fixedPrice")
+                            : t("discount")}
                         </span>
                         <h4 className="text-lg font-bold font-mono text-gray-900 dark:text-white flex items-center gap-2 mt-0.5">
                           {promo.promocodeName}
                           <button
                             onClick={() => handleCopyCode(promo.promocodeName)}
                             className="p-1 text-gray-400 hover:text-blue-600 transition"
-                            title="Copy Promocode"
+                            title={t("copyPromocode")}
                           >
                             {copiedCode === promo.promocodeName ? (
                               <FiCheck className="text-emerald-500 text-sm" />
@@ -1097,30 +1306,40 @@ export default function PaymentManagement() {
                     </div>
 
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 line-clamp-2">
-                      {promo.description || "No specific promotional terms specified."}
+                      {promo.description || t("noSpecificPromotionalTerms")}
                     </p>
 
                     <div className="space-y-1.5 text-xs text-gray-600 dark:text-gray-300">
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Value / Discount:</span>
+                        <span className="text-gray-400">
+                          {" "}
+                          {t("valueDiscount")}:
+                        </span>
                         <span className="font-semibold text-gray-900 dark:text-white">
                           {promo.promocodeType === "fix_price"
                             ? formatUSD(promo.amount)
-                            : `${promo.amount}% OFF`}
+                            : `${promo.amount}% ${t("off")}`}
                         </span>
                       </div>
 
                       {promo.min_order_value && (
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Min Order Value:</span>
+                          <span className="text-gray-400">
+                            {t("minOrderValue")}:
+                          </span>
                           <span>{formatUSD(promo.min_order_value)}</span>
                         </div>
                       )}
 
                       {promo.limit_uses && (
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Usage Limit:</span>
-                          <span>{promo.max_uses || "Unlimited"} uses</span>
+                          <span className="text-gray-400">
+                            {t("usageLimit")}:
+                          </span>
+                          <span>
+                            {" "}
+                            {promo.max_uses || t("unlimited")} {t("uses")}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -1128,20 +1347,24 @@ export default function PaymentManagement() {
 
                   <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
                     <span className="text-[11px] text-gray-400">
-                      {promo.ended_at ? `Expires: ${new Date(promo.ended_at).toLocaleDateString()}` : "No Expiry"}
+                      {promo.ended_at
+                        ? `${t("expires")}: ${new Date(
+                            promo.ended_at,
+                          ).toLocaleDateString()}`
+                        : t("noExpiry")}
                     </span>
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleOpenPromoModal(promo)}
                         className="p-1.5 text-gray-500 hover:text-blue-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                        title="Edit Promocode"
+                        title={t("editPromocode")}
                       >
                         <FiEdit />
                       </button>
                       <button
                         onClick={() => handleDeletePromo(promo.id)}
                         className="p-1.5 text-gray-500 hover:text-rose-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                        title="Delete Promocode"
+                        title={t("deletePromocode")}
                       >
                         <FiTrash2 />
                       </button>
@@ -1169,22 +1392,27 @@ export default function PaymentManagement() {
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden space-y-4 p-5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white text-base">Invoices & Receipts</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white text-base">
+                {t("invoiceReceipts")}
+              </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                Download generated PDF invoices for customer payment orders
+                {t("invoiceDescription")}
               </p>
             </div>
             <div className="relative w-full sm:w-80">
-              <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <FiSearch
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
+                size={16}
+              />{" "}
               <input
                 type="text"
-                placeholder="Search Invoice / Order..."
+                placeholder={t("searchInvoiceOrder")}
                 value={paymentSearch}
                 onChange={(e) => {
                   setPaymentSearch(e.target.value);
                   setPaymentPage(1);
                 }}
-                className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none"
+                className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
               />
             </div>
           </div>
@@ -1193,31 +1421,39 @@ export default function PaymentManagement() {
             <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
               <thead className="bg-gray-50/70 dark:bg-gray-800/70 text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800">
                 <tr>
-                  <th className="px-5 py-3.5">Invoice / Payment ID</th>
-                  <th className="px-5 py-3.5">Order ID</th>
-                  <th className="px-5 py-3.5">Customer Name</th>
-                  <th className="px-5 py-3.5">Billing Amount (USD)</th>
-                  <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5">Date</th>
-                  <th className="px-5 py-3.5 text-right">Action</th>
+                  <th className="px-5 py-3.5">{t("invoicePaymentId")}</th>
+                  <th className="px-5 py-3.5">{t("orderId")}</th>
+                  <th className="px-5 py-3.5">{t("customerName")}</th>
+                  <th className="px-5 py-3.5">{t("billingAmountUsd")}</th>
+                  <th className="px-5 py-3.5">{t("status")}</th>
+                  <th className="px-5 py-3.5">Da{t("date")}te</th>
+                  <th className="px-5 py-3.5 text-right">{t("action")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                 {paymentsLoading ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
-                      Loading invoice records...
+                    <td colSpan={7} className="px-6 py-12">
+                      <div className="col-span-full py-12 flex justify-center items-center">
+                        <Spinner size={40} customColorClass="text-[#A0522D]" />
+                      </div>
                     </td>
                   </tr>
                 ) : payments.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
-                      No invoices available.
+                    <td
+                      colSpan={7}
+                      className="px-6 py-12 text-center text-gray-400"
+                    >
+                      {t("noInvoicesAvailable")}
                     </td>
                   </tr>
                 ) : (
                   payments.map((pay) => (
-                    <tr key={pay.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition">
+                    <tr
+                      key={pay.id}
+                      className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition"
+                    >
                       <td className="px-5 py-4 font-mono text-xs font-semibold text-gray-900 dark:text-white">
                         INV-{pay.id}
                       </td>
@@ -1225,14 +1461,20 @@ export default function PaymentManagement() {
                         {pay.order?.order_id || pay.order_id || "-"}
                       </td>
                       <td className="px-5 py-4 text-xs font-medium text-gray-900 dark:text-white">
-                        {pay.order?.customer?.name || pay.order?.user?.userName || "Customer"}
+                        {pay.order?.customer?.name ||
+                          pay.order?.user?.userName ||
+                          t("customer")}
                       </td>
                       <td className="px-5 py-4 font-semibold text-gray-900 dark:text-white">
                         {formatUSD(pay.amount)}
                       </td>
-                      <td className="px-5 py-4">{renderStatusBadge(pay.payment_status)}</td>
+                      <td className="px-5 py-4">
+                        {renderStatusBadge(pay.payment_status)}
+                      </td>
                       <td className="px-5 py-4 text-xs text-gray-500">
-                        {pay.created_at ? new Date(pay.created_at).toLocaleDateString() : "-"}
+                        {pay.created_at
+                          ? new Date(pay.created_at).toLocaleDateString()
+                          : "-"}
                       </td>
                       <td className="px-5 py-4 text-right">
                         <button
@@ -1240,8 +1482,12 @@ export default function PaymentManagement() {
                           disabled={pdfLoadingId === pay.id}
                           className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-medium dark:bg-blue-950/60 dark:text-blue-300 transition disabled:opacity-50"
                         >
-                          <FiDownload className={pdfLoadingId === pay.id ? "animate-spin" : ""} />
-                          PDF Invoice
+                          <FiDownload
+                            className={
+                              pdfLoadingId === pay.id ? "animate-spin" : ""
+                            }
+                          />
+                          {t("pdfInvoice")}
                         </button>
                       </td>
                     </tr>
@@ -1270,7 +1516,7 @@ export default function PaymentManagement() {
             <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <FiCreditCard className="text-blue-600" />
-                Payment Transaction Details
+                {t("paymentTransactionDetails")}
               </h3>
               <button
                 onClick={() => setIsDetailModalOpen(false)}
@@ -1282,31 +1528,35 @@ export default function PaymentManagement() {
 
             <div className="space-y-3 text-sm">
               <div className="flex justify-between py-1.5 border-b border-gray-50 dark:border-gray-800/50">
-                <span className="text-gray-400">Payment ID:</span>
+                <span className="text-gray-400">{t("paymentIdLabel")}:</span>
                 <span className="font-mono font-semibold text-gray-900 dark:text-white">
                   {selectedPayment.payment_id || `PAY-${selectedPayment.id}`}
                 </span>
               </div>
 
               <div className="flex justify-between py-1.5 border-b border-gray-50 dark:border-gray-800/50">
-                <span className="text-gray-400">Order ID:</span>
+                <span className="text-gray-400">{t("orderIdLabel")}:</span>
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  {selectedPayment.order?.order_id || selectedPayment.order_id || "-"}
+                  {selectedPayment.order?.order_id ||
+                    selectedPayment.order_id ||
+                    "-"}
                 </span>
               </div>
 
               <div className="flex justify-between py-1.5 border-b border-gray-50 dark:border-gray-800/50">
-                <span className="text-gray-400">Payment Method:</span>
+                <span className="text-gray-400">
+                  {t("paymentMethodLabel")}:
+                </span>
                 <span>{renderMethodBadge(selectedPayment.payment_method)}</span>
               </div>
 
               <div className="flex justify-between py-1.5 border-b border-gray-50 dark:border-gray-800/50">
-                <span className="text-gray-400">Status:</span>
+                <span className="text-gray-400">{t("statusLabel")}:</span>
                 <span>{renderStatusBadge(selectedPayment.payment_status)}</span>
               </div>
 
               <div className="flex justify-between py-1.5 border-b border-gray-50 dark:border-gray-800/50">
-                <span className="text-gray-400">Amount Paid:</span>
+                <span className="text-gray-400">{t("amountPaid")}:</span>
                 <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400">
                   {formatUSD(selectedPayment.amount)} USD
                 </span>
@@ -1314,7 +1564,7 @@ export default function PaymentManagement() {
 
               {selectedPayment.paid_at && (
                 <div className="flex justify-between py-1.5 border-b border-gray-50 dark:border-gray-800/50">
-                  <span className="text-gray-400">Paid Timestamp:</span>
+                  <span className="text-gray-400">{t("paidTimestamp")}:</span>
                   <span className="text-xs text-gray-600 dark:text-gray-300">
                     {new Date(selectedPayment.paid_at).toLocaleString()}
                   </span>
@@ -1327,7 +1577,7 @@ export default function PaymentManagement() {
                 onClick={() => setIsDetailModalOpen(false)}
                 className="px-4 py-2 rounded-xl text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
-                Close
+                {t("close")}
               </button>
               <button
                 onClick={() => {
@@ -1336,7 +1586,7 @@ export default function PaymentManagement() {
                 }}
                 className="px-4 py-2 rounded-xl text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
               >
-                <FiDownload /> Download Invoice
+                <FiDownload /> {t("downloadInvoice")}
               </button>
             </div>
           </div>
@@ -1421,7 +1671,9 @@ export default function PaymentManagement() {
                 disabled={refundSubmitting}
                 className="px-5 py-2.5 rounded-xl text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white shadow-sm disabled:opacity-50 flex items-center gap-2"
               >
-                {refundSubmitting ? "Processing..." : "Approve & Execute Refund"}
+                {refundSubmitting
+                  ? "Processing..."
+                  : "Approve & Execute Refund"}
               </button>
             </div>
           </form>
@@ -1438,7 +1690,9 @@ export default function PaymentManagement() {
             <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <FiTag className="text-blue-600" />
-                {selectedPromocode ? "Edit Promocode" : "Create New Promocode"}
+                {selectedPromocode
+                  ? t("editPromocode")
+                  : t("createNewPromocode")}
               </h3>
               <button
                 type="button"
@@ -1452,13 +1706,18 @@ export default function PaymentManagement() {
             <div className="space-y-4 text-sm">
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                  Promocode Name / Code *
+                  {t("promocodeNameCode")}
                 </label>
                 <input
                   type="text"
                   required
                   value={promoForm.promocodeName}
-                  onChange={(e) => setPromoForm({ ...promoForm, promocodeName: e.target.value.toUpperCase() })}
+                  onChange={(e) =>
+                    setPromoForm({
+                      ...promoForm,
+                      promocodeName: e.target.value.toUpperCase(),
+                    })
+                  }
                   placeholder="e.g. SUMMER2026"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-mono font-bold focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
                 />
@@ -1466,13 +1725,15 @@ export default function PaymentManagement() {
 
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                  Description
+                  {t("description")}
                 </label>
                 <textarea
                   rows={2}
                   value={promoForm.description}
-                  onChange={(e) => setPromoForm({ ...promoForm, description: e.target.value })}
-                  placeholder="Promocode offer terms & details..."
+                  onChange={(e) =>
+                    setPromoForm({ ...promoForm, description: e.target.value })
+                  }
+                  placeholder={t("promocodeTermsDetails")}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
                 />
               </div>
@@ -1480,29 +1741,40 @@ export default function PaymentManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    Discount Type *
+                    {t("discountType")}
                   </label>
                   <select
                     value={promoForm.promocodeType}
-                    onChange={(e) => setPromoForm({ ...promoForm, promocodeType: e.target.value })}
+                    onChange={(e) =>
+                      setPromoForm({
+                        ...promoForm,
+                        promocodeType: e.target.value,
+                      })
+                    }
                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none"
                   >
-                    <option value="discount">Percentage Discount (%)</option>
-                    <option value="fix_price">Fixed Amount ($)</option>
+                    <option value="discount"> {t("percentageDiscount")}</option>
+                    <option value="fix_price"> {t("fixedAmount")}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    Amount / Value *
+                    {t("amountValue")}
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     required
                     value={promoForm.amount}
-                    onChange={(e) => setPromoForm({ ...promoForm, amount: e.target.value })}
-                    placeholder={promoForm.promocodeType === "discount" ? "e.g. 15 (%)" : "e.g. 50 ($)"}
+                    onChange={(e) =>
+                      setPromoForm({ ...promoForm, amount: e.target.value })
+                    }
+                    placeholder={
+                      promoForm.promocodeType === "discount"
+                        ? t("percentagePlaceholder")
+                        : t("fixedAmountPlaceholder")
+                    }
                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none"
                   />
                 </div>
@@ -1510,14 +1782,19 @@ export default function PaymentManagement() {
 
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                  Minimum Order Value ($)
+                  {t("minimumOrderValue")}
                 </label>
                 <input
                   type="number"
                   step="0.01"
                   value={promoForm.min_order_value}
-                  onChange={(e) => setPromoForm({ ...promoForm, min_order_value: e.target.value })}
-                  placeholder="Optional minimum cart total"
+                  onChange={(e) =>
+                    setPromoForm({
+                      ...promoForm,
+                      min_order_value: e.target.value,
+                    })
+                  }
+                  placeholder={t("optionalMinimumCartTotal")}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none"
                 />
               </div>
@@ -1527,24 +1804,31 @@ export default function PaymentManagement() {
                   type="checkbox"
                   id="limit_uses"
                   checked={promoForm.limit_uses}
-                  onChange={(e) => setPromoForm({ ...promoForm, limit_uses: e.target.checked })}
+                  onChange={(e) =>
+                    setPromoForm({ ...promoForm, limit_uses: e.target.checked })
+                  }
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <label htmlFor="limit_uses" className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Limit Maximum Total Uses
+                <label
+                  htmlFor="limit_uses"
+                  className="text-xs font-medium text-gray-700 dark:text-gray-300"
+                >
+                  {t("limitMaximumUses")}
                 </label>
               </div>
 
               {promoForm.limit_uses && (
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    Max Uses Count
+                    {t("maxUsesCount")}
                   </label>
                   <input
                     type="number"
                     value={promoForm.max_uses}
-                    onChange={(e) => setPromoForm({ ...promoForm, max_uses: e.target.value })}
-                    placeholder="e.g. 100"
+                    onChange={(e) =>
+                      setPromoForm({ ...promoForm, max_uses: e.target.value })
+                    }
+                    placeholder={t("maxUsesPlaceholder")}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none"
                   />
                 </div>
@@ -1553,24 +1837,28 @@ export default function PaymentManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    Start Date
+                    {t("startDate")}
                   </label>
                   <input
                     type="datetime-local"
                     value={promoForm.started_at}
-                    onChange={(e) => setPromoForm({ ...promoForm, started_at: e.target.value })}
+                    onChange={(e) =>
+                      setPromoForm({ ...promoForm, started_at: e.target.value })
+                    }
                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs focus:outline-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    End Date
+                    {t("endDate")}
                   </label>
                   <input
                     type="datetime-local"
                     value={promoForm.ended_at}
-                    onChange={(e) => setPromoForm({ ...promoForm, ended_at: e.target.value })}
+                    onChange={(e) =>
+                      setPromoForm({ ...promoForm, ended_at: e.target.value })
+                    }
                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs focus:outline-none"
                   />
                 </div>
@@ -1581,11 +1869,16 @@ export default function PaymentManagement() {
                   type="checkbox"
                   id="isActive"
                   checked={promoForm.isActive}
-                  onChange={(e) => setPromoForm({ ...promoForm, isActive: e.target.checked })}
+                  onChange={(e) =>
+                    setPromoForm({ ...promoForm, isActive: e.target.checked })
+                  }
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <label htmlFor="isActive" className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Promocode is Active
+                <label
+                  htmlFor="isActive"
+                  className="text-xs font-medium text-gray-700 dark:text-gray-300"
+                >
+                  {t("promocodeActive")}
                 </label>
               </div>
             </div>
@@ -1594,16 +1887,20 @@ export default function PaymentManagement() {
               <button
                 type="button"
                 onClick={() => setIsPromocodeModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"
+                className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 type="submit"
                 disabled={promoSubmitting}
-                className="px-5 py-2.5 rounded-xl text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-sm disabled:opacity-50 flex items-center gap-2"
+                className="px-5 py-2.5 rounded-lg text-sm font-medium bg-[#A0522D] text-white shadow-sm disabled:opacity-50 flex items-center gap-2"
               >
-                {promoSubmitting ? "Saving..." : selectedPromocode ? "Update Promocode" : "Save Promocode"}
+                {promoSubmitting
+                  ? t("saving")
+                  : selectedPromocode
+                    ? t("updatePromocode")
+                    : t("savePromocode")}
               </button>
             </div>
           </form>
