@@ -48,7 +48,7 @@ const ProductSpecificationPage = () => {
       case "Closure":
         return (
           <AttributeTab
-            attributeTitle={t("tableShape")}
+            attributeTitle={t("closure")}
             service={ClosuresService}
           />
         );

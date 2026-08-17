@@ -41,8 +41,8 @@ const Tabs = ({ activeTab, setActiveTab }) => {
           onClick={() => setActiveTab(key)}
           className={`pb-2 text-base font-medium flex items-center gap-2 whitespace-nowrap border-b-2 transition-colors cursor-pointer ${
             activeTab === key
-              ? "text-[#1C2C56] border-[#1C2C56]"
-              : "text-[#64748B] border-transparent hover:text-[#1C2C56]"
+              ? "text-[#000000] border-b-3 border-[#A85A32]"
+              : "text-[#64748B] border-transparent"
           }`}
         >
           <Icon size={16} />
