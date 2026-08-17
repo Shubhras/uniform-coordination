@@ -1,0 +1,8 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(public-pages)/reports-analytics/page": "app/(public-pages)/reports-analytics/page.js",
+  "/(public-pages)/simulation-assets/page": "app/(public-pages)/simulation-assets/page.js",
+  "/(public-pages)/notifications/page": "app/(public-pages)/notifications/page.js",
+  "/(public-pages)/orders/[orderId]/page": "app/(public-pages)/orders/[orderId]/page.js",
+  "/(public-pages)/saved-simulations/page": "app/(public-pages)/saved-simulations/page.js"
+}

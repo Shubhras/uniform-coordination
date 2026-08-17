@@ -235,7 +235,6 @@ const ThemePage = () => {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
               size={16}
             />
-
             <input
               type="text"
               placeholder={t("searchTheme")}
