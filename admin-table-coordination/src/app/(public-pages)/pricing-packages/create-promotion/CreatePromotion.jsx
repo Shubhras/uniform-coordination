@@ -467,7 +467,7 @@ const CreatePromotion = () => {
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-xl border border-[#EAD9CD] px-6 py-2.5 text-[13px] font-medium text-[#6E615A]"
+          className="rounded-lg border border-[#EAD9CD] px-6 py-2.5 text-[13px] font-medium text-[#6E615A]"
         >
           {t("cancel")}
         </button>
@@ -476,7 +476,7 @@ const CreatePromotion = () => {
           type="button"
           onClick={handleCreate}
           disabled={loading}
-          className="rounded-xl bg-[#B56735] px-5 py-1 text-[13px] font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-lg bg-[#B56735] px-5 py-1 text-[13px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading
             ? isEdit
