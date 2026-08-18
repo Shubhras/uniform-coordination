@@ -250,7 +250,7 @@ export default function ViewInventory() {
                       {t("rentalPrice")}
                     </p>
                     <p className="mt-1 text-[16px] font-medium text-[#1A1410]">
-                      ₹{product?.rental_price_per_day}
+                      ${product?.rental_price_per_day}
                     </p>
                   </div>
 

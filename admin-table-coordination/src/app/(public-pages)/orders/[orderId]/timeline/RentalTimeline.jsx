@@ -216,8 +216,7 @@ export default function RentalTimeline({ orderId }) {
               <div className="flex justify-between">
                 <span className="text-[#8C8177]">{t("amount")}</span>
                 <span className="font-semibold text-[#A85A32]">
-                  {order?.payment_summary?.currency || "₹"}{" "}
-                  {order?.total_amount}
+                 ${order?.total_amount}
                 </span>{" "}
               </div>
 
