@@ -326,7 +326,7 @@ export default function EditPricingRules() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="h-10 px-5 rounded-xl border border-[#E9DDD3] bg-white text-[#6E6258] font-medium hover:bg-[#F8F3EF] transition"
+          className="h-10 px-5 rounded-lg border border-[#E9DDD3] bg-white text-[#6E6258] font-medium hover:bg-[#F8F3EF] transition"
         >
           {t("cancel")}
         </button>
@@ -336,7 +336,7 @@ export default function EditPricingRules() {
           onClick={handleSave}
           loading={loading}
           disabled={loading}
-          className="h-10 px-5 rounded-xl bg-[#A85A32] text-white font-medium hover:bg-[#8F4D2A]"
+          className="h-10 px-5 rounded-lg bg-[#A85A32] text-white font-medium hover:bg-[#8F4D2A]"
         >
           {t("saveRule")}
         </Button>

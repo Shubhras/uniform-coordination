@@ -260,6 +260,8 @@
             "inventoryManagement": "在庫管理",
             "orderRentals": "注文・レンタル",
             "pricingPackages": "価格・パッケージ",
+            "savedSimulations": "保存したシミュレーション",
+            "payments": "決済管理",
             "contractsPolicies": "契約・ポリシー",
             "notifications": "通知",
             "aiAutomation": "AI・自動化",
@@ -314,7 +316,22 @@
             "viewDetails": "詳細を表示",
             "allCaughtUp": "すべて確認済みです",
             "allCaughtUpDesc": "対応が必要なアラートはありません。"
-        }
+        },
+        "recentOrders": {
+            "title": "最近の注文（今日）",
+            "today": "今日",
+            "subtitle": "今日お客様が行った注文",
+            "viewall": "すべて表示",
+            "orderId": "注文ID",
+            "customer": "顧客",
+            "datetime": "日付と時刻",
+            "amount": "金額",
+            "status": "ステータス",
+            "action": "アクション",
+            "details": "詳細",
+            "noOrders": "今日はまだ注文を受け付けていません。",
+            "view": "表示"
+}
     },
     "productSpecification": {
          "tabs": {
@@ -1500,5 +1517,148 @@
                 "lateFeeDesc": "適用される延滞金とその計算明細を顧客へ通知します。"
             }
         }
-    }
+    },
+    "paymentManagement": {
+    "payManage": "決済管理",
+    "subtitle": "USD取引を監視し、返金処理、プロモーションキャンペーンの管理、請求書の発行を行います。",
+    "createPromo": "プロモーションコードを作成",
+
+    "paymentDashboard": "決済ダッシュボード",
+    "paymentTransactions": "決済取引",
+    "refundManagement": "返金管理",
+    "couponManagement": "クーポン管理",
+    "promotionalCampaigns": "プロモーションキャンペーン",
+    "invoiceManagement": "請求書管理",
+
+    "totalRevenue": "総売上",
+    "totalTransactions": "総取引数",
+    "successful": "成功",
+    "paid": "支払済み",
+    "refunded": "返金済み",
+    "ofRevenue": "売上の",
+    "pending": "保留中",
+    "inProgress": "処理中",
+    "failed": "失敗",
+
+    "recentTransactions": "最近の取引",
+    "latestCustomerPaymentActivity": "最新の顧客決済アクティビティ",
+    "viewAllTransactions": "すべての取引を表示",
+
+    "paymentId": "決済ID",
+    "orderId": "注文ID",
+    "method": "支払方法",
+    "amountUsd": "金額（USD）",
+    "status": "ステータス",
+    "date": "日付",
+    "actions": "操作",
+    "loadingRecentTransactions": "最近の取引を読み込んでいます...",
+    "noRecentTransactions": "最近の取引はありません。",
+    "view": "表示",
+    "searchOrderPayment": "注文ID、決済IDを検索...",
+    "allPaymentStatuses": "すべての決済ステータス",
+    "success": "成功",
+    "customer": "顧客",
+    "paymentMethod": "支払方法",
+
+    "loadingPaymentTransactions": "決済取引を読み込んでいます...",
+    "noPaymentTransactions": "フィルター条件に一致する決済取引はありません。",
+
+    "viewDetails": "詳細を表示",
+    "downloadInvoicePdf": "請求書PDFをダウンロード",
+    "searchRefundOrder": "返金 / 注文IDを検索...",
+    "allRefundStatuses": "すべての返金ステータス",
+    "requested": "申請済み",
+    "processed": "処理済み",
+    "rejected": "拒否",
+
+    "refundId": "返金ID",
+    "refundAmount": "返金額",
+    "reason": "理由",
+    "loadingRefundRequests": "返金リクエストを読み込んでいます...",
+    "noRefundRequests": "返金リクエストはありません。",
+    "customerRequestedRefund": "顧客が返金をリクエストしました",
+    "process": "処理",
+    "completed": "完了",
+    "searchPromocode": "プロモーションコードを検索...",
+    "allStatuses": "すべてのステータス",
+    "active": "有効",
+    "inactive": "無効",
+    "expired": "期限切れ",
+
+    "allDiscountTypes": "すべての割引タイプ",
+    "percentageDiscount": "割引率",
+    "fixedPriceAmount": "固定金額",
+
+    "newCode": "新しいコード",
+    "fixedPrice": "固定価格",
+    "discount": "割引",
+    "copyPromocode": "プロモーションコードをコピー",
+    "noSpecificPromotionalTerms": "特定のプロモーション条件は指定されていません。",
+
+    "valueDiscount": "値引き額 / 割引",
+    "off": "OFF",
+    "minOrderValue": "最低注文金額",
+    "usageLimit": "利用上限",
+    "unlimited": "無制限",
+    "uses": "回",
+
+    "expires": "有効期限",
+    "noExpiry": "有効期限なし",
+
+    "editPromocode": "プロモーションコードを編集",
+    "deletePromocode": "プロモーションコードを削除",
+
+    "loadingPromocodes": "プロモーションコードを読み込んでいます...",
+    "noPromotionalCodes": "プロモーションコードが見つかりません。新しいプロモーションコードを作成して開始してください。",
+    "invoiceReceipts": "請求書・領収書",
+    "invoiceDescription": "顧客の支払い注文用に生成されたPDF請求書をダウンロードします",
+    "searchInvoiceOrder": "請求書 / 注文を検索...",
+
+    "invoicePaymentId": "請求書 / 決済ID",
+    "customerName": "顧客名",
+    "billingAmountUsd": "請求金額（USD）",
+    "action": "操作",
+
+    "loadingInvoiceRecords": "請求書記録を読み込んでいます...",
+    "noInvoicesAvailable": "利用可能な請求書はありません。",
+    "pdfInvoice": "PDF請求書",
+    "paymentTransactionDetails": "決済取引の詳細",
+    "paymentIdLabel": "決済ID:",
+    "orderIdLabel": "注文ID:",
+    "paymentMethodLabel": "支払方法:",
+    "statusLabel": "ステータス:",
+    "amountPaid": "支払金額:",
+    "paidTimestamp": "支払日時:",
+    "close": "閉じる",
+    "downloadInvoice": "請求書をダウンロード",
+    "createNewPromocode": "新しいプロモーションコードを作成",
+    "promocodeNameCode": "プロモーションコード名 / コード *",
+    "promocodePlaceholder": "例：SUMMER2026",
+    "description": "説明",
+    "promocodeTermsDetails": "プロモーションコードの利用条件と詳細...",
+
+    "discountType": "割引タイプ *",
+    "fixedAmount": "固定金額（$）",
+
+    "amountValue": "金額 / 割引額 *",
+    "percentagePlaceholder": "例：15（%）",
+    "fixedAmountPlaceholder": "例：50（$）",
+
+    "minimumOrderValue": "最低注文金額（$）",
+    "optionalMinimumCartTotal": "任意の最低カート金額",
+
+    "limitMaximumUses": "合計利用回数を制限",
+    "maxUsesCount": "最大利用回数",
+    "maxUsesPlaceholder": "例：100",
+
+    "startDate": "開始日",
+    "endDate": "終了日",
+
+    "promocodeActive": "プロモーションコードを有効にする",
+
+    "cancel": "キャンセル",
+    "saving": "保存中...",
+    "updatePromocode": "プロモーションコードを更新",
+    "savePromocode": "プロモーションコードを保存"
+}
 }

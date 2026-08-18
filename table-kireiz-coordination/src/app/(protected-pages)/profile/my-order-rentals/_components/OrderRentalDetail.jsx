@@ -51,7 +51,7 @@ const cardClassName = 'rounded-2xl border border-[#F0E4DE] bg-white shadow-sm'
 // Reusable detail card container
 const DetailCard = ({ title, icon, children, className = '' }) => (
     <div className={`${cardClassName} p-4 ${className}`}>
-        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#C8A18C]">
+        <div className="flex items-center gap-1.5 text-[13px] font-semibold uppercase tracking-[0.16em] text-[#C8A18C]">
             {icon}
             <p>{title}</p>
         </div>
@@ -177,7 +177,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
 
     return (
         // <div className="mx-auto w-full max-w-7xl py-6 px-4 md:px-8">
-          <div className="mx-auto w-full max-w-7xl pt-[70px] pb-6 px-4 md:px-8">
+          <div className="mx-auto w-full max-w-8xl pt-[70px] pb-6 px-2 md:px-1">
             {/* Header */}
             <div className="mb-6 flex items-center gap-3">
                 <button
@@ -225,7 +225,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
 
                             <DetailCard
                                 title="Rental Information"
-                                icon={<FiCalendar size={12} className="text-[#B66636]" />}
+                                icon={<FiCalendar size={14} className="text-[#B66636]" />}
                                 className="flex-grow-0"
                             >
                                 <div className="grid grid-cols-2 gap-x-6 gap-y-4">
@@ -237,7 +237,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                             {orderData?.contract_info && (
                                 <DetailCard
                                     title="Quotation & Contract Information"
-                                    icon={<FiFileText size={12} className="text-[#B66636]" />}
+                                    icon={<FiFileText size={14} className="text-[#B66636]" />}
                                     className="flex-grow-0"
                                 >
                                     <div className="grid grid-cols-2 gap-x-6 gap-y-4">
@@ -264,13 +264,13 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
 
                         <div className="h-full">
                             <div className={`${cardClassName} flex h-full flex-col p-4`}>
-                                <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#C8A18C]">
-                                    <FiCreditCard size={12} className="text-[#B66636]" />
+                                <div className="flex items-center gap-1.5 text-[13px] font-semibold uppercase tracking-[0.16em] text-[#C8A18C]">
+                                    <FiCreditCard size={14} className="text-[#B66636]" />
                                     <p>Payment Summary</p>
                                 </div>
                                 <div className="mt-4 space-y-3 text-sm text-[#6D5548]">
                                     <div className="flex items-center justify-between">
-                                        <span>Total Items</span>
+                                        <span className='text-[13px] font-semibold'>Total Items</span>
                                         <span>{orderData?.order_items?.length}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
@@ -296,7 +296,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                 </div>
 
                                 <div className="mt-5 border-t border-[#F2E6E0] pt-5">
-                                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C8A18C]">
+                                    <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[#C8A18C]">
                                         Payment Method
                                     </p>
                                     <div className="mt-2 flex items-center gap-2 rounded-md border border-[#EEE1D8] bg-white px-3 py-3 text-sm font-medium text-[#2C1810]">
@@ -344,7 +344,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                         <div className="mt-4 space-y-4">
                             <DetailCard
                                 title="Customer Information"
-                                icon={<FiUser size={12} className="text-[#B66636]" />}
+                                icon={<FiUser size={14} className="text-[#B66636]" />}
                             >
                                 <div className="grid gap-x-8 gap-y-4 md:grid-cols-3">
                                     <div>
@@ -357,7 +357,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                     </div>
                                     <InfoRow label="Business Email" value={orderData?.delivery_address?.email} />
                                     <div className="flex items-center gap-2 text-sm text-[#2C1810]">
-                                        <FiPhone size={14} className="text-[#B48A73]" />
+                                        {/* <FiPhone size={14} className="text-[#B48A73]" /> */}
                                         <div>
                                             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C8A18C]">
                                                 Phone Number
@@ -367,7 +367,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                     </div>
                                     <div className="md:col-span-2">
                                         <div className="flex items-start gap-2 text-sm text-[#2C1810]">
-                                            <FiMail size={14} className="mt-0.5 text-transparent" />
+                                            {/* <FiMail size={14} className="mt-0.5 text-transparent" /> */}
                                             <div>
                                                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C8A18C]">
                                                     Delivery Address
@@ -387,8 +387,8 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
 
                             <div className={`${cardClassName} overflow-hidden`}>
                                 <div className="flex items-center justify-between border-b border-[#F4E8E2] px-4 py-4">
-                                    <h3 className="text-sm font-semibold text-[#2C1810]">Ordered Items</h3>
-                                    <span className="text-xs text-[#B8A89E]">{orderData?.order_items?.length} items</span>
+                                    <h3 className="text-[14px] font-semibold text-[#2C1810]">Ordered Items</h3>
+                                    <span className="text-[13px] text-[#B8A89E]">{orderData?.order_items?.length} items</span>
                                 </div>
                                 <div className="hidden overflow-x-auto md:block">
                                     <table className="min-w-full">
