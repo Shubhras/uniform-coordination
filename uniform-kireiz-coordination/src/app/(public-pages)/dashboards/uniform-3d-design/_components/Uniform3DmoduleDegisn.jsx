@@ -214,7 +214,6 @@ const Uniform3DmoduleDegisn = () => {
   const pathname = usePathname();
   const [isSubmitting, setIsSubmitting] = useState(false);
   //console.log("Current Product ID:", id);
-  const [counts, setCounts] = useState({});
   const [designJSON, setDesignJSON] = useState({
     colors: {
       top: "",
@@ -245,11 +244,6 @@ const Uniform3DmoduleDegisn = () => {
 
 
   const increment = (size) => {
-    setCounts((prev) => ({
-      ...prev,
-      [size]: (prev[size] || 0) + 1
-    }));
-
     setDesignJSON((prev) => ({
       ...prev,
       sizes: {
@@ -1121,7 +1115,7 @@ const Uniform3DmoduleDegisn = () => {
               {panels[active].type === "size" && (
                 <div className="grid grid-cols-4 gap-3">
                   {panels[active].data.map((size, i) => {
-                    const isSelected = Boolean(counts[size]);
+                    const isSelected = Boolean(designJSON.sizes[size]);
                     return (
                       <button
                         key={size}
@@ -1282,5 +1276,4 @@ const Uniform3DmoduleDegisn = () => {
 }
 
 export default Uniform3DmoduleDegisn
-
 

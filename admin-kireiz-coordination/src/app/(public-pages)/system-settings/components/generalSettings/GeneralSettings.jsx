@@ -1,6 +1,7 @@
 "use client";
-
+ 
 import { useEffect, useState } from "react";
+import dayjs from "dayjs";
 import { useTranslations } from "next-intl";
 import { FiImage, FiUpload } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -13,16 +14,16 @@ import {
 import Spinner from "@/components/ui/Spinner";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
-
+ 
 const GeneralSettings = () => {
   const t = useTranslations("systemSettings.generalSettings");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
-
+ 
   const [loading, setLoading] = useState(false);
   const [logoFile, setLogoFile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-
+ 
   const [settings, setSettings] = useState({
     company_name: "",
     business_address: "",
@@ -34,15 +35,15 @@ const GeneralSettings = () => {
     date_format: "",
     logo: "",
   });
-
+ 
   useEffect(() => {
     getGeneralSettings();
   }, []);
-
+ 
   const handleUpdate = async () => {
     try {
       setLoading(true);
-
+ 
       const formData = new FormData();
       formData.append("company_name", settings.company_name);
       formData.append("business_address", settings.business_address);
@@ -51,15 +52,15 @@ const GeneralSettings = () => {
       formData.append("default_language", settings.default_language);
       formData.append("default_currency", settings.default_currency);
       formData.append("time_zone", settings.time_zone);
-      formData.append("date_format", settings.date_format);
-
+      formData.append("date_format", settings.date_format || "");
+ 
       if (logoFile) {
         formData.append("logo", logoFile);
       }
-
+ 
       const res = await apiUpdateGeneralSetting(accessToken, formData);
-
-      if (res?.status) {
+ 
+      if (res?.success) {
         toast.push(
           <Notification title="Success" type="success">
             {res.message || "Updated successfully"}
@@ -74,12 +75,12 @@ const GeneralSettings = () => {
       setLoading(false);
     }
   };
-
+ 
   const getGeneralSettings = async () => {
     try {
       setLoading(true);
       const res = await apiGeneralSettingList(accessToken);
-      if (res?.status) {
+      if (res?.success && res?.data) {
         setSettings(res.data);
       }
     } catch (error) {
@@ -88,7 +89,7 @@ const GeneralSettings = () => {
       setLoading(false);
     }
   };
-
+ 
   return (
     <div className="py-6">
       {loading ? (
@@ -103,7 +104,7 @@ const GeneralSettings = () => {
               <label className="mb-2 block text-[13px] font-semibold">
                 {t("companyNameLabel")}
               </label>
-
+ 
               <input
                 className="h-10 w-full rounded-xl border border-[#E9DDD4] px-4 text-sm outline-none"
                 value={settings.company_name || ""}
@@ -116,13 +117,13 @@ const GeneralSettings = () => {
                 }
               />
             </div>
-
+ 
             {/* Address */}
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
                 {t("businessAddressLabel")}
               </label>
-
+ 
               <input
                 className="h-10 w-full rounded-xl border border-[#E9DDD4] px-4 text-sm outline-none"
                 value={settings.business_address || ""}
@@ -135,13 +136,13 @@ const GeneralSettings = () => {
                 }
               />
             </div>
-
+ 
             {/* Email */}
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
                 {t("supportEmailLabel")}
               </label>
-
+ 
               <input
                 className="h-10 w-full rounded-xl border border-[#E9DDD4] px-4 text-sm outline-none"
                 value={settings.support_email || ""}
@@ -154,13 +155,13 @@ const GeneralSettings = () => {
                 }
               />
             </div>
-
+ 
             {/* Contact */}
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
                 {t("contactNumberLabel")}
               </label>
-
+ 
               <input
                 className="h-10 w-full rounded-xl border border-[#E9DDD4] px-4 text-sm outline-none"
                 type="text"
@@ -176,13 +177,13 @@ const GeneralSettings = () => {
                 }}
               />
             </div>
-
+ 
             {/* Language */}
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
                 {t("defaultLanguageLabel")}
               </label>
-
+ 
               <input
                 className="h-10 w-full rounded-xl border border-[#E9DDD4] px-4 text-sm outline-none"
                 value={settings.default_language || ""}
@@ -195,7 +196,7 @@ const GeneralSettings = () => {
                 }
               />
             </div>
-
+ 
             {/* Currency */}
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
@@ -213,13 +214,13 @@ const GeneralSettings = () => {
                 }
               />
             </div>
-
+ 
             {/* Timezone */}
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
                 {t("timeZoneLabel")}
               </label>
-
+ 
               <input
                 className="h-10 w-full rounded-xl border border-[#E9DDD4] px-4 text-sm outline-none"
                 value={settings.time_zone || ""}
@@ -232,7 +233,7 @@ const GeneralSettings = () => {
                 }
               />
             </div>
-
+ 
             {/* Date */}
             <div>
               <label className="mb-2 block text-[13px] font-semibold">
@@ -249,17 +250,17 @@ const GeneralSettings = () => {
                 onChange={(date) =>
                   setSettings({
                     ...settings,
-                    date_format: date,
+                    date_format: date ? dayjs(date).format("YYYY-MM-DD") : "",
                   })
                 }
               />
             </div>
           </div>
-
+ 
           {/* Upload */}
           <div className="mt-8">
             <label className="mb-2 block text-[13px] font-semibold">{t("logoLabel")}</label>
-
+ 
             <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-[#E6D4C8] bg-[#FFFDFC]">
               {settings.logo ? (
                 <img
@@ -272,13 +273,13 @@ const GeneralSettings = () => {
                   <div className="flex h-12 w-12 items-center justify-center rounded-full">
                     <FiImage size={22} className="text-[#1C4FA8]" />
                   </div>
-
+ 
                   <p className="mt-3 text-sm text-gray-500">
-                    {t("noLogoAvailable")}
+                    No logo available
                   </p>
                 </div>
               )}
-
+ 
               <input
                 id="logo-upload"
                 type="file"
@@ -294,7 +295,7 @@ const GeneralSettings = () => {
                   }));
                 }}
               />
-
+ 
               {isEditing && (
                 <>
                   <label
@@ -304,7 +305,7 @@ const GeneralSettings = () => {
                     <FiUpload className="mr-2 inline" />
                     {t("uploadLogo")}
                   </label>
-
+ 
                   {logoFile && (
                     <p className="mt-2 text-sm text-gray-500">
                       {logoFile.name}
@@ -314,7 +315,7 @@ const GeneralSettings = () => {
               )}
             </div>
           </div>
-
+ 
           {/* Footer */}
           <div className="mt-10 flex justify-end gap-4">
             {!isEditing ? (
@@ -335,7 +336,7 @@ const GeneralSettings = () => {
                 >
                   {t("cancel")}
                 </button>
-
+ 
                 <button
                   onClick={handleUpdate}
                   className="rounded-lg bg-[#1C4FA8] px-5 py-2 font-medium text-white hover:bg-[#1C4FA8]"
@@ -350,5 +351,7 @@ const GeneralSettings = () => {
     </div>
   );
 };
-
+ 
 export default GeneralSettings;
+ 
+ 

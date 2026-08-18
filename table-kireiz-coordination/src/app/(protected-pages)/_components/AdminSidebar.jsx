@@ -219,7 +219,7 @@ const AdminSidebar = ({ collapsed: propCollapsed, onToggle, isFixed = false }) =
                                             `}
                                         />
                                         {isNotification && unreadCount > 0 && (
-                                            <span className="absolute -top-1.5 -right-2.5 bg-red-500 text-white text-[10px] font-bold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center border border-white shadow-sm leading-none">
+                                            <span className="absolute -top-1.5 -right-1 bg-[#B66636] text-white text-[9px] font-bold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center border border-white shadow-sm leading-none">
                                                 {unreadCount > 99 ? '99+' : unreadCount}
                                             </span>
                                         )}

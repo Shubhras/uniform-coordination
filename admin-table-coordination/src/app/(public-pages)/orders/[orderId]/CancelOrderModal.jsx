@@ -18,36 +18,14 @@ export default function CancelOrderModal({
   const ts = useTranslations("successTitle");
 
   const [reason, setReason] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   if (!open) return null;
 
-  const cancelReasons = [
-    {
-      value: "customer_request",
-      label: "Customer requested cancellation",
-    },
-    {
-      value: "out_of_stock",
-      label: "Item out of stock",
-    },
-    {
-      value: "payment_issue",
-      label: "Payment issue",
-    },
-    {
-      value: "delivery_issue",
-      label: "Delivery issue",
-    },
-    {
-      value: "other",
-      label: "Other",
-    },
-  ];
-
   const handleCancelOrder = async () => {
-    if (!reason) {
-      toast.error("Please select a cancellation reason.");
+    if (!reason.trim()) {
+      setError("Cancellation reason is required*");
       return;
     }
 
@@ -56,7 +34,7 @@ export default function CancelOrderModal({
 
       const res = await apiOrderUpdate(accessToken, orderId, {
         status: "cancelled",
-        cancellation_reason: reason,
+        cancellation_reason: reason.trim(),
       });
 
       if (res?.status) {
@@ -121,20 +99,19 @@ export default function CancelOrderModal({
               Cancellation Reason
             </label>
 
-            <select
+            <textarea
               value={reason}
-              onChange={(e) => setReason(e.target.value)}
+              onChange={(e) => {
+                setReason(e.target.value);
+                setError("");
+              }}
               disabled={loading}
-              className="w-full rounded-lg border border-[#E5D9D0] bg-white px-3 py-3 text-sm text-[#2C1810] outline-none focus:border-[#A85A32]"
-            >
-              <option value="">Select reason</option>
+              rows={4}
+              placeholder="Enter cancellation reason"
+              className="w-full resize-none rounded-lg border border-[#E5D9D0] bg-white px-3 py-3 text-sm text-[#2C1810] outline-none placeholder:text-[#A99B91] focus:border-[#A85A32]"
+            />
 
-              {cancelReasons.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
+            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>
 
           <div className="mt-7 flex justify-end gap-3">
@@ -150,7 +127,7 @@ export default function CancelOrderModal({
             <button
               type="button"
               onClick={handleCancelOrder}
-              disabled={loading || !reason}
+              disabled={loading || !reason.trim()}
               className="flex min-w-[120px] items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? <Spinner size={18} /> : "Cancel Order"}

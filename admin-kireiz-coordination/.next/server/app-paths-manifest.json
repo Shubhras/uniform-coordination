@@ -1,0 +1,7 @@
+{
+  "/(public-pages)/admin-form/page": "app/(public-pages)/admin-form/page.js",
+  "/(public-pages)/reports-analytics/page": "app/(public-pages)/reports-analytics/page.js",
+  "/(public-pages)/contents/page": "app/(public-pages)/contents/page.js",
+  "/(public-pages)/products/page": "app/(public-pages)/products/page.js",
+  "/(public-pages)/customer/page": "app/(public-pages)/customer/page.js"
+}

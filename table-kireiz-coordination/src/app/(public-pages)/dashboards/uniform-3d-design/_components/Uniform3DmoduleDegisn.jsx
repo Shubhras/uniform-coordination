@@ -1,27 +1,36 @@
-'use client'
-import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+"use client";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
-if (typeof window !== 'undefined') {
-  import('@google/model-viewer')
+if (typeof window !== "undefined") {
+  import("@google/model-viewer");
 }
 // import ColorPickerPopup from './ColorPickerPopup'
 // const SAMPLE_MODEL = '/img/3dmodels/Astronaut.glb'
 // const SAMPLE_MODEL = '/img/3dmodels/doctor_uniform.glb'
 //const FALLBACK_MODEL = '' //'https://modelviewer.dev/shared-assets/models/Astronaut.glb'
-import Button from '@/components/ui/Button';
-import { useRouter, useSearchParams, useParams } from 'next/navigation';
-import { RiTable2 } from 'react-icons/ri'
-import { TbTable } from 'react-icons/tb'
-import { IoIosArrowForward } from 'react-icons/io'
+import Button from "@/components/ui/Button";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
+import { RiTable2 } from "react-icons/ri";
+import { TbTable } from "react-icons/tb";
+import { IoIosArrowForward } from "react-icons/io";
 import { FiMinus, FiPlus, FiTag, FiLayers, FiBox } from "react-icons/fi";
-import { apiModelInfoCreate, apiSaveDesign, apiSaveThemeDesign } from '@/services/SaveDesignService'
-import { useSession } from 'next-auth/react'
-import toast from '@/components/ui/toast'
-import Notification from '@/components/ui/Notification'
-import { apiGetProductDetailsById, apiGetSimulationCategories, apiGetSimulationOptions, apiGetProductById } from '@/services/ProductService'
-import { apiGetSindleThemeDetails } from '@/services/HomeService'
-import { apiAddToCart } from '@/services/CartSummaryService'
+import {
+  apiModelInfoCreate,
+  apiSaveDesign,
+  apiSaveThemeDesign,
+} from "@/services/SaveDesignService";
+import { useSession } from "next-auth/react";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
+import {
+  apiGetProductDetailsById,
+  apiGetSimulationCategories,
+  apiGetSimulationOptions,
+  apiGetProductById,
+} from "@/services/ProductService";
+import { apiGetSindleThemeDetails } from "@/services/HomeService";
+import { apiAddToCart } from "@/services/CartSummaryService";
 /**
  * Uniform3DmoduleDegisn Component
  *
@@ -29,13 +38,13 @@ import { apiAddToCart } from '@/services/CartSummaryService'
  * loading, design configuration, model creation, and design saving.
  */
 const ATTRIBUTE_OPTIONS = {
-  "Fabric": [
+  Fabric: [
     { name: "Crushed Velvet", img: "/img/table-form/tablecloth/fabric1.png" },
     { name: "Damask Linen", img: "/img/table-form/tablecloth/fabric2.png" },
     { name: "Gingham Cotton", img: "/img/table-form/tablecloth/fabric3.png" },
     { name: "Raw Silk Dupioni", img: "/img/table-form/tablecloth/fabric4.png" },
   ],
-  "Material": [
+  Material: [
     { name: "Porcelain", img: "/img/table-form/tableware/porcelain.png" },
     { name: "Bone China", img: "/img/table-form/tableware/bone-china.png" },
     { name: "Glass", img: "/img/table-form/tableware/glass.png" },
@@ -45,41 +54,80 @@ const ATTRIBUTE_OPTIONS = {
     { name: "Lace", img: "/img/table-form/decor/lace.png" },
     { name: "Velvet", img: "/img/table-form/decor/velvet.png" },
   ],
-  "Style": [
+  Style: [
     { name: "Round", img: "/img/table-form/table-style/style-round.png" },
     { name: "Square", img: "/img/table-form/table-style/style-square.png" },
-    { name: "Rectangle", img: "/img/table-form/table-style/style-rectangle.png" },
+    {
+      name: "Rectangle",
+      img: "/img/table-form/table-style/style-rectangle.png",
+    },
     { name: "Oval", img: "/img/table-form/table-style/style-oval.png" },
-    { name: "Floral Arrangement", img: "/img/table-form/centre-pieces/style-floral-arrangement.png" },
-    { name: "Candle Centerpiece", img: "/img/table-form/centre-pieces/style-candle-centerpiece.png" },
-    { name: "Fruit Bowl", img: "/img/table-form/centre-pieces/style-fruit-bowl.png" },
-    { name: "Modern Sculpture", img: "/img/table-form/centre-pieces/style-modern-sculpture.png" },
+    {
+      name: "Floral Arrangement",
+      img: "/img/table-form/centre-pieces/style-floral-arrangement.png",
+    },
+    {
+      name: "Candle Centerpiece",
+      img: "/img/table-form/centre-pieces/style-candle-centerpiece.png",
+    },
+    {
+      name: "Fruit Bowl",
+      img: "/img/table-form/centre-pieces/style-fruit-bowl.png",
+    },
+    {
+      name: "Modern Sculpture",
+      img: "/img/table-form/centre-pieces/style-modern-sculpture.png",
+    },
   ],
   "Item Type": [
     { name: "Chair Sash", img: "/img/table-form/decor/type-chair-sash.png" },
-    { name: "Table Runner", img: "/img/table-form/decor/type-table-runner.png" },
+    {
+      name: "Table Runner",
+      img: "/img/table-form/decor/type-table-runner.png",
+    },
     { name: "Place Cards", img: "/img/table-form/decor/type-place-cards.png" },
     { name: "Menu Cards", img: "/img/table-form/decor/type-menu-cards.png" },
   ],
   "Set Type": [
-    { name: "Formal Dinner", img: "/img/table-form/tableware/set-formal-dinner.png" },
-    { name: "Casual Dining", img: "/img/table-form/tableware/set-casual-dining.png" },
-    { name: "Buffet Style", img: "/img/table-form/tableware/set-buffet-style.png" },
+    {
+      name: "Formal Dinner",
+      img: "/img/table-form/tableware/set-formal-dinner.png",
+    },
+    {
+      name: "Casual Dining",
+      img: "/img/table-form/tableware/set-casual-dining.png",
+    },
+    {
+      name: "Buffet Style",
+      img: "/img/table-form/tableware/set-buffet-style.png",
+    },
     { name: "Banquet", img: "/img/table-form/tableware/set-banquet.png" },
   ],
   "Fit Type": [
-    { name: "Standard Fit", img: "/img/table-form/table-style/style-round.png" },
-    { name: "Loose Drape", img: "/img/table-form/table-style/style-square.png" },
+    {
+      name: "Standard Fit",
+      img: "/img/table-form/table-style/style-round.png",
+    },
+    {
+      name: "Loose Drape",
+      img: "/img/table-form/table-style/style-square.png",
+    },
   ],
-  "Stretch": [
+  Stretch: [
     { name: "Yes", img: "/img/table-form/table-style/style-round.png" },
     { name: "No", img: "/img/table-form/table-style/style-square.png" },
   ],
   "Fold Style": [
-    { name: "Classic Fold", img: "/img/table-form/table-style/style-round.png" },
-    { name: "Pocket Fold", img: "/img/table-form/table-style/style-square.png" },
+    {
+      name: "Classic Fold",
+      img: "/img/table-form/table-style/style-round.png",
+    },
+    {
+      name: "Pocket Fold",
+      img: "/img/table-form/table-style/style-square.png",
+    },
   ],
-  "Color": [
+  Color: [
     { name: "White", img: "/img/table-form/color-table/color-white.png" },
     { name: "Ivory", img: "/img/table-form/color-table/color-ivory.png" },
     { name: "Taupe", img: "/img/table-form/color-table/color-taupe.png" },
@@ -88,7 +136,10 @@ const ATTRIBUTE_OPTIONS = {
     { name: "Gold", img: "/img/table-form/centre-pieces/color-gold.png" },
     { name: "Silver", img: "/img/table-form/centre-pieces/color-silver.png" },
     { name: "Crystal", img: "/img/table-form/centre-pieces/color-crystal.png" },
-    { name: "Rose Gold", img: "/img/table-form/centre-pieces/color-rose-gold.png" },
+    {
+      name: "Rose Gold",
+      img: "/img/table-form/centre-pieces/color-rose-gold.png",
+    },
     { name: "Navy", img: "/img/table-form/decor/color-navy.png" },
     { name: "Champagne", img: "/img/table-form/napkins/color-champagne.png" },
     { name: "Dusty Rose", img: "/img/table-form/napkins/color-dusty-rose.png" },
@@ -96,54 +147,84 @@ const ATTRIBUTE_OPTIONS = {
     { name: "Coral", img: "/img/table-form/napkins/color-coral.png" },
     { name: "Beige", img: "/img/table-form/chair-cover/color-beige.png" },
   ],
-  "Size": [
+  Size: [
     { name: "Standard", img: "/img/table-form/table-style/style-round.png" },
     { name: "Large", img: "/img/table-form/table-style/style-square.png" },
-    { name: "Oversized", img: "/img/table-form/table-style/style-rectangle.png" },
+    {
+      name: "Oversized",
+      img: "/img/table-form/table-style/style-rectangle.png",
+    },
   ],
-  "Pattern": [
+  Pattern: [
     { name: "Plain", img: "/img/table-form/tablecloth/fabric1.png" },
     { name: "Striped", img: "/img/table-form/tablecloth/fabric2.png" },
     { name: "Damask", img: "/img/table-form/tablecloth/fabric3.png" },
   ],
-  "Closure": [
+  Closure: [
     { name: "Bow Tie", img: "/img/table-form/chair-cover/color-white.png" },
-    { name: "Spandex Band", img: "/img/table-form/chair-cover/color-ivory.png" },
+    {
+      name: "Spandex Band",
+      img: "/img/table-form/chair-cover/color-ivory.png",
+    },
     { name: "Knot", img: "/img/table-form/chair-cover/color-beige.png" },
   ],
-  "Trim": [
+  Trim: [
     { name: "Lace Border", img: "/img/table-form/tablecloth/fabric1.png" },
     { name: "Satin Edge", img: "/img/table-form/tablecloth/fabric2.png" },
     { name: "No Trim", img: "/img/table-form/tablecloth/fabric3.png" },
   ],
-  "Height": [
-    { name: "Low Profile", img: "/img/table-form/centre-pieces/style-floral-arrangement.png" },
-    { name: "Medium Height", img: "/img/table-form/centre-pieces/style-candle-centerpiece.png" },
-    { name: "Tall & Elegant", img: "/img/table-form/centre-pieces/style-modern-sculpture.png" },
+  Height: [
+    {
+      name: "Low Profile",
+      img: "/img/table-form/centre-pieces/style-floral-arrangement.png",
+    },
+    {
+      name: "Medium Height",
+      img: "/img/table-form/centre-pieces/style-candle-centerpiece.png",
+    },
+    {
+      name: "Tall & Elegant",
+      img: "/img/table-form/centre-pieces/style-modern-sculpture.png",
+    },
   ],
-  "Flowers": [
+  Flowers: [
     { name: "Roses", img: "/img/table-form/tablecloth/fabric1.png" },
     { name: "Lilies", img: "/img/table-form/tablecloth/fabric2.png" },
     { name: "Mixed Bouquet", img: "/img/table-form/tablecloth/fabric3.png" },
   ],
   "Base Type": [
-    { name: "Glass Vase", img: "/img/table-form/centre-pieces/color-crystal.png" },
-    { name: "Gold Pedestal", img: "/img/table-form/centre-pieces/color-gold.png" },
-    { name: "Silver Stand", img: "/img/table-form/centre-pieces/color-silver.png" },
+    {
+      name: "Glass Vase",
+      img: "/img/table-form/centre-pieces/color-crystal.png",
+    },
+    {
+      name: "Gold Pedestal",
+      img: "/img/table-form/centre-pieces/color-gold.png",
+    },
+    {
+      name: "Silver Stand",
+      img: "/img/table-form/centre-pieces/color-silver.png",
+    },
   ],
-  "Finish": [
+  Finish: [
     { name: "Glossy", img: "/img/table-form/tablecloth/fabric1.png" },
     { name: "Matte", img: "/img/table-form/tablecloth/fabric2.png" },
   ],
-  "Collection": [
-    { name: "Classic Collection", img: "/img/table-form/tablecloth/fabric1.png" },
-    { name: "Modern Collection", img: "/img/table-form/tablecloth/fabric2.png" },
+  Collection: [
+    {
+      name: "Classic Collection",
+      img: "/img/table-form/tablecloth/fabric1.png",
+    },
+    {
+      name: "Modern Collection",
+      img: "/img/table-form/tablecloth/fabric2.png",
+    },
   ],
-  "Pieces": [
+  Pieces: [
     { name: "3-Piece Set", img: "/img/table-form/tablecloth/fabric1.png" },
     { name: "5-Piece Set", img: "/img/table-form/tablecloth/fabric2.png" },
   ],
-  "Placement": [
+  Placement: [
     { name: "Center Alignment", img: "/img/table-form/tablecloth/fabric1.png" },
     { name: "Side Alignment", img: "/img/table-form/tablecloth/fabric2.png" },
   ],
@@ -155,73 +236,77 @@ const ATTRIBUTE_OPTIONS = {
 };
 
 const ATTRIBUTE_API_MAPPING = {
-  "Fabric": "fabrics",
-  "Material": "fabrics",
-  "Color": "colors",
+  Fabric: "fabrics",
+  Material: "fabrics",
+  Color: "colors",
   "Table Centrepiece": "colors",
-  "Style": "styles",
+  Style: "styles",
   "Fit Type": "styles",
   "Fold Style": "styles",
-  "Flowers": "styles",
+  Flowers: "styles",
   "Base Type": "styles",
-  "Finish": "styles",
-  "Collection": "styles",
-  "Placement": "styles",
+  Finish: "styles",
+  Collection: "styles",
+  Placement: "styles",
   "Item Type": "styles",
   "Set Type": "styles",
-  "Size": "sizes",
-  "Height": "sizes",
-  "Pieces": "sizes",
-  "Closure": "closures",
-  "Stretch": "closures",
-  "Pattern": "patterns",
-  "Trim": "patterns",
-  "Table Shape": "table_shapes"
+  Size: "sizes",
+  Height: "sizes",
+  Pieces: "sizes",
+  Closure: "closures",
+  Stretch: "closures",
+  Pattern: "patterns",
+  Trim: "patterns",
+  "Table Shape": "table_shapes",
 };
 
 const Uniform3DmoduleDegisn = () => {
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
   // product id
   const { id } = useParams();
-  const themeIdParam = searchParams.get('themeId')
+  const themeIdParam = searchParams.get("themeId");
   const [isThemeMode, setIsThemeMode] = useState(false);
 
   useEffect(() => {
-    const tid = themeIdParam || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('themeId') : null);
+    const tid =
+      themeIdParam ||
+      (typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("themeId")
+        : null);
     setIsThemeMode(Boolean(tid));
   }, [themeIdParam]);
-  const [singleProductData, setSingleProductData] = useState(null)
+  const [singleProductData, setSingleProductData] = useState(null);
   const { data: session } = useSession();
-  const [tableSitting, setTableSitting] = useState(6)
+  const [tableSitting, setTableSitting] = useState(6);
   const [categoryView, setCategoryView] = useState("list"); // list | tablecloths
   const [simulationCategories, setSimulationCategories] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState({});
   const [categoryOptions, setCategoryOptions] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter()
-  const [active, setActive] = useState('tableShape')
-  const panelRef = useRef(null)
+  const router = useRouter();
+  const [active, setActive] = useState("tableShape");
+  const panelRef = useRef(null);
   const [fullView, setFullView] = useState(false);
   const [loading, setLoading] = useState(false);
   const [categoryProducts, setCategoryProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState({
-    title: 'Loading Theme...',
-    description: 'Please wait while we load the theme details.',
-    gallery: ['/img/table-form/full-venue.png'],
-    packageLabel: 'Items Included',
-    packageValueLabel: 'Estimated Package Value',
-    priceLabel: 'Price TBD',
-    cardImage: '/img/table-form/full-venue.png',
+    title: "Loading Theme...",
+    description: "Please wait while we load the theme details.",
+    gallery: ["/img/table-form/full-venue.png"],
+    packageLabel: "Items Included",
+    packageValueLabel: "Estimated Package Value",
+    priceLabel: "Price TBD",
+    cardImage: "/img/table-form/full-venue.png",
     items: [
-      { title: 'Table Setup', items: [] },
-      { title: 'Floral & Decor', items: [] },
-      { title: 'Seating', items: [] },
-      { title: 'Additional Elements', items: [] }
-    ]
-  })
+      { title: "Table Setup", items: [] },
+      { title: "Floral & Decor", items: [] },
+      { title: "Seating", items: [] },
+      { title: "Additional Elements", items: [] },
+    ],
+  });
   const [tableShape, setTableShape] = useState("Circle");
   const [tableScale, setTableScale] = useState(300);
   const [adminTableShapes, setAdminTableShapes] = useState([]);
@@ -232,7 +317,11 @@ const Uniform3DmoduleDegisn = () => {
     const fetchGeneralOptions = async () => {
       try {
         const res = await apiGetSimulationOptions("", "");
-        if (res?.status && res?.data?.table_shapes && res.data.table_shapes.length > 0) {
+        if (
+          res?.status &&
+          res?.data?.table_shapes &&
+          res.data.table_shapes.length > 0
+        ) {
           setAdminTableShapes(res.data.table_shapes);
         }
       } catch (err) {
@@ -248,8 +337,8 @@ const Uniform3DmoduleDegisn = () => {
         try {
           setLoadingAllSimProducts(true);
           const res = await apiGetProductById({
-            productType: 'table',
-            showInSimulation: 'true'
+            productType: "table",
+            showInSimulation: "true",
           });
           if (res?.status && Array.isArray(res.data)) {
             setAllSimulationProducts(res.data);
@@ -273,99 +362,101 @@ const Uniform3DmoduleDegisn = () => {
     }
   }, [isThemeMode, active]);
 
-
-
   const handleProductSelect = (product) => {
-    setSingleProductData(product)
+    setSingleProductData(product);
 
     // Auto-update standard attributes in selectedOptions based on this product's properties
     setSelectedOptions((prev) => {
-      const updatedCat = { ...(prev[categoryView] || {}) }
-      
+      const updatedCat = { ...(prev[categoryView] || {}) };
+
       if (product.fabric && product.fabric.fabricName) {
-        updatedCat["Fabric"] = product.fabric.fabricName
+        updatedCat["Fabric"] = product.fabric.fabricName;
       }
       if (product.color && product.color.colorName) {
-        updatedCat["Color"] = product.color.colorName
+        updatedCat["Color"] = product.color.colorName;
       }
       if (product.style) {
-        updatedCat["Style"] = product.style.charAt(0).toUpperCase() + product.style.slice(1)
+        updatedCat["Style"] =
+          product.style.charAt(0).toUpperCase() + product.style.slice(1);
       }
       if (product.size) {
-        updatedCat["Size"] = product.size
+        updatedCat["Size"] = product.size;
       }
       if (product.table_shape) {
-        const shape = product.table_shape.charAt(0).toUpperCase() + product.table_shape.slice(1)
-        setTableShape(shape === "Round" ? "Circle" : shape)
+        const shape =
+          product.table_shape.charAt(0).toUpperCase() +
+          product.table_shape.slice(1);
+        setTableShape(shape === "Round" ? "Circle" : shape);
       }
 
       return {
         ...prev,
-        [categoryView]: updatedCat
-      }
-    })
+        [categoryView]: updatedCat,
+      };
+    });
 
     toast.push(
       <Notification title="Product Selected" type="success">
         Loaded base template: {product.productName}
-      </Notification>
-    )
-  }
-
+      </Notification>,
+    );
+  };
 
   function onIconClick(key) {
-    setActive(prev => {
+    setActive((prev) => {
       if (prev === key) {
-        return ''
+        return "";
       }
-      return key
-    })
+      return key;
+    });
   }
 
   useEffect(() => {
     const fetchSimulationCategories = async () => {
       try {
-        const res = await apiGetSimulationCategories()
+        const res = await apiGetSimulationCategories();
         if (res && res.status === true && Array.isArray(res.data)) {
-          setSimulationCategories(res.data)
+          setSimulationCategories(res.data);
         }
       } catch (error) {
-        console.error("Error fetching simulation categories:", error)
+        console.error("Error fetching simulation categories:", error);
       }
-    }
-    fetchSimulationCategories()
-  }, [])
+    };
+    fetchSimulationCategories();
+  }, []);
 
   // Fetch products for the active category
   useEffect(() => {
     const fetchCategoryProducts = async () => {
       if (categoryView && categoryView !== "list") {
-        const selectedCat = simulationCategories.find(c => c.name === categoryView)
-        if (!selectedCat) return
+        const selectedCat = simulationCategories.find(
+          (c) => c.name === categoryView,
+        );
+        if (!selectedCat) return;
         try {
-          setLoadingProducts(true)
+          setLoadingProducts(true);
           const res = await apiGetProductById({
-            productType: 'table',
+            productType: "table",
             category_id: selectedCat.id,
-            showInSimulation: 'true'
-          })
+            showInSimulation: "true",
+          });
           if (res && res.status === true && Array.isArray(res.data)) {
-            setCategoryProducts(res.data)
+            setCategoryProducts(res.data);
           } else {
-            setCategoryProducts([])
+            setCategoryProducts([]);
           }
         } catch (error) {
-          console.error("Error fetching category products:", error)
-          setCategoryProducts([])
+          console.error("Error fetching category products:", error);
+          setCategoryProducts([]);
         } finally {
-          setLoadingProducts(false)
+          setLoadingProducts(false);
         }
       } else {
-        setCategoryProducts([])
+        setCategoryProducts([]);
       }
-    }
-    fetchCategoryProducts()
-  }, [categoryView, simulationCategories])
+    };
+    fetchCategoryProducts();
+  }, [categoryView, simulationCategories]);
 
   // Fetch options dynamically when a category is selected or table shape changes
   useEffect(() => {
@@ -374,24 +465,27 @@ const Uniform3DmoduleDegisn = () => {
         try {
           const res = await apiGetSimulationOptions(categoryView, tableShape);
           if (res && res.status === true && res.data) {
-            setCategoryOptions(prev => ({
+            setCategoryOptions((prev) => ({
               ...prev,
-              [categoryView]: res.data
+              [categoryView]: res.data,
             }));
 
             // Pre-populate selections for this category if not already present
-            const selectedCat = simulationCategories.find(c => c.name === categoryView);
+            const selectedCat = simulationCategories.find(
+              (c) => c.name === categoryView,
+            );
             if (selectedCat) {
-              setSelectedOptions(prev => {
+              setSelectedOptions((prev) => {
                 const currentCatOptions = prev[categoryView] || {};
                 let updated = false;
 
-                selectedCat.attributes.forEach(attr => {
+                selectedCat.attributes.forEach((attr) => {
                   if (attr.enabled && !currentCatOptions[attr.attribute]) {
                     const attrKey = ATTRIBUTE_API_MAPPING[attr.attribute];
                     const dynamicOptions = res.data[attrKey] || [];
                     if (dynamicOptions.length > 0) {
-                      currentCatOptions[attr.attribute] = dynamicOptions[0].label || dynamicOptions[0].name;
+                      currentCatOptions[attr.attribute] =
+                        dynamicOptions[0].label || dynamicOptions[0].name;
                       updated = true;
                     }
                   }
@@ -400,7 +494,7 @@ const Uniform3DmoduleDegisn = () => {
                 if (updated) {
                   return {
                     ...prev,
-                    [categoryView]: currentCatOptions
+                    [categoryView]: currentCatOptions,
                   };
                 }
                 return prev;
@@ -408,7 +502,10 @@ const Uniform3DmoduleDegisn = () => {
             }
           }
         } catch (error) {
-          console.error(`Error fetching options for category ${categoryView}:`, error);
+          console.error(
+            `Error fetching options for category ${categoryView}:`,
+            error,
+          );
         }
       };
       fetchOptions();
@@ -416,21 +513,21 @@ const Uniform3DmoduleDegisn = () => {
   }, [categoryView, tableShape, simulationCategories]);
 
   useEffect(() => {
-    import('@google/model-viewer').catch((err) => {
-      console.error('Failed to load @google/model-viewer:', err)
-    })
-  }, [])
+    import("@google/model-viewer").catch((err) => {
+      console.error("Failed to load @google/model-viewer:", err);
+    });
+  }, []);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        setLoading(true)
-        setSingleProductData(null)
+        setLoading(true);
+        setSingleProductData(null);
 
-        const res = await apiGetProductDetailsById(id)
+        const res = await apiGetProductDetailsById(id);
 
         if (res?.status && res?.data) {
-          setSingleProductData(res.data)
+          setSingleProductData(res.data);
           setSelectedTheme((prev) => ({
             ...prev,
             cardImage: res.data?.ProductImage || prev.cardImage,
@@ -438,24 +535,24 @@ const Uniform3DmoduleDegisn = () => {
         } else {
           toast.push(
             <Notification title="Error!" type="danger">
-              {res?.message || 'Product not found'}
-            </Notification>
-          )
+              {res?.message || "Product not found"}
+            </Notification>,
+          );
         }
       } catch (err) {
         toast.push(
           <Notification title="Error!" type="danger">
             Failed to load product detail
-          </Notification>
-        )
-        console.error("Failed to load product detail", err)
+          </Notification>,
+        );
+        console.error("Failed to load product detail", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    if (id) fetchProductDetails()
-  }, [id])
+    if (id) fetchProductDetails();
+  }, [id]);
 
   /** Fetch theme details if themeId is provided in URL params */
   useEffect(() => {
@@ -479,7 +576,7 @@ const Uniform3DmoduleDegisn = () => {
       }
     };
     if (themeIdParam) fetchThemeDetails();
-  }, [themeIdParam])
+  }, [themeIdParam]);
 
   /** Initialize and submit 3D model info payload */
   const handleUniformDesignResult = async () => {
@@ -487,8 +584,11 @@ const Uniform3DmoduleDegisn = () => {
       toast.push(
         <Notification title="Login Required" type="warning">
           Please sign in first to continue.
-        </Notification>
+        </Notification>,
       );
+      setTimeout(() => {
+        router.push("/sign-in");
+      }, 1000);
       return;
     }
 
@@ -514,7 +614,7 @@ const Uniform3DmoduleDegisn = () => {
           toast.push(
             <Notification title="Success!" type="success">
               Theme design saved successfully
-            </Notification>
+            </Notification>,
           );
           const customThemeId = response.data?.id;
           router.push(`/dashboards/theme-design-result/${customThemeId}`);
@@ -522,7 +622,7 @@ const Uniform3DmoduleDegisn = () => {
           toast.push(
             <Notification title="Error!" type="danger">
               {response?.message || "Failed to save theme design"}
-            </Notification>
+            </Notification>,
           );
         }
       } catch (error) {
@@ -530,7 +630,7 @@ const Uniform3DmoduleDegisn = () => {
         toast.push(
           <Notification title="Error!" type="danger">
             Something went wrong saving theme design.
-          </Notification>
+          </Notification>,
         );
       } finally {
         setIsSubmitting(false);
@@ -543,8 +643,9 @@ const Uniform3DmoduleDegisn = () => {
     if (!productId) {
       toast.push(
         <Notification title="Selection Required" type="warning">
-          Please select at least one product from category simulation before confirming design.
-        </Notification>
+          Please select at least one product from category simulation before
+          confirming design.
+        </Notification>,
       );
       setActive("category");
       setIsSubmitting(false);
@@ -566,7 +667,7 @@ const Uniform3DmoduleDegisn = () => {
         toast.push(
           <Notification title="Error!" type="danger">
             {response?.message || "Failed to save design"}
-          </Notification>
+          </Notification>,
         );
       }
     } catch (error) {
@@ -574,13 +675,12 @@ const Uniform3DmoduleDegisn = () => {
       toast.push(
         <Notification title="Error!" type="danger">
           Something went wrong.
-        </Notification>
+        </Notification>,
       );
     } finally {
       setIsSubmitting(false);
     }
   };
-
 
   /** Save complete design specification payload and navigate to result page */
   const handleSaveDesign = async (modelId) => {
@@ -588,29 +688,34 @@ const Uniform3DmoduleDegisn = () => {
       toast.push(
         <Notification title="Login Required" type="warning">
           Please sign in first to continue.
-        </Notification>
+        </Notification>,
       );
       return;
     }
     setIsSaving(true);
 
-    const currentCatName = (categoryView && categoryView !== "list") ? categoryView : (singleProductData?.category?.categoryName || "");
+    const currentCatName =
+      categoryView && categoryView !== "list"
+        ? categoryView
+        : singleProductData?.category?.categoryName || "";
     const currentCatSelections = selectedOptions[currentCatName] || {};
 
     const selectedFabricName = currentCatSelections["Fabric"];
     let fabricDetails = singleProductData?.fabric_details;
     if (selectedFabricName) {
       const fabricsList = categoryOptions[currentCatName]?.fabrics || [];
-      const foundFabric = fabricsList.find(f => (f.label || f.name) === selectedFabricName);
+      const foundFabric = fabricsList.find(
+        (f) => (f.label || f.name) === selectedFabricName,
+      );
       if (foundFabric) {
         fabricDetails = {
           id: parseInt(foundFabric.id, 10),
-          name: foundFabric.label || foundFabric.name
+          name: foundFabric.label || foundFabric.name,
         };
       } else {
         fabricDetails = {
           id: null,
-          name: selectedFabricName
+          name: selectedFabricName,
         };
       }
     } else {
@@ -621,16 +726,18 @@ const Uniform3DmoduleDegisn = () => {
     let colorDetails = singleProductData?.color_details;
     if (selectedColorName) {
       const colorsList = categoryOptions[currentCatName]?.colors || [];
-      const foundColor = colorsList.find(c => (c.label || c.name) === selectedColorName);
+      const foundColor = colorsList.find(
+        (c) => (c.label || c.name) === selectedColorName,
+      );
       if (foundColor) {
         colorDetails = {
           id: parseInt(foundColor.id, 10),
-          name: foundColor.label || foundColor.name
+          name: foundColor.label || foundColor.name,
         };
       } else {
         colorDetails = {
           id: null,
-          name: selectedColorName
+          name: selectedColorName,
         };
       }
     } else {
@@ -638,12 +745,16 @@ const Uniform3DmoduleDegisn = () => {
     }
 
     const selectedStyleName = currentCatSelections["Style"];
-    const styleValue = selectedStyleName ? selectedStyleName.toLowerCase() : (singleProductData?.style || "");
+    const styleValue = selectedStyleName
+      ? selectedStyleName.toLowerCase()
+      : singleProductData?.style || "";
 
     const selectedSizeName = currentCatSelections["Size"];
     const sizeValue = selectedSizeName || singleProductData?.size || "";
 
-    const shapeValue = tableShape ? tableShape.toLowerCase() : (singleProductData?.table_shape || "");
+    const shapeValue = tableShape
+      ? tableShape.toLowerCase()
+      : singleProductData?.table_shape || "";
 
     const payload = {
       user: session?.user?.id,
@@ -667,7 +778,7 @@ const Uniform3DmoduleDegisn = () => {
         parts: singleProductData?.parts,
       },
       json_file_path: "uploads/configs/user6_model3.json",
-      isActive: true
+      isActive: true,
     };
 
     try {
@@ -675,20 +786,19 @@ const Uniform3DmoduleDegisn = () => {
       toast.push(
         <Notification title="Success!" type="success">
           Design saved successfully
-        </Notification>
+        </Notification>,
       );
 
-      const id = response?.data?.id;  // custom update model id
+      const id = response?.data?.id; // custom update model id
       // Redirect to result page
       router.push(`/dashboards/design-result/${id}`);
       // router.push("/cart-summary");
-
     } catch (error) {
       console.error("Save Design Error:", error);
       toast.push(
         <Notification title="Error!" type="danger">
           Failed to save design
-        </Notification>
+        </Notification>,
       );
     } finally {
       setIsSaving(false);
@@ -702,8 +812,16 @@ const Uniform3DmoduleDegisn = () => {
           {[
             { key: "tableShape", label: "Table Shape", icon: FiTag },
             { key: "category", label: "Categories", icon: FiLayers },
-            ...(!isThemeMode ? [{ key: "simulationProducts", label: "Simulation Products", icon: FiBox }] : []),
-          ].map(item => {
+            ...(!isThemeMode
+              ? [
+                  {
+                    key: "simulationProducts",
+                    label: "Simulation Products",
+                    icon: FiBox,
+                  },
+                ]
+              : []),
+          ].map((item) => {
             const Icon = item.icon;
             const isActive = active === item.key;
             return (
@@ -716,8 +834,12 @@ const Uniform3DmoduleDegisn = () => {
                     : "bg-white border border-gray-200 shadow-sm hover:bg-gray-50"
                 }`}
               >
-                <Icon className={`w-6 h-6 mb-1.5 ${isActive ? "text-[#A0522D]" : "text-gray-500"}`} />
-                <span className={`text-xs font-medium text-center leading-tight ${isActive ? "font-semibold text-[#A0522D]" : "text-gray-600"}`}>
+                <Icon
+                  className={`w-6 h-6 mb-1.5 ${isActive ? "text-[#A0522D]" : "text-gray-500"}`}
+                />
+                <span
+                  className={`text-xs font-medium text-center leading-tight ${isActive ? "font-semibold text-[#A0522D]" : "text-gray-600"}`}
+                >
                   {item.label}
                 </span>
               </button>
@@ -743,23 +865,43 @@ const Uniform3DmoduleDegisn = () => {
                   {(adminTableShapes.length > 0
                     ? adminTableShapes
                     : [
-                        { id: "Circle", label: "Circle", name: "Circle", img: "/img/table-form/table-shape/round.png" },
-                        { id: "Rectangle", label: "Rectangle", name: "Rectangle", img: "/img/table-form/table-shape/rectangle.png" },
-                        { id: "Square", label: "Square", name: "Square", img: "/img/table-form/table-shape/square.png" },
+                        {
+                          id: "Circle",
+                          label: "Circle",
+                          name: "Circle",
+                          img: "/img/table-form/table-shape/round.png",
+                        },
+                        {
+                          id: "Rectangle",
+                          label: "Rectangle",
+                          name: "Rectangle",
+                          img: "/img/table-form/table-shape/rectangle.png",
+                        },
+                        {
+                          id: "Square",
+                          label: "Square",
+                          name: "Square",
+                          img: "/img/table-form/table-shape/square.png",
+                        },
                       ]
                   ).map((item) => {
                     const shapeName = item.label || item.name;
                     const shapeImg = item.image || item.img;
-                    const isSelected = tableShape.toLowerCase() === shapeName.toLowerCase();
+                    const isSelected =
+                      tableShape.toLowerCase() === shapeName.toLowerCase();
                     return (
                       <button
                         key={item.id || shapeName}
                         onClick={() => setTableShape(shapeName)}
                         className="relative"
                       >
-                        <div className={`rounded-sm border p-2 w-full h-[70px] flex items-center justify-center ${
-                          isSelected ? "bg-[#A0522D33] border-[#A0522D]" : "bg-white border-[#A0522D4D]"
-                        }`}>
+                        <div
+                          className={`rounded-sm border p-2 w-full h-[70px] flex items-center justify-center ${
+                            isSelected
+                              ? "bg-[#A0522D33] border-[#A0522D]"
+                              : "bg-white border-[#A0522D4D]"
+                          }`}
+                        >
                           {shapeImg ? (
                             <img
                               src={shapeImg}
@@ -767,7 +909,9 @@ const Uniform3DmoduleDegisn = () => {
                               className="w-full h-full object-contain"
                             />
                           ) : (
-                            <span className="text-[10px] font-medium text-gray-700">{shapeName}</span>
+                            <span className="text-[10px] font-medium text-gray-700">
+                              {shapeName}
+                            </span>
                           )}
                         </div>
 
@@ -854,8 +998,8 @@ const Uniform3DmoduleDegisn = () => {
               <div className="bg-[#FFF] border border-[#F3D3C8] rounded-xl p-3 text-xs text-gray-600">
                 <span className="font-medium text-[#A0522D]">💡 Tip:</span>
                 <p className="mt-1 leading-relaxed">
-                  Select an item on the table to edit its properties,
-                  or drag items from the left sidebar onto the table.
+                  Select an item on the table to edit its properties, or drag
+                  items from the left sidebar onto the table.
                 </p>
               </div>
             </div>
@@ -872,14 +1016,17 @@ const Uniform3DmoduleDegisn = () => {
 
               {categoryView === "list" && (
                 <div className="space-y-3 w-full">
-                  {simulationCategories.map(item => (
+                  {simulationCategories.map((item) => (
                     <button
                       key={item.name}
                       onClick={() => setCategoryView(item.name)}
                       className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-lg text-sm"
                     >
                       <div className="flex items-center gap-3">
-                        <img src={item.icon} className="w-6 h-6 object-contain" />
+                        <img
+                          src={item.icon}
+                          className="w-6 h-6 object-contain"
+                        />
                         <span>{item.name}</span>
                       </div>
                       <IoIosArrowForward />
@@ -888,194 +1035,267 @@ const Uniform3DmoduleDegisn = () => {
                 </div>
               )}
 
-              {categoryView !== "list" && (() => {
-                const selectedCat = simulationCategories.find(c => c.name === categoryView);
-                if (!selectedCat) return null;
+              {categoryView !== "list" &&
+                (() => {
+                  const selectedCat = simulationCategories.find(
+                    (c) => c.name === categoryView,
+                  );
+                  if (!selectedCat) return null;
 
-                return (
-                  <div className="space-y-6">
-                    {/* HEADER */}
-                    <button
-                      onClick={() => setCategoryView("list")}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[#A0522D] text-white text-sm"
-                    >
-                      <div className="flex items-center gap-2">
-                        <img src={selectedCat.icon} className="w-5 h-5 object-contain" />
-                        <span>{selectedCat.name}</span>
-                      </div>
-                      <IoIosArrowForward />
-                    </button>
+                  return (
+                    <div className="space-y-6">
+                      {/* HEADER */}
+                      <button
+                        onClick={() => setCategoryView("list")}
+                        className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[#A0522D] text-white text-sm"
+                      >
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={selectedCat.icon}
+                            className="w-5 h-5 object-contain"
+                          />
+                          <span>{selectedCat.name}</span>
+                        </div>
+                        <IoIosArrowForward />
+                      </button>
 
-                    {/* Simulation Products Section */}
-                    {!isThemeMode && (
-                      <div className="mb-6 border-b border-[#F3D3C8] pb-5">
-                        <p className="text-xs font-semibold text-[#1C2C56] mb-3">Simulation Products</p>
-                        {loadingProducts ? (
-                          <div className="flex justify-center py-4">
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#A0522D]"></div>
-                          </div>
-                        ) : categoryProducts.length === 0 ? (
-                          <p className="text-xs text-gray-500 italic">No products available in this category.</p>
-                        ) : (
-                          <div className="grid grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
-                            {categoryProducts.map((prod) => {
-                              const isSelected = singleProductData?.id === prod.id;
-                              return (
-                                <button
-                                  key={prod.id}
-                                  onClick={() => handleProductSelect(prod)}
-                                  className={`relative flex flex-col items-center p-2 rounded-xl bg-white border transition-all ${
-                                    isSelected 
-                                      ? "border-[#A0522D] bg-[#FFF5F1] ring-1 ring-[#A0522D]" 
-                                      : "border-gray-200 hover:border-gray-300"
-                                  }`}
+                      {/* Simulation Products Section */}
+                      {!isThemeMode && (
+                        <div className="mb-6 border-b border-[#F3D3C8] pb-5">
+                          <p className="text-xs font-semibold text-[#1C2C56] mb-3">
+                            Simulation Products
+                          </p>
+                          {loadingProducts ? (
+                            <div className="flex justify-center py-4">
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#A0522D]"></div>
+                            </div>
+                          ) : categoryProducts.length === 0 ? (
+                            <p className="text-xs text-gray-500 italic">
+                              No products available in this category.
+                            </p>
+                          ) : (
+                            <div className="grid grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
+                              {categoryProducts.map((prod) => {
+                                const isSelected =
+                                  singleProductData?.id === prod.id;
+                                return (
+                                  <button
+                                    key={prod.id}
+                                    onClick={() => handleProductSelect(prod)}
+                                    className={`relative flex flex-col items-center p-2 rounded-xl bg-white border transition-all ${
+                                      isSelected
+                                        ? "border-[#A0522D] bg-[#FFF5F1] ring-1 ring-[#A0522D]"
+                                        : "border-gray-200 hover:border-gray-300"
+                                    }`}
+                                  >
+                                    <div className="w-full h-[80px] rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 mb-2">
+                                      <img
+                                        src={
+                                          prod.ProductImage ||
+                                          "/img/table-form/3dtable.png"
+                                        }
+                                        className="w-full h-full object-contain"
+                                        alt={prod.productName}
+                                      />
+                                    </div>
+                                    <p className="text-[10px] font-semibold text-[#1C2C56] text-center line-clamp-1 w-full">
+                                      {prod.productName}
+                                    </p>
+                                    <p className="text-[9px] text-[#A0522D] font-bold mt-0.5">
+                                      ${prod.price}
+                                    </p>
+                                    {isSelected && (
+                                      <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full shadow-md z-10">
+                                        ✓
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {selectedCat.attributes
+                        .filter((attr) => attr.enabled)
+                        .sort((a, b) => Number(a.order) - Number(b.order))
+                        .map((attr) => {
+                          const attrName = attr.attribute;
+                          const attrKey = ATTRIBUTE_API_MAPPING[attrName];
+
+                          // Extract dynamic options from the API response
+                          const apiOptionsList =
+                            attrKey &&
+                            categoryOptions[selectedCat.name]?.[attrKey]
+                              ? categoryOptions[selectedCat.name][attrKey]
+                              : [];
+
+                          // Map options from API structure strictly without fake static fallbacks
+                          const mappedOptions = apiOptionsList.map((opt) => ({
+                            id: opt.id,
+                            name: opt.label || opt.name,
+                            img: opt.image || opt.img || null,
+                            colorCode: opt.colorCode || null,
+                            materialType: opt.materialType || null,
+                            compatibleFabric: opt.compatibleFabric || [],
+                          }));
+
+                          // Find the selected fabric name
+                          const selectedFabricName =
+                            selectedOptions[selectedCat.name]?.["Fabric"] ||
+                            selectedOptions[selectedCat.name]?.["Material"];
+                          const fabricsOptions =
+                            categoryOptions[selectedCat.name]?.["fabrics"] ||
+                            [];
+                          const selectedFabricObj = fabricsOptions.find(
+                            (f) => (f.label || f.name) === selectedFabricName,
+                          );
+                          const selectedFabricMaterial =
+                            selectedFabricObj?.materialType || null;
+
+                          // Find the selected color name
+                          const selectedColorName =
+                            selectedOptions[selectedCat.name]?.["Color"];
+                          const colorsOptions =
+                            categoryOptions[selectedCat.name]?.["colors"] || [];
+                          const selectedColorObj = colorsOptions.find(
+                            (c) => (c.label || c.name) === selectedColorName,
+                          );
+                          const selectedColorCompFabrics =
+                            selectedColorObj?.compatibleFabric || [];
+
+                          // Filter options based on compatibility
+                          let displayedOptions = [...mappedOptions];
+                          if (
+                            (attrName === "Color" ||
+                              attrName.toLowerCase().includes("color")) &&
+                            selectedFabricMaterial
+                          ) {
+                            displayedOptions = mappedOptions.filter(
+                              (opt) =>
+                                !opt.compatibleFabric ||
+                                opt.compatibleFabric.length === 0 ||
+                                opt.compatibleFabric.some(
+                                  (f) =>
+                                    f.toLowerCase() ===
+                                    selectedFabricMaterial.toLowerCase(),
+                                ),
+                            );
+                          } else if (
+                            (attrName === "Fabric" ||
+                              attrName === "Material") &&
+                            selectedColorName &&
+                            selectedColorCompFabrics.length > 0
+                          ) {
+                            displayedOptions = mappedOptions.filter(
+                              (opt) =>
+                                !opt.materialType ||
+                                selectedColorCompFabrics.some(
+                                  (f) =>
+                                    f.toLowerCase() ===
+                                    opt.materialType.toLowerCase(),
+                                ),
+                            );
+                          }
+
+                          const isColorAttr = attrName
+                            .toLowerCase()
+                            .includes("color");
+
+                          return (
+                            <div key={attrName} className="mb-4">
+                              <p className="text-xs font-semibold text-[#1C2C56] mb-2">
+                                {attrName}
+                              </p>
+                              {displayedOptions.length === 0 ? (
+                                <p className="text-xs text-gray-500 italic">
+                                  No {attrName.toLowerCase()} options available.
+                                </p>
+                              ) : (
+                                <div
+                                  className={
+                                    isColorAttr
+                                      ? "grid grid-cols-4 gap-2"
+                                      : "grid grid-cols-3 gap-3"
+                                  }
                                 >
-                                  <div className="w-full h-[80px] rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 mb-2">
-                                    <img
-                                      src={prod.ProductImage || "/img/table-form/3dtable.png"}
-                                      className="w-full h-full object-contain"
-                                      alt={prod.productName}
-                                    />
-                                  </div>
-                                  <p className="text-[10px] font-semibold text-[#1C2C56] text-center line-clamp-1 w-full">
-                                    {prod.productName}
-                                  </p>
-                                  <p className="text-[9px] text-[#A0522D] font-bold mt-0.5">
-                                    ${prod.price}
-                                  </p>
-                                  {isSelected && (
-                                    <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full shadow-md z-10">
-                                      ✓
-                                    </span>
-                                  )}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {selectedCat.attributes
-                      .filter(attr => attr.enabled)
-                      .sort((a, b) => Number(a.order) - Number(b.order))
-                      .map(attr => {
-                        const attrName = attr.attribute;
-                        const attrKey = ATTRIBUTE_API_MAPPING[attrName];
-                        
-                        // Extract dynamic options from the API response
-                        const apiOptionsList = attrKey && categoryOptions[selectedCat.name]?.[attrKey]
-                          ? categoryOptions[selectedCat.name][attrKey]
-                          : [];
-
-                        // Map options from API structure strictly without fake static fallbacks
-                        const mappedOptions = apiOptionsList.map(opt => ({
-                          id: opt.id,
-                          name: opt.label || opt.name,
-                          img: opt.image || opt.img || null,
-                          colorCode: opt.colorCode || null,
-                          materialType: opt.materialType || null,
-                          compatibleFabric: opt.compatibleFabric || []
-                        }));
-
-                        // Find the selected fabric name
-                        const selectedFabricName = selectedOptions[selectedCat.name]?.["Fabric"] || selectedOptions[selectedCat.name]?.["Material"];
-                        const fabricsOptions = categoryOptions[selectedCat.name]?.["fabrics"] || [];
-                        const selectedFabricObj = fabricsOptions.find(f => (f.label || f.name) === selectedFabricName);
-                        const selectedFabricMaterial = selectedFabricObj?.materialType || null;
-
-                        // Find the selected color name
-                        const selectedColorName = selectedOptions[selectedCat.name]?.["Color"];
-                        const colorsOptions = categoryOptions[selectedCat.name]?.["colors"] || [];
-                        const selectedColorObj = colorsOptions.find(c => (c.label || c.name) === selectedColorName);
-                        const selectedColorCompFabrics = selectedColorObj?.compatibleFabric || [];
-
-                        // Filter options based on compatibility
-                        let displayedOptions = [...mappedOptions];
-                        if ((attrName === "Color" || attrName.toLowerCase().includes("color")) && selectedFabricMaterial) {
-                          displayedOptions = mappedOptions.filter(opt => 
-                            !opt.compatibleFabric || 
-                            opt.compatibleFabric.length === 0 ||
-                            opt.compatibleFabric.some(f => f.toLowerCase() === selectedFabricMaterial.toLowerCase())
-                          );
-                        } else if ((attrName === "Fabric" || attrName === "Material") && selectedColorName && selectedColorCompFabrics.length > 0) {
-                          displayedOptions = mappedOptions.filter(opt => 
-                            !opt.materialType || 
-                            selectedColorCompFabrics.some(f => f.toLowerCase() === opt.materialType.toLowerCase())
-                          );
-                        }
-
-                        const isColorAttr = attrName.toLowerCase().includes("color");
-
-                        return (
-                          <div key={attrName} className="mb-4">
-                            <p className="text-xs font-semibold text-[#1C2C56] mb-2">{attrName}</p>
-                            {displayedOptions.length === 0 ? (
-                              <p className="text-xs text-gray-500 italic">No {attrName.toLowerCase()} options available.</p>
-                            ) : (
-                              <div className={isColorAttr ? "grid grid-cols-4 gap-2" : "grid grid-cols-3 gap-3"}>
-                                {displayedOptions.map(opt => {
-                                  const isSelected = selectedOptions[selectedCat.name]?.[attrName] === opt.name;
-                                  return (
-                                    <button
-                                      key={opt.id || opt.name}
-                                      onClick={() => {
-                                        setSelectedOptions(prev => {
-                                          const currentCatOptions = { ...(prev[selectedCat.name] || {}) };
-                                          if (currentCatOptions[attrName] === opt.name) {
-                                            delete currentCatOptions[attrName];
-                                          } else {
-                                            currentCatOptions[attrName] = opt.name;
-                                          }
-                                          return {
-                                            ...prev,
-                                            [selectedCat.name]: currentCatOptions
-                                          };
-                                        });
-                                      }}
-                                      className={`relative flex flex-col items-center p-1 rounded-lg border transition ${
-                                        isSelected 
-                                          ? "border-[#A0522D] bg-[#FFF5F1] shadow-sm ring-1 ring-[#A0522D]" 
-                                          : "border-gray-200 bg-white hover:border-gray-300"
-                                      }`}
-                                    >
-                                      <div className="rounded-md w-full h-[55px] overflow-hidden flex items-center justify-center bg-gray-50 relative">
-                                        {opt.colorCode ? (
-                                          <div
-                                            className="w-6 h-6 rounded-full border border-gray-300 shadow-sm"
-                                            style={{ backgroundColor: opt.colorCode }}
-                                          />
-                                        ) : opt.img ? (
-                                          <img
-                                            src={opt.img}
-                                            className="w-full h-full object-cover"
-                                            alt={opt.name}
-                                          />
-                                        ) : (
-                                          <div className="text-[10px] text-gray-500 text-center px-1 font-medium">
-                                            {opt.name}
-                                          </div>
+                                  {displayedOptions.map((opt) => {
+                                    const isSelected =
+                                      selectedOptions[selectedCat.name]?.[
+                                        attrName
+                                      ] === opt.name;
+                                    return (
+                                      <button
+                                        key={opt.id || opt.name}
+                                        onClick={() => {
+                                          setSelectedOptions((prev) => {
+                                            const currentCatOptions = {
+                                              ...(prev[selectedCat.name] || {}),
+                                            };
+                                            if (
+                                              currentCatOptions[attrName] ===
+                                              opt.name
+                                            ) {
+                                              delete currentCatOptions[
+                                                attrName
+                                              ];
+                                            } else {
+                                              currentCatOptions[attrName] =
+                                                opt.name;
+                                            }
+                                            return {
+                                              ...prev,
+                                              [selectedCat.name]:
+                                                currentCatOptions,
+                                            };
+                                          });
+                                        }}
+                                        className={`relative flex flex-col items-center p-1 rounded-lg border transition ${
+                                          isSelected
+                                            ? "border-[#A0522D] bg-[#FFF5F1] shadow-sm ring-1 ring-[#A0522D]"
+                                            : "border-gray-200 bg-white hover:border-gray-300"
+                                        }`}
+                                      >
+                                        <div className="rounded-md w-full h-[55px] overflow-hidden flex items-center justify-center bg-gray-50 relative">
+                                          {opt.colorCode ? (
+                                            <div
+                                              className="w-6 h-6 rounded-full border border-gray-300 shadow-sm"
+                                              style={{
+                                                backgroundColor: opt.colorCode,
+                                              }}
+                                            />
+                                          ) : opt.img ? (
+                                            <img
+                                              src={opt.img}
+                                              className="w-full h-full object-cover"
+                                              alt={opt.name}
+                                            />
+                                          ) : (
+                                            <div className="text-[10px] text-gray-500 text-center px-1 font-medium">
+                                              {opt.name}
+                                            </div>
+                                          )}
+                                        </div>
+                                        {isSelected && (
+                                          <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full shadow-md z-10">
+                                            ✓
+                                          </span>
                                         )}
-                                      </div>
-                                      {isSelected && (
-                                        <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full shadow-md z-10">
-                                          ✓
-                                        </span>
-                                      )}
-                                      <p className="text-[10px] mt-1 text-center font-medium text-gray-700 truncate w-full px-0.5">
-                                        {opt.name}
-                                      </p>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                  </div>
-                );
-              })()}
+                                        <p className="text-[10px] mt-1 text-center font-medium text-gray-700 truncate w-full px-0.5">
+                                          {opt.name}
+                                        </p>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                    </div>
+                  );
+                })()}
             </div>
           )}
 
@@ -1093,13 +1313,22 @@ const Uniform3DmoduleDegisn = () => {
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#A0522D]"></div>
                 </div>
               ) : allSimulationProducts.length === 0 ? (
-                <p className="text-xs text-gray-500 italic">No products currently marked for simulation.</p>
+                <p className="text-xs text-gray-500 italic">
+                  No products currently marked for simulation.
+                </p>
               ) : (
                 <div className="space-y-3">
                   {allSimulationProducts.map((prod) => {
                     const isSelected = singleProductData?.id === prod.id;
-                    const prodImage = prod.ProductImage || prod.productImage || prod.image || "/img/table-form/3dtable.png";
-                    const catName = prod.category?.categoryName || prod.categoryName || "General";
+                    const prodImage =
+                      prod.ProductImage ||
+                      prod.productImage ||
+                      prod.image ||
+                      "/img/table-form/3dtable.png";
+                    const catName =
+                      prod.category?.categoryName ||
+                      prod.categoryName ||
+                      "General";
                     return (
                       <button
                         key={prod.id}
@@ -1142,15 +1371,15 @@ const Uniform3DmoduleDegisn = () => {
         {/* CENTER MODEL VIEWER */}
         <div className=" border-l pl-10 border-[#A0522D33] relative flex-1 flex flex-col gap-5 items-center justify-between mt-6">
           <div className="bg-white shadow-xl rounded-xl p-2 flex gap-1 max-w-xs w-full">
-
             {/* SINGLE TABLE */}
             <button
               onClick={() => setFullView(false)}
               className={` w-full flex items-center justify-center font-bold gap-2 px-4 py-2 rounded-lg text-sm transition-all
-                                ${!fullView
-                  ? 'bg-[#A0522D] hover:bg-[#A0522D shadow text-white '
-                  : 'bg-transparent text-gray-700 hover:bg-gray-100'
-                }`}
+                                ${
+                                  !fullView
+                                    ? "bg-[#A0522D] hover:bg-[#A0522D shadow text-white "
+                                    : "bg-transparent text-gray-700 hover:bg-gray-100"
+                                }`}
             >
               <TbTable className="text-lg" />
               Single Table
@@ -1160,28 +1389,41 @@ const Uniform3DmoduleDegisn = () => {
             <button
               onClick={() => setFullView(true)}
               className={` w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm transition-all
-                                ${fullView
-                  ? 'bg-[#A0522D] hover:bg-[#A0522D] text-white shadow'
-                  : 'bg-transparent text-gray-700 hover:bg-gray-100'
-                }`}
+                                ${
+                                  fullView
+                                    ? "bg-[#A0522D] hover:bg-[#A0522D] text-white shadow"
+                                    : "bg-transparent text-gray-700 hover:bg-gray-100"
+                                }`}
             >
               <RiTable2 className="text-lg" />
               Full Venue
             </button>
           </div>
-          <div className="relative z-10  overflow-hidden 
-                h-[620px] w-full flex items-center justify-center">
-            {
-              fullView ? <Image
-                src={selectedTheme.cardImage || singleProductData?.ProductImage || '/img/table-form/full-venue.png'}
+          <div
+            className="relative z-10  overflow-hidden 
+                h-[620px] w-full flex items-center justify-center"
+          >
+            {fullView ? (
+              <Image
+                src={
+                  selectedTheme.cardImage ||
+                  singleProductData?.ProductImage ||
+                  "/img/table-form/full-venue.png"
+                }
                 alt={selectedTheme.title}
                 width={700}
                 height={500}
                 className="object-contain "
                 priority
                 unoptimized
-              /> : <Image
-                src={singleProductData?.ProductImage || selectedTheme.cardImage || "/img/table-form/3dtable.png"}
+              />
+            ) : (
+              <Image
+                src={
+                  singleProductData?.ProductImage ||
+                  selectedTheme.cardImage ||
+                  "/img/table-form/3dtable.png"
+                }
                 alt={selectedTheme.title}
                 width={500}
                 height={500}
@@ -1189,25 +1431,26 @@ const Uniform3DmoduleDegisn = () => {
                 priority
                 unoptimized
               />
-            }
-
+            )}
           </div>
 
           <div className="flex items-center">
-
             <div className="z-20 mt-6 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl px-3 py-2 flex items-center gap-4">
               <button className="p-2 rounded-md">
-                <img src="/img/top-left-image/cursor.png" className="w-5 h-5 invert" />
+                <img
+                  src="/img/top-left-image/cursor.png"
+                  className="w-5 h-5 invert"
+                />
               </button>
               <div className="w-px h-6 bg-gray-300"></div>
               <button className="p-2">
                 <img src="/img/top-left-image/hand.png" className="w-5 h-5" />
               </button>
               <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2" >
+              <button className="p-2">
                 <img src="/img/top-left-image/undo.png" className="w-5 h-5" />
               </button>
-              <button className="p-2" >
+              <button className="p-2">
                 <img src="/img/top-left-image/redo.png" className="w-5 h-5" />
               </button>
               <div className="w-px h-6 bg-gray-300"></div>
@@ -1218,7 +1461,7 @@ const Uniform3DmoduleDegisn = () => {
                 <span className="text-lg font-bold">−</span>
               </button>
               <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2 flex items-center gap-1" >
+              <button className="p-2 flex items-center gap-1">
                 <img src="/img/top-left-image/rotate.png" className="w-5 h-5" />
                 <span className="text-sm text-gray-700">90°</span>
               </button>
@@ -1233,19 +1476,17 @@ const Uniform3DmoduleDegisn = () => {
                 type="submit"
                 variant="solid"
                 loading={isSubmitting || isSaving}
-                className="ml-10 mt-7 bg-[#A0522D] hover:bg-[#A0522D] text-[16px] text-white py-1 px-5" onClick={handleUniformDesignResult}
+                className="ml-10 mt-7 bg-[#A0522D] hover:bg-[#A0522D] text-[16px] text-white py-1 px-5"
+                onClick={handleUniformDesignResult}
               >
                 Confirm Design
               </Button>
             </div>
-
           </div>
         </div>
-
       </div>
-
     </section>
-  )
-}
+  );
+};
 
-export default Uniform3DmoduleDegisn
+export default Uniform3DmoduleDegisn;

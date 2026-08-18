@@ -1,0 +1,60 @@
+{
+  "pages": {
+    "/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/layout.css",
+      "static/chunks/app/layout.js"
+    ],
+    "/not-found": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/not-found.js"
+    ],
+    "/(public-pages)/dashboards/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/layout.js"
+    ],
+    "/(public-pages)/dashboards/design-result/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/design-result/[id]/page.js"
+    ],
+    "/(public-pages)/dashboards/delivery-request/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/delivery-request/[id]/page.js"
+    ],
+    "/(public-pages)/dashboards/uniform-3d-design/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/uniform-3d-design/[id]/page.js"
+    ],
+    "/(public-pages)/dashboards/uniform-3d-design/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/uniform-3d-design/page.js"
+    ],
+    "/(public-pages)/kireiz-form/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/kireiz-form/page.js"
+    ],
+    "/(public-pages)/medical-form/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/medical-form/[id]/page.js"
+    ],
+    "/(public-pages)/dashboards/uniform-design/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/uniform-design/[id]/page.js"
+    ],
+    "/(public-pages)/dashboards/uniform-single/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public-pages)/dashboards/uniform-single/[id]/page.js"
+    ]
+  }
+}
