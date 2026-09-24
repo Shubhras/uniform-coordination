@@ -33,6 +33,10 @@ COPY . .
 # Set ownership to non-root user
 RUN chown -R appuser:appuser /app
 
+# Create writable cache directory for fontconfig / weasyprint
+RUN mkdir -p /tmp/.cache && chown -R appuser:appuser /tmp/.cache
+ENV XDG_CACHE_HOME=/tmp/.cache
+
 USER appuser
 
 EXPOSE 8006
