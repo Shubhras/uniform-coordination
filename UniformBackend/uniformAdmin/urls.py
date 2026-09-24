@@ -4,12 +4,6 @@ from .fabric import *
 from .parts import *
 from .colours import *
 from .templates import *
-from .attribute_options import (
-    AttributeOptionListAPIView,
-    AttributeOptionCreateAPIView,
-    AttributeOptionUpdateAPIView,
-    AttributeOptionDeleteAPIView,
-)
 from .faqs import *
 from .blog import *
 from .category import *
@@ -28,8 +22,6 @@ from .quotation_history import *
 from .sales_reps import *
 from .simulation_config import *
 from .reports import *
-from .simulation_assets import *
-from .simulation_public import *
 
 
 
@@ -76,12 +68,6 @@ urlpatterns = [
     path("colors/delete/<int:id>/", ColorsDeleteView.as_view(), name="delete-color"),
 
     # Template URLs
-    # Product & Specification -> Options tab: the choices per simulation attribute
-    # (collar styles, cuffs, the size run). GET is public for the storefront.
-    path("attribute-options/list/", AttributeOptionListAPIView.as_view(), name="attribute-option-list"),
-    path("attribute-options/create/", AttributeOptionCreateAPIView.as_view(), name="attribute-option-create"),
-    path("attribute-options/<int:pk>/update/", AttributeOptionUpdateAPIView.as_view(), name="attribute-option-update"),
-    path("attribute-options/<int:pk>/delete/", AttributeOptionDeleteAPIView.as_view(), name="attribute-option-delete"),
     path("templates/create/", TemplateCreateView.as_view(), name="create-template"),
     path("templates/list/", TemplateListView.as_view(), name="list-templates"),
     path("templates/<int:id>/", TemplateDetailView.as_view(), name="get-template"),
@@ -227,19 +213,6 @@ urlpatterns = [
     # Reports & Analytics
     path("reports/analytics/",ReportsAnalyticsAPIView.as_view(),name="reports-analytics"),
     path("reports/export/",ReportsExportAPIView.as_view(),name="reports-export"),
-
-    # Simulation Assets (canvas layer registration)
-    path("simulation-assets/",SimulationAssetListAPIView.as_view(),name="simulation-assets-list"),
-    path("simulation-assets/reorder/",SimulationAssetReorderAPIView.as_view(),name="simulation-assets-reorder"),
-    path("simulation-assets/<int:pk>/update/",SimulationAssetUpdateAPIView.as_view(),name="simulation-assets-update"),
-    path("simulation-assets/product-visibility/",ProductSimulationVisibilityAPIView.as_view(),name="simulation-product-visibility"),
-    path("simulation-assets/structure/",SimulationStructureAPIView.as_view(),name="simulation-structure"),
-
-    # Customer-facing simulation reads — same config the admin manages above
-    path("simulation/categories/",SimulationCategoryListAPIView.as_view(),name="simulation-public-categories"),
-    path("simulation/options/",SimulationOptionsAPIView.as_view(),name="simulation-public-options"),
-    path("simulation/product/<int:pk>/layers/",SimulationProductLayersAPIView.as_view(),name="simulation-public-layers"),
-
     path("pdf-templates/<int:pk>/",PdfTemplateDetailAPIView.as_view(),name="pdf-template-detail"),
     path("pdf-templates/<int:pk>/update/",PdfTemplateUpdateAPIView.as_view(),name="pdf-template-update"),
     path("pdf-templates/<int:pk>/delete/",PdfTemplateDeleteAPIView.as_view(),name="pdf-template-delete"),
@@ -287,5 +260,4 @@ urlpatterns = [
     # ==========================================
     path('settings/system/', SystemSettingsRetrieveView.as_view(), name='system-settings-get'),
     path('settings/system/update/', SystemSettingsUpdateView.as_view(), name='system-settings-update'),
-    path('simulations/saved/', AdminSavedSimulationsAPIView.as_view(), name='admin-saved-simulations'),
 ]

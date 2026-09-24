@@ -52,11 +52,11 @@ services:
       sh -c "
         python manage.py migrate &&
         python manage.py collectstatic --noinput &&
-        python manage.py runserver 0.0.0.0:8005
+        gunicorn UniformWeb.wsgi:application --bind 0.0.0.0:8005 --workers 3 --timeout 120
       "
 
     ports:
-      - "8005:8005"
+      - "127.0.0.1:8005:8005"
 
   adminer:
     image: adminer:latest
@@ -68,7 +68,7 @@ services:
         condition: service_healthy
 
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
 
     environment:
       ADMINER_DEFAULT_SERVER: mysql

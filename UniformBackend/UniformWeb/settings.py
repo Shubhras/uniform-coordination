@@ -28,27 +28,23 @@ load_dotenv(dotenv_path)
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-a)&ww89mdf0z@0z_&lm=9ia79zry+d_wi((4x=5-*!ysby@&fz'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-a)&ww89mdf0z@0z_&lm=9ia79zry+d_wi((4x=5-*!ysby@&fz')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() in ('true', '1')
 
-
-ALLOWED_HOSTS = [
-    "192.168.29.193",
-    "192.168.1.31",
-    "127.0.0.1",
-    "localhost",
-    "localhost:7000",
-    "localhost:7001",
-    "localhost:7002",
-    "192.168.1.56",
-    "54.81.43.26",
-    "0.0.0.0:8000",
-    "0.0.0.0",
-    "http://localhost:7003",
-    "moira-diamond-unfiltrated.ngrok-free.dev",
-]
+allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+else:
+    ALLOWED_HOSTS = [
+        "127.0.0.1",
+        "localhost",
+        "172.237.71.124",
+        ".sslip.io",
+        ".dxtspace.com",
+        "moira-diamond-unfiltrated.ngrok-free.dev",
+    ]
 # Application definition
 
 INSTALLED_APPS = [
@@ -228,14 +224,14 @@ CORS_ALLOWED_ORIGINS = [
     "http://54.81.43.26",
 
     # Linode server (nginx par port 80)
-    "http://104.64.206.82",
-    "http://104.64.206.82:7000",
-    "http://104.64.206.82:7001",
-    "http://104.64.206.82:7002",
-    "http://104.64.206.82:7003",
-    "http://table.104.64.206.82.sslip.io",
-    "http://admin.104.64.206.82.sslip.io",
-    "http://admintable.104.64.206.82.sslip.io",
+    "http://172.237.71.124",
+    "http://172.237.71.124:7000",
+    "http://172.237.71.124:7001",
+    "http://172.237.71.124:7002",
+    "http://172.237.71.124:7003",
+    "http://table.172.237.71.124.sslip.io",
+    "http://admin.172.237.71.124.sslip.io",
+    "http://admintable.172.237.71.124.sslip.io",
 
     # dxtspace.com domains (HTTPS terminated at nginx)
     "https://uniform.dxtspace.com",
@@ -256,6 +252,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://table.dxtspace.com",
     "https://uniform-admin.dxtspace.com",
     "https://table-admin.dxtspace.com",
+    "http://172.237.71.124",
+    "http://*.172.237.71.124.sslip.io",
 ]
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -294,8 +292,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "static",   # your source static files
-]
+    BASE_DIR / "static",
+] if (BASE_DIR / "static").exists() else []
 
 STATIC_ROOT = BASE_DIR / "staticfiles"   # collected files for production
 
