@@ -50,7 +50,7 @@ services:
 
     command: >
       sh -c "
-        python manage.py migrate &&
+        python manage.py migrate --fake-initial &&
         python manage.py collectstatic --noinput &&
         gunicorn UniformWeb.wsgi:application --bind 0.0.0.0:8005 --workers 3 --timeout 120
       "
