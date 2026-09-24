@@ -46,7 +46,10 @@ services:
       DB_PASSWORD: tablepass
       DB_HOST: mysql
       DB_PORT: "3306"
-    
+
+      STRIPE_SECRET_KEY: test
+      STRIPE_PUBLISHABLE_KEY: test
+      STRIPE_WEBHOOK_SECRET: test
 
 
     command: >
