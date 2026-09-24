@@ -18,6 +18,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-liberation \
  && rm -rf /var/lib/apt/lists/*
 
+# Create a non-privileged user and group
+RUN groupadd -g 1000 appuser && useradd -u 1000 -g appuser -d /app -s /bin/bash appuser
+
 WORKDIR /app
 
 COPY requirements.txt .
@@ -27,6 +30,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# Set ownership to non-root user
+RUN chown -R appuser:appuser /app
+
+USER appuser
+
 EXPOSE 8006
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8006"]
+CMD ["gunicorn", "UniformWeb.wsgi:application", "--bind", "0.0.0.0:8006", "--workers", "3", "--timeout", "120"]
