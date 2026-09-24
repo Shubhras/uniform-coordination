@@ -8,9 +8,11 @@ from openai import OpenAI
 from .models import FAQ, FAQDescription, PrivacyPolicy, Product
 from userhub.models import Order, CustomerDetails 
 
-# Initialize OpenAI Client (Make sure OPENAI_API_KEY is in your environment variables or .env)
-# The OpenAI library will automatically pick up the OPENAI_API_KEY env var
-client = OpenAI()
+def get_openai_client():
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return None
+    return OpenAI(api_key=api_key)
 
 class FAQAssistantAPIView(APIView):
     """
@@ -43,6 +45,10 @@ class FAQAssistantAPIView(APIView):
         context = f"COMPANY FAQs:\n{faq_text}\nCOMPANY POLICIES:\n{policy_text}"
 
         # 2. Call OpenAI
+        client = get_openai_client()
+        if not client:
+            return Response({"success": False, "message": "OPENAI_API_KEY is not configured in server environment."}, status=503)
+
         try:
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
@@ -120,6 +126,10 @@ class ProductSearchAPIView(APIView):
         if not query:
             return Response({"success": False,"statusCode":400, "message": "Query is required."}, status=400)
 
+        client = get_openai_client()
+        if not client:
+            return Response({"success": False, "statusCode": 503, "message": "OPENAI_API_KEY is not configured in server environment."}, status=503)
+
         try:
             # 1. Ask OpenAI to extract filters
             response = client.chat.completions.create(
@@ -181,6 +191,10 @@ class DraftGeneratorAPIView(APIView):
         inquiry = request.data.get("inquiry", "")
         if not inquiry:
             return Response({"success": False, "message": "Inquiry is required."}, status=400)
+
+        client = get_openai_client()
+        if not client:
+            return Response({"success": False, "message": "OPENAI_API_KEY is not configured in server environment."}, status=503)
 
         try:
             response = client.chat.completions.create(

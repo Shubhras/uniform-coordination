@@ -50,6 +50,7 @@ services:
       STRIPE_SECRET_KEY: test
       STRIPE_PUBLISHABLE_KEY: test
       STRIPE_WEBHOOK_SECRET: test
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
 
 
     command: >
