@@ -24,25 +24,21 @@ const RecentOrdersCard = ({ data }) => {
   const t = useTranslations("dashboard.recentOrders");
 
   return (
-    <div className="bg-white rounded-xl border border-[#ececec] shadow-md p-5">
-      <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
+    <div className="bg-white rounded-xl border border-[#E8DDD4] shadow-md p-5">
+      <div className="flex items-center justify-between border-b border-[#ECE7E3] pb-4 mb-4">
         <div className="flex items-center gap-2.5">
-          {/* <div className="p-2 bg-[#FAF6F4] text-[#B66636] rounded-lg border border-[#F0E4DE]">
-            <FiShoppingBag size={18} />
-          </div> */}
           <div>
-            <h3 className="text-[17px] font-semibold text-[#3B3B3B] flex items-center gap-2">
+            <h3 className="text-[17px] font-semibold text-[#2A211D] flex items-center gap-2">
               {t("title")}
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#B66636]/10 text-[#B66636]">
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#FDF4EB] text-[#A0522D] border border-[#F3CDB6]">
                 {todayCount} {t("today")}
               </span>
             </h3>
-            {/* <p className="text-xs text-gray-500">{t("subtitle")}</p> */}
           </div>
         </div>
         <Link
           href="/orders"
-          className="text-xs font-medium text-[#B66636] hover:underline flex items-center gap-1"
+          className="text-xs font-semibold text-[#A0522D] hover:text-[#854122] hover:underline flex items-center gap-1 transition"
         >
           {t("viewall")} <FiArrowRight size={12} />
         </Link>
@@ -51,7 +47,7 @@ const RecentOrdersCard = ({ data }) => {
       {recentOrders.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-[#F1F5F9] text-[#486284]">
+            <thead className="bg-[#F7F2EE] text-[#6B7280]">
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
                 <th className="py-2.5 px-3 text-left rounded-l-lg">
                   {t("orderId")}
@@ -65,33 +61,33 @@ const RecentOrdersCard = ({ data }) => {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 text-gray-700">
+            <tbody className="divide-y divide-[#F1EAE4] text-[#2A211D]">
               {recentOrders.map((order, index) => (
                 <tr
                   key={order.id || order.order_id || index}
-                  className="hover:bg-gray-50/80 transition"
+                  className="hover:bg-[#FDF4EB]/40 transition"
                 >
-                  <td className="py-3 px-3 text-[14px] font-semibold text-gray-900">
+                  <td className="py-3 px-3 text-[14px] font-semibold text-[#2A211D]">
                     {order.order_id}
                   </td>
                   <td className="py-3 px-3">
-                    <div className="font-medium text-gray-900">
+                    <div className="font-medium text-[#2A211D]">
                       {order.customer_name || "Customer"}
                     </div>
                     {order.customer_email && (
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-[#8C7E74]">
                         {order.customer_email}
                       </div>
                     )}
                   </td>
-                  <td className="py-3 px-3 text-[14px] text-gray-500">
+                  <td className="py-3 px-3 text-[14px] text-[#786D66]">
                     <div className="flex items-center gap-1">
-                      <FiClock size={15} className="text-gray-400" />
+                      <FiClock size={15} className="text-[#8C7E74]" />
                       {order.formatted_date || order.created_at}
                     </div>
                   </td>
-                  <td className="py-3 px-3 font-semibold text-gray-900">
-                    ${parseFloat(order.total_amount || 0).toFixed(2)}
+                  <td className="py-3 px-3 font-semibold text-[#2A211D]">
+                    ¥{Number(order.total_amount || 0).toLocaleString()}
                   </td>
                   <td className="py-3 px-3">
                     <span
@@ -103,7 +99,7 @@ const RecentOrdersCard = ({ data }) => {
                   <td className="py-3 px-3 text-left">
                     <Link
                       href={`/orders/${order.order_id}`}
-                      className="text-[13px] font-medium text-[#B66636] hover:text-[#9E5328] hover:underline"
+                      className="text-[13px] font-medium text-[#A0522D] hover:text-[#854122] hover:underline transition"
                     >
                       {t("details")}
                     </Link>

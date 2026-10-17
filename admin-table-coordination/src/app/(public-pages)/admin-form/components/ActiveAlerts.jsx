@@ -115,15 +115,15 @@ const ActiveAlerts = ({ data, onRefresh }) => {
       <div className="bg-white rounded-xl shadow-lg p-5">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
-            <h3 className="text-[#1C2C56] font-semibold">{t("title")}</h3>
-            <span className="bg-[#E0E7FF] text-[#1C2C56] text-xs font-medium px-2 py-0.5 rounded-full">
+            <h3 className="text-[#2A211D] text-[17px] font-semibold">{t("title")}</h3>
+            <span className="bg-[#FDF4EB] text-[#A0522D] border border-[#F3CDB6] text-xs font-semibold px-2.5 py-0.5 rounded-full">
               {alertCount}
             </span>
           </div>
 
           <button
             onClick={handleMarkAllRead}
-            className="text-sm text-[#1C2C56] hover:underline cursor-pointer"
+            className="text-sm font-medium text-[#A0522D] hover:text-[#854122] hover:underline cursor-pointer transition"
           >
             {t("markAllRead")}
           </button>
@@ -142,16 +142,16 @@ const ActiveAlerts = ({ data, onRefresh }) => {
               return (
                 <div
                   key={index}
-                  className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-[#E2E8F0] rounded-lg p-4"
+                  className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-[#E8DDD4] rounded-lg p-4 bg-white hover:border-[#D4C3B7] transition"
                 >
                   <div className="flex items-start gap-3">
                     <Icon className={`${color} mt-1`} size={18} />
 
                     <div>
-                      <p className="text-sm font-semibold text-[#1C2C56]">
+                      <p className="text-sm font-semibold text-[#2A211D]">
                         {t(alert.levelKey)}
                       </p>
-                      <p className="text-sm text-[#64748B]">
+                      <p className="text-sm text-[#786D66]">
                         {t(alert.messageKey, { count: alert.messageCount })}
                       </p>
                     </div>
@@ -164,14 +164,7 @@ const ActiveAlerts = ({ data, onRefresh }) => {
                           router.push(alert.path);
                         }
                       }}
-                      className="
-      bg-[#6A341A] text-white
-      px-3 py-1.5 md:px-4 md:py-2
-      rounded-md
-      text-xs md:text-sm
-      w-fit
-      cursor-pointer
-    "
+                      className="bg-[#A0522D] hover:bg-[#854122] text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-medium w-fit cursor-pointer transition shadow-sm"
                     >
                       {t(alert.actionKey)}
                     </button>
@@ -180,9 +173,9 @@ const ActiveAlerts = ({ data, onRefresh }) => {
               );
             })
           ) : (
-            <div className="flex flex-col items-center justify-center py-10 text-gray-500 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E2E8F0]">
-              <p className="text-sm font-semibold text-[#64748B]">{t("allCaughtUp")}</p>
-              <p className="text-xs text-[#94A3B8] mt-1">{t("allCaughtUpDesc")}</p>
+            <div className="flex flex-col items-center justify-center py-10 text-gray-500 bg-[#FAFAF7] rounded-xl border border-dashed border-[#E8DDD4]">
+              <p className="text-sm font-semibold text-[#2A211D]">{t("allCaughtUp")}</p>
+              <p className="text-xs text-[#8C7E74] mt-1">{t("allCaughtUpDesc")}</p>
             </div>
           )}
         </div>

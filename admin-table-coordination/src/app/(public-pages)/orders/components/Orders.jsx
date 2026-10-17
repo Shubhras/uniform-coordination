@@ -295,7 +295,7 @@ export default function Orders() {
                     </td>
                     <td className="px-5 py-5">
                       <span className="text-[12px] text-[#2C1A0E] font-semibold">
-                        ${order.total_amount || "-"}
+                        {order.total_amount ? `¥${Number(order.total_amount).toLocaleString()}` : "-"}
                       </span>
                     </td>
                     <td className="px-4 py-5">

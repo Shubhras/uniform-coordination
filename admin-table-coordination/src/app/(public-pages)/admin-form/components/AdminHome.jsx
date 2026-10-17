@@ -1,8 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetDashboard } from "@/services/DashboardService";
+import { sidebarMenu } from "@/app/(public-pages)/_components/AdminSidebar";
 import HeroContent from "./HeroContent";
 import DashboardStats from "./DashboardStats";
 import RecentOrdersCard from "./RecentOrdersCard";
@@ -26,12 +29,46 @@ const QuotationsByStatusChart = dynamic(
 );
 
 const AdminHome = () => {
+  const router = useRouter();
   const { session } = useCurrentSession();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const accessToken = session?.user?.accessToken;
+  const userPermissions = session?.user?.permissions || [];
+  const userRole = session?.user?.authority?.[0]?.toLowerCase();
+
+  const hasDashboardPermission =
+    userRole === "admin" ||
+    userPermissions.some((permSlug) => {
+      const norm = (permSlug || "").toLowerCase().replace(/_and_|-|_/g, "");
+      return norm === "dashboard" || norm.includes("dashboard");
+    });
+
+  const firstPermitted = useMemo(() => {
+    if (!userRole || userRole === "admin" || hasDashboardPermission) return null;
+    if (session?.user?.entryPath && session.user.entryPath !== "/admin-form") {
+      return { path: session.user.entryPath };
+    }
+    return sidebarMenu.find((item) => {
+      if (item.slug === "dashboard") return false;
+      const normItemSlug = (item.slug || "").toLowerCase().replace(/_and_|-|_/g, "");
+      const normItemPath = (item.path || "").toLowerCase().replace(/^\//, "");
+      return userPermissions.some((permSlug) => {
+        const normPerm = (permSlug || "").toLowerCase().replace(/_and_|-|_/g, "");
+        if (!normPerm) return false;
+        return (
+          normPerm === normItemSlug ||
+          normPerm === normItemPath ||
+          normPerm.includes(normItemSlug) ||
+          normItemSlug.includes(normPerm) ||
+          (item.slug === "order_rentals" && (normPerm.includes("order") || normPerm.includes("rental"))) ||
+          (item.slug === "user_permission" && (normPerm.includes("user") || normPerm.includes("permission") || normPerm.includes("staff")))
+        );
+      });
+    });
+  }, [userRole, hasDashboardPermission, userPermissions, session?.user?.entryPath]);
 
   const fetchDashboard = async (silent = false) => {
     if (!accessToken) {
@@ -54,8 +91,33 @@ const AdminHome = () => {
   };
 
   useEffect(() => {
-    fetchDashboard();
-  }, [accessToken]);
+    if (!session) return;
+
+    if (firstPermitted?.path) {
+      window.location.replace(firstPermitted.path);
+      return;
+    }
+
+    if (accessToken && hasDashboardPermission) {
+      fetchDashboard();
+    } else if (!hasDashboardPermission) {
+      setLoading(false);
+    }
+  }, [accessToken, session, hasDashboardPermission, firstPermitted]);
+
+  if (!hasDashboardPermission && userRole && userRole !== "admin") {
+    if (firstPermitted?.path || loading) {
+      return <DashboardSkeleton />;
+    }
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <h2 className="text-xl font-semibold text-[#2A211D]">Access Restricted</h2>
+        <p className="text-sm text-[#786D66] mt-2">
+          Your role does not have permission to view the Dashboard.
+        </p>
+      </div>
+    );
+  }
 
   if (loading) {
     return <DashboardSkeleton />;

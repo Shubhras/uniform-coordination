@@ -36,10 +36,10 @@ const ContentMediaPage = () => {
             {/* <p className="text-sm text-[#486284] mb-2">
                 Admin Dashboard / <span className="text-[#1C2C56]">Content & Media </span>
             </p> */}
-            <h1 className="text-2xl font-semibold text-[#1C2C56]">
+            <h1 className="text-2xl font-semibold text-[#2A211D]">
                  {t("contentTitle")}
             </h1>
-            <p className="text-base font-medium text-[#64748B]">
+            <p className="text-base font-medium text-[#B29D8C]">
                 {t("contentPara")}
             </p>
 

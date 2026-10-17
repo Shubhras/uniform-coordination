@@ -25,7 +25,7 @@ const QuickActionsCard = () => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-5">
-      <h3 className="text-[#3B3B3B] text-[17px] font-semibold mb-5">
+      <h3 className="text-[#2A211D] text-[17px] font-semibold mb-5">
         {t("title")}
       </h3>
 
@@ -36,14 +36,14 @@ const QuickActionsCard = () => {
           return (
             <div
               key={index}
-              className="border border-[#E2E8F0] rounded-lg py-5 flex flex-col items-center justify-center gap-3 hover:shadow-md transition cursor-pointer"
+              className="border border-[#E8DDD4] hover:border-[#A0522D]/50 hover:bg-[#FDF4EB]/40 rounded-xl py-5 flex flex-col items-center justify-center gap-3 hover:shadow-md transition cursor-pointer group"
               onClick={() => router.push(item.route)}
             >
-              <div className="bg-[#FEF3C7] w-11 h-11 rounded-lg flex items-center justify-center">
+              <div className="bg-[#FDF4EB] border border-[#F3CDB6]/70 w-11 h-11 rounded-xl flex items-center justify-center group-hover:scale-105 transition">
                 <Icon size={18} className="text-[#A0522D]" />
               </div>
 
-              <p className="text-[11px] text-center text-[#374151] px-2">
+              <p className="text-[12px] font-medium text-center text-[#2A211D] px-2">
                 {t(item.labelKey)}
               </p>
             </div>

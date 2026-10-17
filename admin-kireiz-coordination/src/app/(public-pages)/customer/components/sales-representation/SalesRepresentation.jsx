@@ -51,9 +51,7 @@ const SalesRepresentation = () => {
 
         try {
             setLoading(true);
-            const response = await apiGetSalesReps(accessToken, {
-                search: debouncedSearch,
-            });
+            const response = await apiGetSalesReps(accessToken, debouncedSearch);
             if (response?.status && Array.isArray(response.data)) {
                 setReps(response.data);
             } else if (Array.isArray(response)) {

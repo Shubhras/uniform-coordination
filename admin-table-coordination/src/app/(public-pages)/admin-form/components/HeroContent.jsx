@@ -22,25 +22,25 @@ const HeroContent = ({ data }) => {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(90deg, #E9D5FF 0%, #DBEAFE 50%, #E0E7FF 100%)",
+            "linear-gradient(90deg, #FDF4EB 0%, #F5ECE3 50%, #EDE1D5 100%)",
         }}
       />
 
-      <div className="relative z-10 bg-white rounded-xl shadow-lg p-5 md:p-8 flex flex-col gap-6">
+      <div className="relative z-10 bg-white rounded-xl shadow-lg p-5 md:p-8 flex flex-col gap-6 border border-[#E8DDD4]">
         <div className="flex flex-wrap gap-3">
-          <button className="bg-[#6A341A] text-white px-4 py-2 rounded-md text-sm font-medium">
+          <button className="bg-[#A0522D] hover:bg-[#854122] text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
             {t("heroActions.createTheme")}
           </button>
 
           <button
-            className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
+            className="border border-[#E8DDD4] text-[#2A211D] hover:bg-[#FDF4EB] px-4 py-2 rounded-lg text-sm font-medium transition"
             onClick={() => router.push("/orders")}
           >
             {t("heroActions.viewOrders")}
           </button>
 
           <button
-            className="border border-[#CBD5E1] text-[#1E293B] px-4 py-2 rounded-md text-sm font-medium"
+            className="border border-[#E8DDD4] text-[#2A211D] hover:bg-[#FDF4EB] px-4 py-2 rounded-lg text-sm font-medium transition"
             onClick={() => router.push("/inventory-management/add")}
           >
             {t("heroActions.addNewProduct")}
@@ -49,11 +49,11 @@ const HeroContent = ({ data }) => {
 
         <div className="flex flex-col lg:flex-row items-center gap-6">
           <div className="flex-1">
-            <h1 className="text-xl md:text-2xl font-semibold text-[#4D2512]">
+            <h1 className="text-xl md:text-2xl font-semibold text-[#2A211D]">
               {t("welcomeTitle", { name: userName ?? "" })}
             </h1>
 
-            <p className="text-[14px] text-[#4D2512] max-w-md">
+            <p className="text-[14px] text-[#786D66] max-w-md mt-1">
               {t("welcomeSubtitle")}
             </p>
           </div>

@@ -966,13 +966,14 @@ def generate_payment_pdf(payment, user, request=None):
     elements = []
 
     CURRENCY_SYMBOLS = {
+        "JPY": "¥",
         "USD": "$",
         "INR": "₹",
         "EUR": "€",
         "GBP": "£",
     }
-    currency_code = (payment.currency or "").upper()
-    currency_symbol = CURRENCY_SYMBOLS.get(currency_code, currency_code)
+    currency_code = (payment.currency or "JPY").upper()
+    currency_symbol = CURRENCY_SYMBOLS.get(currency_code, "¥")
 
     # Styles
     title_style = ParagraphStyle(
@@ -1258,6 +1259,23 @@ def send_dynamic_email(subject, message, recipient_list, from_email=None):
 
 def send_registration_email(user):
     from uniformAdmin.models import SystemSettings
+    from uniformAdmin.utils import create_admin_notification
+    try:
+        create_user_notification(
+            user=user,
+            title="Welcome to KIREIZ SPACE!",
+            message="Thank you for creating your account with us. Your registration has been completed successfully.",
+            notification_type="registration"
+        )
+        create_admin_notification(
+            instance=user,
+            title="New User Registration",
+            message=f"New customer registered: {user.email}",
+            priority="low"
+        )
+    except Exception:
+        pass
+
     settings_obj = SystemSettings.load()
     if not settings_obj.email_notify_registration:
         return
@@ -1311,6 +1329,24 @@ KIREIZ SPACE Team
 
 def send_order_confirmation_email(user, order, start_date, end_date, total_amount):
     from uniformAdmin.models import SystemSettings
+    from uniformAdmin.utils import create_admin_notification
+    try:
+        create_user_notification(
+            user=user,
+            title="Order Confirmation",
+            message=f"Your order #{order.order_id} has been placed successfully. Rental Period: {start_date} to {end_date}. Total: ${total_amount}",
+            notification_type="order",
+            order=order
+        )
+        create_admin_notification(
+            instance=order,
+            title="New Order Placed",
+            message=f"Order #{order.order_id} placed by {user.email}. Total: ${total_amount}",
+            priority="high"
+        )
+    except Exception:
+        pass
+
     settings_obj = SystemSettings.load()
     if not settings_obj.email_notify_order_placed:
         return
@@ -1324,7 +1360,7 @@ Your order has been placed successfully
 
 Order ID: {order.order_id}
 Rental Period: {start_date} to {end_date}
-Total Amount: ₹{total_amount}
+Total Amount: ¥{total_amount}
 
 Thank You,
 UserHub Team
@@ -1332,8 +1368,27 @@ UserHub Team
         recipient_list=[user.email],
     )
 
-def send_payment_success_email(user, payment, currency_symbol="$"):
+def send_payment_success_email(user, payment, currency_symbol="¥"):
     from uniformAdmin.models import SystemSettings
+    from uniformAdmin.utils import create_admin_notification
+    try:
+        order_id = payment.order.order_id if hasattr(payment, 'order') and payment.order else '-'
+        create_user_notification(
+            user=user,
+            title="Payment Successful",
+            message=f"Payment of {currency_symbol}{payment.amount} for order {order_id} was successful.",
+            notification_type="payment",
+            order=getattr(payment, 'order', None)
+        )
+        create_admin_notification(
+            instance=payment,
+            title="Payment Received",
+            message=f"Payment {payment.id} of {currency_symbol}{payment.amount} received from {user.email} (Order: {order_id}).",
+            priority="medium"
+        )
+    except Exception:
+        pass
+
     settings_obj = SystemSettings.load()
     if not settings_obj.email_notify_payment_success:
         return
@@ -1361,8 +1416,27 @@ KIREIZ SPACE Team
         recipient_list=[user.email],
     )
 
-def send_payment_failed_email(user, payment, currency_symbol="$"):
+def send_payment_failed_email(user, payment, currency_symbol="¥"):
     from uniformAdmin.models import SystemSettings
+    from uniformAdmin.utils import create_admin_notification
+    try:
+        order_id = payment.order.order_id if hasattr(payment, 'order') and payment.order else '-'
+        create_user_notification(
+            user=user,
+            title="Payment Failed",
+            message=f"Payment of {currency_symbol}{payment.amount} for order {order_id} failed. Please retry your payment.",
+            notification_type="payment",
+            order=getattr(payment, 'order', None)
+        )
+        create_admin_notification(
+            instance=payment,
+            title="Payment Failed",
+            message=f"Payment of {currency_symbol}{payment.amount} failed for {user.email} (Order: {order_id}).",
+            priority="high"
+        )
+    except Exception:
+        pass
+
     settings_obj = SystemSettings.load()
     if not settings_obj.email_notify_payment_failure:
         return
@@ -1681,7 +1755,7 @@ def generate_theme_customization_pdf(obj, user):
             ])
             for item in theme_items:
                 prod = item.product
-                price_str = f"${prod.price:.2f}" if prod.price else "$0.00"
+                price_str = f"¥{int(prod.price):,}" if prod.price else "¥0"
                 section_str = item.get_section_display() or "N/A"
                 prod_data.append([
                     Paragraph(prod.productName, cell_style),
@@ -1749,6 +1823,24 @@ def create_user_notification(user, title, message, notification_type='general', 
 
 def send_return_not_received_email(user, order):
     from uniformAdmin.models import SystemSettings
+    from uniformAdmin.utils import create_admin_notification
+    try:
+        create_user_notification(
+            user=user,
+            title="Action Required: Return Items Overdue",
+            message=f"Return items for order #{order.order_id} have not yet been received. Please return them promptly to avoid late fee penalties.",
+            notification_type="return_overdue",
+            order=order
+        )
+        create_admin_notification(
+            instance=order,
+            title="Return Overdue",
+            message=f"Return items for order #{order.order_id} ({user.email}) are overdue.",
+            priority="high"
+        )
+    except Exception:
+        pass
+
     settings_obj = SystemSettings.load()
     if hasattr(settings_obj, 'email_notify_return_overdue') and not settings_obj.email_notify_return_overdue:
         return
@@ -1771,12 +1863,31 @@ KIREIZ SPACE Team
 
 
 def send_late_fee_email(user, invoice_or_order, fee_amount=0):
+    from uniformAdmin.utils import create_admin_notification
+    try:
+        order_id = getattr(invoice_or_order, 'order_id', str(invoice_or_order))
+        create_user_notification(
+            user=user,
+            title="Late Fee Assessed",
+            message=f"A late fee of ${fee_amount} has been assessed for order #{order_id} due to overdue return items.",
+            notification_type="late_fee"
+        )
+        if hasattr(invoice_or_order, 'pk'):
+            create_admin_notification(
+                instance=invoice_or_order,
+                title="Late Fee Charged",
+                message=f"Late fee of ${fee_amount} assessed for customer {user.email} (Order: {order_id}).",
+                priority="medium"
+            )
+    except Exception:
+        pass
+
     send_dynamic_email(
         subject="Late Fee Invoice Notice - KIREIZ SPACE",
         message=f"""
 Dear {user.firstName if getattr(user, 'lastName', None) else "User"},
 
-A late fee of ${fee_amount} has been assessed due to overdue rental items.
+A late fee of ¥{fee_amount} has been assessed due to overdue rental items.
 
 Please log in to your account dashboard to view details and clear outstanding charges.
 

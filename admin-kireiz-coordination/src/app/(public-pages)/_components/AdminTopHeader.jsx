@@ -76,6 +76,7 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
       console.error("Logout failed:", error);
     } finally {
       await signOut();
+      window.location.href = "/sign-in";
     }
   };
 

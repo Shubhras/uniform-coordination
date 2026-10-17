@@ -1102,7 +1102,7 @@ const Uniform3DmoduleDegisn = () => {
                                       {prod.productName}
                                     </p>
                                     <p className="text-[9px] text-[#A0522D] font-bold mt-0.5">
-                                      ${prod.price}
+                                      ¥{prod.price}
                                     </p>
                                     {isSelected && (
                                       <span className="absolute top-1 right-1 bg-[#A0522D] text-white text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full shadow-md z-10">

@@ -6,11 +6,11 @@ const Shimmer = ({ className = "" }) => (
 
 const DashboardSkeleton = () => {
     return (
-        <main className="text-base bg-[#F8FAFC] pb-20">
+        <main className="text-base bg-white pb-20">
 
             {/* ── Hero Section Skeleton ── */}
             <section className="relative w-full rounded-2xl px-5 md:px-8 lg:px-12 py-10 overflow-hidden">
-                <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, #E9D5FF 0%, #DBEAFE 50%, #E0E7FF 100%)" }} />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, #FDF4EB 0%, #F5ECE3 50%, #EDE1D5 100%)" }} />
                 <div className="relative z-10 bg-white rounded-xl shadow-lg p-5 md:p-8 flex flex-col gap-6">
                     {/* Buttons */}
                     <div className="flex flex-wrap gap-3">

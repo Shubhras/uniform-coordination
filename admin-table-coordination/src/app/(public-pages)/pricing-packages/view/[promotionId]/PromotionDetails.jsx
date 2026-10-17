@@ -88,9 +88,9 @@ const PromotionDetails = ({ promotionId }) => {
                 {t("discountValue")}
               </p>
               <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
-                {promotion?.promocodeType === "percentage"
+                {promotion?.promocodeType === "discount" || promotion?.promocodeType === "percentage"
                   ? `${promotion?.amount}%`
-                  : `$${promotion?.amount}`}
+                  : `¥${promotion?.amount}`}
               </p>
             </div>
             <span

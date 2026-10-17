@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import {
@@ -26,7 +27,7 @@ import {
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { MdPayment } from "react-icons/md";
 
-const sidebarMenu = [
+export const sidebarMenu = [
   {
     label: "dashboard",
     icon: FiGrid,
@@ -162,7 +163,9 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
   const t = useTranslations("adminSidebar");
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: nextAuthSession } = useSession();
+  const { session: currentCtxSession } = useCurrentSession();
+  const session = nextAuthSession?.user ? nextAuthSession : currentCtxSession;
   const userPermissions = session?.user?.permissions || [];
   const userRole = session?.user?.authority?.[0]?.toLowerCase();
 
@@ -188,7 +191,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
         {!collapsed && (
           <div
             className="flex items-center gap-2 cursor-pointer"
-            onClick={() => router.push("/admin-form")}
+            onClick={() => router.push(session?.user?.entryPath || "/admin-form")}
           >
             <Image
               src="/img/logo/sidebar-logo.png"
@@ -203,7 +206,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
         {collapsed && (
           <div
             className="flex items-center justify-center w-full cursor-pointer"
-            onClick={() => router.push("/admin-form")}
+            onClick={() => router.push(session?.user?.entryPath || "/admin-form")}
           >
             <Image
               src="/img/others/auth-logo-small.png"
@@ -239,15 +242,26 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3">
         <ul className="space-y-1">
           {sidebarMenu.map((item) => {
-            // Superadmins ('admin') see all menus; non-admins are filtered by permissions
+            // Superadmins ('admin') have full access to all menus by default
             if (userRole && userRole !== 'admin') {
-              const hasPermission = userPermissions.some((permSlug) =>
-                permSlug === item.slug ||
-                (item.slug === 'order_rentals' && permSlug === 'order_manage') ||
-                (item.slug === 'user_permission' && (permSlug === 'customer_sales_representative' || permSlug === 'users_permissions'))
-              );
+              const normalize = (s) => (s || '').toLowerCase().replace(/_and_|-|_/g, '');
+              const normItemSlug = normalize(item.slug);
+              const normItemPath = (item.path || '').toLowerCase().replace(/^\//, '');
 
-              if (item.slug && !hasPermission) {
+              const hasPermission = userPermissions.some((permSlug) => {
+                const normPerm = normalize(permSlug);
+                if (!normPerm) return false;
+                return (
+                  normPerm === normItemSlug ||
+                  normPerm === normItemPath ||
+                  normPerm.includes(normItemSlug) ||
+                  normItemSlug.includes(normPerm) ||
+                  (item.slug === 'order_rentals' && (normPerm.includes('order') || normPerm.includes('rental'))) ||
+                  (item.slug === 'user_permission' && (normPerm.includes('user') || normPerm.includes('permission') || normPerm.includes('staff')))
+                );
+              });
+
+              if (!hasPermission) {
                 return null;
               }
             }

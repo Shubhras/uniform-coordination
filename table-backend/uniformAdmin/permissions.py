@@ -237,7 +237,7 @@ class RolePermissionListView(APIView):
         # =====================================================
         # All Roles
         # =====================================================
-        roles = Role.objects.all().order_by("id")
+        roles = Role.objects.exclude(role_name__in=['sales_rep', 'sale_per']).order_by("id")
 
         data = []
 

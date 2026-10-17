@@ -41,8 +41,8 @@ export const ResetPassword = ({
             <h2 className="font-[Plus Jakarta Sans] font-medium text-[28px] tracking-[0.18px] text-[#003560] mb-2">
               Reset password
             </h2>
-            <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
-              Your new password must different to previos password
+            <p className="font-[Plus Jakarta Sans] font-medium text-sm tracking-[0.15px] text-[#4C4E64AD]">
+              Your new password must be different from your previous password.
             </p>
           </>
         )}

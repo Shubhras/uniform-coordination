@@ -6,7 +6,7 @@
  * @param {string} currencyCode - The currency code (e.g. 'USD', 'JPY', 'EUR')
  * @returns {string} Formatted currency string
  */
-export const formatCurrency = (amount, currencyCode) => {
+export const formatCurrency = (amount, currencyCode = 'JPY') => {
     const numericAmount = Number(amount || 0)
     const symbol = getCurrencySymbol(currencyCode)
     return `${symbol}${numericAmount.toLocaleString()}`
@@ -14,27 +14,27 @@ export const formatCurrency = (amount, currencyCode) => {
 
 /**
  * Returns the currency symbol for a given currency code.
- * Defaults to '$' for USD.
+ * Defaults to '¥' for JPY.
  *
  * @param {string} currencyCode - The currency code
  * @returns {string} Currency symbol
  */
-export const getCurrencySymbol = (currencyCode) => {
-    const code = (currencyCode || 'USD').toUpperCase()
+export const getCurrencySymbol = (currencyCode = 'JPY') => {
+    const code = (currencyCode || 'JPY').toUpperCase()
     switch (code) {
+        case 'JPY':
+        case 'CNY':
+            return '¥'
         case 'USD':
             return '$'
         case 'EUR':
             return '€'
         case 'GBP':
             return '£'
-        case 'JPY':
-        case 'CNY':
-            return '¥'
         case 'INR':
             return '₹'
         default:
-            return '$'
+            return '¥'
     }
 }
 

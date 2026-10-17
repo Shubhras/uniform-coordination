@@ -166,10 +166,10 @@ const CatelogImagesTab = () => {
         {/* Header */}
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-6">
           <div>
-            <h2 className="text-2xl font-semibold text-[#1C2C56]">
+            <h2 className="text-2xl font-semibold text-[#2A211D]">
               Catalog Images
             </h2>
-            <p className="text-base text-[#486284]">
+            <p className="text-base text-[#B29D8C]">
               Upload and manage catalog photography
             </p>
           </div>
@@ -236,7 +236,7 @@ const CatelogImagesTab = () => {
                 </div>
 
                 <div className="mt-3">
-                  <p className="text-base font-semibold text-[#1C2C56]">
+                  <p className="text-base font-semibold text-[#2A211D]">
                     {item.name}
                   </p>
                   <p className="text-sm text-[#64748B]">{item.category}</p>

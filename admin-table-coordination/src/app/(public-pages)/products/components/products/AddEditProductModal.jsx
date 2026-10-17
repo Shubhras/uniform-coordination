@@ -84,8 +84,8 @@ const validationSchema = z.object({
   price: z
     .string()
     .min(1, "Price is required")
-    .refine((val) => !isNaN(Number(val)), {
-      message: "Enter valid price",
+    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+      message: "Price must be a valid non-negative number",
     }),
 
   selectedParts: z.array(z.any()).min(1, "Parts is required"),
@@ -770,7 +770,7 @@ const AddEditProductModal = ({
               name="price"
               control={control}
               render={({ field }) => (
-                <Input {...field} type="number" placeholder="100" />
+                <Input {...field} type="number" min={0} placeholder="100" />
               )}
             />
           </FormItem>

@@ -39,7 +39,7 @@ const RecentOrdersCard = ({ data }) => {
           </div>
         </div>
         <Link
-          href="/orders"
+          href="/quotation-requests"
           className="text-xs font-medium text-[#B66636] hover:underline flex items-center gap-1"
         >
           View All <FiArrowRight size={12} />
@@ -87,7 +87,7 @@ const RecentOrdersCard = ({ data }) => {
                   </td>
                   <td className="py-3 px-3 text-right">
                     <Link
-                      href={`/orders/${order.order_id}`}
+                      href="/quotation-requests"
                       className="text-xs font-medium text-[#B66636] hover:text-[#9E5328] hover:underline"
                     >
                       Details

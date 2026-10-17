@@ -31,7 +31,7 @@ export async function apiForgotPassword(data) {
 
 export async function apiResetPassword(data) {
   return ApiService.fetchDataWithAxios({
-    url: "/v1/uniformAdmin/change-password/",
+    url: "/v1/uniformAdmin/reset-password/",
     method: "post",
     data,
   });
@@ -39,7 +39,7 @@ export async function apiResetPassword(data) {
 
 export async function apiChangePassword(data, accessToken) {
   return ApiService.fetchDataWithAxios({
-    url: "/v1/uniformAdmin/reset-password/",
+    url: "/v1/uniformAdmin/change-password/",
     method: "post",
     data,
     headers: {

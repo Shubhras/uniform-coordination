@@ -199,17 +199,17 @@ const PartsTab = () => {
     <div className="bg-white rounded-xl shadow md:p-6 p-3">
       <div className="flex justify-between sm:flex-row flex-col items-start mb-4 gap-2">
         <div>
-          <h2 className="text-2xl font-semibold text-[#1C2C56]">
+          <h2 className="text-2xl font-semibold text-[#2A211D]">
             Part Images Library
           </h2>
-          <p className="text-base text-[#486284]">
+          <p className="text-base text-[#B29D8C]">
             {pagination.total_items} parts total
           </p>
         </div>
 
         <button
           onClick={handleAdd}
-          className="bg-[#1C4FA8] text-white px-4 py-2 font-medium rounded-md text-sm flex items-center gap-2"
+          className="bg-[#A0522D] text-white px-4 py-2 font-medium rounded-md text-sm flex items-center gap-2 hover:bg-[#8B4513] transition-colors"
         >
           <FiPlus size={14} />
           Upload New Part
@@ -256,7 +256,7 @@ const PartsTab = () => {
           <button
             onClick={() => setView("grid")}
             className={`px-4 py-2 text-sm ${
-              view === "grid" ? "bg-[#EEF2FF] text-[#1C2C56]" : "text-[#486284]"
+              view === "grid" ? "bg-[#FFF8F4] text-[#A0522D]" : "text-[#78716C]"
             }`}
           >
             Grid

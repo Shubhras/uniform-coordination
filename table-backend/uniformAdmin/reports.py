@@ -9,8 +9,9 @@ from django.utils import timezone
 import calendar
 from datetime import datetime
 
+from rest_framework.permissions import BasePermission
 from .fabric import IsAdministrator
-from .models import Product, CleaningItem, DamagedItem
+from .models import Product, CleaningItem, DamagedItem, RoleMenuPermission
 from userhub.models import Order, OrderItem, Rental, RentalItem, Users, Payment
 from django.db.models import Sum, Count, Q, F
 
@@ -25,8 +26,32 @@ def get_months_ago_range(base_date, months_ago):
     last_datetime = timezone.make_aware(datetime(year, month, last_day, 23, 59, 59, 999999))
     return last_datetime
 
+class HasReportsAnalyticsPermission(BasePermission):
+    """
+    Allow:
+    - AdminUser with role 'admin' has full access.
+    - Other AdminUsers whose role has can_view=True for 'reports_analytics' menu.
+    """
+    def has_permission(self, request, view):
+        user = request.user
+        if not (user and user.is_authenticated):
+            return False
+
+        role = getattr(user, "role", None)
+        if not role:
+            return False
+
+        if role.role_name.lower() == "admin":
+            return True
+
+        return RoleMenuPermission.objects.filter(
+            role=role,
+            menu__slug="reports_analytics",
+            can_view=True
+        ).exists()
+
 class ReportsAnalyticsAPIView(APIView):
-    permission_classes = [IsAdministrator]
+    permission_classes = [HasReportsAnalyticsPermission]
     authentication_classes = [JWTAuthentication]
 
     def get(self, request):
@@ -236,7 +261,7 @@ class ReportsAnalyticsAPIView(APIView):
 
 
 class ExportReportsAnalyticsAPIView(APIView):
-    permission_classes = [IsAdministrator]
+    permission_classes = [HasReportsAnalyticsPermission]
     authentication_classes = [JWTAuthentication]
 
     def get(self, request):

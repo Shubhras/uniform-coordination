@@ -125,11 +125,11 @@ const FabricsTab = () => {
     <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
       <div className="flex justify-between sm:flex-row flex-col items-start mb-4 gap-2">
         <div>
-          <h2 className="text-2xl font-semibold text-[#1C2C56]">
+          <h2 className="text-2xl font-semibold text-[#2A211D]">
             {/* Fabric Library */}
             {t("fabriLibrary")}
           </h2>
-          <p className="text-base text-[#486284]">
+          <p className="text-base text-[#B29D8C]">
             {pagination.total_items} {t("fabricTotal")}
           </p>
         </div>
@@ -213,7 +213,7 @@ const FabricsTab = () => {
                   key={fabric.id}
                   className="text-base odd:bg-white even:bg-[#FBF8F6]"
                 >
-                  <td className="px-5 py-4 text-[#1C2C56] font-medium">
+                  <td className="px-5 py-4 text-[#2A211D] font-medium">
                     {fabric.fabricName}
                   </td>
 
@@ -223,15 +223,15 @@ const FabricsTab = () => {
                         className="w-4 h-4 rounded-full border"
                         style={{ backgroundColor: fabric.color || "#ccc" }}
                       />
-                      <span className="text-[#486284]">{fabric.color}</span>
+                      <span className="text-[#78716C]">{fabric.color}</span>
                     </div>
                   </td>
 
-                  <td className="px-5 py-4 text-[#486284] capitalize">
+                  <td className="px-5 py-4 text-[#78716C] capitalize">
                     {fabric.materialType}
                   </td>
 
-                  <td className="px-5 py-4 text-[#1C2C56] font-medium">
+                  <td className="px-5 py-4 text-[#2A211D] font-medium">
                     ₹{Number(fabric.pricePerUnit).toLocaleString()}
                   </td>
 

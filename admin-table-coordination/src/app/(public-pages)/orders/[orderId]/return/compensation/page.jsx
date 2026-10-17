@@ -163,8 +163,8 @@ export default function CompensationInvoicePage({ params }) {
       toast.push(
         <Notification type="success" title={isJa ? "成功" : "Success"}>
           {isJa
-            ? `損害賠償インボイス（$${res?.data?.grand_total || grandTotal}）を発行・保存しました`
-            : `Compensation invoice of $${res?.data?.grand_total || grandTotal} generated and stored successfully.`}
+            ? `損害賠償インボイス（¥${res?.data?.grand_total || grandTotal}）を発行・保存しました`
+            : `Compensation invoice of ¥${res?.data?.grand_total || grandTotal} generated and stored successfully.`}
         </Notification>
       );
       setIsConfirmModalOpen(false);
@@ -269,13 +269,13 @@ export default function CompensationInvoicePage({ params }) {
                         {row.qty}
                       </td>
                       <td className="text-right px-4 py-4 text-[#666]">
-                        ${row.replacement}
+                        ¥{row.replacement}
                       </td>
                       <td className="text-right px-4 py-4 text-[#666]">
-                        {row.penalty > 0 ? `$${row.penalty}` : "-"}
+                        {row.penalty > 0 ? `¥${row.penalty}` : "-"}
                       </td>
                       <td className="text-right px-6 py-4 font-semibold text-[#2C1A0E]">
-                        ${row.total}
+                        ¥{row.total}
                       </td>
                     </tr>
                   ))}
@@ -288,7 +288,7 @@ export default function CompensationInvoicePage({ params }) {
                 {isJa ? "総合計" : "Grand Total"}
               </span>
               <span className="text-xl font-bold text-[#B63B2B]">
-                ${grandTotal}
+                ¥{grandTotal}
               </span>
             </div>
           </div>
@@ -362,7 +362,7 @@ export default function CompensationInvoicePage({ params }) {
                 {isJa ? "請求金額" : "Total"}
               </span>
               <span className="text-xl font-bold text-[#B63B2B]">
-                ${grandTotal}
+                ¥{grandTotal}
               </span>
             </div>
           </div>
@@ -396,8 +396,8 @@ export default function CompensationInvoicePage({ params }) {
           </h3>
           <p className="text-sm text-[#666] mb-6 leading-relaxed">
             {isJa
-              ? `欠品・破損商品について $${grandTotal} のインボイスが発行され、${customerName} に送信されます。発行後に詳細を確認できます。`
-              : `An invoice of $${grandTotal} will be generated for missing/damaged items and sent to ${customerName}. You can inspect invoice details after generation.`}
+              ? `欠品・破損商品について ¥${grandTotal} のインボイスが発行され、${customerName} に送信されます。発行後に詳細を確認できます。`
+              : `An invoice of ¥${grandTotal} will be generated for missing/damaged items and sent to ${customerName}. You can inspect invoice details after generation.`}
           </p>
           <div className="flex gap-3 w-full">
             <button

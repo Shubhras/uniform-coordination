@@ -14,8 +14,8 @@ class Role(models.Model):
         ("sales_rep", "Sales Rep"),
         ("corporate", "Corporate"),
         ("customer", "Customer"),
-        ("b2b","B2B"),   # remove 
-        
+        ("b2b", "B2B"),
+        ("b2c", "B2C"),
     ]
     role_name = models.CharField(max_length=60, choices=ROLE_CHOICES)
     slug = models.CharField(max_length=255, blank=True, null=True)

@@ -2092,6 +2092,21 @@ class AdminDashAPIView(APIView):
                     "formatted_date": ord_item.created_at.strftime("%b %d, %Y %I:%M %p") if ord_item.created_at else ""
                 })
 
+            # Pending Sales Representative Actions — computed live from assigned pending quotations
+            pending_sales_rep_action = {}
+            pending_rep_qs = (
+                QuotationRequest.objects.filter(
+                    isDeleted=False,
+                    quotation_status="pending",
+                    sales_rep__isnull=False,
+                )
+                .values("sales_rep__name", "sales_rep__email")
+                .annotate(count=Count("quotation_id"))
+            )
+            for row in pending_rep_qs:
+                rep_name = row["sales_rep__name"] or row["sales_rep__email"] or "Unknown"
+                pending_sales_rep_action[rep_name] = row["count"]
+
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -2102,9 +2117,8 @@ class AdminDashAPIView(APIView):
                     "B2B_Users": {"total": current_month_b2b, "change_percentage": b2b_change_percentage},
                     "Quote_status_distribution": quote_status_distribution,
                     "Quotation_volume": quotation_volume,
-                    "Pending_Sales_Representation_Action": {"amy": 2, "jok": 1, "bob": 2},
+                    "Pending_Sales_Representation_Action": pending_sales_rep_action,
                     "most_used_industries": most_used_industries,
-                    # "Pending_Sales_Representation_Action": pending_sales_rep_action,
                     "most_used_fabrics": most_used_fabrics,
                     "Recently_update_product_color_part": recent_updates,
                     # snake_case here deliberately: ActiveAlerts.jsx reads

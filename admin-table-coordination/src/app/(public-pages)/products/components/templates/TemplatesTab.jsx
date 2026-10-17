@@ -193,10 +193,10 @@ const TemplatesTab = () => {
       <div className="bg-white rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
           <div>
-            <h2 className="text-2xl font-semibold text-[#1C2C56]">
+            <h2 className="text-2xl font-semibold text-[#2A211D]">
               Template Gallery
             </h2>
-            <p className="text-sm text-[#486284]">
+            <p className="text-sm text-[#B29D8C]">
               {pagination.total_items} templates available
             </p>
           </div>
@@ -288,11 +288,11 @@ const TemplatesTab = () => {
                 </div>
 
                 <div className="px-4 pb-4">
-                  <h3 className="text-sm font-semibold text-[#1C2C56]">
+                  <h3 className="text-sm font-semibold text-[#2A211D]">
                     {t.templateName}
                   </h3>
 
-                  <p className="text-xs text-[#486284] mt-1">
+                  <p className="text-xs text-[#78716C] mt-1">
                     {t.partName} &nbsp; | &nbsp; {t.partUsageCount} Parts
                   </p>
 

@@ -7,12 +7,37 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
+const passwordComplexityRegex = {
+  upper: /[A-Z]/,
+  lower: /[a-z]/,
+  number: /[0-9]/,
+  special: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/,
+};
+
 const validationSchema = z
   .object({
-    newPassword: z.string({ required_error: "Please enter your password" }),
-    confirmPassword: z.string({
-      required_error: "Confirm Password Required",
-    }),
+    newPassword: z
+      .string({ required_error: "Please enter your password" })
+      .min(1, "Password is required")
+      .min(12, "Password must be at least 12 characters long")
+      .refine((val) => passwordComplexityRegex.upper.test(val), {
+        message: "Password must contain at least one uppercase letter (A-Z)",
+      })
+      .refine((val) => passwordComplexityRegex.lower.test(val), {
+        message: "Password must contain at least one lowercase letter (a-z)",
+      })
+      .refine((val) => passwordComplexityRegex.number.test(val), {
+        message: "Password must contain at least one number (0-9)",
+      })
+      .refine((val) => passwordComplexityRegex.special.test(val), {
+        message:
+          "Password must contain at least one special character (!@#$%^&* etc.)",
+      }),
+    confirmPassword: z
+      .string({
+        required_error: "Confirm Password Required",
+      })
+      .min(1, "Please confirm your password"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Your passwords do not match",
@@ -37,6 +62,10 @@ const ResetPasswordForm = (props) => {
     control,
   } = useForm({
     resolver: zodResolver(validationSchema),
+    defaultValues: {
+      newPassword: "",
+      confirmPassword: "",
+    },
   });
 
   const handleResetPassword = async (values) => {
@@ -69,6 +98,9 @@ const ResetPasswordForm = (props) => {
                 />
               )}
             />
+            <p className="text-[12px] text-gray-400 mt-1.5 leading-normal">
+              Min 12 characters with uppercase, lowercase, numbers & special characters.
+            </p>
           </FormItem>
           <FormItem
             invalid={Boolean(errors.confirmPassword)}
@@ -91,7 +123,8 @@ const ResetPasswordForm = (props) => {
               <div className="relative w-5 h-5 shrink-0 flex items-center justify-center">
                 <input
                   type="checkbox"
-                  className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded bg-white checked:bg-[#A85A32] checked:border-[#A85A32] cursor-pointer transition-all m-0"
+                  defaultChecked
+                  className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded bg-white checked:bg-[#A0522D] checked:border-[#A0522D] cursor-pointer transition-all m-0"
                 />
                 <svg
                   className="absolute w-3.5 h-3.5 pointer-events-none opacity-0 peer-checked:opacity-100 text-white"
@@ -105,9 +138,9 @@ const ResetPasswordForm = (props) => {
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
-              <p>
-                I Agree to privacy
-                <span className="text-[#A0522D]"> policy & terms</span>
+              <p className="text-sm text-[#4C4E64AD]">
+                I Agree to privacy{" "}
+                <span className="text-[#A0522D] font-medium">policy & terms</span>
               </p>
             </label>
           </div>
@@ -116,9 +149,9 @@ const ResetPasswordForm = (props) => {
             loading={isSubmitting}
             variant="solid"
             type="submit"
-            className="bg-[#A85A32] hover:bg-[#A85A32] text-white"
+            className="bg-[#A0522D] hover:bg-[#8B4513] text-white"
           >
-            {isSubmitting ? "Submiting..." : "Submit"}
+            {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
         </Form>
       ) : (

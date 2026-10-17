@@ -114,7 +114,7 @@ class SystemSettings(models.Model):
     contact_number = models.CharField(max_length=50, blank=True, null=True)
     
     default_language = models.CharField(max_length=50, default="Japanese")
-    default_currency = models.CharField(max_length=50, default="USD ($)")
+    default_currency = models.CharField(max_length=50, default="JPY (¥)")
     time_zone = models.CharField(max_length=100, default="(GMT+09:00) Tokyo")
     date_format = models.CharField(max_length=50, default="YYYY/MM/DD")
     

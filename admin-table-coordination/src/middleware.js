@@ -26,9 +26,10 @@ export default auth((req) => {
 
     if (isAuthRoute) {
         if (isSignedIn) {
-            /** Redirect to admin-form if already signed in & trying to access auth route */
+            /** Redirect to user entryPath if already signed in & trying to access auth route */
+            const entry = req.auth?.user?.entryPath || appConfig.authenticatedEntryPath
             return Response.redirect(
-                new URL(appConfig.authenticatedEntryPath, nextUrl),
+                new URL(entry, nextUrl),
             )
         }
         return

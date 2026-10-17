@@ -61,20 +61,36 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
     try {
       setDropdownOpen(false);
       console.log("Session:", session);
-      await apiLogout({
-        refresh_token: session?.user?.refreshToken,
-      });
-
-      await signOut();
+      await apiLogout(
+        {
+          refresh_token: session?.user?.refreshToken,
+        },
+        session?.user?.accessToken
+      );
     } catch (error) {
       console.error("Logout failed:", error);
-
-      // API fail ho jaye tab bhi local session logout kar do
-      await signOut();
+    } finally {
+      const res = await signOut();
+      window.location.href = res?.redirectUrl || "/sign-in";
     }
   };
 
-  const userName = session?.user?.role || "Admin";
+  const rawRole =
+    session?.user?.role ||
+    session?.user?.authority?.[0] ||
+    "admin";
+
+  const formatRole = (role) => {
+    if (!role) return "Admin";
+    const r = String(role).toLowerCase().trim();
+    if (r === "admin") return "Admin";
+    if (r === "staff") return "Staff";
+    if (r === "corporate") return "Corporate";
+    if (r === "logistics") return "Logistics";
+    return r.charAt(0).toUpperCase() + r.slice(1);
+  };
+
+  const displayRole = formatRole(rawRole);
   const userEmail = session?.user?.email || "";
 
   return (
@@ -146,10 +162,10 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
               )}
             </div>
 
-            {/* Name */}
+            {/* Role Display */}
             <div className="hidden md:block text-left">
               <p className="text-sm font-semibold text-[#1E293B] leading-tight">
-                {userName}
+                {displayRole}
               </p>
             </div>
 
@@ -164,8 +180,8 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
             <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-[#E2E8F0] py-2 z-50">
               {/* User Info */}
               <div className="px-4 py-3 border-b border-[#F1F5F9]">
-                <p className="text-sm font-semibold text-[#1E293B]">
-                  {userName}
+                <p className="text-sm font-semibold text-[#2A211D]">
+                  {displayRole}
                 </p>
                 {userEmail && (
                   <p className="text-xs text-[#94A3B8] mt-0.5 truncate">

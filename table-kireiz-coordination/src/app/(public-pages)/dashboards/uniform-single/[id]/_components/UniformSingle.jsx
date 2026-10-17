@@ -141,7 +141,7 @@ const UniformSingle = () => {
                           Price:{" "}
                         </span>
                         <span className="text-[#7B3C1D] font-bold text-[19px]">
-                          ${singleProductData.price}
+                          ¥{singleProductData.price}
                         </span>
                       </div>
                       {singleProductData.rental_price_per_day && (
@@ -150,7 +150,7 @@ const UniformSingle = () => {
                             Rental:{" "}
                           </span>
                           <span className="text-[#1C2C56] font-semibold text-[19px]">
-                            ${singleProductData.rental_price_per_day}{" "}
+                            ¥{singleProductData.rental_price_per_day}{" "}
                             <span className="text-xs font-normal text-gray-500">
                               / day
                             </span>

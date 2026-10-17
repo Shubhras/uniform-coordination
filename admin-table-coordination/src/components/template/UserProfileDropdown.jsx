@@ -4,6 +4,7 @@ import Dropdown from '@/components/ui/Dropdown'
 import withHeaderItem from '@/utils/hoc/withHeaderItem'
 import Link from 'next/link'
 import signOut from '@/server/actions/auth/handleSignOut'
+import { apiLogout } from '@/services/AuthService'
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import {
     PiUserDuotone,
@@ -82,7 +83,19 @@ const _UserDropdown = () => {
     const pathname = usePathname()
 
     const handleSignOut = async () => {
-        await signOut()
+        try {
+            await apiLogout(
+                {
+                    refresh_token: session?.user?.refreshToken,
+                },
+                session?.user?.accessToken
+            )
+        } catch (e) {
+            // ignore
+        } finally {
+            await signOut()
+            window.location.href = '/sign-in'
+        }
     }
 
     const avatarProps = {

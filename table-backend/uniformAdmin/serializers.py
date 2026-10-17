@@ -90,14 +90,16 @@ class AdminChangePasswordSerializer(serializers.Serializer):
     confirm_new_password = serializers.CharField(write_only=True)
 
     def validate_new_password(self, value):
-        if len(value) < 6:
-            raise serializers.ValidationError("Password must be at least 6 characters long.")
-        if not re.search(r"[A-Za-z]", value):
-            raise serializers.ValidationError("Password must contain at least one letter.")
+        if len(value) < 12:
+            raise serializers.ValidationError("Password must be at least 12 characters long.")
+        if not re.search(r"[A-Z]", value):
+            raise serializers.ValidationError("Password must contain at least one uppercase letter (A-Z).")
+        if not re.search(r"[a-z]", value):
+            raise serializers.ValidationError("Password must contain at least one lowercase letter (a-z).")
         if not re.search(r"[0-9]", value):
-            raise serializers.ValidationError("Password must contain at least one number.")
-        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
-            raise serializers.ValidationError("Password must contain at least one special character like @,#,$.")
+            raise serializers.ValidationError("Password must contain at least one number (0-9).")
+        if not re.search(r"[!@#$%^&*()_+\-=[\]{};':\"\\|,.<>/?`~]", value):
+            raise serializers.ValidationError("Password must contain at least one special character (!@#$%^&* etc.).")
         return value
 
     def validate(self, data):
@@ -108,6 +110,9 @@ class AdminChangePasswordSerializer(serializers.Serializer):
 
         if data.get('new_password') != data.get('confirm_new_password'):
             raise serializers.ValidationError({"confirm_new_password": "New passwords do not match"})
+
+        if user.check_password(data.get('new_password')):
+            raise serializers.ValidationError({"new_password": "Your new password must be different from your previous password."})
 
         return data
 
@@ -1114,6 +1119,16 @@ class ProductSerializer(serializers.ModelSerializer):
             )
  
         return value
+
+    def validate_price(self, value):
+        if value is not None and value < 0:
+            raise serializers.ValidationError("Price cannot be negative.")
+        return value
+
+    def validate_rental_price_per_day(self, value):
+        if value is not None and value < 0:
+            raise serializers.ValidationError("Rental price per day cannot be negative.")
+        return value
     
     def get_ProductImage(self, obj):
         return new_build_media_url(obj.ProductImage)
@@ -1622,8 +1637,10 @@ class UnitPriceSerializer(serializers.Serializer):
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)
-    role_name = serializers.CharField(source="Role.role_name", read_only=True)
+    password = serializers.CharField(write_only=True, required=False)
+    role_name = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
+
     class Meta:
         model = AdminUser
         fields = [
@@ -1632,21 +1649,57 @@ class AdminUserSerializer(serializers.ModelSerializer):
             "company_name",
             "email",
             "mobile",
+            "role",
             "role_name",
             "last_login",
             "tier",
             "password",
             "is_active",
+            "is_staff",
             "created_at",
             "is_currently_login",
         ]
         read_only_fields = ["id", "created_at"]
 
-    def create(self, validated_data):
-        password = validated_data.pop("password")
+    def get_role_name(self, obj):
+        if obj.role:
+            return obj.role.role_name or obj.role.slug
+        return "admin" if obj.is_staff else "user"
 
-        validated_data["role"] = get_default_b2b_role()
-        validated_data["is_staff"] = False
+    def get_role(self, obj):
+        if obj.role:
+            return {
+                "id": obj.role.id,
+                "name": obj.role.role_name,
+                "slug": obj.role.slug,
+            }
+        return None
+
+    def create(self, validated_data):
+        password = validated_data.pop("password", None)
+
+        # Resolve role from initial_data or default to staff
+        role_input = self.initial_data.get("role") or self.initial_data.get("role_id")
+        role_obj = None
+        if role_input:
+            if isinstance(role_input, int) or (isinstance(role_input, str) and role_input.isdigit()):
+                role_obj = Role.objects.filter(id=int(role_input)).first()
+            else:
+                role_obj = Role.objects.filter(
+                    Q(role_name__iexact=str(role_input)) | Q(slug__iexact=str(role_input))
+                ).first()
+                if not role_obj:
+                    role_obj = Role.objects.create(
+                        role_name=str(role_input),
+                        slug=slugify(str(role_input))
+                    )
+
+        if not role_obj:
+            role_obj = Role.objects.filter(role_name__iexact="staff").first() or Role.objects.filter(role_name__iexact="admin").first()
+
+        validated_data["role"] = role_obj
+        validated_data["is_staff"] = True
+        validated_data.setdefault("is_active", True)
 
         user = AdminUser.objects.create_user(
             password=password,
@@ -1657,6 +1710,17 @@ class AdminUserSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         password = validated_data.pop("password", None)
 
+        role_input = self.initial_data.get("role") or self.initial_data.get("role_id")
+        if role_input:
+            if isinstance(role_input, int) or (isinstance(role_input, str) and role_input.isdigit()):
+                role_obj = Role.objects.filter(id=int(role_input)).first()
+            else:
+                role_obj = Role.objects.filter(
+                    Q(role_name__iexact=str(role_input)) | Q(slug__iexact=str(role_input))
+                ).first()
+            if role_obj:
+                instance.role = role_obj
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
@@ -1665,11 +1729,13 @@ class AdminUserSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
     def get_is_currently_login(self, obj):
-        if not obj.lastLogin:
+        last_login_val = getattr(obj, "last_login", None) or getattr(obj, "lastLogin", None)
+        if not last_login_val:
             return False
         active_window = timezone.now() - timedelta(minutes=30)
-        return obj.lastLogin >= active_window
+        return last_login_val >= active_window
 
 
 class AdminSignupSerializer(serializers.ModelSerializer):

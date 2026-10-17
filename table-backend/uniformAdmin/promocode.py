@@ -544,6 +544,24 @@ class ValidatePromocodeAPIView(APIView):
                     "message": "This promocode has reached its usage limit."
                 }, status=status.HTTP_200_OK)
 
+        desc = coupon.description or ""
+        if "[Eligibility: first_purchase]" in desc:
+            if request.user.is_authenticated and Order.objects.filter(user=request.user, is_paid=True).exists():
+                return Response({
+                    "status": False,
+                    "statusCode": 200,
+                    "message": "This promocode is only valid for first-time purchases."
+                }, status=status.HTTP_200_OK)
+
+        if "[Eligibility: repeat_customer]" in desc:
+            if not request.user.is_authenticated or not Order.objects.filter(user=request.user, is_paid=True).exists():
+                return Response({
+                    "status": False,
+                    "statusCode": 200,
+                    "message": "This promocode is only valid for repeat customers with prior orders."
+                }, status=status.HTTP_200_OK)
+
+
         return Response({
             "status": True,
             "statusCode": 200,

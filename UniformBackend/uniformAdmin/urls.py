@@ -21,6 +21,8 @@ from .pdf_templates import *
 from .quotation_history import *
 from .sales_reps import *
 from .simulation_config import *
+from .simulation_assets import *
+from .simulation_public import *
 from .reports import *
 
 
@@ -209,6 +211,18 @@ urlpatterns = [
 
     # PDF & Simulation Configuration
     path("simulation-config/",SimulationConfigAPIView.as_view(),name="simulation-config"),
+
+    # Simulation Assets Management
+    path("simulation-assets/", SimulationAssetListAPIView.as_view(), name="simulation-assets-list"),
+    path("simulation-assets/<int:pk>/update/", SimulationAssetUpdateAPIView.as_view(), name="simulation-assets-update"),
+    path("simulation-assets/structure/", SimulationStructureAPIView.as_view(), name="simulation-assets-structure"),
+    path("simulation-assets/product-visibility/", ProductSimulationVisibilityAPIView.as_view(), name="simulation-assets-visibility"),
+    path("simulation-assets/reorder/", SimulationAssetReorderAPIView.as_view(), name="simulation-assets-reorder"),
+
+    # Public Simulation endpoints
+    path("simulation/options/", SimulationOptionsAPIView.as_view(), name="simulation-options"),
+    path("simulation/product/<int:product_id>/layers/", SimulationProductLayersAPIView.as_view(), name="simulation-product-layers"),
+    path("simulation/categories/", SimulationCategoryListAPIView.as_view(), name="simulation-categories"),
 
     # Reports & Analytics
     path("reports/analytics/",ReportsAnalyticsAPIView.as_view(),name="reports-analytics"),

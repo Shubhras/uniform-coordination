@@ -27,42 +27,42 @@ const DashboardStats = ({ data }) => {
   return (
     <section className="w-full mt-5 px-5 md:px-8 lg:px-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
+        <div className="bg-white rounded-xl border border-[#E8DDD4] shadow-sm p-6 flex flex-col justify-between hover:shadow-md transition">
           <div>
-            <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
+            <p className="text-[13px] text-[#786D66] font-semibold uppercase tracking-wider">
               {t("stats.availableInventory")}
             </p>
-            <h2 className="text-[30px] font-bold mt-2">{availableInventory}</h2>
+            <h2 className="text-[30px] font-bold mt-2 text-[#2A211D]">{availableInventory}</h2>
           </div>
         </div>
-        <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
+        <div className="bg-white rounded-xl border border-[#E8DDD4] shadow-sm p-6 flex flex-col justify-between hover:shadow-md transition">
           <div>
-            <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
+            <p className="text-[13px] text-[#786D66] font-semibold uppercase tracking-wider">
               {t("stats.activeRentals")}
             </p>
-            <h2 className="text-[30px] font-bold mt-2">{activeRentals}</h2>
+            <h2 className="text-[30px] font-bold mt-2 text-[#2A211D]">{activeRentals}</h2>
           </div>
         </div>
 
         {/* Pending Orders */}
-        <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
+        <div className="bg-white rounded-xl border border-[#E8DDD4] shadow-sm p-6 flex flex-col justify-between hover:shadow-md transition">
           <div>
-            <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
+            <p className="text-[13px] text-[#786D66] font-semibold uppercase tracking-wider">
               {t("stats.pendingOrders")}
             </p>
-            <h2 className="text-[30px] font-bold mt-2">
+            <h2 className="text-[30px] font-bold mt-2 text-[#2A211D]">
               {pendingQuotations}
             </h2>
           </div>
         </div>
 
         {/* Upcoming Returns */}
-        <div className="bg-[#FAFAF5] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
+        <div className="bg-white rounded-xl border border-[#E8DDD4] shadow-sm p-6 flex flex-col justify-between hover:shadow-md transition">
           <div>
-            <p className="text-[15px] opacity-90 text-[#666666] font-semibold">
+            <p className="text-[13px] text-[#786D66] font-semibold uppercase tracking-wider">
               {t("stats.upcomingReturns")}
             </p>
-            <h2 className="text-[30px] font-bold mt-2">{upcomingReturns}</h2>
+            <h2 className="text-[30px] font-bold mt-2 text-[#2A211D]">{upcomingReturns}</h2>
           </div>
         </div>
       </div>

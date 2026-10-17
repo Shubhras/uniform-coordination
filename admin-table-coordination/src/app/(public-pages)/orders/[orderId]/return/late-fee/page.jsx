@@ -112,8 +112,8 @@ export default function LateFeePage({ params }) {
     : displayOverdueDays * 85;
 
   const ratePerDayDisplay = invoiceData?.rate_per_day
-    ? `$${Math.round(parseFloat(invoiceData.rate_per_day))}`
-    : `$${Math.round(totalLateFee / (displayOverdueDays || 1))}`;
+    ? `¥${Math.round(parseFloat(invoiceData.rate_per_day))}`
+    : `¥${Math.round(totalLateFee / (displayOverdueDays || 1))}`;
 
   const invoiceNum = invoiceData?.invoice_number || `LF-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-001`;
   const customerName = invoiceData?.customer_name || orderDetails?.customer_name || "Customer";
@@ -125,8 +125,8 @@ export default function LateFeePage({ params }) {
     if (!invoiceData?.notification_message) {
       setNotificationMsg(
         isJa
-          ? `${customerName} 様,\n\nレンタル注文 ${orderId} について、合意された返却日（${expectedReturnDate}）より ${displayOverdueDays} 日遅れて返却されたことを確認いたしました。レンタル契約に基づき、アカウントに $${totalLateFee} の延滞料金が適用されました。`
-          : `Dear ${customerName},\nWe've noted that your rental order ${orderId} was returned ${displayOverdueDays} days after the agreed date of ${expectedReturnDate}. As per our rental agreement, a late return fee of $${totalLateFee} has been applied to your account.`
+          ? `${customerName} 様,\n\nレンタル注文 ${orderId} について、合意された返却日（${expectedReturnDate}）より ${displayOverdueDays} 日遅れて返却されたことを確認いたしました。レンタル契約に基づき、アカウントに ¥${totalLateFee} の延滞料金が適用されました。`
+          : `Dear ${customerName},\nWe've noted that your rental order ${orderId} was returned ${displayOverdueDays} days after the agreed date of ${expectedReturnDate}. As per our rental agreement, a late return fee of ¥${totalLateFee} has been applied to your account.`
       );
     }
   }, [customerName, orderId, displayOverdueDays, totalLateFee, expectedReturnDate, isJa, invoiceData]);
@@ -145,8 +145,8 @@ export default function LateFeePage({ params }) {
       toast.push(
         <Notification type="success" title={isJa ? "成功" : "Success"}>
           {isJa
-            ? `遅延損害金インボイス（$${res?.data?.total_late_fee || totalLateFee}）を ${res?.data?.customer_email || "顧客"} に送信しました`
-            : `Late fee invoice of $${res?.data?.total_late_fee || totalLateFee} sent to ${res?.data?.customer_email || "customer email"}.`}
+            ? `遅延損害金インボイス（¥${res?.data?.total_late_fee || totalLateFee}）を ${res?.data?.customer_email || "顧客"} に送信しました`
+            : `Late fee invoice of ¥${res?.data?.total_late_fee || totalLateFee} sent to ${res?.data?.customer_email || "customer email"}.`}
         </Notification>
       );
       setIsNotifyModalOpen(false);
@@ -260,7 +260,7 @@ export default function LateFeePage({ params }) {
                       {displayOverdueDays}
                     </td>
                     <td className="text-right px-4 py-3.5 font-semibold text-[#2C1A0E]">
-                      ${totalLateFee}
+                      ¥{totalLateFee}
                     </td>
                   </tr>
                 </tbody>
@@ -272,7 +272,7 @@ export default function LateFeePage({ params }) {
                 {isJa ? "延滞料金合計" : "Total Late Fee"}
               </span>
               <span className="text-lg font-bold text-[#A0522D]">
-                ${totalLateFee}
+                ¥{totalLateFee}
               </span>
             </div>
           </div>
@@ -354,7 +354,7 @@ export default function LateFeePage({ params }) {
                 {isJa ? "請求金額" : "Amount Due"}
               </span>
               <span className="text-xl font-bold text-[#A0522D]">
-                ${totalLateFee}
+                ¥{totalLateFee}
               </span>
             </div>
           </div>
@@ -388,8 +388,8 @@ export default function LateFeePage({ params }) {
           </h3>
           <p className="text-sm text-[#666] mb-6 leading-relaxed">
             {isJa
-              ? `延滞料金インボイス（$${totalLateFee}）がメールで顧客に送信されます。この操作は取り消せません。`
-              : `A late fee invoice of $${totalLateFee} will be sent to the customer via email. This action is irreversible.`}
+              ? `延滞料金インボイス（¥${totalLateFee}）がメールで顧客に送信されます。この操作は取り消せません。`
+              : `A late fee invoice of ¥${totalLateFee} will be sent to the customer via email. This action is irreversible.`}
           </p>
           <div className="flex gap-3 w-full">
             <button

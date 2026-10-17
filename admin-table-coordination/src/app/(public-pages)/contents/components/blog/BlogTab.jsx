@@ -196,11 +196,11 @@ const BlogTab = () => {
       <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
-            <h2 className="text-2xl font-semibold text-[#1C2C56]">
+            <h2 className="text-2xl font-semibold text-[#2A211D]">
               {" "}
               {t("blog")}
             </h2>
-            <p className="text-base text-[#486284]">{t("blogContent")}</p>
+            <p className="text-base text-[#B29D8C]">{t("blogContent")}</p>
           </div>
 
           <div className="flex gap-3">
@@ -271,7 +271,7 @@ const BlogTab = () => {
                     {post.categoryName}
                   </p>
 
-                  <h3 className="font-semibold text-[#1C2C56] text-base mb-2 leading-snug">
+                  <h3 className="font-semibold text-[#2A211D] text-base mb-2 leading-snug">
                     {trimText(post.title, 10)}
                   </h3>
 

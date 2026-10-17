@@ -220,10 +220,10 @@ export default function PaymentManagement() {
     );
   };
 
-  // Format Currency (USD by default)
+  // Format Currency (Default JPY ¥)
   const formatUSD = (val) => {
     const num = parseFloat(val || 0);
-    return `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `¥${num.toLocaleString("ja-JP")}`;
   };
 
   // Fetch Payments & Summary
@@ -1617,7 +1617,7 @@ export default function PaymentManagement() {
                 <div className="flex justify-between py-1.5 border-b border-gray-50 dark:border-gray-800/50">
                   <span className="text-gray-400">{t("amountPaid")}:</span>
                   <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400">
-                    {formatUSD(selectedPayment.amount)} USD
+                    {formatUSD(selectedPayment.amount)} {selectedPayment.currency || "JPY"}
                   </span>
                 </div>
 
@@ -1683,7 +1683,7 @@ export default function PaymentManagement() {
                     step="0.01"
                     value={refundAmount}
                     onChange={(e) => setRefundAmount(e.target.value)}
-                    placeholder="Enter amount in USD"
+                    placeholder="Enter amount in JPY (¥)"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-purple-500/20 focus:outline-none"
                   />
                 </div>

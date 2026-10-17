@@ -57,7 +57,11 @@ class Users(models.Model):
  
     def save(self, *args, **kwargs):
         if not self.role:
-            self.role, _ = Role.objects.get_or_create(role_name="user")
+            role_name = "b2c" if (self.userType and self.userType.lower() == "table") else "b2b"
+            self.role, _ = Role.objects.get_or_create(
+                role_name=role_name,
+                defaults={"slug": role_name, "description": f"{role_name.upper()} user role"}
+            )
         super().save(*args, **kwargs)
 
  

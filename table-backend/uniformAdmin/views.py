@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from uniformAdmin.serializers import *
-from rest_framework.permissions import IsAuthenticated,IsAdminUser
+from rest_framework.permissions import IsAuthenticated,IsAdminUser,BasePermission
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -1414,8 +1414,34 @@ class AdminNotificationDeleteAPIView(APIView):
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class HasDashboardPermission(BasePermission):
+    """
+    Allow:
+    - AdminUser with role 'admin' has full access.
+    - Other AdminUsers whose role has can_view=True for 'dashboard' in RoleMenuPermission.
+    """
+    def has_permission(self, request, view):
+        user = request.user
+        if not (user and user.is_authenticated):
+            return False
+
+        role = getattr(user, "role", None)
+        if not role:
+            return False
+
+        if role.role_name.lower() == "admin":
+            return True
+
+        from .models import RoleMenuPermission
+        return RoleMenuPermission.objects.filter(
+            role=role,
+            menu__slug="dashboard",
+            can_view=True
+        ).exists()
+
 class MarkAlertsReviewedAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasDashboardPermission]
+    authentication_classes = [JWTAuthentication]
 
     @extend_schema(
         tags=["Admin Dashboard"],
@@ -1446,8 +1472,8 @@ class MarkAlertsReviewedAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AdminDashAPIView(APIView):
-    # permission_classes = [IsAdministrator]
-    permission_classes  =[IsAuthenticated]    #need to remove after take clone 
+    permission_classes = [HasDashboardPermission]
+    authentication_classes = [JWTAuthentication] 
     
     @extend_schema(
     tags=["Admin Dashboard"],
@@ -1765,12 +1791,15 @@ class AdminDashAPIView(APIView):
                     "customer_name": cust_name or "Customer",
                     "customer_email": cust_email,
                     "total_amount": str(ord_item.total_amount or "0.00"),
-                    "currency": ord_item.currency or "USD",
+                    "currency": ord_item.currency or "JPY",
                     "status": ord_item.status or "pending",
                     "is_paid": ord_item.is_paid,
                     "created_at": ord_item.created_at.strftime("%Y-%m-%d %H:%M:%S") if ord_item.created_at else "",
                     "formatted_date": ord_item.created_at.strftime("%b %d, %Y %I:%M %p") if ord_item.created_at else ""
                 })
+
+            # Pending Sales Representative Actions — table-backend has no sales_rep assignments
+            pending_sales_rep_action = {}
 
             return Response({
                 "status": True,
@@ -1782,9 +1811,8 @@ class AdminDashAPIView(APIView):
                     "B2B_Users": {"total": current_month_b2b, "change_percentage": b2b_change_percentage},
                     "Quote_status_distribution": quote_status_distribution,
                     "Quotation_volume": quotation_volume,
-                    "Pending_Sales_Representation_Action": {"amy": 2, "jok": 1, "bob": 2},
+                    "Pending_Sales_Representation_Action": pending_sales_rep_action,
                     "most_used_industries": most_used_industries,
-                    # "Pending_Sales_Representation_Action": pending_sales_rep_action,
                     "most_used_fabrics": most_used_fabrics,
                     "Recently_update_product_color_part": recent_updates,
                     "Available_Inventory": available_inventory,
@@ -2311,6 +2339,78 @@ class UserDetailAPIView(APIView):
                 "statusCode": 500,
                 "message": "Something went wrong.",
                 "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request):
+        try:
+            data = request.data
+            email = (data.get("email") or "").strip()
+            password = (data.get("password") or "").strip()
+            first_name = (data.get("firstName") or data.get("first_name") or "").strip()
+            last_name = (data.get("lastName") or data.get("last_name") or "").strip()
+            phone = (data.get("phone") or "").strip()
+            role_id = data.get("role_id") or data.get("role")
+            user_type = data.get("userType", "table")
+
+            if not email:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Email is required."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if not password:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Password is required."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if Users.objects.filter(email__iexact=email, isDeleted=False).exists():
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "A user with this email already exists."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            user_role = None
+            if role_id:
+                if str(role_id).isdigit():
+                    user_role = Role.objects.filter(id=int(role_id)).first()
+                else:
+                    user_role = Role.objects.filter(role_name__iexact=str(role_id)).first()
+
+            user = Users(
+                email=email,
+                firstName=first_name,
+                lastName=last_name,
+                userName=f"{first_name} {last_name}".strip() or email.split("@")[0],
+                phone=phone,
+                userType=user_type,
+                role=user_role,
+                isActive=True,
+                is_verify=True
+            )
+            user.set_password(password)
+            user.save()
+
+            return Response({
+                "status": True,
+                "statusCode": 201,
+                "message": "Account created successfully.",
+                "data": {
+                    "id": user.id,
+                    "email": user.email,
+                    "name": user.userName,
+                    "role": user.role.role_name if user.role else "user"
+                }
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": f"Failed to create account: {str(e)}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
 class UserByIdAPIView(APIView):
@@ -3147,10 +3247,10 @@ class AdminContractDetailAPIView(APIView):
         summary_data = {
             "items": "0 line items",
             "rental_days": "0 days",
-            "subtotal": "$0.00",
-            "discount": "$0.00",
-            "delivery": "$0.00",
-            "total": "$0.00"
+            "subtotal": "¥0",
+            "discount": "¥0",
+            "delivery": "¥0",
+            "total": "¥0"
         }
 
         if contract.order:
@@ -3161,7 +3261,7 @@ class AdminContractDetailAPIView(APIView):
                     "category": item.product.subcategory.category.categoryName if (item.product.subcategory and item.product.subcategory.category) else "Uniform",
                     "requested": item.quantity,
                     "availability": f"Available ({item.quantity})",
-                    "unitRate": f"${item.price_per_day}"
+                    "unitRate": f"¥{item.price_per_day}"
                 })
 
             rental_days = 0
@@ -3175,10 +3275,10 @@ class AdminContractDetailAPIView(APIView):
             summary_data = {
                 "items": f"{order.items.count()} line items",
                 "rental_days": f"{rental_days} days",
-                "subtotal": f"${order.subtotal}",
-                "discount": f"${discount_amount}",
-                "delivery": f"${order.shipping_charge}",
-                "total": f"${order.total_amount}"
+                "subtotal": f"¥{order.subtotal}",
+                "discount": f"¥{discount_amount}",
+                "delivery": f"¥{order.shipping_charge}",
+                "total": f"¥{order.total_amount}"
             }
 
         # Format audit logs

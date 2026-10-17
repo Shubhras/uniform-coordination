@@ -29,20 +29,20 @@ export const ResetPassword = ({
         <div className="mb-6">
           {resetComplete ? (
             <>
-              <h2 className="font-[Plus Jakarta Sans] font-medium text-[28px] tracking-[0.18px] text-[#003560] mb-2">
+              <h2 className="font-[Plus Jakarta Sans] font-semibold text-[28px] tracking-[0.18px] text-[#2A211D] mb-2">
                 Reset done
               </h2>
-              <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
-                Your password has been successfully reset
+              <p className="font-[Plus Jakarta Sans] font-medium text-sm tracking-[0.15px] text-[#4C4E64AD]">
+                Your password has been successfully reset.
               </p>
             </>
           ) : (
             <>
-              <h2 className="font-[Plus Jakarta Sans] font-medium text-[28px] tracking-[0.18px] text-[#402936] mb-2">
+              <h2 className="font-[Plus Jakarta Sans] font-semibold text-[28px] tracking-[0.18px] text-[#2A211D] mb-2">
                 Reset password
               </h2>
-              <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
-                Your new password must different to previos password
+              <p className="font-[Plus Jakarta Sans] font-medium text-sm tracking-[0.15px] text-[#4C4E64AD]">
+                Your new password must be different from your previous password.
               </p>
             </>
           )}
@@ -58,8 +58,14 @@ export const ResetPassword = ({
           setResetComplete={setResetComplete}
           onResetPasswordSubmit={onResetPasswordSubmit}
         >
-          <Button block variant="solid" type="button" onClick={handleContinue}>
-            Change Password
+          <Button
+            block
+            variant="solid"
+            type="button"
+            className="bg-[#A0522D] hover:bg-[#8B4513] text-white"
+            onClick={handleContinue}
+          >
+            Continue to Login
           </Button>
         </ResetPasswordForm>
         <div className="mt-4 text-center text-base">

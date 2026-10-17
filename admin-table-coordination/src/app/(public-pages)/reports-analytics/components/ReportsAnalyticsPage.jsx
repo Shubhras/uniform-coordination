@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetReportAnalytics, apiExportReportAnalytics } from "@/services//ReportAnalytics";
-import { FiDownload } from "react-icons/fi";
+import { FiDownload, FiCalendar } from "react-icons/fi";
 
 const inventoryColors = {
   Available: "#B56735",
@@ -148,6 +148,48 @@ const ReportsAnalyticsPage = () => {
   const [reportData, setReportData] = useState(null);
   const [tooltip, setTooltip] = useState(null);
 
+  const [period, setPeriod] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const formatDateStr = (d) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const handlePeriodChange = (val) => {
+    setPeriod(val);
+    const now = new Date();
+    if (val === "all") {
+      setStartDate("");
+      setEndDate("");
+    } else if (val === "today") {
+      const todayStr = formatDateStr(now);
+      setStartDate(todayStr);
+      setEndDate(todayStr);
+    } else if (val === "last7") {
+      const past = new Date();
+      past.setDate(past.getDate() - 7);
+      setStartDate(formatDateStr(past));
+      setEndDate(formatDateStr(now));
+    } else if (val === "last30") {
+      const past = new Date();
+      past.setDate(past.getDate() - 30);
+      setStartDate(formatDateStr(past));
+      setEndDate(formatDateStr(now));
+    } else if (val === "thisMonth") {
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+      setStartDate(formatDateStr(firstDay));
+      setEndDate(formatDateStr(now));
+    } else if (val === "thisYear") {
+      const firstDay = new Date(now.getFullYear(), 0, 1);
+      setStartDate(formatDateStr(firstDay));
+      setEndDate(formatDateStr(now));
+    }
+  };
+
   const chartWidth = 600;
   const chartLeftPad = 34;
   const chartRightPad = 16;
@@ -166,7 +208,7 @@ const ReportsAnalyticsPage = () => {
     {
       key: "totalRevenue",
       label: t("summaryCards.totalRevenue"),
-      value: `$${Number(reportData?.kpi?.total_revenue ?? 0).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 })}`,
+      value: `¥${Number(reportData?.kpi?.total_revenue ?? 0).toLocaleString()}`,
     },
     {
       key: "totalOrders",
@@ -244,11 +286,11 @@ const ReportsAnalyticsPage = () => {
     )
     .join(" ");
 
-  const getReportAnalytics = async () => {
+  const getReportAnalytics = async (sDate = startDate, eDate = endDate) => {
     try {
       setLoading(true);
 
-      const res = await apiGetReportAnalytics(accessToken, "table");
+      const res = await apiGetReportAnalytics(accessToken, "table", sDate, eDate);
 
       console.log("Report API", res);
 
@@ -265,7 +307,7 @@ const ReportsAnalyticsPage = () => {
   const handleExport = async () => {
     try {
       setExporting(true);
-      const blob = await apiExportReportAnalytics(accessToken, "table");
+      const blob = await apiExportReportAnalytics(accessToken, "table", startDate, endDate);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -283,9 +325,15 @@ const ReportsAnalyticsPage = () => {
 
   useEffect(() => {
     if (accessToken) {
-      getReportAnalytics();
+      if (period === "custom") {
+        if (startDate && endDate) {
+          getReportAnalytics(startDate, endDate);
+        }
+      } else {
+        getReportAnalytics(startDate, endDate);
+      }
     }
-  }, [accessToken]);
+  }, [accessToken, startDate, endDate, period]);
 
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
@@ -299,15 +347,53 @@ const ReportsAnalyticsPage = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          disabled={exporting}
-          onClick={handleExport}
-          className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-[#A0522D] hover:bg-[#854122] disabled:opacity-50 px-4 text-[13px] font-medium text-white transition-colors duration-150"
-        >
-          <FiDownload size={14} className={exporting ? "animate-bounce" : ""} />
-          {exporting ? t("exporting") : t("exportData")}
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Period Selector */}
+          <div className="flex items-center gap-2">
+            <FiCalendar className="text-[#A0522D]" size={16} />
+            <select
+              value={period}
+              onChange={(e) => handlePeriodChange(e.target.value)}
+              className="h-[38px] rounded-[8px] border border-[#E5D7CE] bg-white px-3 text-[13px] text-[#3B3B3B] focus:border-[#A0522D] focus:outline-none"
+            >
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="last7">Last 7 Days</option>
+              <option value="last30">Last 30 Days</option>
+              <option value="thisMonth">This Month</option>
+              <option value="thisYear">This Year</option>
+              <option value="custom">Custom Range</option>
+            </select>
+          </div>
+
+          {period === "custom" && (
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="h-[38px] rounded-[8px] border border-[#E5D7CE] bg-white px-2.5 text-[12px] text-[#3B3B3B] focus:border-[#A0522D] focus:outline-none"
+              />
+              <span className="text-[#888] text-xs">to</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="h-[38px] rounded-[8px] border border-[#E5D7CE] bg-white px-2.5 text-[12px] text-[#3B3B3B] focus:border-[#A0522D] focus:outline-none"
+              />
+            </div>
+          )}
+
+          <button
+            type="button"
+            disabled={exporting}
+            onClick={handleExport}
+            className="inline-flex h-[38px] items-center gap-2 rounded-[8px] bg-[#A0522D] hover:bg-[#854122] disabled:opacity-50 px-4 text-[13px] font-medium text-white transition-colors duration-150"
+          >
+            <FiDownload size={14} className={exporting ? "animate-bounce" : ""} />
+            {exporting ? t("exporting") : t("exportData")}
+          </button>
+        </div>
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">

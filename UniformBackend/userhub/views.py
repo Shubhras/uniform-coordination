@@ -45,6 +45,7 @@ from .tasks import send_login_alert_email_task
 
 
 class SignupAPIView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     @extend_schema(
@@ -65,25 +66,22 @@ class SignupAPIView(APIView):
                 send_admin_registration_email(user)
 
                  # EMAIL VERIFICATION 
-                uid = user.id  #urlsafe_base64_encode(force_bytes(user.id)) 
+                uid = user.id
                 email = user.email               
-                # verify_link = request.build_absolute_uri(f"http://localhost:7000/account-verified-page?user_id={uid}&email={email}")
-                
-                verify_link = request.build_absolute_uri(f"https://uniform.dxtspace.com/account-verified-page?user_id={uid}&email={email}")
+                scheme = "https" if request.is_secure() or request.headers.get("x-forwarded-proto") == "https" else "http"
+                host = request.get_host()
+                verify_link = f"{scheme}://{host}/account-verified-page?user_id={uid}&email={email}"
 
-                # EMAIL VERIFICATION
-                # uid = urlsafe_base64_encode(force_bytes(user.id))
-                # verify_link = request.build_absolute_uri(   
-                #     f"/api/v1/userhub/verify-email/{uid}/"
-                # )
-
-                send_mail(
-                    subject="Verify your email",
-                    message=f"Click here to verify your email, it's you:\n{verify_link}",
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[user.email],
-                    fail_silently=False,
-                )
+                try:
+                    send_mail(
+                        subject="Verify your email",
+                        message=f"Click here to verify your email, it's you:\n{verify_link}",
+                        from_email=settings.EMAIL_HOST_USER,
+                        recipient_list=[user.email],
+                        fail_silently=False,
+                    )
+                except Exception as mail_exc:
+                    logger.error(f"Failed to send verification email to {user.email}: {mail_exc}")
 
                 response_data = UserResponseSerializer(
                     user, context={"request": request}
@@ -147,6 +145,7 @@ class SignupAPIView(APIView):
             )
   
 class UserLoginAPIView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
     def post(self, request):
         
@@ -560,9 +559,9 @@ class UserForgotPasswordAPIView(APIView):
             user_id = user.id
 
             # Build reset link
-            # frontend_url = "http://localhost:7000/reset-password"
-            frontend_url = "https://uniform.dxtspace.com/reset-password"
-            reset_link = f"{frontend_url}?user_id={user_id}"
+            scheme = "https" if request.is_secure() or request.headers.get("x-forwarded-proto") == "https" else "http"
+            host = request.get_host()
+            reset_link = f"{scheme}://{host}/reset-password?user_id={user_id}"
 
             # -------------------------------  
             # SMTP: Send Reset Email Here

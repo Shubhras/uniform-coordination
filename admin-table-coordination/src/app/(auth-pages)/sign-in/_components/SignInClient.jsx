@@ -9,15 +9,23 @@ const SignInClient = () => {
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get(REDIRECT_URL_KEY)
 
-    const handleSignIn = ({ values, setSubmitting, setMessage }) => {
+    const handleSignIn = async ({ values, setSubmitting, setMessage }) => {
         setSubmitting(true)
 
-        onSignInWithCredentials(values, callbackUrl || '').then((data) => {
+        try {
+            const data = await onSignInWithCredentials(values, callbackUrl || '')
             if (data?.error) {
                 setMessage(data.error)
                 setSubmitting(false)
+            } else if (data?.success) {
+                const target = data?.redirectUrl || callbackUrl || '/admin-form'
+                window.location.href = target
             }
-        })
+        } catch (err) {
+            console.error('Sign-in error:', err)
+            setMessage('Failed to sign in. Please try again.')
+            setSubmitting(false)
+        }
     }
 
     const handleOAuthSignIn = async ({ type }) => {

@@ -198,17 +198,17 @@ const ProductsTab = () => {
     <div className="bg-white rounded-xl shadow md:p-6 p-3">
       <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
         <div>
-          <h2 className="text-2xl font-semibold text-[#1C2C56]">
+          <h2 className="text-2xl font-semibold text-[#2A211D]">
             Product Creation
           </h2>
-          <p className="text-sm text-[#486284]">
+          <p className="text-sm text-[#B29D8C]">
             {pagination.total_items || products.length} products available
           </p>
         </div>
 
         <button
           onClick={handleAdd}
-          className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium"
+          className="bg-[#A0522D] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#8B4513] transition-colors"
         >
           + Add Product
         </button>
@@ -286,11 +286,11 @@ const ProductsTab = () => {
               </div>
 
               <div className="px-4 pb-4 text-center flex flex-col flex-1">
-                <h3 className="text-sm font-semibold text-[#1C2C56]">
+                <h3 className="text-sm font-semibold text-[#2A211D]">
                   {item.productName}
                 </h3>
 
-                <p className="text-xs text-[#486284] mt-1 line-clamp-2 mb-2">
+                <p className="text-xs text-[#78716C] mt-1 line-clamp-2 mb-2">
                   {item.description}
                 </p>
 

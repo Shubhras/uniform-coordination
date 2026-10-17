@@ -31,7 +31,7 @@ export async function apiForgotPassword(data) {
 
 export async function apiResetPassword(data) {
     return ApiService.fetchDataWithAxios({
-        url: '/v1/space/uniformAdmin/change-password/',
+        url: '/v1/space/uniformAdmin/reset-password/',
         method: 'post',
         data,
     })
@@ -39,7 +39,7 @@ export async function apiResetPassword(data) {
 
 export async function apiChangePassword(data, accessToken) {
   return ApiService.fetchDataWithAxios({
-    url: "/v1/space/uniformAdmin/reset-password/",
+    url: "/v1/space/uniformAdmin/change-password/",
     method: "post",
     data,
     headers: {
@@ -49,10 +49,15 @@ export async function apiChangePassword(data, accessToken) {
 }
 
 
-export async function apiLogout(data) {
+export async function apiLogout(data, accessToken) {
   return ApiService.fetchDataWithAxios({
     url: "/v1/space/uniformAdmin/logout/",
     method: "post",
     data,
+    headers: accessToken
+      ? {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      : {},
   });
 }

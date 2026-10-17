@@ -337,7 +337,7 @@ const MyProfile = () => {
               <div>
                 <p className="text-[11px] text-[#A0A0A0]">Total Amount</p>
                 <p className="text-sm font-medium text-[#545454]">
-                  ${ordersList[0]?.total_amount}
+                  ¥{Number(ordersList[0]?.total_amount || 0).toLocaleString()}
                 </p>
               </div>
             </div>

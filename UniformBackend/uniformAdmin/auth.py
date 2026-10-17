@@ -1,8 +1,9 @@
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from django.db import transaction
@@ -468,32 +469,30 @@ class ProfileAPIView(APIView):
            },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LogoutAPIView(APIView):
-    authentication_classes = [IsAdminUserJWT]
-    # permission_classes = [IsAdminUserJWT]
-    permission_classes = [IsAuthenticated]
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
     @extend_schema(
-    tags=["Admin Authentication"],
-    summary="Admin Logout",
-    description="Logout admin and blacklist refresh token.",
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "refresh_token": {
-                    "type": "string",
-                    "example": "jwt-refresh-token"
-                }
-            },
-            "required": ["refresh_token"]
-        }
-    },
-    responses={
-        200: OpenApiResponse(description="Logout successful"),
-        400: OpenApiResponse(description="Refresh token required"),
-        401: OpenApiResponse(description="Unauthorized")
-    },
-    # security=[{"AdminJWTAuth": []}]
+        tags=["Admin Authentication"],
+        summary="Admin Logout",
+        description="Logout admin and blacklist refresh token.",
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "refresh_token": {
+                        "type": "string",
+                        "example": "jwt-refresh-token"
+                    }
+                },
+                "required": ["refresh_token"]
+            }
+        },
+        responses={
+            200: OpenApiResponse(description="Logout successful"),
+            400: OpenApiResponse(description="Refresh token required"),
+            401: OpenApiResponse(description="Unauthorized")
+        },
     )
     def post(self, request):
         refresh_token = request.data.get("refresh_token")
@@ -504,16 +503,31 @@ class LogoutAPIView(APIView):
                 "message": "Refresh token required"
             }, status=status.HTTP_200_OK)
 
-        token = RefreshToken(refresh_token)
-        token.blacklist()
+        user = None
+        try:
+            token = RefreshToken(refresh_token)
+            user_id = token.payload.get("user_id")
+            if user_id:
+                user = AdminUser.objects.filter(id=user_id, is_active=True).first()
+            token.blacklist()
+        except TokenError:
+            pass
+        except Exception:
+            pass
 
-        tokens = OutstandingToken.objects.filter(user=request.user)
-        for t in tokens:
-            BlacklistedToken.objects.get_or_create(token=t)
+        if user:
+            try:
+                tokens = OutstandingToken.objects.filter(user=user)
+                for t in tokens:
+                    BlacklistedToken.objects.get_or_create(token=t)
+            except Exception:
+                pass
 
-        user = request.user
-        user.is_currently_login = False
-        user.save(update_fields=['is_currently_login'])    
+            try:
+                user.is_currently_login = False
+                user.save(update_fields=['is_currently_login'])    
+            except Exception:
+                pass
 
         return Response({
             "status": True,
@@ -579,18 +593,20 @@ class ForgotPasswordAPIView(APIView):
 
         token = PasswordResetTokenGenerator().make_token(user)
 
-        # Generate frontend URL based on type
-        if user_type.lower() == "uniform":
-            # base_url = "http://23.23.88.239:7002"
-            base_url = "https://uniform-admin.dxtspace.com"
-        elif user_type.lower() == "table":
-            base_url = "http://23.23.88.239:7001"
+        # Generate frontend URL based on client origin/referer or host
+        origin = request.headers.get("origin")
+        referer = request.headers.get("referer")
+        forwarded_proto = request.headers.get("x-forwarded-proto") or request.META.get("HTTP_X_FORWARDED_PROTO")
+        if origin:
+            base_url = origin.rstrip("/")
+        elif referer:
+            from urllib.parse import urlparse
+            p = urlparse(referer)
+            base_url = f"{p.scheme}://{p.netloc}"
         else:
-            return Response({   
-                "status": False,
-                "statusCode": 400,
-                "message": "Invalid userType. Allowed values are 'uniform' or 'table'."
-            }, status=status.HTTP_400_BAD_REQUEST)
+            scheme = "https" if request.is_secure() or forwarded_proto == "https" else "http"
+            host = request.get_host()
+            base_url = f"{scheme}://{host}"
 
         reset_link = f"{base_url}/reset-password/?user_id={user.id}&token={token}"
 
@@ -606,56 +622,146 @@ class ForgotPasswordAPIView(APIView):
         return Response({
             "status": True,
             "statusCode": 200,
-            "message": "Password reset link sent successfully."
+            "message": "Password reset link sent successfully.",
+            "resetLink": reset_link
         }, status=status.HTTP_200_OK)
 
 
 class ResetPasswordAPIView(APIView):
-    authentication_classes = [IsAdminUserJWT]
-    permission_classes = [IsAuthenticated]
+    authentication_classes = []
+    permission_classes = []
 
     @extend_schema(
-        tags=["Admin User"],
-        summary="Change Password",
-        description="Change password for logged-in admin user.",
-        request=UpdateChangePasswordSerializer,
-        responses={
-            200: OpenApiResponse(description="Password changed successfully"),
-            400: OpenApiResponse(description="Validation error"),
-            401: OpenApiResponse(description="Unauthorized"),
+        tags=["Admin Authentication"],
+        summary="Reset Admin Password",
+        description="Reset admin password using user_id, token, new_password, and confirm_password from forgot password email.",
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "user_id": {"type": "integer", "example": 1},
+                    "token": {"type": "string", "example": "abc123token"},
+                    "new_password": {"type": "string", "example": "MyStrongPassword@123"},
+                    "confirm_password": {"type": "string", "example": "MyStrongPassword@123"}
+                },
+                "required": ["user_id", "token", "new_password", "confirm_password"]
+            }
         },
+        responses={
+            200: OpenApiResponse(description="Password reset successfully"),
+            400: OpenApiResponse(description="Validation error or invalid token"),
+            404: OpenApiResponse(description="User not found")
+        }
     )
     def post(self, request):
-        serializer = UpdateChangePasswordSerializer(
-            data=request.data,
-            context={"request": request}
-        )
+        user_id = request.data.get("user_id") or request.data.get("userId")
+        token = request.data.get("token")
+        new_password = request.data.get("new_password") or request.data.get("newPassword")
+        confirm_password = request.data.get("confirm_password") or request.data.get("confirmPassword")
 
-        if not serializer.is_valid():
-            return Response(
-                {
-                    "status": False,
-                    "statusCode": 400,
-                    "message": "Validation Error",
-                    "errors": serializer.errors,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        if not user_id:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "User ID is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        user = request.user
+        if not token:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Reset token is required. Please use the link sent to your email."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not new_password or not confirm_password:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Both new password and confirm password are required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if new_password != confirm_password:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "New password and confirm password do not match."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(new_password) < 12:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Password must be at least 12 characters long."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not re.search(r"[A-Z]", new_password):
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Password must contain at least one uppercase letter (A-Z)."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not re.search(r"[a-z]", new_password):
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Password must contain at least one lowercase letter (a-z)."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not re.search(r"[0-9]", new_password):
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Password must contain at least one number (0-9)."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not re.search(r"[!@#$%^&*()_+\-=[\]{};':\"\\|,.<>/?`~]", new_password):
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Password must contain at least one special character (!@#$%^&* etc.)."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = AdminUser.objects.get(id=user_id, is_active=True)
+        except AdminUser.DoesNotExist:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "User not found or account is inactive."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        token_generator = PasswordResetTokenGenerator()
+        if not token_generator.check_token(user, token):
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Invalid or expired reset link. Please request a new password reset."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if user.check_password(new_password):
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Your new password must be different from your previous password."
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
-            user.set_password(serializer.validated_data["new_password"])
+            user.set_password(new_password)
+            user.last_login = None
             user.save()
 
-        return Response(
-            {
-                "status": True,
-                "statusCode": 200,
-                "message": "Password changed successfully.",
-            },
-            status=status.HTTP_200_OK,
-        )
+            tokens = OutstandingToken.objects.filter(user=user)
+            for t in tokens:
+                BlacklistedToken.objects.get_or_create(token=t)
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "message": "Password reset successfully. Please login with your new password."
+        }, status=status.HTTP_200_OK)
+
+
 class ChangePasswordAPIView(APIView):
     authentication_classes = []
     permission_classes = []
@@ -843,10 +949,28 @@ class AdminUserCreateAPIView(APIView):
                     "data": serializer.data
                 }, status=status.HTTP_201_CREATED)
 
+            error_details = []
+            for field, errors in serializer.errors.items():
+                if isinstance(errors, (list, tuple)):
+                    for err in errors:
+                        error_details.append(str(err))
+                elif isinstance(errors, dict):
+                    for sub_k, sub_errs in errors.items():
+                        if isinstance(sub_errs, (list, tuple)):
+                            for se in sub_errs:
+                                error_details.append(str(se))
+                        else:
+                            error_details.append(str(sub_errs))
+                else:
+                    error_details.append(str(errors))
+
+            error_str = " ,".join(error_details)
+            error_message = f"Invalid data ,{error_str}" if error_str else "Invalid data"
+
             return Response({
                 "statusCode": 400,
                 "status": False,
-                "message": "Invalid data",
+                "message": error_message,
                 "errors": serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
 
@@ -1028,10 +1152,28 @@ class AdminUserUpdateAPIView(APIView):
                 "data": serializer.data
             },status=status.HTTP_200_OK)
 
+        error_details = []
+        for field, errors in serializer.errors.items():
+            if isinstance(errors, (list, tuple)):
+                for err in errors:
+                    error_details.append(str(err))
+            elif isinstance(errors, dict):
+                for sub_k, sub_errs in errors.items():
+                    if isinstance(sub_errs, (list, tuple)):
+                        for se in sub_errs:
+                            error_details.append(str(se))
+                    else:
+                        error_details.append(str(sub_errs))
+            else:
+                error_details.append(str(errors))
+
+        error_str = " ,".join(error_details)
+        error_message = f"Invalid data ,{error_str}" if error_str else "Validation Error"
+
         return Response({
-            "statusCode":400,
+            "statusCode": 400,
             "status": False,
-            "message":"Validation Error",
+            "message": error_message,
             "errors": serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
 

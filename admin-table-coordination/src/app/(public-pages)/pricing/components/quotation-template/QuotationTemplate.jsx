@@ -42,19 +42,19 @@ we are pleased to offer the following quotation:
 <p>
 Item: Premium Cotton 400TC<br/>
 Quantity: 150 meters<br/>
-Unit Price: $12.50
+Unit Price: ¥1,250
 </p>
 
 <hr/>
 
 <p>
-Subtotal: $1,875.00<br/>
-Discount: -$187.50
+Subtotal: ¥187,500<br/>
+Discount: -¥18,750
 </p>
 
 <hr/>
 
-<p><strong>TOTAL: $1,687.50</strong></p>
+<p><strong>TOTAL: ¥168,750</strong></p>
 
 <br/>
 

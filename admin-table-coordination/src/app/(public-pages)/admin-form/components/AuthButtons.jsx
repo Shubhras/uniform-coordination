@@ -26,7 +26,7 @@ const AuthButtons = () => {
           onClick={() => handleClick("login")}
           className={`
             px-5 py-1.5 font-medium text-sm rounded-r-full rounded-l-full transition-all cursor-pointer
-            ${active === "login" ? "bg-white text-[#1C2C56]" : "bg-transparent text-white"}
+            ${active === "login" ? "bg-white text-[#2A211D]" : "bg-transparent text-white"}
           `}
         >
           {t("login")}
@@ -37,7 +37,7 @@ const AuthButtons = () => {
           onClick={() => handleClick("signup")}
           className={`
             px-4 py-1.5 font-medium text-sm rounded-r-full rounded-l-full transition-all cursor-pointer
-            ${active === "signup" ? "bg-white text-[#1C2C56]" : "bg-transparent text-white"}
+            ${active === "signup" ? "bg-white text-[#2A211D]" : "bg-transparent text-white"}
           `}
         >
           {t("signup")}

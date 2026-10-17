@@ -21,15 +21,15 @@ const tabs = [
 const Tabs = ({ activeTab, setActiveTab }) => {
   const t = useTranslations("contentMedia.tabs");
   return (
-    <div className="flex gap-6 border-b border-[#90A3BF9C] mt-6 overflow-x-auto">
+    <div className="flex gap-6 border-b border-[#E8DDD4] mt-6 overflow-x-auto">
       {tabs.map(({ key, label, icon: Icon }) => (
         <button
           key={key}
           onClick={() => setActiveTab(key)}
-          className={`pb-1 text-base font-medium flex items-center gap-2 whitespace-nowrap ${
+          className={`pb-2.5 text-base font-medium flex items-center gap-2 whitespace-nowrap transition-colors cursor-pointer ${
             activeTab === key
-              ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
-              : "text-[#525252] text-[16px]"
+              ? "text-[#1C1917] font-semibold border-b-2 border-[#A85A32]"
+              : "text-[#78716C] hover:text-[#292524] border-transparent"
           }`}
         >
           <Icon size={16} />

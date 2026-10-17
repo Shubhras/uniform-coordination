@@ -112,10 +112,10 @@ const FaqTab = () => {
       <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
-            <h2 className="text-2xl font-semibold text-[#1C2C56]">
+            <h2 className="text-2xl font-semibold text-[#2A211D]">
               {t("faq")}
             </h2>
-            <p className="text-base text-[#486284]">{t("faqContent")} </p>
+            <p className="text-base text-[#B29D8C]">{t("faqContent")} </p>
           </div>
 
           <button
@@ -136,7 +136,7 @@ const FaqTab = () => {
           <div className="text-center py-16 text-[#94A3B8]">No FAQs found</div>
         ) : (
           <div className="max-w-5xl mx-auto space-y-4">
-            <p className="text-center text-[#1C2C56] md:text-2xl text-xl">
+            <p className="text-center text-[#2A211D] md:text-2xl text-xl">
               {t("aboutDesign")}
             </p>
 
@@ -161,11 +161,11 @@ const FaqTab = () => {
                       onClick={() => setOpenFaqId(isOpen ? null : faq.id)}
                       className="flex-1 flex items-center justify-between text-left gap-4"
                     >
-                      <span className="text-[#1C2C56] font-medium text-sm md:text-base">
+                      <span className="text-[#2A211D] font-medium text-sm md:text-base">
                         {faq.title}
                       </span>
 
-                      <span className="text-[#1C2C56] text-xl">
+                      <span className="text-[#2A211D] text-xl">
                         {isOpen ? <FiMinus /> : <FiPlus />}
                       </span>
                     </button>

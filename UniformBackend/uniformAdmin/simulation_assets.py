@@ -110,7 +110,7 @@ def category_attributes(category):
     # stored [], and that is a decision to keep. Treating [] as "nothing saved" brought
     # the seeded defaults straight back, so deletions looked like they never happened.
     if attributes is None:
-        attributes = DEFAULT_STRUCTURES.get(category.categoryName, GENERIC_STRUCTURE)
+        attributes = []
     return attributes
 
 

@@ -155,10 +155,10 @@ const AttributeTab = ({ attributeTitle, service }) => {
       <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between items-start flex-wrap gap-3 mb-6">
           <div>
-            <h2 className="text-2xl font-semibold text-[#1C2C56]">
+            <h2 className="text-2xl font-semibold text-[#2A211D]">
               {attributeTitle} {t("management")}
             </h2>
-            <p className="text-sm text-[#486284]">
+            <p className="text-sm text-[#B29D8C]">
               {pagination.total_items} {attributeTitle} {t("available")}
             </p>
           </div>

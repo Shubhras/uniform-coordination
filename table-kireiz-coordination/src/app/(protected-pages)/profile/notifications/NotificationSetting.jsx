@@ -72,7 +72,7 @@ const defaultNotifications = [
   {
     id: 'def-7',
     title: 'Compensation Charge Notice',
-    message: 'A compensation charge notice of $45.00 has been issued for item damage inspection.',
+    message: 'A compensation charge notice of ¥4,500 has been issued for item damage inspection.',
     notification_type: 'compensation_charge',
     created_at: new Date(Date.now() - 3600000 * 72).toISOString(),
     is_read: false,

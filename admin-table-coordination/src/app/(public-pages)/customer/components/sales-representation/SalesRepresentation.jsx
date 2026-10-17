@@ -6,7 +6,7 @@ const reps = [
         role: "Sales Executive",
         initials: "SC",
         clients: 42,
-        revenue: "$1,250,000",
+        revenue: "¥1,250,000",
         winRate: "32%",
     },
     {
@@ -14,7 +14,7 @@ const reps = [
         role: "Sales Representative",
         initials: "KR",
         clients: 28,
-        revenue: "$850,000",
+        revenue: "¥850,000",
         winRate: "24%",
     },
     {
@@ -22,7 +22,7 @@ const reps = [
         role: "Sales Manager",
         initials: "ER",
         clients: 15,
-        revenue: "$2,100,000",
+        revenue: "¥2,100,000",
         winRate: "45%",
     },
     {
@@ -30,7 +30,7 @@ const reps = [
         role: "Sales Executive",
         initials: "RD",
         clients: 31,
-        revenue: "$920,000",
+        revenue: "¥920,000",
         winRate: "28%",
     },
     {
@@ -38,7 +38,7 @@ const reps = [
         role: "Sales Executive",
         initials: "DS",
         clients: 35,
-        revenue: "$1,100,000",
+        revenue: "¥1,100,000",
         winRate: "30%",
     },
 ];

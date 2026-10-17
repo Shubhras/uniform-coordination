@@ -37,9 +37,13 @@ const PermissionPage = () => {
       setLoading(true);
 
       const res = await apiGetRolePermissionList(accessToken);
-      console.log("Role API Response:", res);
-
-      setRoles(res.data || []);
+      const fetchedRoles = (res.data || []).filter(
+        (role) =>
+          role.role_name?.toLowerCase() !== "sales_rep" &&
+          role.role_name?.toLowerCase() !== "sale_per" &&
+          role.role_name?.toLowerCase() !== "user",
+      );
+      setRoles(fetchedRoles);
     } catch (error) {
       console.log(error);
     } finally {

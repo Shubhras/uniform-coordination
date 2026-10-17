@@ -1164,7 +1164,11 @@
         "users": {
             "title": "ユーザー・権限",
             "subtitle": "プラットフォーム全体のユーザーアカウント、役割、権限、アクセスを管理します。",
+            "adminUsers": "管理者・スタッフ",
+            "customers": "顧客ユーザー",
             "users": "ユーザー",
+            "addAdminUser": "管理者・スタッフを追加",
+            "addCustomer": "顧客を追加",
             "fullName": "氏名",
             "role": "役割",
             "registration": "登録日",
@@ -1520,7 +1524,7 @@
     },
     "paymentManagement": {
     "payManage": "決済管理",
-    "subtitle": "USD取引を監視し、返金処理、プロモーションキャンペーンの管理、請求書の発行を行います。",
+    "subtitle": "取引を監視し、返金処理、プロモーションキャンペーンの管理、請求書の発行を行います。",
     "createPromo": "プロモーションコードを作成",
 
     "paymentDashboard": "決済ダッシュボード",
@@ -1547,7 +1551,7 @@
     "paymentId": "決済ID",
     "orderId": "注文ID",
     "method": "支払方法",
-    "amountUsd": "金額（USD）",
+    "amountUsd": "金額（JPY）",
     "status": "ステータス",
     "date": "日付",
     "actions": "操作",
@@ -1616,7 +1620,7 @@
 
     "invoicePaymentId": "請求書 / 決済ID",
     "customerName": "顧客名",
-    "billingAmountUsd": "請求金額（USD）",
+    "billingAmountUsd": "請求金額（JPY）",
     "action": "操作",
 
     "loadingInvoiceRecords": "請求書記録を読み込んでいます...",

@@ -159,7 +159,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
         ? orderDetailData.data[0]
         : orderDetailData?.data || orderDetailData
 
-    const currencyCode = orderData?.payment_summary?.currency || orderData?.currency || 'USD'
+    const currencyCode = orderData?.payment_summary?.currency || orderData?.currency || 'JPY'
 
     // Address formatter helper
     const formatAddress = (addr) => {

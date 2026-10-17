@@ -49,7 +49,7 @@ const SplitResetPassword = ({ children, content, ...rest }) => {
   const router = useRouter();
 
   const handleRedirectHome = () => {
-    router.push("/kireiz-form");
+    router.push("/sign-in");
   };
 
   return (
@@ -67,8 +67,8 @@ const SplitResetPassword = ({ children, content, ...rest }) => {
         {/* Logo */}
         <div className="absolute top-[5%] left-[5%] z-20">
           <img
-            src="/img/others/auth-logo.png"
-            alt="KIREIZ FORM"
+            src="/img/logo/sidebar-logo.png"
+            alt="KIREIZ SPACE"
             className="md:h-12 h-10 w-auto cursor-pointer"
             onClick={handleRedirectHome}
           />

@@ -60,6 +60,8 @@ const CreatePromotion = () => {
       newErrors.amount = t("validation.amountRequired");
     } else if (Number(form.amount) <= 0) {
       newErrors.amount = t("validation.amountGreaterThanZero");
+    } else if (form.promocodeType === "discount" && Number(form.amount) >= 100) {
+      newErrors.amount = "Percentage discount must be between 1 and 99%";
     }
 
     if (!form.started_at) {
@@ -92,6 +94,7 @@ const CreatePromotion = () => {
   const [form, setForm] = useState({
     promocodeName: "",
     promocodeType: "discount",
+    customerEligibility: "all",
     amount: "",
     // min_order_value: "",
     // limit_uses: false,
@@ -112,9 +115,18 @@ const CreatePromotion = () => {
         if (res?.status) {
           const data = res.data;
 
+          const rawDesc = data.description || "";
+          let eligibility = "all";
+          if (rawDesc.includes("[Eligibility: first_purchase]")) {
+            eligibility = "first_purchase";
+          } else if (rawDesc.includes("[Eligibility: repeat_customer]")) {
+            eligibility = "repeat_customer";
+          }
+
           setForm({
             promocodeName: data.promocodeName || "",
             promocodeType: data.promocodeType || "discount",
+            customerEligibility: eligibility,
             amount: data.amount || "",
             started_at: data.started_at
               ? new Date(data.started_at).toISOString().slice(0, 16)
@@ -123,7 +135,7 @@ const CreatePromotion = () => {
               ? new Date(data.ended_at).toISOString().slice(0, 16)
               : "",
             isActive: data.isActive,
-            description: data.description || "",
+            description: rawDesc.replace(/\[Eligibility:\s*[^\]]+\]\s*/g, "").trim(),
           });
         }
       } catch (error) {
@@ -153,7 +165,13 @@ const CreatePromotion = () => {
       formData.append("ended_at", new Date(form.ended_at).toISOString());
 
       formData.append("isActive", form.isActive);
-      formData.append("description", form.description);
+      let desc = (form.description || "").trim();
+      if (form.customerEligibility === "first_purchase") {
+        desc = `[Eligibility: first_purchase] ${desc}`.trim();
+      } else if (form.customerEligibility === "repeat_customer") {
+        desc = `[Eligibility: repeat_customer] ${desc}`.trim();
+      }
+      formData.append("description", desc);
 
       // const res = await apiCreatePromoCode(accessToken, formData);
       let res;
@@ -266,14 +284,46 @@ const CreatePromotion = () => {
             </div>
           </div>
 
+          {/* Customer Eligibility (First Purchase / Repeat Customer / All Customers) */}
+          <div>
+            <label className={labelClassName}>Customer Eligibility</label>
+            <div className="relative">
+              <select
+                name="customerEligibility"
+                value={form.customerEligibility || "all"}
+                onChange={(e) => {
+                  setForm((prev) => ({
+                    ...prev,
+                    customerEligibility: e.target.value,
+                  }));
+                }}
+                className={`${inputClassName} appearance-none`}
+              >
+                <option value="all">All Customers</option>
+                <option value="first_purchase">First-Purchase Incentive (New Customers Only)</option>
+                <option value="repeat_customer">Repeat Customer Discount (Returning Customers Only)</option>
+              </select>
+              <FiChevronDown
+                size={18}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A38D82] pointer-events-none"
+              />
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              Configure incentive rules such as First-Purchase discounts (SA-023) or Repeat Customer discounts (SA-024).
+            </p>
+          </div>
+
           {/* Amount */}
           <div>
-            <label className={labelClassName}>{t("discountValue")}</label>
+            <label className={labelClassName}>
+              {t("discountValue")} {form.promocodeType === "discount" ? "(%)" : "(¥)"}
+            </label>
 
             <input
               type="number"
               name="amount"
               min={0}
+              max={form.promocodeType === "discount" ? 99 : undefined}
               value={form.amount}
               onChange={(e) => {
                 setForm((prev) => ({
@@ -287,7 +337,11 @@ const CreatePromotion = () => {
                 }));
               }}
               className={inputClassName}
-              placeholder={t("amountPlaceholder")}
+              placeholder={
+                form.promocodeType === "discount"
+                  ? "e.g. 10 (%)"
+                  : "e.g. 500 (¥)"
+              }
             />
             {errors.amount && (
               <p className="mt-1 text-sm text-red-500">{errors.amount}</p>

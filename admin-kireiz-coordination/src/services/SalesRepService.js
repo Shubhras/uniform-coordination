@@ -4,7 +4,13 @@ const authHeader = (accessToken) => ({
   Authorization: `Bearer ${accessToken}`,
 });
 
-export async function apiGetSalesReps(accessToken, search = "") {
+export async function apiGetSalesReps(accessToken, searchOrParams = "") {
+  let search = "";
+  if (typeof searchOrParams === "string") {
+    search = searchOrParams;
+  } else if (searchOrParams && typeof searchOrParams === "object") {
+    search = searchOrParams.search || "";
+  }
   const params = new URLSearchParams();
   if (search) params.set("search", search);
   const qs = params.toString();

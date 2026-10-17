@@ -107,12 +107,12 @@ const QuotationRequestsChart = ({ chartData = [] }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
-      <h3 className="text-[17px] font-semibold text-[#3B3B3B]">
+    <div className="bg-white rounded-2xl border border-[#E8DDD4] shadow-sm p-6">
+      <h3 className="text-[17px] font-semibold text-[#2A211D]">
         {t("title")}
       </h3>
 
-      <div className="border-b border-[#D9D9D9] mt-6 mb-8" />
+      <div className="border-b border-[#E8DDD4] mt-6 mb-8" />
 
       <Chart options={options} series={series} type="area" height={300} />
     </div>

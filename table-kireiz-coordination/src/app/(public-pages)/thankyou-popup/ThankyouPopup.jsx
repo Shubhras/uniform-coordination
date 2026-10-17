@@ -88,7 +88,7 @@ const ThankyouPopup = ({ isOpen, onClose, paymentId }) => {
     const endDate = order?.rental_end_date ? formatDate(order.rental_end_date) : '—'
     const duration = order?.rental_days ? `${order.rental_days} days` : '—'
 
-    const currencyCode = order?.currency || orderPaymentDetail?.currency || 'USD'
+    const currencyCode = order?.currency || orderPaymentDetail?.currency || 'JPY'
 
     const subtotal = order?.subtotal
     const shipping = order?.shipping_charge ?? order?.shipping

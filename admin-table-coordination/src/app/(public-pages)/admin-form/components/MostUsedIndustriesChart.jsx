@@ -7,16 +7,7 @@ const MostUsedIndustriesChart = ({ data }) => {
   const t = useTranslations("dashboard.mostRentedTheme");
   const mostRentedTheme = data?.Most_Rented_Theme || [];
 
-  const categories = mostRentedTheme.length > 0
-    ? mostRentedTheme.map(item => item.theme_name || t("unassigned"))
-    : [
-        "Round 6ft",
-        "Round 8ft",
-        "Rectangular\n6x3",
-        "Rectangular\n8x4",
-        "Circle Table",
-        "Food service",
-      ];
+  const categories = mostRentedTheme.map(item => item.theme_name || t("unassigned"));
 
   const options = {
     chart: {
@@ -27,7 +18,7 @@ const MostUsedIndustriesChart = ({ data }) => {
       fontFamily: "inherit",
     },
 
-    colors: ["#6A341A", "#E1D1C7"],
+    colors: ["#A0522D", "#E8DDD4"],
 
     plotOptions: {
       bar: {
@@ -94,26 +85,45 @@ const MostUsedIndustriesChart = ({ data }) => {
   const series = [
     {
       name: t("seriesName"),
-      data: mostRentedTheme.length > 0
-        ? mostRentedTheme.map(item => item.count)
-        : [120, 145, 170, 190, 200, 225],
+      data: mostRentedTheme.map(item => item.count),
     },
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
-      <h3 className="text-[17px] font-semibold text-[#3B3B3B] mb-5">
-        {t("title")}
-      </h3>
+    <div className="bg-white rounded-2xl border border-[#E8DDD4] shadow-sm p-6 min-h-[380px] flex flex-col justify-between">
+      <div>
+        <h3 className="text-[17px] font-semibold text-[#2A211D] mb-5">
+          {t("title")}
+        </h3>
 
-      <Chart
-        options={options}
-        series={series}
-        type="bar"
-        height={280}
-      />
+        {mostRentedTheme.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-[260px] text-gray-400">
+            <svg
+              className="w-12 h-12 mb-3 text-gray-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
+            </svg>
+            <p className="text-sm font-medium text-[#8C7E74]">No rented themes data available</p>
+          </div>
+        ) : (
+          <Chart
+            options={options}
+            series={series}
+            type="bar"
+            height={280}
+          />
+        )}
+      </div>
 
-      <p className="mt-5 text-xs text-[#9CA3AF] flex items-center gap-1">
+      <p className="mt-5 text-xs text-[#8C7E74] flex items-center gap-1">
         {t("growthVisualization")} ↗
       </p>
     </div>

@@ -28,19 +28,19 @@ export const ForgotPassword = ({
         <div className="mb-6">
           {emailSent ? (
             <>
-              <h2 className="font-[Plus Jakarta Sans] font-medium text-[28px] tracking-[0.18px] text-[#402936] mb-2">
+              <h2 className="font-[Plus Jakarta Sans] font-semibold text-[28px] tracking-[0.18px] text-[#2A211D] mb-2">
                 Check your email
               </h2>
-              <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
+              <p className="font-[Plus Jakarta Sans] font-medium text-sm tracking-[0.15px] text-[#4C4E64AD]">
                 We have sent a password recovery to your email
               </p>
             </>
           ) : (
             <>
-              <h2 className="font-[Plus Jakarta Sans]  font-medium text-[28px] tracking-[0.18px] text-[#402936] mb-2">
+              <h2 className="font-[Plus Jakarta Sans] font-semibold text-[28px] tracking-[0.18px] text-[#2A211D] mb-2">
                 Forgot Password
               </h2>
-              <p className="font-[Plus Jakarta Sans] font-medium text-sm  tracking-[0.15px] text-[#4C4E64AD]">
+              <p className="font-[Plus Jakarta Sans] font-medium text-sm tracking-[0.15px] text-[#4C4E64AD]">
                 Enter your email and we'll send you instructions to reset your
                 password
               </p>

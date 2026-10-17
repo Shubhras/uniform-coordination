@@ -76,15 +76,6 @@ const getShapeIcon = (label = "") => {
 const PreviewSimulation = () => {
   const t = useTranslations("simulationAssets.previewSimulation");
 
-  const DEFAULT_CATEGORIES = [
-    { id: "Tablecloths", label: t("catTablecloths") },
-    { id: "Chair Covers", label: t("catChairCovers") },
-    { id: "Napkins", label: t("catNapkins") },
-    { id: "Centerpieces", label: t("catCenterpieces") },
-    { id: "Tableware", label: t("catTableware") },
-    { id: "Additional Decor", label: t("catAdditionalDecor") },
-  ];
-
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -123,11 +114,11 @@ const PreviewSimulation = () => {
           }));
           setCategories(formatted);
         } else {
-          setCategories(DEFAULT_CATEGORIES);
+          setCategories([]);
         }
       } catch (err) {
         console.error("Error loading categories", err);
-        setCategories(DEFAULT_CATEGORIES);
+        setCategories([]);
       }
     };
     loadCategories();
@@ -647,17 +638,23 @@ const PreviewSimulation = () => {
                 </h3>
 
                 <div className="mt-4 space-y-2">
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      type="button"
-                      onClick={() => setSelectedCategory(category.id)}
-                      className="flex w-full items-center justify-between rounded-[6px] border border-[#EEE3DB] bg-white px-3 py-2 text-[11px] text-[#4E423B] transition hover:border-[#D58F67] hover:text-[#A65D33]"
-                    >
-                      <span>{category.label}</span>
-                      <FiChevronRight size={14} />
-                    </button>
-                  ))}
+                  {categories.length > 0 ? (
+                    categories.map((category) => (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => setSelectedCategory(category.id)}
+                        className="flex w-full items-center justify-between rounded-[6px] border border-[#EEE3DB] bg-white px-3 py-2 text-[11px] text-[#4E423B] transition hover:border-[#D58F67] hover:text-[#A65D33]"
+                      >
+                        <span>{category.label}</span>
+                        <FiChevronRight size={14} />
+                      </button>
+                    ))
+                  ) : (
+                    <p className="py-6 text-center text-[11px] text-[#A8988D]">
+                      No categories found in database.
+                    </p>
+                  )}
                 </div>
               </>
             ) : (

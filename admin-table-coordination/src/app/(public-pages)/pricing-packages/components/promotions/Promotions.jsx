@@ -307,7 +307,11 @@ const Promotions = () => {
                           : promotion.promocodeType || "-"}
                     </td>
 
-                    <td className="px-4 py-3">${promotion.amount}</td>
+                    <td className="px-4 py-3 font-medium">
+                      {promotion.promocodeType === "discount"
+                        ? `${promotion.amount}%`
+                        : `¥${promotion.amount}`}
+                    </td>
 
                     <td className="px-4 py-3">
                       <div>

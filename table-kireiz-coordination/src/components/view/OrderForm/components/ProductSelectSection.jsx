@@ -150,7 +150,7 @@ const ProductSelectSection = () => {
                                         <div className="heading-text font-bold">
                                             <NumericFormat
                                                 fixedDecimalScale
-                                                prefix="$"
+                                                prefix="¥"
                                                 displayType="text"
                                                 value={
                                                     product.price *
@@ -205,7 +205,7 @@ const ProductSelectSection = () => {
                         <span className="text-lg font-bold heading-text">
                             <NumericFormat
                                 fixedDecimalScale
-                                prefix="$"
+                                prefix="¥"
                                 displayType="text"
                                 value={total}
                                 decimalScale={2}

@@ -7,38 +7,42 @@ import Notification from "@/components/ui/Notification";
 const ResetPasswordClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const userId = searchParams.get("user_id");
-
-  /** Token or Verification Code ensures the request is tied to the correct user */
-  // const token = searchParams.get('token')
+  const userId = searchParams.get("user_id") || searchParams.get("userId");
+  const token = searchParams.get("token");
 
   const handleResetPassword = async (payload) => {
     const { values, setSubmitting, setMessage, setResetComplete } = payload;
     try {
       setSubmitting(true);
-      if (!userId) {
-        setMessage("Invalid or expired reset link. Please request a new one.");
+      if (!userId || !token) {
+        setMessage("Invalid or expired reset link. Please check your email or request a new reset link.");
         return;
       }
-      // await apiResetPassword({
-      //     ...values,
-      //     userId,
-      // })
-      await apiResetPassword({
+
+      const response = await apiResetPassword({
         user_id: Number(userId),
+        token: token,
         new_password: values.newPassword,
         confirm_password: values.confirmPassword,
       });
-      toast.push(
-        <Notification title="Password reset successful!" type="success">
-          You can now login with your new password
-        </Notification>,
-      );
-      setResetComplete?.(true);
-      router.push("/sign-in");
+
+      if (response?.status === true || response?.statusCode === 200) {
+        toast.push(
+          <Notification title="Password reset successful!" type="success">
+            {response?.message || "You can now login with your new password"}
+          </Notification>,
+        );
+        setResetComplete?.(true);
+        setTimeout(() => {
+          router.push("/sign-in");
+        }, 1500);
+      } else {
+        setMessage(response?.message || "Unable to reset password.");
+      }
     } catch (error) {
       setMessage(
         error?.response?.data?.message ||
+          error?.response?.data?.error ||
           error?.message ||
           "Something went wrong. Please try again.",
       );

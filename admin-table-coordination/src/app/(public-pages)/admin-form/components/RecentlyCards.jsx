@@ -14,43 +14,43 @@ const RecentlyCards = ({ data }) => {
     // <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div className="flex flex-col gap-6">
       {/* Recently Updated Products / Colour Parts */}
-      <div className="bg-[#E6E6FA] border border-[#ececec] rounded-xl shadow-md border border-gray-200 p-5">
-        <h3 className="text-[#1C2C56] text-[14px] font-semibold">
+      <div className="bg-[#FDF4EB]/60 border border-[#E8DDD4] rounded-xl shadow-sm p-5">
+        <h3 className="text-[#2A211D] text-[14px] font-semibold">
           Recently Updated Products
         </h3>
 
-        <div className="mt-4 space-y-4 text-sm text-[#475569]">
+        <div className="mt-4 space-y-4 text-sm text-[#786D66]">
           {recentProducts.length > 0 ? (
             recentProducts.map((product, idx) => (
               <div key={idx} className="flex justify-between">
-                <span>{product.partcname}</span>
-                <span className="text-[#94A3B8]">{product.created_date}</span>
+                <span className="font-medium text-[#2A211D]">{product.partcname}</span>
+                <span className="text-[#8C7E74]">{product.created_date}</span>
               </div>
             ))
           ) : (
-            <p className="text-[#94A3B8] text-center py-2">No recent updates</p>
+            <p className="text-[#8C7E74] text-center py-2">No recent updates</p>
           )}
         </div>
       </div>
 
       {/* Pending Sales Representation Action */}
-      <div className="bg-[#E6E6FA] border border-[#ececec] rounded-xl shadow-md border border-gray-200 p-5">
-        <h3 className="text-[#1C2C56] text-[14px] font-semibold">
+      <div className="bg-[#FDF4EB]/60 border border-[#E8DDD4] rounded-xl shadow-sm p-5">
+        <h3 className="text-[#2A211D] text-[14px] font-semibold">
           Active Sales Representative
         </h3>
 
-        <div className="mt-4 space-y-4 text-sm text-[#475569]">
+        <div className="mt-4 space-y-4 text-sm text-[#786D66]">
           {salesRepsList.length > 0 ? (
             salesRepsList.map((rep, idx) => (
-              <div key={idx} className="flex justify-between">
-                <span>{rep.name}</span>
-                <span className="w-7 h-7 flex items-center justify-center rounded-full bg-white text-[#1C2C56] font-semibold text-sm shadow-sm border border-gray-200">
+              <div key={idx} className="flex justify-between items-center">
+                <span className="font-medium text-[#2A211D]">{rep.name}</span>
+                <span className="w-7 h-7 flex items-center justify-center rounded-full bg-white text-[#A0522D] font-semibold text-sm shadow-sm border border-[#F3CDB6]">
                   {rep.count}
                 </span>
               </div>
             ))
           ) : (
-            <p className="text-[#94A3B8] text-center py-2">No active reps</p>
+            <p className="text-[#8C7E74] text-center py-2">No active reps</p>
           )}
         </div>
       </div>

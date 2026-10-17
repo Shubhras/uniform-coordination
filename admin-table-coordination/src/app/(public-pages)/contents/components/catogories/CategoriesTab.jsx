@@ -112,7 +112,7 @@ const SubcategoryList = ({
               />
             )}
             <div>
-              <p className="text-base font-semibold text-[#1C2C56]">
+              <p className="text-base font-semibold text-[#2A211D]">
                 {sub.name}
               </p>
               {sub.description && (
@@ -371,10 +371,10 @@ const CategoriesTab = () => {
       <div className="bg-[#FFFDFC] border border-[#E8DDD4] rounded-xl shadow md:p-6 p-3">
         <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
           <div>
-            <h2 className="text-2xl font-semibold text-[#1C2C56]">
+            <h2 className="text-2xl font-semibold text-[#2A211D]">
               {t("productCategories")}
             </h2>
-            <p className="text-base text-[#486284]">{t("productManage")}</p>
+            <p className="text-base text-[#B29D8C]">{t("productManage")}</p>
           </div>
 
           <div className="flex gap-3">
@@ -460,7 +460,7 @@ const CategoriesTab = () => {
                                 <FiGrid className="text-[#94A3B8]" size={18} />
                               </span>
 
-                              <p className="text-base font-semibold text-[#1C2C56]">
+                              <p className="text-base font-semibold text-[#2A211D]">
                                 {cat.categoryName}
                               </p>
                             </div>

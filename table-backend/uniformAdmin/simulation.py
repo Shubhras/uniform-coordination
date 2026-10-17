@@ -7,61 +7,16 @@ from django.shortcuts import get_object_or_404
 from .models import Category, Product, SimulationStructure, Fabric, Colors, TableShape, Closure, Style, Size, Pattern
 from uniformAdmin.fabric import IsAdministrator
 
-DEFAULT_STRUCTURES = {
-    "Tablecloths": [
-        { "attribute": "Fabric", "enabled": True, "order": "1" },
-        { "attribute": "Style", "enabled": True, "order": "2" },
-        { "attribute": "Color", "enabled": False, "order": "3" },
-        { "attribute": "Size", "enabled": False, "order": "4" },
-        { "attribute": "Pattern", "enabled": False, "order": "5" },
-    ],
-    "Chair Covers": [
-        { "attribute": "Fabric", "enabled": True, "order": "1" },
-        { "attribute": "Fit Type", "enabled": True, "order": "2" },
-        { "attribute": "Color", "enabled": False, "order": "3" },
-        { "attribute": "Closure", "enabled": False, "order": "4" },
-        { "attribute": "Stretch", "enabled": False, "order": "5" },
-    ],
-    "Napkins": [
-        { "attribute": "Fabric", "enabled": True, "order": "1" },
-        { "attribute": "Fold Style", "enabled": True, "order": "2" },
-        { "attribute": "Color", "enabled": False, "order": "3" },
-        { "attribute": "Size", "enabled": False, "order": "4" },
-        { "attribute": "Trim", "enabled": False, "order": "5" },
-    ],
-    "Centerpieces": [
-        { "attribute": "Style", "enabled": True, "order": "1" },
-        { "attribute": "Height", "enabled": True, "order": "2" },
-        { "attribute": "Color", "enabled": False, "order": "3" },
-        { "attribute": "Flowers", "enabled": False, "order": "4" },
-        { "attribute": "Base Type", "enabled": False, "order": "5" },
-    ],
-    "Tableware": [
-        { "attribute": "Material", "enabled": True, "order": "1" },
-        { "attribute": "Finish", "enabled": True, "order": "2" },
-        { "attribute": "Color", "enabled": False, "order": "3" },
-        { "attribute": "Collection", "enabled": False, "order": "4" },
-        { "attribute": "Pieces", "enabled": False, "order": "5" },
-    ],
-    "Additional Decor": [
-        { "attribute": "Style", "enabled": True, "order": "1" },
-        { "attribute": "Color", "enabled": True, "order": "2" },
-        { "attribute": "Size", "enabled": False, "order": "3" },
-        { "attribute": "Material", "enabled": False, "order": "4" },
-        { "attribute": "Placement", "enabled": False, "order": "5" },
-    ],
-}
-
 class SimulationStructureAPIView(APIView):
     """
-    Get or Update Simulation Structure Config for Categories.
+    Get or Update Simulation Structure Config for Categories strictly from database.
     """
     permission_classes = [AllowAny] # Set to AllowAny for client requests, write will use admin checks if desired.
     
     def get(self, request):
         try:
-            # Load all categories
-            categories = Category.objects.filter(isDeleted=False, type='table')
+            # Load all categories strictly from database
+            categories = Category.objects.filter(isDeleted=False)
             response_data = {}
             
             for cat in categories:
@@ -70,17 +25,7 @@ class SimulationStructureAPIView(APIView):
                 if config_obj and config_obj.structure_data:
                     response_data[cat.categoryName] = config_obj.structure_data.get("attributes", [])
                 else:
-                    # Fallback to default
-                    response_data[cat.categoryName] = DEFAULT_STRUCTURES.get(cat.categoryName, [
-                        { "attribute": "Fabric", "enabled": True, "order": "1" },
-                        { "attribute": "Style", "enabled": False, "order": "2" },
-                        { "attribute": "Color", "enabled": False, "order": "3" },
-                    ])
-            
-            # Include defaults for any categories missing in db but expected
-            for key, val in DEFAULT_STRUCTURES.items():
-                if key not in response_data:
-                    response_data[key] = val
+                    response_data[cat.categoryName] = []
 
             return Response({
                 "status": True,
@@ -346,27 +291,6 @@ class SimulationOptionsAPIView(APIView):
                 {"id": str(pt.id), "label": pt.name, "image": request.build_absolute_uri(pt.image.url) if (getattr(pt, "image", None) and hasattr(pt.image, "url")) else None}
                 for pt in db_patterns
             ]
-
-            # Only fallback to static defaults if NO category is specified
-            if not category_name:
-                if not fabrics_list:
-                    fabrics_list = [
-                        { "id": "crushed-velvet", "label": "Crushed Velvet", "image": None, "materialType": "cotton" },
-                        { "id": "damask-linen", "label": "Damask Linen", "image": None, "materialType": "linen" },
-                        { "id": "gingham-cotton", "label": "Gingham Cotton", "image": None, "materialType": "cotton" },
-                    ]
-                if not styles_list:
-                    styles_list = [
-                        { "id": "round", "label": "Round", "image": None },
-                        { "id": "square", "label": "Square", "image": None },
-                    ]
-                if not colors_list:
-                    colors_list = [
-                        { "id": "white", "label": "White", "image": None, "colorCode": "#ffffff", "compatibleFabric": ["cotton", "linen"] },
-                        { "id": "ivory", "label": "Ivory", "image": None, "colorCode": "#fffff0", "compatibleFabric": ["cotton"] },
-                        { "id": "beige", "label": "Beige", "image": None, "colorCode": "#f5f5dc", "compatibleFabric": ["linen"] },
-                    ]
-
             return Response({
                 "status": True,
                 "statusCode": 200,

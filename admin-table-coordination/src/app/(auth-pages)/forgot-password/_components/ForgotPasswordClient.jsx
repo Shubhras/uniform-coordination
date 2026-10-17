@@ -25,23 +25,6 @@ const ForgotPasswordClient = () => {
                 )
 
                 setEmailSent(true)
-                // router.push('/reset-password')
-                const resetLink = response?.resetLink;
-                console.log(response?.resetLink)
-
-                if (!resetLink) {
-                    console.error("Reset link missing");
-                    return;
-                }
-
-                // If backend sends full URL
-                if (resetLink.startsWith("http")) {
-                    const url = new URL(resetLink);
-                    router.push(url.pathname + url.search);
-                } else {
-                    // If backend sends relative path
-                    router.push(resetLink);
-                }
             }
         } catch (error) {
             const errorMessage =

@@ -1209,7 +1209,11 @@
         "users": {
             "title": "Users & Permissions",
             "subtitle": "Manage user accounts, roles, permissions, and access across the platform.",
+            "adminUsers": "Admin Users",
+            "customers": "Customers",
             "users": "Users",
+            "addAdminUser": "Add New Admin / Staff",
+            "addCustomer": "Add New Customer",
             "fullName": "FULL NAME",
             "role": "Role",
             "registration": "Registration Date",
@@ -1536,7 +1540,7 @@
     },
     "paymentManagement":{
         "payManage":"Payment Management",
-        "subtitle":"Monitor USD transactions, process refunds, manage promotional campaigns, and generate invoices.",
+        "subtitle":"Monitor transactions, process refunds, manage promotional campaigns, and generate invoices.",
         "createPromo":"Create Promocode",
 
         "paymentDashboard": "Payment Dashboard",
@@ -1563,7 +1567,7 @@
         "paymentId": "Payment ID",
         "orderId": "Order ID",
         "method": "Method",
-        "amountUsd": "Amount (USD)",
+        "amountUsd": "Amount (JPY)",
         "status": "Status",
         "date": "Date",
         "actions": "Actions",
@@ -1636,7 +1640,7 @@
         "searchInvoiceOrder": "Search Invoice / Order...",
         "invoicePaymentId": "Invoice / Payment ID",
         "customerName": "Customer Name",
-        "billingAmountUsd": "Billing Amount (USD)",
+        "billingAmountUsd": "Billing Amount (JPY)",
         "action": "Action",
         "loadingInvoiceRecords": "Loading invoice records...",
         "noInvoicesAvailable": "No invoices available.",

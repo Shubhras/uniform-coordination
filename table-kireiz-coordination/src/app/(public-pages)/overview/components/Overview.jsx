@@ -238,7 +238,7 @@ const Overview = () => {
                                                                 {itemName} ({itemQty})
                                                             </p>
                                                             <p className="text-base font-semibold text-[#1E293B]">
-                                                                ${Number(itemPrice).toLocaleString()}
+                                                                ¥{Number(itemPrice).toLocaleString()}
                                                             </p>
                                                         </div>
 
@@ -267,14 +267,14 @@ const Overview = () => {
                                             {cartSummary?.subtotal !== undefined && cartSummary?.subtotal !== null && (
                                                 <div className="flex justify-between text-base text-[#374151] font-medium">
                                                     <span>Subtotal:</span>
-                                                    <span>${Number(cartSummary.subtotal).toLocaleString()}</span>
+                                                    <span>¥{Number(cartSummary.subtotal).toLocaleString()}</span>
                                                 </div>
                                             )}
 
                                             {cartSummary?.shipping !== undefined && cartSummary?.shipping !== null && (
                                                 <div className="flex justify-between text-base text-[#374151] font-medium">
                                                     <span>Shipping:</span>
-                                                    <span>${Number(cartSummary.shipping).toLocaleString()}</span>
+                                                    <span>¥{Number(cartSummary.shipping).toLocaleString()}</span>
                                                 </div>
                                             )}
 
@@ -283,7 +283,7 @@ const Overview = () => {
                                                 return discountVal !== undefined && discountVal !== null && Number(discountVal) > 0 ? (
                                                     <div className="flex justify-between text-base text-green-600 font-medium">
                                                         <span>Discount:</span>
-                                                        <span>-${Number(discountVal).toLocaleString()}</span>
+                                                        <span>-¥{Number(discountVal).toLocaleString()}</span>
                                                     </div>
                                                 ) : null
                                             })()}
@@ -291,14 +291,14 @@ const Overview = () => {
                                             {cartSummary?.tax !== undefined && cartSummary?.tax !== null && (
                                                 <div className="flex justify-between text-base text-[#374151] font-medium">
                                                     <span>Tax:</span>
-                                                    <span>${Number(cartSummary.tax).toLocaleString()}</span>
+                                                    <span>¥{Number(cartSummary.tax).toLocaleString()}</span>
                                                 </div>
                                             )}
 
                                             {(cartSummary?.total !== undefined || cartSummary?.grand_total !== undefined) && (
                                                 <div className="flex justify-between text-lg font-semibold text-[#111827] pt-2 border-t border-gray-100">
                                                     <span>Total:</span>
-                                                    <span>${Number(cartSummary?.total ?? cartSummary?.grand_total ?? 0).toLocaleString()}</span>
+                                                    <span>¥{Number(cartSummary?.total ?? cartSummary?.grand_total ?? 0).toLocaleString()}</span>
                                                 </div>
                                             )}
                                         </div>

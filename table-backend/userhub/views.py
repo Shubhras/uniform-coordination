@@ -123,6 +123,7 @@ class CustomPagination(PageNumberPagination):
 
 
 class SignupAPIView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     @extend_schema(
@@ -142,23 +143,22 @@ class SignupAPIView(APIView):
                 send_registration_email(user)
                 
                  # EMAIL VERIFICATION 
-                uid = user.id  #urlsafe_base64_encode(force_bytes(user.id))       
+                uid = user.id       
                 email = user.email         
-                verify_link = request.build_absolute_uri(f"https://table.dxtspace.com/account-verified-page?user_id={uid}&email={email}")
+                scheme = "https" if request.is_secure() or request.headers.get("x-forwarded-proto") == "https" else "http"
+                host = request.get_host()
+                verify_link = f"{scheme}://{host}/account-verified-page?user_id={uid}&email={email}"
 
-                # EMAIL VERIFICATION
-                # uid = urlsafe_base64_encode(force_bytes(user.id))
-                # verify_link = request.build_absolute_uri(
-                #     f"/api/v1/userhub/verify-email/{uid}/"
-                # )
-
-                send_mail(
-                    subject="Verify your email",
-                    message=f"Click here to verify your email, it's you:\n{verify_link}",
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[user.email],
-                    fail_silently=False,
-                )
+                try:
+                    send_mail(
+                        subject="Verify your email",
+                        message=f"Click here to verify your email, it's you:\n{verify_link}",
+                        from_email=settings.EMAIL_HOST_USER,
+                        recipient_list=[user.email],
+                        fail_silently=False,
+                    )
+                except Exception as mail_exc:
+                    logger.error(f"Failed to send verification email to {user.email}: {mail_exc}")
 
                 response_data = UserResponseSerializer(
                     user, context={"request": request}
@@ -222,6 +222,7 @@ class SignupAPIView(APIView):
             )
   
 class UserLoginAPIView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
     def post(self, request):
         
@@ -640,8 +641,9 @@ class ForgotPasswordAPIView(APIView):
             user_id = user.id
 
             # Build reset link
-            frontend_url = "https://table.dxtspace.com/reset-password"
-            reset_link = f"{frontend_url}?user_id={user_id}"
+            scheme = "https" if request.is_secure() or request.headers.get("x-forwarded-proto") == "https" else "http"
+            host = request.get_host()
+            reset_link = f"{scheme}://{host}/reset-password?user_id={user_id}"
 
             # -------------------------------
             # SMTP: Send Reset Email Here   
@@ -671,6 +673,7 @@ class ForgotPasswordAPIView(APIView):
 
 
 class ResetPasswordAPIView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
     
     @extend_schema(
@@ -898,6 +901,7 @@ class UpdatePasswordAPIView(APIView):
 
 
 class VerifyUserAPIView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
     @extend_schema(
     summary="Verify User API",
@@ -1611,6 +1615,7 @@ class ItemSummaryAPIView(APIView):
             return Response({
                 "status": True,
                 "statusCode":200,
+                "cart_id": cart.id,
                 "items": items,
                 "items_count": total_products, 
                 "summary": {
@@ -1670,21 +1675,21 @@ class CreateOrderAPIView(APIView):
             data = request.data
 
             cart_id = data.get("cart_id")
-            if not cart_id:
+            if cart_id:
+                cart = Cart.objects.filter(id=cart_id, user=user, is_active=True).first()
+            else:
+                cart = Cart.objects.filter(user=user, is_active=True).first()
+
+            if not cart:
+                cart = Cart.objects.filter(user=user, is_active=True).first()
+
+            if not cart or not cart.items.exists():
                 return Response({
                     "status": False,
-                    "statusCode": 400, 
-                    "message": "cart_id is required"
-                    }, status=status.HTTP_400_BAD_REQUEST)
+                    "statusCode": 404, 
+                    "message": "Cart not found or empty"
+                }, status=status.HTTP_404_NOT_FOUND)
 
-            cart = Cart.objects.filter(id=cart_id, user=user, is_active=True).first()
-            
-            # existing_order = Order.objects.filter(
-            #     cart=cart,
-            #     user=user,
-            #     status__in=["pending", "processing"]
-            # ).first()
-            
             existing_order = Order.objects.filter(
                 user=user,
                 cart=cart,
@@ -1692,16 +1697,11 @@ class CreateOrderAPIView(APIView):
             ).first()
 
             if existing_order:
-                return Response({
-                    "status": False,
-                    "statusCode": 400,
-                    "message": "Order already exists for this cart. Please complete payment."
-                }, status=status.HTTP_400_BAD_REQUEST)
-            if not cart or not cart.items.exists():
-                return Response({
-                    "status": False,
-                    "statusCode": 404, 
-                    "message": "Cart not found or empty"}, status=status.HTTP_404_NOT_FOUND)
+                # Clean up previous unpaid draft order so user can update details and continue checkout
+                from userhub.models import Rental
+                Rental.objects.filter(order=existing_order).delete()
+                existing_order.items.all().delete()
+                existing_order.delete()
             try:
                 start_date = datetime.strptime(data.get("rental_start_date"), "%Y-%m-%d").date()
                 end_date = datetime.strptime(data.get("rental_end_date"), "%Y-%m-%d").date()
@@ -1766,7 +1766,7 @@ class CreateOrderAPIView(APIView):
             # ------------------- Promocode -------------------
             # promocode_code = data.get("promocode", "").strip()
             promocode = data.get("promocode")
-            currency = data.get("currency") or "USD"
+            currency = data.get("currency") or "JPY"
 
             if isinstance(promocode, dict):
                 promocode_code = promocode.get("code", "").strip()
@@ -1816,6 +1816,23 @@ class CreateOrderAPIView(APIView):
                         "status": False,
                         "message": "Discount exceeds subtotal"
                     })
+
+                desc = promo.description or ""
+                if "[Eligibility: first_purchase]" in desc:
+                    if Order.objects.filter(user=user, is_paid=True).exists():
+                        return Response({
+                            "status": False,
+                            "statusCode": 400,
+                            "message": "This promocode is only valid for first-time purchases."
+                        }, status=status.HTTP_400_BAD_REQUEST)
+
+                if "[Eligibility: repeat_customer]" in desc:
+                    if not Order.objects.filter(user=user, is_paid=True).exists():
+                        return Response({
+                            "status": False,
+                            "statusCode": 400,
+                            "message": "This promocode is only valid for repeat customers."
+                        }, status=status.HTTP_400_BAD_REQUEST)
 
                 applied_promo = promo
            
@@ -2110,6 +2127,7 @@ class OrderSummaryAPIView(APIView):
             shipping = Decimal(order.shipping_charge or 0)
             tax = Decimal(order.tax or 0)
             total_amount = Decimal(order.total_amount)
+            discount_amount = max(Decimal("0.00"), subtotal + shipping + tax - total_amount)
 
             response_data = {
                 "contact_information": {
@@ -2134,9 +2152,15 @@ class OrderSummaryAPIView(APIView):
                     "subtotal": str(subtotal),
                     "shipping": str(shipping),
                     "tax": str(tax),
+                    "discount": str(discount_amount),
+                    "promo_discount": str(discount_amount),
                     "promocode": order.promocode.promocodeName if order.promocode else None,
-                    "amount": str(order.promocode.amount) if order.promocode else None,
-                    "total": str(total_amount)
+                    "promocode_type": order.promocode.promocodeType if order.promocode else None,
+                    "amount": str(discount_amount) if discount_amount > 0 else (str(order.promocode.amount) if order.promocode else None),
+                    "currency": order.currency or "JPY",
+                    "currency_symbol": "¥",
+                    "total": str(total_amount),
+                    "grand_total": str(total_amount)
                 }
             }
             return Response(
@@ -3236,7 +3260,7 @@ class ReorderOrderAPIView(APIView):
                 total_amount=original_order.total_amount,
                 shipping_charge=original_order.shipping_charge,
                 tax=original_order.tax,
-                currency=original_order.currency or "USD",
+                currency=original_order.currency or "JPY",
                 promocode=original_order.promocode,
                 custom_theme=original_order.custom_theme,
                 status="pending",

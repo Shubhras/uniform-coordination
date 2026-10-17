@@ -21,7 +21,7 @@ const PricingSection = ({ control, errors }) => {
                             <NumericInput
                                 thousandSeparator
                                 type="text"
-                                inputPrefix="$"
+                                inputPrefix="¥"
                                 autoComplete="off"
                                 placeholder="0.00"
                                 value={field.value}
@@ -42,7 +42,7 @@ const PricingSection = ({ control, errors }) => {
                             <NumericInput
                                 thousandSeparator
                                 type="text"
-                                inputPrefix="$"
+                                inputPrefix="¥"
                                 autoComplete="off"
                                 placeholder="0.00"
                                 value={field.value}
@@ -66,7 +66,7 @@ const PricingSection = ({ control, errors }) => {
                             <NumericInput
                                 thousandSeparator
                                 type="text"
-                                inputPrefix="$"
+                                inputPrefix="¥"
                                 autoComplete="off"
                                 placeholder="0.00"
                                 value={field.value}

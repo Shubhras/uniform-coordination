@@ -78,10 +78,10 @@ const ProductSpecificationPage = () => {
 
   return (
     <div className="px-5 md:px-8 lg:px-8 py-6 bg-white min-h-screen">
-      <h1 className="text-2xl font-semibold text-[#1C2C56]">
+      <h1 className="text-2xl font-semibold text-[#2A211D]">
         {t("productManagement")}
       </h1>
-      <p className="text-base font-medium text-[#64748B]">
+      <p className="text-base font-medium text-[#B29D8C]">
         {t("productSubtitle")}
       </p>
 

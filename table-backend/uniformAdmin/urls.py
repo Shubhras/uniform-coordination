@@ -38,6 +38,7 @@ urlpatterns = [
     path('profile/',ProfileAPIView.as_view(), name='admin-details'),
     path('logout/', LogoutAPIView.as_view(), name='admin-details'),
     path('forgot-password/', ForgotPasswordAPIView.as_view(), name='forgot-password'),
+    path('reset-password/', ResetPasswordAPIView.as_view(), name='reset-password'),
 
     # Fabric URLs
     path('fabric/create/', FabricCreateView.as_view()),

@@ -167,52 +167,42 @@ every origin must be listed explicitly.
 
 ---
 
-## 7. Pending work
+## 7. Status & Completed Work (as of 2026-09-25)
 
-1. **Frontend `.env` — `NEXT_PUBLIC_API_BASE_URL` is wrong.** This is the main blocker.
-   `src/configs/app.config.js` builds `apiPrefix = ${NEXT_PUBLIC_API_BASE_URL}/api`, and
-   the code appends `/v1/...` after that. The env currently holds something like
-   `http://104.64.206.82:8005/api/v1/uniformAdmin`, producing doubled paths:
-
-   ```
-   POST /api/v1/uniformAdmin/api/v1/userhub/login/   → 404   (what happens now)
-   POST /api/v1/userhub/login/                       → 200   (correct)
-   ```
-
-   Correct values:
-   - uniform frontend → `NEXT_PUBLIC_API_BASE_URL=http://104.64.206.82`
-   - table frontend → `NEXT_PUBLIC_API_BASE_URL=http://table.104.64.206.82.sslip.io`
-
-   **`NEXT_PUBLIC_*` vars are baked in at build time** — editing `.env` and running
-   `pm2 restart` does nothing. Each app needs `npm run build` then `pm2 restart <name>`.
-
-   Not yet inspected: the actual current `.env` contents of all four frontends.
-
-2. **Push the server-only compose port fix** (`127.0.0.1:3307:3306`) to the repo.
-
-3. **Linode firewall** — ask Dheeraj to allow TCP 7000, 7001, 8005, 8006
-   (All IPv4 + All IPv6), same as the existing 7002–7003 rule.
-
-4. **Celery / Redis** — UniformBackend logs `Celery Error: 'NoneType' object has no
-   attribute 'Redis'`. `CELERY_BROKER_URL` points at `redis://127.0.0.1:6379/0`, but
-   there is no Redis container and the `redis` python package is not installed.
-   Background tasks (emails, PDFs) are dead. Requests are unaffected.
-
-5. **`OPENAI_API_KEY`** — if a dummy value was used in `table-backend/.env`, AI
-   endpoints will fail at call time. Also worth fixing in code:
-   `table-backend/uniformAdmin/ai_views.py:13` does `client = OpenAI()` at module
-   import, so a missing key crashes all of Django instead of just the AI feature.
-   Should be made lazy.
-
-6. **Production hardening (not started):** both backends run `runserver` with
-   `DEBUG=True` and a hardcoded `SECRET_KEY`; DB passwords are plaintext in the
-   committed compose files; SMTP credentials and DocuSign keys are hardcoded in
-   `settings.py`. Gunicorn + real secret management is the eventual fix.
+1. **Host:** New instance at `172.237.71.124` (replaces decommissioned `104.64.206.82`).
+2. **Backends:**
+   - Both `UniformBackend` (port 8005) and `table-backend` (port 8006) running on Gunicorn with 3 workers.
+   - `DEBUG=False` enforced by default across both Django projects.
+   - Non-root `appuser` enforced inside Docker containers; host binds restricted to `127.0.0.1`.
+   - Lazy OpenAI client initialization implemented to prevent missing key startup crashes.
+3. **Memory & Swap:**
+   - 4GB swap space zero-filled with `dd` (`/swapfile2`), 4.5GB total swap, persisted in `/etc/fstab`.
+4. **Frontends (all 4 built and online via PM2):**
+   - `uniform-kireiz` (port 7000): 48 pages built. Accessible at `http://172.237.71.124/`.
+   - `table-kireiz` (port 7001): 60 pages built. Accessible at `http://table.172.237.71.124.sslip.io/`.
+   - `admin-kireiz` (port 7002): 107 pages built. Accessible at `http://admin.172.237.71.124.sslip.io/`.
+   - `admin-table` (port 7003): 122 pages built. Accessible at `http://admintable.172.237.71.124.sslip.io/`.
+   - All 4 frontends registered with PM2 and configured for automatic resurrection on boot via `systemd` (`pm2-digiprima.service`).
+5. **Nginx Routing:**
+   - `/etc/nginx/sites-available/uniform` configures all 4 virtual hosts with WebSocket support and proxies API/admin/static/media paths to respective backends.
+6. **Dynamic Host & Verification Links:**
+   - Updated email verification and forgot password links in `UniformBackend/userhub/views.py`, `table-backend/userhub/views.py`, and `uniformAdmin/auth.py` to use dynamic `request.get_host()` and `scheme` instead of hardcoded `uniform.dxtspace.com` or `table.dxtspace.com`.
+7. **User Roles:**
+   - Updated `Users.save()` in both backends: uniform defaults to `b2b`, table defaults to `b2c`. Existing users migrated.
+8. **Simulation Assets & Public Endpoints:**
+   - Imported `simulation_assets.py` and `simulation_public.py` into `UniformBackend/uniformAdmin/urls.py` and registered routes for `simulation-assets/`, `simulation-assets/structure/`, `simulation/options/`, `simulation/product/<id>/layers/`, and `simulation/categories/`.
 
 ---
 
 ## 8. Gotchas hit along the way (so they are not re-debugged)
 
+- **`Bus error (core dumped)` during Next.js build:**
+  Triggered when Next.js attempts to load `@next/swc-linux-x64-musl` whose ELF header specifies a mapping past the file's physical size (`BUS_ADRERR`).
+  Fix: Install `@next/swc-wasm-nodejs` and `rm -rf node_modules/@next/swc-linux-*`. Next.js falls back to WASM cleanly.
+- **Node out-of-memory during Next.js page generation:**
+  Default Node heap limit is ~1GB. Large apps require `NODE_OPTIONS="--max-old-space-size=3072"` or `3584`.
+- **Swap creation requires `dd` not `fallocate`:**
+  `fallocate` creates unwritten block extents (sparse holes). Linux kernel triggers `SIGBUS` when swapping pages into unwritten extents. Always use `dd if=/dev/zero of=/swapfile ...`.
 - `docker compose logs -f` prints the **entire** history first — old crashes reappear
   and look like new errors. Use `--since 60s` or `--tail=N`.
 - `docker compose down` did nothing at first: the running containers had been created

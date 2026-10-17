@@ -196,20 +196,22 @@ const DeliveryInformation = () => {
         );
         router.push(`/overview?orderId=${createdOrderId}`);
       } else {
+        const msg = res?.message || "Failed to create order";
         toast.push(
           <Notification title="Error!" type="danger">
-            Failed to create order
+            {msg}
           </Notification>,
         );
-        setError("Failed to create order. Please try again.");
+        setError(msg);
       }
     } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || "Failed to create order. Please try again.";
       toast.push(
         <Notification title="Error!" type="danger">
-          Failed to create order
+          {msg}
         </Notification>,
       );
-      setError("Failed to create order. Please try again.");
+      setError(msg);
     } finally {
       setLoading(false);
     }
