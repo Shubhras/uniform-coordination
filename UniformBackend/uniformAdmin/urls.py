@@ -274,4 +274,7 @@ urlpatterns = [
     # ==========================================
     path('settings/system/', SystemSettingsRetrieveView.as_view(), name='system-settings-get'),
     path('settings/system/update/', SystemSettingsUpdateView.as_view(), name='system-settings-update'),
+
+    # Send Email
+    path('send-email/', SendEmailAPIView.as_view(), name='send-email'),
 ]

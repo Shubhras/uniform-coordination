@@ -24,6 +24,7 @@ import AddEditB2BAccountModal from "./AddEditB2BAccountModal";
 import ViewB2BModal from "./ViewB2BModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
+import ComposeEmailModal from "../ComposeEmailModal";
 
 const tierColors = {
   gold: "bg-yellow-50 text-yellow-700 border border-yellow-200",
@@ -79,6 +80,13 @@ const B2BAccounts = () => {
 
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [emailRecipient, setEmailRecipient] = useState({ email: "", name: "" });
+
+  const handleOpenComposeEmail = (email, name) => {
+    setEmailRecipient({ email, name });
+    setEmailModalOpen(true);
+  };
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
@@ -310,7 +318,7 @@ const B2BAccounts = () => {
                   <th className="px-5 py-3 font-medium">{t("tableHeaders.company")}</th>
                   <th className="px-5 py-3 font-medium">{t("tableHeaders.contactPerson")}</th>
                   <th className="px-5 py-3 font-medium">{t("tableHeaders.contactInfo")}</th>
-                  <th className="px-5 py-3 font-medium">{t("tableHeaders.tier")}</th>
+                  <th className="px-5 py-3 font-medium">Role</th>
                   <th className="px-5 py-3 font-medium">{t("tableHeaders.status")}</th>
                   <th className="px-5 py-3 font-medium text-right">{t("tableHeaders.actions")}</th>
                 </tr>
@@ -318,10 +326,11 @@ const B2BAccounts = () => {
 
               <tbody>
                 {accounts.map((acc) => {
-                  const tierKey = acc.tier?.toLowerCase();
-                  const tierStyle =
-                    tierColors[tierKey] ||
-                    "bg-gray-50 text-gray-600 border border-gray-200";
+                  const isMainAdmin =
+                    (acc.role_name || "").toLowerCase() === "admin" ||
+                    (acc.role_name || "").toLowerCase() === "superadmin" ||
+                    acc.id === 1 ||
+                    acc.email === session?.user?.email;
 
                   return (
                     <tr
@@ -329,7 +338,7 @@ const B2BAccounts = () => {
                       className="border-b last:border-none border-[#E2E8F0] hover:bg-gray-50 transition"
                     >
                       <td className="px-5 py-4 font-medium text-[#1C2C56]">
-                        {acc.company_name}
+                        {acc.company_name || "-"}
                       </td>
 
                       <td className="px-5 py-4 text-gray-600">{acc.name}</td>
@@ -342,16 +351,14 @@ const B2BAccounts = () => {
                           </div>
                           <div className="flex items-center gap-2">
                             <FiPhone className="text-[#1C2C56]" size={14} />
-                            <span>{acc.mobile}</span>
+                            <span>{acc.mobile || "-"}</span>
                           </div>
                         </div>
                       </td>
 
                       <td className="px-5 py-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${tierStyle}`}
-                        >
-                          {acc.tier}
+                        <span className="px-3 py-1 rounded-full text-xs font-medium capitalize bg-blue-50 text-[#1C4FA8] border border-blue-200">
+                          {acc.role_name || "Admin"}
                         </span>
                       </td>
                       <td className="px-5 py-4">
@@ -370,6 +377,7 @@ const B2BAccounts = () => {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             className="text-[#1C4FA8] hover:bg-[#EEF4FF] p-1.5 rounded"
+                            title="View Profile"
                             onClick={() => {
                               setSelectedAccount(acc);
                               setViewModalOpen(true);
@@ -379,6 +387,7 @@ const B2BAccounts = () => {
                           </button>
                           <button
                             className="text-[#1C2C56] hover:text-[#0F172A] p-1.5 rounded hover:bg-[#EEF2FF]"
+                            title="Edit User"
                             onClick={() => {
                               setEditData(acc);
                               setOpenModal(true);
@@ -386,15 +395,18 @@ const B2BAccounts = () => {
                           >
                             <FiEdit2 size={16} />
                           </button>
-                          <button
-                            className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50"
-                            onClick={() => {
-                              setAccountToDelete(acc);
-                              setDeleteDialogOpen(true);
-                            }}
-                          >
-                            <FiTrash2 size={16} />
-                          </button>
+                          {!isMainAdmin && (
+                            <button
+                              className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50"
+                              title="Delete User"
+                              onClick={() => {
+                                setAccountToDelete(acc);
+                                setDeleteDialogOpen(true);
+                              }}
+                            >
+                              <FiTrash2 size={16} />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -427,6 +439,20 @@ const B2BAccounts = () => {
           setSelectedAccount(null);
         }}
         account={selectedAccount}
+        onSendEmail={(email, name) => {
+          setViewModalOpen(false);
+          handleOpenComposeEmail(email, name);
+        }}
+      />
+
+      <ComposeEmailModal
+        isOpen={emailModalOpen}
+        onClose={() => {
+          setEmailModalOpen(false);
+          setEmailRecipient({ email: "", name: "" });
+        }}
+        recipientEmail={emailRecipient.email}
+        recipientName={emailRecipient.name}
       />
 
       <AddEditB2BAccountModal

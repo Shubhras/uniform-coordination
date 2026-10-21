@@ -11,6 +11,7 @@ import {
 } from "@/services/SalesRepService";
 import AddRepModal from "./AddRepModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
+import ComposeEmailModal from "../ComposeEmailModal";
 
 const money = (value) =>
     `$${Number(value || 0).toLocaleString(undefined, {
@@ -40,6 +41,14 @@ const SalesRepresentation = () => {
     const [deleteRep, setDeleteRep] = useState(null);
     const [deleting, setDeleting] = useState(false);
     const [profile, setProfile] = useState(null);
+
+    const [emailModalOpen, setEmailModalOpen] = useState(false);
+    const [emailRecipient, setEmailRecipient] = useState({ email: "", name: "" });
+
+    const handleOpenComposeEmail = (email, name) => {
+        setEmailRecipient({ email: email || "", name: name || "" });
+        setEmailModalOpen(true);
+    };
 
     useEffect(() => {
         const timer = setTimeout(() => setDebouncedSearch(search), 500);
@@ -250,13 +259,14 @@ const SalesRepresentation = () => {
                                 >
                                     <FiTrash2 size={16} />
                                 </button>
-                                <a
-                                    href={`mailto:${rep.email}`}
+                                <button
+                                    type="button"
+                                    onClick={() => handleOpenComposeEmail(rep.email, rep.name)}
                                     title={`Email ${rep.email}`}
-                                    className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+                                    className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-[#1C4FA8] transition"
                                 >
                                     <FiMail size={16} />
-                                </a>
+                                </button>
                             </div>
                         </div>
                     ))}
@@ -299,14 +309,28 @@ const SalesRepresentation = () => {
                 <ProfileModal
                     profile={profile}
                     onClose={() => setProfile(null)}
+                    onSendEmail={(email, name) => {
+                        setProfile(null);
+                        handleOpenComposeEmail(email, name);
+                    }}
                 />
             )}
+
+            <ComposeEmailModal
+                isOpen={emailModalOpen}
+                onClose={() => {
+                    setEmailModalOpen(false);
+                    setEmailRecipient({ email: "", name: "" });
+                }}
+                recipientEmail={emailRecipient.email}
+                recipientName={emailRecipient.name}
+            />
         </div>
     );
 };
 
 /* ---------- View Profile ---------- */
-const ProfileModal = ({ profile, onClose }) => (
+const ProfileModal = ({ profile, onClose, onSendEmail }) => (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto">
             <div className="flex items-start justify-between mb-5">
@@ -334,8 +358,24 @@ const ProfileModal = ({ profile, onClose }) => (
                 <Stat label="Win Rate" value={`${profile.win_rate}%`} />
             </div>
 
-            <dl className="text-sm space-y-1 mb-5">
-                <Row label="Email" value={profile.email} />
+            <dl className="text-sm space-y-2 mb-5">
+                <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
+                        <dt className="text-gray-500 w-24">Email:</dt>
+                        <dd className="text-[#1C2C56] font-medium">{profile.email}</dd>
+                    </div>
+                    {profile.email && onSendEmail && (
+                        <button
+                            type="button"
+                            onClick={() => onSendEmail(profile.email, profile.name)}
+                            title={`Send Email to ${profile.email}`}
+                            className="text-[#1C4FA8] hover:text-[#153e85] text-xs flex items-center gap-1 font-medium bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md transition"
+                        >
+                            <FiMail size={12} />
+                            Compose
+                        </button>
+                    )}
+                </div>
                 <Row label="Mobile" value={profile.mobile || "—"} />
                 <Row
                     label="Quotations"

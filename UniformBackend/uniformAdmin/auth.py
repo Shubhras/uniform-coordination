@@ -358,17 +358,24 @@ class ChangePasswordAPIView(APIView):
 
 )
     def post(self, request):
+        data = request.data.copy() if hasattr(request.data, "copy") else dict(request.data)
+        if "confirm_password" in data and "confirm_new_password" not in data:
+            data["confirm_new_password"] = data["confirm_password"]
+        if "old_password" in data and "current_password" not in data:
+            data["current_password"] = data["old_password"]
+
         serializer = AdminChangePasswordSerializer(
-            data=request.data,
+            data=data,
             context={'request': request}
         )
         if not serializer.is_valid():
             return Response({
-                "statusCode":400,
-                "status":False,
-                "message":"Validation Error",
-                "error":serializer.errors
-            },status=status.HTTP_400_BAD_REQUEST)
+                "statusCode": 400,
+                "status": False,
+                "message": "Validation Error",
+                "errors": serializer.errors,
+                "error": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         user = request.user
 
@@ -377,9 +384,12 @@ class ChangePasswordAPIView(APIView):
             user.last_login = None
             user.save()
 
-            tokens = OutstandingToken.objects.filter(user=user)
-            for token in tokens:
-                BlacklistedToken.objects.get_or_create(token=token)
+            try:
+                tokens = OutstandingToken.objects.filter(user=user)
+                for token in tokens:
+                    BlacklistedToken.objects.get_or_create(token=token)
+            except Exception:
+                pass
 
         return Response({
             "status": True,
@@ -761,7 +771,7 @@ class ResetPasswordAPIView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-class ChangePasswordAPIView(APIView):
+class AdminUserSetPasswordAPIView(APIView):
     authentication_classes = []
     permission_classes = []
 

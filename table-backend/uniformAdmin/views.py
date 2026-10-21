@@ -3523,3 +3523,55 @@ class AdminSavedSimulationsAPIView(APIView):
                 "trace": traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class SendEmailAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
+
+    def post(self, request):
+        to_email = request.data.get("to_email", "").strip()
+        subject = request.data.get("subject", "").strip()
+        message = request.data.get("message", "").strip()
+
+        if not to_email:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Recipient email is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not subject:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Subject is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not message:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Message body is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@kireiz.com")
+        try:
+            from django.core.mail import send_mail
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=from_email,
+                recipient_list=[to_email],
+                fail_silently=False
+            )
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": f"Email successfully sent to {to_email}."
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": f"Failed to send email: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

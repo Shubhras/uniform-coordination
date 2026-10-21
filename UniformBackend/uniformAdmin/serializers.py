@@ -1782,7 +1782,10 @@ class UnitPriceSerializer(serializers.Serializer):
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, required=False)
+    role = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects.all(), required=False, allow_null=True
+    )
     role_name = serializers.CharField(source="role.role_name", read_only=True)
     class Meta:
         model = AdminUser
@@ -1792,6 +1795,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
             "company_name",
             "email",
             "mobile",
+            "role",
             "role_name",
             "last_login",
             "tier",
@@ -1803,12 +1807,30 @@ class AdminUserSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
     def create(self, validated_data):
-        password = validated_data.pop("password")
+        password = validated_data.pop("password", None)
+        if not password:
+            raise serializers.ValidationError({"password": "Password is required."})
 
-        if "role" not in validated_data or not validated_data["role"]:
-            admin_role, _ = Role.objects.get_or_create(role_name="admin", defaults={"slug": "admin", "description": "Admin"})
-            validated_data["role"] = admin_role
+        role_obj = None
+        role_input = self.initial_data.get("role") or self.initial_data.get("role_id")
+        if role_input:
+            if isinstance(role_input, int) or (isinstance(role_input, str) and str(role_input).isdigit()):
+                role_obj = Role.objects.filter(id=int(role_input)).first()
+            else:
+                role_obj = Role.objects.filter(
+                    Q(role_name__iexact=str(role_input)) | Q(slug__iexact=str(role_input))
+                ).first()
+                if not role_obj:
+                    from django.utils.text import slugify
+                    role_obj = Role.objects.create(
+                        role_name=str(role_input),
+                        slug=slugify(str(role_input))
+                    )
 
+        if not role_obj:
+            role_obj = validated_data.get("role") or Role.objects.filter(role_name__iexact="admin").first()
+
+        validated_data["role"] = role_obj
         validated_data["is_staff"] = True
 
         user = AdminUser.objects.create_user(
@@ -1819,6 +1841,17 @@ class AdminUserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         password = validated_data.pop("password", None)
+
+        role_input = self.initial_data.get("role") or self.initial_data.get("role_id")
+        if role_input:
+            if isinstance(role_input, int) or (isinstance(role_input, str) and str(role_input).isdigit()):
+                role_obj = Role.objects.filter(id=int(role_input)).first()
+            else:
+                role_obj = Role.objects.filter(
+                    Q(role_name__iexact=str(role_input)) | Q(slug__iexact=str(role_input))
+                ).first()
+            if role_obj:
+                instance.role = role_obj
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

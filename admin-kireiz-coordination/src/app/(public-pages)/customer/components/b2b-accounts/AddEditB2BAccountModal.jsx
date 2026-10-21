@@ -17,6 +17,7 @@ import {
   apiCreateB2BAccount,
   apiUpdateB2BAccount,
 } from "@/services/B2BAccountService";
+import { apiGetRoleList } from "@/services/PermissionService";
 
 
 
@@ -80,10 +81,39 @@ const AddEditB2BAccountModal = ({
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [tier, setTier] = useState(null);
+  const [roleOptions, setRoleOptions] = useState([
+    { value: 1, label: "Admin", slug: "admin" },
+    { value: 2, label: "Sales Representative", slug: "sales" },
+  ]);
+  const [loadingRoles, setLoadingRoles] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(null);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!isOpen || !accessToken) return;
+    const fetchRoles = async () => {
+      setLoadingRoles(true);
+      try {
+        const res = await apiGetRoleList(accessToken);
+        if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+          const opts = res.data.map((r) => ({
+            value: r.id,
+            label: r.role_name || r.name,
+            slug: r.slug,
+          }));
+          setRoleOptions(opts);
+        }
+      } catch (err) {
+        console.error("Failed to fetch roles:", err);
+      } finally {
+        setLoadingRoles(false);
+      }
+    };
+    fetchRoles();
+  }, [isOpen, accessToken]);
 
   const tierOptions = useMemo(
     () => [
@@ -127,6 +157,12 @@ const AddEditB2BAccountModal = ({
         tier: tierOptions.find((t) => t.value === initialData.tier) || null,
         password: "",
       });
+      const matchRole = roleOptions.find(
+        (r) =>
+          r.value === initialData.role ||
+          (r.label || "").toLowerCase() === (initialData.role_name || "").toLowerCase()
+      );
+      setSelectedRole(matchRole || (initialData.role_name ? { value: initialData.role, label: initialData.role_name } : roleOptions[0]));
     } else {
       reset({
         name: "",
@@ -136,10 +172,14 @@ const AddEditB2BAccountModal = ({
         tier: null,
         password: "",
       });
+      const defaultRole = roleOptions.find(
+        (r) => (r.label || "").toLowerCase() === "admin"
+      );
+      setSelectedRole(defaultRole || roleOptions[0]);
     }
     setShowPassword(false);
     setError("");
-  }, [mode, initialData, isOpen]);
+  }, [mode, initialData, isOpen, roleOptions]);
 
   const onSubmit = async (values) => {
     setSaving(true);
@@ -152,6 +192,10 @@ const AddEditB2BAccountModal = ({
         mobile: values.mobile?.trim() || "",
         tier: values.tier?.value || "",
       };
+
+      if (selectedRole?.value) {
+        payload.role = selectedRole.value;
+      }
 
       if (values.password?.trim()) {
         payload.password = values.password.trim();
@@ -315,14 +359,17 @@ const AddEditB2BAccountModal = ({
             </div>
           </div>
 
-          {/* Tier Select */}
+          {/* Role Select */}
           <div>
-            <label className="text-[#1C2C56] text-sm font-medium">{t("tierLabel")}</label>
+            <label className="text-[#1C2C56] text-sm font-medium">
+              Role<span className="text-red-500">*</span>
+            </label>
             <Select
-              value={tier}
-              onChange={setTier}
-              options={tierOptions}
-              placeholder={t("tierPlaceholder")}
+              value={selectedRole}
+              onChange={setSelectedRole}
+              options={roleOptions}
+              placeholder="Select Role"
+              isLoading={loadingRoles}
               styles={selectStyles}
               menuPortalTarget={
                 typeof document !== "undefined" ? document.body : null

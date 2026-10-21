@@ -4,7 +4,7 @@ import Dialog from "@/components/ui/Dialog";
 import { useTranslations } from "next-intl";
 import { FiX, FiMail, FiPhone, FiMessageSquare, FiSend } from "react-icons/fi";
 
-const ViewB2BModal = ({ isOpen, onClose, account }) => {
+const ViewB2BModal = ({ isOpen, onClose, account, onSendEmail }) => {
   const t = useTranslations("customerSalesRep.b2bAccounts.viewAccountModal");
 
   if (!isOpen || !account) return null;
@@ -21,7 +21,7 @@ const ViewB2BModal = ({ isOpen, onClose, account }) => {
         {/* Header */}
         <div className="px-6 pt-6 pb-5 text-center">
           <p className="text-[11px] uppercase tracking-wider text-[#B8C2D0] font-semibold">
-            {t("salesRepTitle")}
+            {account.role_name || "Admin User"}
           </p>
 
           <div className="relative w-20 h-20 mx-auto mt-4">
@@ -50,14 +50,17 @@ const ViewB2BModal = ({ isOpen, onClose, account }) => {
 
         {/* Contact */}
         <div className="px-5 space-y-3">
-          <div className="flex items-center gap-3 rounded-xl bg-[#F8FAFC] border border-[#E5E7EB] p-4">
+          <div
+            onClick={() => onSendEmail && onSendEmail(account.email, account.name)}
+            className="flex items-center gap-3 rounded-xl bg-[#F8FAFC] border border-[#E5E7EB] p-4 cursor-pointer hover:border-[#1C4FA8] transition"
+          >
             <div className="w-10 h-10 rounded-lg bg-[#1C4FA8] flex items-center justify-center text-white">
               <FiMail size={17} />
             </div>
 
             <div>
               <p className="text-xs text-gray-400">{t("email")}</p>
-              <p className="text-sm text-[#364152]">{account.email}</p>
+              <p className="text-sm text-[#364152] font-medium">{account.email}</p>
             </div>
           </div>
 
@@ -76,17 +79,13 @@ const ViewB2BModal = ({ isOpen, onClose, account }) => {
         {/* Footer */}
         <div className="px-5 py-5">
           <div className="flex gap-3">
-            <button className="flex-1 h-11 rounded-lg bg-[#1C4FA8] text-white flex items-center justify-center gap-2">
-              <FiMessageSquare size={17} />
-              {t("message")}
-            </button>
-
-            <button className="w-11 h-11 rounded-lg bg-[#F1F5F9] flex items-center justify-center">
-              <FiPhone className="text-[#1C4FA8]" />
-            </button>
-
-            <button className="w-11 h-11 rounded-lg bg-[#F1F5F9] flex items-center justify-center">
-              <FiMail className="text-[#1C4FA8]" />
+            <button
+              type="button"
+              onClick={() => onSendEmail && onSendEmail(account.email, account.name)}
+              className="w-full h-11 rounded-lg bg-[#1C4FA8] hover:bg-[#163F86] text-white flex items-center justify-center gap-2 font-medium transition"
+            >
+              <FiMail size={17} />
+              Send Email
             </button>
           </div>
 

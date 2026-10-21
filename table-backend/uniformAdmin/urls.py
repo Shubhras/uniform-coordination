@@ -335,5 +335,6 @@ urlpatterns = [
     path('simulation/options/', SimulationOptionsAPIView.as_view(), name='simulation-options'),
     path('simulation/categories/', SimulationCategoryListAPIView.as_view(), name='simulation-categories'),
     path('simulations/saved/', AdminSavedSimulationsAPIView.as_view(), name='admin-saved-simulations'),
+    path('send-email/', SendEmailAPIView.as_view(), name='send-email'),
 ]
 
