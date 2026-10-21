@@ -2007,27 +2007,28 @@ class AdminDashAPIView(APIView):
             for f in fabrics_qs
             ]
             items = []
-            for p in Product.objects.values("productName", "updated_at"):
-                items.append({"name":p["productName"],"date":p["updated_at"],"type":"product"})
-            for c in Colors.objects.values("colorName", "updated_at"):
-                items.append({"name":c["colorName"],"date":c["updated_at"],"type": "color"})
-            for pt in Parts.objects.values("partName", "updated_at"):
-                items.append({"name":pt["partName"],"date":pt["updated_at"],"type": "part"})
+            for p in Product.objects.filter(isDeleted=False).values("productName", "updated_at", "isActive"):
+                items.append({"name": p["productName"], "date": p["updated_at"], "type": "product", "isActive": p["isActive"]})
+            for c in Colors.objects.values("colorName", "updated_at", "isActive"):
+                items.append({"name": c["colorName"], "date": c["updated_at"], "type": "color", "isActive": c["isActive"]})
+            for pt in Parts.objects.filter(isDeleted=False).values("partName", "updated_at", "isActive"):
+                items.append({"name": pt["partName"], "date": pt["updated_at"], "type": "part", "isActive": pt["isActive"]})
             items.sort(key=lambda x: x["date"], reverse=True)
             recent_updates = []
-            for item in items[:3]:
-                     key_name = ""
-                     if item["type"] == "product":
-                          key_name = "productname"
-                     elif item["type"] == "color":
-                          key_name = "colorname"
-                     elif item["type"] == "part":
-                          key_name = "partcname"
-                     recent_updates.append({
-                         key_name:item["name"],
-                         "type":item["type"],
-                         "created_date": item["date"].strftime("%b %d, %Y")
-                     }) 
+            for item in items[:5]:
+                key_name = ""
+                if item["type"] == "product":
+                    key_name = "productname"
+                elif item["type"] == "color":
+                    key_name = "colorname"
+                elif item["type"] == "part":
+                    key_name = "partcname"
+                recent_updates.append({
+                    key_name: item["name"],
+                    "type": item["type"],
+                    "is_active": item.get("isActive", True),
+                    "created_date": item["date"].strftime("%b %d, %Y") if item["date"] else ""
+                }) 
                      
                      
             category_usage_qs = (
@@ -2107,6 +2108,21 @@ class AdminDashAPIView(APIView):
                 rep_name = row["sales_rep__name"] or row["sales_rep__email"] or "Unknown"
                 pending_sales_rep_action[rep_name] = row["count"]
 
+            # Active vs Inactive counts for Admin Users & Sales Reps
+            active_admin_users = AdminUser.objects.exclude(role__role_name__in=["sales", "sales_rep"]).filter(is_active=True).count()
+            inactive_admin_users = AdminUser.objects.exclude(role__role_name__in=["sales", "sales_rep"]).filter(is_active=False).count()
+            total_admin_users = active_admin_users + inactive_admin_users
+
+            reps_list_data = []
+            for r in AdminUser.objects.filter(role__role_name__in=["sales", "sales_rep"]).order_by("name"):
+                reps_list_data.append({
+                    "id": r.id,
+                    "name": r.name or r.email,
+                    "email": r.email,
+                    "is_active": r.is_active,
+                    "count": pending_sales_rep_action.get(r.name or r.email, 0)
+                })
+
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -2114,10 +2130,12 @@ class AdminDashAPIView(APIView):
                 "data": {
                     "Pending_quotes": {"total": pending_today, "change_percentage": pending_change_percentage},
                     "Templates": {"total": total_templates},
-                    "B2B_Users": {"total": current_month_b2b, "change_percentage": b2b_change_percentage},
+                    "Admin_Users": {"total": total_admin_users, "active": active_admin_users, "inactive": inactive_admin_users, "change_percentage": b2b_change_percentage},
+                    "B2B_Users": {"total": total_admin_users, "active": active_admin_users, "inactive": inactive_admin_users, "change_percentage": b2b_change_percentage},
                     "Quote_status_distribution": quote_status_distribution,
                     "Quotation_volume": quotation_volume,
                     "Pending_Sales_Representation_Action": pending_sales_rep_action,
+                    "sales_reps_status": reps_list_data,
                     "most_used_industries": most_used_industries,
                     "most_used_fabrics": most_used_fabrics,
                     "Recently_update_product_color_part": recent_updates,

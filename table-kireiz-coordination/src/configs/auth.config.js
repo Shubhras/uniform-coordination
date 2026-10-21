@@ -1,8 +1,20 @@
-import { apiLogin } from "@/services/AuthService";
-import validateCredential from "../server/actions/user/validateCredential";
 import Credentials from "next-auth/providers/credentials";
 import Github from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+
+async function loginUser(credentials) {
+  const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8006').replace(/\/+$/, '')
+  const url = `${apiBase}/api/v1/space/userhub/login/`
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...credentials,
+      userType: 'table',
+    }),
+  })
+  return res.json()
+}
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
@@ -18,9 +30,8 @@ export default {
     }),
     Credentials({
       async authorize(credentials) {
-        /** validate credentials from backend here */
-        // const user = await validateCredential(credentials)
-        const response = await apiLogin(credentials);
+        /** validate credentials from backend here using edge-safe fetch */
+        const response = await loginUser(credentials);
         if (!response?.status) {
           throw new Error(response?.message || 'Invalid email or password');
         }

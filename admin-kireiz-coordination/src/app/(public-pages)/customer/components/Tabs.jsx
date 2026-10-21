@@ -9,7 +9,7 @@ import {
 } from "react-icons/fi";
 
 const tabItems = [
-  { id: "B2B Accounts", key: "b2bAccounts", icon: FiUsers },
+  { id: "Admin Users", key: "b2bAccounts", icon: FiUsers },
   { id: "Customers", key: "customers", icon: FiUser },
   { id: "Quotation History", key: "quotationHistory", icon: FiClock },
   { id: "Sales Representation", key: "salesRepresentation", icon: FiBriefcase },

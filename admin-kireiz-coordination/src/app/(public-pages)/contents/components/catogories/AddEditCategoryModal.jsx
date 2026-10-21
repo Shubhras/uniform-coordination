@@ -273,6 +273,11 @@ const AddEditCategoryModal = ({
           ? await apiUpdateCategory(accessToken, initialData.id, formData)
           : await apiCreateCategory(accessToken, formData);
 
+      if (response && response.status === false) {
+        setError(response.message || tm("saveFailed"));
+        return;
+      }
+
       toast.push(
         <Notification title={t("successTitle")} type="success">
           {response?.message}
@@ -281,16 +286,16 @@ const AddEditCategoryModal = ({
 
       if (keepOpen && mode !== "edit") {
         resetForm();
-        if (onSaveSuccess) onSaveSuccess();
+        if (onSaveSuccess) onSaveSuccess(true);
         return;
       }
 
       if (onSaveSuccess) {
-        onSaveSuccess();
+        onSaveSuccess(false);
       }
     } catch (err) {
       console.error("Category save error:", err);
-      setError(err?.response?.data?.message || tm("saveFailed"));
+      setError(err?.response?.data?.message || err?.message || tm("saveFailed"));
     } finally {
       setSaving(false);
     }

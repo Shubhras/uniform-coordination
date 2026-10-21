@@ -118,9 +118,11 @@ const FabricsTab = () => {
   };
 
   // After save/update, refresh
-  const handleSaveSuccess = () => {
-    setOpenAdd(false);
-    setEditFabric(null);
+  const handleSaveSuccess = (keepOpen = false) => {
+    if (!keepOpen) {
+      setOpenAdd(false);
+      setEditFabric(null);
+    }
     fetchFabrics(currentPage);
   };
 

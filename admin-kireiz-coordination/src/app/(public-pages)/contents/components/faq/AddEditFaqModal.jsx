@@ -159,6 +159,11 @@ const AddEditFaqModal = ({
           ? await apiUpdateFaq(accessToken, initialData.id, payload)
           : await apiCreateFaq(accessToken, payload);
 
+      if (response && response.status === false) {
+        setError(response.message || tm("saveFailed"));
+        return;
+      }
+
       toast.push(
         <Notification title={t("successTitle")} type="success">
           {response?.message}
@@ -167,13 +172,13 @@ const AddEditFaqModal = ({
 
       if (keepOpen && mode !== "edit") {
         resetForm();
-        onSaveSuccess?.();
+        onSaveSuccess?.(true);
         return;
       }
 
-      onSaveSuccess?.();
+      onSaveSuccess?.(false);
     } catch (err) {
-      setError(err?.response?.data?.message || tm("saveFailed"));
+      setError(err?.response?.data?.message || err?.message || tm("saveFailed"));
     } finally {
       setSaving(false);
     }

@@ -84,6 +84,8 @@ class AdminUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     language = models.CharField(max_length=10, default="en")
     is_currently_login = models.BooleanField(default=False)
+    failed_login_attempts = models.PositiveIntegerField(default=0)
+    locked_until = models.DateTimeField(null=True, blank=True)
 
 
     # Fix conflicts by setting related names

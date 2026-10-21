@@ -73,12 +73,40 @@ class AdminLoginSerializer(serializers.Serializer):
         except AdminUser.DoesNotExist:
             raise serializers.ValidationError("Invalid credentials Not match User Name")
 
-        if not user.check_password(password):
-            raise serializers.ValidationError("Invalid credentials Not match Password")
+        if not user.is_active:
+            raise serializers.ValidationError("Account is inactive. Please contact administrator.")
 
-        # Remove the strict is_staff check
-        # if not user.is_staff:
-        #     raise serializers.ValidationError("User is not an admin")
+        now = timezone.now()
+        locked_until = getattr(user, 'locked_until', None)
+        if locked_until and locked_until > now:
+            remaining_seconds = int((locked_until - now).total_seconds())
+            remaining_minutes = max(1, (remaining_seconds + 59) // 60)
+            raise serializers.ValidationError(
+                f"Account is temporarily locked due to 5 consecutive failed login attempts. Please try again after {remaining_minutes} minute(s)."
+            )
+
+        if not user.check_password(password):
+            current_attempts = getattr(user, 'failed_login_attempts', 0) or 0
+            attempts = current_attempts + 1
+            user.failed_login_attempts = attempts
+            if attempts >= 5:
+                user.locked_until = now + timezone.timedelta(minutes=15)
+                user.failed_login_attempts = 0
+                user.save(update_fields=['failed_login_attempts', 'locked_until'])
+                raise serializers.ValidationError(
+                    "Account temporarily locked due to 5 consecutive failed login attempts. Please try again in 15 minutes."
+                )
+            else:
+                user.save(update_fields=['failed_login_attempts'])
+                remaining = 5 - attempts
+                raise serializers.ValidationError(
+                    f"Invalid credentials Not match Password. {remaining} attempt(s) remaining before account lockout."
+                )
+
+        if (getattr(user, 'failed_login_attempts', 0) or 0) > 0 or getattr(user, 'locked_until', None) is not None:
+            user.failed_login_attempts = 0
+            user.locked_until = None
+            user.save(update_fields=['failed_login_attempts', 'locked_until'])
 
         data['user'] = user
         return data

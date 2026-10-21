@@ -288,7 +288,7 @@ const AddEditFabricModal = ({
       }
 
       if (onSaveSuccess) {
-        onSaveSuccess();
+        onSaveSuccess(false);
       }
     } catch (err) {
       toast.push(
@@ -344,7 +344,7 @@ const AddEditFabricModal = ({
       setActive(true);
 
       if (onSaveSuccess) {
-        onSaveSuccess();
+        onSaveSuccess(true);
       }
     } catch (err) {
       console.error("Fabric save error:", err);

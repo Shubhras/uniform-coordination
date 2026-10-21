@@ -1,8 +1,21 @@
-import validateCredential from '../server/actions/user/validateCredential'
 import Credentials from 'next-auth/providers/credentials'
 import Github from 'next-auth/providers/github'
 import Google from 'next-auth/providers/google'
-import { apiLogin } from '@/services/AuthService'
+
+async function loginUser(credentials) {
+    const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8005').replace(/\/+$/, '')
+    const url = `${apiBase}/api/v1/userhub/login/`
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            ...credentials,
+            userType: 'uniform',
+        }),
+    })
+    return res.json()
+}
+
 export default {
     trustHost: true,
     providers: [
@@ -16,9 +29,8 @@ export default {
         }),
         Credentials({
             async authorize(credentials) {
-                /** validate credentials from backend here */
-                // const user = await validateCredential(credentials)
-                const response = await apiLogin(credentials)
+                /** validate credentials from backend here using edge-safe fetch */
+                const response = await loginUser(credentials)
                 //console.log("response-----------------", response)
                 if (!response?.status) {
                     throw new Error(response?.message || 'Invalid email or password')

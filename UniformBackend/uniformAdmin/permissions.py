@@ -447,6 +447,35 @@ def ensure_admin_menus():
             slug=entry["slug"], route=entry["route"], order=entry["order"]
         )
 
+    # Ensure default permissions for sales role so new sales reps have initial access
+    try:
+        sales_roles = Role.objects.filter(role_name__in=["sales", "sales_rep"])
+        if not sales_roles.exists():
+            sales_role = Role.objects.create(role_name="sales", slug="sales", description="Sales Representative")
+        else:
+            sales_role = sales_roles.first()
+
+        sales_default_slugs = [
+            "dashboard",
+            "customer_sales_representative",
+            "quotation_requests",
+            "order_manage",
+            "product_specification",
+        ]
+        if not RoleMenuPermission.objects.filter(role=sales_role).exists():
+            for menu in Menu.objects.filter(isDeleted=False, isActive=True):
+                can_view = menu.slug in sales_default_slugs
+                RoleMenuPermission.objects.create(
+                    role=sales_role,
+                    menu=menu,
+                    can_view=can_view,
+                    can_create=can_view,
+                    can_update=can_view,
+                    can_delete=False,
+                )
+    except Exception:
+        pass
+
 
 class UserMenuPermissionView(APIView):
     authentication_classes = [MultiRoleJWTAuth]

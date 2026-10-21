@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { FiEye, FiEyeOff, FiX } from "react-icons/fi";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
-import { apiCreateSalesRep } from "@/services/SalesRepService";
+import { apiCreateSalesRep, apiUpdateSalesRep } from "@/services/SalesRepService";
 
 // Shared by the Sales Representation and Assignments tabs — both have an
 // "Add Representative" button in the design.
@@ -40,13 +40,14 @@ const notify = (title, type, message) =>
     </Notification>,
   );
 
-const AddRepModal = ({ accessToken, onClose, onCreated }) => {
+const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) => {
+  const isEdit = Boolean(initialData?.id);
   const t = useTranslations("customerSalesRep.salesRepresentation.addRepModal");
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    mobile: "",
-    designation: "Sales Representative",
+    name: initialData?.name || "",
+    email: initialData?.email || "",
+    mobile: initialData?.mobile || "",
+    designation: initialData?.designation || "Sales Representative",
     password: "",
   });
   const [saving, setSaving] = useState(false);
@@ -56,26 +57,41 @@ const AddRepModal = ({ accessToken, onClose, onCreated }) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const submit = async () => {
-    if (!form.name.trim() || !form.email.trim() || !form.password) {
+    if (!form.name.trim() || !form.email.trim() || (!isEdit && !form.password)) {
       notify(t("requiredTitle"), "warning", t("requiredFields"));
       return;
     }
 
     try {
       setSaving(true);
-      const res = await apiCreateSalesRep(accessToken, form);
+      const payload = { ...form };
+      if (isEdit && !payload.password) {
+        delete payload.password;
+      }
+      const res = isEdit
+        ? await apiUpdateSalesRep(accessToken, initialData.id, payload)
+        : await apiCreateSalesRep(accessToken, payload);
+
       if (res?.status) {
-        notify(t("successTitle"), "success", t("addSuccess"));
+        notify(
+          t("successTitle"),
+          "success",
+          isEdit ? "Sales representative updated successfully." : t("addSuccess"),
+        );
         onCreated?.();
       } else {
-        notify(t("errorTitle"), "danger", res?.message || t("addFailed"));
+        notify(
+          t("errorTitle"),
+          "danger",
+          res?.message || (isEdit ? "Failed to update representative." : t("addFailed")),
+        );
       }
     } catch (error) {
-      console.error("Failed to create rep:", error);
+      console.error("Failed to save rep:", error);
       notify(
         t("errorTitle"),
         "danger",
-        error?.response?.data?.message || t("addFailed"),
+        error?.response?.data?.message || (isEdit ? "Failed to update representative." : t("addFailed")),
       );
     } finally {
       setSaving(false);
@@ -87,7 +103,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated }) => {
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
         <div className="flex items-start justify-between mb-5">
           <h3 className="text-lg font-semibold text-[#1C2C56]">
-            {t("modalTitle")}
+            {isEdit ? "Edit Sales Representative" : t("modalTitle")}
           </h3>
           <button
             onClick={onClose}
@@ -101,7 +117,9 @@ const AddRepModal = ({ accessToken, onClose, onCreated }) => {
           {FIELDS.map((field) => (
             <div key={field.name}>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t(field.labelKey)}
+                {field.name === "password" && isEdit
+                  ? "Password (Leave blank to keep current)"
+                  : t(field.labelKey)}
               </label>
               <div className="relative">
                 <input
@@ -115,6 +133,11 @@ const AddRepModal = ({ accessToken, onClose, onCreated }) => {
                   onChange={change}
                   maxLength={field.maxLength}
                   autoComplete={field.autoComplete}
+                  placeholder={
+                    field.name === "password" && isEdit
+                      ? "Leave blank to keep unchanged"
+                      : ""
+                  }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 text-sm outline-none focus:ring-2 focus:ring-blue-300"
                 />
                 {field.name === "password" && (
@@ -150,7 +173,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated }) => {
             disabled={saving}
             className="px-4 py-2 rounded-lg text-sm bg-[#1C4FA8] text-white disabled:opacity-50"
           >
-            {saving ? t("saving") : t("submit")}
+            {saving ? t("saving") : isEdit ? "Update" : t("submit")}
           </button>
         </div>
       </div>

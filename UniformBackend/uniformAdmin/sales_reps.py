@@ -305,6 +305,111 @@ class SalesRepDetailAPIView(APIView):
             "data": data,
         }, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        tags=["Sales Representation"],
+        summary="Update a sales rep",
+        responses={
+            200: OpenApiResponse(description="Sales rep updated"),
+            400: OpenApiResponse(description="Validation error"),
+            404: OpenApiResponse(description="Sales rep not found"),
+        },
+    )
+    def put(self, request, pk):
+        try:
+            rep = sales_rep_queryset().filter(pk=pk).first()
+            if not rep:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Sales representative not found",
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            name = (request.data.get("name") or "").strip()
+            email = (request.data.get("email") or "").strip().lower()
+            mobile = (request.data.get("mobile") or "").strip() or None
+            designation = (request.data.get("designation") or "").strip()
+            password = request.data.get("password")
+            is_active = request.data.get("is_active")
+
+            if name:
+                rep.name = name
+            if email:
+                if AdminUser.objects.filter(email__iexact=email).exclude(pk=rep.pk).exists():
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "An account with this email already exists",
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                rep.email = email
+            if mobile is not None:
+                if mobile and AdminUser.objects.filter(mobile=mobile).exclude(pk=rep.pk).exists():
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "An account with this mobile already exists",
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                rep.mobile = mobile or None
+            if designation:
+                rep.designation = designation
+            if is_active is not None:
+                rep.is_active = bool(is_active)
+            if password and str(password).strip():
+                rep.set_password(str(password).strip())
+
+            rep.save()
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Sales representative updated successfully",
+                "data": serialize_rep(rep, build_rep_stats()),
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Failed to update sales representative",
+                "error": str(e),
+                "trace": traceback.format_exc(),
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @extend_schema(
+        tags=["Sales Representation"],
+        summary="Delete a sales rep",
+        responses={
+            200: OpenApiResponse(description="Sales rep deleted"),
+            404: OpenApiResponse(description="Sales rep not found"),
+        },
+    )
+    def delete(self, request, pk):
+        try:
+            rep = sales_rep_queryset().filter(pk=pk).first()
+            if not rep:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Sales representative not found",
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            with transaction.atomic():
+                AdminUser.objects.filter(assigned_sales_rep=rep).update(assigned_sales_rep=None)
+                QuotationRequest.objects.filter(sales_rep=rep).update(sales_rep=None)
+                rep.delete()
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Sales representative deleted successfully",
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Failed to delete sales representative",
+                "error": str(e),
+                "trace": traceback.format_exc(),
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class SalesRepAssignmentBoardAPIView(APIView):
     """Kanban data for Territory & Account Assignment."""

@@ -1351,7 +1351,7 @@
     "pageTitle": "Customer & Sales Representative",
     "pageSubtitle": "Manage customer accounts and relationships",
     "tabs": {
-      "b2bAccounts": "B2B Accounts",
+      "b2bAccounts": "Admin Users",
       "customers": "Customers",
       "quotationHistory": "Quotation History",
       "salesRepresentation": "Sales Representation",
@@ -1364,12 +1364,12 @@
       "inactive": "Inactive"
     },
     "b2bAccounts": {
-      "title": "B2B Accounts",
-      "subtitle": "Manage discount tiers and corporate rules",
+      "title": "Admin Users",
+      "subtitle": "Manage admin accounts and permissions",
       "searchPlaceholder": "Search...",
       "reset": "Reset",
-      "addNew": "Add Account",
-      "noData": "No accounts found",
+      "addNew": "Add Admin User",
+      "noData": "No admin users found",
       "showingRange": "Showing ",
       "tableHeaders": {
         "company": "Company",
@@ -1380,12 +1380,12 @@
         "actions": "Actions"
       },
       "deleteDialog": {
-        "title": "Delete Account",
-        "message": "Are you sure you want to delete this B2B account? This action cannot be undone."
+        "title": "Delete Admin User",
+        "message": "Are you sure you want to delete this admin user? This action cannot be undone."
       },
       "addAccountModal": {
-        "modalTitle": "Add New Account",
-        "editModalTitle": "Edit Account",
+        "modalTitle": "Add New Admin User",
+        "editModalTitle": "Edit Admin User",
         "nameLabel": "Name",
         "namePlaceholder": "Enter name",
         "companyNameLabel": "Company Name",
@@ -1399,8 +1399,8 @@
         "passwordPlaceholder": "Enter password",
         "leaveBlankPassword": "Leave blank to keep current",
         "cancel": "Cancel",
-        "createAccount": "Create Account",
-        "updateAccount": "Update",
+        "createAccount": "Create Admin User",
+        "updateAccount": "Update Admin User",
         "tierOptions": {
           "gold": "Gold",
           "silver": "Silver",

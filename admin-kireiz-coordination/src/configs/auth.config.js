@@ -19,7 +19,7 @@ export default {
             async authorize(credentials) {
                 /** validate credentials from backend API */
                 const user = await validateCredential(credentials)
-                if (!user) {
+                if (!user || user.error) {
                     return null
                 }
 
@@ -31,7 +31,9 @@ export default {
                     accessToken: user.accessToken,
                     refreshToken: user.refreshToken,
                     authority: user.authority,
-                    permissions: user.permissions, // Added permissions here!
+                    role: user.role,
+                    permissions: user.permissions,
+                    entryPath: user.entryPath,
                 }
             },
         }),
@@ -43,7 +45,9 @@ export default {
                 token.accessToken = user.accessToken
                 token.refreshToken = user.refreshToken
                 token.authority = user.authority
+                token.role = user.role
                 token.permissions = user.permissions
+                token.entryPath = user.entryPath
             }
             return token
         },
@@ -55,10 +59,11 @@ export default {
                     ...payload.session.user,
                     id: payload.token.sub,
                     authority: payload.token.authority || ['admin', 'user'],
+                    role: payload.token.role || 'admin',
                     accessToken: payload.token.accessToken,
                     refreshToken: payload.token.refreshToken, 
                     permissions: payload.token.permissions || [],
-                    // permissions: payload.token.permissions || [],
+                    entryPath: payload.token.entryPath || '/admin-form',
                 },
             }
         },

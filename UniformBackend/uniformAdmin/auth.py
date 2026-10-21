@@ -71,12 +71,8 @@ class IsAdminUserJWT(BaseAuthentication):
         except AdminUser.DoesNotExist:
             raise AuthenticationFailed("User not found or inactive")
 
-        # Optional: verify role is admin
-        role = decoded.get("role")
-        if role != "admin":
-            raise AuthenticationFailed("You do not have admin access")
-
-        # Return tuple (user, token) so request.user is set
+        # Allow any active AdminUser (Admin, Sales Rep, Staff, etc.)
+        user.role_name = user.role.role_name if user.role else "user"
         return (user, token)
 
 #<-----------------------Authentication access Admin,B2B,Sales-------------------->
@@ -608,6 +604,9 @@ class ForgotPasswordAPIView(APIView):
             host = request.get_host()
             base_url = f"{scheme}://{host}"
 
+        if "sslip.io" in base_url:
+            base_url = base_url.replace("https://", "http://")
+
         reset_link = f"{base_url}/reset-password/?user_id={user.id}&token={token}"
 
         Thread(
@@ -1017,7 +1016,7 @@ class AdminUserListAPIView(APIView):
     )
     def get(self, request):
         try:
-            queryset = AdminUser.objects.filter(is_staff=False).order_by("-id")
+            queryset = AdminUser.objects.exclude(role__role_name__in=["sales", "sales_rep"]).order_by("-id")
 
             # SEARCH
             search = request.query_params.get("search")

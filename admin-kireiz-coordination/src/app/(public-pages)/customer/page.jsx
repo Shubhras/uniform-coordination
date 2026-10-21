@@ -15,12 +15,16 @@ const CustomerPage = () => {
   const t = useTranslations("customerSalesRep");
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("B2B Accounts");
+  const [activeTab, setActiveTab] = useState("Admin Users");
 
   useEffect(() => {
     const tab = searchParams.get("tab");
     if (tab) {
-      setActiveTab(tab);
+      if (tab === "B2B Accounts" || tab === "B2B+Accounts") {
+        setActiveTab("Admin Users");
+      } else {
+        setActiveTab(tab);
+      }
     }
   }, [searchParams]);
 
@@ -33,6 +37,7 @@ const CustomerPage = () => {
 
   const renderTab = () => {
     switch (activeTab) {
+      case "Admin Users":
       case "B2B Accounts":
         return <B2BAccounts />;
       case "Customers":

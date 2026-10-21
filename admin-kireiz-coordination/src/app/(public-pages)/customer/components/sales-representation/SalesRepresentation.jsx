@@ -1,16 +1,16 @@
-"use client";
-
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { FiSearch, FiUserPlus, FiMail, FiX } from "react-icons/fi";
+import { FiSearch, FiUserPlus, FiMail, FiX, FiEdit2, FiTrash2 } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import {
     apiGetSalesReps,
     apiGetSalesRepProfile,
+    apiDeleteSalesRep,
 } from "@/services/SalesRepService";
 import AddRepModal from "./AddRepModal";
+import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
 const money = (value) =>
     `$${Number(value || 0).toLocaleString(undefined, {
@@ -36,6 +36,9 @@ const SalesRepresentation = () => {
     const [debouncedSearch, setDebouncedSearch] = useState("");
 
     const [addOpen, setAddOpen] = useState(false);
+    const [editRep, setEditRep] = useState(null);
+    const [deleteRep, setDeleteRep] = useState(null);
+    const [deleting, setDeleting] = useState(false);
     const [profile, setProfile] = useState(null);
 
     useEffect(() => {
@@ -68,6 +71,26 @@ const SalesRepresentation = () => {
     useEffect(() => {
         fetchReps();
     }, [fetchReps]);
+
+    const handleDeleteRep = async () => {
+        if (!deleteRep) return;
+        try {
+            setDeleting(true);
+            const res = await apiDeleteSalesRep(accessToken, deleteRep.id);
+            if (res?.status) {
+                notify("Success", "success", "Sales representative deleted successfully.");
+                setDeleteRep(null);
+                fetchReps();
+            } else {
+                notify("Error", "danger", res?.message || "Failed to delete representative.");
+            }
+        } catch (err) {
+            console.error("Delete rep error:", err);
+            notify("Error", "danger", err?.response?.data?.message || "Failed to delete representative.");
+        } finally {
+            setDeleting(false);
+        }
+    };
 
     const openProfile = async (rep) => {
         try {
@@ -209,16 +232,30 @@ const SalesRepresentation = () => {
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => openProfile(rep)}
-                                    className="flex-1 bg-[#1C4FA8] text-white py-2 rounded-lg text-sm font-medium transition"
+                                    className="flex-1 bg-[#1C4FA8] text-white py-2 rounded-lg text-sm font-medium hover:bg-[#153e85] transition"
                                 >
                                     View Profile
+                                </button>
+                                <button
+                                    onClick={() => setEditRep(rep)}
+                                    title={`Edit ${rep.name}`}
+                                    className="p-2 border border-gray-300 rounded-lg text-[#1C2C56] hover:bg-gray-100 transition"
+                                >
+                                    <FiEdit2 size={16} />
+                                </button>
+                                <button
+                                    onClick={() => setDeleteRep(rep)}
+                                    title={`Delete ${rep.name}`}
+                                    className="p-2 border border-red-200 rounded-lg text-red-500 hover:bg-red-50 transition"
+                                >
+                                    <FiTrash2 size={16} />
                                 </button>
                                 <a
                                     href={`mailto:${rep.email}`}
                                     title={`Email ${rep.email}`}
-                                    className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100"
+                                    className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 transition"
                                 >
-                                    <FiMail />
+                                    <FiMail size={16} />
                                 </a>
                             </div>
                         </div>
@@ -236,6 +273,27 @@ const SalesRepresentation = () => {
                     }}
                 />
             )}
+
+            {editRep && (
+                <AddRepModal
+                    accessToken={accessToken}
+                    initialData={editRep}
+                    onClose={() => setEditRep(null)}
+                    onCreated={() => {
+                        setEditRep(null);
+                        fetchReps();
+                    }}
+                />
+            )}
+
+            <DeleteConfirmDialog
+                isOpen={Boolean(deleteRep)}
+                onClose={() => setDeleteRep(null)}
+                onConfirm={handleDeleteRep}
+                loading={deleting}
+                title="Delete Sales Representative"
+                message={`Are you sure you want to delete ${deleteRep?.name || "this representative"}? This action cannot be undone.`}
+            />
 
             {profile && (
                 <ProfileModal

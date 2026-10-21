@@ -58,26 +58,26 @@ class SubCategoryCreateAPIView(APIView):
             if "name" in serializer.errors and "required" in str(serializer.errors["name"]).lower():
                 return Response({
                     "status": False,
-                    "statusCode": 200,
-                    "message": "Validation Failed;subcategory name is required.",
+                    "statusCode": 400,
+                    "message": "Subcategory name is required.",
                     "data": None
-                }, status=status.HTTP_200_OK)
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             # DUPLICATE (subcategory + category) ERROR
             if "name" in serializer.errors and "already exists" in str(serializer.errors["name"]).lower():
                 return Response({
                     "status": False,
-                    "statusCode": 200,
-                    "message": "Validation Failed;subcategory with this name is already exits.",
+                    "statusCode": 400,
+                    "message": "Subcategory with this name already exists in this category.",
                     "data": None
-                }, status=status.HTTP_200_OK)
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 400,
                 "message": serializer.errors,
                 "data": None
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({

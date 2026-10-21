@@ -67,8 +67,8 @@ const SplitResetPassword = ({ children, content, ...rest }) => {
         {/* Logo */}
         <div className="absolute top-[5%] left-[5%] z-20">
           <img
-            src="/img/logo/sidebar-logo.png"
-            alt="KIREIZ SPACE"
+            src="/img/others/auth-logo.png"
+            alt="KIREIZ FORM"
             className="md:h-12 h-10 w-auto cursor-pointer"
             onClick={handleRedirectHome}
           />

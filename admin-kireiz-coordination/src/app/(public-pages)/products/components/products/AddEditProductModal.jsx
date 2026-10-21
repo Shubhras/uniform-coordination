@@ -388,12 +388,6 @@ const AddEditProductModal = ({
     const objectUrl = URL.createObjectURL(file);
 
     img.onload = () => {
-      if (img.width > 1000 || img.height > 1000) {
-        setImageError(tm("validation.maxDimensionAllowed"));
-        URL.revokeObjectURL(objectUrl);
-        return;
-      }
-
       setImageFile(file);
       setPreview(objectUrl);
       setImageValidated(true);
@@ -413,8 +407,18 @@ const AddEditProductModal = ({
     handleFile(file);
   };
 
+  const resetForm = () => {
+    reset(EMPTY_PRODUCT_FORM_VALUES);
+    setPreview(null);
+    setImageFile(null);
+    setImageError("");
+    setImageValidated(false);
+    setActive(true);
+    setError("");
+  };
+
   /* ---------- SAVE ---------- */
-  const handleSave = async (values) => {
+  const handleSave = async (values, { keepOpen = false } = {}) => {
     setError("");
 
     if (!isEdit && !imageFile) {
@@ -470,16 +474,27 @@ const AddEditProductModal = ({
         response = await apiCreateProduct(accessToken, formData);
       }
 
+      if (response && response.status === false) {
+        setError(response.message || tm("saveFailed"));
+        return;
+      }
+
       toast.push(
         <Notification title={t("successTitle")} type="success">
           {response?.message || tm("saveSuccess")}
         </Notification>,
       );
 
-      if (onSaveSuccess) onSaveSuccess();
+      if (keepOpen && !isEdit) {
+        resetForm();
+        if (onSaveSuccess) onSaveSuccess(true);
+        return;
+      }
+
+      if (onSaveSuccess) onSaveSuccess(false);
     } catch (err) {
       console.error("Save failed:", err);
-      setError(err?.response?.data?.message || tm("saveFailed"));
+      setError(err?.response?.data?.message || err?.message || tm("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -767,7 +782,10 @@ const AddEditProductModal = ({
             <Button
               variant="plain"
               size="sm"
-              onClick={handleSubmit(handleSave)}
+              onClick={handleSubmit((values) =>
+                handleSave(values, { keepOpen: true }),
+              )}
+              disabled={saving}
               className="bg-blue-100 rounded-lg"
             >
               {tm("saveAndAddAnother")}
@@ -777,7 +795,9 @@ const AddEditProductModal = ({
             variant="solid"
             size="sm"
             className="bg-[#1C4FA8] px-6 hover:bg-[#163F86] text-white py-2 rounded-md"
-            onClick={handleSubmit(handleSave)}
+            onClick={handleSubmit((values) =>
+              handleSave(values, { keepOpen: false }),
+            )}
             loading={saving}
           >
             {isEdit ? tm("update") : tm("save")}

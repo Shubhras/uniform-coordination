@@ -60,3 +60,20 @@ export async function apiAssignAccount(accessToken, accountId, salesRepId) {
     headers: authHeader(accessToken),
   });
 }
+
+export async function apiUpdateSalesRep(accessToken, id, data) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/sales-reps/${id}/`,
+    method: "put",
+    data,
+    headers: authHeader(accessToken),
+  });
+}
+
+export async function apiDeleteSalesRep(accessToken, id) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/sales-reps/${id}/`,
+    method: "delete",
+    headers: authHeader(accessToken),
+  });
+}

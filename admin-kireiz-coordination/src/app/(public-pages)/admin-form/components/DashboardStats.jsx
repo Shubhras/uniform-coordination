@@ -102,12 +102,22 @@ const DashboardStats = ({ data }) => {
           </div>
         </div>
 
-        {/* B2B Users */}
+        {/* Admin Users */}
         <div className="bg-[#F4F7FC] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>
-            <p className="text-[20px] opacity-90 text-[#1C2C56] font-semibold">{t("b2bUsers")}</p>
+            <div className="flex items-center justify-between">
+              <p className="text-[20px] opacity-90 text-[#1C2C56] font-semibold">Admin Users</p>
+              <div className="flex items-center gap-2">
+                <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700 border border-green-200">
+                  {data?.Admin_Users?.active ?? data?.B2B_Users?.active ?? b2bUsers} Active
+                </span>
+                <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                  {data?.Admin_Users?.inactive ?? data?.B2B_Users?.inactive ?? 0} Inactive
+                </span>
+              </div>
+            </div>
             <h2 className="text-3xl font-semibold mt-2">
-              {b2bUsers}
+              {data?.Admin_Users?.total ?? data?.B2B_Users?.total ?? b2bUsers}
             </h2>
           </div>
 

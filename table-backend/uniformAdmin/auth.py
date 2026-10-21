@@ -97,60 +97,8 @@ class IsAdminUserJWT(BaseAuthentication):
         except AdminUser.DoesNotExist:
             raise AuthenticationFailed("User not found or inactive")
 
-        # Optional: verify role is admin
-        role = decoded.get("role")
-        if role != "admin":
-            raise AuthenticationFailed("You do not have admin access")
-
-        # Return tuple (user, token) so request.user is set
-        return (user, token)
-
-
-
-class IsAdminUserJWT(BaseAuthentication):
-    """
-    Custom JWT Authentication for AdminUser
-    """
-
-    def authenticate(self, request):
-        # Get Authorization header
-        auth_header = request.headers.get("Authorization")
-        if not auth_header:
-            return None  # No token provided
-
-        # Extract token (accept with or without "Bearer ")
-        if " " in auth_header:
-            prefix, token = auth_header.split(" ", 1)
-            if prefix.lower() != "bearer":
-                raise AuthenticationFailed("Invalid token prefix")
-        else:
-            token = auth_header  # token sent directly without "Bearer"
-
-        # Decode JWT
-        try:
-            decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed("Token has expired")
-        except jwt.InvalidTokenError:
-            raise AuthenticationFailed("Invalid token")
-
-        # Get user_id from token
-        user_id = decoded.get("user_id")
-        if not user_id:
-            raise AuthenticationFailed("Token missing user ID")
-
-        # Fetch admin user from DB
-        try:
-            user = AdminUser.objects.get(id=user_id, is_active=True)
-        except AdminUser.DoesNotExist:
-            raise AuthenticationFailed("User not found or inactive")
-
-        # Optional: verify role is admin
-        role = decoded.get("role")
-        if role != "admin":
-            raise AuthenticationFailed("You do not have admin access")
-
-        # Return tuple (user, token) so request.user is set
+        # Allow any active AdminUser (Admin, Sales Rep, Staff, etc.)
+        user.role_name = user.role.role_name if user.role else "user"
         return (user, token)
 
 #<-----------------------Authentication access Admin,B2B,Sales-------------------->
@@ -745,6 +693,9 @@ class ForgotPasswordAPIView(APIView):
             scheme = "https" if request.is_secure() or forwarded_proto == "https" else "http"
             host = request.get_host()
             base_url = f"{scheme}://{host}"
+
+        if "sslip.io" in base_url:
+            base_url = base_url.replace("https://", "http://")
 
         reset_link = f"{base_url}/reset-password/?user_id={user.id}&token={token}"
 

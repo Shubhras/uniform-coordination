@@ -52,16 +52,16 @@ class CategoryCreateAPIView(APIView):
             if "categoryName" in serializer.errors:
                 return Response({
                     "status": False,
-                    "statusCode": 200,
-                    "message": "Validation failed; Category with this categoryName already exists."
-                }, status=status.HTTP_200_OK)
+                    "statusCode": 400,
+                    "message": "Category with this categoryName already exists."
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 400,
                 "message": "Validation failed.",
                 "error": serializer.errors
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as exc:
             return Response({
@@ -234,16 +234,16 @@ class CategoryUpdateAPIView(APIView):
             if "categoryName" in serializer.errors:
                 return Response({
                     "status": False,
-                    "statusCode": 200,
-                    "message": "Validation failed; Category with this categoryName already exists."
-                }, status=status.HTTP_200_OK)
+                    "statusCode": 400,
+                    "message": "Category with this categoryName already exists."
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 400,
                 "message": "Validation failed.",
                 "error": serializer.errors
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as exc:
             return Response({

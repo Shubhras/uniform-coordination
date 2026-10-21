@@ -14,7 +14,6 @@ const validateCredential = async (values) => {
         })
 
         const data = await response.json()
-        console.log("dataaaaaa",data)
 
         if (data.status && data.statusCode === 200) {
             // Extract permission slugs to keep session data light
@@ -30,22 +29,64 @@ const validateCredential = async (values) => {
                 })
             }
 
+            const userRole = (data.data.user.role || '').toLowerCase()
+            const isSuperAdmin = userRole === 'admin'
+            const hasDashboard = permissions.some(p => {
+                const norm = (p || '').toLowerCase().replace(/_and_|-|_/g, '')
+                return norm === 'dashboard' || norm.includes('dashboard')
+            })
+
+            let entryPath = '/admin-form'
+            if (!isSuperAdmin && !hasDashboard) {
+                const slugMap = {
+                    dashboard: '/admin-form',
+                    product_specification: '/products',
+                    content_media: '/contents',
+                    order_manage: '/pricing',
+                    customer_sales_representative: '/customer',
+                    pdf_simulation_configuration: '/simulation-configuration',
+                    saved_simulations: '/saved-simulations',
+                    simulation_assets: '/simulation-assets',
+                    reports_analytics: '/reports-analytics',
+                    system_settings: '/system-settings',
+                    quotation_requests: '/quotation-requests',
+                }
+
+                const firstPermWithRoute = (data.data.permissions || []).find(
+                    p => p.route && p.route !== '/admin-form' && p.slug !== 'dashboard'
+                )
+
+                if (firstPermWithRoute?.route) {
+                    entryPath = firstPermWithRoute.route
+                } else {
+                    for (const permSlug of permissions) {
+                        const clean = (permSlug || '').toLowerCase().replace(/_and_|-/g, '_')
+                        if (slugMap[clean]) {
+                            entryPath = slugMap[clean]
+                            break
+                        }
+                    }
+                }
+            }
+
             return {
                 id: String(data.data.user.id),
                 email: data.data.user.email,
                 userName: data.data.user.name || data.data.user.email,
                 avatar: '',
                 authority: [data.data.user.role || 'admin'],
+                role: data.data.user.role || 'admin',
                 accessToken: data.data.access_token,
                 refreshToken: data.data.refresh_token,
                 permissions: permissions,
+                entryPath: entryPath,
             }
         }
 
-        return null
+        return { error: data.message || 'Invalid credentials' }
     } catch (error) {
         console.error('Login API error:', error)
-        return null
+        return { error: 'Failed to connect to authentication server' }
     }
 }
 

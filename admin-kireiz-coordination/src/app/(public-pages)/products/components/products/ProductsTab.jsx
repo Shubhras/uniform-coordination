@@ -197,8 +197,10 @@ const ProductsTab = () => {
     setSelectedProduct(null);
   };
 
-  const handleSaveSuccess = () => {
-    handleCloseModal();
+  const handleSaveSuccess = (keepOpen = false) => {
+    if (!keepOpen) {
+      handleCloseModal();
+    }
     fetchProducts(currentPage);
   };
 

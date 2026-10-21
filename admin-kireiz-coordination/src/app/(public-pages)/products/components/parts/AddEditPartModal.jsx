@@ -282,15 +282,6 @@ const AddEditPartModal = ({
     const objectUrl = URL.createObjectURL(file);
 
     img.onload = () => {
-      if (img.width > 1000 || img.height > 1000) {
-        setImageError("Maximum dimension allowed is 1000x1000px.");
-        setValue("image", null, {
-          shouldValidate: true,
-        });
-        URL.revokeObjectURL(objectUrl);
-        return;
-      }
-
       setImageFile(file);
       setValue("image", file, {
         shouldValidate: true,

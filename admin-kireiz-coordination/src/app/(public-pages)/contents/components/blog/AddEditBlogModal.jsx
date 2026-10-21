@@ -285,6 +285,11 @@ const AddEditBlogModal = ({
           ? await apiUpdateBlog(accessToken, initialData.id, formData)
           : await apiCreateBlog(accessToken, formData);
 
+      if (response && response.status === false) {
+        setError(response.message || tm("saveFailed"));
+        return;
+      }
+
       toast.push(
         <Notification title={t("successTitle")} type="success">
           {response?.message}
@@ -293,17 +298,17 @@ const AddEditBlogModal = ({
 
       if (keepOpen && mode !== "edit") {
         resetForm();
-        if (onSaveSuccess) onSaveSuccess();
+        if (onSaveSuccess) onSaveSuccess(true);
         return;
       }
 
       if (onSaveSuccess) {
-        onSaveSuccess();
+        onSaveSuccess(false);
       }
     } catch (err) {
       console.error("Blog save error:", err);
       setError(
-        err?.response?.data?.message || tm("saveFailed"),
+        err?.response?.data?.message || err?.message || tm("saveFailed"),
       );
     } finally {
       setSaving(false);
