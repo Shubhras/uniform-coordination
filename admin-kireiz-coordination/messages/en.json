@@ -1431,7 +1431,7 @@
       "reset": "Reset",
       "tableHeaders": {
         "userName": "User Name",
-        "userType": "User Type",
+        "userType": "Role",
         "contactInfo": "Contact Info",
         "status": "Status",
         "actions": "Actions"

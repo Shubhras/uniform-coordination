@@ -16,19 +16,22 @@ logger = logging.getLogger(__name__)
 
 class IsAdministrator(BasePermission):
     """
-    Only allow AdminUser with role 'admin'.
+    Allow AdminUser with role 'admin', superuser, or staff status.
     """
     def has_permission(self, request, view):
         try:
             user = request.user
-            return (
-                user and 
-                user.is_authenticated and 
-                hasattr(user, "role") and 
-                user.role and 
-                user.role.role_name.lower() == "admin"
-            )
-        except AttributeError:
+            if not user or not user.is_authenticated:
+                return False
+            if getattr(user, "is_superuser", False) or getattr(user, "is_staff", False):
+                return True
+            role = getattr(user, "role", None)
+            if role:
+                rname = str(getattr(role, "role_name", "") or getattr(role, "slug", "")).lower()
+                if rname in ["admin", "superadmin", "administrator"]:
+                    return True
+            return False
+        except Exception:
             return False
         
 class CustomPagination(PageNumberPagination):
@@ -72,13 +75,22 @@ class FabricCreateView(APIView):
 
 
 
+            first_err = ""
+            if isinstance(serializer.errors, dict):
+                for k, v in serializer.errors.items():
+                    val = v[0] if isinstance(v, list) and v else str(v)
+                    first_err = f"{k}: {val}" if k != "non_field_errors" else str(val)
+                    break
+
             response = {
                 "statusCode": 400,
                 "status": False,
-                "message": serializer.errors
+                "message": first_err or "Validation Error",
+                "errors": serializer.errors,
+                "error": serializer.errors
             }
             logger.warning(f"FabricCreateView POST - 400 - {response}")
-            return Response(response)
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             response = {
@@ -235,13 +247,22 @@ class FabricUpdateView(APIView):
                 logger.info(f"FabricUpdateView PUT - {response}")
                 return Response(response)
 
+            first_err = ""
+            if isinstance(serializer.errors, dict):
+                for k, v in serializer.errors.items():
+                    val = v[0] if isinstance(v, list) and v else str(v)
+                    first_err = f"{k}: {val}" if k != "non_field_errors" else str(val)
+                    break
+
             response = {
                 "statusCode": 400,
                 "status": False,
-                "message": serializer.errors
+                "message": first_err or "Validation Error",
+                "errors": serializer.errors,
+                "error": serializer.errors
             }
             logger.warning(f"FabricUpdateView PUT - {response}")
-            return Response(response)
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             response = {

@@ -13,12 +13,38 @@ import { Form, FormItem } from "@/components/ui/Form";
 import Input from "@/components/ui/Input";
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
+import { FiX } from "react-icons/fi";
 import {
   apiCreateFabric,
   apiUpdateFabric,
   apiFabricCategoryList,
   apiFabricSubCategoryList,
 } from "@/services/FabricService";
+
+const getApiErrorMessage = (errorData, defaultMsg = "Failed to save fabric") => {
+  if (!errorData) return defaultMsg;
+  if (typeof errorData === "string") return errorData;
+
+  const msg = errorData?.message || errorData?.error || errorData?.errors;
+  if (typeof msg === "string" && msg.trim()) return msg;
+
+  const target = msg && typeof msg === "object" ? msg : errorData;
+  if (target && typeof target === "object") {
+    const list = [];
+    for (const [k, v] of Object.entries(target)) {
+      if (k === "statusCode" || k === "status") continue;
+      const text = Array.isArray(v)
+        ? v.join(", ")
+        : typeof v === "object"
+          ? JSON.stringify(v)
+          : String(v);
+      list.push(`${k}: ${text}`);
+    }
+    if (list.length > 0) return list.join(" | ");
+  }
+
+  return defaultMsg;
+};
 
 const colors = [
   "#0F172A",
@@ -145,6 +171,7 @@ const AddEditFabricModal = ({
     control,
     handleSubmit,
     reset,
+    setError: setFieldError,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(validationSchema),
@@ -291,13 +318,28 @@ const AddEditFabricModal = ({
         onSaveSuccess(false);
       }
     } catch (err) {
+      console.error("Fabric save error:", err);
+      const data = err?.response?.data || err;
+      const errorMsg = getApiErrorMessage(data, tm("saveFailed"));
+
+      const fieldErrors =
+        data?.message && typeof data.message === "object"
+          ? data.message
+          : data?.errors || data?.error;
+      if (fieldErrors && typeof fieldErrors === "object") {
+        if (fieldErrors.fabricName) {
+          const fnMsg = Array.isArray(fieldErrors.fabricName)
+            ? fieldErrors.fabricName[0]
+            : String(fieldErrors.fabricName);
+          setFieldError("fabricName", { type: "server", message: fnMsg });
+        }
+      }
+
+      setError(errorMsg);
       toast.push(
         <Notification title={tm("errorTitle")} type="danger">
-          {err?.response?.data?.message || tm("saveFailed")}
+          {errorMsg}
         </Notification>,
-      );
-      setError(
-        err?.response?.data?.message || tm("saveFailed"),
       );
     } finally {
       setSaving(false);
@@ -347,9 +389,28 @@ const AddEditFabricModal = ({
         onSaveSuccess(true);
       }
     } catch (err) {
-      console.error("Fabric save error:", err);
-      setError(
-        err?.response?.data?.message || tm("saveFailed"),
+      console.error("Fabric save and add error:", err);
+      const data = err?.response?.data || err;
+      const errorMsg = getApiErrorMessage(data, tm("saveFailed"));
+
+      const fieldErrors =
+        data?.message && typeof data.message === "object"
+          ? data.message
+          : data?.errors || data?.error;
+      if (fieldErrors && typeof fieldErrors === "object") {
+        if (fieldErrors.fabricName) {
+          const fnMsg = Array.isArray(fieldErrors.fabricName)
+            ? fieldErrors.fabricName[0]
+            : String(fieldErrors.fabricName);
+          setFieldError("fabricName", { type: "server", message: fnMsg });
+        }
+      }
+
+      setError(errorMsg);
+      toast.push(
+        <Notification title={tm("errorTitle")} type="danger">
+          {errorMsg}
+        </Notification>,
       );
     } finally {
       setSaving(false);
@@ -374,8 +435,15 @@ const AddEditFabricModal = ({
 
           {/* Error Message */}
           {error && (
-            <div className="mx-5 mt-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-md">
-              {error}
+            <div className="mx-5 mt-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-md flex items-center justify-between">
+              <span>{typeof error === "string" ? error : JSON.stringify(error)}</span>
+              <button
+                type="button"
+                onClick={() => setError("")}
+                className="text-red-400 hover:text-red-600 ml-2"
+              >
+                <FiX size={16} />
+              </button>
             </div>
           )}
 

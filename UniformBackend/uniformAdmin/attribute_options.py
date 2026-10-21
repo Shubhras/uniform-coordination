@@ -17,12 +17,11 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
-
 from uniformAdmin.models import AttributeOption
 from uniformAdmin.serializers import AttributeOptionSerializer
 # IsAdministrator lives in fabric.py — the whole Product & Specification area shares it.
 from uniformAdmin.fabric import IsAdministrator
+from uniformAdmin.auth import IsAdminUserJWT
 
 
 class OptionPagination(PageNumberPagination):
@@ -115,7 +114,7 @@ class AttributeOptionListAPIView(APIView):
 
 class AttributeOptionCreateAPIView(APIView):
     permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [IsAdminUserJWT]
 
     @extend_schema(
         tags=["Attribute Options"],
@@ -158,7 +157,7 @@ class AttributeOptionCreateAPIView(APIView):
 
 class AttributeOptionUpdateAPIView(APIView):
     permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [IsAdminUserJWT]
 
     @extend_schema(
         tags=["Attribute Options"],
@@ -209,7 +208,7 @@ class AttributeOptionUpdateAPIView(APIView):
 
 class AttributeOptionDeleteAPIView(APIView):
     permission_classes = [IsAdministrator]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [IsAdminUserJWT]
 
     @extend_schema(
         tags=["Attribute Options"],

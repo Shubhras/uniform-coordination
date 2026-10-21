@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +12,9 @@ import Notification from "@/components/ui/Notification";
 import PasswordInput from "@/components/shared/PasswordInput";
 import { apiChangePassword } from "@/services/AuthService";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { FiLock } from "react-icons/fi";
+import { FiLock, FiAlertCircle, FiX } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+import signOut from "@/server/actions/auth/handleSignOut";
 
 /* ----------------_toggle schema ---------------- */
 const passwordSchema = z
@@ -46,13 +48,18 @@ const validationSchema = z
   });
 /* ---------------- component ---------------- */
 const ChangePassword = () => {
+  const router = useRouter();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
+  const [apiError, setApiError] = useState("");
+  const [apiSuccess, setApiSuccess] = useState("");
 
   const {
     handleSubmit,
     control,
     watch,
+    setError,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(validationSchema),
@@ -72,6 +79,8 @@ const ChangePassword = () => {
   );
 
   const onSubmit = async (values) => {
+    setApiError("");
+    setApiSuccess("");
     try {
       const payload = {
         current_password: values.currentPassword,
@@ -80,15 +89,85 @@ const ChangePassword = () => {
       };
 
       const res = await apiChangePassword(payload, accessToken);
+      const successMsg =
+        res?.message || "Password changed successfully. Please login again.";
+      setApiSuccess(successMsg);
       toast.push(
         <Notification title="Success" type="success">
-          {res?.message}
-        </Notification>
+          {successMsg}
+        </Notification>,
       );
+      reset();
 
-      console.log(res);
+      // Automatically sign out after password change since existing tokens are invalidated
+      setTimeout(async () => {
+        try {
+          await signOut();
+        } catch {
+          router.push("/sign-in");
+        }
+      }, 1500);
     } catch (error) {
-      console.error(error);
+      console.error("Change password error:", error);
+      const data = error?.response?.data;
+      let errMsg = "Failed to update password.";
+
+      if (data) {
+        if (
+          typeof data.message === "string" &&
+          data.message.trim() &&
+          data.message !== "Validation Error"
+        ) {
+          errMsg = data.message;
+        }
+
+        const errSource =
+          data.errors ||
+          data.error ||
+          (typeof data.message === "object" ? data.message : null);
+
+        if (errSource && typeof errSource === "object") {
+          if (errSource.current_password) {
+            const currentErr = Array.isArray(errSource.current_password)
+              ? errSource.current_password[0]
+              : String(errSource.current_password);
+            setError("currentPassword", {
+              type: "server",
+              message: currentErr,
+            });
+            errMsg = currentErr;
+          }
+          if (errSource.new_password) {
+            const newErr = Array.isArray(errSource.new_password)
+              ? errSource.new_password[0]
+              : String(errSource.new_password);
+            setError("newPassword", { type: "server", message: newErr });
+            if (!errSource.current_password) errMsg = newErr;
+          }
+          if (errSource.confirm_password || errSource.confirm_new_password) {
+            const confirmErr = Array.isArray(
+              errSource.confirm_password || errSource.confirm_new_password,
+            )
+              ? (errSource.confirm_password ||
+                  errSource.confirm_new_password)[0]
+              : String(
+                  errSource.confirm_password ||
+                    errSource.confirm_new_password,
+                );
+            setError("confirmPassword", {
+              type: "server",
+              message: confirmErr,
+            });
+          }
+        }
+      }
+
+      setApiError(errMsg);
+      toast.push(
+        <Notification title="Error" type="danger">
+          {errMsg}
+        </Notification>,
+      );
     }
   };
 
@@ -108,6 +187,30 @@ const ChangePassword = () => {
         <p className="text-sm text-gray-500 mb-6">
           Secure your account with a strong password
         </p>
+
+        {/* Top alerts */}
+        {apiError && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FiAlertCircle size={18} className="shrink-0" />
+              <span>{apiError}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setApiError("")}
+              className="text-red-400 hover:text-red-600 ml-2"
+            >
+              <FiX size={18} />
+            </button>
+          </div>
+        )}
+
+        {apiSuccess && (
+          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-lg flex items-center gap-2">
+            <HiCheck size={18} className="shrink-0 text-green-600" />
+            <span>{apiSuccess}</span>
+          </div>
+        )}
 
         {/* Current Password */}
         <FormItem
@@ -194,7 +297,8 @@ const ChangePassword = () => {
             type="button"
             variant="default"
             size="sm"
-            className="border px-6 py-2 rounded-md"
+            onClick={() => router.back()}
+            className="border px-6 py-2 rounded-md hover:bg-gray-50 transition"
           >
             Cancel
           </Button>

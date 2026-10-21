@@ -24,6 +24,28 @@ import { apiFabricCategoryList } from "@/services/FabricService";
 
 const ATTRIBUTE = "size";
 
+const getApiErrorMessage = (errorData, defaultMsg = "Failed to save size") => {
+  if (!errorData) return defaultMsg;
+  if (typeof errorData === "string") return errorData;
+  const msg = errorData?.message || errorData?.error || errorData?.errors;
+  if (typeof msg === "string" && msg.trim()) return msg;
+  const target = msg && typeof msg === "object" ? msg : errorData;
+  if (target && typeof target === "object") {
+    const list = [];
+    for (const [k, v] of Object.entries(target)) {
+      if (k === "statusCode" || k === "status") continue;
+      const text = Array.isArray(v)
+        ? v.join(", ")
+        : typeof v === "object"
+          ? JSON.stringify(v)
+          : String(v);
+      list.push(`${k}: ${text}`);
+    }
+    if (list.length > 0) return list.join(" | ");
+  }
+  return defaultMsg;
+};
+
 const notify = (title, type, message) =>
   toast.push(
     <Notification title={title} type={type}>
@@ -136,7 +158,7 @@ const AddEditSizeModal = ({ isOpen, onClose, initialData, onSaveSuccess }) => {
       }
     } catch (err) {
       console.error("Failed to save size:", err);
-      setError(err?.response?.data?.message || t("saveFailed"));
+      setError(getApiErrorMessage(err?.response?.data || err, t("saveFailed")));
     } finally {
       setSaving(false);
     }

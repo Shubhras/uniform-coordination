@@ -24,6 +24,7 @@ from .simulation_config import *
 from .simulation_assets import *
 from .simulation_public import *
 from .reports import *
+from .attribute_options import *
 
 
 
@@ -277,4 +278,10 @@ urlpatterns = [
 
     # Send Email
     path('send-email/', SendEmailAPIView.as_view(), name='send-email'),
+
+    # Attribute Options
+    path('attribute-options/list/', AttributeOptionListAPIView.as_view(), name='attribute-option-list'),
+    path('attribute-options/create/', AttributeOptionCreateAPIView.as_view(), name='attribute-option-create'),
+    path('attribute-options/<int:pk>/update/', AttributeOptionUpdateAPIView.as_view(), name='attribute-option-update'),
+    path('attribute-options/<int:pk>/delete/', AttributeOptionDeleteAPIView.as_view(), name='attribute-option-delete'),
 ]

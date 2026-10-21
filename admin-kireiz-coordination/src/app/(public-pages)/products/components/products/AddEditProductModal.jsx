@@ -22,6 +22,28 @@ import {
 
 import { apiGetPartsList } from "@/services/PartsService";
 
+const getApiErrorMessage = (errorData, defaultMsg = "Failed to save product") => {
+  if (!errorData) return defaultMsg;
+  if (typeof errorData === "string") return errorData;
+  const msg = errorData?.message || errorData?.error || errorData?.errors;
+  if (typeof msg === "string" && msg.trim()) return msg;
+  const target = msg && typeof msg === "object" ? msg : errorData;
+  if (target && typeof target === "object") {
+    const list = [];
+    for (const [k, v] of Object.entries(target)) {
+      if (k === "statusCode" || k === "status") continue;
+      const text = Array.isArray(v)
+        ? v.join(", ")
+        : typeof v === "object"
+          ? JSON.stringify(v)
+          : String(v);
+      list.push(`${k}: ${text}`);
+    }
+    if (list.length > 0) return list.join(" | ");
+  }
+  return defaultMsg;
+};
+
 
 const selectStyles = {
   control: (base, state) => ({
@@ -494,7 +516,14 @@ const AddEditProductModal = ({
       if (onSaveSuccess) onSaveSuccess(false);
     } catch (err) {
       console.error("Save failed:", err);
-      setError(err?.response?.data?.message || err?.message || tm("saveFailed"));
+      const data = err?.response?.data || err;
+      const errorMsg = getApiErrorMessage(data, tm("saveFailed"));
+      setError(errorMsg);
+      toast.push(
+        <Notification title={tm("errorTitle") || "Error"} type="danger">
+          {errorMsg}
+        </Notification>,
+      );
     } finally {
       setSaving(false);
     }

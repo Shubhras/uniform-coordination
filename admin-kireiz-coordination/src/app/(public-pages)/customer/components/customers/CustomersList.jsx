@@ -300,7 +300,7 @@ const B2BAccounts = () => {
               <thead className="bg-[#F8FAFC] text-[#486284] border-b border-[#E2E8F0]">
                 <tr>
                   <th className="px-5 py-3 font-medium">{t("tableHeaders.userName")}</th>
-                  <th className="px-5 py-3 font-medium">{t("tableHeaders.userType")}</th>
+                  <th className="px-5 py-3 font-medium">Role</th>
                   <th className="px-5 py-3 font-medium">{t("tableHeaders.contactInfo")}</th>
                   <th className="px-5 py-3 font-medium">{t("tableHeaders.status")}</th>
                   <th className="px-5 py-3 font-medium text-right">{t("tableHeaders.actions")}</th>
@@ -324,8 +324,10 @@ const B2BAccounts = () => {
                         {acc.firstName} {acc.lastName}
                       </td>
 
-                      <td className="px-5 py-4 text-gray-600">
-                        {acc.userType}
+                      <td className="px-5 py-4">
+                        <span className="px-3 py-1 rounded-full text-xs font-medium capitalize bg-blue-50 text-[#1C4FA8] border border-blue-200">
+                          {acc.role || acc.role_name || acc.userType || "Customer"}
+                        </span>
                       </td>
 
                       <td className="px-5 py-4 text-gray-600">
