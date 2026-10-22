@@ -890,7 +890,14 @@ class SubCategorySerializer(serializers.ModelSerializer):
         if obj.subcategoryImage.name.startswith(("http://", "https://")):
             return obj.subcategoryImage.name
 
-        return f"{settings.SITE_URL}{obj.subcategoryImage.url}"
+        request = self.context.get("request")
+        if request:
+            return request.build_absolute_uri(obj.subcategoryImage.url)
+
+        site_url = getattr(settings, "SITE_URL", "") or ""
+        if "dxtspace.com" in site_url:
+            site_url = ""
+        return f"{site_url}{obj.subcategoryImage.url}"
 
     def validate(self, attrs):
         name = attrs.get("name")

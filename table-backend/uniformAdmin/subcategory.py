@@ -134,12 +134,19 @@ class SubCategoryListAPIView(APIView):
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()
-            category_id = request.query_params.get("categoryId")
+            category_id = request.query_params.get("categoryId") or request.query_params.get("category_id")
+            active_only = request.query_params.get("active_only") in ("1", "true", "True")
+            is_active = request.query_params.get("isActive") or request.query_params.get("is_active")
 
             subcategories = SubCategory.objects.filter(isDeleted=False)
 
+            if active_only or is_active in ("1", "true", "True"):
+                subcategories = subcategories.filter(isActive=True)
+            elif is_active in ("0", "false", "False"):
+                subcategories = subcategories.filter(isActive=False)
+
             #  SAFE CATEGORY FILTER (FIX)
-            if category_id and category_id.isdigit():
+            if category_id and str(category_id).isdigit():
                 subcategories = subcategories.filter(
                     category__id=int(category_id)
                 )

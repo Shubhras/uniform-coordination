@@ -1216,9 +1216,16 @@ class SubCategorySerializer(serializers.ModelSerializer):
             if instance.subcategoryImage.name.startswith(("http://", "https://")):
                 data["subcategoryImage"] = instance.subcategoryImage.name
             else:
-                data["subcategoryImage"] = (
-                    f"{settings.SITE_URL}{instance.subcategoryImage.url}"
-                )
+                request = self.context.get("request")
+                if request:
+                    data["subcategoryImage"] = request.build_absolute_uri(instance.subcategoryImage.url)
+                else:
+                    site_url = getattr(settings, "SITE_URL", "") or ""
+                    if "dxtspace.com" in site_url:
+                        site_url = ""
+                    data["subcategoryImage"] = (
+                        f"{site_url}{instance.subcategoryImage.url}"
+                    )
         else:
             data["subcategoryImage"] = None
 

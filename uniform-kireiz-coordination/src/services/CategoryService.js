@@ -9,7 +9,7 @@ import ApiService from "./ApiService";
  * @returns {Promise<Object>} API response with subcategory list.
  */
 export async function apiCategoryById(id, filterId = "", sortId = "") {
-  let url = `/v1/uniformAdmin/subcategory/list/?categoryId=${id}&search=${filterId}&sortBy=${sortId}`;
+  let url = `/v1/uniformAdmin/subcategory/list/?categoryId=${id}&search=${filterId}&sortBy=${sortId}&active_only=1`;
 
   return ApiService.fetchDataWithAxios({
     url,
