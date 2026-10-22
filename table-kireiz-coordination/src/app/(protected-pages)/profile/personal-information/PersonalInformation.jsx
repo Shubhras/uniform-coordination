@@ -21,6 +21,7 @@ import { TbPlus } from 'react-icons/tb'
 import { CiUser } from 'react-icons/ci'
 import { apiGetProfile, apiUpdateProfile } from '@/services/AuthProfileService'
 import { useSession } from 'next-auth/react'
+import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 const { Control } = components
@@ -82,7 +83,10 @@ const CustomControl = ({ children, ...props }) => {
 
 const PersonalInformation = () => {
     const router = useRouter()
-    const { data: session } = useSession()
+    const { data: nextAuthSession } = useSession()
+    const { session: currentSession } = useCurrentSession()
+    const session = nextAuthSession || currentSession
+    const token = session?.accessToken || session?.user?.accessToken
     const [loading, setLoading] = useState(false)
     const {
         handleSubmit,
@@ -140,9 +144,9 @@ const PersonalInformation = () => {
 
         const fetchProfile = async () => {
             try {
-                if (!session?.accessToken) return
+                if (!token) return
                 setLoading(true)
-                const res = await apiGetProfile(session.accessToken)
+                const res = await apiGetProfile(token)
                 //console.log(res);
 
                 const profile = res?.data
@@ -150,12 +154,12 @@ const PersonalInformation = () => {
 
                 // ✅ Map API response to form fields
                 reset({
-                    firstName: profile.firstName || '',
-                    lastName: profile.lastName || '',
-                    email: profile.email || '',
-                    position: profile.roleName || '',
-                    img: profile.profileImage || '',
-                    phoneNumber: profile.phone || '',
+                    firstName: profile?.firstName || '',
+                    lastName: profile?.lastName || '',
+                    email: profile?.email || session?.user?.email || '',
+                    position: profile?.roleName || '',
+                    img: profile?.profileImage || '',
+                    phoneNumber: profile?.phone || '',
                 })
             } catch (error) {
                 console.error('Failed to fetch profile:', error)
@@ -165,12 +169,12 @@ const PersonalInformation = () => {
         }
 
         fetchProfile()
-    }, [])
+    }, [token])
 
     const onSubmit = async (values) => {
         setLoading(true)
         try {
-            if (!session?.accessToken) return
+            if (!token) return
 
             setLoading(true)
 
@@ -184,7 +188,7 @@ const PersonalInformation = () => {
                 payload.profileImage = values.img
             }
             //console.log('call',payload);
-            await apiUpdateProfile(session.accessToken, payload)
+            await apiUpdateProfile(token, payload)
             toast.push(
                 <Notification title="Profile success!" type="success">
                     Profile updated successfully

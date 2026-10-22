@@ -62,29 +62,32 @@ export default {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        ((token.id = user.id),
-          (token.name = user.userName),
-          (token.email = user.email),
-          (token.image = user.avatar || null),
-          (token.roleName = user.roleName),
-          (token.userType = user.userType),
-          (token.accessToken = user.accessToken),
-          (token.firstName = user.firstName),
-          (token.lastName = user.lastName),
-          (token.language = user.language),
-          (token.profileImage = user.profileImage || null),
-          (token.isActive = user.isActive),
-          (token.loginType = user.loginType));
+        token.id = user.id;
+        token.name = user.name || user.userName;
+        token.userName = user.name || user.userName;
+        token.email = user.email;
+        token.image = user.avatar || user.image || null;
+        token.roleName = user.roleName;
+        token.userType = user.userType;
+        token.accessToken = user.accessToken;
+        token.firstName = user.firstName;
+        token.lastName = user.lastName;
+        token.language = user.language;
+        token.profileImage = user.profileImage || null;
+        token.isActive = user.isActive;
+        token.loginType = user.loginType;
       }
       return token;
     },
     // ✅ STEP 2: EXPOSE TOKEN DATA TO SESSION
     async session({ session, token }) {
       session.user = {
+        ...session.user,
         id: token.id,
-        name: token.userName,
+        name: token.name || token.userName,
+        userName: token.userName || token.name,
         email: token.email,
-        image: token.avatar || null,
+        image: token.image || token.avatar || null,
         roleName: token.roleName,
         userType: token.userType,
         accessToken: token.accessToken,
