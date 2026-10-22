@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import useCurrentSession from "@/utils/hooks/useCurrentSession";
 
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
@@ -30,7 +31,10 @@ import { formatDate } from "@/utils/formatDate";
 const MyProfile = () => {
   const router = useRouter();
   const fileRef = useRef(null);
-  const { data: session } = useSession();
+  const { data: nextAuthSession } = useSession();
+  const { session: currentSession } = useCurrentSession();
+  const session = nextAuthSession || currentSession;
+  const token = session?.accessToken || session?.user?.accessToken;
 
   // Profile state
   const [profile, setProfile] = useState(null);
@@ -51,11 +55,11 @@ const MyProfile = () => {
 
   // Fetch profile details
   useEffect(() => {
-    if (!session?.accessToken) return;
+    if (!token) return;
 
     const fetchProfile = async () => {
       try {
-        const res = await apiGetProfile(session.accessToken);
+        const res = await apiGetProfile(token);
         setProfile(res?.data);
         setImage(res?.data?.profileImage || null);
       } catch (error) {
@@ -66,11 +70,11 @@ const MyProfile = () => {
     };
 
     fetchProfile();
-  }, [session?.accessToken]);
+  }, [token]);
 
   // Fetch active orders
   useEffect(() => {
-    if (!session?.accessToken) return;
+    if (!token) return;
 
     const fetchActiveOrders = async () => {
       try {
@@ -80,7 +84,7 @@ const MyProfile = () => {
           page_size: 3,
         };
 
-        const response = await apiUserOrderList(session.accessToken, params);
+        const response = await apiUserOrderList(token, params);
         if (response?.status && Array.isArray(response?.data)) {
           setOrdersList(response.data);
         } else {
@@ -94,12 +98,15 @@ const MyProfile = () => {
     };
 
     fetchActiveOrders();
-  }, [session?.accessToken]);
+  }, [token]);
 
   // Fetch simulation history
   const fetchSimulationHistory = async () => {
     try {
-      if (!session?.accessToken) return;
+      if (!token) {
+        setSimulationLoading(false);
+        return;
+      }
       setSimulationLoading(true);
       const params = {
         category: "",
@@ -107,7 +114,7 @@ const MyProfile = () => {
         range: "30",
       };
 
-      const res = await apiSimulationHistory(session.accessToken, params);
+      const res = await apiSimulationHistory(token, params);
       if (res?.status) {
         setSimulationData(res.data || []);
       }
@@ -119,9 +126,12 @@ const MyProfile = () => {
   };
 
   useEffect(() => {
-    if (!session?.accessToken) return;
+    if (!token) {
+      setSimulationLoading(false);
+      return;
+    }
     fetchSimulationHistory();
-  }, [session?.accessToken]);
+  }, [token]);
 
   // Image handlers
   const handleSelectImage = (e) => {
@@ -229,21 +239,21 @@ const MyProfile = () => {
               <div>
                 <p className="text-xs text-[#626262]">First Name</p>
                 <p className="text-sm font-medium text-[#5A3E2B]">
-                  {profile?.firstName || "-"}
+                  {profile?.firstName || session?.user?.firstName || "-"}
                 </p>
               </div>
 
               <div>
                 <p className="text-xs text-[#626262]">Last Name</p>
                 <p className="text-sm font-medium text-[#5A3E2B]">
-                  {profile?.lastName || "-"}
+                  {profile?.lastName || session?.user?.lastName || "-"}
                 </p>
               </div>
 
               <div>
                 <p className="text-xs text-[#626262]">Email Address</p>
                 <p className="text-sm font-medium flex items-center gap-1 text-[#5A3E2B]">
-                  {profile?.email || "-"}
+                  {profile?.email || session?.user?.email || "-"}
                   <HiCheckCircle className="text-green-500" />
                 </p>
               </div>
@@ -251,14 +261,14 @@ const MyProfile = () => {
               <div>
                 <p className="text-xs text-[#626262]">Phone Number</p>
                 <p className="text-sm font-medium text-[#5A3E2B]">
-                  {profile?.phone || "-"}
+                  {profile?.phone || session?.user?.phone || "-"}
                 </p>
               </div>
 
               <div>
                 <p className="text-xs text-[#626262]">Position</p>
                 <p className="text-sm font-medium text-[#5A3E2B]">
-                  {profile?.roleName || "-"}
+                  {profile?.roleName || session?.user?.roleName || "-"}
                 </p>
               </div>
             </div>
@@ -337,7 +347,7 @@ const MyProfile = () => {
               <div>
                 <p className="text-[11px] text-[#A0A0A0]">Total Amount</p>
                 <p className="text-sm font-medium text-[#545454]">
-                  ¥{Number(ordersList[0]?.total_amount || 0).toLocaleString()}
+                  ${Number(ordersList[0]?.total_amount || 0).toLocaleString()}
                 </p>
               </div>
             </div>

@@ -20,7 +20,7 @@ const orders = [
         statusIcon: <FiClock />,
         statusColor: 'text-red-500',
         info: 'Delivery: Dec 20, 2024 · 120 sets',
-        amount: '¥576,000',
+        amount: '$576,000',
     },
     {
         id: '#FORM-2024-5678',
@@ -29,7 +29,7 @@ const orders = [
         statusIcon: <CiDeliveryTruck />,
         statusColor: 'text-[#000000]',
         info: 'Today, 9AM–12PM · 12 guests',
-        amount: '¥45,794',
+        amount: '$45,794',
     },
 ]
 

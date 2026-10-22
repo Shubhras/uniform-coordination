@@ -1766,7 +1766,7 @@ class CreateOrderAPIView(APIView):
             # ------------------- Promocode -------------------
             # promocode_code = data.get("promocode", "").strip()
             promocode = data.get("promocode")
-            currency = data.get("currency") or "JPY"
+            currency = data.get("currency") or "USD"
 
             if isinstance(promocode, dict):
                 promocode_code = promocode.get("code", "").strip()
@@ -2157,8 +2157,8 @@ class OrderSummaryAPIView(APIView):
                     "promocode": order.promocode.promocodeName if order.promocode else None,
                     "promocode_type": order.promocode.promocodeType if order.promocode else None,
                     "amount": str(discount_amount) if discount_amount > 0 else (str(order.promocode.amount) if order.promocode else None),
-                    "currency": order.currency or "JPY",
-                    "currency_symbol": "¥",
+                    "currency": order.currency or "USD",
+                    "currency_symbol": "$",
                     "total": str(total_amount),
                     "grand_total": str(total_amount)
                 }
@@ -3260,7 +3260,7 @@ class ReorderOrderAPIView(APIView):
                 total_amount=original_order.total_amount,
                 shipping_charge=original_order.shipping_charge,
                 tax=original_order.tax,
-                currency=original_order.currency or "JPY",
+                currency=original_order.currency or "USD",
                 promocode=original_order.promocode,
                 custom_theme=original_order.custom_theme,
                 status="pending",

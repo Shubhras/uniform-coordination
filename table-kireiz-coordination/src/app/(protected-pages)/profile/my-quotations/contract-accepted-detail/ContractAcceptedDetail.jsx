@@ -102,7 +102,7 @@ const ContractAcceptedDetail = () => {
                                 Total Amount
                             </p>
                             <p className="mt-2 text-sm font-medium text-[#B66636]">
-                                {/* {quotation?.total || '¥1,357,400'} */}
+                                {/* {quotation?.total || '$1,357,400'} */}
                             </p>
                         </div>
                     </div>

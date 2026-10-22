@@ -182,6 +182,7 @@ const DeliveryInformation = () => {
       },
       rental_start_date: data.start_date,
       rental_end_date: data.return_date,
+      currency: "USD",
       promocode: couponCode ? { code: couponCode } : {},
     };
 

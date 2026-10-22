@@ -201,7 +201,7 @@ const CartSummary = () => {
                                                 </p>
                                                 <p className="text-sm font-medium">
                                                     <span className="text-green-600">
-                                                        Price:{" "}¥{item?.price} × {item?.quantity} = ¥{item?.total_price}
+                                                        Price:{" "}${item?.price} × {item?.quantity} = ${item?.total_price}
                                                     </span>
                                                 </p>
                                             </div>
@@ -295,7 +295,7 @@ const CartSummary = () => {
                                                     Qty: {item.quantity}
                                                 </p>
                                             </div>
-                                            <span className="text-gray-800">¥{Number(item.total_price || 0).toLocaleString()}</span>
+                                            <span className="text-gray-800">${Number(item.total_price || 0).toLocaleString()}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -305,30 +305,30 @@ const CartSummary = () => {
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-gray-700">
                                         <span>Subtotal</span>
-                                        <span>¥{Number(cartSummary?.summary?.subtotal || 0).toLocaleString()}</span>
+                                        <span>${Number(cartSummary?.summary?.subtotal || 0).toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-gray-700">
                                         <span>Shipping & Handling</span>
-                                        <span>¥{Number(cartSummary?.summary?.shipping || 0).toLocaleString()}</span>
+                                        <span>${Number(cartSummary?.summary?.shipping || 0).toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-[#00A859]">
                                         <span>Discount</span>
-                                        <span>¥{Number(cartSummary?.summary?.discount || 0).toLocaleString()}</span>
+                                        <span>${Number(cartSummary?.summary?.discount || 0).toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-gray-700">
                                         <span>Tax</span>
-                                        <span>¥{Number(cartSummary?.summary?.tax || 0).toLocaleString()}</span>
+                                        <span>${Number(cartSummary?.summary?.tax || 0).toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-[#B05B3B]">
                                         <span>Fees:</span>
-                                        <span>¥{Number(cartSummary?.summary?.fees || 0).toLocaleString()}</span>
+                                        <span>${Number(cartSummary?.summary?.fees || 0).toLocaleString()}</span>
                                     </div>
                                 </div>
 
                                 <div className="border-t border-[#E9E9E9] mt-4 pt-4">
                                     <div className="flex justify-between items-center text-[17px]">
                                         <span className="text-[#B05B3B]">Order Total:</span>
-                                        <span className="font-semibold text-gray-900">¥{Number(cartSummary?.summary?.grand_total || 0).toLocaleString()}</span>
+                                        <span className="font-semibold text-gray-900">${Number(cartSummary?.summary?.grand_total || 0).toLocaleString()}</span>
                                     </div>
                                 </div>
                             </div>
