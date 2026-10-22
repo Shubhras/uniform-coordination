@@ -253,6 +253,7 @@ const AddEditColorModal = ({
             <div>
               <label className="text-[#1C2C56] text-sm font-medium">
                 {tm("compatibleFabricsLabel")}
+                <span className="text-red-500">*</span>
               </label>
               <FormItem
                 invalid={Boolean(errors.compatibleFabric)}

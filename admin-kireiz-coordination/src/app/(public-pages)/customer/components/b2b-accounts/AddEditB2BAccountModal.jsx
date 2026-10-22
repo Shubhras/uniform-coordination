@@ -228,8 +228,8 @@ const AddEditB2BAccountModal = ({
 
       setError(
         fieldErrorMessage ||
-          err?.response?.data?.message ||
-          "Failed to save account.",
+        err?.response?.data?.message ||
+        "Failed to save account.",
       );
     } finally {
       setSaving(false);
@@ -286,7 +286,7 @@ const AddEditB2BAccountModal = ({
           {/* Company Name */}
           <div>
             <label className="text-[#1C2C56] text-sm font-medium">
-              {t("companyNameLabel")}
+              {t("companyNameLabel")}<span className="text-red-500">*</span>
             </label>
             <FormItem
               invalid={Boolean(errors.companyName)}

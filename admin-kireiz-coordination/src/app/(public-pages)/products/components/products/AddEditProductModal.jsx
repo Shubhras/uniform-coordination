@@ -117,9 +117,13 @@ const getValidationSchema = (tm) =>
 
     price: z
       .string()
+      .trim()
       .min(1, tm("validation.priceRequired"))
       .refine((val) => !isNaN(Number(val)), {
         message: tm("validation.priceInvalid"),
+      })
+      .refine((val) => Number(val) >= 0, {
+        message: tm("validation.priceNegative"),
       }),
 
     selectedParts: z.array(z.any()).min(1, tm("validation.partsRequired")),
@@ -358,9 +362,9 @@ const AddEditProductModal = ({
 
         category: initialData.category
           ? {
-              value: initialData.category.id,
-              label: initialData.category.categoryName,
-            }
+            value: initialData.category.id,
+            label: initialData.category.categoryName,
+          }
           : null,
 
         type: initialData?.type
@@ -369,9 +373,9 @@ const AddEditProductModal = ({
 
         subcategory: initialData.subcategory
           ? {
-              value: initialData.subcategory.id,
-              label: initialData.subcategory.name,
-            }
+            value: initialData.subcategory.id,
+            label: initialData.subcategory.name,
+          }
           : null,
 
         selectedParts:
@@ -622,8 +626,11 @@ const AddEditProductModal = ({
 
           {/* Product Name */}
           <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              {tm("productNameLabel")}
+              <span className="text-red-500">*</span>
+            </label>
             <FormItem
-              label={tm("productNameLabel")}
               invalid={!!errors.productName}
               errorMessage={errors.productName?.message}
             >
@@ -642,8 +649,11 @@ const AddEditProductModal = ({
 
           {/* Description */}
           <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              {tm("descriptionLabel")}
+              <span className="text-red-500">*</span>
+            </label>
             <FormItem
-              label={tm("descriptionLabel")}
               invalid={!!errors.description}
               errorMessage={errors.description?.message}
             >
@@ -663,59 +673,71 @@ const AddEditProductModal = ({
           </div>
 
           {/* Category */}
-          <FormItem
-            label={tm("categoryLabel")}
-            invalid={!!errors.category}
-            errorMessage={errors.category?.message}
-          >
-            <Controller
-              name="category"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  options={categoryOptions}
-                  styles={selectStyles}
-                  placeholder={tm("categoryPlaceholder")}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-          </FormItem>
+          <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              {tm("categoryLabel")}
+              <span className="text-red-500">*</span>
+            </label>
+            <FormItem
+              invalid={!!errors.category}
+              errorMessage={errors.category?.message}
+            >
+              <Controller
+                name="category"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    options={categoryOptions}
+                    styles={selectStyles}
+                    placeholder={tm("categoryPlaceholder")}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+            </FormItem>
+          </div>
 
           {/* Subcategory */}
-          <FormItem
-            label={tm("subcategoryLabel")}
-            invalid={!!errors.subcategory}
-            errorMessage={errors.subcategory?.message}
-          >
-            <Controller
-              name="subcategory"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  options={subcategoryOptions}
-                  value={field.value}
-                  onChange={(val) => field.onChange(val)}
-                  onBlur={field.onBlur}
-                  ref={field.ref}
-                  styles={selectStyles}
-                  placeholder={tm("subcategoryPlaceholder")}
-                  isLoading={loadingSubcategories}
-                  isClearable
-                  menuPortalTarget={
-                    typeof document !== "undefined" ? document.body : null
-                  }
-                  menuPosition="fixed"
-                />
-              )}
-            />
-          </FormItem>
+          <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              {tm("subcategoryLabel")}
+            </label>
+            <FormItem
+              invalid={!!errors.subcategory}
+              errorMessage={errors.subcategory?.message}
+            >
+              <Controller
+                name="subcategory"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    options={subcategoryOptions}
+                    value={field.value}
+                    onChange={(val) => field.onChange(val)}
+                    onBlur={field.onBlur}
+                    ref={field.ref}
+                    styles={selectStyles}
+                    placeholder={tm("subcategoryPlaceholder")}
+                    isLoading={loadingSubcategories}
+                    isClearable
+                    menuPortalTarget={
+                      typeof document !== "undefined" ? document.body : null
+                    }
+                    menuPosition="fixed"
+                  />
+                )}
+              />
+            </FormItem>
+          </div>
 
           {/* Parts */}
           <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              {tm("partsLabel")}
+              <span className="text-red-500">*</span>
+            </label>
             <FormItem
-              label={tm("partsLabel")}
               invalid={!!errors.selectedParts}
               errorMessage={errors.selectedParts?.message}
             >
@@ -737,46 +759,57 @@ const AddEditProductModal = ({
           </div>
 
           {/* Price */}
-          <FormItem
-            label={tm("priceLabel")}
-            invalid={!!errors.price}
-            errorMessage={errors.price?.message}
-          >
-            <Controller
-              name="price"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  type="number"
-                  min={0}
-                  placeholder={tm("pricePlaceholder")}
-                />
-              )}
-            />
-          </FormItem>
+          <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              {tm("priceLabel")}
+              <span className="text-red-500">*</span>
+            </label>
+            <FormItem
+              invalid={!!errors.price}
+              errorMessage={errors.price?.message}
+            >
+              <Controller
+                name="price"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    type="number"
+                    min={0}
+                    step="any"
+                    placeholder={tm("pricePlaceholder")}
+                  />
+                )}
+              />
+            </FormItem>
+          </div>
 
           {/* Type */}
-          <FormItem
-            label={tm("typeLabel")}
-            invalid={!!errors.type}
-            errorMessage={errors.type?.message}
-          >
-            <Controller
-              name="type"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  value={field.value}
-                  options={TypeOptions}
-                  styles={selectStyles}
-                  placeholder={tm("typePlaceholder")}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-          </FormItem>
+          <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              {tm("typeLabel")}
+              <span className="text-red-500">*</span>
+            </label>
+            <FormItem
+              invalid={!!errors.type}
+              errorMessage={errors.type?.message}
+            >
+              <Controller
+                name="type"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    value={field.value}
+                    options={TypeOptions}
+                    styles={selectStyles}
+                    placeholder={tm("typePlaceholder")}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+            </FormItem>
+          </div>
 
           {/* Status */}
           <div>

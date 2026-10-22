@@ -444,63 +444,74 @@ const AddEditPartModal = ({
 
             {/* Category & Subcategory */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormItem
-                label={tm("categoryLabel")}
-                invalid={Boolean(errors.category)}
-                errorMessage={errors.category?.message}
-              >
-                <Controller
-                  name="category"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      options={categoryOptions}
-                      value={field.value}
-                      onChange={(val) => {
-                        field.onChange(val);
-                        setValue("subcategory", null);
-                      }}
-                      styles={selectStyles}
-                      placeholder={tm("categoryPlaceholder")}
-                      isLoading={loadingCategories}
-                      menuPortalTarget={
-                        typeof document !== "undefined" ? document.body : null
-                      }
-                      menuPosition="fixed"
-                    />
-                  )}
-                />
-              </FormItem>
+              <div>
+                <label className="text-[#1C2C56] text-base font-medium">
+                  {tm("categoryLabel")}
+                  <span className="text-red-500">*</span>
+                </label>
+                <FormItem
+                  invalid={Boolean(errors.category)}
+                  errorMessage={errors.category?.message}
+                >
+                  <Controller
+                    name="category"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={categoryOptions}
+                        value={field.value}
+                        onChange={(val) => {
+                          field.onChange(val);
+                          setValue("subcategory", null);
+                        }}
+                        styles={selectStyles}
+                        placeholder={tm("categoryPlaceholder")}
+                        isLoading={loadingCategories}
+                        menuPortalTarget={
+                          typeof document !== "undefined" ? document.body : null
+                        }
+                        menuPosition="fixed"
+                      />
+                    )}
+                  />
+                </FormItem>
+              </div>
 
-              <FormItem label={tm("subcategoryLabel")}>
-                <Controller
-                  name="subcategory"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      options={subcategoryOptions}
-                      value={field.value}
-                      onChange={field.onChange}
-                      styles={selectStyles}
-                      placeholder={tm("subcategoryPlaceholder")}
-                      isLoading={loadingSubcategories}
-                      isClearable
-                      menuPortalTarget={
-                        typeof document !== "undefined" ? document.body : null
-                      }
-                      menuPosition="fixed"
-                    />
-                  )}
-                />
-              </FormItem>
+              <div>
+                <label className="text-[#1C2C56] text-base font-medium">
+                  {tm("subcategoryLabel")}
+                </label>
+                <FormItem>
+                  <Controller
+                    name="subcategory"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={subcategoryOptions}
+                        value={field.value}
+                        onChange={field.onChange}
+                        styles={selectStyles}
+                        placeholder={tm("subcategoryPlaceholder")}
+                        isLoading={loadingSubcategories}
+                        isClearable
+                        menuPortalTarget={
+                          typeof document !== "undefined" ? document.body : null
+                        }
+                        menuPosition="fixed"
+                      />
+                    )}
+                  />
+                </FormItem>
+              </div>
             </div>
 
             {/* Fabric */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
                 {tm("fabricLabel")}
+                <span className="text-red-500">*</span>
               </label>
               <FormItem
                 invalid={Boolean(errors.fabric)}

@@ -339,8 +339,11 @@ const AddEditBlogModal = ({
         <div className="md:px-5 py-5 space-y-5 overflow-y-auto max-h-[70vh]">
           {/* Title */}
           <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              {tm("titleLabel")}
+              <span className="text-red-500">*</span>
+            </label>
             <FormItem
-              label={tm("titleLabel")}
               invalid={!!errors.title}
               errorMessage={errors.title?.message}
             >
@@ -350,14 +353,17 @@ const AddEditBlogModal = ({
                 render={({ field }) => (
                   <Input placeholder={tm("titlePlaceholder")} {...field} />
                 )}
-              />{" "}
+              />
             </FormItem>
           </div>
 
           {/* Category (React Select from API) */}
           <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              {tm("categoryLabel")}
+              <span className="text-red-500">*</span>
+            </label>
             <FormItem
-              label={tm("categoryLabel")}
               invalid={!!errors.category}
               errorMessage={errors.category?.message}
             >
@@ -383,7 +389,8 @@ const AddEditBlogModal = ({
           {/* Image */}
           <div>
             <label className="text-[#1C2C56] text-base font-medium">
-              {tm("imageLabel")}<span className="text-red-500">*</span>
+              {tm("imageLabel")}
+              <span className="text-red-500">*</span>
             </label>
 
             <button
@@ -448,8 +455,11 @@ const AddEditBlogModal = ({
 
           {/* Description */}
           <div>
+            <label className="text-[#1C2C56] text-base font-medium">
+              {tm("descriptionLabel")}
+              <span className="text-red-500">*</span>
+            </label>
             <FormItem
-              label={tm("descriptionLabel")}
               invalid={!!errors.description}
               errorMessage={errors.description?.message}
             >

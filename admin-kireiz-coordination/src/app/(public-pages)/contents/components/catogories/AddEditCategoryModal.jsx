@@ -54,15 +54,15 @@ const AddEditCategoryModal = ({
       mode === "edit"
         ? z.any().optional()
         : z.any().refine((file) => file instanceof File, {
-            message: tm("validation.imageRequired"),
-          }),
+          message: tm("validation.imageRequired"),
+        }),
 
     bannerImage:
       mode === "edit"
         ? z.any().optional()
         : z.any().refine((file) => file instanceof File, {
-            message: tm("validation.bannerImageRequired"),
-          }),
+          message: tm("validation.bannerImageRequired"),
+        }),
   });
 
   const {
@@ -592,6 +592,7 @@ const AddEditCategoryModal = ({
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
                 {tm("descriptionLabel")}
+                <span className="text-red-500">*</span>
               </label>
               {/* <textarea
               placeholder="type....."

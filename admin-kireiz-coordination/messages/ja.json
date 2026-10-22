@@ -918,6 +918,7 @@
           "descriptionRequired": "説明は必須です",
           "priceRequired": "価格は必須です",
           "priceInvalid": "有効な価格を入力してください",
+          "priceNegative": "価格を負の値にすることはできません",
           "categoryRequired": "カテゴリーは必須です",
           "typeRequired": "タイプは必須です",
           "partsRequired": "パーツは必須です",
@@ -1256,6 +1257,25 @@
         "basePrice": "基本価格",
         "bulk": "まとめ買い (10個以上)",
         "action": "操作"
+      },
+      "editModal": {
+        "title": "単価を編集",
+        "itemName": "品目名",
+        "unit": "単位",
+        "perUnit": "{unit}あたり",
+        "basePrice": "基本価格 ($)",
+        "bulkDiscount": "まとめ買い (10個以上) 割引価格 (10%OFF)",
+        "cancel": "キャンセル",
+        "save": "価格を保存",
+        "saving": "保存中...",
+        "successTitle": "価格を更新しました",
+        "successMessage": "単価が正常に更新されました。",
+        "saveFailed": "単価の更新に失敗しました。",
+        "validation": {
+          "priceRequired": "有効な単価を入力してください。",
+          "priceInvalid": "有効な価格を入力してください。",
+          "priceNegative": "価格を負の値にすることはできません。"
+        }
       }
     },
     "specialConditions": {

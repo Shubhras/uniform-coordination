@@ -919,6 +919,7 @@
           "descriptionRequired": "Description is required",
           "priceRequired": "Price is required",
           "priceInvalid": "Enter valid price",
+          "priceNegative": "Price cannot be negative",
           "categoryRequired": "Category is required",
           "typeRequired": "Type is required",
           "partsRequired": "Parts is required",
@@ -1257,6 +1258,25 @@
         "basePrice": "Base Price",
         "bulk": "Bulk (10+)",
         "action": "Action"
+      },
+      "editModal": {
+        "title": "Edit Unit Price",
+        "itemName": "Item Name",
+        "unit": "Unit",
+        "perUnit": "Per {unit}",
+        "basePrice": "Base Price ($)",
+        "bulkDiscount": "Bulk (10+) Discounted Price (10% Off)",
+        "cancel": "Cancel",
+        "save": "Save Price",
+        "saving": "Saving...",
+        "successTitle": "Price Updated",
+        "successMessage": "Unit price updated successfully.",
+        "saveFailed": "Failed to update unit price.",
+        "validation": {
+          "priceRequired": "Please enter a valid unit price.",
+          "priceInvalid": "Enter a valid price.",
+          "priceNegative": "Price cannot be negative."
+        }
       }
     },
     "specialConditions": {
@@ -1299,6 +1319,8 @@
           "conditionTypeRequired": "Condition Type is required",
           "descriptionRequired": "Description is required",
           "discountRequired": "Discount Percentage is required",
+          "discountInvalid": "Enter valid discount percentage",
+          "discountNegative": "Discount percentage cannot be negative",
           "discountRange": "Discount must be between 0 and 100"
         }
       }
@@ -1504,15 +1526,15 @@
         "updateFailed": "Failed to update quotation.",
         "genericError": "Something went wrong.",
         "validation": {
-          "companyNameRequired": "Company name is required*",
-          "contactPersonRequired": "Contact person is required*",
-          "emailRequired": "Email is required*",
-          "phoneRequired": "Phone number is required*",
-          "itemTypeRequired": "Item type is required*",
-          "materialRequired": "Material is required*",
-          "sizeQuantityRequired": "Size & Quantity is required*",
-          "deliveryDateRequired": "Delivery date is required*",
-          "quotationStatusRequired": "Quotation status is required*"
+          "companyNameRequired": "Company name is required",
+          "contactPersonRequired": "Contact person is required",
+          "emailRequired": "Email is required",
+          "phoneRequired": "Phone number is required",
+          "itemTypeRequired": "Item type is required",
+          "materialRequired": "Material is required",
+          "sizeQuantityRequired": "Size & Quantity is required",
+          "deliveryDateRequired": "Delivery date is required",
+          "quotationStatusRequired": "Quotation status is required"
         }
       },
       "viewQuotationPage": {
@@ -1575,7 +1597,14 @@
         "errorTitle": "Error",
         "requiredFields": "Name, email and password are required",
         "addSuccess": "Representative added",
-        "addFailed": "Could not add representative"
+        "addFailed": "Could not add representative",
+        "validation": {
+          "nameRequired": "Full Name is required",
+          "emailRequired": "Email is required",
+          "emailInvalid": "Please enter a valid email address",
+          "designationRequired": "Designation is required",
+          "passwordRequired": "Password is required"
+        }
       }
     },
     "assignments": {

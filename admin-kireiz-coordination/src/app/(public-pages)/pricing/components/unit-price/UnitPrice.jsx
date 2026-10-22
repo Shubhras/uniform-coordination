@@ -43,6 +43,7 @@ const UnitPrice = () => {
   const [editPrice, setEditPrice] = useState("");
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState("");
+  const [fieldError, setFieldError] = useState("");
 
   const [pagination, setPagination] = useState({
     total_items: 0,
@@ -126,21 +127,45 @@ const UnitPrice = () => {
     setSelectedItem(item);
     setEditPrice(item.basePrice != null ? String(item.basePrice) : "");
     setEditError("");
+    setFieldError("");
     setEditModalOpen(true);
+  };
+
+  /* ---------- EDIT PRICE CHANGE ---------- */
+  const handlePriceChange = (val) => {
+    setEditPrice(val);
+    if (val === "") {
+      setFieldError(t("editModal.validation.priceRequired"));
+    } else if (Number(val) < 0) {
+      setFieldError(t("editModal.validation.priceNegative"));
+    } else if (isNaN(Number(val))) {
+      setFieldError(t("editModal.validation.priceInvalid"));
+    } else {
+      setFieldError("");
+    }
   };
 
   /* ---------- EDIT SAVE ---------- */
   const handleSavePrice = async () => {
     if (!selectedItem || editSaving) return;
+    if (editPrice === "" || editPrice === null || editPrice === undefined) {
+      setFieldError(t("editModal.validation.priceRequired"));
+      return;
+    }
     const num = Number(editPrice);
-    if (isNaN(num) || num < 0 || editPrice === "") {
-      setEditError("Please enter a valid non-negative unit price.");
+    if (isNaN(num)) {
+      setFieldError(t("editModal.validation.priceInvalid"));
+      return;
+    }
+    if (num < 0) {
+      setFieldError(t("editModal.validation.priceNegative"));
       return;
     }
 
     try {
       setEditSaving(true);
       setEditError("");
+      setFieldError("");
       const res = await apiUpdateUnitPrice(accessToken, {
         id: selectedItem.id,
         type: selectedItem.type,
@@ -149,19 +174,21 @@ const UnitPrice = () => {
 
       if (res?.status) {
         toast.push(
-          <Notification title="Price Updated" type="success">
-            {res.message || "Unit price updated successfully."}
+          <Notification title={t("editModal.successTitle")} type="success">
+            {res.message || t("editModal.successMessage")}
           </Notification>,
         );
         setEditModalOpen(false);
         setSelectedItem(null);
         fetchUnitPrices();
       } else {
-        setEditError(res?.message || "Failed to update unit price.");
+        setEditError(res?.message || t("editModal.saveFailed"));
       }
     } catch (err) {
       console.error("Failed to update unit price:", err);
-      setEditError(err?.response?.data?.message || err?.message || "Failed to update unit price.");
+      setEditError(
+        err?.response?.data?.message || err?.message || t("editModal.saveFailed"),
+      );
     } finally {
       setEditSaving(false);
     }
@@ -233,7 +260,7 @@ const UnitPrice = () => {
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
               {t("title")}
             </h2>
-            <p className="text-base text-[#486284]">{t("subtitle")}</p>
+            {/* <p className="text-base text-[#486284]">{t("subtitle")}</p> */}
           </div>
 
           <div className="flex gap-3">
@@ -306,9 +333,8 @@ const UnitPrice = () => {
                 {data.map((item, index) => (
                   <tr
                     key={item.id ? `${item.type}-${item.id}` : index}
-                    className={`text-[#486284] ${
-                      index % 2 === 0 ? "bg-white" : "bg-[#F8FAFC]"
-                    }`}
+                    className={`text-[#486284] ${index % 2 === 0 ? "bg-white" : "bg-[#F8FAFC]"
+                      }`}
                   >
                     <td className="px-4 py-4">
                       <span className="bg-[#E5E7EB] text-[#1C2C56] px-2 py-1 rounded-full text-xs font-medium">
@@ -321,11 +347,11 @@ const UnitPrice = () => {
                     <td className="px-4 py-4">{item.unit}</td>
 
                     <td className="px-4 py-4 font-medium">
-                      {item.basePrice != null ? `₹${Number(item.basePrice).toFixed(2)}` : "-"}
+                      {item.basePrice != null ? `$${Number(item.basePrice).toFixed(2)}` : "-"}
                     </td>
 
                     <td className="px-4 py-4 font-medium text-green-700">
-                      {item.bulk != null ? `₹${Number(item.bulk).toFixed(2)}` : "-"}
+                      {item.bulk != null ? `$${Number(item.bulk).toFixed(2)}` : "-"}
                     </td>
 
                     <td className="px-4 py-4">
@@ -368,7 +394,7 @@ const UnitPrice = () => {
         <div className="p-4">
           <div className="flex justify-between items-center pb-3 border-b">
             <h3 className="text-lg font-semibold text-[#1C2C56]">
-              Edit Unit Price
+              {t("editModal.title")}
             </h3>
             <button
               onClick={() => setEditModalOpen(false)}
@@ -382,7 +408,7 @@ const UnitPrice = () => {
             <div className="mt-4 space-y-4">
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">
-                  Item Name
+                  {t("editModal.itemName")}
                 </label>
                 <div className="mt-1 p-2 bg-gray-50 rounded-lg text-sm font-medium text-[#1C2C56] border">
                   {selectedItem.itemName} ({selectedItem.type})
@@ -391,35 +417,42 @@ const UnitPrice = () => {
 
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">
-                  Unit
+                  {t("editModal.unit")}
                 </label>
                 <div className="mt-1 p-2 bg-gray-50 rounded-lg text-sm text-gray-700 border">
-                  Per {selectedItem.unit}
+                  {t("editModal.perUnit", { unit: selectedItem.unit })}
                 </div>
               </div>
 
               <div>
                 <label className="text-xs font-semibold text-gray-700 uppercase">
-                  Base Price (₹) *
+                  {t("editModal.basePrice")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={editPrice}
-                  onChange={(e) => setEditPrice(e.target.value)}
+                  onChange={(e) => handlePriceChange(e.target.value)}
                   placeholder="0.00"
-                  className="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]"
+                  className={`w-full mt-1 border ${
+                    fieldError
+                      ? "border-red-500 focus:ring-red-400"
+                      : "border-gray-300 focus:ring-[#1C4FA8]"
+                  } rounded-lg px-3 py-2 text-sm outline-none focus:ring-2`}
                 />
+                {fieldError && (
+                  <p className="text-red-500 text-xs mt-1">{fieldError}</p>
+                )}
               </div>
 
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">
-                  Bulk (10+) Discounted Price (10% Off)
+                  {t("editModal.bulkDiscount")}
                 </label>
                 <div className="mt-1 p-2 bg-green-50 text-green-700 rounded-lg text-sm font-semibold border border-green-200">
-                  ₹
-                  {editPrice && !isNaN(Number(editPrice))
+                  $
+                  {editPrice && !isNaN(Number(editPrice)) && Number(editPrice) >= 0
                     ? (Number(editPrice) * 0.9).toFixed(2)
                     : "0.00"}
                 </div>
@@ -438,7 +471,7 @@ const UnitPrice = () => {
                   variant="plain"
                   onClick={() => setEditModalOpen(false)}
                 >
-                  Cancel
+                  {t("editModal.cancel")}
                 </Button>
                 <Button
                   type="button"
@@ -448,7 +481,7 @@ const UnitPrice = () => {
                   disabled={editSaving}
                   onClick={handleSavePrice}
                 >
-                  {editSaving ? "Saving..." : "Save Price"}
+                  {editSaving ? t("editModal.saving") : t("editModal.save")}
                 </Button>
               </div>
             </div>

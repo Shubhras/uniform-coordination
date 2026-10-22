@@ -307,7 +307,7 @@ const AddEditCatalogModal = ({
             {/* Category (React Select from API) */}
             <div>
               <label className="text-base font-medium text-[#1C2C56]">
-                {tm("categoryLabel")}
+                {tm("categoryLabel")}<span className="text-red-500">*</span>
               </label>
               <FormItem
                 invalid={Boolean(errors.category)}

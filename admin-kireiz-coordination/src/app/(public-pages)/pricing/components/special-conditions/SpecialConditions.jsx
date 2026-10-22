@@ -87,15 +87,15 @@ const buildValidationSchema = (t) =>
       .string()
       .trim()
       .min(1, t("validation.discountRequired"))
-      .refine(
-        (val) => {
-          const num = Number(val);
-          return !isNaN(num) && num >= 0 && num <= 100;
-        },
-        {
-          message: t("validation.discountRange"),
-        },
-      ),
+      .refine((val) => !isNaN(Number(val)), {
+        message: t("validation.discountInvalid"),
+      })
+      .refine((val) => Number(val) >= 0, {
+        message: t("validation.discountNegative"),
+      })
+      .refine((val) => Number(val) <= 100, {
+        message: t("validation.discountRange"),
+      }),
   });
 
 /* ---------- ADD/EDIT MODAL ---------- */
@@ -280,6 +280,7 @@ const AddEditConditionModal = ({
           <div>
             <label className="text-base font-medium text-[#1C2C56]">
               {tm("conditionTypeLabel")}
+              <span className="text-red-500">*</span>
             </label>
             <FormItem
               //   label="Condition Type"
@@ -310,6 +311,7 @@ const AddEditConditionModal = ({
           <div>
             <label className="text-base font-medium text-[#1C2C56]">
               {tm("descriptionLabel")}
+              <span className="text-red-500">*</span>
             </label>
             <FormItem
               //   label="Description"
@@ -335,6 +337,7 @@ const AddEditConditionModal = ({
           <div>
             <label className="text-base font-medium text-[#1C2C56]">
               {tm("discountPercentageLabel")}
+              <span className="text-red-500">*</span>
             </label>
             <FormItem
               //   label="Discount Percentage"

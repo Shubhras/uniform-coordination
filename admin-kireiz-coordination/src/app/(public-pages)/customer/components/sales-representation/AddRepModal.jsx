@@ -15,22 +15,24 @@ import { apiCreateSalesRep, apiUpdateSalesRep } from "@/services/SalesRepService
 // maxLength mirrors the DB column widths — MySQL errors on overflow rather than
 // truncating, so it's better to stop it at the input.
 const FIELDS = [
-  { name: "name", labelKey: "fullNameLabel", type: "text", maxLength: 255 },
-  { name: "email", labelKey: "emailLabel", type: "email", maxLength: 254 },
+  { name: "name", labelKey: "fullNameLabel", type: "text", maxLength: 255, required: true },
+  { name: "email", labelKey: "emailLabel", type: "email", maxLength: 254, required: true },
   {
     name: "mobile",
     labelKey: "mobileLabel",
     type: "tel",
     maxLength: 15,
     autoComplete: "off",
+    required: false,
   },
   {
     name: "designation",
     labelKey: "designationLabel",
     type: "text",
     maxLength: 100,
+    required: true,
   },
-  { name: "password", labelKey: "passwordLabel", type: "password" },
+  { name: "password", labelKey: "passwordLabel", type: "password", required: true },
 ];
 
 const notify = (title, type, message) =>
@@ -50,15 +52,43 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
     designation: initialData?.designation || "Sales Representative",
     password: "",
   });
+  const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const change = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const change = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validate = () => {
+    const errs = {};
+    if (!form.name.trim()) {
+      errs.name = t("validation.nameRequired") || "Full Name is required";
+    }
+    if (!form.email.trim()) {
+      errs.email = t("validation.emailRequired") || "Email is required";
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.email.trim())) {
+        errs.email = t("validation.emailInvalid") || "Please enter a valid email address";
+      }
+    }
+    if (!form.designation.trim()) {
+      errs.designation = t("validation.designationRequired") || "Designation is required";
+    }
+    if (!isEdit && !form.password) {
+      errs.password = t("validation.passwordRequired") || "Password is required";
+    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const submit = async () => {
-    if (!form.name.trim() || !form.email.trim() || (!isEdit && !form.password)) {
-      notify(t("requiredTitle"), "warning", t("requiredFields"));
+    if (!validate()) {
       return;
     }
 
@@ -88,6 +118,14 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
       }
     } catch (error) {
       console.error("Failed to save rep:", error);
+      const serverErrors = error?.response?.data?.errors;
+      if (serverErrors && typeof serverErrors === "object") {
+        const formatted = {};
+        Object.entries(serverErrors).forEach(([k, v]) => {
+          formatted[k] = Array.isArray(v) ? v[0] : String(v);
+        });
+        setErrors((prev) => ({ ...prev, ...formatted }));
+      }
       notify(
         t("errorTitle"),
         "danger",
@@ -116,10 +154,13 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
         <div className="space-y-3">
           {FIELDS.map((field) => (
             <div key={field.name}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-[#1C2C56] mb-1">
                 {field.name === "password" && isEdit
                   ? "Password (Leave blank to keep current)"
                   : t(field.labelKey)}
+                {field.required && (field.name !== "password" || !isEdit) && (
+                  <span className="text-red-500 ml-0.5">*</span>
+                )}
               </label>
               <div className="relative">
                 <input
@@ -138,7 +179,11 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
                       ? "Leave blank to keep unchanged"
                       : ""
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 text-sm outline-none focus:ring-2 focus:ring-blue-300"
+                  className={`w-full border rounded-lg px-3 py-2 pr-10 text-sm outline-none transition-colors ${
+                    errors[field.name]
+                      ? "border-red-500 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                      : "border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-400"
+                  }`}
                 />
                 {field.name === "password" && (
                   <button
@@ -157,6 +202,9 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
                   </button>
                 )}
               </div>
+              {errors[field.name] && (
+                <p className="text-red-500 text-xs mt-1">{errors[field.name]}</p>
+              )}
             </div>
           ))}
         </div>

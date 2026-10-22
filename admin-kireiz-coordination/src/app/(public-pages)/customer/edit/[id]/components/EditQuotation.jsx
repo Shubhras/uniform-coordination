@@ -286,7 +286,7 @@ const EditQuotation = () => {
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("companyNameLabel")}
+              {t("companyNameLabel")} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -303,7 +303,7 @@ const EditQuotation = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("contactPersonLabel")}
+              {t("contactPersonLabel")} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -322,7 +322,7 @@ const EditQuotation = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("emailLabel")}
+              {t("emailLabel")} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -339,7 +339,7 @@ const EditQuotation = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("phoneNumberLabel")}
+              {t("phoneNumberLabel")} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -364,7 +364,7 @@ const EditQuotation = () => {
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("itemTypeLabel")}
+              {t("itemTypeLabel")} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -381,7 +381,7 @@ const EditQuotation = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("materialLabel")}
+              {t("materialLabel")} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -398,7 +398,7 @@ const EditQuotation = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("sizeQuantityLabel")}
+              {t("sizeQuantityLabel")} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -417,7 +417,7 @@ const EditQuotation = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("deliveryDateLabel")}
+              {t("deliveryDateLabel")} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -436,7 +436,7 @@ const EditQuotation = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("quotationStatusLabel")}
+              {t("quotationStatusLabel")} <span className="text-red-500">*</span>
             </label>
 
             <select
