@@ -1189,6 +1189,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
+    isActive = serializers.BooleanField(default=True, required=False)
 
     class Meta:
         model = SubCategory

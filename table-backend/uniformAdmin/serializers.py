@@ -862,6 +862,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
         read_only=True
     )
     subcategoryImage = serializers.SerializerMethodField()
+    isActive = serializers.BooleanField(default=True, required=False)
 
     class Meta:
         model = SubCategory

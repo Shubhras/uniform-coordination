@@ -45,7 +45,11 @@ class SubCategoryCreateAPIView(APIView):
                     isDeleted=False
                 ).aggregate(max_order=Max("order"))["max_order"] or 0
 
-                serializer.save(order=max_order + 1)
+                is_active = serializer.validated_data.get("isActive")
+                if is_active is None:
+                    is_active = True
+
+                serializer.save(order=max_order + 1, isActive=is_active)
                                     
                 return Response({
                     "status": True,
