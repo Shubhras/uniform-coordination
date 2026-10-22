@@ -330,7 +330,7 @@ const CartSummary = () => {
                                         <span className="text-[#B05B3B]">Order Total:</span>
                                         <span className="font-semibold text-gray-900">${Number(cartSummary?.summary?.grand_total || 0).toLocaleString()}</span>
                                     </div>
-                                </div>    </div>
+                                </div>
                             </div>
                         )}
                     </div>
