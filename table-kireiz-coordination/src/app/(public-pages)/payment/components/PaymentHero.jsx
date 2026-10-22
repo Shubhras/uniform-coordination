@@ -335,7 +335,7 @@ const PaymentHero = () => {
                                 <PayPalScriptProvider
                                     options={{
                                         clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || 'test',
-                                        currency: 'JPY',
+                                        currency: 'USD',
                                         intent: 'capture',
                                         disableFunding: 'card,credit',
                                     }}

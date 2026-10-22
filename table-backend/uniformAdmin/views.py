@@ -1791,7 +1791,7 @@ class AdminDashAPIView(APIView):
                     "customer_name": cust_name or "Customer",
                     "customer_email": cust_email,
                     "total_amount": str(ord_item.total_amount or "0.00"),
-                    "currency": ord_item.currency or "JPY",
+                    "currency": ord_item.currency or "USD",
                     "status": ord_item.status or "pending",
                     "is_paid": ord_item.is_paid,
                     "created_at": ord_item.created_at.strftime("%Y-%m-%d %H:%M:%S") if ord_item.created_at else "",
@@ -3247,10 +3247,10 @@ class AdminContractDetailAPIView(APIView):
         summary_data = {
             "items": "0 line items",
             "rental_days": "0 days",
-            "subtotal": "¥0",
-            "discount": "¥0",
-            "delivery": "¥0",
-            "total": "¥0"
+            "subtotal": "$0",
+            "discount": "$0",
+            "delivery": "$0",
+            "total": "$0"
         }
 
         if contract.order:
@@ -3261,7 +3261,7 @@ class AdminContractDetailAPIView(APIView):
                     "category": item.product.subcategory.category.categoryName if (item.product.subcategory and item.product.subcategory.category) else "Uniform",
                     "requested": item.quantity,
                     "availability": f"Available ({item.quantity})",
-                    "unitRate": f"¥{item.price_per_day}"
+                    "unitRate": f"${item.price_per_day}"
                 })
 
             rental_days = 0
@@ -3275,10 +3275,10 @@ class AdminContractDetailAPIView(APIView):
             summary_data = {
                 "items": f"{order.items.count()} line items",
                 "rental_days": f"{rental_days} days",
-                "subtotal": f"¥{order.subtotal}",
-                "discount": f"¥{discount_amount}",
-                "delivery": f"¥{order.shipping_charge}",
-                "total": f"¥{order.total_amount}"
+                "subtotal": f"${order.subtotal}",
+                "discount": f"${discount_amount}",
+                "delivery": f"${order.shipping_charge}",
+                "total": f"${order.total_amount}"
             }
 
         # Format audit logs

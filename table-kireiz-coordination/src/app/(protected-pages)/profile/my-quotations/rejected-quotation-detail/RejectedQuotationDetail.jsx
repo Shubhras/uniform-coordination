@@ -25,12 +25,12 @@ const quotation = {
     items: 6,
     requestedItemsSubtitle: '6 items for 2-day rental period',
     requestedItems: [
-        { item: 'Crystal Chandelier (Large)', category: 'Lighting', qty: 3, unitRate: '¥450.00' },
-        { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '¥85.00' },
-        { item: 'Marble Pedestal', category: 'Stands', qty: 6, unitRate: '¥120.00' },
-        { item: 'White Velvet Chair Cover', category: 'Linens', qty: 200, unitRate: '¥8.00' },
-        { item: 'Gold Charger Plate', category: 'Tableware', qty: 200, unitRate: '¥6.00' },
-        { item: 'Crystal Centerpiece Vase', category: 'Centerpieces', qty: 24, unitRate: '¥45.00' },
+        { item: 'Crystal Chandelier (Large)', category: 'Lighting', qty: 3, unitRate: '$450.00' },
+        { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '$85.00' },
+        { item: 'Marble Pedestal', category: 'Stands', qty: 6, unitRate: '$120.00' },
+        { item: 'White Velvet Chair Cover', category: 'Linens', qty: 200, unitRate: '$8.00' },
+        { item: 'Gold Charger Plate', category: 'Tableware', qty: 200, unitRate: '$6.00' },
+        { item: 'Crystal Centerpiece Vase', category: 'Centerpieces', qty: 24, unitRate: '$45.00' },
     ],
 
     rejectionReason:

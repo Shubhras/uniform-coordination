@@ -25,11 +25,11 @@ const fallbackQuotation = {
     items: 6,
     requestedItemsSubtitle: '6 items for 2-day rental period',
     requestedItems: [
-        { item: 'Crystal Chandelier (Large)', category: 'Lighting', qty: 3, unitRate: '¥450.00' },
-        { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '¥85.00' },
-        { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '¥85.00' },
-        { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '¥85.00' },
-        { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '¥85.00' },
+        { item: 'Crystal Chandelier (Large)', category: 'Lighting', qty: 3, unitRate: '$450.00' },
+        { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '$85.00' },
+        { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '$85.00' },
+        { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '$85.00' },
+        { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '$85.00' },
     ],
 }
 

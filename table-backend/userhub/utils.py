@@ -972,8 +972,8 @@ def generate_payment_pdf(payment, user, request=None):
         "EUR": "€",
         "GBP": "£",
     }
-    currency_code = (payment.currency or "JPY").upper()
-    currency_symbol = CURRENCY_SYMBOLS.get(currency_code, "¥")
+    currency_code = (payment.currency or "USD").upper()
+    currency_symbol = CURRENCY_SYMBOLS.get(currency_code, "$")
 
     # Styles
     title_style = ParagraphStyle(
@@ -1360,7 +1360,7 @@ Your order has been placed successfully
 
 Order ID: {order.order_id}
 Rental Period: {start_date} to {end_date}
-Total Amount: ¥{total_amount}
+Total Amount: ${total_amount}
 
 Thank You,
 UserHub Team
@@ -1368,7 +1368,7 @@ UserHub Team
         recipient_list=[user.email],
     )
 
-def send_payment_success_email(user, payment, currency_symbol="¥"):
+def send_payment_success_email(user, payment, currency_symbol="$"):
     from uniformAdmin.models import SystemSettings
     from uniformAdmin.utils import create_admin_notification
     try:
@@ -1416,7 +1416,7 @@ KIREIZ SPACE Team
         recipient_list=[user.email],
     )
 
-def send_payment_failed_email(user, payment, currency_symbol="¥"):
+def send_payment_failed_email(user, payment, currency_symbol="$"):
     from uniformAdmin.models import SystemSettings
     from uniformAdmin.utils import create_admin_notification
     try:
@@ -1755,7 +1755,7 @@ def generate_theme_customization_pdf(obj, user):
             ])
             for item in theme_items:
                 prod = item.product
-                price_str = f"¥{int(prod.price):,}" if prod.price else "¥0"
+                price_str = f"${float(prod.price):,.2f}" if prod.price else "$0"
                 section_str = item.get_section_display() or "N/A"
                 prod_data.append([
                     Paragraph(prod.productName, cell_style),
@@ -1887,7 +1887,7 @@ def send_late_fee_email(user, invoice_or_order, fee_amount=0):
         message=f"""
 Dear {user.firstName if getattr(user, 'lastName', None) else "User"},
 
-A late fee of ¥{fee_amount} has been assessed due to overdue rental items.
+A late fee of ${fee_amount} has been assessed due to overdue rental items.
 
 Please log in to your account dashboard to view details and clear outstanding charges.
 

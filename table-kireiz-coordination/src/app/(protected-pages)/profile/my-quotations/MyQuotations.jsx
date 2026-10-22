@@ -57,17 +57,17 @@ export const quotationsData = [
         rentalEndDate: '26 Jun 2024',
         eventType: 'Wedding',
         venue: 'Grand Hyatt Tokyo',
-        total: '¥18,500',
+        total: '$18,500',
         notes:
             'We require the chandeliers to be installed no later than 6 AM on the 14th. All items must coordinate in gold and crystal tones. Please confirm availability at your earliest convenience.',
         requestedItemsSubtitle: '6 items for 2-day rental period',
         requestedItems: [
-            { item: 'Crystal Chandelier (Large)', category: 'Lighting', qty: 3, unitRate: '¥450.00' },
-            { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '¥85.00' },
-            { item: 'Marble Pedestal', category: 'Stands', qty: 6, unitRate: '¥120.00' },
-            { item: 'White Velvet Chair Cover', category: 'Linens', qty: 200, unitRate: '¥3.00' },
-            { item: 'Gold Charger Plate', category: 'Tableware', qty: 200, unitRate: '¥6.00' },
-            { item: 'Crystal Centerpiece Vase', category: 'Centerpieces', qty: 24, unitRate: '¥45.00' },
+            { item: 'Crystal Chandelier (Large)', category: 'Lighting', qty: 3, unitRate: '$450.00' },
+            { item: 'Gold Candelabra (Tall)', category: 'Centerpieces', qty: 12, unitRate: '$85.00' },
+            { item: 'Marble Pedestal', category: 'Stands', qty: 6, unitRate: '$120.00' },
+            { item: 'White Velvet Chair Cover', category: 'Linens', qty: 200, unitRate: '$3.00' },
+            { item: 'Gold Charger Plate', category: 'Tableware', qty: 200, unitRate: '$6.00' },
+            { item: 'Crystal Centerpiece Vase', category: 'Centerpieces', qty: 24, unitRate: '$45.00' },
         ],
     },
     {
@@ -89,17 +89,17 @@ export const quotationsData = [
         rentalEndDate: '22 Jun 2024',
         eventType: 'Corporate',
         venue: 'Maple Grand Hall',
-        total: '¥10,240',
+        total: '$10,240',
         notes:
             'Client requested a cost reduction on centerpiece rentals and adjusted the guest count after review.',
         rejectionReason:
             'Some requested items are unavailable for the selected rental dates. Please update your request or choose alternative items and submit a new quotation request.',
         requestedItemsSubtitle: '4 items for 2-day rental period',
         requestedItems: [
-            { item: 'Acrylic Podium', category: 'Stands', qty: 2, unitRate: '¥180.00' },
-            { item: 'Branded Table Runner', category: 'Linens', qty: 10, unitRate: '¥24.00' },
-            { item: 'LED Uplighter', category: 'Lighting', qty: 16, unitRate: '¥32.00' },
-            { item: 'Cocktail Table Cover', category: 'Linens', qty: 12, unitRate: '¥18.00' },
+            { item: 'Acrylic Podium', category: 'Stands', qty: 2, unitRate: '$180.00' },
+            { item: 'Branded Table Runner', category: 'Linens', qty: 10, unitRate: '$24.00' },
+            { item: 'LED Uplighter', category: 'Lighting', qty: 16, unitRate: '$32.00' },
+            { item: 'Cocktail Table Cover', category: 'Linens', qty: 12, unitRate: '$18.00' },
         ],
     },
     {
@@ -121,16 +121,16 @@ export const quotationsData = [
         rentalEndDate: '28 Jun 2024',
         eventType: 'Wedding',
         venue: 'Rosewood Pavilion',
-        total: '¥26,900',
+        total: '$26,900',
         notes:
             'Proposal includes floral risers and mirrored stage accents pending final venue walk-through.',
         documentPreviewName: 'Quotation_X-2024-QT.pdf',
         requestedItemsSubtitle: '4 items for 2-day rental period',
         requestedItems: [
-            { item: 'Mirror Plinth', category: 'Stands', qty: 8, unitRate: '¥88.00' },
-            { item: 'Gold Arch Frame', category: 'Decor', qty: 2, unitRate: '¥320.00' },
-            { item: 'Ivory Runner', category: 'Linens', qty: 14, unitRate: '¥16.00' },
-            { item: 'Crystal Tea Light', category: 'Tableware', qty: 90, unitRate: '¥3.50' },
+            { item: 'Mirror Plinth', category: 'Stands', qty: 8, unitRate: '$88.00' },
+            { item: 'Gold Arch Frame', category: 'Decor', qty: 2, unitRate: '$320.00' },
+            { item: 'Ivory Runner', category: 'Linens', qty: 14, unitRate: '$16.00' },
+            { item: 'Crystal Tea Light', category: 'Tableware', qty: 90, unitRate: '$3.50' },
         ],
     },
     {
@@ -152,13 +152,13 @@ export const quotationsData = [
         rentalEndDate: '29 Jun 2024',
         eventType: 'Events',
         venue: 'City Banquet Hall',
-        total: '¥14,600',
+        total: '$14,600',
         notes:
             'Awaiting signed rental contract and final confirmation on loading dock timing from venue management.',
         requestedItems: [
-            { item: 'Black Dining Chair', category: 'Seating', qty: 120, unitRate: '¥10.00' },
-            { item: 'Stage Backdrop Panel', category: 'Decor', qty: 6, unitRate: '¥140.00' },
-            { item: 'Cocktail Glass Set', category: 'Tableware', qty: 150, unitRate: '¥5.00' },
+            { item: 'Black Dining Chair', category: 'Seating', qty: 120, unitRate: '$10.00' },
+            { item: 'Stage Backdrop Panel', category: 'Decor', qty: 6, unitRate: '$140.00' },
+            { item: 'Cocktail Glass Set', category: 'Tableware', qty: 150, unitRate: '$5.00' },
         ],
     },
     {
@@ -180,13 +180,13 @@ export const quotationsData = [
         rentalEndDate: '06 Jul 2024',
         eventType: 'Events',
         venue: 'The Courtyard',
-        total: '¥31,250',
+        total: '$31,250',
         notes:
             'Delivery, setup, and teardown completed successfully. Final inventory reconciliation signed by client.',
         requestedItems: [
-            { item: 'Banquet Table', category: 'Furniture', qty: 20, unitRate: '¥42.00' },
-            { item: 'White Plate Set', category: 'Tableware', qty: 220, unitRate: '¥4.00' },
-            { item: 'Silver Cutlery Set', category: 'Tableware', qty: 220, unitRate: '¥3.00' },
+            { item: 'Banquet Table', category: 'Furniture', qty: 20, unitRate: '$42.00' },
+            { item: 'White Plate Set', category: 'Tableware', qty: 220, unitRate: '$4.00' },
+            { item: 'Silver Cutlery Set', category: 'Tableware', qty: 220, unitRate: '$3.00' },
         ],
     },
     {
@@ -208,13 +208,13 @@ export const quotationsData = [
         rentalEndDate: '15 Jul 2024',
         eventType: 'Parties',
         venue: 'Lakeview Garden',
-        total: '¥8,960',
+        total: '$8,960',
         notes:
             'Client requested a revised beverage station layout; awaiting feedback on alternate plan.',
         requestedItems: [
-            { item: 'Cake Display Stand', category: 'Stands', qty: 4, unitRate: '¥55.00' },
-            { item: 'Dessert Plate', category: 'Tableware', qty: 80, unitRate: '¥3.00' },
-            { item: 'Lantern Set', category: 'Lighting', qty: 12, unitRate: '¥22.00' },
+            { item: 'Cake Display Stand', category: 'Stands', qty: 4, unitRate: '$55.00' },
+            { item: 'Dessert Plate', category: 'Tableware', qty: 80, unitRate: '$3.00' },
+            { item: 'Lantern Set', category: 'Lighting', qty: 12, unitRate: '$22.00' },
         ],
     },
     {
@@ -236,7 +236,7 @@ export const quotationsData = [
         rentalEndDate: '18 Jul 2024',
         eventType: 'Wedding',
         venue: 'Pearl Convention',
-        total: '¥34,400',
+        total: '$34,400',
         signedDate: '22 Mar 2024',
         contractStatus: 'Signed',
         customerNotes:
@@ -245,17 +245,17 @@ export const quotationsData = [
         summary: {
             items: '4 line items',
             rentalDuration: '2 days',
-            subtotal: '¥19,500.00',
-            discount: '¥650.00',
-            delivery: '¥500.00',
-            total: '¥18,350.00',
+            subtotal: '$19,500.00',
+            discount: '$650.00',
+            delivery: '$500.00',
+            total: '$18,350.00',
         },
         notes:
             'Accepted package includes custom charger plates and premium lounge furniture for the cocktail area.',
         requestedItems: [
-            { item: 'Lounge Sofa', category: 'Furniture', qty: 8, unitRate: '¥130.00' },
-            { item: 'Rose Gold Charger', category: 'Tableware', qty: 160, unitRate: '¥6.00' },
-            { item: 'Accent Ottoman', category: 'Furniture', qty: 12, unitRate: '¥48.00' },
+            { item: 'Lounge Sofa', category: 'Furniture', qty: 8, unitRate: '$130.00' },
+            { item: 'Rose Gold Charger', category: 'Tableware', qty: 160, unitRate: '$6.00' },
+            { item: 'Accent Ottoman', category: 'Furniture', qty: 12, unitRate: '$48.00' },
         ],
     },
     {
@@ -277,13 +277,13 @@ export const quotationsData = [
         rentalEndDate: '24 Jul 2024',
         eventType: 'Events',
         venue: 'Garden Terrace',
-        total: '¥19,350',
+        total: '$19,350',
         notes:
             'Approved for terrace installation with weather backup inventory reserved for indoor transition.',
         requestedItems: [
-            { item: 'Garden Chair', category: 'Seating', qty: 90, unitRate: '¥8.00' },
-            { item: 'Floral Bowl', category: 'Centerpieces', qty: 18, unitRate: '¥20.00' },
-            { item: 'String Lights', category: 'Lighting', qty: 14, unitRate: '¥26.00' },
+            { item: 'Garden Chair', category: 'Seating', qty: 90, unitRate: '$8.00' },
+            { item: 'Floral Bowl', category: 'Centerpieces', qty: 18, unitRate: '$20.00' },
+            { item: 'String Lights', category: 'Lighting', qty: 14, unitRate: '$26.00' },
         ],
     },
 ]
