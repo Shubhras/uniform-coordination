@@ -559,6 +559,22 @@ class TemplateSerializer(serializers.ModelSerializer):
 
         return value
 
+    def validate_templateImage(self, value):
+        if value:
+            try:
+                from PIL import Image
+                img = Image.open(value)
+                width, height = img.size
+                if width > 1000 or height > 1000:
+                    raise serializers.ValidationError(
+                        f"Image dimensions must not exceed 1000×1000px (Current: {width}×{height}px)."
+                    )
+            except serializers.ValidationError:
+                raise
+            except Exception:
+                pass
+        return value
+
 
 
 # for new url /////////////////////////////
@@ -862,6 +878,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
         read_only=True
     )
     subcategoryImage = serializers.SerializerMethodField()
+    isActive = serializers.BooleanField(default=True, required=False)
 
     class Meta:
         model = SubCategory
@@ -890,7 +907,14 @@ class SubCategorySerializer(serializers.ModelSerializer):
         if obj.subcategoryImage.name.startswith(("http://", "https://")):
             return obj.subcategoryImage.name
 
-        return f"{settings.SITE_URL}{obj.subcategoryImage.url}"
+        request = self.context.get("request")
+        if request:
+            return request.build_absolute_uri(obj.subcategoryImage.url)
+
+        site_url = getattr(settings, "SITE_URL", "") or ""
+        if "dxtspace.com" in site_url:
+            site_url = ""
+        return f"{site_url}{obj.subcategoryImage.url}"
 
     def validate(self, attrs):
         name = attrs.get("name")

@@ -54,7 +54,8 @@ const MedicalHome = () => {
             try {
                 const res = await apiCategoryById(id, activeFilter.id, sortBy.id);
                 if (res?.status) {
-                    setSubCategoryData(res.data);
+                    const activeSubcategories = (res.data || []).filter(item => item.isActive !== false);
+                    setSubCategoryData(activeSubcategories);
                     setCategoryData(res.category);
                 }
             } catch (err) {

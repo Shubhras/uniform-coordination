@@ -57,6 +57,7 @@ const AddEditSubcategoryModal = ({
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [active, setActive] = useState(true);
 
   // Category options from API
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -100,6 +101,7 @@ const AddEditSubcategoryModal = ({
       setDescription(initialData.description || "");
       setImageFile(null);
       setPreview(initialData.subcategoryImage || null);
+      setActive(initialData.isActive ?? true);
 
       if (initialData.category) {
         setCategory({
@@ -114,6 +116,7 @@ const AddEditSubcategoryModal = ({
       setDescription("");
       setImageFile(null);
       setPreview(null);
+      setActive(true);
 
       // Pre-select category if defaultCategoryId is provided (adding from within a category dropdown)
       if (defaultCategoryId) {
@@ -173,6 +176,7 @@ const AddEditSubcategoryModal = ({
       if (imageFile) {
         formData.append("subcategoryImage", imageFile);
       }
+      formData.append("isActive", active ? "true" : "false");
 
       // if (mode === "edit" && initialData?.id) {
       //     await apiUpdateSubcategory(accessToken, initialData.id, formData);
@@ -294,6 +298,27 @@ const AddEditSubcategoryModal = ({
               />
             </div>
           )}
+
+          {/* Status */}
+          <div>
+            <label className="text-base font-medium text-[#1C2C56]">
+              Status
+            </label>
+            <div className="flex items-center gap-3 mt-2">
+              <button
+                type="button"
+                onClick={() => setActive(!active)}
+                className={`w-12 h-6 rounded-full flex items-center px-1 transition ${active ? "bg-[#1C2C56]" : "bg-gray-300"}`}
+              >
+                <span
+                  className={`bg-white w-4 h-4 rounded-full transition ${active ? "translate-x-6" : ""}`}
+                />
+              </button>
+              <span className="text-sm text-[#1C2C56]">
+                {active ? "Active" : "Inactive"}
+              </span>
+            </div>
+          </div>
 
           {/* Description */}
           <div>

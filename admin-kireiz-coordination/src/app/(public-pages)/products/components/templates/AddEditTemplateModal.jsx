@@ -313,6 +313,23 @@ const AddEditTemplateModal = ({
     const objectUrl = URL.createObjectURL(file);
 
     img.onload = () => {
+      if (img.naturalWidth > 1000 || img.naturalHeight > 1000) {
+        setImageError(
+          `Image dimensions must not exceed 1000×1000px (Current: ${img.naturalWidth}×${img.naturalHeight}px).`,
+        );
+        setImageFile(null);
+        setValue("image", null, {
+          shouldValidate: true,
+        });
+        setPreview(null);
+        setValidated(false);
+        if (fileRef?.current) {
+          fileRef.current.value = "";
+        }
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+
       setImageFile(file);
       setValue("image", file, {
         shouldValidate: true,

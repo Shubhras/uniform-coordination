@@ -183,16 +183,21 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
 
                                 {/* IMAGE */}
                                 <div className="relative w-full lg:w-[60%] h-[200px] md:h-[260px] lg:h-[300px]">
-                                    <Image
-                                        src={item.subcategoryImage}
-                                        // src={`/img/medical-form/category/category${(index % 3) + 1}.png`}
-                                        alt={item.name}
-                                        fill
-                                        className={`object-contain ${isReverse ? 'lg:object-left' : 'lg:object-right'
-                                            } object-center`}
-                                        priority
-                                        unoptimized
-                                    />
+                                    {item.subcategoryImage ? (
+                                        <Image
+                                            src={item.subcategoryImage.replace(/^https?:\/\/[^/]*dxtspace\.com/, '')}
+                                            alt={item.name}
+                                            fill
+                                            className={`object-contain ${isReverse ? 'lg:object-left' : 'lg:object-right'
+                                                } object-center`}
+                                            priority
+                                            unoptimized
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                            No image available
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )

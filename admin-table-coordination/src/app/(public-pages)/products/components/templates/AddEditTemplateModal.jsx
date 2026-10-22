@@ -188,7 +188,20 @@ const AddEditTemplateModal = ({
 
   /* ---------- FILE HANDLER ---------- */
   const handleFile = (file) => {
+    setImageError("");
     if (!file) return;
+
+    if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
+      setImageError("Only PNG, JPG, JPEG files are allowed.");
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
+      return;
+    }
+
     if (file.size > MAX_FILE_SIZE) {
       setImageError("Image size should not exceed 2 MB");
       setImageFile(null);
@@ -200,10 +213,42 @@ const AddEditTemplateModal = ({
       }
       return;
     }
-    setImageError("");
-    setImageFile(file);
-    setPreview(URL.createObjectURL(file));
-    setValidated(true);
+
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      if (img.naturalWidth > 1000 || img.naturalHeight > 1000) {
+        setImageError(
+          `Image dimensions must not exceed 1000×1000px (Current: ${img.naturalWidth}×${img.naturalHeight}px).`
+        );
+        setImageFile(null);
+        setPreview(null);
+        setValidated(false);
+        if (fileRef?.current) {
+          fileRef.current.value = "";
+        }
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+
+      setImageFile(file);
+      setPreview(objectUrl);
+      setValidated(true);
+    };
+
+    img.onerror = () => {
+      setImageError("Invalid image file.");
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
+      if (fileRef?.current) {
+        fileRef.current.value = "";
+      }
+      URL.revokeObjectURL(objectUrl);
+    };
+
+    img.src = objectUrl;
   };
 
   /* ---------- SAVE ---------- */
@@ -214,6 +259,12 @@ const AddEditTemplateModal = ({
     // }
 
     setError("");
+
+    if (mode === "add" && !imageFile) {
+      setImageError("Template image is required");
+      return;
+    }
+
     setSaving(true);
 
     try {

@@ -169,12 +169,33 @@ const EditQuotation = () => {
       [name]: "",
     }));
   };
+  const formatDateToISO = (dateStr) => {
+    if (!dateStr || typeof dateStr !== "string") return null;
+    const trimmed = dateStr.trim();
+    if (!trimmed) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+    const partsSlash = trimmed.split("/");
+    if (partsSlash.length === 3) {
+      const [d, m, y] = partsSlash;
+      if (y.length === 4) {
+        return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+      }
+    }
+    const partsDash = trimmed.split("-");
+    if (partsDash.length === 3 && partsDash[0].length <= 2 && partsDash[2].length === 4) {
+      const [d, m, y] = partsDash;
+      return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+    }
+    return trimmed;
+  };
+
   const handleSubmit = async (shouldSend = false) => {
     if (!validateForm()) return;
     try {
       setSaving(true);
 
       const payload = {
+        ...formData,
         company_name: formData.company_name,
         contact_person: formData.contact_person,
         email: formData.email,
@@ -182,9 +203,9 @@ const EditQuotation = () => {
         item_type: formData.item_type,
         material: formData.material,
         size_quantity: formData.size_quantity,
-        delivery_date: formData.delivery_date,
+        delivery_date: formatDateToISO(formData.delivery_date) || formData.delivery_date,
         additional_note: formData.additional_note,
-        ...formData,
+        valid_until: formatDateToISO(formData.valid_until),
         quotation_status: shouldSend ? "sent" : (formData.quotation_status || "pending"),
         sales_rep: formData.sales_rep ? Number(formData.sales_rep) : null,
         subtotal: formData.subtotal === "" ? null : Number(formData.subtotal),
@@ -219,8 +240,16 @@ const EditQuotation = () => {
         toast.error(res?.message || t("updateFailed"));
       }
     } catch (error) {
-      console.log(error);
-      toast.error(t("genericError"));
+      console.error("Quotation update error:", error);
+      const serverErr = error?.response?.data?.error;
+      let errorMsg = error?.response?.data?.message || t("genericError");
+      if (serverErr && typeof serverErr === "object") {
+        const details = Object.entries(serverErr)
+          .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+          .join(" | ");
+        if (details) errorMsg = `${errorMsg} (${details})`;
+      }
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }

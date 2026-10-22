@@ -45,7 +45,11 @@ class SubCategoryCreateAPIView(APIView):
                     isDeleted=False
                 ).aggregate(max_order=Max("order"))["max_order"] or 0
 
-                serializer.save(order=max_order + 1)
+                is_active = serializer.validated_data.get("isActive")
+                if is_active is None:
+                    is_active = True
+
+                serializer.save(order=max_order + 1, isActive=is_active)
                                     
                 return Response({
                     "status": True,
@@ -137,12 +141,19 @@ class SubCategoryListAPIView(APIView):
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()
-            category_id = request.query_params.get("categoryId")
+            category_id = request.query_params.get("categoryId") or request.query_params.get("category_id")
+            active_only = request.query_params.get("active_only") in ("1", "true", "True")
+            is_active = request.query_params.get("isActive") or request.query_params.get("is_active")
 
             subcategories = SubCategory.objects.filter(isDeleted=False)
 
+            if active_only or is_active in ("1", "true", "True"):
+                subcategories = subcategories.filter(isActive=True)
+            elif is_active in ("0", "false", "False"):
+                subcategories = subcategories.filter(isActive=False)
+
             #  SAFE CATEGORY FILTER (FIX)
-            if category_id and category_id.isdigit():
+            if category_id and str(category_id).isdigit():
                 subcategories = subcategories.filter(
                     category__id=int(category_id)
                 )
@@ -180,10 +191,13 @@ class SubCategoryListAPIView(APIView):
 
             # Fetch category details and if it has subcategories if categoryId is provided
             category_data = None
-            if category_id and category_id.isdigit():
+            if category_id and str(category_id).isdigit():
                 try:
                     cat = Category.objects.get(id=int(category_id), isDeleted=False)
-                    have_subcategory = SubCategory.objects.filter(category=cat, isDeleted=False).exists()
+                    subcat_filter = {"category": cat, "isDeleted": False}
+                    if active_only:
+                        subcat_filter["isActive"] = True
+                    have_subcategory = SubCategory.objects.filter(**subcat_filter).exists()
                     category_data = {
                         "id": cat.id,
                         "categoryName": cat.categoryName,
