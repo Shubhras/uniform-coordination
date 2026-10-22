@@ -86,7 +86,6 @@ export default function PaymentManagement() {
   const accessToken = session?.user?.accessToken || session?.accessToken;
   const t = useTranslations("paymentManagement");
 
-  // Active Sub-Tab
   const [activeTab, setActiveTab] = useState("dashboard");
 
   // State for Payments & Analytics
