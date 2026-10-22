@@ -14,6 +14,9 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from openpyxl import Workbook
 from .models import Fabric, Parts
+from decimal import Decimal
+from .auth import IsAdminUserJWT
+from .fabric import IsAdministrator
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter,OpenApiTypes
 
 
