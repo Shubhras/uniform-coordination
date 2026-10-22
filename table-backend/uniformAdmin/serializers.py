@@ -559,6 +559,22 @@ class TemplateSerializer(serializers.ModelSerializer):
 
         return value
 
+    def validate_templateImage(self, value):
+        if value:
+            try:
+                from PIL import Image
+                img = Image.open(value)
+                width, height = img.size
+                if width > 1000 or height > 1000:
+                    raise serializers.ValidationError(
+                        f"Image dimensions must not exceed 1000×1000px (Current: {width}×{height}px)."
+                    )
+            except serializers.ValidationError:
+                raise
+            except Exception:
+                pass
+        return value
+
 
 
 # for new url /////////////////////////////

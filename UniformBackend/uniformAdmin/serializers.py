@@ -7,7 +7,7 @@ import json
 import re
 from django.utils import timezone
 from .models import *
-from datetime import timedelta
+from datetime import datetime, date, timedelta
 from .utils import get_default_b2b_role, new_build_media_url
 from userhub.models import *
 import json
@@ -737,6 +737,22 @@ class TemplateSerializer(serializers.ModelSerializer):
                 "Template with this name already exists."
             )
 
+        return value
+
+    def validate_templateImage(self, value):
+        if value:
+            try:
+                from PIL import Image
+                img = Image.open(value)
+                width, height = img.size
+                if width > 1000 or height > 1000:
+                    raise serializers.ValidationError(
+                        f"Image dimensions must not exceed 1000×1000px (Current: {width}×{height}px)."
+                    )
+            except serializers.ValidationError:
+                raise
+            except Exception:
+                pass
         return value
 
 
@@ -2277,7 +2293,27 @@ class RolePermissionAssignSerializer(serializers.Serializer):
     permissions = MenuPermissionAssignSerializer(many=True)
 
 
+
+class FlexibleDateField(serializers.DateField):
+    def to_internal_value(self, value):
+        if value in ("", None):
+            return None
+        if isinstance(value, str):
+            value = value.strip()
+            if not value:
+                return None
+            for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%Y/%m/%d"):
+                try:
+                    return datetime.strptime(value, fmt).date()
+                except (ValueError, TypeError):
+                    continue
+        return super().to_internal_value(value)
+
+
 class QuotationRequestUpdateSerializer(serializers.ModelSerializer):
+    valid_until = FlexibleDateField(required=False, allow_null=True)
+    delivery_date = FlexibleDateField(required=False, allow_null=True)
+
     class Meta:
         model = QuotationRequest
         fields = [
@@ -2307,15 +2343,25 @@ class QuotationRequestUpdateSerializer(serializers.ModelSerializer):
             "isActive",
         ]
 
+    def to_internal_value(self, data):
+        if hasattr(data, "copy"):
+            data = data.copy()
+        elif isinstance(data, dict):
+            data = dict(data)
+        for key in ["valid_until", "delivery_date", "subtotal", "total", "discount_percent", "sales_rep"]:
+            if key in data and data[key] == "":
+                data[key] = None
+        return super().to_internal_value(data)
+
     def validate(self, attrs):
         quotation_status = attrs.get(
             "quotation_status",
-            self.instance.quotation_status
+            self.instance.quotation_status if self.instance else None
         )
 
         cancel_reason = attrs.get(
             "cancel_reason",
-            self.instance.cancel_reason
+            self.instance.cancel_reason if self.instance else None
         )
 
         if quotation_status == "cancelled" and not cancel_reason:
@@ -2324,5 +2370,6 @@ class QuotationRequestUpdateSerializer(serializers.ModelSerializer):
             })
 
         return attrs
+
     
     

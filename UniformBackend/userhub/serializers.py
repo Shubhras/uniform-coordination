@@ -4,8 +4,7 @@ from django.db import IntegrityError
 from .models import *  # adjust import if needed
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
-from datetime import timedelta
-from datetime import date
+from datetime import datetime, date, timedelta
 # from userhub.models import Notifications
 from uniformAdmin.serializers import ProductSerializer
 
@@ -504,6 +503,22 @@ class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
             'created_at',
         ]
 
+class FlexibleDateField(serializers.DateField):
+    def to_internal_value(self, value):
+        if value in ("", None):
+            return None
+        if isinstance(value, str):
+            value = value.strip()
+            if not value:
+                return None
+            for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%Y/%m/%d"):
+                try:
+                    return datetime.strptime(value, fmt).date()
+                except (ValueError, TypeError):
+                    continue
+        return super().to_internal_value(value)
+
+
 class QuotationRequestSerializer(serializers.ModelSerializer):
     customupdatemodel = CustomUpdateModelQuotationSerializer(read_only=True)  
     customupdatemodel_id = serializers.PrimaryKeyRelatedField(
@@ -528,6 +543,19 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
 
     product_subcategory_id = serializers.SerializerMethodField()
     product_subcategory_name = serializers.SerializerMethodField()
+
+    valid_until = FlexibleDateField(required=False, allow_null=True)
+    delivery_date = FlexibleDateField(required=False, allow_null=True)
+
+    def to_internal_value(self, data):
+        if hasattr(data, "copy"):
+            data = data.copy()
+        elif isinstance(data, dict):
+            data = dict(data)
+        for key in ["valid_until", "delivery_date", "subtotal", "total", "discount_percent", "sales_rep"]:
+            if key in data and data[key] == "":
+                data[key] = None
+        return super().to_internal_value(data)
 
     class Meta:
         model = QuotationRequest
