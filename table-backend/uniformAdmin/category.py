@@ -53,16 +53,23 @@ class CategoryCreateAPIView(APIView):
             if "categoryName" in serializer.errors:
                 return Response({
                     "status": False,
-                    "statusCode": 200,
-                    "message": "Validation failed; Category with this categoryName already exists."
-                }, status=status.HTTP_200_OK)
+                    "statusCode": 400,
+                    "message": "Category with this categoryName already exists."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            first_err = ""
+            if isinstance(serializer.errors, dict):
+                for k, v in serializer.errors.items():
+                    val = v[0] if isinstance(v, list) and v else str(v)
+                    first_err = f"{k}: {val}" if k != "non_field_errors" else str(val)
+                    break
 
             return Response({
                 "status": False,
-                "statusCode": 200,
-                "message": "Validation failed.",
+                "statusCode": 400,
+                "message": first_err or "Validation failed.",
                 "error": serializer.errors
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as exc:
             return Response({
@@ -230,16 +237,23 @@ class CategoryUpdateAPIView(APIView):
             if "categoryName" in serializer.errors:
                 return Response({
                     "status": False,
-                    "statusCode": 200,
-                    "message": "Validation failed; Category with this categoryName already exists."
-                }, status=status.HTTP_200_OK)
+                    "statusCode": 400,
+                    "message": "Category with this categoryName already exists."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            first_err = ""
+            if isinstance(serializer.errors, dict):
+                for k, v in serializer.errors.items():
+                    val = v[0] if isinstance(v, list) and v else str(v)
+                    first_err = f"{k}: {val}" if k != "non_field_errors" else str(val)
+                    break
 
             return Response({
                 "status": False,
-                "statusCode": 200,
-                "message": "Validation failed.",
+                "statusCode": 400,
+                "message": first_err or "Validation failed.",
                 "error": serializer.errors
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as exc:
             return Response({

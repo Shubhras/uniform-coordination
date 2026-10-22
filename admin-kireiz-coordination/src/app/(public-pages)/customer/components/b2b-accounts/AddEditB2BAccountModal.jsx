@@ -117,6 +117,9 @@ const AddEditB2BAccountModal = ({
 
   const tierOptions = useMemo(
     () => [
+      { value: "corporate", label: "Corporate Standard (Special Pricing)" },
+      { value: "wholesale", label: "Wholesale Partner (Special Pricing)" },
+      { value: "enterprise", label: "Global Enterprise (Special Pricing)" },
       { value: "gold", label: t("tierOptions.gold") },
       { value: "silver", label: t("tierOptions.silver") },
       { value: "bronze", label: t("tierOptions.bronze") },

@@ -188,6 +188,7 @@ urlpatterns = [
     path('tabletheme/delete/',TableThemeDeleteAPIView.as_view(), name = 'Table_Theme-delete'),
     path("unit-price/list/",UnitPriceListAPIView.as_view(),name="unite-price-list"),
     path("unit-price/export/",UnitPriceExportAPIView.as_view(),name="unit-price-export"),
+    path("unit-price/update/",UnitPriceUpdateAPIView.as_view(),name="unit-price-update"),
 
 
     #<-------------------Dashboardes------------------------------->

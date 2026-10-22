@@ -22,7 +22,10 @@ import {
 
 import { apiGetPartsList } from "@/services/PartsService";
 
-const getApiErrorMessage = (errorData, defaultMsg = "Failed to save product") => {
+const getApiErrorMessage = (
+  errorData,
+  defaultMsg = "Failed to save product",
+) => {
   if (!errorData) return defaultMsg;
   if (typeof errorData === "string") return errorData;
   const msg = errorData?.message || errorData?.error || errorData?.errors;
@@ -43,7 +46,6 @@ const getApiErrorMessage = (errorData, defaultMsg = "Failed to save product") =>
   }
   return defaultMsg;
 };
-
 
 const selectStyles = {
   control: (base, state) => ({
@@ -209,10 +211,12 @@ const AddEditProductModal = ({
       try {
         const response = await apiGetCategoryList(accessToken);
         if (response?.status && response?.data) {
-          const options = response.data.map((c) => ({
-            value: c.id,
-            label: c.categoryName,
-          }));
+          const options = response.data
+            .filter((c) => c.isActive !== false)
+            .map((c) => ({
+              value: c.id,
+              label: c.categoryName,
+            }));
           setCategoryOptions(options);
         }
       } catch (err) {

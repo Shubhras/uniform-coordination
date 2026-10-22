@@ -281,7 +281,7 @@ class QuotationResendAPIView(APIView):
         # Only stamp/promote after the send actually succeeded.
         quotation.last_sent_at = now()
         update_fields = ["last_sent_at", "updated_at"]
-        if quotation.quotation_status == "pending":
+        if quotation.quotation_status in ["pending", "quoting"]:
             quotation.quotation_status = "sent"
             update_fields.append("quotation_status")
         quotation.save(update_fields=update_fields)

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiSend } from "react-icons/fi";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
@@ -12,6 +12,7 @@ import {
   apiUpdateQuotation,
 } from "@/services/B2BAccountService";
 import { apiGetSalesReps } from "@/services/SalesRepService";
+import { apiResendQuotation } from "@/services/QuotationHistoryService";
 
 const EditQuotation = () => {
   const t = useTranslations(
@@ -168,7 +169,7 @@ const EditQuotation = () => {
       [name]: "",
     }));
   };
-  const handleSubmit = async () => {
+  const handleSubmit = async (shouldSend = false) => {
     if (!validateForm()) return;
     try {
       setSaving(true);
@@ -184,6 +185,7 @@ const EditQuotation = () => {
         delivery_date: formData.delivery_date,
         additional_note: formData.additional_note,
         ...formData,
+        quotation_status: shouldSend ? "sent" : (formData.quotation_status || "pending"),
         sales_rep: formData.sales_rep ? Number(formData.sales_rep) : null,
         subtotal: formData.subtotal === "" ? null : Number(formData.subtotal),
         discount_percent:
@@ -195,9 +197,19 @@ const EditQuotation = () => {
 
       const res = await apiUpdateQuotation(accessToken, id, payload);
 
+      if (shouldSend) {
+        try {
+          await apiResendQuotation(accessToken, formData.quotation_id || id);
+        } catch (sendErr) {
+          console.error("Failed to send quotation email:", sendErr);
+        }
+      }
+
       toast.push(
         <Notification title={t("successTitle")} type="success">
-          {res?.message || t("updateSuccess")}
+          {shouldSend
+            ? "Quotation response sent to customer successfully!"
+            : (res?.message || t("updateSuccess"))}
         </Notification>,
       );
 
@@ -556,10 +568,20 @@ const EditQuotation = () => {
         <button
           type="button"
           disabled={saving}
-          onClick={handleSubmit}
-          className="px-6 py-3 rounded-xl bg-[#1C2C56] text-white hover:bg-[#162347] transition disabled:opacity-60 disabled:cursor-not-allowed"
+          onClick={() => handleSubmit(false)}
+          className="px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {saving ? t("saving") : t("saveChanges")}
+        </button>
+
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => handleSubmit(true)}
+          className="px-6 py-3 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition flex items-center gap-2 font-medium shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          <FiSend className="w-4 h-4" />
+          {saving ? "Sending..." : "Send Quotation Response"}
         </button>
       </div>
     </div>

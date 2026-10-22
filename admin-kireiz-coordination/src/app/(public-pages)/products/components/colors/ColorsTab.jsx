@@ -93,7 +93,7 @@ const ColorsTab = () => {
         setLoading(false);
       }
     },
-    [accessToken, pageSize, debouncedSearch]
+    [accessToken, pageSize, debouncedSearch],
   );
 
   useEffect(() => {
@@ -154,9 +154,27 @@ const ColorsTab = () => {
     try {
       setDuplicatingId(color.id);
 
-      const cleanColorName = getVisibleColorName(color.colorName);
+      const baseName = (color.colorName || "")
+        .replace(/\u200B/g, "")
+        .replace(/\s*\(Copy(\s+\d+)?\)$/i, "")
+        .trim();
+      let counter = 1;
+      let candidateName = `${baseName} (Copy)`;
+      const existingNames = new Set(
+        colors.map((c) =>
+          (c.colorName || "")
+            .replace(/\u200B/g, "")
+            .trim()
+            .toLowerCase(),
+        ),
+      );
+      while (existingNames.has(candidateName.toLowerCase())) {
+        counter += 1;
+        candidateName = `${baseName} (Copy ${counter})`;
+      }
+
       const duplicatePayload = {
-        colorName: `${cleanColorName}${INVISIBLE_DUPLICATE_CHAR}`,
+        colorName: candidateName,
         colorCode: color.colorCode,
         compatibleFabric: color.compatibleFabric || [],
       };
@@ -173,6 +191,18 @@ const ColorsTab = () => {
       }
     } catch (error) {
       console.error("Failed to duplicate color:", error);
+      const errorMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        t("duplicateFailed") ||
+        "Failed to duplicate color";
+      toast.push(
+        <Notification title={t("errorTitle") || "Error"} type="danger">
+          {typeof errorMsg === "object"
+            ? JSON.stringify(errorMsg)
+            : String(errorMsg)}
+        </Notification>,
+      );
     } finally {
       setDuplicatingId(null);
     }
@@ -224,7 +254,9 @@ const ColorsTab = () => {
               {t("title")}
             </h2>
             <p className="text-sm text-[#486284]">
-              {t("totalCount", { count: pagination.total_items || colors.length })}
+              {t("totalCount", {
+                count: pagination.total_items || colors.length,
+              })}
             </p>
           </div>
 
@@ -263,9 +295,7 @@ const ColorsTab = () => {
         {loading ? (
           <CardSkeleton />
         ) : colors.length === 0 ? (
-          <div className="text-center py-16 text-[#94A3B8]">
-            {t("noData")}
-          </div>
+          <div className="text-center py-16 text-[#94A3B8]">{t("noData")}</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {colors.map((color) => (

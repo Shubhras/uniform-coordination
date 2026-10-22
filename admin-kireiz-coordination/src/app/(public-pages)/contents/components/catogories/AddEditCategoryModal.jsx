@@ -42,7 +42,7 @@ const AddEditCategoryModal = ({
   const [bannerValidated, setBannerValidated] = useState(false);
   const [active, setActive] = useState(true);
 
-   const categorySchema = z.object({
+  const categorySchema = z.object({
     categoryName: z.string().trim().min(1, tm("validation.nameRequired")),
 
     description: z.string().trim().min(1, tm("validation.descriptionRequired")),
@@ -81,7 +81,6 @@ const AddEditCategoryModal = ({
     },
   });
 
- 
   // Save state
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -157,14 +156,43 @@ const AddEditCategoryModal = ({
       return;
     }
 
-    setImageError("");
-    setImageFile(file);
-    setPreview(URL.createObjectURL(file));
-    setValidated(true);
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
 
-    setValue("image", file, {
-      shouldValidate: true,
-    });
+    img.onload = () => {
+      if (img.naturalWidth > 1000 || img.naturalHeight > 1000) {
+        setImageError(
+          `Image dimensions must not exceed 1000×1000px (Current: ${img.naturalWidth}×${img.naturalHeight}px).`,
+        );
+        setImageFile(null);
+        setPreview(null);
+        setValidated(false);
+        setValue("image", null, {
+          shouldValidate: true,
+        });
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+
+      setImageError("");
+      setImageFile(file);
+      setPreview(objectUrl);
+      setValidated(true);
+
+      setValue("image", file, {
+        shouldValidate: true,
+      });
+    };
+
+    img.onerror = () => {
+      setImageError("Invalid image file.");
+      URL.revokeObjectURL(objectUrl);
+    };
+
+    img.src = objectUrl;
   };
 
   const handleDrop = (e) => {
@@ -202,14 +230,43 @@ const AddEditCategoryModal = ({
       return;
     }
 
-    setBannerError("");
-    setBannerFile(file);
-    setBannerPreview(URL.createObjectURL(file));
-    setBannerValidated(true);
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
 
-    setValue("bannerImage", file, {
-      shouldValidate: true,
-    });
+    img.onload = () => {
+      if (img.naturalWidth > 1000 || img.naturalHeight > 1000) {
+        setBannerError(
+          `Banner image dimensions must not exceed 1000×1000px (Current: ${img.naturalWidth}×${img.naturalHeight}px).`,
+        );
+        setBannerFile(null);
+        setBannerPreview(null);
+        setBannerValidated(false);
+        setValue("bannerImage", null, {
+          shouldValidate: true,
+        });
+        if (bannerInputRef.current) {
+          bannerInputRef.current.value = "";
+        }
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+
+      setBannerError("");
+      setBannerFile(file);
+      setBannerPreview(objectUrl);
+      setBannerValidated(true);
+
+      setValue("bannerImage", file, {
+        shouldValidate: true,
+      });
+    };
+
+    img.onerror = () => {
+      setBannerError("Invalid image file.");
+      URL.revokeObjectURL(objectUrl);
+    };
+
+    img.src = objectUrl;
   };
 
   const handleBannerDrop = (e) => {
@@ -223,8 +280,6 @@ const AddEditCategoryModal = ({
 
   /* ---------- RESET ---------- */
   const resetForm = () => {
-    // setCategoryName("");
-    // setDescription("");
     setImageFile(null);
     setPreview(null);
     setValidated(false);
@@ -235,10 +290,13 @@ const AddEditCategoryModal = ({
     setBannerError("");
     setActive(true);
     setError("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (bannerInputRef.current) bannerInputRef.current.value = "";
     reset({
       categoryName: "",
       description: "",
       image: null,
+      bannerImage: null,
     });
   };
 
@@ -295,7 +353,19 @@ const AddEditCategoryModal = ({
       }
     } catch (err) {
       console.error("Category save error:", err);
-      setError(err?.response?.data?.message || err?.message || tm("saveFailed"));
+      const data = err?.response?.data || err;
+      let errorMsg =
+        (typeof data?.message === "string" && data.message) ||
+        (typeof data?.error === "string" && data.error);
+      if (!errorMsg && typeof data === "object") {
+        for (const [k, v] of Object.entries(data)) {
+          if (k === "statusCode" || k === "status") continue;
+          const text = Array.isArray(v) ? v.join(", ") : String(v);
+          errorMsg = `${k}: ${text}`;
+          break;
+        }
+      }
+      setError(errorMsg || err?.message || tm("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -308,7 +378,7 @@ const AddEditCategoryModal = ({
       onRequestClose={onClose}
       className="w-full md:min-w-[620px] mx-auto"
     >
-      <Form onSubmit={handleSubmit(handleSave)}>
+      <Form onSubmit={(e) => e.preventDefault()}>
         <div className="flex flex-col">
           <div className="border-b p-2 flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
@@ -551,6 +621,7 @@ const AddEditCategoryModal = ({
 
           <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
             <Button
+              type="button"
               variant="plain"
               onClick={onClose}
               size="sm"
@@ -560,24 +631,26 @@ const AddEditCategoryModal = ({
               {tm("cancel")}
             </Button>
 
-            <Button
-              variant="plain"
-              size="sm"
-              // onClick={() => handleSave({ keepOpen: true })}
-              onClick={handleSubmit((values) =>
-                handleSave(values, { keepOpen: true }),
-              )}
-              disabled={saving}
-              className="bg-blue-100 rounded-lg"
-            >
-              {tm("saveAndAddAnother")}
-            </Button>
+            {mode !== "edit" && (
+              <Button
+                type="button"
+                variant="plain"
+                size="sm"
+                onClick={handleSubmit((values) =>
+                  handleSave(values, { keepOpen: true }),
+                )}
+                disabled={saving}
+                className="bg-blue-100 rounded-lg"
+              >
+                {tm("saveAndAddAnother")}
+              </Button>
+            )}
 
             <Button
+              type="button"
               variant="solid"
               size="sm"
               className="bg-[#1C4FA8] px-6 hover:bg-[#1C4FA8] text-white py-2 rounded-md"
-              // onClick={() => handleSave({ keepOpen: false })}
               onClick={handleSubmit((values) =>
                 handleSave(values, { keepOpen: false }),
               )}

@@ -75,26 +75,31 @@ class UnitPriceListAPIView(APIView):
             fabrics = Fabric.objects.filter(isDeleted=False, isActive=True)
 
             for fabric in fabrics:
+                base = fabric.pricePerUnit or 0
+                bulk = round(float(base) * 0.90, 2)
                 data.append({
+                    "id": fabric.id,
                     "type": "Fabric",
                     "itemName": fabric.fabricName,
                     "unit": "Meter",
-                    "basePrice": fabric.pricePerUnit or 0,
-                    "bulk": fabric.pricePerUnit or 0,
-                    "action": "view"
+                    "basePrice": base,
+                    "bulk": bulk,
+                    "action": "edit"
                 })
 
             # ================= PARTS =================
-
-            parts = Parts.objects.filter(isDeleted=False, isActive=True)
+            parts = Parts.objects.filter(isDeleted=False, isActive=True).select_related("fabric")
             for part in parts:
+                base = (part.fabric.pricePerUnit if part.fabric else 0) or 0
+                bulk = round(float(base) * 0.90, 2)
                 data.append({
+                    "id": part.id,
                     "type": "Part",
                     "itemName": part.partName,
                     "unit": "Piece",
-                    "basePrice": None,  # <- set to null
-                    "bulk": None,       # <- set to null
-                    "action": "view"
+                    "basePrice": base,
+                    "bulk": bulk,
+                    "action": "edit"
                 })
 
             serializer = UnitPriceSerializer(data, many=True)
@@ -111,6 +116,113 @@ class UnitPriceListAPIView(APIView):
                 "status": False,
                 "statusCode": 500,
                 "message": f"Internal server error: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class UnitPriceUpdateAPIView(APIView):
+    authentication_classes = [IsAdminUserJWT]
+    permission_classes = [IsAdministrator]
+
+    @extend_schema(
+        tags=["Unit Price"],
+        summary="Update Unit Price",
+        description="Update base price for a Fabric or Part item.",
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "integer"},
+                    "type": {"type": "string", "enum": ["Fabric", "Part"]},
+                    "basePrice": {"type": "number"}
+                },
+                "required": ["id", "type", "basePrice"]
+            }
+        },
+        responses={200: OpenApiResponse(description="Unit price updated successfully")}
+    )
+    def post(self, request):
+        try:
+            item_type = request.data.get("type")
+            item_id = request.data.get("id")
+            base_price = request.data.get("basePrice")
+
+            if base_price is None or base_price == "":
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "basePrice is required."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                base_price = Decimal(str(base_price))
+                if base_price < 0:
+                    raise ValueError()
+            except (ValueError, TypeError):
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "basePrice must be a valid non-negative number."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if item_type == "Fabric":
+                fabric = Fabric.objects.filter(id=item_id, isDeleted=False).first()
+                if not fabric:
+                    return Response({
+                        "status": False,
+                        "statusCode": 404,
+                        "message": "Fabric not found."
+                    }, status=status.HTTP_404_NOT_FOUND)
+                fabric.pricePerUnit = base_price
+                fabric.save(update_fields=["pricePerUnit", "updated_at"])
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "Fabric unit price updated successfully.",
+                    "data": {
+                        "id": fabric.id,
+                        "type": "Fabric",
+                        "itemName": fabric.fabricName,
+                        "basePrice": str(fabric.pricePerUnit),
+                        "bulk": str(round(float(fabric.pricePerUnit) * 0.90, 2))
+                    }
+                }, status=status.HTTP_200_OK)
+
+            elif item_type == "Part":
+                part = Parts.objects.filter(id=item_id, isDeleted=False).select_related("fabric").first()
+                if not part:
+                    return Response({
+                        "status": False,
+                        "statusCode": 404,
+                        "message": "Part not found."
+                    }, status=status.HTTP_404_NOT_FOUND)
+                if part.fabric:
+                    part.fabric.pricePerUnit = base_price
+                    part.fabric.save(update_fields=["pricePerUnit", "updated_at"])
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "Part unit price updated successfully.",
+                    "data": {
+                        "id": part.id,
+                        "type": "Part",
+                        "itemName": part.partName,
+                        "basePrice": str(base_price),
+                        "bulk": str(round(float(base_price) * 0.90, 2))
+                    }
+                }, status=status.HTTP_200_OK)
+
+            else:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Invalid type. Must be 'Fabric' or 'Part'."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": f"Server error: {str(e)}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -344,23 +456,27 @@ class UnitPriceExportAPIView(APIView):
         # ---------- FABRICS ----------
         fabrics = Fabric.objects.filter(isDeleted=False, isActive=True)
         for fabric in fabrics:
+            base = fabric.pricePerUnit or 0
+            bulk = round(float(base) * 0.90, 2)
             rows.append({
                 "type": "Fabric",
                 "itemName": fabric.fabricName,
                 "unit": "Meter",
-                "basePrice": fabric.pricePerUnit,
-                "bulk": fabric.pricePerUnit
+                "basePrice": base,
+                "bulk": bulk
             })
 
         # ---------- PARTS ----------
-        parts = Parts.objects.filter(isDeleted=False, isActive=True)
+        parts = Parts.objects.filter(isDeleted=False, isActive=True).select_related("fabric")
         for part in parts:
+            base = (part.fabric.pricePerUnit if part.fabric else 0) or 0
+            bulk = round(float(base) * 0.90, 2)
             rows.append({
                 "type": "Part",
                 "itemName": part.partName,
                 "unit": "Piece",
-                "basePrice": None,
-                "bulk": None
+                "basePrice": base,
+                "bulk": bulk
             })
 
         return rows

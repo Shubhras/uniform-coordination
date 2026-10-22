@@ -462,16 +462,18 @@ def ensure_admin_menus():
             "order_manage",
             "product_specification",
         ]
-        if not RoleMenuPermission.objects.filter(role=sales_role).exists():
+        if not RoleMenuPermission.objects.filter(role=sales_role, can_view=True).exists():
             for menu in Menu.objects.filter(isDeleted=False, isActive=True):
                 can_view = menu.slug in sales_default_slugs
-                RoleMenuPermission.objects.create(
+                RoleMenuPermission.objects.update_or_create(
                     role=sales_role,
                     menu=menu,
-                    can_view=can_view,
-                    can_create=can_view,
-                    can_update=can_view,
-                    can_delete=False,
+                    defaults={
+                        "can_view": can_view,
+                        "can_create": can_view,
+                        "can_update": can_view,
+                        "can_delete": False,
+                    }
                 )
     except Exception:
         pass

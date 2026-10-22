@@ -105,8 +105,8 @@ const RichTextEditor = (props) => {
             <EditorContent
                 ref={ref}
                 className={classNames(
-                    'max-h-[600px] overflow-auto px-2 prose prose-p:text-sm dark:prose-p:text-gray-400 max-w-full bg-white',
-                    editorContentClass,
+                    'overflow-auto px-2 prose prose-p:text-sm dark:prose-p:text-gray-400 max-w-full bg-white [&_.tiptap]:min-h-[550px] [&_.tiptap]:outline-none',
+                    editorContentClass || 'max-h-[600px]',
                 )}
                 editor={editor}
                 {...rest}

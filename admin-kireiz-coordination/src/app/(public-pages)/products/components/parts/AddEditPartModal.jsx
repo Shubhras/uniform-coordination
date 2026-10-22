@@ -156,10 +156,12 @@ const AddEditPartModal = ({
         setLoadingCategories(true);
         const res = await apiGetCategoryList();
         if (res?.status && res?.data) {
-          const opts = res.data.map((c) => ({
-            value: c.id,
-            label: c.categoryName,
-          }));
+          const opts = res.data
+            .filter((c) => c.isActive !== false)
+            .map((c) => ({
+              value: c.id,
+              label: c.categoryName,
+            }));
           setCategoryOptions(opts);
         }
       } catch (err) {
@@ -185,7 +187,10 @@ const AddEditPartModal = ({
     const fetchSubcategories = async () => {
       try {
         setLoadingSubcategories(true);
-        const res = await apiGetSubcategoryList(accessToken,selectedCategory.value);
+        const res = await apiGetSubcategoryList(
+          accessToken,
+          selectedCategory.value,
+        );
         if (res?.status && res?.data) {
           const opts = res.data.map((sc) => ({
             value: sc.id,

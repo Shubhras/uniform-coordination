@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from django.conf import settings
+from decimal import Decimal
 import json
 import re
 from django.utils import timezone
@@ -9,9 +10,7 @@ from .models import *
 from datetime import timedelta
 from .utils import get_default_b2b_role, new_build_media_url
 from userhub.models import *
-# User = get_user_model()
 import json
-# from userhub.models import Order
 
 
 def build_media_url(file_field):
@@ -22,7 +21,18 @@ def build_media_url(file_field):
     if not file_field:
         return None
 
-    return f"{settings.SITE_DOMAIN}{settings.MEDIA_URL}{file_field.name}"
+    name = getattr(file_field, "name", str(file_field))
+    if str(name).startswith(("http://", "https://")):
+        return str(name)
+
+    domain = getattr(settings, "SITE_DOMAIN", "") or ""
+    if "dxtspace.com" in domain:
+        domain = getattr(settings, "SITE_URL", "") or ""
+    if "dxtspace.com" in domain:
+        domain = ""
+    domain = domain.rstrip("/")
+    media_url = getattr(settings, "MEDIA_URL", "/media/")
+    return f"{domain}{media_url}{name}"
 
 
 # class AdminLoginSerializer(serializers.Serializer):
@@ -225,7 +235,7 @@ class FabricSerializer(serializers.ModelSerializer):
     subcategory = SubCategoryMiniSerializer(read_only=True)
 
     category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.filter(isDeleted=False),
+        queryset=Category.objects.filter(isDeleted=False, isActive=True),
         source="category",
         write_only=True,
         required=False,
@@ -238,10 +248,27 @@ class FabricSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
+    pricePerUnit = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        min_value=Decimal("0"),
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = Fabric
         fields = '__all__'
+
+    def validate_fabricName(self, value):
+        if not value:
+            return value
+        qs = Fabric.objects.filter(fabricName__iexact=value.strip(), isDeleted=False)
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+        if qs.exists():
+            raise serializers.ValidationError("Fabric with this name already exists.")
+        return value.strip()
 
     def validate(self, data):
         fabric_type = data.get("fabricType")
@@ -277,6 +304,12 @@ class FabricSerializer(serializers.ModelSerializer):
                 "subcategory": "Selected subcategory does not belong to selected category"
             })
 
+        price_per_unit = data.get("pricePerUnit")
+        if price_per_unit is not None and price_per_unit < 0:
+            raise serializers.ValidationError({
+                "pricePerUnit": "Price per unit cannot be negative."
+            })
+
         return data
 
 
@@ -293,7 +326,7 @@ class PartsSerializer(serializers.ModelSerializer):
     subcategory = SubCategoryMiniSerializer(read_only=True)
 
     category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.filter(isDeleted=False),
+        queryset=Category.objects.filter(isDeleted=False, isActive=True),
         source="category",
         write_only=True,
         required=False,
@@ -552,7 +585,10 @@ class ColorsSerializer(serializers.ModelSerializer):
         return value
 
     def validate_colorName(self, value):
-        if Colors.objects.filter(colorName__iexact=value, isDeleted=False).exists():
+        qs = Colors.objects.filter(colorName__iexact=value, isDeleted=False)
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+        if qs.exists():
             raise serializers.ValidationError("This color name already exists.")
         return value
 
@@ -605,6 +641,12 @@ class AttributeOptionSerializer(serializers.ModelSerializer):
     )
     imageUrl = serializers.SerializerMethodField()
 
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isDeleted=False, isActive=True),
+        required=False,
+        allow_null=True,
+    )
+
     class Meta:
         model = AttributeOption
         fields = [
@@ -616,6 +658,17 @@ class AttributeOptionSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["isDeleted", "created_at", "updated_at"]
         extra_kwargs = {"image": {"write_only": True, "required": False}}
+
+    def to_internal_value(self, data):
+        if hasattr(data, "dict"):
+            data = data.dict()
+        elif hasattr(data, "copy"):
+            data = data.copy()
+        else:
+            data = dict(data)
+        if data.get("category") in ("", "None", "null", None):
+            data["category"] = None
+        return super().to_internal_value(data)
 
     def get_imageUrl(self, obj):
         return new_build_media_url(obj.image)
@@ -641,6 +694,11 @@ class TemplateSerializer(serializers.ModelSerializer):
     # own grouping (Pockets, Caps) and is not what the storefront pages filter on.
     categoryName = serializers.CharField(
         source='category.categoryName', read_only=True
+    )
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isDeleted=False, isActive=True),
+        required=False,
+        allow_null=True
     )
     # The style this template pre-selects in the design tool. Names and the colour code
     # travel with it so the storefront can show what a template applies without a second
@@ -903,6 +961,38 @@ class CategorySerializer(serializers.ModelSerializer):
             )
 
         return value.strip()
+
+    def validate_categoryImage(self, value):
+        if value:
+            try:
+                from PIL import Image
+                img = Image.open(value)
+                width, height = img.size
+                if width > 1000 or height > 1000:
+                    raise serializers.ValidationError(
+                        f"Image dimensions must not exceed 1000×1000px (Current: {width}×{height}px)."
+                    )
+            except serializers.ValidationError:
+                raise
+            except Exception:
+                pass
+        return value
+
+    def validate_bannerImage(self, value):
+        if value:
+            try:
+                from PIL import Image
+                img = Image.open(value)
+                width, height = img.size
+                if width > 1000 or height > 1000:
+                    raise serializers.ValidationError(
+                        f"Banner image dimensions must not exceed 1000×1000px (Current: {width}×{height}px)."
+                    )
+            except serializers.ValidationError:
+                raise
+            except Exception:
+                pass
+        return value
 
 
 
@@ -1296,7 +1386,7 @@ class ProductSerializer(serializers.ModelSerializer):
     ProductImage_file = serializers.ImageField(write_only=True, required=False) 
  
     category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.filter(isDeleted=False),
+        queryset=Category.objects.filter(isDeleted=False, isActive=True),
         source="category",
         write_only=True,
         required=False,
@@ -1447,12 +1537,6 @@ class ProductSerializer(serializers.ModelSerializer):
             })
  
         return data
-        read_only_fields = ["slug", "created_at"]
-
-    def get_ProductImage(self, obj):
-        if obj.ProductImage:
-            return build_media_url(obj.ProductImage)
-        return None
 
     def create(self, validated_data):
         image = validated_data.pop('ProductImage_file', None)
@@ -1484,44 +1568,6 @@ class ProductSerializer(serializers.ModelSerializer):
             instance.parts.set(parts)
 
         return instance
- 
-    
-    def validate(self, data):
-        product_type = data.get("productType")
- 
-        theme_provided = "theme" in self.initial_data
-        theme_value = data.get("theme")
- 
-        category = data.get("category")
-        subcategory = data.get("subcategory")
- 
-        if subcategory and category and subcategory.category != category:
-            raise serializers.ValidationError({
-                "subcategory": "Selected subcategory does not belong to selected category"
-            })
- 
-        total_qty = data.get("total_quantity", 0)
-        avail_qty = data.get("available_quantity", 0)
- 
-        if avail_qty > total_qty:
-            raise serializers.ValidationError({
-                "available_quantity": "Available quantity cannot exceed total quantity"
-            })
- 
-        if product_type == "table" and not theme_value:
-            raise serializers.ValidationError({
-                "theme": "Theme is required when product type is table."
-            })
- 
-        if product_type == "uniform" and theme_provided:
-            raise serializers.ValidationError({
-                "theme": "Theme is not allowed for uniform products."
-            })
- 
-        return data
- 
-    
-    
 
 class SpecialConditionSerializer(serializers.ModelSerializer):
     discount_percentage = serializers.DecimalField(
@@ -1771,11 +1817,12 @@ class AdminNotificationSerializer(serializers.ModelSerializer):
         
         
 class UnitPriceSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=False, allow_null=True)
     type = serializers.CharField()
     itemName = serializers.CharField()
     unit = serializers.CharField()
-    basePrice = serializers.DecimalField(max_digits=10, decimal_places=2)
-    bulk = serializers.DecimalField(max_digits=10, decimal_places=2,allow_null=True)
+    basePrice = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=Decimal("0"), allow_null=True)
+    bulk = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=Decimal("0"), allow_null=True)
     action = serializers.CharField()
 
 #<====================B2B=========================>

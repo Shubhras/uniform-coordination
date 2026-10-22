@@ -21,7 +21,10 @@ import {
   apiFabricSubCategoryList,
 } from "@/services/FabricService";
 
-const getApiErrorMessage = (errorData, defaultMsg = "Failed to save fabric") => {
+const getApiErrorMessage = (
+  errorData,
+  defaultMsg = "Failed to save fabric",
+) => {
   if (!errorData) return defaultMsg;
   if (typeof errorData === "string") return errorData;
 
@@ -101,11 +104,13 @@ const AddEditFabricModal = ({
         const res = await apiFabricCategoryList(accessToken);
 
         const options =
-          res?.data?.map((item) => ({
-            value: item.id,
-            label: item.categoryName,
-            type: item.type,
-          })) || [];
+          res?.data
+            ?.filter((item) => item.isActive !== false)
+            ?.map((item) => ({
+              value: item.id,
+              label: item.categoryName,
+              type: item.type,
+            })) || [];
 
         setCategoryOptions(options);
       } catch (err) {
@@ -128,11 +133,13 @@ const AddEditFabricModal = ({
         const res = await apiFabricSubCategoryList(accessToken, category.value);
 
         const options =
-          res?.data?.map((item) => ({
-            value: item.id,
-            label: item.name,
-            type: item.type,
-          })) || [];
+          res?.data
+            ?.filter((item) => item.isActive !== false)
+            ?.map((item) => ({
+              value: item.id,
+              label: item.name,
+              type: item.type,
+            })) || [];
 
         setSubCategoryOptions(options);
       } catch (err) {
@@ -145,9 +152,12 @@ const AddEditFabricModal = ({
   }, [category, accessToken]);
 
   const validationSchema = z.object({
-    fabricName: z.string().trim().min(1, {
-      message: tm("validation.nameRequired"),
-    }),
+    fabricName: z
+      .string()
+      .trim()
+      .min(1, {
+        message: tm("validation.nameRequired"),
+      }),
 
     materialType: z.any().refine((val) => val !== null, {
       message: tm("validation.materialRequired"),
@@ -161,6 +171,9 @@ const AddEditFabricModal = ({
       })
       .refine((val) => !isNaN(Number(val)), {
         message: tm("validation.priceInvalid"),
+      })
+      .refine((val) => Number(val) >= 0, {
+        message: "Price per unit cannot be negative",
       }),
     category: z.any().refine((val) => val !== null, {
       message: tm("validation.categoryRequired"),
@@ -436,7 +449,9 @@ const AddEditFabricModal = ({
           {/* Error Message */}
           {error && (
             <div className="mx-5 mt-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-md flex items-center justify-between">
-              <span>{typeof error === "string" ? error : JSON.stringify(error)}</span>
+              <span>
+                {typeof error === "string" ? error : JSON.stringify(error)}
+              </span>
               <button
                 type="button"
                 onClick={() => setError("")}
@@ -452,7 +467,8 @@ const AddEditFabricModal = ({
             {/* Fabric Name */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                {tm("fabricNameLabel")}<span className="text-red-500">*</span>
+                {tm("fabricNameLabel")}
+                <span className="text-red-500">*</span>
               </label>
               <FormItem
                 className="mt-1"
@@ -463,7 +479,10 @@ const AddEditFabricModal = ({
                   name="fabricName"
                   control={control}
                   render={({ field }) => (
-                    <Input placeholder={tm("fabricNamePlaceholder")} {...field} />
+                    <Input
+                      placeholder={tm("fabricNamePlaceholder")}
+                      {...field}
+                    />
                   )}
                 />
               </FormItem>
@@ -472,7 +491,8 @@ const AddEditFabricModal = ({
             {/* Color */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                {tm("colorLabel")}<span className="text-red-500">*</span>
+                {tm("colorLabel")}
+                <span className="text-red-500">*</span>
               </label>
 
               <div className="flex gap-3 mt-1">
@@ -518,7 +538,8 @@ const AddEditFabricModal = ({
             {/* Material Type */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                {tm("materialTypeLabel")}<span className="text-red-500">*</span>
+                {tm("materialTypeLabel")}
+                <span className="text-red-500">*</span>
               </label>
 
               <FormItem
@@ -546,7 +567,8 @@ const AddEditFabricModal = ({
             {/* Price */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                {tm("pricePerUnitLabel")}<span className="text-red-500">*</span>
+                {tm("pricePerUnitLabel")}
+                <span className="text-red-500">*</span>
               </label>
 
               <FormItem
@@ -558,7 +580,16 @@ const AddEditFabricModal = ({
                   name="price"
                   control={control}
                   render={({ field }) => (
-                    <Input type="number" placeholder={tm("pricePerUnitPlaceholder")} {...field} />
+                    <Input
+                      type="number"
+                      min="0"
+                      step="any"
+                      onKeyDown={(e) => {
+                        if (e.key === "-" || e.key === "e") e.preventDefault();
+                      }}
+                      placeholder={tm("pricePerUnitPlaceholder")}
+                      {...field}
+                    />
                   )}
                 />
               </FormItem>

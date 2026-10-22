@@ -2,13 +2,18 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { FiEdit2, FiDownload, FiChevronDown } from "react-icons/fi";
+import { FiEdit2, FiDownload, FiChevronDown, FiX } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
   apiGetUnitPriceList,
   apiExportUnitPrice,
+  apiUpdateUnitPrice,
 } from "@/services/UnitPriceService";
 import Pagination from "@/components/ui/Pagination";
+import Dialog from "@/components/ui/Dialog";
+import Button from "@/components/ui/Button";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 
 // `value` is the API's export format and stays untranslated.
 const exportOptions = [
@@ -32,6 +37,13 @@ const UnitPrice = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  // Edit Unit Price Modal state
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [editPrice, setEditPrice] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState("");
+
   const [pagination, setPagination] = useState({
     total_items: 0,
     total_pages: 1,
@@ -39,8 +51,6 @@ const UnitPrice = () => {
 
   /* ---------- FETCH ---------- */
   const fetchUnitPrices = useCallback(async () => {
-    // if (!accessToken) return;
-
     try {
       setLoading(true);
       const response = await apiGetUnitPriceList(currentPage, pageSize);
@@ -48,7 +58,7 @@ const UnitPrice = () => {
       if (response?.status && response?.data) {
         setData(response.data);
         setPagination({
-          total_items: response.pagination?.total_items || response.count || 0,
+          total_items: response.pagination?.total_items || response.count || response.data.length,
           total_pages: response.pagination?.total_pages || 1,
         });
       }
@@ -76,13 +86,13 @@ const UnitPrice = () => {
 
   /* ---------- EXPORT ---------- */
   const handleExport = async (type) => {
+    if (exporting) return;
     setExporting(true);
     setExportOpen(false);
 
     try {
       const response = await apiExportUnitPrice(type);
 
-      // Get filename from Content-Disposition header or use default
       const contentDisposition = response.headers?.["content-disposition"];
       let filename = `unit-price-export.${type === "excel" ? "xlsx" : type}`;
 
@@ -95,7 +105,6 @@ const UnitPrice = () => {
         }
       }
 
-      // Create download link
       const blob = new Blob([response.data]);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -109,6 +118,52 @@ const UnitPrice = () => {
       console.error("Export failed:", error);
     } finally {
       setExporting(false);
+    }
+  };
+
+  /* ---------- EDIT MODAL OPEN ---------- */
+  const handleOpenEdit = (item) => {
+    setSelectedItem(item);
+    setEditPrice(item.basePrice != null ? String(item.basePrice) : "");
+    setEditError("");
+    setEditModalOpen(true);
+  };
+
+  /* ---------- EDIT SAVE ---------- */
+  const handleSavePrice = async () => {
+    if (!selectedItem || editSaving) return;
+    const num = Number(editPrice);
+    if (isNaN(num) || num < 0 || editPrice === "") {
+      setEditError("Please enter a valid non-negative unit price.");
+      return;
+    }
+
+    try {
+      setEditSaving(true);
+      setEditError("");
+      const res = await apiUpdateUnitPrice(accessToken, {
+        id: selectedItem.id,
+        type: selectedItem.type,
+        basePrice: num,
+      });
+
+      if (res?.status) {
+        toast.push(
+          <Notification title="Price Updated" type="success">
+            {res.message || "Unit price updated successfully."}
+          </Notification>,
+        );
+        setEditModalOpen(false);
+        setSelectedItem(null);
+        fetchUnitPrices();
+      } else {
+        setEditError(res?.message || "Failed to update unit price.");
+      }
+    } catch (err) {
+      console.error("Failed to update unit price:", err);
+      setEditError(err?.response?.data?.message || err?.message || "Failed to update unit price.");
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -160,7 +215,7 @@ const UnitPrice = () => {
                 <div className="h-4 bg-gray-200 rounded w-20 animate-pulse" />
               </td>
               <td className="px-4 py-4">
-                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 bg-gray-200 rounded w-10 animate-pulse" />
               </td>
             </tr>
           ))}
@@ -171,31 +226,26 @@ const UnitPrice = () => {
 
   return (
     <>
-      <div className="rounded-xl shadow md:p-6 p-4">
+      <div className="bg-[#F4F7FC] rounded-xl shadow md:p-6 p-4">
         {/* Header */}
-        <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-5">
+        <div className="flex justify-between sm:flex-row flex-col items-start gap-3 mb-6">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
               {t("title")}
             </h2>
-            <p className="text-sm text-[#486284]">
-              {t("totalCount", { count: pagination.total_items })}
-            </p>
+            <p className="text-base text-[#486284]">{t("subtitle")}</p>
           </div>
 
           <div className="flex gap-3">
-            {/* <button className="border border-[#CBD5E1] text-[#1C2C56] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
-              Reset Default
-            </button> */}
-
             {/* Export Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
-                onClick={() => setExportOpen(!exportOpen)}
+                type="button"
+                onClick={() => setExportOpen((prev) => !prev)}
                 disabled={exporting}
-                className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 disabled:opacity-60"
+                className="bg-white border border-[#CBD5E1] text-[#1C2C56] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-[#F8FAFC] transition-colors disabled:opacity-50"
               >
-                <FiDownload size={16} />
+                <FiDownload size={15} />
                 {exporting ? t("exporting") : t("export")}
                 <FiChevronDown
                   size={14}
@@ -246,14 +296,16 @@ const UnitPrice = () => {
                   <th className="px-4 py-4 text-left font-medium">
                     {t("table.bulk")}
                   </th>
-                  {/* <th className="px-4 py-4 text-left font-medium">Action</th> */}
+                  <th className="px-4 py-4 text-left font-medium">
+                    {t("table.action")}
+                  </th>
                 </tr>
               </thead>
 
               <tbody>
                 {data.map((item, index) => (
                   <tr
-                    key={index}
+                    key={item.id ? `${item.type}-${item.id}` : index}
                     className={`text-[#486284] ${
                       index % 2 === 0 ? "bg-white" : "bg-[#F8FAFC]"
                     }`}
@@ -268,14 +320,23 @@ const UnitPrice = () => {
 
                     <td className="px-4 py-4">{item.unit}</td>
 
-                    <td className="px-4 py-4 font-medium">₹{item.basePrice}</td>
+                    <td className="px-4 py-4 font-medium">
+                      {item.basePrice != null ? `₹${Number(item.basePrice).toFixed(2)}` : "-"}
+                    </td>
 
-                    <td className="px-4 py-4 font-medium">₹{item.bulk}</td>
-                    {/* <td className="px-4 py-4">
-                      <button className="text-[#1C4FA8] hover:text-[#163E85] transition-colors">
-                        <FiEdit2 size={18} />
+                    <td className="px-4 py-4 font-medium text-green-700">
+                      {item.bulk != null ? `₹${Number(item.bulk).toFixed(2)}` : "-"}
+                    </td>
+
+                    <td className="px-4 py-4">
+                      <button
+                        onClick={() => handleOpenEdit(item)}
+                        title="Edit Unit Price"
+                        className="text-[#1C4FA8] hover:text-[#163E85] transition-colors p-1.5 rounded hover:bg-blue-50"
+                      >
+                        <FiEdit2 size={16} />
                       </button>
-                    </td> */}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -283,6 +344,7 @@ const UnitPrice = () => {
           </div>
         )}
       </div>
+
       <div className="mt-5">
         <Pagination
           currentPage={currentPage}
@@ -295,6 +357,104 @@ const UnitPrice = () => {
           }}
         />
       </div>
+
+      {/* Edit Unit Price Modal */}
+      <Dialog
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onRequestClose={() => setEditModalOpen(false)}
+        width={480}
+      >
+        <div className="p-4">
+          <div className="flex justify-between items-center pb-3 border-b">
+            <h3 className="text-lg font-semibold text-[#1C2C56]">
+              Edit Unit Price
+            </h3>
+            <button
+              onClick={() => setEditModalOpen(false)}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <FiX size={18} />
+            </button>
+          </div>
+
+          {selectedItem && (
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase">
+                  Item Name
+                </label>
+                <div className="mt-1 p-2 bg-gray-50 rounded-lg text-sm font-medium text-[#1C2C56] border">
+                  {selectedItem.itemName} ({selectedItem.type})
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase">
+                  Unit
+                </label>
+                <div className="mt-1 p-2 bg-gray-50 rounded-lg text-sm text-gray-700 border">
+                  Per {selectedItem.unit}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-gray-700 uppercase">
+                  Base Price (₹) *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={editPrice}
+                  onChange={(e) => setEditPrice(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase">
+                  Bulk (10+) Discounted Price (10% Off)
+                </label>
+                <div className="mt-1 p-2 bg-green-50 text-green-700 rounded-lg text-sm font-semibold border border-green-200">
+                  ₹
+                  {editPrice && !isNaN(Number(editPrice))
+                    ? (Number(editPrice) * 0.9).toFixed(2)
+                    : "0.00"}
+                </div>
+              </div>
+
+              {editError && (
+                <div className="p-2.5 bg-red-50 text-red-600 rounded-lg text-xs font-medium border border-red-200">
+                  {editError}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 pt-3 border-t">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="plain"
+                  onClick={() => setEditModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="solid"
+                  className="bg-[#1C4FA8] text-white hover:bg-[#163e85]"
+                  disabled={editSaving}
+                  onClick={handleSavePrice}
+                >
+                  {editSaving ? "Saving..." : "Save Price"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </Dialog>
     </>
   );
 };

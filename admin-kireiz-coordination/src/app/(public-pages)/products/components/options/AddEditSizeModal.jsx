@@ -91,7 +91,9 @@ const AddEditSizeModal = ({ isOpen, onClose, initialData, onSaveSuccess }) => {
             // No category means the size is offered everywhere, the same rule fabrics
             // follow.
             { value: "", label: t("allCategories") },
-            ...res.data.map((c) => ({ value: c.id, label: c.categoryName })),
+            ...res.data
+              .filter((c) => c.isActive !== false)
+              .map((c) => ({ value: c.id, label: c.categoryName })),
           ]);
         }
       } catch (err) {
@@ -165,7 +167,12 @@ const AddEditSizeModal = ({ isOpen, onClose, initialData, onSaveSuccess }) => {
   };
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} onRequestClose={onClose} width={480}>
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      onRequestClose={onClose}
+      width={480}
+    >
       <h4 className="text-lg font-semibold text-[#1C2C56]">
         {isEdit ? t("editTitle") : t("addTitle")}
       </h4>
@@ -193,7 +200,9 @@ const AddEditSizeModal = ({ isOpen, onClose, initialData, onSaveSuccess }) => {
               onChange={setCategory}
               options={categoryOptions}
               styles={selectStyles}
-              menuPortalTarget={typeof document !== "undefined" ? document.body : null}
+              menuPortalTarget={
+                typeof document !== "undefined" ? document.body : null
+              }
               menuPosition="fixed"
             />
           </div>

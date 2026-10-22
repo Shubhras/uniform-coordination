@@ -224,6 +224,7 @@ urlpatterns = [
     ),
     path("unit-price/list/",UnitPriceListAPIView.as_view(),name="unite-price-list"),
     path("unit-price/export/",UnitPriceExportAPIView.as_view(),name="unit-price-export"),
+    path("unit-price/update/",UnitPriceUpdateAPIView.as_view(),name="unit-price-update"),
 
 
     #<-------------------Dashboardes------------------------------->

@@ -22,3 +22,14 @@ export async function apiExportUnitPrice(type = "csv") {
   });
   return response;
 }
+
+export async function apiUpdateUnitPrice(accessToken, data) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/uniformAdmin/unit-price/update/",
+    method: "post",
+    data,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}

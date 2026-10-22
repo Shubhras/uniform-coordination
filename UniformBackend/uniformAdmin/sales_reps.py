@@ -38,6 +38,29 @@ WON_STATUSES = ("approved", "accepted")
 def get_sales_role():
     """The `sales` role isn't in the seed data, so create it on first use."""
     role, _ = Role.objects.get_or_create(role_name=SALES_ROLE_NAME)
+    try:
+        sales_default_slugs = [
+            "dashboard",
+            "customer_sales_representative",
+            "quotation_requests",
+            "order_manage",
+            "product_specification",
+        ]
+        if not RoleMenuPermission.objects.filter(role=role, can_view=True).exists():
+            for menu in Menu.objects.filter(isDeleted=False, isActive=True):
+                can_view = menu.slug in sales_default_slugs
+                RoleMenuPermission.objects.update_or_create(
+                    role=role,
+                    menu=menu,
+                    defaults={
+                        "can_view": can_view,
+                        "can_create": can_view,
+                        "can_update": can_view,
+                        "can_delete": False,
+                    }
+                )
+    except Exception:
+        pass
     return role
 
 

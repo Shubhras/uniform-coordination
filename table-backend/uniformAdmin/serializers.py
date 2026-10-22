@@ -172,6 +172,13 @@ class FabricSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
+    pricePerUnit = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        min_value=0,
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = Fabric
@@ -194,6 +201,14 @@ class FabricSerializer(serializers.ModelSerializer):
         if query.exists():
             raise serializers.ValidationError("This fabric name already exists.")
         return value
+
+    def validate(self, data):
+        price_per_unit = data.get("pricePerUnit")
+        if price_per_unit is not None and price_per_unit < 0:
+            raise serializers.ValidationError({
+                "pricePerUnit": "Price per unit cannot be negative."
+            })
+        return data
 
 
 
@@ -695,6 +710,22 @@ class CategorySerializer(serializers.ModelSerializer):
             )
 
         return value.strip()
+
+    def validate_categoryImage(self, value):
+        if value:
+            try:
+                from PIL import Image
+                img = Image.open(value)
+                width, height = img.size
+                if width > 1000 or height > 1000:
+                    raise serializers.ValidationError(
+                        f"Image dimensions must not exceed 1000×1000px (Current: {width}×{height}px)."
+                    )
+            except serializers.ValidationError:
+                raise
+            except Exception:
+                pass
+        return value
 
 
 
@@ -1657,8 +1688,8 @@ class UnitPriceSerializer(serializers.Serializer):
     type = serializers.CharField()
     itemName = serializers.CharField()
     unit = serializers.CharField()
-    basePrice = serializers.DecimalField(max_digits=10, decimal_places=2)
-    bulk = serializers.DecimalField(max_digits=10, decimal_places=2,allow_null=True)
+    basePrice = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0, allow_null=True)
+    bulk = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0, allow_null=True)
     action = serializers.CharField()
 
 #<====================B2B=========================>

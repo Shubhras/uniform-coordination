@@ -2,10 +2,13 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { FiSearch, FiEye, FiDownload, FiX, FiEdit2 } from "react-icons/fi";
+import { FiSearch, FiEye, FiDownload, FiX, FiEdit2, FiSend } from "react-icons/fi";
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetQUotationList } from "@/services/B2BAccountService";
+import { apiResendQuotation } from "@/services/QuotationHistoryService";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { useRouter, useSearchParams } from "next/navigation";
 import Pagination from "@/components/ui/Pagination";
 
@@ -72,6 +75,40 @@ const QuotationHistory = () => {
       console.log(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const [sendingId, setSendingId] = useState(null);
+
+  const handleSendQuotation = async (q) => {
+    const quoteId = q.quotation_id || q.id;
+    if (!quoteId) return;
+    try {
+      setSendingId(quoteId);
+      const res = await apiResendQuotation(accessToken, quoteId);
+      if (res?.status) {
+        toast.push(
+          <Notification title={t("successTitle") || "Success"} type="success">
+            {res?.message || "Quotation sent successfully!"}
+          </Notification>
+        );
+        getQuotationList();
+      } else {
+        toast.push(
+          <Notification title="Error" type="danger">
+            {res?.message || "Failed to send quotation"}
+          </Notification>
+        );
+      }
+    } catch (err) {
+      console.error("Failed to send quotation:", err);
+      toast.push(
+        <Notification title="Error" type="danger">
+          Failed to send quotation response
+        </Notification>
+      );
+    } finally {
+      setSendingId(null);
     }
   };
 
@@ -297,10 +334,20 @@ const QuotationHistory = () => {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <button
+                            type="button"
+                            title="Send Quotation Response"
+                            disabled={sendingId === (q.quotation_id || q.id)}
+                            onClick={() => handleSendQuotation(q)}
+                            className="text-gray-500 hover:text-emerald-600 transition disabled:opacity-40"
+                          >
+                            <FiSend size={16} />
+                          </button>
+                          <button
                             onClick={() =>
                               router.push(`/customer/edit/${q.uuids}`)
                             }
                             className="text-gray-500 hover:text-[#1C2C56]"
+                            title="Edit Quotation"
                           >
                             <FiEdit2 size={16} />
                           </button>
@@ -309,6 +356,7 @@ const QuotationHistory = () => {
                               router.push(`/customer/view/${q.uuids}`)
                             }
                             className="text-gray-500 hover:text-[#1C2C56]"
+                            title="View Quotation"
                           >
                             <FiEye size={16} />
                           </button>

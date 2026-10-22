@@ -8,6 +8,8 @@ import {
   FiXCircle,
   FiPlus,
   FiTrash2,
+  FiSearch,
+  FiX,
 } from "react-icons/fi";
 import Select from "react-select";
 import { useForm, Controller } from "react-hook-form";
@@ -21,6 +23,12 @@ import {
   apiUpdateSpecialCondition,
   apiDeleteSpecialCondition,
 } from "@/services/SpecialConditionService";
+import {
+  apiGetB2BAccountList,
+  apiUpdateB2BAccount,
+} from "@/services/B2BAccountService";
+import { toast } from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
@@ -431,6 +439,239 @@ const AddEditConditionModal = ({
   );
 };
 
+/* ---------- ASSIGN B2B MODAL ---------- */
+const AssignB2BAccountsModal = ({
+  isOpen,
+  onClose,
+  condition,
+  accessToken,
+  onAssignSuccess,
+}) => {
+  const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [initialSelectedIds, setInitialSelectedIds] = useState(new Set());
+
+  useEffect(() => {
+    if (!isOpen || !condition || !accessToken) return;
+
+    const loadAccounts = async () => {
+      try {
+        setLoading(true);
+        const res = await apiGetB2BAccountList(accessToken, 1, 100);
+        const list = res?.data || [];
+        setAccounts(list);
+
+        const currentAssigned = new Set();
+        list.forEach((acc) => {
+          if (acc.tier === condition.condition_type) {
+            currentAssigned.add(acc.id);
+          }
+        });
+        setSelectedIds(new Set(currentAssigned));
+        setInitialSelectedIds(new Set(currentAssigned));
+      } catch (err) {
+        console.error("Failed to load B2B accounts:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAccounts();
+    setSearch("");
+  }, [isOpen, condition, accessToken]);
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const filteredAccounts = useMemo(() => {
+    if (!search.trim()) return accounts;
+    const q = search.toLowerCase();
+    return accounts.filter(
+      (a) =>
+        (a.company_name || "").toLowerCase().includes(q) ||
+        (a.name || "").toLowerCase().includes(q) ||
+        (a.email || "").toLowerCase().includes(q),
+    );
+  }, [accounts, search]);
+
+  const handleSave = async () => {
+    if (!condition || saving) return;
+
+    try {
+      setSaving(true);
+      const toAssign = accounts.filter(
+        (a) => selectedIds.has(a.id) && !initialSelectedIds.has(a.id),
+      );
+      const toRemove = accounts.filter(
+        (a) => !selectedIds.has(a.id) && initialSelectedIds.has(a.id),
+      );
+
+      for (const acc of toAssign) {
+        await apiUpdateB2BAccount(accessToken, acc.id, {
+          tier: condition.condition_type,
+        });
+      }
+      for (const acc of toRemove) {
+        await apiUpdateB2BAccount(accessToken, acc.id, {
+          tier: "silver",
+        });
+      }
+
+      toast.push(
+        <Notification title="B2B Accounts Assigned" type="success">
+          Updated {toAssign.length + toRemove.length} account(s) for &quot;{condition.title}&quot;.
+        </Notification>,
+      );
+      onAssignSuccess?.();
+      onClose();
+    } catch (err) {
+      console.error("Failed to assign B2B accounts:", err);
+      toast.push(
+        <Notification title="Assignment Failed" type="danger">
+          Failed to update special condition for B2B accounts.
+        </Notification>,
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      onRequestClose={onClose}
+      className="w-full md:min-w-[620px] max-w-[680px] mx-auto"
+    >
+      <div className="p-5">
+        <div className="flex justify-between items-start pb-4 border-b">
+          <div>
+            <h3 className="text-xl font-semibold text-[#1C2C56]">
+              Assign B2B Accounts
+            </h3>
+            <p className="text-xs text-gray-500 mt-1">
+              Select B2B client accounts that receive{" "}
+              <strong className="text-[#1C4FA8]">{condition?.title}</strong> (
+              {condition?.discount_percentage}% discount tier).
+            </p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <FiX size={20} />
+          </button>
+        </div>
+
+        <div className="mt-4">
+          <div className="relative mb-3">
+            <FiSearch className="absolute left-3 top-3 text-gray-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by company, contact person or email..."
+              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#1C4FA8]"
+            />
+          </div>
+
+          <div className="flex justify-between items-center text-xs text-gray-500 mb-2 px-1">
+            <span>
+              Selected: <strong>{selectedIds.size}</strong> of {accounts.length}
+            </span>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectedIds(new Set(accounts.map((a) => a.id)))}
+                className="text-[#1C4FA8] hover:underline"
+              >
+                Select All
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedIds(new Set())}
+                className="text-gray-500 hover:underline"
+              >
+                Deselect All
+              </button>
+            </div>
+          </div>
+
+          <div className="max-h-[360px] overflow-y-auto border rounded-lg divide-y">
+            {loading ? (
+              <div className="p-8 text-center text-gray-400 text-sm">
+                Loading B2B accounts...
+              </div>
+            ) : filteredAccounts.length === 0 ? (
+              <div className="p-8 text-center text-gray-400 text-sm">
+                No B2B accounts found.
+              </div>
+            ) : (
+              filteredAccounts.map((acc) => {
+                const isChecked = selectedIds.has(acc.id);
+                return (
+                  <label
+                    key={acc.id}
+                    className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer transition"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleSelect(acc.id)}
+                      className="w-4 h-4 accent-[#1C4FA8] rounded"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-[#1C2C56] truncate">
+                          {acc.company_name || acc.name}
+                        </p>
+                        {acc.tier && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-[#1C4FA8] border border-blue-200 capitalize font-medium">
+                            {acc.tier}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 truncate">
+                        {acc.name} • {acc.email}
+                      </p>
+                    </div>
+                  </label>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 pt-4 mt-4 border-t">
+          <Button type="button" size="sm" variant="plain" onClick={onClose} disabled={saving}>
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="solid"
+            className="bg-[#1C4FA8] text-white hover:bg-[#163e85] px-5"
+            disabled={saving}
+            loading={saving}
+            onClick={handleSave}
+          >
+            Save Assignment
+          </Button>
+        </div>
+      </div>
+    </Dialog>
+  );
+};
+
 /* ---------- MAIN COMPONENT ---------- */
 const SpecialConditions = () => {
   const t = useTranslations("pricingQuotation.specialConditions");
@@ -449,6 +690,15 @@ const SpecialConditions = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Assign B2B Modal
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [conditionToAssign, setConditionToAssign] = useState(null);
+
+  const handleOpenAssignB2B = (card) => {
+    setConditionToAssign(card);
+    setAssignModalOpen(true);
+  };
 
   /* ---------- FETCH ---------- */
   const fetchConditions = useCallback(async () => {
@@ -629,23 +879,35 @@ const SpecialConditions = () => {
                     ))}
                   </ul>
 
-                  {/* Edit + Delete Buttons */}
-                  <div className="mt-auto flex items-center gap-2">
+                  {/* Actions */}
+                  <div className="mt-auto flex flex-col gap-2">
                     <button
-                      onClick={() => handleEdit(card)}
-                      className="flex-1 bg-[#003562] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#083255] transition"
+                      type="button"
+                      onClick={() => handleOpenAssignB2B(card)}
+                      className="w-full bg-[#1C4FA8] text-white py-2 rounded-lg text-sm font-medium hover:bg-[#163e85] transition flex items-center justify-center gap-1.5 shadow-sm"
                     >
-                      {t("editConditions")}
+                      <FiUsers size={16} />
+                      Assign B2B Accounts
                     </button>
-                    <button
-                      onClick={() => {
-                        setItemToDelete(card);
-                        setDeleteDialogOpen(true);
-                      }}
-                      className="w-10 h-10 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50 hover:text-red-700 transition"
-                    >
-                      <FiTrash2 size={16} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleEdit(card)}
+                        className="flex-1 bg-[#003562] text-white py-2 rounded-lg text-sm font-medium hover:bg-[#083255] transition"
+                      >
+                        {t("editConditions")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setItemToDelete(card);
+                          setDeleteDialogOpen(true);
+                        }}
+                        className="w-9 h-9 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50 hover:text-red-700 transition"
+                      >
+                        <FiTrash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -676,6 +938,18 @@ const SpecialConditions = () => {
         message={t("deleteDialog.message")}
         itemName={itemToDelete?.title}
         loading={deleteLoading}
+      />
+
+      {/* Assign B2B Modal */}
+      <AssignB2BAccountsModal
+        isOpen={assignModalOpen}
+        onClose={() => {
+          setAssignModalOpen(false);
+          setConditionToAssign(null);
+        }}
+        condition={conditionToAssign}
+        accessToken={accessToken}
+        onAssignSuccess={fetchConditions}
       />
     </>
   );

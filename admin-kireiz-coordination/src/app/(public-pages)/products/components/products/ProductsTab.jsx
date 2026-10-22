@@ -6,7 +6,8 @@ import {
   FiTrash2,
   FiChevronLeft,
   FiChevronRight,
-  FiSearch, FiPlus,
+  FiSearch,
+  FiPlus,
   FiX,
 } from "react-icons/fi";
 import Select from "react-select";
@@ -102,10 +103,12 @@ const ProductsTab = () => {
         if (response?.status && response?.data) {
           const opts = [
             { value: "", label: t("allCategories") },
-            ...response.data.map((c) => ({
-              value: c.id,
-              label: c.categoryName,
-            })),
+            ...response.data
+              .filter((c) => c.isActive !== false)
+              .map((c) => ({
+                value: c.id,
+                label: c.categoryName,
+              })),
           ];
           setCategoryOptions(opts);
         }
@@ -218,6 +221,16 @@ const ProductsTab = () => {
   /* ---------- HELPERS ---------- */
   const getImageUrl = (path) => {
     if (!path) return "/img/admin/products/product-1.png";
+    if (
+      typeof path === "string" &&
+      path.includes("uniform-admin.dxtspace.com")
+    ) {
+      const cleanPath = path.replace(
+        /https?:\/\/uniform-admin\.dxtspace\.com/,
+        "",
+      );
+      return `${API_BASE}${cleanPath}`;
+    }
     if (path.startsWith("http")) return path;
     return `${API_BASE}${path}`;
   };
@@ -251,7 +264,9 @@ const ProductsTab = () => {
             {t("title")}
           </h2>
           <p className="text-sm text-[#486284]">
-            {t("totalCount", { count: pagination.total_items || products.length })}
+            {t("totalCount", {
+              count: pagination.total_items || products.length,
+            })}
           </p>
         </div>
 
@@ -316,9 +331,7 @@ const ProductsTab = () => {
       {loading ? (
         <CardSkeleton />
       ) : filteredProducts.length === 0 ? (
-        <div className="text-center py-16 text-[#94A3B8]">
-          {t("noData")}
-        </div>
+        <div className="text-center py-16 text-[#94A3B8]">{t("noData")}</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {filteredProducts.map((item) => (

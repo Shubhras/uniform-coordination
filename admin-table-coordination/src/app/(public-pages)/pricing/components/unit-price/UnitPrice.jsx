@@ -215,9 +215,13 @@ const UnitPrice = () => {
 
                                     <td className="px-4 py-4">{item.unit}</td>
 
-                                    <td className="px-4 py-4 font-medium">₹{item.basePrice}</td>
+                                    <td className="px-4 py-4 font-medium">
+                                        {item.basePrice != null ? `₹${item.basePrice}` : "-"}
+                                    </td>
 
-                                    <td className="px-4 py-4 font-medium">₹{item.bulk}</td>
+                                    <td className="px-4 py-4 font-medium">
+                                        {item.bulk != null ? `₹${item.bulk}` : "-"}
+                                    </td>
                                     <td className="px-4 py-4">
                                         <button
                                             className="text-[#1C4FA8] hover:text-[#163E85] transition-colors"

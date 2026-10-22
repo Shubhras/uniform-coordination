@@ -351,7 +351,18 @@ def new_build_media_url(file_field):
     if not file_field:
         return None
 
-    return f"{settings.SITE_DOMAIN}{settings.MEDIA_URL}{file_field.name}"  
+    name = getattr(file_field, "name", str(file_field))
+    if str(name).startswith(("http://", "https://")):
+        return str(name)
+
+    domain = getattr(settings, "SITE_DOMAIN", "") or ""
+    if "dxtspace.com" in domain:
+        domain = getattr(settings, "SITE_URL", "") or ""
+    if "dxtspace.com" in domain:
+        domain = ""
+    domain = domain.rstrip("/")
+    media_url = getattr(settings, "MEDIA_URL", "/media/")
+    return f"{domain}{media_url}{name}"  
 
 def build_media_url(request, file_field):
     if not file_field:

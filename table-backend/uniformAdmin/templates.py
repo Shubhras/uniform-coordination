@@ -41,11 +41,19 @@ class TemplateCreateView(APIView):
                     "data": serializer.data
                 })
 
+            first_err = ""
+            if isinstance(serializer.errors, dict):
+                for k, v in serializer.errors.items():
+                    val = v[0] if isinstance(v, list) and v else str(v)
+                    first_err = f"{k}: {val}" if k != "non_field_errors" else str(val)
+                    break
+
             return Response({
                 "statusCode": 400,
                 "status": False,
-                "message": serializer.errors
-            })
+                "message": first_err or "Validation failed",
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({
@@ -215,11 +223,19 @@ class TemplateUpdateView(APIView):
                     "data": serializer.data
                 })
 
+            first_err = ""
+            if isinstance(serializer.errors, dict):
+                for k, v in serializer.errors.items():
+                    val = v[0] if isinstance(v, list) and v else str(v)
+                    first_err = f"{k}: {val}" if k != "non_field_errors" else str(val)
+                    break
+
             return Response({
                 "statusCode": 400,
                 "status": False,
-                "message": serializer.errors
-            })
+                "message": first_err or "Validation failed",
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({

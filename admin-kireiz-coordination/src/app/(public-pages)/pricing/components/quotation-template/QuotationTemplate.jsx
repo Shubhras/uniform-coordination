@@ -32,6 +32,33 @@ const PREVIEW_SAMPLE = {
 
 const VARIABLES = Object.keys(PREVIEW_SAMPLE).map((key) => `{${key}}`);
 
+const copyToClipboard = async (text) => {
+  if (typeof window !== "undefined" && navigator?.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) {
+      // Fallback below
+    }
+  }
+  try {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    const successful = document.execCommand("copy");
+    textArea.remove();
+    return successful;
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    return false;
+  }
+};
+
 const notify = (title, type, message) =>
   toast.push(
     <Notification title={title} type={type}>
@@ -182,15 +209,15 @@ const QuotationTemplate = () => {
                 key={item}
                 type="button"
                 title={t("copyToClipboard")}
-                onClick={() => {
-                  navigator.clipboard?.writeText(item);
+                onClick={async () => {
+                  await copyToClipboard(item);
                   notify(
                     t("copiedTitle"),
                     "info",
                     t("copiedMessage", { variable: item }),
                   );
                 }}
-                className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
+                className="text-xs px-2.5 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 transition font-medium"
               >
                 {item}
               </button>
@@ -198,23 +225,23 @@ const QuotationTemplate = () => {
           </div>
 
           {loading ? (
-            <div className="p-4 min-h-[650px]">
+            <div className="p-4 min-h-[720px]">
               <div className="h-4 w-40 bg-gray-200 rounded animate-pulse" />
-              <div className="h-[560px] w-full bg-gray-100 rounded mt-4 animate-pulse" />
+              <div className="h-[650px] w-full bg-gray-100 rounded mt-4 animate-pulse" />
             </div>
           ) : (
             <RichTextEditor
               key={editorKey}
               content={content}
               onChange={(value) => setContent(value.html)}
-              editorContentClass="min-h-[650px]"
+              editorContentClass="min-h-[720px] h-[calc(100vh-300px)]"
             />
           )}
         </div>
 
         {/* RIGHT — live preview with sample data */}
         <div className="bg-[#E5E7EB] rounded-xl p-6">
-          <div className="bg-white rounded-lg shadow-sm mx-auto max-w-[550px] min-h-[650px] p-5">
+          <div className="bg-white rounded-lg shadow-sm mx-auto max-w-[550px] min-h-[720px] p-5">
             {content?.trim() ? (
               <div
                 className="prose max-w-none"

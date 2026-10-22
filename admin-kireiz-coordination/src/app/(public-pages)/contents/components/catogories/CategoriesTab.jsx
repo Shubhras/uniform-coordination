@@ -94,9 +94,7 @@ const SubcategoryList = ({
   return (
     <div className="space-y-2">
       {subcategories.length === 0 && (
-        <p className="text-sm text-[#94A3B8] text-center py-2">
-          {t("noData")}
-        </p>
+        <p className="text-sm text-[#94A3B8] text-center py-2">{t("noData")}</p>
       )}
 
       {subcategories.map((sub) => (
@@ -124,10 +122,16 @@ const SubcategoryList = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* <span className={`text-xs px-2 py-0.5 rounded-full ${sub.isActive ? "bg-[#EEF2FF] text-[#1C2C56]" : "bg-red-50 text-red-600"}`}>
-              {sub.isActive ? "Active" : "Inactive"}
-            </span> */}
+          <div className="flex items-center gap-3">
+            <span
+              className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
+                sub.isActive !== false
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-600"
+              }`}
+            >
+              {sub.isActive !== false ? "Active" : "Inactive"}
+            </span>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -451,6 +455,16 @@ const CategoriesTab = () => {
                               <p className="text-base font-semibold text-[#1C2C56]">
                                 {cat.categoryName}
                               </p>
+
+                              <span
+                                className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
+                                  cat.isActive !== false
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-600"
+                                }`}
+                              >
+                                {cat.isActive !== false ? "Active" : "Inactive"}
+                              </span>
                             </div>
 
                             <div className="flex items-center gap-4">

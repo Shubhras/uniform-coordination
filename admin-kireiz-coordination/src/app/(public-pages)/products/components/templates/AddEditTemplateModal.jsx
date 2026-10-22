@@ -25,7 +25,10 @@ import {
 } from "@/services/FabricService";
 import { apiGetColorsList } from "@/services/ColorsService";
 
-const getApiErrorMessage = (errorData, defaultMsg = "Failed to save template") => {
+const getApiErrorMessage = (
+  errorData,
+  defaultMsg = "Failed to save template",
+) => {
   if (!errorData) return defaultMsg;
   if (typeof errorData === "string") return errorData;
   const msg = errorData?.message || errorData?.error || errorData?.errors;
@@ -186,7 +189,9 @@ const AddEditTemplateModal = ({
         const res = await apiFabricCategoryList(accessToken);
         if (res?.status && res?.data) {
           setCategoryOptions(
-            res.data.map((c) => ({ value: c.id, label: c.categoryName })),
+            res.data
+              .filter((c) => c.isActive !== false)
+              .map((c) => ({ value: c.id, label: c.categoryName })),
           );
         }
       } catch (err) {
@@ -280,7 +285,16 @@ const AddEditTemplateModal = ({
 
     setError("");
     setImageError("");
-  }, [mode, initialData, isOpen, partOptions, categoryOptions, colorOptions, fabricOptions, reset]);
+  }, [
+    mode,
+    initialData,
+    isOpen,
+    partOptions,
+    categoryOptions,
+    colorOptions,
+    fabricOptions,
+    reset,
+  ]);
 
   /* ---------- FILE HANDLERS ---------- */
   const handleFile = (file) => {
@@ -376,6 +390,10 @@ const AddEditTemplateModal = ({
         );
       } else {
         response = await apiCreateTemplate(accessToken, formData);
+      }
+
+      if (response && response.status === false) {
+        throw response;
       }
 
       toast.push(
