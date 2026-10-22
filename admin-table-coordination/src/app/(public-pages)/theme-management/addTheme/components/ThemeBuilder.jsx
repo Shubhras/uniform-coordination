@@ -12,9 +12,11 @@ import {
 import { LuGripVertical } from "react-icons/lu";
 import { useRouter } from "next/navigation";
 import InventoryItemsModal from "./InventoryItemsModal";
+import { useTranslations } from "next-intl";
 
 const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
   const router = useRouter();
+  const t = useTranslations("themeManagement.addtheme");
   const [openModal, setOpenModal] = useState(false);
   const [currentSection, setCurrentSection] = useState("");
   const [sectionError, setSectionError] = useState("");
@@ -87,7 +89,7 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
     );
 
     if (!hasItem) {
-      setSectionError("At least one product must be added in any one section.");
+      setSectionError(t("validation.sectionRequired"));
       return false;
     }
 

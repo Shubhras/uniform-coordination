@@ -56,12 +56,14 @@ const CreatePromotion = () => {
       newErrors.promocodeType = t("validation.typeRequired");
     }
 
-    if (!form.amount) {
+    if (!String(form.amount || "").trim()) {
       newErrors.amount = t("validation.amountRequired");
+    } else if (Number(form.amount) < 0) {
+      newErrors.amount = t("validation.amountNegative");
     } else if (Number(form.amount) <= 0) {
       newErrors.amount = t("validation.amountGreaterThanZero");
     } else if (form.promocodeType === "discount" && Number(form.amount) >= 100) {
-      newErrors.amount = "Percentage discount must be between 1 and 99%";
+      newErrors.amount = t("validation.amountPercentageMax");
     }
 
     if (!form.started_at) {
@@ -221,7 +223,9 @@ const CreatePromotion = () => {
       <div className="mt-6 rounded-[14px] border border-[#F0E4DB] bg-white p-6">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div className="md:col-span-2">
-            <label className={labelClassName}>{t("promotionName")}</label>
+            <label className={labelClassName}>
+              {t("promotionName")} <span className="text-red-500">*</span>
+            </label>
 
             <input
               type="text"
@@ -250,22 +254,41 @@ const CreatePromotion = () => {
 
           {/* Promotion Type */}
           <div>
-            <label className={labelClassName}>{t("promotionType")}</label>
+            <label className={labelClassName}>
+              {t("promotionType")} <span className="text-red-500">*</span>
+            </label>
 
             <div className="relative">
               <select
                 name="promocodeType"
                 value={form.promocodeType}
                 onChange={(e) => {
+                  const newType = e.target.value;
                   setForm((prev) => ({
                     ...prev,
-                    promocodeType: e.target.value,
+                    promocodeType: newType,
                   }));
 
-                  setErrors((prev) => ({
-                    ...prev,
-                    promocodeType: "",
-                  }));
+                  setErrors((prev) => {
+                    let amountError = prev.amount;
+                    if (
+                      newType === "discount" &&
+                      form.amount &&
+                      Number(form.amount) >= 100
+                    ) {
+                      amountError = t("validation.amountPercentageMax");
+                    } else if (
+                      newType === "fix_price" &&
+                      amountError === t("validation.amountPercentageMax")
+                    ) {
+                      amountError = "";
+                    }
+                    return {
+                      ...prev,
+                      promocodeType: "",
+                      amount: amountError,
+                    };
+                  });
                 }}
                 className={`${inputClassName} appearance-none`}
               >
@@ -286,7 +309,7 @@ const CreatePromotion = () => {
 
           {/* Customer Eligibility (First Purchase / Repeat Customer / All Customers) */}
           <div>
-            <label className={labelClassName}>Customer Eligibility</label>
+            <label className={labelClassName}>{t("customerEligibility")}</label>
             <div className="relative">
               <select
                 name="customerEligibility"
@@ -299,9 +322,13 @@ const CreatePromotion = () => {
                 }}
                 className={`${inputClassName} appearance-none`}
               >
-                <option value="all">All Customers</option>
-                <option value="first_purchase">First-Purchase Incentive (New Customers Only)</option>
-                <option value="repeat_customer">Repeat Customer Discount (Returning Customers Only)</option>
+                <option value="all">{t("eligibilityAll")}</option>
+                <option value="first_purchase">
+                  {t("eligibilityFirstPurchase")}
+                </option>
+                <option value="repeat_customer">
+                  {t("eligibilityRepeatCustomer")}
+                </option>
               </select>
               <FiChevronDown
                 size={18}
@@ -309,31 +336,45 @@ const CreatePromotion = () => {
               />
             </div>
             <p className="mt-1 text-xs text-gray-500">
-              Configure incentive rules such as First-Purchase discounts (SA-023) or Repeat Customer discounts (SA-024).
+              {t("customerEligibilityHint")}
             </p>
           </div>
 
           {/* Amount */}
           <div>
             <label className={labelClassName}>
-              {t("discountValue")} {form.promocodeType === "discount" ? "(%)" : "(¥)"}
+              {t("discountValue")} {form.promocodeType === "discount" ? "(%)" : "(¥)"}{" "}
+              <span className="text-red-500">*</span>
             </label>
 
             <input
               type="number"
               name="amount"
-              min={0}
-              max={form.promocodeType === "discount" ? 99 : undefined}
               value={form.amount}
               onChange={(e) => {
+                const val = e.target.value;
                 setForm((prev) => ({
                   ...prev,
-                  amount: e.target.value,
+                  amount: val,
                 }));
+
+                let errorMsg = "";
+                if (val !== "") {
+                  if (Number(val) < 0) {
+                    errorMsg = t("validation.amountNegative");
+                  } else if (Number(val) === 0) {
+                    errorMsg = t("validation.amountGreaterThanZero");
+                  } else if (
+                    form.promocodeType === "discount" &&
+                    Number(val) >= 100
+                  ) {
+                    errorMsg = t("validation.amountPercentageMax");
+                  }
+                }
 
                 setErrors((prev) => ({
                   ...prev,
-                  amount: "",
+                  amount: errorMsg,
                 }));
               }}
               className={inputClassName}
@@ -377,7 +418,9 @@ const CreatePromotion = () => {
 
           {/* Start Date */}
           <div>
-            <label className={labelClassName}>{t("startDate")}</label>
+            <label className={labelClassName}>
+              {t("startDate")} <span className="text-red-500">*</span>
+            </label>
 
             <div className="relative">
               <input
@@ -410,7 +453,9 @@ const CreatePromotion = () => {
 
           {/* End Date */}
           <div>
-            <label className={labelClassName}>{t("endDate")}</label>
+            <label className={labelClassName}>
+              {t("endDate")} <span className="text-red-500">*</span>
+            </label>
 
             <div className="relative">
               <input
@@ -443,7 +488,9 @@ const CreatePromotion = () => {
 
           {/* Description */}
           <div className="md:col-span-2">
-            <label className={labelClassName}>{t("descriptionLabel")}</label>
+            <label className={labelClassName}>
+              {t("descriptionLabel")} <span className="text-red-500">*</span>
+            </label>
 
             <textarea
               name="description"

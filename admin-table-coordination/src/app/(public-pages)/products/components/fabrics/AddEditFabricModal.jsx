@@ -143,6 +143,9 @@ const AddEditFabricModal = ({
       })
       .refine((val) => !isNaN(Number(val)), {
         message: t("validation.validPrice"),
+      })
+      .refine((val) => Number(val) > 0, {
+        message: t("validation.priceGreaterThanZero"),
       }),
   });
 
@@ -153,6 +156,7 @@ const AddEditFabricModal = ({
     formState: { errors },
   } = useForm({
     resolver: zodResolver(validationSchema),
+    mode: "onChange",
     defaultValues: {
       fabricName: "",
       materialType: null,
@@ -441,7 +445,7 @@ const AddEditFabricModal = ({
       className="w-full md:min-w-[720px] mx-auto"
     // contentClassName="!p-0 !h-auto"
     >
-      <Form onSubmit={handleSubmit(handleSave)}>
+      <Form onSubmit={handleSubmit(handleSave)} noValidate>
         <div className="flex flex-col">
           {/* HEADER */}
           <div className="border-b px-6 py-4 flex justify-between items-center">
@@ -601,7 +605,12 @@ const AddEditFabricModal = ({
                   name="price"
                   control={control}
                   render={({ field }) => (
-                    <Input type="number" placeholder={t("pricePlaceholder")} {...field} />
+                    <Input
+                      type="number"
+                      step="any"
+                      placeholder={t("pricePlaceholder")}
+                      {...field}
+                    />
                   )}
                 />
               </FormItem>

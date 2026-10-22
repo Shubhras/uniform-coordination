@@ -196,7 +196,12 @@ export default function Orders() {
             <div className="flex gap-3">
               <div className="w-52">
                 <Select
-                  value={customer}
+                  // value={customer}
+                  value={
+                    customerOptions.find(
+                      (option) => option.value === customer?.value
+                    ) || customerOptions[0]
+                  }
                   onChange={setCustomer}
                   options={customerOptions}
                   styles={selectStyles}
@@ -206,7 +211,12 @@ export default function Orders() {
 
               <div className="w-52">
                 <Select
-                  value={status}
+                  // value={status}
+                  value={
+                    statusOptions.find(
+                      (option) => option.value === status?.value
+                    ) || statusOptions[0]
+                  }
                   onChange={setStatus}
                   options={statusOptions}
                   styles={selectStyles}
@@ -295,7 +305,7 @@ export default function Orders() {
                     </td>
                     <td className="px-5 py-5">
                       <span className="text-[12px] text-[#2C1A0E] font-semibold">
-                        {order.total_amount ? `¥${Number(order.total_amount).toLocaleString()}` : "-"}
+                        {order.total_amount ? `$${Number(order.total_amount).toLocaleString()}` : "-"}
                       </span>
                     </td>
                     <td className="px-4 py-5">

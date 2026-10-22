@@ -250,19 +250,18 @@ export default function CompensationInvoicePage({ params }) {
                       </td>
                       <td className="text-center px-4 py-4">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            row.issue === "Missing"
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${row.issue === "Missing"
                               ? "bg-[#FFF2F2] text-[#DC2626]"
                               : "bg-[#FFF7ED] text-[#D97706]"
-                          }`}
+                            }`}
                         >
                           {row.issue === "Missing"
                             ? isJa
                               ? "欠品"
                               : "Missing"
                             : isJa
-                            ? "破損"
-                            : "Damaged"}
+                              ? "破損"
+                              : "Damaged"}
                         </span>
                       </td>
                       <td className="text-center px-4 py-4 text-[#666]">
@@ -349,9 +348,8 @@ export default function CompensationInvoicePage({ params }) {
               <div className="flex justify-between">
                 <span className="text-[#8B8B8B]">{isJa ? "ステータス" : "Status"}</span>
                 <span
-                  className={`font-semibold capitalize ${
-                    invoiceData?.status === "sent" ? "text-green-600" : "text-amber-600"
-                  }`}
+                  className={`font-semibold capitalize ${invoiceData?.status === "sent" ? "text-green-600" : "text-amber-600"
+                    }`}
                 >
                   {invoiceData?.status || "Draft"}
                 </span>

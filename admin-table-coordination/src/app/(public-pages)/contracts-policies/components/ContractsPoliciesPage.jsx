@@ -200,7 +200,12 @@ const ContractsPoliciesPage = () => {
           <Select
             instanceId="contracts-status-filter"
             inputId="contracts-status-filter"
-            value={status}
+            // value={status}
+            value={
+              statusOptions.find(
+                (option) => option.value === status?.value
+              ) || statusOptions[0]
+            }
             onChange={(selectedOption) =>
               setStatus(selectedOption ?? statusOptions[0])
             }
@@ -264,20 +269,20 @@ const ContractsPoliciesPage = () => {
                   <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#7E736C]">
                     {row.created_at
                       ? new Date(row.created_at).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
                       : "—"}
                   </td>
 
                   <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#4A3D36]">
                     {row.signed_at
                       ? new Date(row.signed_at).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
                       : "—"}
                   </td>
 
@@ -339,11 +344,10 @@ const ContractsPoliciesPage = () => {
                 key={page}
                 type="button"
                 onClick={() => goToPage(page)}
-                className={`flex h-8 min-w-[30px] items-center justify-center rounded px-2 ${
-                  currentPage === page
-                    ? "bg-[#D88957] text-white"
-                    : "text-[#8C7C73] hover:bg-[#FCF4EF]"
-                }`}
+                className={`flex h-8 min-w-[30px] items-center justify-center rounded px-2 ${currentPage === page
+                  ? "bg-[#D88957] text-white"
+                  : "text-[#8C7C73] hover:bg-[#FCF4EF]"
+                  }`}
               >
                 {page}
               </button>

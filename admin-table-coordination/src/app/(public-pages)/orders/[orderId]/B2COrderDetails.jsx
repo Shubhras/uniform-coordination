@@ -30,29 +30,29 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
       name: "Crystal Chandelier Set (6 pcs)",
       qty: 2,
       days: "14d",
-      price: "¥8,500",
-      subtotal: "¥238,000",
+      price: "$8,500",
+      subtotal: "$238,000",
     },
     {
       name: "Velvet Banquet Chair",
       qty: 60,
       days: "14d",
-      price: "¥450",
-      subtotal: "¥378,000",
+      price: "$450",
+      subtotal: "$378,000",
     },
     {
       name: "Marble Top Table (180cm)",
       qty: 10,
       days: "14d",
-      price: "¥2,800",
-      subtotal: "¥392,000",
+      price: "$2,800",
+      subtotal: "$392,000",
     },
     {
       name: "Marble Top Table (180cm)",
       qty: 10,
       days: "14d",
-      price: "¥2,800",
-      subtotal: "¥392,000",
+      price: "$2,800",
+      subtotal: "$392,000",
     },
   ];
 
@@ -141,13 +141,12 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
               <span
                 className={`px-3 py-1 rounded-lg border text-xs font-semibold capitalize
-    ${
-      order?.status === "completed"
-        ? "bg-[#E9F9F0] text-[#22A06B] border-[#22A06B]"
-        : order?.status === "pending"
-          ? "bg-[#FFF4E5] text-[#BB4D00] border-[#FEE685]"
-          : "bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]"
-    }`}
+    ${order?.status === "completed"
+                    ? "bg-[#E9F9F0] text-[#22A06B] border-[#22A06B]"
+                    : order?.status === "pending"
+                      ? "bg-[#FFF4E5] text-[#BB4D00] border-[#FEE685]"
+                      : "bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]"
+                  }`}
               >
                 {order?.status}
               </span>
@@ -333,10 +332,10 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
                       <td className="px-4 py-3">{item.rental_days}d</td>
 
-                      <td className="px-4 py-3">¥{item.price_per_day}</td>
+                      <td className="px-4 py-3">${item.price_per_day}</td>
 
                       <td className="px-4 py-3 font-semibold text-[#1A1714]">
-                        ¥{item.subtotal}
+                        ${item.subtotal}
                       </td>
                     </tr>
                   ))}
@@ -370,12 +369,12 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
               <div className="flex justify-between">
                 <span className="text-[#7A6E66]">{t("subtotal")}</span>
-                <span>¥{order?.payment_summary?.subtotal}</span>
+                <span>${order?.payment_summary?.subtotal}</span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-[#7A6E66]">{t("deliveryFee")}</span>
-                <span>¥{order?.payment_summary?.shipping_charge}</span>
+                <span>${order?.payment_summary?.shipping_charge}</span>
               </div>
 
               {/* <div className="flex justify-between">
@@ -389,7 +388,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                 <span>{t("rentalSubtotal")}</span>
 
                 <span className="text-[#A85A32] text-[15px]">
-                  ¥{order?.payment_summary?.total_amount}
+                  ${order?.payment_summary?.total_amount}
                 </span>
               </div>
             </div>
@@ -413,11 +412,10 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                 </p>
 
                 <span
-                  className={`px-3 py-1 rounded-md text-[11px] font-semibold uppercase ${
-                    order?.payment_summary?.payment_status === "success"
-                      ? "bg-[#EAF9F0] text-[#22A06B] border border-[#B7E8C9]"
-                      : "bg-[#FEE2E2] text-[#DC2626]"
-                  }`}
+                  className={`px-3 py-1 rounded-md text-[11px] font-semibold uppercase ${order?.payment_summary?.payment_status === "success"
+                    ? "bg-[#EAF9F0] text-[#22A06B] border border-[#B7E8C9]"
+                    : "bg-[#FEE2E2] text-[#DC2626]"
+                    }`}
                 >
                   {order?.payment_summary?.payment_status === "success"
                     ? t("paid")

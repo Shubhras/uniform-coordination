@@ -8,6 +8,7 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiX,
+  FiPlus
 } from "react-icons/fi";
 import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -139,16 +140,17 @@ const FabricsTab = () => {
             setEditFabric(null);
             setOpenAdd(true);
           }}
-          className="bg-[#A0522D] text-white px-4 py-2 font-semibold rounded-md text-sm"
+          className="bg-[#A0522D] text-white px-4 py-2 font-semibold rounded-md text-sm flex items-center gap-2"
         >
-          + {t("addFabric")}
+          <FiPlus />
+          {t("addFabric")}
         </button>
       </div>
 
       {/* Search */}
       <div className="relative w-full md:w-72 mb-4">
         <FiSearch
-          className="absolute left-3 top-2.5 text-[#64748B]"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
           size={16}
         />
         <input
@@ -156,7 +158,7 @@ const FabricsTab = () => {
           placeholder={t("searchFabric")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm"
+          className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
         />
 
         {searchQuery && (
@@ -232,16 +234,15 @@ const FabricsTab = () => {
                   </td>
 
                   <td className="px-5 py-4 text-[#2A211D] font-medium">
-                    ₹{Number(fabric.pricePerUnit).toLocaleString()}
+                    ${Number(fabric.pricePerUnit).toLocaleString()}
                   </td>
 
                   <td className="px-5 py-4">
                     <span
-                      className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        fabric.isActive
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-600"
-                      }`}
+                      className={`text-xs font-medium px-2 py-1 rounded-full ${fabric.isActive
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-600"
+                        }`}
                     >
                       {fabric.isActive ? "Active" : "Inactive"}
                     </span>

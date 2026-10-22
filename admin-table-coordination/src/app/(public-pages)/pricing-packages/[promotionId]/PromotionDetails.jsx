@@ -89,7 +89,7 @@ const PromotionDetails = ({ promotionId }) => {
               <div>
                 <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#B3A096]">Discount Value</p>
                 <p className="mt-2 text-[13px] font-medium text-[#3F332C]">
-                  {promo.promocodeType === "discount" ? `${promo.amount}%` : `¥${promo.amount}`}
+                  {promo.promocodeType === "discount" ? `${promo.amount}%` : `$${promo.amount}`}
                 </p>
               </div>
               <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-medium ${statusColor}`}>

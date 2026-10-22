@@ -175,7 +175,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
         {/* Search */}
         <div className="relative w-full md:w-72 mb-6">
           <FiSearch
-            className="absolute left-3 top-2.5 text-[#64748B]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
             size={16}
           />
           <input
@@ -183,7 +183,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
             placeholder={`${t("search")} ${attributeTitle.toLowerCase()}...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0522D]"
+            className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
           />
           {searchQuery && (
             <button
@@ -232,7 +232,7 @@ const AttributeTab = ({ attributeTitle, service }) => {
                     </h3>
                     <p className="text-[14px] text-[#1C2C56] font-semibold mt-1">
                       {t("status")} :{" "}
-                     <span className="text-[13px] text-gray-500 mt-1"> {item.isActive ? t("active") : t("inactive")}</span>
+                      <span className="text-[13px] text-gray-500 mt-1"> {item.isActive ? t("active") : t("inactive")}</span>
                     </p>
                     {item.category?.categoryName && (
                       <p className="text-[14px] text-[#1C2C56] font-semibold mt-1">

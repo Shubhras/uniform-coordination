@@ -256,7 +256,7 @@ const InventoryList = () => {
 
             <input
               type="text"
-              placeholder= {t("searchProducts")}
+              placeholder={t("searchProducts")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-10 rounded-lg border border-[#EFE5DD] text-[#C08457] pl-10 pr-4  text-sm outline-none focus:border-[#C08457]"
@@ -294,7 +294,12 @@ const InventoryList = () => {
               <div className="w-52">
                 <Select
                   instanceId="status-select"
-                  value={category}
+                  // value={category}
+                  value={
+                    categoryOptions.find(
+                      (option) => option.value === category?.value
+                    ) || categoryOptions[0]
+                  }
                   onChange={setCategory}
                   options={categoryOptions}
                   styles={selectStyles}
@@ -304,8 +309,13 @@ const InventoryList = () => {
 
               <div className="w-52">
                 <Select
-                    instanceId="category-select"
-                  value={material}
+                  instanceId="category-select"
+                  // value={material}
+                  value={
+                    materialOptions.find(
+                      (option) => option.value === material?.value
+                    ) || materialOptions[0]
+                  }
                   onChange={setMaterial}
                   options={materialOptions}
                   styles={selectStyles}
@@ -398,7 +408,7 @@ const InventoryList = () => {
                           }
                           className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
 
-                          // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
+                        // className="flex items-center justify-center w-9 h-9 rounded-xl bg-white shadow-sm border border-[#F1E8E2] transition-all duration-200 hover:shadow-lg hover:bg-[#FFF8F4]"
                         >
                           <FiEdit2 size={17} />
                         </button>

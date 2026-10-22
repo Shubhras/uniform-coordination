@@ -5,6 +5,17 @@ import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetReportAnalytics, apiExportReportAnalytics } from "@/services//ReportAnalytics";
 import { FiDownload, FiCalendar } from "react-icons/fi";
+import Select, { components } from "react-select";
+import Spinner from "@/components/ui/Spinner";
+
+const { Control } = components;
+
+const CustomControl = ({ children, ...props }) => (
+  <Control {...props}>
+    <FiCalendar className="ml-3 text-[#A0522D] flex-shrink-0 pointer-events-none" size={17} />
+    {children}
+  </Control>
+);
 
 const inventoryColors = {
   Available: "#B56735",
@@ -143,7 +154,7 @@ const ReportsAnalyticsPage = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [tooltip, setTooltip] = useState(null);
@@ -158,6 +169,63 @@ const ReportsAnalyticsPage = () => {
     const day = String(d.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
+  const selectStyles = {
+    control: (base, state) => ({
+      ...base,
+      minHeight: "38px",
+      height: "38px",
+      minWidth: "160px",
+      borderRadius: "8px",
+      borderColor: state.isFocused ? "#A0522D" : "#E5D7CE",
+      boxShadow: "none",
+      "&:hover": {
+        borderColor: "#A0522D",
+      },
+      fontSize: "13px",
+      cursor: "pointer",
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      padding: "0 8px",
+    }),
+    indicatorSeparator: () => ({
+      display: "none",
+    }),
+    dropdownIndicator: (base) => ({
+      ...base,
+      padding: "0 8px",
+      color: "#A0522D",
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 50,
+      borderRadius: "8px",
+      overflow: "hidden",
+    }),
+    option: (base, state) => ({
+      ...base,
+      fontSize: "13px",
+      cursor: "pointer",
+      backgroundColor: state.isSelected
+        ? "#A0522D"
+        : state.isFocused
+          ? "#F5EDE6"
+          : "#FFFFFF",
+      color: state.isSelected ? "#FFFFFF" : "#3B3B3B",
+      ":active": {
+        backgroundColor: "#E5D7CE",
+      },
+    }),
+  };
+  const periodOptions = [
+    { value: "all", label: t("periodSelector.allTime") },
+    { value: "today", label: t("periodSelector.today") },
+    { value: "last7", label: t("periodSelector.last7Days") },
+    { value: "last30", label: t("periodSelector.last30Days") },
+    { value: "thisMonth", label: t("periodSelector.thisMonth") },
+    { value: "thisYear", label: t("periodSelector.thisYear") },
+    { value: "custom", label: t("periodSelector.customRange") },
+  ];
 
   const handlePeriodChange = (val) => {
     setPeriod(val);
@@ -208,7 +276,7 @@ const ReportsAnalyticsPage = () => {
     {
       key: "totalRevenue",
       label: t("summaryCards.totalRevenue"),
-      value: `¥${Number(reportData?.kpi?.total_revenue ?? 0).toLocaleString()}`,
+      value: `$${Number(reportData?.kpi?.total_revenue ?? 0).toLocaleString()}`,
     },
     {
       key: "totalOrders",
@@ -349,21 +417,25 @@ const ReportsAnalyticsPage = () => {
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Period Selector */}
-          <div className="flex items-center gap-2">
-            <FiCalendar className="text-[#A0522D]" size={16} />
-            <select
-              value={period}
-              onChange={(e) => handlePeriodChange(e.target.value)}
-              className="h-[38px] rounded-[8px] border border-[#E5D7CE] bg-white px-3 text-[13px] text-[#3B3B3B] focus:border-[#A0522D] focus:outline-none"
-            >
-              <option value="all">All Time</option>
-              <option value="today">Today</option>
-              <option value="last7">Last 7 Days</option>
-              <option value="last30">Last 30 Days</option>
-              <option value="thisMonth">This Month</option>
-              <option value="thisYear">This Year</option>
-              <option value="custom">Custom Range</option>
-            </select>
+          <div className="w-[190px]">
+            <Select
+              instanceId="reports-period-selector"
+              value={
+                periodOptions.find((option) => option.value === period) ||
+                periodOptions[0]
+              }
+              onChange={(selected) => {
+                if (selected) {
+                  handlePeriodChange(selected.value);
+                }
+              }}
+              options={periodOptions}
+              styles={selectStyles}
+              components={{
+                Control: CustomControl,
+              }}
+              isSearchable={false}
+            />
           </div>
 
           {period === "custom" && (
@@ -396,228 +468,236 @@ const ReportsAnalyticsPage = () => {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-        {summaryCards.map((card) => (
-          <div
-            key={card.key}
-            className="rounded-[10px] border border-[#F0E4DB] bg-white px-4 py-4"
-          >
-            <p className="text-[12px] font-semibold tracking-[0.12em] text-[#757575]">
-              {card.label}
-            </p>
-            <p
-              className={`mt-2 text-[22px] font-semibold text-[#2F241F] ${card.valueClass ?? ""}`}
-            >
-              {card.value}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)]">
-        <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
-          <div className="flex items-start justify-between">
-            <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
-              {t("panels.customerGrowth")}
-            </h2>
-            <p className="text-[11px] text-[#C0ADA0]">{getGrowthText()}</p>
-          </div>
-
-          <div className="mt-5 overflow-x-auto">
-            <div className="min-w-[520px]">
-              <svg
-                viewBox={`0 0 ${chartWidth} 190`}
-                className="w-full h-auto"
+      {loading ? (
+        <div className="flex justify-center items-center h-[400px]">
+          <Spinner size={40} customColorClass="text-[#A0522D]" />
+        </div>
+      ) : (
+        <>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+            {summaryCards.map((card) => (
+              <div
+                key={card.key}
+                className="rounded-[10px] border border-[#F0E4DB] bg-white px-4 py-4"
               >
-                {yTicks.map((value) => (
-                  <line
-                    key={value}
-                    x1={chartLeftPad}
-                    y1={yForValue(value)}
-                    x2={chartWidth - chartRightPad}
-                    y2={yForValue(value)}
-                    stroke="#F4EAE3"
-                    strokeWidth="1"
-                  />
-                ))}
-                <polygon
-                  fill="#B56735"
-                  fillOpacity="0.08"
-                  points={`${chartLeftPad},${chartBottom} ${polylinePoints} ${chartLeftPad + (growthPoints.length - 1) * stepX},${chartBottom}`}
-                />
-                <polyline
-                  fill="none"
-                  stroke="#B56735"
-                  strokeWidth="2"
-                  points={polylinePoints}
-                />
-                {growthPoints.map((point, index) => (
-                  <g key={point.month}>
-                    <circle
-                      cx={chartLeftPad + index * stepX}
-                      cy={yForValue(point.value)}
-                      r="3.5"
-                      fill="#B56735"
-                    />
-                    <text
-                      x={chartLeftPad + index * stepX}
-                      y={chartBottom + 18}
-                      textAnchor="middle"
-                      fontSize="10"
-                      fill="#B3A096"
-                    >
-                      {point.month}
-                    </text>
-                  </g>
-                ))}
-                {yTicks.map((label) => (
-                  <text
-                    key={label}
-                    x={chartLeftPad - 8}
-                    y={yForValue(label) + 3}
-                    textAnchor="end"
-                    fontSize="10"
-                    fill="#B3A096"
+                <p className="text-[12px] font-semibold tracking-[0.12em] text-[#757575]">
+                  {card.label}
+                </p>
+                <p
+                  className={`mt-2 text-[22px] font-semibold text-[#2F241F] ${card.valueClass ?? ""}`}
+                >
+                  {card.value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)]">
+            <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
+              <div className="flex items-start justify-between">
+                <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
+                  {t("panels.customerGrowth")}
+                </h2>
+                <p className="text-[11px] text-[#C0ADA0]">{getGrowthText()}</p>
+              </div>
+
+              <div className="mt-5 overflow-x-auto">
+                <div className="min-w-[520px]">
+                  <svg
+                    viewBox={`0 0 ${chartWidth} 190`}
+                    className="w-full h-auto"
                   >
-                    {label.toLocaleString()}
-                  </text>
-                ))}
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
-          <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
-            {t("panels.customerSegments")}
-          </h2>
-
-          <div className="mt-6 flex justify-center">
-            <DonutChart
-              size={170}
-              thickness={34}
-              showLabels
-              segments={[
-                {
-                  value:
-                    reportData?.customer_segments?.find(
-                      (x) => x.label === "B2B",
-                    )?.percentage || 0,
-                  color: "#B56735",
-                },
-                {
-                  value:
-                    reportData?.customer_segments?.find(
-                      (x) => x.label === "B2C",
-                    )?.percentage || 0,
-                  color: "#7FCCF9",
-                },
-              ]}
-            />
-          </div>
-
-          <div className="mt-6 flex items-center justify-center gap-6 text-[11px] text-[#8E7C70]">
-            <div className="flex items-center gap-2">
-              <span className="inline-block h-2.5 w-2.5 rounded-[2px] bg-[#B56735]" />
-              <span>B2B</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#7FCCF9]" />
-              <span>B2C</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 grid gap-4 xl:grid-cols-2">
-        <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
-          <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
-            {t("panels.topRentedCategories")}
-          </h2>
-
-          <div className="mt-6 space-y-4">
-            {categoryBars.map((item) => (
-              <div
-                key={item.label}
-                className="grid grid-cols-[110px_minmax(0,1fr)] items-center gap-4"
-              >
-                <p className="text-[11px] text-[#9F8D81]">{item.label}</p>
-                <div className="h-5 w-full rounded-[3px] bg-[#F4EAE3]">
-                  <div
-                    className="h-5 rounded-[3px] bg-[#B56735]"
-                    style={{ width: `${(item.value / niceBarMaxValue) * 100}%` }}
-                  />
+                    {yTicks.map((value) => (
+                      <line
+                        key={value}
+                        x1={chartLeftPad}
+                        y1={yForValue(value)}
+                        x2={chartWidth - chartRightPad}
+                        y2={yForValue(value)}
+                        stroke="#F4EAE3"
+                        strokeWidth="1"
+                      />
+                    ))}
+                    <polygon
+                      fill="#B56735"
+                      fillOpacity="0.08"
+                      points={`${chartLeftPad},${chartBottom} ${polylinePoints} ${chartLeftPad + (growthPoints.length - 1) * stepX},${chartBottom}`}
+                    />
+                    <polyline
+                      fill="none"
+                      stroke="#B56735"
+                      strokeWidth="2"
+                      points={polylinePoints}
+                    />
+                    {growthPoints.map((point, index) => (
+                      <g key={point.month}>
+                        <circle
+                          cx={chartLeftPad + index * stepX}
+                          cy={yForValue(point.value)}
+                          r="3.5"
+                          fill="#B56735"
+                        />
+                        <text
+                          x={chartLeftPad + index * stepX}
+                          y={chartBottom + 18}
+                          textAnchor="middle"
+                          fontSize="10"
+                          fill="#B3A096"
+                        >
+                          {point.month}
+                        </text>
+                      </g>
+                    ))}
+                    {yTicks.map((label) => (
+                      <text
+                        key={label}
+                        x={chartLeftPad - 8}
+                        y={yForValue(label) + 3}
+                        textAnchor="end"
+                        fontSize="10"
+                        fill="#B3A096"
+                      >
+                        {label.toLocaleString()}
+                      </text>
+                    ))}
+                  </svg>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
 
-          <div className="mt-4 flex justify-between pl-[126px] pr-1 text-[10px] text-[#B3A096]">
-            {barTicks.map((tick) => (
-              <span key={tick}>{tick.toLocaleString()}</span>
-            ))}
-          </div>
-        </div>
+            <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
+              <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
+                {t("panels.customerSegments")}
+              </h2>
 
-        <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
-          <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
-            {t("panels.inventoryStatus")}
-          </h2>
-
-          <div className="mt-6 flex justify-center">
-            <DonutChart
-              size={170}
-              thickness={34}
-              segments={
-                reportData?.inventory_status?.map((item) => ({
-                  label: item.label,
-                  count: item.count,
-                  value: item.percentage,
-                  color: inventoryColors[item.label],
-                })) || []
-              }
-              onHover={setTooltip}
-              onLeave={() => setTooltip(null)}
-            />
-            {tooltip && (
-              <div
-                className="fixed z-50 rounded-md bg-black px-3 py-2 text-xs text-white font-bold pointer-events-none"
-                style={{
-                  left: tooltip.x + 10,
-                  top: tooltip.y + 10,
-                }}
-              >
-                <div>
-                  {t.has(`statusLabels.${tooltip.data.label}`)
-                    ? t(`statusLabels.${tooltip.data.label}`)
-                    : tooltip.data.label}
-                </div>
-                <div>{t("count")}: {tooltip.data.count}</div>
-                <div>{tooltip.data.value}%</div>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] text-[#8E7C70]">
-            {reportData?.inventory_status?.map((item) => (
-              <div key={item.label} className="flex items-center gap-1.5 text-[14px]">
-                <span
-                  className="inline-block h-2.5 w-2.5 rounded-[2px]"
-                  style={{
-                    backgroundColor: inventoryColors[item.label] || "#CCCCCC",
-                  }}
+              <div className="mt-6 flex justify-center">
+                <DonutChart
+                  size={170}
+                  thickness={34}
+                  showLabels
+                  segments={[
+                    {
+                      value:
+                        reportData?.customer_segments?.find(
+                          (x) => x.label === "B2B",
+                        )?.percentage || 0,
+                      color: "#B56735",
+                    },
+                    {
+                      value:
+                        reportData?.customer_segments?.find(
+                          (x) => x.label === "B2C",
+                        )?.percentage || 0,
+                      color: "#7FCCF9",
+                    },
+                  ]}
                 />
-                <span>
-                  {t.has(`statusLabels.${item.label}`)
-                    ? t(`statusLabels.${item.label}`)
-                    : item.label}{" "}
-                  ({item.count})
-                </span>
               </div>
-            ))}
+
+              <div className="mt-6 flex items-center justify-center gap-6 text-[11px] text-[#8E7C70]">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-2.5 w-2.5 rounded-[2px] bg-[#B56735]" />
+                  <span>B2B</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#7FCCF9]" />
+                  <span>B2C</span>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+
+          <div className="mt-4 grid gap-4 xl:grid-cols-2">
+            <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
+              <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
+                {t("panels.topRentedCategories")}
+              </h2>
+
+              <div className="mt-6 space-y-4">
+                {categoryBars.map((item) => (
+                  <div
+                    key={item.label}
+                    className="grid grid-cols-[110px_minmax(0,1fr)] items-center gap-4"
+                  >
+                    <p className="text-[11px] text-[#9F8D81]">{item.label}</p>
+                    <div className="h-5 w-full rounded-[3px] bg-[#F4EAE3]">
+                      <div
+                        className="h-5 rounded-[3px] bg-[#B56735]"
+                        style={{ width: `${(item.value / niceBarMaxValue) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 flex justify-between pl-[126px] pr-1 text-[10px] text-[#B3A096]">
+                {barTicks.map((tick) => (
+                  <span key={tick}>{tick.toLocaleString()}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[12px] border border-[#F0E4DB] bg-white p-5">
+              <h2 className="text-[16px] font-semibold text-[#3B3B3B]">
+                {t("panels.inventoryStatus")}
+              </h2>
+
+              <div className="mt-6 flex justify-center">
+                <DonutChart
+                  size={170}
+                  thickness={34}
+                  segments={
+                    reportData?.inventory_status?.map((item) => ({
+                      label: item.label,
+                      count: item.count,
+                      value: item.percentage,
+                      color: inventoryColors[item.label],
+                    })) || []
+                  }
+                  onHover={setTooltip}
+                  onLeave={() => setTooltip(null)}
+                />
+                {tooltip && (
+                  <div
+                    className="fixed z-50 rounded-md bg-black px-3 py-2 text-xs text-white font-bold pointer-events-none"
+                    style={{
+                      left: tooltip.x + 10,
+                      top: tooltip.y + 10,
+                    }}
+                  >
+                    <div>
+                      {t.has(`statusLabels.${tooltip.data.label}`)
+                        ? t(`statusLabels.${tooltip.data.label}`)
+                        : tooltip.data.label}
+                    </div>
+                    <div>{t("count")}: {tooltip.data.count}</div>
+                    <div>{tooltip.data.value}%</div>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] text-[#8E7C70]">
+                {reportData?.inventory_status?.map((item) => (
+                  <div key={item.label} className="flex items-center gap-1.5 text-[14px]">
+                    <span
+                      className="inline-block h-2.5 w-2.5 rounded-[2px]"
+                      style={{
+                        backgroundColor: inventoryColors[item.label] || "#CCCCCC",
+                      }}
+                    />
+                    <span>
+                      {t.has(`statusLabels.${item.label}`)
+                        ? t(`statusLabels.${item.label}`)
+                        : item.label}{" "}
+                      ({item.count})
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

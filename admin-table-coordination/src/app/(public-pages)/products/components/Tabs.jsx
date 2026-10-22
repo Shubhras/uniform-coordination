@@ -6,10 +6,9 @@ import {
   FiSliders,
   FiBookmark,
   FiGrid,
-  FiBox
+  FiBox,
 } from "react-icons/fi";
 import { useTranslations } from "next-intl";
-
 
 const tabLabels = {
   Fabrics: { en: "Fabrics", ja: "生地" },
@@ -32,17 +31,17 @@ const tabs = [
 ];
 
 const Tabs = ({ activeTab, setActiveTab }) => {
-    const t = useTranslations("productSpecification.tabs");
+  const t = useTranslations("productSpecification.tabs");
   return (
     <div className="flex gap-6 border-b border-[#E8DDD4] mt-6 overflow-x-auto">
       {tabs.map(({ key, label, icon: Icon }) => (
         <button
           key={key}
           onClick={() => setActiveTab(key)}
-          className={`pb-2.5 text-base font-medium flex items-center gap-2 whitespace-nowrap transition-colors cursor-pointer ${
+          className={`pb-1 text-base font-medium flex items-center gap-2 whitespace-nowrap transition-colors cursor-pointer ${
             activeTab === key
-              ? "text-[#1C1917] font-semibold border-b-2 border-[#A85A32]"
-              : "text-[#78716C] hover:text-[#292524] border-transparent"
+              ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
+              : "text-[#525252] text-[16px]"
           }`}
         >
           <Icon size={16} />
@@ -54,9 +53,6 @@ const Tabs = ({ activeTab, setActiveTab }) => {
 };
 
 export default Tabs;
-
-
-
 
 //   { key: "Fabrics", icon: FiLayers },
 //   { key: "Colors", icon: FiDroplet },

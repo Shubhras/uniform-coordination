@@ -30,6 +30,7 @@ import {
 } from "react-icons/fi";
 import NewDeleteModal from "@/components/shared/NewDeleteModal";
 import Spinner from "@/components/ui/Spinner";
+import PromocodeModal from "./PromocodeModal";
 import {
   apiGetAdminPayments,
   apiGetAdminPaymentDetails,
@@ -223,7 +224,7 @@ export default function PaymentManagement() {
   // Format Currency (Default JPY ¥)
   const formatUSD = (val) => {
     const num = parseFloat(val || 0);
-    return `¥${num.toLocaleString("ja-JP")}`;
+    return `$${num.toLocaleString("ja-JP")}`;
   };
 
   // Fetch Payments & Summary
@@ -669,11 +670,10 @@ export default function PaymentManagement() {
         {/* Toast Notification */}
         {notification.show && (
           <div
-            className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium transition-all transform duration-300 ${
-              notification.type === "error"
-                ? "bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950 dark:border-rose-800 dark:text-rose-200"
-                : "bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200"
-            }`}
+            className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium transition-all transform duration-300 ${notification.type === "error"
+              ? "bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950 dark:border-rose-800 dark:text-rose-200"
+              : "bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200"
+              }`}
           >
             {notification.type === "error" ? (
               <FiAlertCircle className="text-rose-500 text-lg flex-shrink-0" />
@@ -733,11 +733,10 @@ export default function PaymentManagement() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition whitespace-nowrap ${
-                  isActive
-                    ? "bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-white"
-                    : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition whitespace-nowrap ${isActive
+                  ? "bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-white"
+                  : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                  }`}
               >
                 <Icon
                   className={
@@ -1347,11 +1346,10 @@ export default function PaymentManagement() {
                           </h4>
                         </div>
                         <span
-                          className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                            promo.isActive
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400"
-                              : "bg-gray-100 text-gray-600 border border-gray-200 dark:bg-gray-800 dark:text-gray-400"
-                          }`}
+                          className={`px-2.5 py-1 rounded-full text-xs font-medium ${promo.isActive
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400"
+                            : "bg-gray-100 text-gray-600 border border-gray-200 dark:bg-gray-800 dark:text-gray-400"
+                            }`}
                         >
                           {promo.isActive ? "Active" : "Inactive"}
                         </span>
@@ -1401,8 +1399,8 @@ export default function PaymentManagement() {
                       <span className="text-[11px] text-gray-400">
                         {promo.ended_at
                           ? `${t("expires")}: ${new Date(
-                              promo.ended_at,
-                            ).toLocaleDateString()}`
+                            promo.ended_at,
+                          ).toLocaleDateString()}`
                           : t("noExpiry")}
                       </span>
                       <div className="flex items-center gap-1">
@@ -1683,7 +1681,7 @@ export default function PaymentManagement() {
                     step="0.01"
                     value={refundAmount}
                     onChange={(e) => setRefundAmount(e.target.value)}
-                    placeholder="Enter amount in JPY (¥)"
+                    placeholder="Enter amount in JPY ($)"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-purple-500/20 focus:outline-none"
                   />
                 </div>
@@ -1740,243 +1738,15 @@ export default function PaymentManagement() {
         )}
 
         {/* CREATE / EDIT PROMOCODE MODAL */}
-        {isPromocodeModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-            <form
-              onSubmit={handleSavePromo}
-              className="bg-white dark:bg-gray-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-gray-100 dark:border-gray-800 space-y-4 max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <FiTag className="text-[#A0522D]" />
-                  {selectedPromocode
-                    ? t("editPromocode")
-                    : t("createNewPromocode")}
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setIsPromocodeModalOpen(false)}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-xl"
-                >
-                  <FiX />
-                </button>
-              </div>
-
-              <div className="space-y-4 text-sm">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    {t("promocodeNameCode")}
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={promoForm.promocodeName}
-                    onChange={(e) =>
-                      setPromoForm({
-                        ...promoForm,
-                        promocodeName: e.target.value.toUpperCase(),
-                      })
-                    }
-                    placeholder="e.g. SUMMER2026"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-mono font-bold focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    {t("description")}
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={promoForm.description}
-                    onChange={(e) =>
-                      setPromoForm({
-                        ...promoForm,
-                        description: e.target.value,
-                      })
-                    }
-                    placeholder={t("promocodeTermsDetails")}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                      {t("discountType")}
-                    </label>
-                    <select
-                      value={promoForm.promocodeType}
-                      onChange={(e) =>
-                        setPromoForm({
-                          ...promoForm,
-                          promocodeType: e.target.value,
-                        })
-                      }
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none"
-                    >
-                      <option value="discount">
-                        {" "}
-                        {t("percentageDiscount")}
-                      </option>
-                      <option value="fix_price"> {t("fixedAmount")}</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                      {t("amountValue")}
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      required
-                      value={promoForm.amount}
-                      onChange={(e) =>
-                        setPromoForm({ ...promoForm, amount: e.target.value })
-                      }
-                      placeholder={
-                        promoForm.promocodeType === "discount"
-                          ? t("percentagePlaceholder")
-                          : t("fixedAmountPlaceholder")
-                      }
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    {t("minimumOrderValue")}
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={promoForm.min_order_value}
-                    onChange={(e) =>
-                      setPromoForm({
-                        ...promoForm,
-                        min_order_value: e.target.value,
-                      })
-                    }
-                    placeholder={t("optionalMinimumCartTotal")}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex items-center gap-3 py-1">
-                  <input
-                    type="checkbox"
-                    id="limit_uses"
-                    checked={promoForm.limit_uses}
-                    onChange={(e) =>
-                      setPromoForm({
-                        ...promoForm,
-                        limit_uses: e.target.checked,
-                      })
-                    }
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label
-                    htmlFor="limit_uses"
-                    className="text-xs font-medium text-gray-700 dark:text-gray-300"
-                  >
-                    {t("limitMaximumUses")}
-                  </label>
-                </div>
-
-                {promoForm.limit_uses && (
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                      {t("maxUsesCount")}
-                    </label>
-                    <input
-                      type="number"
-                      value={promoForm.max_uses}
-                      onChange={(e) =>
-                        setPromoForm({ ...promoForm, max_uses: e.target.value })
-                      }
-                      placeholder={t("maxUsesPlaceholder")}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none"
-                    />
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                      {t("startDate")}
-                    </label>
-                    <input
-                      type="datetime-local"
-                      value={promoForm.started_at}
-                      onChange={(e) =>
-                        setPromoForm({
-                          ...promoForm,
-                          started_at: e.target.value,
-                        })
-                      }
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                      {t("endDate")}
-                    </label>
-                    <input
-                      type="datetime-local"
-                      value={promoForm.ended_at}
-                      onChange={(e) =>
-                        setPromoForm({ ...promoForm, ended_at: e.target.value })
-                      }
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 py-1">
-                  <input
-                    type="checkbox"
-                    id="isActive"
-                    checked={promoForm.isActive}
-                    onChange={(e) =>
-                      setPromoForm({ ...promoForm, isActive: e.target.checked })
-                    }
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label
-                    htmlFor="isActive"
-                    className="text-xs font-medium text-gray-700 dark:text-gray-300"
-                  >
-                    {t("promocodeActive")}
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
-                <button
-                  type="button"
-                  onClick={() => setIsPromocodeModalOpen(false)}
-                  className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"
-                >
-                  {t("cancel")}
-                </button>
-                <button
-                  type="submit"
-                  disabled={promoSubmitting}
-                  className="px-5 py-2.5 rounded-lg text-sm font-medium bg-[#A0522D] text-white shadow-sm disabled:opacity-50 flex items-center gap-2"
-                >
-                  {promoSubmitting
-                    ? t("saving")
-                    : selectedPromocode
-                      ? t("updatePromocode")
-                      : t("savePromocode")}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+        <PromocodeModal
+          isOpen={isPromocodeModalOpen}
+          onClose={() => setIsPromocodeModalOpen(false)}
+          onSubmit={handleSavePromo}
+          selectedPromocode={selectedPromocode}
+          promoForm={promoForm}
+          setPromoForm={setPromoForm}
+          promoSubmitting={promoSubmitting}
+        />
       </div>
       <NewDeleteModal
         isOpen={deleteDialogOpen}

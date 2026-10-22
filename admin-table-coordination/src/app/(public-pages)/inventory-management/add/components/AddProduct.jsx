@@ -82,39 +82,47 @@ const AddProduct = () => {
     const newErrors = {};
 
     if (!formData.productName.trim()) {
-      newErrors.productName = "Product name is required*";
+      newErrors.productName = t("validation.productNameRequired");
     }
 
     if (!category) {
-      newErrors.category = "Category is required*";
+      newErrors.category = t("validation.categoryRequired");
     }
 
     if (!formData.description.trim()) {
-      newErrors.description = "Description is required*";
+      newErrors.description = t("validation.descriptionRequired");
     }
 
     if (!fabric) {
-      newErrors.fabric = "Fabric is required*";
+      newErrors.fabric = t("validation.fabricRequired");
     }
 
     if (!color) {
-      newErrors.color = "Color is required*";
+      newErrors.color = t("validation.colorRequired");
     }
 
-    if (!formData.size.trim()) {
-      newErrors.size = "Table size is required*";
+    if (!String(formData.size || "").trim()) {
+      newErrors.size = t("validation.sizeRequired");
+    } else if (Number(formData.size) < 0) {
+      newErrors.size = t("validation.tableSizeNegative");
+    } else if (Number(formData.size) === 0) {
+      newErrors.size = t("validation.tableSizeGreaterThanZero");
     }
 
-    if (!formData.rentalPricePerDay) {
-      newErrors.rentalPricePerDay = "Rental price is required*";
+    if (!formData.rentalPricePerDay || !String(formData.rentalPricePerDay).trim()) {
+      newErrors.rentalPricePerDay = t("validation.rentalPriceRequired");
+    } else if (isNaN(Number(formData.rentalPricePerDay)) || Number(formData.rentalPricePerDay) <= 0) {
+      newErrors.rentalPricePerDay = t("validation.rentalPriceGreaterThanZero");
     }
 
-    if (!formData.total_quantity) {
-      newErrors.total_quantity = "Stock quantity is required*";
+    if (!formData.total_quantity || !String(formData.total_quantity).trim()) {
+      newErrors.total_quantity = t("validation.quantityRequired");
+    } else if (isNaN(Number(formData.total_quantity)) || Number(formData.total_quantity) <= 0) {
+      newErrors.total_quantity = t("validation.quantityGreaterThanZero");
     }
 
     if (!formData.productImage && !previewImage) {
-      newErrors.productImage = "Product image is required*";
+      newErrors.productImage = t("validation.imageRequired");
     }
 
     setErrors(newErrors);
@@ -444,7 +452,7 @@ const AddProduct = () => {
           {/* Product Name */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("productNAME")}
+              {t("productNAME")} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -469,7 +477,7 @@ const AddProduct = () => {
           {/* Category */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("category")}
+              {t("category")} <span className="text-red-500">*</span>
             </label>
 
             <Select
@@ -496,7 +504,7 @@ const AddProduct = () => {
         {/* Short Description */}
         <div className="mt-6">
           <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-            {t("shortDescription")}
+            {t("shortDescription")} <span className="text-red-500">*</span>
           </label>
 
           <textarea
@@ -583,7 +591,7 @@ const AddProduct = () => {
                 <option>{t("luxury")}</option>
                 <option>{t("modern")}</option>
               </select>
-               <FiChevronDown
+              <FiChevronDown
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7A6C]"
                 size={18}
               />
@@ -621,7 +629,7 @@ const AddProduct = () => {
           {/* Fabric */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("fabric")}
+              {t("fabric")} <span className="text-red-500">*</span>
             </label>
 
             <Select
@@ -647,7 +655,7 @@ const AddProduct = () => {
           {/* Color */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("color")}
+              {t("color")} <span className="text-red-500">*</span>
             </label>
 
             <Select
@@ -710,7 +718,7 @@ const AddProduct = () => {
           </div> */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("tableSize")}
+              {t("tableSize")} <span className="text-red-500">*</span>
             </label>
 
             <div className="relative">
@@ -718,11 +726,20 @@ const AddProduct = () => {
                 type="number"
                 value={formData.size}
                 onChange={(e) => {
-                  handleChange("size", e.target.value);
+                  const val = e.target.value;
+                  handleChange("size", val);
 
+                  let errorMsg = "";
+                  if (val !== "") {
+                    if (Number(val) < 0) {
+                      errorMsg = t("validation.tableSizeNegative");
+                    } else if (Number(val) === 0) {
+                      errorMsg = t("validation.tableSizeGreaterThanZero");
+                    }
+                  }
                   setErrors((prev) => ({
                     ...prev,
-                    size: "",
+                    size: errorMsg,
                   }));
                 }}
                 placeholder={t("tableSizePlaceholder")}
@@ -737,18 +754,25 @@ const AddProduct = () => {
           {/* Rental Price */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("rentalPrice")}
+              {t("rentalPrice")} <span className="text-red-500">*</span>
             </label>
 
             <input
               type="number"
               value={formData.rentalPricePerDay}
               onChange={(e) => {
-                handleChange("rentalPricePerDay", e.target.value);
+                const val = e.target.value;
+                handleChange("rentalPricePerDay", val);
 
+                let errorMsg = "";
+                if (val !== "") {
+                  if (isNaN(Number(val)) || Number(val) <= 0) {
+                    errorMsg = t("validation.rentalPriceGreaterThanZero");
+                  }
+                }
                 setErrors((prev) => ({
                   ...prev,
-                  rentalPricePerDay: "",
+                  rentalPricePerDay: errorMsg,
                 }));
               }}
               placeholder={t("pricePlaceholder")}
@@ -764,17 +788,24 @@ const AddProduct = () => {
           {/* Stock Quantity */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("stockQuantity")}
+              {t("stockQuantity")} <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
               value={formData.total_quantity}
               onChange={(e) => {
-                handleChange("total_quantity", e.target.value);
+                const val = e.target.value;
+                handleChange("total_quantity", val);
 
+                let errorMsg = "";
+                if (val !== "") {
+                  if (isNaN(Number(val)) || Number(val) <= 0) {
+                    errorMsg = t("validation.quantityGreaterThanZero");
+                  }
+                }
                 setErrors((prev) => ({
                   ...prev,
-                  total_quantity: "",
+                  total_quantity: errorMsg,
                 }));
               }}
               placeholder={t("quantityPlaceholder")}
@@ -806,6 +837,7 @@ const AddProduct = () => {
 
             <Switcher
               checked={formData.rfidTrackingEnabled}
+              switcherClass="bg-[#A85A32]"
               onChange={(checked) =>
                 handleChange("rfidTrackingEnabled", checked)
               }
@@ -825,7 +857,7 @@ const AddProduct = () => {
           </div>
 
           <h2 className="text-[20px] font-semibold text-[#1A1410]">
-            {t("productImage")}
+            {t("productImage")} <span className="text-red-500">*</span>
           </h2>
         </div>
 

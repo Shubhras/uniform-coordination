@@ -160,10 +160,10 @@ const normalizeUser = (user, locale = "en-US") => ({
   userType: getDisplayUserType(user),
   registrationDate: formatDate(
     user?.registrationDate ||
-      user?.registration_date ||
-      user?.created_at ||
-      user?.date_joined ||
-      user?.createdAt,
+    user?.registration_date ||
+    user?.created_at ||
+    user?.date_joined ||
+    user?.createdAt,
     locale,
   ),
   isActive: getDisplayStatus(user) === "Active",
@@ -226,11 +226,11 @@ const UsersPermissionsPage = () => {
   ];
 
   const adminRoleOptions = [
-    { value: "all", label: "All Roles" },
-    { value: "admin", label: "Admin" },
-    { value: "staff", label: "Staff" },
-    { value: "logistics", label: "Logistics" },
-    { value: "corporate", label: "Corporate" },
+    { value: "all", label: t("allRoles") },
+    { value: "admin", label: t("admin") },
+    { value: "staff", label: t("staff") },
+    { value: "logistics", label: t("logistics") },
+    { value: "corporate", label: t("corporate") },
   ];
 
   const router = useRouter();
@@ -461,7 +461,9 @@ const UsersPermissionsPage = () => {
           msg = firstErr ? `Invalid data ,${firstErr}` : "Invalid data";
         }
       }
-      setCreateAdminError(msg || err?.message || "Failed to create admin user.");
+      setCreateAdminError(
+        msg || err?.message || "Failed to create admin user.",
+      );
     } finally {
       setCreateAdminLoading(false);
     }
@@ -506,7 +508,9 @@ const UsersPermissionsPage = () => {
       };
 
       if (editAdminForm.password.trim()) {
-        const passwordError = validatePasswordComplexity(editAdminForm.password.trim());
+        const passwordError = validatePasswordComplexity(
+          editAdminForm.password.trim(),
+        );
         if (passwordError) {
           setEditAdminError(passwordError);
           setEditAdminLoading(false);
@@ -541,7 +545,9 @@ const UsersPermissionsPage = () => {
           const firstErr = Array.isArray(errors[firstKey])
             ? errors[firstKey][0]
             : errors[firstKey];
-          msg = firstErr ? `Invalid data ,${firstErr}` : "Failed to update account.";
+          msg = firstErr
+            ? `Invalid data ,${firstErr}`
+            : "Failed to update account.";
         }
       }
       setEditAdminError(msg || err?.message || "Failed to update account.");
@@ -730,8 +736,8 @@ const UsersPermissionsPage = () => {
     } catch (err) {
       setCreateUserError(
         err?.response?.data?.message ||
-          err?.message ||
-          "Failed to create customer account.",
+        err?.message ||
+        "Failed to create customer account.",
       );
     } finally {
       setCreateUserLoading(false);
@@ -784,8 +790,8 @@ const UsersPermissionsPage = () => {
       console.error("Failed to update user status:", err);
       setStatusError(
         err?.response?.data?.message ||
-          err?.response?.data?.detail ||
-          "Failed to update user status. Please try again.",
+        err?.response?.data?.detail ||
+        "Failed to update user status. Please try again.",
       );
     } finally {
       setStatusActionLoading(false);
@@ -840,11 +846,10 @@ const UsersPermissionsPage = () => {
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key)}
-            className={`pb-2.5 text-base font-medium whitespace-nowrap transition-colors duration-150 ${
-              activeTab === tab.key
-                ? "text-[#1C1917] font-semibold border-b-2 border-[#A85A32]"
-                : "text-[#78716C] hover:text-[#292524]"
-            }`}
+            className={`pb-1 text-base font-medium whitespace-nowrap ${activeTab === tab.key
+                ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
+                : "text-[#525252] text-[16px]"
+              }`}
           >
             {tab.label}
           </button>
@@ -865,7 +870,7 @@ const UsersPermissionsPage = () => {
               />
               <input
                 type="text"
-                placeholder="Search admin/staff by name, email, phone..."
+                placeholder={t("adminUserSearchPlaceHolder")}
                 value={adminSearchQuery}
                 onChange={(e) => setAdminSearchQuery(e.target.value)}
                 className="w-full h-10 border border-[#D1D5DB] text-sm text-[#2A211D] rounded-lg pl-10 pr-10 outline-none focus:border-[#A0522D]"
@@ -884,7 +889,12 @@ const UsersPermissionsPage = () => {
               {/* Role filter */}
               <div className="w-48">
                 <Select
-                  value={adminRoleFilter}
+                  // value={adminRoleFilter}
+                  value={
+                    adminRoleOptions.find(
+                      (option) => option.value === adminRoleFilter.value,
+                    ) || adminRoleOptions[0]
+                  }
                   onChange={setAdminRoleFilter}
                   options={adminRoleOptions}
                   styles={selectStyles}
@@ -895,7 +905,12 @@ const UsersPermissionsPage = () => {
               {/* Status filter */}
               <div className="w-40">
                 <Select
-                  value={adminStatusFilter}
+                  // value={adminStatusFilter}
+                  value={
+                    statusOptions.find(
+                      (option) => option.value === adminStatusFilter.value,
+                    ) || statusOptions[0]
+                  }
                   onChange={setAdminStatusFilter}
                   options={statusOptions}
                   styles={selectStyles}
@@ -910,7 +925,7 @@ const UsersPermissionsPage = () => {
                 className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
               >
                 <FiRotateCcw size={14} />
-                {t("reset") || "Reset"}
+                {t("reset")}
               </button>
 
               {/* Add Admin User button */}
@@ -923,36 +938,40 @@ const UsersPermissionsPage = () => {
                 className="flex h-10 items-center gap-2 rounded-lg bg-[#A0522D] hover:bg-[#854122] px-4 text-sm font-medium text-white transition shadow-sm whitespace-nowrap"
               >
                 <FiPlus size={16} />
-                Add Admin / Staff
+                {t("addAdminStaff")}
               </button>
             </div>
           </div>
 
           {/* Admin Users Table */}
-          <div className="mt-4 overflow-x-auto border border-[#E8DDD4] rounded-xl shadow-sm">
+          <div className="mt-4 overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-[#F7F2EE] text-[#4A3D36] border-b border-[#E8DDD4]">
-                <tr>
-                  <th className="text-left px-5 py-3.5 font-semibold">
-                    FULL NAME
+              <thead className="bg-[#F1F5F9] text-[#486284]">
+                <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
+                  <th className="text-left px-4 py-3 font-medium">
+                    {t("fullNameColumn")}
                   </th>
-                  <th className="text-left px-5 py-3.5 font-semibold">ROLE</th>
-                  <th className="text-left px-5 py-3.5 font-semibold">EMAIL</th>
-                  <th className="text-left px-5 py-3.5 font-semibold">
-                    PHONE NUMBER
+                  <th className="text-left px-4 py-3 font-medium">
+                    {t("role")}
                   </th>
-                  <th className="text-left px-5 py-3.5 font-semibold">
-                    REGISTRATION DATE
+                  <th className="text-left px-4 py-3 font-medium">
+                    {t("email")}
                   </th>
-                  <th className="text-left px-5 py-3.5 font-semibold">
-                    STATUS
+                  <th className="text-left px-4 py-3 font-medium">
+                    {t("phonenumber")}
                   </th>
-                  <th className="text-center px-5 py-3.5 font-semibold">
-                    ACTIONS
+                  <th className="text-left px-4 py-3 font-medium">
+                    {t("registrationdate")}
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium">
+                    {t("statusColumn")}
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium">
+                    {t("actionsColumn")}
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F1E8E2]">
+              <tbody>
                 {adminLoading ? (
                   <tr>
                     <td colSpan={7} className="py-20 text-center">
@@ -964,7 +983,7 @@ const UsersPermissionsPage = () => {
                 ) : adminUsers.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-16 text-center text-gray-500">
-                      No admin or staff accounts found.
+                      {t("noAdminStaff")}
                     </td>
                   </tr>
                 ) : (
@@ -979,7 +998,7 @@ const UsersPermissionsPage = () => {
                     return (
                       <tr
                         key={user.id}
-                        className="odd:bg-white even:bg-[#FCF9F7] hover:bg-[#FAF4F0] transition-colors"
+                        className="odd:bg-white even:bg-[#FBF8F6]"
                       >
                         <td className="px-5 py-3.5 font-medium text-[#2A211D]">
                           <div className="flex items-center gap-3">
@@ -998,37 +1017,33 @@ const UsersPermissionsPage = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-5 py-3.5">
+                        <td className="px-4 py-3 font-medium text-[#2A211D]">
                           {renderRoleBadge(roleLabel)}
                         </td>
-                        <td className="px-5 py-3.5 text-gray-700 font-mono text-xs">
+                        <td className="px-4 py-3 font-medium text-[#2A211D]">
                           {user.email}
                         </td>
-                        <td className="px-5 py-3.5 text-gray-600">
+                        <td className="px-4 py-3 font-medium text-[#2A211D]">
                           {user.mobile || "-"}
                         </td>
-                        <td className="px-5 py-3.5 text-gray-600">
+                        <td className="px-4 py-3 font-medium text-[#2A211D]">
                           {formatDate(user.created_at, locale)}
                         </td>
-                        <td className="px-5 py-3.5">
+                        <td className="px-4 py-3 font-medium text-[#2A211D]">
                           <span
-                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                              user.is_active
+                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${user.is_active
                                 ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                 : "bg-red-50 text-red-600 border border-red-200"
-                            }`}
+                              }`}
                           >
                             <span
-                              className={`h-1.5 w-1.5 rounded-full ${
-                                user.is_active
-                                  ? "bg-emerald-500"
-                                  : "bg-red-500"
-                              }`}
+                              className={`h-1.5 w-1.5 rounded-full ${user.is_active ? "bg-emerald-500" : "bg-red-500"
+                                }`}
                             />
                             {user.is_active ? "Active" : "Inactive"}
                           </span>
                         </td>
-                        <td className="px-5 py-3.5 text-center">
+                        <td className="px-4 py-3 font-medium text-[#2A211D]">
                           <div className="flex items-center justify-center gap-1.5">
                             <button
                               type="button"
@@ -1049,13 +1064,12 @@ const UsersPermissionsPage = () => {
                                     ? "Deactivate Account"
                                     : "Activate Account"
                               }
-                              className={`p-1.5 rounded-lg transition ${
-                                isSelf
+                              className={`p-1.5 rounded-lg transition ${isSelf
                                   ? "text-gray-300 cursor-not-allowed"
                                   : user.is_active
                                     ? "text-gray-500 hover:text-red-600 hover:bg-red-50"
                                     : "text-emerald-600 hover:bg-emerald-50"
-                              }`}
+                                }`}
                             >
                               {user.is_active ? (
                                 <FiSlash size={16} />
@@ -1117,7 +1131,12 @@ const UsersPermissionsPage = () => {
               <div className="flex gap-3">
                 <div className="w-52">
                   <Select
-                    value={status}
+                    // value={status}
+                    value={
+                      statusOptions.find(
+                        (option) => option.value === status.value,
+                      ) || statusOptions[0]
+                    }
                     onChange={setStatus}
                     options={statusOptions}
                     styles={selectStyles}
@@ -1127,7 +1146,12 @@ const UsersPermissionsPage = () => {
 
                 <div className="w-52">
                   <Select
-                    value={userType}
+                    // value={userType}
+                    value={
+                      typeOptions.find(
+                        (option) => option.value === userType.value,
+                      ) || typeOptions[0]
+                    }
                     onChange={setUserType}
                     options={typeOptions}
                     styles={selectStyles}
@@ -1151,7 +1175,7 @@ const UsersPermissionsPage = () => {
                   className="flex h-10 items-center gap-2 rounded-lg bg-[#A0522D] hover:bg-[#854122] px-4 text-sm font-medium text-white transition shadow-sm whitespace-nowrap"
                 >
                   <FiPlus size={16} />
-                  {(t("addCustomer") || "Add New Customer").replace(/^\+\s*/, "")}
+                  {t("addCustomer")}
                 </button>
               </div>
             </div>
@@ -1161,22 +1185,22 @@ const UsersPermissionsPage = () => {
             <table className="w-full text-sm">
               <thead className="bg-[#F1F5F9] text-[#486284]">
                 <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                  <th className="text-left px-4 py-3">
+                  <th className="text-left px-4 py-3 font-medium">
                     {t("fullNameColumn") || "Full Name"}
                   </th>
-                  <th className="text-left px-4 py-3">
+                  <th className="text-left px-4 py-3 font-medium">
                     {t("role") || "Role"}
                   </th>
-                  <th className="text-left px-4 py-3">
+                  <th className="text-left px-4 py-3 font-medium">
                     {t("email") || "Email"}
                   </th>
-                  <th className="text-left px-4 py-3">
+                  <th className="text-left px-4 py-3 font-medium">
                     {t("registration") || "Registration Date"}
                   </th>
-                  <th className="text-left px-4 py-3">
+                  <th className="text-left px-4 py-3 font-medium">
                     {t("statusColumn") || "Status"}
                   </th>
-                  <th className="text-left px-4 py-3">
+                  <th className="text-left px-4 py-3 font-medium">
                     {t("actionsColumn") || "Actions"}
                   </th>
                 </tr>
@@ -1199,45 +1223,40 @@ const UsersPermissionsPage = () => {
                         key={user.id}
                         className="odd:bg-white even:bg-[#FBF8F6]"
                       >
-                        <td className="px-4 py-3 font-semibold text-[#4A3D36]">
+                        <td className="px-4 py-3 font-medium">
                           {user.firstName} {user.lastName}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 font-medium">
                           <span
-                            className={`rounded px-3 py-1 text-[12px] font-medium ${
-                              user.role === "b2c"
+                            className={`rounded px-3 py-1 text-[12px] font-medium ${user.role === "b2c"
                                 ? "bg-[#EAF4FF] text-[#4B93D4]"
                                 : user.role === "b2b"
                                   ? "bg-[#FFF0E8] text-[#C58A62]"
                                   : "bg-[#F3F4F6] text-[#6B7280]"
-                            }`}
+                              }`}
                           >
                             {user.role?.toUpperCase() || "B2C"}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-[#4A3D36]">
-                          {user.email}
-                        </td>
-                        <td className="px-4 py-3 font-semibold text-[#4A3D36]">
+                        <td className="px-4 py-3 font-medium">{user.email}</td>
+                        <td className="px-4 py-3 font-medium">
                           {user.registrationDate}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 font-medium">
                           <span
-                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-medium ${
-                              user.isActive
+                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-medium ${user.isActive
                                 ? "bg-[#E8FAF2] text-[#007A55]"
                                 : "bg-[#FFE9E8] text-[#F04444]"
-                            }`}
+                              }`}
                           >
                             <span
-                              className={`h-1.5 w-1.5 rounded-full ${
-                                user.isActive ? "bg-[#007A55]" : "bg-[#F04444]"
-                              }`}
+                              className={`h-1.5 w-1.5 rounded-full ${user.isActive ? "bg-[#007A55]" : "bg-[#F04444]"
+                                }`}
                             />
                             {user.isActive ? t("active") : t("inactive")}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 font-medium">
                           <div className="flex items-center gap-0 text-[#7D6C63]">
                             <button
                               type="button"
@@ -1259,11 +1278,10 @@ const UsersPermissionsPage = () => {
                                   ? "Deactivate User"
                                   : "Reactivate User"
                               }
-                              className={`flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg ${
-                                user.isActive
+                              className={`flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg ${user.isActive
                                   ? "hover:bg-red-50 text-[#7D6C63] hover:text-red-600"
                                   : "hover:bg-green-50 text-red-500 hover:text-emerald-600"
-                              }`}
+                                }`}
                             >
                               {user.isActive ? (
                                 <FiSlash size={17} />
@@ -1399,7 +1417,8 @@ const UsersPermissionsPage = () => {
                 className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
               />
               <p className="text-[11px] text-gray-500 mt-1">
-                Min 12 characters with uppercase, lowercase, number, and special character.
+                Min 12 characters with uppercase, lowercase, number, and special
+                character.
               </p>
             </div>
 
@@ -1413,12 +1432,17 @@ const UsersPermissionsPage = () => {
                   maxLength={15}
                   value={newAdminForm.mobile}
                   onChange={(e) =>
-                    setNewAdminForm({ ...newAdminForm, mobile: e.target.value.slice(0, 15) })
+                    setNewAdminForm({
+                      ...newAdminForm,
+                      mobile: e.target.value.slice(0, 15),
+                    })
                   }
                   placeholder="+81..."
                   className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
                 />
-                <p className="text-[11px] text-gray-400 mt-1">Max 15 characters</p>
+                <p className="text-[11px] text-gray-400 mt-1">
+                  Max 15 characters
+                </p>
               </div>
 
               <div>
@@ -1448,7 +1472,6 @@ const UsersPermissionsPage = () => {
 
             <div className="border-t pt-4 flex justify-end gap-3">
               <Button
-                type="button"
                 variant="plain"
                 size="sm"
                 disabled={createAdminLoading}
@@ -1456,7 +1479,7 @@ const UsersPermissionsPage = () => {
                   setIsAddAdminModalOpen(false);
                   setCreateAdminError("");
                 }}
-                className="bg-gray-100 rounded-lg px-4"
+                className="bg-blue-100 rounded-lg"
               >
                 Cancel
               </Button>
@@ -1565,7 +1588,9 @@ const UsersPermissionsPage = () => {
                   }
                   className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
                 />
-                <p className="text-[11px] text-gray-400 mt-1">Max 15 characters</p>
+                <p className="text-[11px] text-gray-400 mt-1">
+                  Max 15 characters
+                </p>
               </div>
 
               <div>
@@ -1604,7 +1629,8 @@ const UsersPermissionsPage = () => {
                 className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
               />
               <p className="text-[11px] text-gray-500 mt-1">
-                If changing, min 12 characters with uppercase, lowercase, number, and special character.
+                If changing, min 12 characters with uppercase, lowercase,
+                number, and special character.
               </p>
             </div>
 
@@ -1640,7 +1666,6 @@ const UsersPermissionsPage = () => {
 
             <div className="border-t pt-4 flex justify-end gap-3">
               <Button
-                type="button"
                 variant="plain"
                 size="sm"
                 disabled={editAdminLoading}
@@ -1648,7 +1673,7 @@ const UsersPermissionsPage = () => {
                   setIsEditAdminModalOpen(false);
                   setEditAdminError("");
                 }}
-                className="bg-gray-100 rounded-lg px-4"
+                className="bg-blue-100 rounded-lg"
               >
                 Cancel
               </Button>
@@ -1776,7 +1801,8 @@ const UsersPermissionsPage = () => {
                 className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
               />
               <p className="text-[11px] text-gray-500 mt-1">
-                Min 12 characters with uppercase, lowercase, number, and special character.
+                Min 12 characters with uppercase, lowercase, number, and special
+                character.
               </p>
             </div>
 
@@ -1790,12 +1816,17 @@ const UsersPermissionsPage = () => {
                   maxLength={15}
                   value={newUserForm.phone}
                   onChange={(e) =>
-                    setNewUserForm({ ...newUserForm, phone: e.target.value.slice(0, 15) })
+                    setNewUserForm({
+                      ...newUserForm,
+                      phone: e.target.value.slice(0, 15),
+                    })
                   }
                   placeholder="+81..."
                   className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
                 />
-                <p className="text-[11px] text-gray-400 mt-1">Max 15 characters</p>
+                <p className="text-[11px] text-gray-400 mt-1">
+                  Max 15 characters
+                </p>
               </div>
 
               <div>
@@ -1941,11 +1972,10 @@ const UsersPermissionsPage = () => {
               size="sm"
               loading={statusActionLoading}
               onClick={handleConfirmStatusChange}
-              className={`px-5 text-white rounded-md ${
-                selectedUserForStatus?.isActive
+              className={`px-5 text-white rounded-md ${selectedUserForStatus?.isActive
                   ? "bg-red-600 hover:bg-red-700"
                   : "bg-emerald-600 hover:bg-emerald-700"
-              }`}
+                }`}
             >
               {selectedUserForStatus?.isActive
                 ? t("deactivateAndSendEmail") || "Deactivate"

@@ -79,19 +79,19 @@ const Edit = () => {
     const newErrors = {};
 
     if (!title.trim()) {
-      newErrors.title = "Theme name is required*";
+      newErrors.title = t("validation.themeNameRequired");
     }
 
     if (!category) {
-      newErrors.category = "Category is required*";
+      newErrors.category = t("validation.categoryRequired");
     }
 
     if (!description.trim()) {
-      newErrors.description = "Description is required*";
+      newErrors.description = t("validation.descriptionRequired");
     }
 
     if (!thumbnailPreview && !thumbnail) {
-      newErrors.thumbnail = "Thumbnail is required*";
+      newErrors.thumbnail = t("validation.thumbnailRequired");
     }
 
     const hasItem = sections.some(
@@ -99,8 +99,7 @@ const Edit = () => {
     );
 
     if (!hasItem) {
-      newErrors.sections =
-        "At least one product must be added in any one section.";
+      newErrors.sections = t("validation.sectionRequired");
     }
 
     setErrors(newErrors);
@@ -412,7 +411,7 @@ const Edit = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
-                {t("themeName")}
+                {t("themeName")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -435,7 +434,7 @@ const Edit = () => {
 
             <div>
               <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
-                {t("category")}
+                {t("category")} <span className="text-red-500">*</span>
               </label>
 
               <Select
@@ -462,7 +461,7 @@ const Edit = () => {
           {/* Description */}
           <div className="mt-5">
             <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
-              {t("shortDescription")}
+              {t("shortDescription")} <span className="text-red-500">*</span>
             </label>
 
             <textarea
@@ -514,7 +513,7 @@ const Edit = () => {
           </div> */}
           <div>
             <label className="block text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-3">
-              {t("thumbnail")}
+              {t("thumbnail")} <span className="text-red-500">*</span>
             </label>
 
             {/* Thumbnail file picker */}

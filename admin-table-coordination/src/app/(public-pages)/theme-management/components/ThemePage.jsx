@@ -25,7 +25,7 @@ import { useTranslations } from "next-intl";
 const ThemePage = () => {
   const router = useRouter();
   const t = useTranslations("themeManagement");
-   const ts = useTranslations("successTitle");
+  const ts = useTranslations("successTitle");
   const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState("list");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -98,7 +98,7 @@ const ThemePage = () => {
   };
 
   const categoryOptions = [
-    { value: "all", label: "All Categories" },
+    { value: "all", label: t("allCategories") },
     ...categoryList.map((item) => ({
       value: item.id,
       label: item.categoryName,
@@ -213,9 +213,7 @@ const ThemePage = () => {
               {t("themeManage")}
             </h2>
 
-            <p className="text-sm text-[#757575] mt-1">
-              {t("themeContent")}
-            </p>
+            <p className="text-sm text-[#757575] mt-1">{t("themeContent")}</p>
           </div>
 
           <button
@@ -223,7 +221,7 @@ const ThemePage = () => {
             className="bg-[#A0522D] transition text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium"
           >
             <FiPlus />
-             {t("addNew")}
+            {t("addNew")}
           </button>
         </div>
 
@@ -256,7 +254,12 @@ const ThemePage = () => {
           {/* Category */}
           <div className="w-56">
             <Select
-              value={category}
+              // value={category}
+              value={
+                categoryOptions.find(
+                  (option) => option.value === category?.value,
+                ) || categoryOptions[0]
+              }
               onChange={setCategory}
               options={categoryOptions}
               styles={selectStyles}
@@ -268,7 +271,7 @@ const ThemePage = () => {
             className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
           >
             <FiRotateCcw size={14} />
-             {t("reset")}
+            {t("reset")}
           </button>
 
           {/* View Toggle */}
@@ -281,7 +284,7 @@ const ThemePage = () => {
                   : "bg-white text-[#A85A32B2] font-semibold"
               }`}
             >
-               {t("grid")}
+              {t("grid")}
             </button>
 
             <button
@@ -292,7 +295,7 @@ const ThemePage = () => {
                   : "bg-white text-[#A85A32B2] font-semibold"
               }`}
             >
-               {t("list")}
+              {t("list")}
             </button>
           </div>
         </div>
@@ -308,8 +311,13 @@ const ThemePage = () => {
                 <table className="w-full text-sm">
                   <thead className="bg-[#F1F5F9] text-[#486284]">
                     <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
-                      <th className="text-left px-4 py-3 font-medium"> {t("theme")}</th>
-                      <th className="text-left px-4 py-3 font-medium">{t("name")}</th>
+                      <th className="text-left px-4 py-3 font-medium">
+                        {" "}
+                        {t("theme")}
+                      </th>
+                      <th className="text-left px-4 py-3 font-medium">
+                        {t("name")}
+                      </th>
                       <th className="text-left px-4 py-3 font-medium">
                         {t("category")}
                       </th>
@@ -318,7 +326,7 @@ const ThemePage = () => {
                       </th>
                       {/* <th className="text-left px-4 py-3 font-medium"> {t("usage")}</th> */}
                       <th className="text-left px-4 py-3 font-medium">
-                         {t("actions")}
+                        {t("actions")}
                       </th>
                     </tr>
                   </thead>
@@ -461,7 +469,7 @@ const ThemePage = () => {
                                 className="flex items-center gap-2 bg-[#A0522D] text-white text-xs px-4 py-2 rounded-full hover:bg-[#8b4322]"
                               >
                                 <FiEye size={13} />
-                                 {t("preview")}
+                                {t("preview")}
                               </button>
 
                               <button
@@ -473,7 +481,7 @@ const ThemePage = () => {
                                 className="flex items-center gap-2 border border-[#D8D8D8] text-[#444] text-xs px-4 py-2 rounded-full hover:bg-[#F8F8F8]"
                               >
                                 <FiEdit2 size={13} />
-                                 {t("edit")}
+                                {t("edit")}
                               </button>
                             </div>
 

@@ -131,20 +131,18 @@ export default function RentalTimeline({ orderId }) {
                   {/* Line */}
                   {index !== timeline.length - 1 && (
                     <div
-                      className={`absolute left-[17px] top-9 w-[2px] h-full ${
-                        index < currentStep ? "bg-[#C96B34]" : "bg-[#E5E5E5]"
-                      }`}
+                      className={`absolute left-[17px] top-9 w-[2px] h-full ${index < currentStep ? "bg-[#C96B34]" : "bg-[#E5E5E5]"
+                        }`}
                     />
                   )}
 
                   <div className="flex gap-4">
                     {/* Icon */}
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm z-10 ${
-                        completed
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm z-10 ${completed
                           ? "bg-[#B8663A]"
                           : "bg-white border border-[#D9D9D9] text-[#999]"
-                      }`}
+                        }`}
                     >
                       {item.icon}
                     </div>
@@ -152,17 +150,15 @@ export default function RentalTimeline({ orderId }) {
                     {/* Text */}
                     <div>
                       <h3
-                        className={`font-semibold text-[14px] ${
-                          completed ? "text-[#2D241C]" : "text-[#B8B8B8]"
-                        }`}
+                        className={`font-semibold text-[14px] ${completed ? "text-[#2D241C]" : "text-[#B8B8B8]"
+                          }`}
                       >
                         {item.title}
                       </h3>
 
                       <p
-                        className={`text-xs mt-1 ${
-                          completed ? "text-[#8D857D]" : "text-[#C6C6C6]"
-                        }`}
+                        className={`text-xs mt-1 ${completed ? "text-[#8D857D]" : "text-[#C6C6C6]"
+                          }`}
                       >
                         {item.desc}
                       </p>
@@ -170,9 +166,8 @@ export default function RentalTimeline({ orderId }) {
                   </div>
 
                   <span
-                    className={`text-xs ${
-                      completed ? "text-[#8B8B8B]" : "text-[#BEBEBE]"
-                    }`}
+                    className={`text-xs ${completed ? "text-[#8B8B8B]" : "text-[#BEBEBE]"
+                      }`}
                   >
                     {completed ? t("completed") : t("pending")}
                   </span>
@@ -216,7 +211,7 @@ export default function RentalTimeline({ orderId }) {
               <div className="flex justify-between">
                 <span className="text-[#8C8177]">{t("amount")}</span>
                 <span className="font-semibold text-[#A85A32]">
-                 ¥{order?.total_amount}
+                  ${order?.total_amount}
                 </span>{" "}
               </div>
 
@@ -225,17 +220,16 @@ export default function RentalTimeline({ orderId }) {
 
                 <span
                   className={`px-2 py-1 rounded border text-xs font-semibold capitalize
-      ${
-        order?.status === "returned"
-          ? "bg-[#FAF5FF] text-[#8200DB] border-[#E9D4FF]"
-          : order?.status === "delivered"
-            ? "bg-[#EAF8F0] text-[#3E9C68] border-[#86EFAC]"
-            : order?.status === "processing"
-              ? "bg-[#FFF4E5] text-[#D97706] border-[#FCD34D]"
-              : order?.status === "pending"
-                ? "bg-[#FFF4E5] text-[#BB4D00] border-[#BB4D00]"
-                : "bg-[#EFF6FF] text-[#1447E6] border-[#BEDBFF]"
-      }`}
+      ${order?.status === "returned"
+                      ? "bg-[#FAF5FF] text-[#8200DB] border-[#E9D4FF]"
+                      : order?.status === "delivered"
+                        ? "bg-[#EAF8F0] text-[#3E9C68] border-[#86EFAC]"
+                        : order?.status === "processing"
+                          ? "bg-[#FFF4E5] text-[#D97706] border-[#FCD34D]"
+                          : order?.status === "pending"
+                            ? "bg-[#FFF4E5] text-[#BB4D00] border-[#BB4D00]"
+                            : "bg-[#EFF6FF] text-[#1447E6] border-[#BEDBFF]"
+                    }`}
                 >
                   {order?.status}
                 </span>

@@ -253,24 +253,24 @@
         }
     },
     "adminSidebar": {
-            "dashboard": "Dashboard",
-            "productSpecification": "Product & Specification",
-            "contentMedia": "Content & Media",
-            "themeManagement": "Theme Management",
-            "inventoryManagement": "Inventory Management",
-            "orderRentals": "Orders & Rentals",
-            "savedSimulations": "Saved Simulations",
-            "pricingPackages": "Pricing & Packages",
-            "payments": "Payment Management",
-            "contractsPolicies": "Contracts & Policies",
-            "notifications": "Notifications",
-            "aiAutomation": "AI & Automation",
-            "usersPermissions": "Users & Permissions",
-            "simulationAssets": "Simulation Assets",
-            "reportsAnalytics": "Reports & Analytics",
-            "systemSettings": "System Settings",
-            "paymentsDashboard":"Payments"
-        },
+        "dashboard": "Dashboard",
+        "productSpecification": "Product & Specification",
+        "contentMedia": "Content & Media",
+        "themeManagement": "Theme Management",
+        "inventoryManagement": "Inventory Management",
+        "orderRentals": "Orders & Rentals",
+        "savedSimulations": "Saved Simulations",
+        "pricingPackages": "Pricing & Packages",
+        "payments": "Payment Management",
+        "contractsPolicies": "Contracts & Policies",
+        "notifications": "Notifications",
+        "aiAutomation": "AI & Automation",
+        "usersPermissions": "Users & Permissions",
+        "simulationAssets": "Simulation Assets",
+        "reportsAnalytics": "Reports & Analytics",
+        "systemSettings": "System Settings",
+        "paymentsDashboard": "Payments"
+    },
     "dashboard": {
         "welcomeTitle": "Welcome Back, {name}!",
         "welcomeSubtitle": "Manage inventory, rentals and event themes from one place.",
@@ -317,32 +317,32 @@
             "allCaughtUp": "All caught up!",
             "allCaughtUpDesc": "No active alerts require your attention."
         },
-        "recentOrders":{
-            "title":"Recent Orders (Today)",
-            "today":"Today",
-            "subtitle":"Orders placed by customers today",
-            "viewall":"View All",
-            "orderId":"Order ID",
-            "customer":"Customer",
-            "datetime":"Date & Time",
-            "amount":"Amount",
-            "status":"Status",
-            "action":"Action",
-            "details":"Details",
-            "noOrders":" No orders received today yet.",
+        "recentOrders": {
+            "title": "Recent Orders (Today)",
+            "today": "Today",
+            "subtitle": "Orders placed by customers today",
+            "viewall": "View All",
+            "orderId": "Order ID",
+            "customer": "Customer",
+            "datetime": "Date & Time",
+            "amount": "Amount",
+            "status": "Status",
+            "action": "Action",
+            "details": "Details",
+            "noOrders": " No orders received today yet.",
             "view": "View"
         }
     },
     "productSpecification": {
-          "tabs": {
-                "fabrics": "Fabrics",
-                "colors": "Colors",
-                "tableShape": "Table Shape",
-                "closure": "Closure",
-                "style": "Style",
-                "size": "Size",
-                "pattern": "Pattern"
-            },
+        "tabs": {
+            "fabrics": "Fabrics",
+            "colors": "Colors",
+            "tableShape": "Table Shape",
+            "closure": "Closure",
+            "style": "Style",
+            "size": "Size",
+            "pattern": "Pattern"
+        },
         "fabric": {
             "productManagement": "Product & Specification Management",
             "productSubtitle": "Manage fabrics, parts, colors, options, and templates",
@@ -415,7 +415,8 @@
                 "fabricNameRequired": "Fabric name is required",
                 "materialTypeRequired": "Material type is required",
                 "priceRequired": "Price is required",
-                "validPrice": "Enter a valid price"
+                "validPrice": "Enter a valid price",
+                "priceGreaterThanZero": "Price must be greater than 0"
             }
         },
         "color": {
@@ -616,6 +617,7 @@
         "actions": "Actions",
         "preview": "Preview",
         "notheme": "No Theme Found",
+        "allCategories": "All Categories",
         "edit": "Edit",
         "addNew": "Add New Theme",
         "deleteTheme": "Delete Theme",
@@ -665,7 +667,14 @@
             "updateTheme": "Update Theme",
             "presetLook": "Preset Look",
             "deleteTheme": "Delete Theme",
-            "deletethemeContent": "Deleting this theme will remove it from all over the platform. This action cannot be undone. This action cannot be undone"
+            "deletethemeContent": "Deleting this theme will remove it from all over the platform. This action cannot be undone. This action cannot be undone",
+            "validation": {
+                "themeNameRequired": "Theme name is required",
+                "categoryRequired": "Category is required",
+                "descriptionRequired": "Description is required",
+                "thumbnailRequired": "Thumbnail is required",
+                "sectionRequired": "At least one product must be added in any one section."
+            }
         }
     },
     "inventoryManagement": {
@@ -737,7 +746,22 @@
             "premium": "Premium",
             "classic": "Classic",
             "luxury": "Luxury",
-            "modern": "Modern"
+            "modern": "Modern",
+            "validation": {
+                "productNameRequired": "Product name is required",
+                "categoryRequired": "Category is required",
+                "descriptionRequired": "Description is required",
+                "fabricRequired": "Fabric is required",
+                "colorRequired": "Color is required",
+                "sizeRequired": "Table size is required",
+                "tableSizeNegative": "Table size cannot be negative",
+                "tableSizeGreaterThanZero": "Table size must be greater than 0",
+                "rentalPriceRequired": "Rental price is required",
+                "rentalPriceGreaterThanZero": "Rental price must be greater than 0",
+                "quantityRequired": "Stock quantity is required",
+                "quantityGreaterThanZero": "Stock quantity must be greater than 0",
+                "imageRequired": "Product image is required"
+            }
         },
         "inventoryDetails": {
             "title": "Inventory Details",
@@ -837,7 +861,7 @@
             "allRoles": "All Roles",
             "allStatus": "All Status",
             "statusDelivered": "Delivered",
-            "statusConfirmed":"Confirmed",
+            "statusConfirmed": "Confirmed",
             "statusReturned": "Returned",
             "statusShipped": "Shipped",
             "searchProducts": "Search products...",
@@ -856,7 +880,7 @@
             "shippingAdd": "SHIPPING ADDRESS",
             "rentalDates": "RENTAL DATES",
             "markAsShipped": "Mark as Shipped?",
-            "markAsConfirmed":"Mark as Confirmed?",
+            "markAsConfirmed": "Mark as Confirmed?",
             "markAsDeliver": "Mark as Delivered?",
             "markAsReturned": "Mark as Returned?",
             "markAsProcess": "Mark as Process Return?",
@@ -864,12 +888,12 @@
             "youarAbout": "You are about to mark order",
             "inventoryText": "Inventory will be updated and the item(s) will be sent for quality inspection before restocking.",
             "markShipped": "Mark Shipped",
-            "markConfirmed":"Mark Confirmed",
+            "markConfirmed": "Mark Confirmed",
             "markDeliver": "Mark Delivered",
             "markReturned": "Mark Returned",
             "processReturnAction": "Process Return",
             "markAsShippedAction": "Mark as Shipped",
-            "markAsConfirmedAction":"Mark as Confirmed",
+            "markAsConfirmedAction": "Mark as Confirmed",
             "markAsDeliveredAction": "Mark as Delivered",
             "markAsReturnedAction": "Mark as Returned",
             "updateStatusAction": "Update Status",
@@ -1023,11 +1047,15 @@
             "updateSuccess": "Pricing Rule Updated Successfully",
             "somethingWentWrong": "Something went wrong",
             "validation": {
-                "lateFeeFormulaRequired": "Late fee formula is required*",
-                "lateFeeRateRequired": "Late fee rate is required*",
-                "gracePeriodRequired": "Grace period is required*",
-                "shippingFeeRequired": "Shipping fee is required*",
-                "taxPercentageRequired": "Tax percentage is required*"
+                "lateFeeFormulaRequired": "Late fee formula is required",
+                "lateFeeRateRequired": "Late fee rate is required",
+                "lateFeeRateNegative": "Late fee rate cannot be negative",
+                "gracePeriodRequired": "Grace period is required",
+                "gracePeriodNegative": "Grace period cannot be negative",
+                "shippingFeeRequired": "Shipping fee is required",
+                "shippingFeeNegative": "Shipping fee cannot be negative",
+                "taxPercentageRequired": "Tax percentage is required",
+                "taxPercentageNegative": "Tax percentage cannot be negative"
             }
         },
         "promotions": {
@@ -1073,19 +1101,26 @@
             "descriptionLabel": "Description",
             "descriptionPlaceholder": "Write description...",
             "eligibleCustomers": "Eligible Customers",
+            "customerEligibility": "Customer Eligibility",
+            "eligibilityAll": "All Customers",
+            "eligibilityFirstPurchase": "First-Purchase Incentive (New Customers Only)",
+            "eligibilityRepeatCustomer": "Repeat Customer Discount (Returning Customers Only)",
+            "customerEligibilityHint": "Configure incentive rules such as First-Purchase discounts (SA-023) or Repeat Customer discounts (SA-024).",
             "saveChanges": "Save Changes",
             "promotionDetails": "Promotion Details",
             "typeFixedPrice": "Fixed Price",
             "genericError": "Something went wrong",
             "validation": {
-                "nameRequired": "Promotion name is required*",
-                "typeRequired": "Promotion type is required*",
-                "amountRequired": "Discount value is required*",
+                "nameRequired": "Promotion name is required",
+                "typeRequired": "Promotion type is required",
+                "amountRequired": "Discount value is required",
                 "amountGreaterThanZero": "Discount value must be greater than 0",
-                "startDateRequired": "Start date is required*",
-                "endDateRequired": "End date is required*",
+                "amountNegative": "Discount value cannot be negative",
+                "amountPercentageMax": "Percentage discount must be between 1 and 99%",
+                "startDateRequired": "Start date is required",
+                "endDateRequired": "End date is required",
                 "endAfterStart": "End date must be after start date",
-                "descriptionRequired": "Description is required*"
+                "descriptionRequired": "Description is required"
             }
         }
     },
@@ -1192,7 +1227,7 @@
         "action": "Action",
         "view": "View",
         "noNotifications": "No notifications found for the selected search and status.",
-         "notfoundnotification": "Notification not found.",
+        "notfoundnotification": "Notification not found.",
         "notificationDetails": "Notification Details",
         "deliveredAt": "Delivered At",
         "loading": "Loading...",
@@ -1229,12 +1264,22 @@
             "email": "Email",
             "statusColumn": "Status",
             "actionsColumn": "Actions",
+            "noAdminStaff": "No admin or staff accounts found.",
+            "adminUserSearchPlaceHolder": "Search admin/staff by name, email, phone...",
+            "addAdminStaff": "Add Admin / Staff",
+            "allRoles": "All Roles",
+            "admin": "Admin",
+            "staff": "Staff",
+            "logistics": "Logistics",
+            "corporate": "Corporate",
             "noUsers": "No users found.",
             "usersDetails": "Users Details",
             "userType": "USER TYPE",
             "emailLabel": "EMAIL",
             "phoneNumber": "PHONE NUMBER",
+            "phonenumber": "Phone Number",
             "registrationDateLabel": "REGISTRATION DATE",
+            "registrationdate": "Registration Date",
             "notFound": "User details not found.",
             "deactivateUserAccount": "Deactivate User Account",
             "reactivateUserAccount": "Reactivate User Account",
@@ -1325,6 +1370,47 @@
             "lastMonths": "Last 4 Month",
             "newCustomers": "New Customers"
         }
+    },
+    "savedSimulations": {
+        "title": "Saved Simulations & Customizations",
+        "subtitle": "Review all product 3D configurations and theme designs saved by registered users.",
+        "totalSavedSimulations": "Total Saved Simulations",
+        "productCustomizations": "Product Customizations",
+        "themeCustomizations": "Theme Customizations",
+        "searchPlaceholder": "Search by customer name, email, or item...",
+        "all": "All",
+        "products": "Products",
+        "themes": "Themes",
+        "reset": "Reset",
+        "tableType": "Type",
+        "tableCustomer": "Customer",
+        "tableItemCategory": "Item & Category",
+        "tableCustomSpecifications": "Custom Specifications",
+        "tableSavedDate": "Saved Date",
+        "tableAction": "Action",
+        "loading": "Loading saved simulations...",
+        "product": "Product",
+        "theme": "Theme",
+        "guestUser": "Guest User",
+        "category": "Category",
+        "defaultConfiguration": "Default configuration",
+        "moreCount": "+{count} more",
+        "specColor": "Color",
+        "specFabric": "Fabric",
+        "specShape": "Shape",
+        "specSize": "Size",
+        "specSeating": "Seating",
+        "viewDetails": "View Details",
+        "noSimulationsFound": "No saved simulations found",
+        "noSimulationsSubtitle": "Try clearing filters or search terms.",
+        "savedSimulationNumber": "Saved Simulation #{id}",
+        "customerDetails": "Customer Details",
+        "noEmailProvided": "No email provided",
+        "userId": "User ID: #{id}",
+        "itemDetails": "Item Details",
+        "saved": "Saved",
+        "designSpecifications": "Design Specifications",
+        "close": "Close"
     },
     "reportAnalytics": {
         "title": "Reports & Analytics",
@@ -1536,20 +1622,28 @@
             "Rented": "Rented",
             "Maintenance": "Maintenance",
             "Damaged": "Damaged"
+        },
+        "periodSelector": {
+            "allTime": "All Time",
+            "today": "Today",
+            "last7Days": "Last 7 Days",
+            "last30Days": "Last 30 Days",
+            "thisMonth": "This Month",
+            "thisYear": "This Year",
+            "customRange": "Custom Range",
+            "to": "to"
         }
     },
-    "paymentManagement":{
-        "payManage":"Payment Management",
-        "subtitle":"Monitor transactions, process refunds, manage promotional campaigns, and generate invoices.",
-        "createPromo":"Create Promocode",
-
+    "paymentManagement": {
+        "payManage": "Payment Management",
+        "subtitle": "Monitor transactions, process refunds, manage promotional campaigns, and generate invoices.",
+        "createPromo": "Create Promocode",
         "paymentDashboard": "Payment Dashboard",
         "paymentTransactions": "Payment Transactions",
         "refundManagement": "Refund Management",
         "couponManagement": "Coupon Management",
         "promotionalCampaigns": "Promotional Campaigns",
         "invoiceManagement": "Invoice Management",
-
         "totalRevenue": "Total Revenue",
         "totalTransactions": "total transactions",
         "successful": "Successful",
@@ -1559,11 +1653,9 @@
         "pending": "Pending",
         "inProgress": "in progress",
         "failed": "Failed",
-
         "recentTransactions": "Recent Transactions",
         "latestCustomerPaymentActivity": "Latest customer payment activity",
         "viewAllTransactions": "View All Transactions",
-
         "paymentId": "Payment ID",
         "orderId": "Order ID",
         "method": "Method",
@@ -1571,20 +1663,16 @@
         "status": "Status",
         "date": "Date",
         "actions": "Actions",
-
         "loadingRecentTransactions": "Loading recent transactions...",
         "noRecentTransactions": "No recent transactions found.",
         "view": "View",
-
         "searchOrderPayment": "Search Order ID, Payment ID...",
         "allPaymentStatuses": "All Payment Statuses",
         "success": "Success",
         "customer": "Customer",
         "paymentMethod": "Payment Method",
-
         "loadingPaymentTransactions": "Loading payment transactions...",
         "noPaymentTransactions": "No payment transactions match your filters.",
-
         "viewDetails": "View Details",
         "downloadInvoicePdf": "Download Invoice PDF",
         "searchRefundOrder": "Search Refund / Order ID...",
@@ -1592,12 +1680,10 @@
         "requested": "Requested",
         "processed": "Processed",
         "rejected": "Rejected",
-
         "refundId": "Refund ID",
         "refundAmount": "Refund Amount",
         "reason": "Reason",
         "": "Actions",
-
         "loadingRefundRequests": "Loading refund requests...",
         "noRefundRequests": "No refund requests found.",
         "customerRequestedRefund": "Customer requested refund",
@@ -1608,33 +1694,26 @@
         "active": "Active",
         "inactive": "Inactive",
         "expired": "Expired",
-
         "allDiscountTypes": "All Discount Types",
         "percentageDiscount": "Percentage Discount",
         "fixedPriceAmount": "Fixed Price Amount",
-
         "newCode": "New Code",
         "fixedPrice": "Fixed Price",
         "discount": "Discount",
         "copyPromocode": "Copy Promocode",
         "noSpecificPromotionalTerms": "No specific promotional terms specified.",
-
         "valueDiscount": "Value / Discount",
         "off": "OFF",
         "minOrderValue": "Min Order Value",
         "usageLimit": "Usage Limit",
         "unlimited": "Unlimited",
         "uses": "uses",
-
         "expires": "Expires",
         "noExpiry": "No Expiry",
-
         "editPromocode": "Edit Promocode",
         "deletePromocode": "Delete Promocode",
-
         "loadingPromocodes": "Loading promocodes...",
         "noPromotionalCodes": "No promotional codes found. Create a new promo code to get started!",
-
         "invoiceReceipts": "Invoices & Receipts",
         "invoiceDescription": "Download generated PDF invoices for customer payment orders",
         "searchInvoiceOrder": "Search Invoice / Order...",
@@ -1655,33 +1734,41 @@
         "close": "Close",
         "downloadInvoice": "Download Invoice",
         "createNewPromocode": "Create New Promocode",
-        "promocodeNameCode": "Promocode Name / Code *",
+        "promocodeNameCode": "Promocode Name / Code",
         "promocodePlaceholder": "e.g. SUMMER2026",
         "description": "Description",
         "promocodeTermsDetails": "Promocode offer terms & details...",
-
-        "discountType": "Discount Type *",
+        "discountType": "Discount Type",
         "fixedAmount": "Fixed Amount ($)",
-
-        "amountValue": "Amount / Value *",
+        "amountValue": "Amount / Value",
         "percentagePlaceholder": "e.g. 15 (%)",
         "fixedAmountPlaceholder": "e.g. 50 ($)",
-
         "minimumOrderValue": "Minimum Order Value ($)",
         "optionalMinimumCartTotal": "Optional minimum cart total",
-
         "limitMaximumUses": "Limit Maximum Total Uses",
         "maxUsesCount": "Max Uses Count",
         "maxUsesPlaceholder": "e.g. 100",
-
         "startDate": "Start Date",
         "endDate": "End Date",
-
         "promocodeActive": "Promocode is Active",
-
         "cancel": "Cancel",
         "saving": "Saving...",
         "updatePromocode": "Update Promocode",
-        "savePromocode": "Save Promocode"
+        "savePromocode": "Save Promocode",
+        "validation": {
+            "promocodeNameRequired": "Promocode name is required",
+            "descriptionRequired": "Description is required",
+            "discountTypeRequired": "Discount type is required",
+            "amountRequired": "Amount is required",
+            "amountGreaterThanZero": "Amount must be greater than 0",
+            "amountNegative": "Amount cannot be negative",
+            "amountPercentageMax": "Percentage discount must be between 1 and 99%",
+            "minOrderValueNegative": "Minimum order value cannot be negative",
+            "maxUsesRequired": "Maximum uses count is required",
+            "maxUsesGreaterThanZero": "Maximum uses must be greater than 0",
+            "startDateRequired": "Start date is required",
+            "endDateRequired": "End date is required",
+            "endAfterStart": "End date must be after start date"
+        }
     }
 }

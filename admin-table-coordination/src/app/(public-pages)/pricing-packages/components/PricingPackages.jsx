@@ -6,7 +6,9 @@ import Tabs from "./Tabs";
 import PricingRules from "./pricingRules/PricingRules";
 import Promotions from "./promotions/Promotions";
 import { useTranslations } from "next-intl";
-
+import {
+  FiPlus
+} from "react-icons/fi";
 const PricingPackages = () => {
   const t = useTranslations("pricingPackages.pricingRules");
   const tp = useTranslations("pricingPackages.promotions");
@@ -45,10 +47,16 @@ const PricingPackages = () => {
                 : "/pricing-packages/create-promotion"
             )
           }
-          className="inline-flex h-[34px] items-center rounded-[8px] bg-[#B56735] px-4 text-[14px] font-medium text-white"
+          className="inline-flex h-[34px] items-center gap-2 rounded-[8px] bg-[#B56735] px-4 text-[14px] font-medium text-white"
         >
-          {activeTab === "Pricing Rules" ? t("editPrice") : `+ ${tp("createPromotions")}`}
-        </button>
+          {activeTab === "Pricing Rules" ? (
+            t("editPrice")
+          ) : (
+            <>
+              <FiPlus size={16} />
+              {tp("createPromotions")}
+            </>
+          )}        </button>
       </div>
 
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />

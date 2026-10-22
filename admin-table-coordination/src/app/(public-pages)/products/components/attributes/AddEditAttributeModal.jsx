@@ -74,6 +74,7 @@ const AddEditAttributeModal = ({
   const accessToken = session?.user?.accessToken;
   const t = useTranslations("productSpecification.fabric");
   const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
 
   const [name, setName] = useState("");
   const [category, setCategory] = useState(null);
@@ -81,17 +82,18 @@ const AddEditAttributeModal = ({
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     const newErrors = {};
 
     if (!name.trim()) {
-      newErrors.name = `${attributeTitle} name is required*`;
+      newErrors.name = `${attributeTitle} name is required`;
     }
 
     if (!category) {
-      newErrors.category = "Category is required*";
+      newErrors.category = "Category is required";
     }
 
     setErrors(newErrors);
@@ -135,8 +137,19 @@ const AddEditAttributeModal = ({
         setImagePreview("");
       }
       setErrors({});
+      setError("");
     }
-  }, [isOpen, mode, initialData, categoryOptions]);
+  }, [isOpen, mode, initialData]);
+
+  useEffect(() => {
+    if (mode === "edit" && initialData && categoryOptions.length > 0 && !category) {
+      const initialCatId = initialData.category?.id || initialData.category;
+      const cat = categoryOptions.find((o) => o.value === initialCatId);
+      if (cat) {
+        setCategory(cat);
+      }
+    }
+  }, [categoryOptions, initialData, mode, category]);
 
   if (!isOpen) return null;
 
@@ -158,6 +171,7 @@ const AddEditAttributeModal = ({
 
     try {
       setLoading(true);
+      setError("");
       setErrors({});
 
       const formData = new FormData();
@@ -188,12 +202,23 @@ const AddEditAttributeModal = ({
           typeof response?.message === "string"
             ? response.message
             : Object.values(response?.message || {}).flat()[0] ||
-              `Failed to save ${attributeTitle}.`;
+            `Failed to save ${attributeTitle}.`;
         setError(errMsg);
+        toast.push(
+          <Notification title={te("error")} type="danger">
+            {errMsg}
+          </Notification>,
+        );
       }
     } catch (err) {
       console.error(`Error saving ${attributeTitle}:`, err);
-      setError(`An unexpected error occurred while saving ${attributeTitle}.`);
+      const errMsg = `An unexpected error occurred while saving ${attributeTitle}.`;
+      setError(errMsg);
+      toast.push(
+        <Notification title={te("error")} type="danger">
+          {errMsg}
+        </Notification>,
+      );
     } finally {
       setLoading(false);
     }
@@ -217,15 +242,15 @@ const AddEditAttributeModal = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* {error && (
+          {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 text-xs p-3 rounded-lg">
               {error}
             </div>
-          )} */}
+          )}
 
           <div>
             <label className="block text-xs font-semibold text-[#1C2C56] mb-1">
-              {attributeTitle} {t("name")} *
+              {attributeTitle} {t("name")} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -250,7 +275,7 @@ const AddEditAttributeModal = ({
 
           <div>
             <label className="block text-xs font-semibold text-[#1C2C56] mb-1">
-              Category
+              Category <span className="text-red-500">*</span>
             </label>
             <Select
               options={categoryOptions}
@@ -312,14 +337,14 @@ const AddEditAttributeModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              className="px-4 h-10 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
             >
               {t("cancel")}
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="bg-[#A0522D] text-white px-5 py-2 text-xs font-semibold rounded-lg hover:bg-[#8B4513] disabled:opacity-50 transition-colors"
+              className="bg-[#A0522D] text-white px-5 h-10 text-xs font-semibold rounded-lg hover:bg-[#8B4513] disabled:opacity-50 transition-colors"
             >
               {loading
                 ? t("saving")

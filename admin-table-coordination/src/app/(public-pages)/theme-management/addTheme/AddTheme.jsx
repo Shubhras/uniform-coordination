@@ -30,19 +30,19 @@ const AddTheme = () => {
     const newErrors = {};
 
     if (!themeData.title.trim()) {
-      newErrors.title = "Theme name is required*";
+      newErrors.title = t("validation.themeNameRequired");
     }
 
     if (!themeData.category) {
-      newErrors.category = "Category is required*";
+      newErrors.category = t("validation.categoryRequired");
     }
 
     if (!themeData.description.trim()) {
-      newErrors.description = "Description is required*";
+      newErrors.description = t("validation.descriptionRequired");
     }
 
     if (!themeData.image) {
-      newErrors.image = "Thumbnail is required*";
+      newErrors.image = t("validation.thumbnailRequired");
     }
 
     setErrors(newErrors);
@@ -133,7 +133,7 @@ const AddTheme = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
-                  {t("themeName")}
+                  {t("themeName")} <span className="text-red-500">*</span>
                 </label>
 
                 <input
@@ -160,7 +160,7 @@ const AddTheme = () => {
 
               <div>
                 <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
-                  {t("category")}
+                  {t("category")} <span className="text-red-500">*</span>
                 </label>
 
                 <Select
@@ -188,7 +188,7 @@ const AddTheme = () => {
             {/* Description */}
             <div className="mt-5">
               <label className="text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-2 block">
-                {t("shortDescription")}
+                {t("shortDescription")} <span className="text-red-500">*</span>
               </label>
 
               <textarea
@@ -232,7 +232,7 @@ const AddTheme = () => {
             {/* Thumbnail */}
             <div>
               <label className="block text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D] mb-3">
-                {t("thumbnail")}
+                {t("thumbnail")} <span className="text-red-500">*</span>
               </label>
 
               {themeData.image ? (

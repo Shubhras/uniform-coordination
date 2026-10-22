@@ -60,15 +60,29 @@ export default function EditPricingRules() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    const val = type === "checkbox" ? checked : value;
 
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: val,
     }));
+
+    let errorMsg = "";
+    if (val !== "") {
+      if (name === "lateFeeRate" && Number(val) < 0) {
+        errorMsg = t("validation.lateFeeRateNegative");
+      } else if (name === "gracePeriod" && Number(val) < 0) {
+        errorMsg = t("validation.gracePeriodNegative");
+      } else if (name === "flatShippingFee" && Number(val) < 0) {
+        errorMsg = t("validation.shippingFeeNegative");
+      } else if (name === "taxPercentage" && Number(val) < 0) {
+        errorMsg = t("validation.taxPercentageNegative");
+      }
+    }
 
     setErrors((prev) => ({
       ...prev,
-      [name]: "",
+      [name]: errorMsg,
     }));
   };
 
@@ -79,20 +93,28 @@ export default function EditPricingRules() {
       newErrors.lateFeeFormula = t("validation.lateFeeFormulaRequired");
     }
 
-    if (!formData.lateFeeRate) {
+    if (!String(formData.lateFeeRate || "").trim()) {
       newErrors.lateFeeRate = t("validation.lateFeeRateRequired");
+    } else if (Number(formData.lateFeeRate) < 0) {
+      newErrors.lateFeeRate = t("validation.lateFeeRateNegative");
     }
 
-    if (!formData.gracePeriod) {
+    if (!String(formData.gracePeriod || "").trim()) {
       newErrors.gracePeriod = t("validation.gracePeriodRequired");
+    } else if (Number(formData.gracePeriod) < 0) {
+      newErrors.gracePeriod = t("validation.gracePeriodNegative");
     }
 
-    if (!formData.flatShippingFee) {
+    if (!String(formData.flatShippingFee || "").trim()) {
       newErrors.flatShippingFee = t("validation.shippingFeeRequired");
+    } else if (Number(formData.flatShippingFee) < 0) {
+      newErrors.flatShippingFee = t("validation.shippingFeeNegative");
     }
 
-    if (!formData.taxPercentage) {
+    if (!String(formData.taxPercentage || "").trim()) {
       newErrors.taxPercentage = t("validation.taxPercentageRequired");
+    } else if (Number(formData.taxPercentage) < 0) {
+      newErrors.taxPercentage = t("validation.taxPercentageNegative");
     }
 
     setErrors(newErrors);
@@ -163,7 +185,7 @@ export default function EditPricingRules() {
 
           <div className="mt-6">
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("lateFeeFormulaLabel")}
+              {t("lateFeeFormulaLabel")} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -187,7 +209,7 @@ export default function EditPricingRules() {
 
           <div className="mt-6">
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("lateFeeRateLabel")}
+              {t("lateFeeRateLabel")} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -195,7 +217,6 @@ export default function EditPricingRules() {
               name="lateFeeRate"
               value={formData.lateFeeRate}
               onChange={handleChange}
-              min={0}
               className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 text-sm outline-none focus:border-[#B56A3C]"
             />
 
@@ -219,7 +240,7 @@ export default function EditPricingRules() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-                {t("gracePeriodLabel")}
+                {t("gracePeriodLabel")} <span className="text-red-500">*</span>
               </label>
 
               <input
@@ -227,7 +248,6 @@ export default function EditPricingRules() {
                 name="gracePeriod"
                 value={formData.gracePeriod}
                 onChange={handleChange}
-                min={0}
                 className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 text-sm outline-none focus:border-[#B56A3C]"
               />
 
@@ -240,7 +260,7 @@ export default function EditPricingRules() {
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-                {t("flatShippingFeeLabel")}
+                {t("flatShippingFeeLabel")} <span className="text-red-500">*</span>
               </label>
 
               <input
@@ -248,7 +268,6 @@ export default function EditPricingRules() {
                 name="flatShippingFee"
                 value={formData.flatShippingFee}
                 onChange={handleChange}
-                min={0}
                 className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 text-sm outline-none focus:border-[#B56A3C]"
               />
 
@@ -302,7 +321,7 @@ export default function EditPricingRules() {
 
           <div className="mt-6">
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("taxPercentageLabel")}
+              {t("taxPercentageLabel")} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -310,7 +329,6 @@ export default function EditPricingRules() {
               name="taxPercentage"
               value={formData.taxPercentage}
               onChange={handleChange}
-              min={0}
               className="w-full rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 py-3 text-sm outline-none focus:border-[#B56A3C]"
             />
 

@@ -99,7 +99,7 @@ export default function LateFeePage({ params }) {
   // Calculation taking grace period into account
   const billableDays = Math.max(0, displayOverdueDays - gracePeriod);
   const orderTotalAmount = parseFloat(orderDetails?.total_amount) || 1700;
-  
+
   const calculatedFee =
     billableDays > 0
       ? Math.round(orderTotalAmount * (lateFeeRatePct / 100) * billableDays)
@@ -108,8 +108,8 @@ export default function LateFeePage({ params }) {
   const totalLateFee = invoiceData?.total_late_fee
     ? parseFloat(invoiceData.total_late_fee)
     : calculatedFee > 0
-    ? calculatedFee
-    : displayOverdueDays * 85;
+      ? calculatedFee
+      : displayOverdueDays * 85;
 
   const ratePerDayDisplay = invoiceData?.rate_per_day
     ? `¥${Math.round(parseFloat(invoiceData.rate_per_day))}`
@@ -299,8 +299,8 @@ export default function LateFeePage({ params }) {
                     ? "再通知を送信"
                     : "Resend Notification"
                   : isJa
-                  ? "顧客に通知"
-                  : "Notify Customer"}
+                    ? "顧客に通知"
+                    : "Notify Customer"}
               </button>
 
               {(invoiceData?.is_notified || invoiceData?.status === "sent") && (
@@ -341,9 +341,8 @@ export default function LateFeePage({ params }) {
               <div className="flex justify-between">
                 <span className="text-[#8B8B8B]">{isJa ? "ステータス" : "Status"}</span>
                 <span
-                  className={`font-semibold capitalize ${
-                    invoiceData?.status === "sent" ? "text-green-600" : "text-amber-600"
-                  }`}
+                  className={`font-semibold capitalize ${invoiceData?.status === "sent" ? "text-green-600" : "text-amber-600"
+                    }`}
                 >
                   {invoiceData?.status || "Pending"}
                 </span>

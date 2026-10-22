@@ -87,7 +87,7 @@ const RecentOrdersCard = ({ data }) => {
                     </div>
                   </td>
                   <td className="py-3 px-3 font-semibold text-[#2A211D]">
-                    ¥{Number(order.total_amount || 0).toLocaleString()}
+                    ${Number(order.total_amount || 0).toLocaleString()}
                   </td>
                   <td className="py-3 px-3">
                     <span
