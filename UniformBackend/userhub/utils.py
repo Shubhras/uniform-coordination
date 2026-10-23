@@ -17,6 +17,21 @@ from django.utils import timezone
 
 from userhub.models import Users
 from uniformAdmin.models import SystemSettings
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
+class UserPasswordResetTokenGenerator(PasswordResetTokenGenerator):
+    """
+    Token generator for Users model that respects settings.PASSWORD_RESET_TIMEOUT.
+    Uses user.lastLogin (camelCase) and user.email to produce HMAC tokens with automatic expiry.
+    """
+    def _make_hash_value(self, user, timestamp):
+        login_timestamp = (
+            ""
+            if getattr(user, "lastLogin", None) is None
+            else user.lastLogin.replace(microsecond=0, tzinfo=None)
+        )
+        email = getattr(user, "email", "") or ""
+        return f"{user.pk}{user.password}{login_timestamp}{timestamp}{email}"
 
 
 def _admin_recipient_list():

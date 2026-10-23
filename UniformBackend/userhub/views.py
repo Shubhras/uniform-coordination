@@ -552,16 +552,28 @@ class UserForgotPasswordAPIView(APIView):
                     "message": "No account found with this email and user type."
                 }, status=400)
 
-            # Create reset token
-            # reset_token = uuid.uuid4().hex
-            # user.resetToken = reset_token
-            # user.save()
             user_id = user.id
+            token = UserPasswordResetTokenGenerator().make_token(user)
 
-            # Build reset link
-            scheme = "https" if request.is_secure() or request.headers.get("x-forwarded-proto") == "https" else "http"
-            host = request.get_host()
-            reset_link = f"{scheme}://{host}/reset-password?user_id={user_id}"
+            # Build frontend reset link based on client origin/referer or host
+            origin = request.headers.get("origin")
+            referer = request.headers.get("referer")
+            forwarded_proto = request.headers.get("x-forwarded-proto") or request.META.get("HTTP_X_FORWARDED_PROTO")
+            if origin:
+                base_url = origin.rstrip("/")
+            elif referer:
+                from urllib.parse import urlparse
+                p = urlparse(referer)
+                base_url = f"{p.scheme}://{p.netloc}"
+            else:
+                scheme = "https" if request.is_secure() or forwarded_proto == "https" else "http"
+                host = request.get_host()
+                base_url = f"{scheme}://{host}"
+
+            if "sslip.io" in base_url:
+                base_url = base_url.replace("https://", "http://")
+
+            reset_link = f"{base_url}/reset-password/?user_id={user_id}&token={token}"
 
             # -------------------------------  
             # SMTP: Send Reset Email Here
@@ -595,16 +607,17 @@ class ResetPasswordAPIView(APIView):
     
     @extend_schema(
     summary="Reset Password API",
-    description="Reset password using userId after forgot password flow.",
+    description="Reset password using userId and token after forgot password flow.",
     request={
         "application/json": {
             "type": "object",
             "properties": {
                 "userId": {"type": "integer"},
+                "token": {"type": "string"},
                 "newPassword": {"type": "string"},
                 "confirmPassword": {"type": "string"},
             },
-            "required": ["userId", "newPassword", "confirmPassword"],
+            "required": ["userId", "token", "newPassword", "confirmPassword"],
         }
     },
     responses={
@@ -617,6 +630,7 @@ class ResetPasswordAPIView(APIView):
             "Reset Password Example",
             value={
                 "userId": 12,
+                "token": "abc-123xyz",
                 "newPassword": "NewPass@123",
                 "confirmPassword": "NewPass@123",
             },
@@ -625,15 +639,47 @@ class ResetPasswordAPIView(APIView):
     ],
     auth=[],  # no auth (AllowAny)
     tags=["UserHub Authentication"]
-    
 )
-    
-    
+    def get(self, request):
+        user_id = request.query_params.get("user_id") or request.query_params.get("userId")
+        token = request.query_params.get("token")
+
+        if not user_id or not token:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Invalid or expired reset link. Please request a new password reset."
+            }, status=400)
+
+        try:
+            user = Users.objects.get(id=user_id, isDeleted=False)
+        except (Users.DoesNotExist, ValueError):
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Invalid or expired reset link. Please request a new password reset."
+            }, status=400)
+
+        token_generator = UserPasswordResetTokenGenerator()
+        if not token_generator.check_token(user, token):
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Invalid or expired reset link. Please request a new password reset."
+            }, status=400)
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "message": "Reset link is valid."
+        }, status=200)
+
     def post(self, request):
         try:
-            user_id = request.data.get("userId")
-            new_password = request.data.get("newPassword")
-            confirm_password = request.data.get("confirmPassword")
+            user_id = request.data.get("userId") or request.data.get("user_id")
+            token = request.data.get("token")
+            new_password = request.data.get("newPassword") or request.data.get("new_password")
+            confirm_password = request.data.get("confirmPassword") or request.data.get("confirm_password")
 
             # Required fields validation
             if not user_id or not new_password or not confirm_password:
@@ -648,27 +694,42 @@ class ResetPasswordAPIView(APIView):
                     }
                 }, status=400)
 
+            if not token:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Invalid or expired reset link. Please request a new password reset."
+                }, status=400)
+
             # Check new & confirm password match
             if new_password != confirm_password:
                 return Response({
                     "status": False,
                     "statusCode": 400,
                     "message": "New password and confirm password do not match."
-                }, status=200)
+                }, status=400)
 
             # Find user by userId
             try:
                 user = Users.objects.get(id=user_id, isDeleted=False)
-            except Users.DoesNotExist:
+            except (Users.DoesNotExist, ValueError):
                 return Response({
                     "status": False,
                     "statusCode": 400,
                     "message": "Invalid user."
                 }, status=400)
 
+            # Verify token
+            token_generator = UserPasswordResetTokenGenerator()
+            if not token_generator.check_token(user, token):
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Invalid or expired reset link. Please request a new password reset."
+                }, status=400)
+
             # Update password
             user.password = make_password(new_password)
-            # user.resetToken = None  # Optional: clear token
             user.save()
 
             return Response({
@@ -676,6 +737,7 @@ class ResetPasswordAPIView(APIView):
                 "statusCode": 200,
                 "message": "Password reset successfully."
             })
+
 
         except Exception as exc:
             return Response({
