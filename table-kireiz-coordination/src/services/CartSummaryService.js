@@ -42,9 +42,11 @@ export async function apiGetCartSummary(token) {
  * @param {number} [quantity=1] - Quantity of items to add.
  * @returns {Promise<Object>} API response confirming item addition to cart.
  */
-export async function apiAddToCart(token, product_id, quantity = 1, custom_theme_id = null) {
+export async function apiAddToCart(token, product_id, quantity = 1, custom_theme_id = null, theme_id = null) {
   const payload = {};
-  if (custom_theme_id) {
+  if (theme_id) {
+    payload.theme_id = theme_id;
+  } else if (custom_theme_id) {
     payload.custom_theme_id = custom_theme_id;
   } else {
     payload.product_id = product_id;
@@ -62,6 +64,17 @@ export async function apiAddToCart(token, product_id, quantity = 1, custom_theme
     window.dispatchEvent(new Event("cartUpdated"));
   }
   return response;
+}
+
+/**
+ * Adds all products configured in a table theme directly into the user cart.
+ * 
+ * @param {string} token - User authentication Bearer token.
+ * @param {string|number} theme_id - Pre-defined table theme ID.
+ * @returns {Promise<Object>} API response confirming theme addition to cart.
+ */
+export async function apiAddThemeToCart(token, theme_id) {
+  return apiAddToCart(token, null, 1, null, theme_id);
 }
 
 /**

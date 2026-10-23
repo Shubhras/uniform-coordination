@@ -273,6 +273,9 @@ EMAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "True") == "True"
 
 EMAIL_HOST_USER = os.getenv("MAIL_USERNAME")
 EMAIL_HOST_PASSWORD = os.getenv("MAIL_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("MAIL_FROM_ADDRESS") or os.getenv("MAIL_USERNAME")
+EMAIL_FROM_ADDRESS = os.getenv("MAIL_FROM_ADDRESS") or os.getenv("MAIL_USERNAME")
+EMAIL_FROM_NAME = os.getenv("MAIL_FROM_NAME", "KIREIZ SPACE")
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
