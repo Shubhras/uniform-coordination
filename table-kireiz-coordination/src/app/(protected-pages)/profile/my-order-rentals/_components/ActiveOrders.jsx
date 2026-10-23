@@ -1,16 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { apiUserOrderList, apiReorderOrder } from '@/services/OrderService'
+import { apiUserOrderList, apiReorderOrder, apiCancelOrder } from '@/services/OrderService'
 import { formatDate } from '@/utils/formatDate'
 import { formatCurrency } from '@/utils/formatCurrency'
-import { FiCalendar, FiSearch, FiX, FiRotateCcw, FiMapPin, FiRefreshCw } from 'react-icons/fi'
+import { FiCalendar, FiSearch, FiX, FiRotateCcw, FiMapPin, FiRefreshCw, FiCreditCard, FiAlertTriangle } from 'react-icons/fi'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Pagination from '@/components/ui/Pagination'
 import Notification from '@/components/ui/Notification'
+import Dialog from '@/components/ui/Dialog'
 import toast from '@/components/ui/toast'
 import { HiCheck } from 'react-icons/hi'
 
@@ -52,7 +53,100 @@ const ActiveOrders = ({ onTotalCountChange }) => {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalCount, setTotalCount] = useState(0)
     const [reorderingId, setReorderingId] = useState(null)
+    const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+    const [orderToCancel, setOrderToCancel] = useState(null)
+    const [cancelReason, setCancelReason] = useState('')
+    const [cancelling, setCancelling] = useState(false)
     const pageSize = 5
+
+    // Fetch active orders list
+    const fetchActiveOrders = useCallback(async () => {
+        if (!session?.accessToken) return
+        try {
+            setLoading(true)
+            const params = {
+                page: currentPage,
+                page_size: pageSize,
+            }
+            if (debouncedSearchTerm) params.search = debouncedSearchTerm
+            if (statusFilter) params.status = statusFilter
+
+            const response = await apiUserOrderList(session.accessToken, params)
+
+            let list = []
+            let total = 0
+
+            if (response?.status && Array.isArray(response?.data)) {
+                list = response.data
+                total = response?.pagination?.total_records ?? response?.total ?? response?.count ?? response?.data?.length ?? 0
+            } else if (response?.results && Array.isArray(response?.results)) {
+                list = response.results
+                total = response?.pagination?.total_records ?? response?.count ?? response?.results?.length ?? 0
+            } else if (Array.isArray(response)) {
+                list = response
+                total = response.length
+            }
+
+            setOrdersList(list)
+            setTotalCount(total)
+            if (onTotalCountChange) onTotalCountChange(total)
+        } catch (err) {
+            console.error('Error fetching active orders:', err)
+        } finally {
+            setLoading(false)
+        }
+    }, [session?.accessToken, currentPage, pageSize, debouncedSearchTerm, statusFilter, onTotalCountChange])
+
+    // Direct payment handler for pending unpaid orders
+    const handlePayNow = (orderId) => {
+        if (!orderId) return
+        router.push(`/payment?orderId=${orderId}`)
+    }
+
+    // Open cancellation modal
+    const handleOpenCancelDialog = (order) => {
+        setOrderToCancel(order)
+        setCancelReason('')
+        setCancelDialogOpen(true)
+    }
+
+    // Confirm cancel order handler
+    const handleConfirmCancel = async () => {
+        if (!session?.accessToken || !orderToCancel) return
+        const targetId = orderToCancel.order_id || orderToCancel.id
+        try {
+            setCancelling(true)
+            const res = await apiCancelOrder(session.accessToken, targetId, {
+                reason: cancelReason.trim() || 'Cancelled by user before payment'
+            })
+            if (res?.status || res?.statusCode === 200) {
+                toast.push(
+                    <Notification title="Order Cancelled" type="success">
+                        {res?.message || 'Order has been cancelled and items released back to stock.'}
+                    </Notification>
+                )
+                setCancelDialogOpen(false)
+                setOrderToCancel(null)
+                fetchActiveOrders()
+            } else {
+                toast.push(
+                    <Notification title="Cancellation Failed" type="danger">
+                        {res?.message || 'Could not cancel the order.'}
+                    </Notification>
+                )
+            }
+        } catch (err) {
+            console.error('Cancel order error:', err)
+            const errMsg = err?.response?.data?.message || err?.message || 'Failed to cancel order.'
+            toast.push(
+                <Notification title="Cancellation Failed" type="danger">
+                    {errMsg}
+                </Notification>
+            )
+        } finally {
+            setCancelling(false)
+        }
+    }
 
     // Reorder handler
     const handleReorder = async (orderId) => {
@@ -98,47 +192,10 @@ const ActiveOrders = ({ onTotalCountChange }) => {
         return () => clearTimeout(timer)
     }, [searchTerm])
 
-    // Fetch active orders list
+    // Fetch active orders list on param change
     useEffect(() => {
-        const fetchActiveOrders = async () => {
-            if (!session?.accessToken) return
-            try {
-                setLoading(true)
-                const params = {
-                    page: currentPage,
-                    page_size: pageSize,
-                }
-                if (debouncedSearchTerm) params.search = debouncedSearchTerm
-                if (statusFilter) params.status = statusFilter
-
-                const response = await apiUserOrderList(session.accessToken, params)
-
-                let list = []
-                let total = 0
-
-                if (response?.status && Array.isArray(response?.data)) {
-                    list = response.data
-                    total = response?.pagination?.total_records ?? response?.total ?? response?.count ?? response?.data?.length ?? 0
-                } else if (response?.results && Array.isArray(response?.results)) {
-                    list = response.results
-                    total = response?.pagination?.total_records ?? response?.count ?? response?.results?.length ?? 0
-                } else if (Array.isArray(response)) {
-                    list = response
-                    total = response.length
-                }
-
-                setOrdersList(list)
-                setTotalCount(total)
-                if (onTotalCountChange) onTotalCountChange(total)
-            } catch (err) {
-                console.error('Error fetching active orders:', err)
-            } finally {
-                setLoading(false)
-            }
-        }
-
         fetchActiveOrders()
-    }, [session?.accessToken, debouncedSearchTerm, statusFilter, currentPage])
+    }, [fetchActiveOrders])
 
     // Status filter options
     const statusOptions = [
@@ -181,8 +238,11 @@ const ActiveOrders = ({ onTotalCountChange }) => {
         if (lower === 'processing' || lower === 'active') {
             return 'bg-blue-100 text-blue-700 border-blue-200'
         }
-        if (lower === 'confirmed') {
-            return 'bg-indigo-100 text-indigo-700 border-indigo-200'
+        if (lower === 'confirmed' || lower === 'paid') {
+            return 'bg-emerald-100 text-emerald-800 border-emerald-200'
+        }
+        if (lower === 'cancelled') {
+            return 'bg-red-100 text-red-700 border-red-200'
         }
         return 'bg-amber-100 text-amber-800 border-amber-200'
     }
@@ -328,6 +388,16 @@ const ActiveOrders = ({ onTotalCountChange }) => {
                                                         {order.status.replace(/_/g, ' ')}
                                                     </span>
                                                 )}
+                                                {order.is_paid === false && (
+                                                    <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border bg-red-50 text-red-700 border-red-200">
+                                                        Unpaid
+                                                    </span>
+                                                )}
+                                                {order.is_paid === true && (
+                                                    <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200">
+                                                        Paid
+                                                    </span>
+                                                )}
                                             </div>
 
                                             <h3 className="mt-1 text-lg font-semibold text-[#2C1810]">
@@ -361,7 +431,19 @@ const ActiveOrders = ({ onTotalCountChange }) => {
                                         )}
                                     </div>
 
-                                    <div className="mt-4 flex flex-wrap gap-3">
+                                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                                        {/* Pending & Unpaid: Show Pay Now button */}
+                                        {order.status?.toLowerCase() === 'pending' && !order.is_paid && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handlePayNow(order.order_id)}
+                                                className="rounded-md border border-[#B66636] bg-[#B66636] px-4 py-2 text-sm font-medium text-white hover:bg-[#9E5328] transition flex items-center gap-1.5 shadow-sm"
+                                            >
+                                                <FiCreditCard size={15} />
+                                                Pay Now
+                                            </button>
+                                        )}
+
                                         <button
                                             type="button"
                                             onClick={() => handleViewDetails(order.order_id)}
@@ -369,26 +451,46 @@ const ActiveOrders = ({ onTotalCountChange }) => {
                                         >
                                             View Details
                                         </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleViewDetails(order.order_id)}
-                                            className="rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
-                                        >
-                                            Track Delivery
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleReorder(order.order_id || order.id)}
-                                            disabled={reorderingId === (order.order_id || order.id)}
-                                            className="rounded-md border border-[#B66636] bg-[#B66636] px-4 py-2 text-sm font-medium text-white hover:bg-[#9E5328] disabled:opacity-50 transition flex items-center gap-1.5"
-                                        >
-                                            {reorderingId === (order.order_id || order.id) ? (
-                                                <span className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
-                                            ) : (
-                                                <FiRefreshCw size={14} />
-                                            )}
-                                            Reorder
-                                        </button>
+
+                                        {/* Track Delivery: only show for active/paid orders that are not pending or cancelled */}
+                                        {!(order.status?.toLowerCase() === 'pending' && !order.is_paid) && order.status?.toLowerCase() !== 'cancelled' && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleViewDetails(order.order_id)}
+                                                className="rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
+                                            >
+                                                Track Delivery
+                                            </button>
+                                        )}
+
+                                        {/* Reorder: for paid or cancelled orders */}
+                                        {!(order.status?.toLowerCase() === 'pending' && !order.is_paid) && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleReorder(order.order_id || order.id)}
+                                                disabled={reorderingId === (order.order_id || order.id)}
+                                                className="rounded-md border border-[#B66636] bg-[#B66636] px-4 py-2 text-sm font-medium text-white hover:bg-[#9E5328] disabled:opacity-50 transition flex items-center gap-1.5"
+                                            >
+                                                {reorderingId === (order.order_id || order.id) ? (
+                                                    <span className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
+                                                ) : (
+                                                    <FiRefreshCw size={14} />
+                                                )}
+                                                Reorder
+                                            </button>
+                                        )}
+
+                                        {/* Cancel Order: available for unpaid pending orders OR active orders before delivery */}
+                                        {((order.status?.toLowerCase() === 'pending' && !order.is_paid) || (order.status?.toLowerCase() !== 'cancelled' && order.status?.toLowerCase() !== 'delivered')) && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleOpenCancelDialog(order)}
+                                                className="rounded-md border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:border-red-300 transition flex items-center gap-1.5"
+                                            >
+                                                <FiX size={14} />
+                                                Cancel Order
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -408,6 +510,69 @@ const ActiveOrders = ({ onTotalCountChange }) => {
                     />
                 </div>
             )}
+
+            {/* Cancel Order Confirmation Dialog */}
+            <Dialog
+                isOpen={cancelDialogOpen}
+                onClose={() => !cancelling && setCancelDialogOpen(false)}
+                onRequestClose={() => !cancelling && setCancelDialogOpen(false)}
+                className="w-full max-w-lg mx-auto"
+            >
+                <div className="rounded-xl overflow-hidden bg-white p-6">
+                    <div className="flex items-center gap-3 text-red-600">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
+                            <FiAlertTriangle size={20} />
+                        </span>
+                        <div>
+                            <h3 className="text-lg font-semibold text-[#2C1810]">Cancel Order</h3>
+                            <p className="text-xs text-[#8D7769]">Order ID: {orderToCancel?.order_id || orderToCancel?.id}</p>
+                        </div>
+                    </div>
+
+                    <p className="mt-4 text-sm text-[#5C4538] leading-relaxed">
+                        Are you sure you want to cancel this order? Any reserved products will be released immediately back into available stock.
+                    </p>
+
+                    <div className="mt-4">
+                        <label className="block text-xs font-medium text-[#7C6558] mb-1">
+                            Reason for cancellation (optional):
+                        </label>
+                        <input
+                            type="text"
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                            placeholder="e.g. Changed mind, payment issue"
+                            className="w-full rounded-md border border-[#E5D5CD] px-3 py-2 text-sm text-[#2C1810] focus:border-[#B66636] focus:outline-none"
+                        />
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <button
+                            type="button"
+                            disabled={cancelling}
+                            onClick={() => setCancelDialogOpen(false)}
+                            className="rounded-md border border-[#E5D5CD] bg-white px-4 py-2 text-sm font-medium text-[#5C4538] hover:bg-[#FAF6F4] disabled:opacity-50 transition"
+                        >
+                            Keep Order
+                        </button>
+                        <button
+                            type="button"
+                            disabled={cancelling}
+                            onClick={handleConfirmCancel}
+                            className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition flex items-center gap-1.5"
+                        >
+                            {cancelling ? (
+                                <>
+                                    <span className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
+                                    Cancelling...
+                                </>
+                            ) : (
+                                'Yes, Cancel Order'
+                            )}
+                        </button>
+                    </div>
+                </div>
+            </Dialog>
         </div>
     )
 }

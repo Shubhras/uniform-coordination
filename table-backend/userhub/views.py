@@ -22,7 +22,7 @@ from .payment import CustomPagination
 from uniformAdmin.signal import *
 from uniformAdmin.models import *
 from rest_framework.permissions import AllowAny
-# from django.utils import timezone
+from django.utils import timezone
 from django.db.models import Prefetch
 from rest_framework.authentication import BaseAuthentication
 from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse
@@ -2391,29 +2391,42 @@ class UserCancelOrderAPIView(APIView):
 
     def post(self, request, order_id):
         try:
-            order = Order.objects.get(
-                order_id=order_id,
-                customer__user=request.user,
+            query = Q(order_id=order_id)
+            if str(order_id).isdigit():
+                query |= Q(id=int(order_id))
+
+            order = Order.objects.filter(
+                query,
+                Q(user=request.user) | Q(customer__user=request.user),
                 is_active=True,
                 is_deleted=False
-            )
-        except Order.DoesNotExist:
+            ).first()
+
+            if not order:
+                return Response({
+                    "statusCode": 404,
+                    "status": False,
+                    "message": "Order not found"
+                }, status=status.HTTP_404_NOT_FOUND)
+        except Exception:
             return Response({
                 "statusCode": 404,
                 "status": False,
                 "message": "Order not found"
             }, status=status.HTTP_404_NOT_FOUND)
 
-        if order.status.lower() == "cancelled":
+        if str(order.status).lower() == "cancelled":
             return Response({
                 "statusCode": 400,
                 "status": False,
                 "message": "Order already cancelled. You cannot cancel again."
             }, status=status.HTTP_400_BAD_REQUEST)
 
-
+        # 5-day restriction only applies to confirmed / paid rental bookings.
+        # If the order is pending / unpaid, user can cancel anytime so product quantity is released.
         today = timezone.now().date()
-        if order.rental_start_date:
+        is_order_paid = bool(order.is_paid or str(order.status).lower() in ["confirmed", "paid"])
+        if is_order_paid and order.rental_start_date:
             days_until_start = (order.rental_start_date - today).days
             if days_until_start < 5:
                 return Response({
@@ -2422,7 +2435,7 @@ class UserCancelOrderAPIView(APIView):
                     "message": "Cancellations are only permitted up to 5 days before the scheduled rental date."
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-        if order.status in ["delivered", "out_for_delivery"]:
+        if str(order.status).lower() in ["delivered", "out_for_delivery"]:
             return Response({
                 "statusCode": 400,
                 "status": False,
@@ -2430,27 +2443,33 @@ class UserCancelOrderAPIView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         reason = request.data.get("reason")
-
         if not reason:
-            return Response({
-                "statusCode": 400,
-                "status": False,
-                "message": "Cancel reason is required"
-            }, status=status.HTTP_400_BAD_REQUEST)
+            if not is_order_paid or str(order.status).lower() == "pending":
+                reason = "Cancelled by user before payment"
+            else:
+                return Response({
+                    "statusCode": 400,
+                    "status": False,
+                    "message": "Cancel reason is required"
+                }, status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
             for item in order.items.select_related("product"):
-                item.product.available_quantity += item.quantity
-                item.product.save()
+                if item.product:
+                    prod = item.product
+                    prod.available_quantity += item.quantity
+                    if prod.total_quantity and prod.available_quantity > prod.total_quantity:
+                        prod.available_quantity = prod.total_quantity
+                    prod.save(update_fields=["available_quantity"])
 
             order.status = "cancelled"
             order.cancel_reason = reason
             order.cancelled_by = "customer"
-            order.save()
+            order.save(update_fields=["status", "cancel_reason", "cancelled_by"])
 
             # Delete the associated Rental if it exists
-            if hasattr(order, 'rental') and order.rental:
-                order.rental.delete()
+            from userhub.models import Rental
+            Rental.objects.filter(order=order).delete()
 
         return Response({
             "statusCode": 200,

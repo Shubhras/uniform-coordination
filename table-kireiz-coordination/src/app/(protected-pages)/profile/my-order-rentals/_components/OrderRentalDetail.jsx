@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
-import { apiSindleOrderDetials, apiReorderOrder } from '@/services/OrderService'
+import { apiSindleOrderDetials, apiReorderOrder, apiCancelOrder } from '@/services/OrderService'
 import { formatDate } from '@/utils/formatDate'
 import { formatCurrency } from '@/utils/formatCurrency'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import Notification from '@/components/ui/Notification'
+import Dialog from '@/components/ui/Dialog'
 import toast from '@/components/ui/toast'
 import {
     FiArrowLeft,
@@ -18,6 +19,8 @@ import {
     FiUser,
     FiFileText,
     FiRefreshCw,
+    FiAlertTriangle,
+    FiX,
 } from 'react-icons/fi'
 
 // Order item image preview component
@@ -76,7 +79,7 @@ const getPaymentStatusBadge = (status) => {
     if (lower === 'pending') {
         return 'bg-amber-100 text-amber-800 border border-amber-200'
     }
-    if (lower === 'failed' || lower === 'cancelled') {
+    if (lower === 'unpaid' || lower === 'failed' || lower === 'cancelled') {
         return 'bg-red-100 text-red-700 border border-red-200'
     }
     if (lower === 'processing') {
@@ -95,8 +98,73 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
     const [orderDetailData, setOrderDetailData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [reordering, setReordering] = useState(false)
+    const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+    const [cancelReason, setCancelReason] = useState('')
+    const [cancelling, setCancelling] = useState(false)
 
     const orderId = params?.id || 'ORD-2024-0091'
+
+    // Fetch order details by ID
+    const fetchOrderDetail = useCallback(async () => {
+        if (!session?.accessToken || !orderId) return
+        try {
+            setLoading(true)
+            const response = await apiSindleOrderDetials(session.accessToken, orderId)
+            setOrderDetailData(response)
+        } catch (err) {
+            console.error('Error fetching single order details:', err)
+        } finally {
+            setLoading(false)
+        }
+    }, [session?.accessToken, orderId])
+
+    useEffect(() => {
+        fetchOrderDetail()
+    }, [fetchOrderDetail])
+
+    // Pay now handler for pending unpaid orders
+    const handlePayNow = () => {
+        const targetId = orderData?.order_id || orderId
+        if (!targetId) return
+        router.push(`/payment?orderId=${targetId}`)
+    }
+
+    // Confirm cancel order handler
+    const handleConfirmCancel = async () => {
+        if (!session?.accessToken || !orderId) return
+        try {
+            setCancelling(true)
+            const targetId = orderData?.order_id || orderId
+            const res = await apiCancelOrder(session.accessToken, targetId, {
+                reason: cancelReason.trim() || 'Cancelled by user before payment'
+            })
+            if (res?.status || res?.statusCode === 200) {
+                toast.push(
+                    <Notification title="Order Cancelled" type="success">
+                        {res?.message || 'Order has been cancelled and items released back to stock.'}
+                    </Notification>
+                )
+                setCancelDialogOpen(false)
+                fetchOrderDetail()
+            } else {
+                toast.push(
+                    <Notification title="Cancellation Failed" type="danger">
+                        {res?.message || 'Could not cancel the order.'}
+                    </Notification>
+                )
+            }
+        } catch (err) {
+            console.error('Cancel order error:', err)
+            const errMsg = err?.response?.data?.message || err?.message || 'Failed to cancel order.'
+            toast.push(
+                <Notification title="Cancellation Failed" type="danger">
+                    {errMsg}
+                </Notification>
+            )
+        } finally {
+            setCancelling(false)
+        }
+    }
 
     // Reorder handler
     const handleReorder = async (targetOrderId) => {
@@ -132,24 +200,6 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
         }
     }
 
-    // Fetch order details by ID
-    useEffect(() => {
-        const fetchOrderDetail = async () => {
-            if (!session?.accessToken || !orderId) return
-            try {
-                setLoading(true)
-                const response = await apiSindleOrderDetials(session.accessToken, orderId)
-                setOrderDetailData(response)
-            } catch (err) {
-                console.error('Error fetching single order details:', err)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        fetchOrderDetail()
-    }, [session?.accessToken, orderId])
-
     // Back button click handler
     const handleBack = () => {
         router.push(backPath)
@@ -160,6 +210,8 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
         : orderDetailData?.data || orderDetailData
 
     const currencyCode = orderData?.payment_summary?.currency || orderData?.currency || 'USD'
+    const currentPaymentMethod = orderData?.payment_summary?.payment_method || orderData?.payment_method
+    const currentPaymentStatus = orderData?.payment_summary?.payment_status || (orderData?.is_paid === false ? 'unpaid' : (orderData?.is_paid ? 'paid' : (orderData?.status || 'pending')))
 
     // Address formatter helper
     const formatAddress = (addr) => {
@@ -300,41 +352,98 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                         Payment Method
                                     </p>
                                     <div className="mt-2 flex items-center gap-2 rounded-md border border-[#EEE1D8] bg-white px-3 py-3 text-sm font-medium text-[#2C1810]">
-                                        <span className="rounded bg-[#EEF6FF] px-1.5 py-0.5 text-[10px] font-semibold text-[#2B7FFF]">
-                                            {orderData?.payment_summary?.payment_method?.[0]?.toUpperCase()}
-                                        </span>
-                                        <span> {orderData?.payment_summary?.payment_method}</span>
+                                        {currentPaymentMethod ? (
+                                            <>
+                                                <span className="rounded bg-[#EEF6FF] px-1.5 py-0.5 text-[10px] font-semibold text-[#2B7FFF]">
+                                                    {currentPaymentMethod.charAt(0).toUpperCase()}
+                                                </span>
+                                                <span className="capitalize">{currentPaymentMethod.replace(/_/g, ' ')}</span>
+                                            </>
+                                        ) : (
+                                            <span className="text-[#9C8274] italic">Not selected yet</span>
+                                        )}
                                     </div>
                                     <div className="mt-5 flex items-center justify-between text-sm text-[#7C6558]">
                                         <span>Payment Status</span>
-                                        <span className={`rounded-sm px-2 py-0.5 text-[11px] font-semibold uppercase ${getPaymentStatusBadge(orderData?.payment_summary?.payment_status)}`}>
-                                            {orderData?.payment_summary?.payment_status}
+                                        <span className={`rounded-sm px-2 py-0.5 text-[11px] font-semibold uppercase ${getPaymentStatusBadge(currentPaymentStatus)}`}>
+                                            {currentPaymentStatus}
                                         </span>
                                     </div>
                                     <div className="mt-4 flex items-center justify-between text-sm text-[#7C6558]">
                                         <span>Payment Date</span>
-                                        <span>{orderData?.payment_summary?.paid_at ? formatDate(orderData?.payment_summary?.paid_at) : ''}</span>
+                                        <span>{orderData?.payment_summary?.paid_at ? formatDate(orderData?.payment_summary?.paid_at) : '—'}</span>
                                     </div>
-                                    <div className="mt-5 flex gap-3">
-                                        <button
-                                            type="button"
-                                            className="flex-1 rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
-                                        >
-                                            Track Order
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleReorder(orderData?.order_id || orderId)}
-                                            disabled={reordering}
-                                            className="flex-1 rounded-md border border-[#B66636] bg-[#B66636] px-4 py-2 text-sm font-medium text-white hover:bg-[#9E5328] disabled:opacity-50 transition flex items-center justify-center gap-1.5"
-                                        >
-                                            {reordering ? (
-                                                <span className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
-                                            ) : (
-                                                <FiRefreshCw size={14} />
-                                            )}
-                                            Reorder
-                                        </button>
+                                    {/* Action Buttons */}
+                                    <div className="mt-5 flex flex-col gap-2.5">
+                                        {/* If pending and unpaid */}
+                                        {orderData?.status?.toLowerCase() === 'pending' && !orderData?.is_paid ? (
+                                            <>
+                                                <button
+                                                    type="button"
+                                                    onClick={handlePayNow}
+                                                    className="w-full rounded-md border border-[#B66636] bg-[#B66636] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#9E5328] transition flex items-center justify-center gap-1.5 shadow-sm"
+                                                >
+                                                    <FiCreditCard size={15} />
+                                                    Pay Now
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setCancelDialogOpen(true)}
+                                                    className="w-full rounded-md border border-red-200 bg-white px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:border-red-300 transition flex items-center justify-center gap-1.5"
+                                                >
+                                                    <FiX size={15} />
+                                                    Cancel Order
+                                                </button>
+                                            </>
+                                        ) : orderData?.status?.toLowerCase() === 'cancelled' ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleReorder(orderData?.order_id || orderId)}
+                                                disabled={reordering}
+                                                className="w-full rounded-md border border-[#B66636] bg-[#B66636] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#9E5328] disabled:opacity-50 transition flex items-center justify-center gap-1.5"
+                                            >
+                                                {reordering ? (
+                                                    <span className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
+                                                ) : (
+                                                    <FiRefreshCw size={14} />
+                                                )}
+                                                Reorder
+                                            </button>
+                                        ) : (
+                                            <>
+                                                <div className="flex gap-3">
+                                                    <button
+                                                        type="button"
+                                                        className="flex-1 rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
+                                                    >
+                                                        Track Order
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleReorder(orderData?.order_id || orderId)}
+                                                        disabled={reordering}
+                                                        className="flex-1 rounded-md border border-[#B66636] bg-[#B66636] px-4 py-2 text-sm font-medium text-white hover:bg-[#9E5328] disabled:opacity-50 transition flex items-center justify-center gap-1.5"
+                                                    >
+                                                        {reordering ? (
+                                                            <span className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
+                                                        ) : (
+                                                            <FiRefreshCw size={14} />
+                                                        )}
+                                                        Reorder
+                                                    </button>
+                                                </div>
+                                                {orderData?.status?.toLowerCase() !== 'delivered' && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setCancelDialogOpen(true)}
+                                                        className="w-full rounded-md border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:border-red-300 transition flex items-center justify-center gap-1.5"
+                                                    >
+                                                        <FiX size={14} />
+                                                        Cancel Order
+                                                    </button>
+                                                )}
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -437,6 +546,69 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                         </div>
                     </>
                 )}
+
+            {/* Cancel Order Confirmation Dialog */}
+            <Dialog
+                isOpen={cancelDialogOpen}
+                onClose={() => !cancelling && setCancelDialogOpen(false)}
+                onRequestClose={() => !cancelling && setCancelDialogOpen(false)}
+                className="w-full max-w-lg mx-auto"
+            >
+                <div className="rounded-xl overflow-hidden bg-white p-6">
+                    <div className="flex items-center gap-3 text-red-600">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
+                            <FiAlertTriangle size={20} />
+                        </span>
+                        <div>
+                            <h3 className="text-lg font-semibold text-[#2C1810]">Cancel Order</h3>
+                            <p className="text-xs text-[#8D7769]">Order ID: {orderData?.order_id || orderId}</p>
+                        </div>
+                    </div>
+
+                    <p className="mt-4 text-sm text-[#5C4538] leading-relaxed">
+                        Are you sure you want to cancel this order? Any reserved products will be released immediately back into available stock.
+                    </p>
+
+                    <div className="mt-4">
+                        <label className="block text-xs font-medium text-[#7C6558] mb-1">
+                            Reason for cancellation (optional):
+                        </label>
+                        <input
+                            type="text"
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                            placeholder="e.g. Changed mind, payment issue"
+                            className="w-full rounded-md border border-[#E5D5CD] px-3 py-2 text-sm text-[#2C1810] focus:border-[#B66636] focus:outline-none"
+                        />
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <button
+                            type="button"
+                            disabled={cancelling}
+                            onClick={() => setCancelDialogOpen(false)}
+                            className="rounded-md border border-[#E5D5CD] bg-white px-4 py-2 text-sm font-medium text-[#5C4538] hover:bg-[#FAF6F4] disabled:opacity-50 transition"
+                        >
+                            Keep Order
+                        </button>
+                        <button
+                            type="button"
+                            disabled={cancelling}
+                            onClick={handleConfirmCancel}
+                            className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition flex items-center gap-1.5"
+                        >
+                            {cancelling ? (
+                                <>
+                                    <span className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
+                                    Cancelling...
+                                </>
+                            ) : (
+                                'Yes, Cancel Order'
+                            )}
+                        </button>
+                    </div>
+                </div>
+            </Dialog>
         </div>
     )
 }

@@ -522,6 +522,17 @@ class userOrderSerializer(serializers.ModelSerializer):
             elif obj.promocode.promocodeType == "fix_price":
                 promo_amount = Decimal(obj.promocode.amount or 0)
 
+        payment_status = (
+            payment.payment_status
+            if payment and payment.payment_status
+            else ("paid" if obj.is_paid else "unpaid")
+        )
+        payment_method = (
+            payment.payment_method
+            if payment and payment.payment_method
+            else (obj.payment_method or None)
+        )
+
         return {
             "subtotal": str(obj.subtotal or Decimal("0.00")),
             "promo_code": promo_code,
@@ -531,8 +542,8 @@ class userOrderSerializer(serializers.ModelSerializer):
             "tax": str(obj.tax or Decimal("0.00")),
             "total_amount": str(obj.total_amount or Decimal("0.00")),
 
-            "payment_status": payment.payment_status if payment else None,
-            "payment_method": payment.payment_method if payment else None,
+            "payment_status": payment_status,
+            "payment_method": payment_method,
             "currency": payment.currency if payment else obj.currency,
             "payment_id": payment.payment_id if payment else None,
             "customer_id": payment.customer_id if payment else None,
