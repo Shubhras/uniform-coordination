@@ -2,6 +2,7 @@ import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
 import { apiExportQuotationPdf } from '@/services/QuotationRequestService'
 import { useSession } from 'next-auth/react'
+import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import { useRouter } from 'next/navigation'
 
 /**
@@ -13,7 +14,10 @@ import { useRouter } from 'next/navigation'
  */
 const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
     const router = useRouter()
-    const { data: session } = useSession()
+    const { data: nextAuthSession } = useSession()
+    const { session: currentSession } = useCurrentSession()
+    const session = currentSession?.user?.accessToken ? currentSession : (nextAuthSession || currentSession)
+    const token = session?.user?.accessToken || session?.accessToken
     if (!isOpen || !quoteData) return null
     const {
         quotation_id,
@@ -37,14 +41,14 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
  * the returned PDF URL or Blob in a new tab.
  */
     const handleExportPdf = async () => {
-        if (!session?.accessToken) {
+        if (!token) {
             alert("Please login first")
             return
         }
         try {
             const response = await apiExportQuotationPdf(
                 quotation_id,
-                session.accessToken
+                token
             )
             if (response?.pdf_url) {
                 window.open(response.pdf_url, "_blank")

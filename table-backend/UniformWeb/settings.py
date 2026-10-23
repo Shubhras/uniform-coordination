@@ -185,12 +185,8 @@ STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# SITE_DOMAIN = "http://table.172.237.71.124.sslip.io"
-SITE_DOMAIN = "https://table-admin.dxtspace.com"
-
-# SITE_URL = "http://table.172.237.71.124.sslip.io"
-
-SITE_URL = "https://table-admin.dxtspace.com"
+SITE_DOMAIN = config("SITE_DOMAIN", default="http://table.172.237.71.124.sslip.io")
+SITE_URL = config("SITE_URL", default="http://table.172.237.71.124.sslip.io")
 
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
