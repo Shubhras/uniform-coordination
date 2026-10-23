@@ -1,4 +1,4 @@
-// File: /home/dell/uniform-coordination/uniform-kireiz-coordination/src/app/layout.jsx
+// File: /home/digi-35/uniform/uniform-coordination/uniform-kireiz-coordination/src/app/layout.jsx
 import * as entry from '../../../src/app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

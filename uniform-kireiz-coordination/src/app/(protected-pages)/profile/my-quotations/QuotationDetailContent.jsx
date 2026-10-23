@@ -42,7 +42,7 @@ const StatusBadge = ({ statusKey, statusLabel }) => {
 
     return (
         <span
-            className="inline-flex rounded-md px-2.5 py-1 text-[11px] font-medium"
+            className="inline-flex rounded-md px-3 py-2 text-[12px] font-medium"
             style={{
                 color: style.text,
                 backgroundColor: style.bg,
@@ -72,35 +72,35 @@ const QuotationDetailContent = ({
                         onClick={onBack}
                         className="flex h-7 w-7 items-center justify-center rounded-full text-[#4B5563]"
                     >
-                        <FiArrowLeft size={16} />
+                        <FiArrowLeft size={19} />
                     </button>
-                    <h2 className="text-base font-semibold text-[#111827]">My Quotations</h2>
+                    <h2 className="text-[19px] font-semibold text-[#111827]">My Quotations</h2>
                 </div>
                 <StatusBadge statusKey={quotation.statusKey} statusLabel={quotation.statusLabel} />
             </div>
 
             <div className="space-y-4">
                 <section className="rounded-2xl border border-[#EDF2F7] bg-white p-4 md:p-5">
-                    <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.03em] text-[#003560]">
-                        <FiFileText size={12} />
+                    <div className="mb-5 flex items-center gap-2 text-[14px] font-semibold uppercase tracking-[0.03em] text-[#003560]">
+                        <FiFileText size={14} />
                         Company Information
                     </div>
 
                     <div className="grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
                         <div>
-                            <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Company Name</p>
+                            <p className="text-[11px] uppercase tracking-wide text-[#495669]">Company Name</p>
                             <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.companyName}</p>
                         </div>
                         <div>
-                            <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Contact Person</p>
+                            <p className="text-[10px] uppercase tracking-wide text-[#495669]">Contact Person</p>
                             <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.contactPerson}</p>
                         </div>
                         <div>
-                            <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Email</p>
+                            <p className="text-[10px] uppercase tracking-wide text-[#495669]">Email</p>
                             <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.email}</p>
                         </div>
                         <div>
-                            <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Phone Number</p>
+                            <p className="text-[10px] uppercase tracking-wide text-[#495669]">Phone Number</p>
                             <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.phoneNumber}</p>
                         </div>
                         {/* <div>
@@ -111,18 +111,18 @@ const QuotationDetailContent = ({
                 </section>
 
                 <section className="rounded-2xl border border-[#EDF2F7] bg-white p-4 md:p-5">
-                    <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.03em] text-[#003560]">
-                        <FiFileText size={12} />
+                    <div className="mb-5 flex items-center gap-2 text-[14px] font-semibold uppercase tracking-[0.03em] text-[#003560]">
+                        <FiFileText size={14} />
                         Quotation Information
                     </div>
 
                     <div className="grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2">
                         <div>
-                            <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Request ID</p>
+                            <p className="text-[10px] uppercase tracking-wide text-[#495669]">Request ID</p>
                             <p className="mt-1 text-sm font-medium text-[#111827]">{quotation.requestId}</p>
                         </div>
                         <div>
-                            <p className="text-[10px] uppercase tracking-wide text-[#94A3B8]">Requested Date</p>
+                            <p className="text-[10px] uppercase tracking-wide text-[#495669]">Requested Date</p>
                             <p className="mt-1 text-sm font-medium text-[#111827]">{formatDate(quotation.requestedDate)}</p>
                         </div>
                     </div>
@@ -130,7 +130,7 @@ const QuotationDetailContent = ({
 
                 <section className="overflow-hidden rounded-2xl border border-[#EDF2F7] bg-white">
                     <div className="flex items-center justify-between border-b border-[#EDF2F7] px-4 py-4 md:px-5">
-                        <h3 className="text-base font-semibold text-[#111827]">Requested Items</h3>
+                        <h3 className="text-[16px] font-semibold text-[#111827]">Requested Items</h3>
                         {showDownload ? (
                             <button
                                 type="button"
