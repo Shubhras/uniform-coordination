@@ -1,21 +1,34 @@
 "use client";
+import { useState, useEffect } from "react";
 import ResetPassword from "@/components/auth/ResetPassword";
 import { apiResetPassword } from "@/services/AuthService";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
+
 const ResetPasswordClient = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("user_id") || searchParams.get("userId");
   const token = searchParams.get("token");
+  const [initialMessage, setInitialMessage] = useState("");
+
+  useEffect(() => {
+    if (!userId || !token) {
+      setInitialMessage(
+        "Invalid or expired reset link. Please check your email or request a new reset link."
+      );
+    }
+  }, [userId, token]);
 
   const handleResetPassword = async (payload) => {
     const { values, setSubmitting, setMessage, setResetComplete } = payload;
     try {
       setSubmitting(true);
       if (!userId || !token) {
-        setMessage("Invalid or expired reset link. Please check your email or request a new reset link.");
+        setMessage(
+          "Invalid or expired reset link. Please check your email or request a new reset link."
+        );
         return;
       }
 
@@ -51,7 +64,13 @@ const ResetPasswordClient = () => {
     }
   };
 
-  return <ResetPassword onResetPasswordSubmit={handleResetPassword} />;
+  return (
+    <ResetPassword
+      initialMessage={initialMessage}
+      onResetPasswordSubmit={handleResetPassword}
+    />
+  );
 };
 
 export default ResetPasswordClient;
+

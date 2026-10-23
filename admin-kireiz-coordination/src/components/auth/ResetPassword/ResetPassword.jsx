@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import ActionLink from "@/components/shared/ActionLink";
@@ -12,10 +12,17 @@ import SplitResetPassword from "@/components/layouts/AuthLayout/SplitResetPass";
 export const ResetPassword = ({
   signInUrl = "/sign-in",
   onResetPasswordSubmit,
+  initialMessage = "",
 }) => {
   const [resetComplete, setResetComplete] = useState(false);
 
   const [message, setMessage] = useTimeOutMessage();
+
+  useEffect(() => {
+    if (initialMessage) {
+      setMessage(initialMessage);
+    }
+  }, [initialMessage, setMessage]);
 
   const router = useRouter();
 

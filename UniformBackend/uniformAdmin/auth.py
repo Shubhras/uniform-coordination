@@ -662,9 +662,44 @@ class ResetPasswordAPIView(APIView):
             404: OpenApiResponse(description="User not found")
         }
     )
+    def get(self, request):
+        user_id = request.query_params.get("user_id") or request.query_params.get("userId")
+        token = request.query_params.get("token")
+
+        if not user_id or not token:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Invalid or expired reset link. Please request a new password reset."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = AdminUser.objects.get(id=user_id, is_active=True)
+        except (AdminUser.DoesNotExist, ValueError):
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Invalid or expired reset link. Please request a new password reset."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        token_generator = PasswordResetTokenGenerator()
+        if not token_generator.check_token(user, token):
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Invalid or expired reset link. Please request a new password reset."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "message": "Reset link is valid."
+        }, status=status.HTTP_200_OK)
+
     def post(self, request):
         user_id = request.data.get("user_id") or request.data.get("userId")
         token = request.data.get("token")
+
         new_password = request.data.get("new_password") or request.data.get("newPassword")
         confirm_password = request.data.get("confirm_password") or request.data.get("confirmPassword")
 

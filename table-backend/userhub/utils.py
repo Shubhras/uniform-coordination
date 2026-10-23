@@ -15,6 +15,21 @@ from reportlab.platypus import Flowable
 from django.core.mail import send_mail
 
 from userhub.models import Users
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
+class UserPasswordResetTokenGenerator(PasswordResetTokenGenerator):
+    """
+    Token generator for Users model that respects settings.PASSWORD_RESET_TIMEOUT.
+    Uses user.lastLogin (camelCase) and user.email to produce HMAC tokens with automatic expiry.
+    """
+    def _make_hash_value(self, user, timestamp):
+        login_timestamp = (
+            ""
+            if getattr(user, "lastLogin", None) is None
+            else user.lastLogin.replace(microsecond=0, tzinfo=None)
+        )
+        email = getattr(user, "email", "") or ""
+        return f"{user.pk}{user.password}{login_timestamp}{timestamp}{email}"
 
 def generate_custom_tokens(user):
     """Generate custom access & refresh tokens for normal Users."""

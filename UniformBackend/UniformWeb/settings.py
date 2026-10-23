@@ -274,6 +274,10 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
 }
 
+# Password reset link validity (default 900 seconds = 15 minutes)
+PASSWORD_RESET_TIMEOUT = int(os.getenv("PASSWORD_RESET_TIMEOUT", 900))
+
+
 
 
 "stripe payment"
