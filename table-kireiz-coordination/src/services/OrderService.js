@@ -152,3 +152,23 @@ export async function apiReorderOrder(token, orderId) {
     },
   });
 }
+
+/**
+ * Cancels an order.
+ *
+ * @param {string} token - User authentication Bearer token.
+ * @param {string|number} orderId - Target order ID to cancel.
+ * @param {Object} [data] - Optional cancellation reason.
+ * @returns {Promise<Object>} API response.
+ */
+export async function apiCancelOrder(token, orderId, data = {}) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/userhub/order/${orderId}/cancel/`,
+    method: "post",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    data: data,
+  });
+}
+
