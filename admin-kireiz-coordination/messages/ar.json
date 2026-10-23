@@ -330,6 +330,59 @@
       "errorTitle": "Error"
     }
   },
+  "savedSimulations": {
+    "pageTitle": "عمليات المحاكاة والتخصيصات المحفوظة",
+    "pageSubtitle": "راجع جميع تكوينات المنتجات ثلاثية الأبعاد وتصميمات السمات المحفوظة بواسطة المستخدمين المسجلين.",
+    "summaryCards": {
+      "totalSaved": "إجمالي عمليات المحاكاة المحفوظة",
+      "productCustomizations": "تخصيصات المنتجات",
+      "themeCustomizations": "تخصيصات السمات"
+    },
+    "searchPlaceholder": "البحث حسب اسم العميل أو البريد الإلكتروني أو العنصر...",
+    "tabs": {
+      "all": "الكل",
+      "products": "المنتجات",
+      "themes": "السمات"
+    },
+    "reset": "إعادة تعيين",
+    "tableHeaders": {
+      "type": "النوع",
+      "customer": "العميل",
+      "itemCategory": "العنصر والفئة",
+      "customSpecs": "المواصفات المخصصة",
+      "savedDate": "تاريخ الحفظ",
+      "action": "الإجراء"
+    },
+    "loading": "جارٍ تحميل عمليات المحاكاة المحفوظة...",
+    "typeProduct": "منتج",
+    "typeTheme": "سمة",
+    "guestUser": "مستخدم ضيف",
+    "categoryLabel": "الفئة",
+    "viewDetails": "عرض التفاصيل",
+    "emptyState": {
+      "title": "لم يتم العثور على أي عمليات محاكاة محفوظة",
+      "subtitle": "حاول مسح عوامل التصفية أو مصطلحات البحث."
+    },
+    "specs": {
+      "color": "اللون",
+      "fabric": "القماش",
+      "shape": "الشكل",
+      "size": "الحجم",
+      "seating": "المقاعد",
+      "defaultConfig": "التكوين الافتراضي",
+      "moreCount": "+{count} المزيد"
+    },
+    "modal": {
+      "savedSimulationNumber": "المحاكاة المحفوظة #{id}",
+      "customerDetails": "تفاصيل العميل",
+      "noEmail": "لم يتم تقديم بريد إلكتروني",
+      "userId": "معرف المستخدم",
+      "itemDetails": "تفاصيل العنصر",
+      "savedDateLabel": "تم الحفظ",
+      "designSpecs": "مواصفات التصميم",
+      "close": "إغلاق"
+    }
+  },
   "simulationAssets": {
     "tabLayers": "ترتيب الطبقات",
     "tabVisibility": "إظهار المنتجات",
@@ -493,6 +546,26 @@
       "b2bUsers": "B2B Users",
       "upFromYesterday": "Up from yesterday",
       "downFromYesterday": "Down from yesterday"
+    },
+    "recentOrders": {
+      "recentOrders": "الطلبات الأخيرة (اليوم)",
+      "todayBadge": "{count} اليوم",
+      "subtitle": "الطلبات المقدمة من العملاء اليوم",
+      "viewAll": "عرض الكل",
+      "orderId": "رقم الطلب",
+      "customer": "العميل",
+      "dateTime": "التاريخ والوقت",
+      "amount": "المبلغ",
+      "status": "الحالة",
+      "action": "الإجراء",
+      "defaultCustomer": "العميل",
+      "statusCompleted": "مكتمل",
+      "statusRented": "مؤجر",
+      "statusPending": "قيد الانتظار",
+      "statusCancelled": "ملغى",
+      "statusFailed": "فاشل",
+      "details": "التفاصيل",
+      "noOrdersToday": "لم يتم استلام أي طلبات اليوم بعد."
     },
     "quoteStatus": {
       "quoteStatusDistribution": "Quote Status Distribution",

@@ -15,12 +15,14 @@ import {
   FiCheck,
 } from "react-icons/fi";
 import { IoColorPaletteOutline } from "react-icons/io5";
+import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import Spinner from "@/components/ui/Spinner";
 import Pagination from "@/components/ui/Pagination";
 import { apiGetSavedSimulations } from "@/services/SimulationAssetService";
 
 const SavedSimulations = () => {
+  const t = useTranslations("savedSimulations");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
@@ -112,23 +114,23 @@ const SavedSimulations = () => {
   const renderSpecBadges = (item) => {
     const specs = item.design_specifications || {};
     const config = item.config_json || {};
-    
+
     const badges = [];
 
     const colorVal = specs.color || config.color;
-    if (colorVal && colorVal !== "N/A") badges.push(`Color: ${colorVal}`);
+    if (colorVal && colorVal !== "N/A") badges.push(`${t("specs.color")}: ${colorVal}`);
 
     const fabricVal = specs.fabric || config.fabric;
-    if (fabricVal && fabricVal !== "N/A") badges.push(`Fabric: ${fabricVal}`);
+    if (fabricVal && fabricVal !== "N/A") badges.push(`${t("specs.fabric")}: ${fabricVal}`);
 
     const shapeVal = specs.table_shape || config.table_shape;
-    if (shapeVal && shapeVal !== "N/A") badges.push(`Shape: ${shapeVal}`);
+    if (shapeVal && shapeVal !== "N/A") badges.push(`${t("specs.shape")}: ${shapeVal}`);
 
     const sizeVal = specs.size || config.size;
-    if (sizeVal && sizeVal !== "N/A") badges.push(`Size: ${sizeVal}`);
+    if (sizeVal && sizeVal !== "N/A") badges.push(`${t("specs.size")}: ${sizeVal}`);
 
     const seatingVal = specs.seating || config.seating;
-    if (seatingVal && seatingVal !== "N/A") badges.push(`Seating: ${seatingVal}`);
+    if (seatingVal && seatingVal !== "N/A") badges.push(`${t("specs.seating")}: ${seatingVal}`);
 
     if (badges.length === 0 && Object.keys(specs).length > 0) {
       Object.entries(specs).slice(0, 3).forEach(([key, val]) => {
@@ -139,7 +141,7 @@ const SavedSimulations = () => {
     }
 
     if (badges.length === 0) {
-      return <span className="text-xs text-gray-400 italic">Default configuration</span>;
+      return <span className="text-xs text-gray-400 italic">{t("specs.defaultConfig")}</span>;
     }
 
     return (
@@ -154,7 +156,7 @@ const SavedSimulations = () => {
         ))}
         {badges.length > 3 && (
           <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-600">
-            +{badges.length - 3} more
+            {t("specs.moreCount", { count: badges.length - 3 })}
           </span>
         )}
       </div>
@@ -167,10 +169,10 @@ const SavedSimulations = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-[28px] font-semibold leading-tight text-[#1C2C56]">
-            Saved Simulations & Customizations
+            {t("pageTitle")}
           </h1>
           <p className="mt-1 text-[13px] text-[#64748B]">
-            Review all product 3D configurations and theme designs saved by registered users.
+            {t("pageSubtitle")}
           </p>
         </div>
       </div>
@@ -179,14 +181,13 @@ const SavedSimulations = () => {
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div
           onClick={() => { setActiveTab("all"); setCurrentPage(1); }}
-          className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${
-            activeTab === "all"
+          className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${activeTab === "all"
               ? "border-[#1C2C56] bg-[#F1F5F9] shadow-sm"
               : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1]"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-[#64748B]">Total Saved Simulations</span>
+            <span className="text-sm font-medium text-[#64748B]">{t("summaryCards.totalSaved")}</span>
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E2E8F0] text-[#1C2C56]">
               <FiBookmark size={20} />
             </div>
@@ -196,14 +197,13 @@ const SavedSimulations = () => {
 
         <div
           onClick={() => { setActiveTab("product"); setCurrentPage(1); }}
-          className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${
-            activeTab === "product"
+          className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${activeTab === "product"
               ? "border-[#2563EB] bg-[#EFF6FF] shadow-sm"
               : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1]"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-[#64748B]">Product Customizations</span>
+            <span className="text-sm font-medium text-[#64748B]">{t("summaryCards.productCustomizations")}</span>
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#DBEAFE] text-[#2563EB]">
               <FiBox size={20} />
             </div>
@@ -213,14 +213,13 @@ const SavedSimulations = () => {
 
         <div
           onClick={() => { setActiveTab("theme"); setCurrentPage(1); }}
-          className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${
-            activeTab === "theme"
+          className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${activeTab === "theme"
               ? "border-[#9333EA] bg-[#FAF5FF] shadow-sm"
               : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1]"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-[#64748B]">Theme Customizations</span>
+            <span className="text-sm font-medium text-[#64748B]">{t("summaryCards.themeCustomizations")}</span>
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3E8FF] text-[#9333EA]">
               <IoColorPaletteOutline size={20} />
             </div>
@@ -236,7 +235,7 @@ const SavedSimulations = () => {
           <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1C2C56] text-sm" />
           <input
             type="text"
-            placeholder="Search by customer name, email, or item..."
+            placeholder={t("searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -260,33 +259,30 @@ const SavedSimulations = () => {
           <div className="flex rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-1">
             <button
               onClick={() => { setActiveTab("all"); setCurrentPage(1); }}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                activeTab === "all"
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === "all"
                   ? "bg-white text-[#1C2C56] shadow-sm"
                   : "text-[#64748B] hover:text-[#1C2C56]"
-              }`}
+                }`}
             >
-              All ({counts.total})
+              {t("tabs.all")} ({counts.total})
             </button>
             <button
               onClick={() => { setActiveTab("product"); setCurrentPage(1); }}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                activeTab === "product"
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === "product"
                   ? "bg-white text-[#2563EB] shadow-sm"
                   : "text-[#64748B] hover:text-[#2563EB]"
-              }`}
+                }`}
             >
-              Products ({counts.product})
+              {t("tabs.products")} ({counts.product})
             </button>
             <button
               onClick={() => { setActiveTab("theme"); setCurrentPage(1); }}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                activeTab === "theme"
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === "theme"
                   ? "bg-white text-[#9333EA] shadow-sm"
                   : "text-[#64748B] hover:text-[#9333EA]"
-              }`}
+                }`}
             >
-              Themes ({counts.theme})
+              {t("tabs.themes")} ({counts.theme})
             </button>
           </div>
 
@@ -296,7 +292,7 @@ const SavedSimulations = () => {
             className="flex h-10 items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-4 text-sm font-medium text-[#1C2C56] transition hover:bg-[#F8FAFC]"
           >
             <FiRotateCcw size={14} />
-            Reset
+            {t("reset")}
           </button>
         </div>
       </div>
@@ -306,12 +302,12 @@ const SavedSimulations = () => {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[#F8FAFC] text-[#64748B] text-xs uppercase tracking-wider">
-              <th className="text-left px-4 py-3 font-semibold">Type</th>
-              <th className="text-left px-4 py-3 font-semibold">Customer</th>
-              <th className="text-left px-4 py-3 font-semibold">Item & Category</th>
-              <th className="text-left px-4 py-3 font-semibold">Custom Specifications</th>
-              <th className="text-left px-4 py-3 font-semibold">Saved Date</th>
-              <th className="text-right px-4 py-3 font-semibold">Action</th>
+              <th className="text-left px-4 py-3 font-semibold">{t("tableHeaders.type")}</th>
+              <th className="text-left px-4 py-3 font-semibold">{t("tableHeaders.customer")}</th>
+              <th className="text-left px-4 py-3 font-semibold">{t("tableHeaders.itemCategory")}</th>
+              <th className="text-left px-4 py-3 font-semibold">{t("tableHeaders.customSpecs")}</th>
+              <th className="text-left px-4 py-3 font-semibold">{t("tableHeaders.savedDate")}</th>
+              <th className="text-right px-4 py-3 font-semibold">{t("tableHeaders.action")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#E2E8F0]">
@@ -320,7 +316,7 @@ const SavedSimulations = () => {
                 <td colSpan={6} className="py-16 text-center">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <Spinner size={36} customColorClass="text-[#1C2C56]" />
-                    <span className="text-sm text-[#64748B]">Loading saved simulations...</span>
+                    <span className="text-sm text-[#64748B]">{t("loading")}</span>
                   </div>
                 </td>
               </tr>
@@ -335,12 +331,12 @@ const SavedSimulations = () => {
                     {item.simulation_type === "product" ? (
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
                         <FiBox size={13} />
-                        Product
+                        {t("typeProduct")}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
                         <IoColorPaletteOutline size={13} />
-                        Theme
+                        {t("typeTheme")}
                       </span>
                     )}
                   </td>
@@ -353,7 +349,7 @@ const SavedSimulations = () => {
                       </div>
                       <div>
                         <p className="font-semibold text-[#1C2C56] text-xs sm:text-sm">
-                          {item.user_name || "Guest User"}
+                          {item.user_name || t("guestUser")}
                         </p>
                         {item.user_email && (
                           <p className="text-[11px] text-[#64748B]">{item.user_email}</p>
@@ -381,7 +377,7 @@ const SavedSimulations = () => {
                           {item.item_name}
                         </p>
                         <p className="text-[11px] text-[#64748B]">
-                          Category: <span className="font-medium text-[#1C2C56]">{item.category_name}</span>
+                          {t("categoryLabel")}: <span className="font-medium text-[#1C2C56]">{item.category_name}</span>
                         </p>
                       </div>
                     </div>
@@ -408,7 +404,7 @@ const SavedSimulations = () => {
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E2E8F0] bg-white text-xs font-semibold text-[#1C2C56] hover:bg-[#F8FAFC] hover:border-[#1C2C56] transition-all shadow-sm"
                     >
                       <FiEye size={14} />
-                      View Details
+                      {t("viewDetails")}
                     </button>
                   </td>
                 </tr>
@@ -417,8 +413,8 @@ const SavedSimulations = () => {
               <tr>
                 <td colSpan={6} className="py-12 text-center text-gray-500">
                   <FiBookmark size={28} className="mx-auto mb-2 text-gray-300" />
-                  <p className="text-sm font-medium text-gray-600">No saved simulations found</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Try clearing filters or search terms.</p>
+                  <p className="text-sm font-medium text-gray-600">{t("emptyState.title")}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{t("emptyState.subtitle")}</p>
                 </td>
               </tr>
             )}
@@ -459,7 +455,8 @@ const SavedSimulations = () => {
                     {selectedSimulation.item_name}
                   </h3>
                   <p className="text-xs text-[#64748B]">
-                    Saved Simulation #{selectedSimulation.id} &bull; {selectedSimulation.simulation_type.toUpperCase()}
+                    {t("modal.savedSimulationNumber", { id: selectedSimulation.id })} &bull;{" "}
+                    {selectedSimulation.simulation_type === "product" ? t("typeProduct") : t("typeTheme")}
                   </p>
                 </div>
               </div>
@@ -476,19 +473,19 @@ const SavedSimulations = () => {
               {/* Customer & Item Overview */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
                 <div>
-                  <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Customer Details</p>
-                  <p className="text-sm font-bold text-[#1C2C56] mt-1">{selectedSimulation.user_name || "Guest User"}</p>
-                  <p className="text-xs text-gray-600">{selectedSimulation.user_email || "No email provided"}</p>
+                  <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">{t("modal.customerDetails")}</p>
+                  <p className="text-sm font-bold text-[#1C2C56] mt-1">{selectedSimulation.user_name || t("guestUser")}</p>
+                  <p className="text-xs text-gray-600">{selectedSimulation.user_email || t("modal.noEmail")}</p>
                   {selectedSimulation.user_id && (
-                    <p className="text-[11px] text-gray-400 mt-0.5">User ID: #{selectedSimulation.user_id}</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">{t("modal.userId")}: #{selectedSimulation.user_id}</p>
                   )}
                 </div>
 
                 <div>
-                  <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Item Details</p>
+                  <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">{t("modal.itemDetails")}</p>
                   <p className="text-sm font-bold text-[#1C2C56] mt-1">{selectedSimulation.item_name}</p>
-                  <p className="text-xs text-gray-600">Category: {selectedSimulation.category_name}</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">Saved: {selectedSimulation.formatted_date}</p>
+                  <p className="text-xs text-gray-600">{t("categoryLabel")}: {selectedSimulation.category_name}</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">{t("modal.savedDateLabel")}: {selectedSimulation.formatted_date}</p>
                 </div>
               </div>
 
@@ -497,7 +494,7 @@ const SavedSimulations = () => {
                 <div>
                   <h4 className="text-sm font-bold text-[#1C2C56] mb-3 flex items-center gap-2">
                     <FiSliders className="text-[#1C2C56]" />
-                    Design Specifications
+                    {t("modal.designSpecs")}
                   </h4>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {Object.entries(selectedSimulation.design_specifications).map(([key, val]) => {
@@ -544,7 +541,7 @@ const SavedSimulations = () => {
                 onClick={() => setSelectedSimulation(null)}
                 className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-300 transition-colors"
               >
-                Close
+                {t("modal.close")}
               </button>
             </div>
           </div>

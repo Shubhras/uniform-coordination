@@ -426,6 +426,59 @@
       "smtpFallbackNotice": "When SMTP Host is blank, emails use the server's environment configuration. Fill these in to manage sending from here instead. The password is stored write-only and is never shown again."
     }
   },
+  "savedSimulations": {
+    "pageTitle": "Simulaciones y Personalizaciones Guardadas",
+    "pageSubtitle": "Revise todas las configuraciones 3D de productos y diseños de temas guardados por usuarios registrados.",
+    "summaryCards": {
+      "totalSaved": "Total de Simulaciones Guardadas",
+      "productCustomizations": "Personalizaciones de Productos",
+      "themeCustomizations": "Personalizaciones de Temas"
+    },
+    "searchPlaceholder": "Buscar por nombre de cliente, correo o artículo...",
+    "tabs": {
+      "all": "Todos",
+      "products": "Productos",
+      "themes": "Temas"
+    },
+    "reset": "Restablecer",
+    "tableHeaders": {
+      "type": "Tipo",
+      "customer": "Cliente",
+      "itemCategory": "Artículo y Categoría",
+      "customSpecs": "Especificaciones Personalizadas",
+      "savedDate": "Fecha de Guardado",
+      "action": "Acción"
+    },
+    "loading": "Cargando simulaciones guardadas...",
+    "typeProduct": "Producto",
+    "typeTheme": "Tema",
+    "guestUser": "Usuario Invitado",
+    "categoryLabel": "Categoría",
+    "viewDetails": "Ver Detalles",
+    "emptyState": {
+      "title": "No se encontraron simulaciones guardadas",
+      "subtitle": "Intente borrar los filtros o términos de búsqueda."
+    },
+    "specs": {
+      "color": "Color",
+      "fabric": "Tela",
+      "shape": "Forma",
+      "size": "Tamaño",
+      "seating": "Asientos",
+      "defaultConfig": "Configuración predeterminada",
+      "moreCount": "+{count} más"
+    },
+    "modal": {
+      "savedSimulationNumber": "Simulación Guardada #{id}",
+      "customerDetails": "Detalles del Cliente",
+      "noEmail": "Sin correo proporcionado",
+      "userId": "ID de Usuario",
+      "itemDetails": "Detalles del Artículo",
+      "savedDateLabel": "Guardado",
+      "designSpecs": "Especificaciones de Diseño",
+      "close": "Cerrar"
+    }
+  },
   "simulationAssets": {
     "tabLayers": "Orden de capas",
     "tabVisibility": "Visibilidad de productos",
@@ -578,6 +631,26 @@
       "b2bUsers": "B2B Users",
       "upFromYesterday": "Up from yesterday",
       "downFromYesterday": "Down from yesterday"
+    },
+    "recentOrders": {
+      "recentOrders": "Pedidos Recientes (Hoy)",
+      "todayBadge": "{count} Hoy",
+      "subtitle": "Pedidos realizados por clientes hoy",
+      "viewAll": "Ver todos",
+      "orderId": "ID de Pedido",
+      "customer": "Cliente",
+      "dateTime": "Fecha y Hora",
+      "amount": "Monto",
+      "status": "Estado",
+      "action": "Acción",
+      "defaultCustomer": "Cliente",
+      "statusCompleted": "Completado",
+      "statusRented": "Alquilado",
+      "statusPending": "Pendiente",
+      "statusCancelled": "Cancelado",
+      "statusFailed": "Fallido",
+      "details": "Detalles",
+      "noOrdersToday": "Aún no se han recibido pedidos hoy."
     },
     "quoteStatus": {
       "quoteStatusDistribution": "Quote Status Distribution",

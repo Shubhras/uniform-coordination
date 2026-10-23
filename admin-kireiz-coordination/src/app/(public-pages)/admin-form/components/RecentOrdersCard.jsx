@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FiShoppingBag, FiClock, FiArrowRight } from "react-icons/fi";
+import { useTranslations } from "next-intl";
 
 const getStatusBadge = (status, isPaid) => {
   const s = status?.toLowerCase();
@@ -18,31 +19,51 @@ const getStatusBadge = (status, isPaid) => {
 };
 
 const RecentOrdersCard = ({ data }) => {
+  const t = useTranslations("dashboard.recentOrders");
   const recentOrders = data?.Recent_Orders_Today || [];
   const todayCount = data?.Today_Orders_Count ?? recentOrders.length;
+
+  const getStatusLabel = (status) => {
+    if (!status) return "";
+    const s = status.toLowerCase();
+    switch (s) {
+      case "completed":
+        return t("statusCompleted");
+      case "rented":
+        return t("statusRented");
+      case "pending":
+        return t("statusPending");
+      case "cancelled":
+        return t("statusCancelled");
+      case "failed":
+        return t("statusFailed");
+      default:
+        return status;
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl border border-[#ececec] shadow-md p-6">
       <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 bg-[#FAF6F4] text-[#B66636] rounded-lg border border-[#F0E4DE]">
+          <div className="p-2 bg-[#F4F7FC] text-[#1C2C56] rounded-lg border border-[#F0E4DE]">
             <FiShoppingBag size={18} />
           </div>
           <div>
-            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-              Recent Orders (Today)
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#B66636]/10 text-[#B66636]">
-                {todayCount} Today
+            <h3 className="text-[#1C2C56] font-semibold text-base flex items-center gap-2">
+              {t("recentOrders")}
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#F4F7FC] text-[#1C2C56]">
+                {t("todayBadge", { count: todayCount })}
               </span>
             </h3>
-            <p className="text-xs text-gray-500">Orders placed by customers today</p>
+            <p className="text-xs text-gray-500">{t("subtitle")}</p>
           </div>
         </div>
         <Link
           href="/quotation-requests"
-          className="text-xs font-medium text-[#B66636] hover:underline flex items-center gap-1"
+          className="text-xs font-medium text-[#1C2C56] hover:underline flex items-center gap-1"
         >
-          View All <FiArrowRight size={12} />
+          {t("viewAll")} <FiArrowRight size={12} />
         </Link>
       </div>
 
@@ -51,12 +72,12 @@ const RecentOrdersCard = ({ data }) => {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50/50">
-                <th className="py-2.5 px-3 rounded-l-lg">Order ID</th>
-                <th className="py-2.5 px-3">Customer</th>
-                <th className="py-2.5 px-3">Date & Time</th>
-                <th className="py-2.5 px-3">Amount</th>
-                <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3 text-right rounded-r-lg">Action</th>
+                <th className="py-2.5 px-3 rounded-l-lg">{t("orderId")}</th>
+                <th className="py-2.5 px-3">{t("customer")}</th>
+                <th className="py-2.5 px-3">{t("dateTime")}</th>
+                <th className="py-2.5 px-3">{t("amount")}</th>
+                <th className="py-2.5 px-3">{t("status")}</th>
+                <th className="py-2.5 px-3 text-right rounded-r-lg">{t("action")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-gray-700">
@@ -66,7 +87,7 @@ const RecentOrdersCard = ({ data }) => {
                     {order.order_id}
                   </td>
                   <td className="py-3 px-3">
-                    <div className="font-medium text-gray-900">{order.customer_name || "Customer"}</div>
+                    <div className="font-medium text-gray-900">{order.customer_name || t("defaultCustomer")}</div>
                     {order.customer_email && (
                       <div className="text-xs text-gray-400">{order.customer_email}</div>
                     )}
@@ -82,7 +103,7 @@ const RecentOrdersCard = ({ data }) => {
                   </td>
                   <td className="py-3 px-3">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusBadge(order.status, order.is_paid)}`}>
-                      {order.status}
+                      {getStatusLabel(order.status)}
                     </span>
                   </td>
                   <td className="py-3 px-3 text-right">
@@ -90,7 +111,7 @@ const RecentOrdersCard = ({ data }) => {
                       href="/quotation-requests"
                       className="text-xs font-medium text-[#B66636] hover:text-[#9E5328] hover:underline"
                     >
-                      Details
+                      {t("details")}
                     </Link>
                   </td>
                 </tr>
@@ -101,7 +122,7 @@ const RecentOrdersCard = ({ data }) => {
       ) : (
         <div className="py-8 text-center text-gray-400 text-sm">
           <FiShoppingBag size={28} className="mx-auto mb-2 opacity-50" />
-          No orders received today yet.
+          {t("noOrdersToday")}
         </div>
       )}
     </div>

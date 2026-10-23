@@ -548,6 +548,7 @@
     "pricingQuotation": "価格設定と見積",
     "customerSalesRepresentative": "顧客と営業担当",
     "pdfSimulationConfiguration": "PDFとシミュレーション設定",
+    "savedSimulations": "保存済みシミュレーション",
     "simulationAssets": "シミュレーション素材",
     "reportsAnalytics": "レポートと分析",
     "systemSettings": "システム設定",
@@ -569,7 +570,30 @@
       "totalTemplates": "テンプレート総数",
       "b2bUsers": "B2Bユーザー",
       "upFromYesterday": "昨日より増加",
-      "downFromYesterday": "昨日より減少"
+      "downFromYesterday": "昨日より減少",
+      "adminUsers": "管理者ユーザー",
+      "active": "有効",
+      "inactive": "無効"
+    },
+    "recentOrders": {
+      "recentOrders": "最近の注文（本日）",
+      "todayBadge": "本日 {count}件",
+      "subtitle": "本日顧客から受け付けた注文",
+      "viewAll": "すべて表示",
+      "orderId": "注文ID",
+      "customer": "顧客",
+      "dateTime": "日時",
+      "amount": "金額",
+      "status": "ステータス",
+      "action": "操作",
+      "defaultCustomer": "顧客",
+      "statusCompleted": "完了",
+      "statusRented": "レンタル中",
+      "statusPending": "保留中",
+      "statusCancelled": "キャンセル済み",
+      "statusFailed": "失敗",
+      "details": "詳細",
+      "noOrdersToday": "本日はまだ注文が届いていません。"
     },
     "quoteStatus": {
       "quoteStatusDistribution": "見積ステータスの内訳",
@@ -1740,6 +1764,59 @@
       "saveExportPreset": "エクスポート設定を保存",
       "cancel": "キャンセル",
       "saveChanges": "変更を保存"
+    }
+  },
+  "savedSimulations": {
+    "pageTitle": "保存済みシミュレーション＆カスタマイズ",
+    "pageSubtitle": "登録ユーザーが保存した製品の3D設定やテーマデザインを確認します。",
+    "summaryCards": {
+      "totalSaved": "保存済みシミュレーション総数",
+      "productCustomizations": "製品カスタマイズ",
+      "themeCustomizations": "テーマカスタマイズ"
+    },
+    "searchPlaceholder": "顧客名、メールアドレス、またはアイテム名で検索...",
+    "tabs": {
+      "all": "すべて",
+      "products": "製品",
+      "themes": "テーマ"
+    },
+    "reset": "リセット",
+    "tableHeaders": {
+      "type": "タイプ",
+      "customer": "顧客",
+      "itemCategory": "アイテム・カテゴリー",
+      "customSpecs": "カスタム仕様",
+      "savedDate": "保存日",
+      "action": "操作"
+    },
+    "loading": "保存済みシミュレーションを読み込み中...",
+    "typeProduct": "製品",
+    "typeTheme": "テーマ",
+    "guestUser": "ゲストユーザー",
+    "categoryLabel": "カテゴリー",
+    "viewDetails": "詳細を見る",
+    "emptyState": {
+      "title": "保存済みシミュレーションが見つかりません",
+      "subtitle": "フィルターまたは検索条件をクリアしてみてください。"
+    },
+    "specs": {
+      "color": "色",
+      "fabric": "生地",
+      "shape": "形状",
+      "size": "サイズ",
+      "seating": "座席",
+      "defaultConfig": "デフォルト設定",
+      "moreCount": "+{count} 件"
+    },
+    "modal": {
+      "savedSimulationNumber": "保存済みシミュレーション #{id}",
+      "customerDetails": "顧客詳細",
+      "noEmail": "メールアドレス未登録",
+      "userId": "ユーザーID",
+      "itemDetails": "アイテム詳細",
+      "savedDateLabel": "保存日",
+      "designSpecs": "デザイン仕様",
+      "close": "閉じる"
     }
   },
   "simulationAssets": {

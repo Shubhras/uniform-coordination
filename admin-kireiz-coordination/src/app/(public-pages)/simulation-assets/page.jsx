@@ -35,11 +35,10 @@ export default function Page() {
               key={key}
               type="button"
               onClick={() => setActiveTab(key)}
-              className={`pb-3 text-base font-medium flex items-center gap-2 whitespace-nowrap ${
-                activeTab === key
-                  ? "text-[#1C2C56] border-b-4 border-[#1C2C56]"
-                  : "text-[#64748B]"
-              }`}
+              className={`pb-3 text-base font-medium flex items-center gap-2 whitespace-nowrap ${activeTab === key
+                ? "text-[#1C2C56] border-b-4 border-[#1C2C56]"
+                : "text-[#64748B]"
+                }`}
             >
               <Icon size={16} />
               {t(labelKey)}
@@ -48,7 +47,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="px-5 md:px-8 lg:px-12 pb-8 bg-white min-h-screen">
+      <div className="px-5 md:px-8 lg:px-12 py-8 bg-white min-h-screen">
         {activeTab === "structure" && <SimulationStructure />}
         {activeTab === "visibility" && <ProductVisibility />}
       </div>

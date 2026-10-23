@@ -570,7 +570,30 @@
       "totalTemplates": "Total Templates",
       "b2bUsers": "B2B Users",
       "upFromYesterday": "Up from yesterday",
-      "downFromYesterday": "Down from yesterday"
+      "downFromYesterday": "Down from yesterday",
+      "adminUsers": "Admin Users",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "recentOrders": {
+      "recentOrders": "Recent Orders (Today)",
+      "todayBadge": "{count} Today",
+      "subtitle": "Orders placed by customers today",
+      "viewAll": "View All",
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "dateTime": "Date & Time",
+      "amount": "Amount",
+      "status": "Status",
+      "action": "Action",
+      "defaultCustomer": "Customer",
+      "statusCompleted": "Completed",
+      "statusRented": "Rented",
+      "statusPending": "Pending",
+      "statusCancelled": "Cancelled",
+      "statusFailed": "Failed",
+      "details": "Details",
+      "noOrdersToday": "No orders received today yet."
     },
     "quoteStatus": {
       "quoteStatusDistribution": "Quote Status Distribution",
@@ -1750,6 +1773,59 @@
       "saveExportPreset": "Save Export Preset",
       "cancel": "Cancel",
       "saveChanges": "Save Changes"
+    }
+  },
+  "savedSimulations": {
+    "pageTitle": "Saved Simulations & Customizations",
+    "pageSubtitle": "Review all product 3D configurations and theme designs saved by registered users.",
+    "summaryCards": {
+      "totalSaved": "Total Saved Simulations",
+      "productCustomizations": "Product Customizations",
+      "themeCustomizations": "Theme Customizations"
+    },
+    "searchPlaceholder": "Search by customer name, email, or item...",
+    "tabs": {
+      "all": "All",
+      "products": "Products",
+      "themes": "Themes"
+    },
+    "reset": "Reset",
+    "tableHeaders": {
+      "type": "Type",
+      "customer": "Customer",
+      "itemCategory": "Item & Category",
+      "customSpecs": "Custom Specifications",
+      "savedDate": "Saved Date",
+      "action": "Action"
+    },
+    "loading": "Loading saved simulations...",
+    "typeProduct": "Product",
+    "typeTheme": "Theme",
+    "guestUser": "Guest User",
+    "categoryLabel": "Category",
+    "viewDetails": "View Details",
+    "emptyState": {
+      "title": "No saved simulations found",
+      "subtitle": "Try clearing filters or search terms."
+    },
+    "specs": {
+      "color": "Color",
+      "fabric": "Fabric",
+      "shape": "Shape",
+      "size": "Size",
+      "seating": "Seating",
+      "defaultConfig": "Default configuration",
+      "moreCount": "+{count} more"
+    },
+    "modal": {
+      "savedSimulationNumber": "Saved Simulation #{id}",
+      "customerDetails": "Customer Details",
+      "noEmail": "No email provided",
+      "userId": "User ID",
+      "itemDetails": "Item Details",
+      "savedDateLabel": "Saved",
+      "designSpecs": "Design Specifications",
+      "close": "Close"
     }
   },
   "simulationAssets": {

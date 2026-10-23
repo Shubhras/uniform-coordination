@@ -330,6 +330,59 @@
       "errorTitle": "Error"
     }
   },
+  "savedSimulations": {
+    "pageTitle": "已保存的模拟与定制",
+    "pageSubtitle": "查看注册用户保存的所有产品3D配置和主题设计。",
+    "summaryCards": {
+      "totalSaved": "已保存模拟总数",
+      "productCustomizations": "产品定制",
+      "themeCustomizations": "主题定制"
+    },
+    "searchPlaceholder": "按客户名称、邮箱或物品搜索...",
+    "tabs": {
+      "all": "全部",
+      "products": "产品",
+      "themes": "主题"
+    },
+    "reset": "重置",
+    "tableHeaders": {
+      "type": "类型",
+      "customer": "客户",
+      "itemCategory": "物品与类别",
+      "customSpecs": "自定义规格",
+      "savedDate": "保存日期",
+      "action": "操作"
+    },
+    "loading": "正在加载已保存的模拟...",
+    "typeProduct": "产品",
+    "typeTheme": "主题",
+    "guestUser": "访客用户",
+    "categoryLabel": "类别",
+    "viewDetails": "查看详情",
+    "emptyState": {
+      "title": "未找到已保存的模拟",
+      "subtitle": "请尝试清除筛选条件或搜索关键词。"
+    },
+    "specs": {
+      "color": "颜色",
+      "fabric": "面料",
+      "shape": "形状",
+      "size": "尺寸",
+      "seating": "座位",
+      "defaultConfig": "默认配置",
+      "moreCount": "+{count} 更多"
+    },
+    "modal": {
+      "savedSimulationNumber": "已保存模拟 #{id}",
+      "customerDetails": "客户详情",
+      "noEmail": "未提供邮箱",
+      "userId": "用户ID",
+      "itemDetails": "物品详情",
+      "savedDateLabel": "保存于",
+      "designSpecs": "设计规格",
+      "close": "关闭"
+    }
+  },
   "simulationAssets": {
     "tabLayers": "图层顺序",
     "tabVisibility": "产品可见性",
@@ -493,6 +546,26 @@
       "b2bUsers": "B2B Users",
       "upFromYesterday": "Up from yesterday",
       "downFromYesterday": "Down from yesterday"
+    },
+    "recentOrders": {
+      "recentOrders": "近期订单（今日）",
+      "todayBadge": "今日 {count} 笔",
+      "subtitle": "今日客户提交的订单",
+      "viewAll": "查看全部",
+      "orderId": "订单编号",
+      "customer": "客户",
+      "dateTime": "日期与时间",
+      "amount": "金额",
+      "status": "状态",
+      "action": "操作",
+      "defaultCustomer": "客户",
+      "statusCompleted": "已完成",
+      "statusRented": "已租用",
+      "statusPending": "待处理",
+      "statusCancelled": "已取消",
+      "statusFailed": "失败",
+      "details": "详情",
+      "noOrdersToday": "今日暂未收到订单。"
     },
     "quoteStatus": {
       "quoteStatusDistribution": "Quote Status Distribution",
