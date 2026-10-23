@@ -13,6 +13,7 @@ import QuoteRequestPopup from './QuoteRequestPopup'
 import { apiCreateQuotationRequest } from '@/services/QuotationRequestService'
 import { apiGetModalInfo } from '@/services/SaveDesignService'
 import { useSession } from 'next-auth/react'
+import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import { useParams } from 'next/navigation'
 /**
  * Zod validation schema for the delivery/quotation request form.
@@ -74,7 +75,10 @@ const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"]
 
 const DeliveryRequestForm = () => {
     const [quoteData, setQuoteData] = useState(null)
-    const { data: session } = useSession()
+    const { data: nextAuthSession } = useSession()
+    const { session: currentSession } = useCurrentSession()
+    const session = currentSession?.user?.accessToken ? currentSession : (nextAuthSession || currentSession)
+    const token = session?.user?.accessToken || session?.accessToken
     const [dialogTermsOpen, setDialogTermsOpen] = useState(false)
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -116,11 +120,11 @@ const DeliveryRequestForm = () => {
         let cancelled = false
 
         const prefill = async () => {
-            if (!id || !session?.accessToken) return
+            if (!id || !token) return
 
             let design = null
             try {
-                const res = await apiGetModalInfo(id, session.accessToken)
+                const res = await apiGetModalInfo(id, token)
                 design = res?.data || (res?.status ? res : null)
             } catch (err) {
                 // A failed lookup just means no prefill — the form still works.
@@ -132,7 +136,7 @@ const DeliveryRequestForm = () => {
 
             reset((prev) => ({
                 ...prev,
-                contact_person: prev.contact_person || session?.user?.name || "",
+                contact_person: prev.contact_person || session?.user?.name || session?.user?.firstName || "",
                 email: prev.email || session?.user?.email || "",
                 item_type: prev.item_type || design?.productName || "",
                 material: prev.material || config.fabric || "",
@@ -144,7 +148,7 @@ const DeliveryRequestForm = () => {
         return () => {
             cancelled = true
         }
-    }, [id, session?.accessToken, session?.user?.name, session?.user?.email, reset])
+    }, [id, token, session?.user?.name, session?.user?.firstName, session?.user?.email, reset])
     /**
         * Handles form submission. Builds the payload, checks for a valid
         * session, calls the create quotation request API, and opens the
@@ -159,12 +163,12 @@ const DeliveryRequestForm = () => {
             customupdatemodel_id: id,
         }
         try {
-            if (!session?.accessToken) {
+            if (!token) {
                 alert("Please login first!")
                 return
             }
             setIsSubmitting(true)
-            const response = await apiCreateQuotationRequest(payload, session.accessToken)
+            const response = await apiCreateQuotationRequest(payload, token)
             setQuoteData(response.data)
             setDialogQuoteRequestOpen(true)
         } catch (error) {

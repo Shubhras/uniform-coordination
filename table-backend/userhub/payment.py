@@ -546,6 +546,13 @@ class CreatePaymentAPIView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
 
         except stripe.error.CardError as e:
+            try:
+                if 'payment' in locals() and payment:
+                    payment.payment_status = "failed"
+                    payment.save(update_fields=["payment_status"])
+                    send_payment_failed_email(request.user, payment)
+            except Exception:
+                pass
             return Response({
                 "status": False,
                 "statusCode": 402,

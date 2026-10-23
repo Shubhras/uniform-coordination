@@ -185,12 +185,8 @@ STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# SITE_DOMAIN = "http://table.172.237.71.124.sslip.io"
-SITE_DOMAIN = "https://table-admin.dxtspace.com"
-
-# SITE_URL = "http://table.172.237.71.124.sslip.io"
-
-SITE_URL = "https://table-admin.dxtspace.com"
+SITE_DOMAIN = config("SITE_DOMAIN", default="http://table.172.237.71.124.sslip.io")
+SITE_URL = config("SITE_URL", default="http://table.172.237.71.124.sslip.io")
 
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
@@ -277,6 +273,9 @@ EMAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "True") == "True"
 
 EMAIL_HOST_USER = os.getenv("MAIL_USERNAME")
 EMAIL_HOST_PASSWORD = os.getenv("MAIL_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("MAIL_FROM_ADDRESS") or os.getenv("MAIL_USERNAME")
+EMAIL_FROM_ADDRESS = os.getenv("MAIL_FROM_ADDRESS") or os.getenv("MAIL_USERNAME")
+EMAIL_FROM_NAME = os.getenv("MAIL_FROM_NAME", "KIREIZ SPACE")
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=30),

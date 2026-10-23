@@ -559,6 +559,13 @@ class AdminGetOrCreateLateFeeInvoiceAPIView(APIView):
                     rental.total_amount = float(rental.total_amount or 0) + float(total_late_fee)
                     rental.save()
 
+                from userhub.utils import send_late_fee_email
+                try:
+                    target_user = getattr(order, 'user', None) or (getattr(order.customer, 'user', None) if getattr(order, 'customer', None) else None)
+                    send_late_fee_email(target_user, invoice, fee_amount=total_late_fee)
+                except Exception:
+                    pass
+
             serializer = LateFeeInvoiceSerializer(invoice)
             return Response({
                 "status": True,

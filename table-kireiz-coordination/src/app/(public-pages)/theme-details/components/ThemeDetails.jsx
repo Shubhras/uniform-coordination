@@ -3,10 +3,14 @@
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { AiOutlineExpand } from 'react-icons/ai'
 import { CiCircleInfo } from 'react-icons/ci'
-import { FiBox, FiChevronDown, FiChevronLeft } from 'react-icons/fi'
+import { FiBox, FiChevronDown, FiChevronLeft, FiShoppingCart } from 'react-icons/fi'
 import { apiGetSindleThemeDetails } from '@/services/HomeService'
+import { apiAddThemeToCart } from '@/services/CartSummaryService'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
 
 /**
  * ThemeDetails Component
@@ -16,10 +20,12 @@ import { apiGetSindleThemeDetails } from '@/services/HomeService'
 const ThemeDetails = () => {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { data: session } = useSession()
     const scrollRef = useRef(null)
     const [activeIndex, setActiveIndex] = useState(0)
     const [open, setOpen] = useState(false)
     const [openSections, setOpenSections] = useState([0])
+    const [orderingTheme, setOrderingTheme] = useState(false)
     const [theme, setTheme] = useState({
         title: 'Loading Theme...',
         description: 'Please wait while we load the theme details.',
@@ -135,8 +141,53 @@ const ThemeDetails = () => {
      */
     const handleCustomizeClick = () => {
         const targetId = theme.id || selectedThemeId;
-        router.push(`/dashboards/uniform-3d-design?themeId=${targetId}`,)
-        ///router.push(`/dashboards/uniform-3d-design?themeId=${targetId}&id=${targetId}`,)
+        router.push(`/dashboards/uniform-3d-design?themeId=${targetId}`)
+    }
+
+    /**
+     * Adds all theme items to cart with one click (SU-014).
+     */
+    const handleOrderThisTheme = async () => {
+        const token = session?.accessToken || session?.user?.accessToken;
+        if (!token) {
+            toast.push(
+                <Notification title="Authentication Required" type="warning">
+                    Please sign in to order this theme.
+                </Notification>
+            );
+            router.push(`/sign-in?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+            return;
+        }
+
+        try {
+            setOrderingTheme(true);
+            const targetThemeId = theme.id || selectedThemeId;
+            const res = await apiAddThemeToCart(token, targetThemeId);
+
+            if (res?.status || res?.statusCode === 200 || res?.statusCode === 201) {
+                toast.push(
+                    <Notification title="Theme Added to Cart!" type="success">
+                        All items from {theme.title || "this theme"} added to your cart.
+                    </Notification>
+                );
+                router.push('/cart-summary');
+            } else {
+                toast.push(
+                    <Notification title="Error" type="danger">
+                        {res?.message || "Could not add theme items to cart"}
+                    </Notification>
+                );
+            }
+        } catch (err) {
+            console.error("Failed to order theme:", err);
+            toast.push(
+                <Notification title="Error" type="danger">
+                    {err?.response?.data?.message || "Failed to order theme items"}
+                </Notification>
+            );
+        } finally {
+            setOrderingTheme(false);
+        }
     }
 
     useEffect(() => {
@@ -170,15 +221,34 @@ const ThemeDetails = () => {
                     <button
                         type="button"
                         onClick={() => router.push('/browse-by-theme')}
-                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white"
+                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-4 py-2 rounded-md bg-[#D4A6A6] hover:bg-[#c49292] transition-colors border border-white text-white cursor-pointer"
                     >
                         Back to Theme
                     </button>
 
                     <button
                         type="button"
+                        disabled={orderingTheme}
+                        onClick={handleOrderThisTheme}
+                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-5 py-2 rounded-md bg-[#7B3C1D] hover:bg-[#602D15] transition-colors text-white shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+                    >
+                        {orderingTheme ? (
+                            <>
+                                <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                                <span>Adding to Cart...</span>
+                            </>
+                        ) : (
+                            <>
+                                <FiShoppingCart size={18} />
+                                <span>Order This Theme</span>
+                            </>
+                        )}
+                    </button>
+
+                    <button
+                        type="button"
                         onClick={handleCustomizeClick}
-                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-4 py-2 rounded-md bg-[#D4A6A6] border border-white text-white"
+                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-4 py-2 rounded-md bg-[#A0614D] hover:bg-[#8B4513] transition-colors border border-white text-white cursor-pointer"
                     >
                         Customize in Canva
                     </button>
@@ -334,7 +404,26 @@ const ThemeDetails = () => {
                             {theme.priceLabel}
                         </h5>
 
-                        <div className="bg-[#FBF9F7] p-4 text-xs text-gray-600 flex gap-2 font-medium">
+                        <button
+                            type="button"
+                            disabled={orderingTheme}
+                            onClick={handleOrderThisTheme}
+                            className="w-full bg-[#7B3C1D] hover:bg-[#602D15] transition-colors text-white py-2.5 px-4 rounded-md text-sm font-medium shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+                        >
+                            {orderingTheme ? (
+                                <>
+                                    <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                                    <span>Adding to Cart...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <FiShoppingCart size={18} />
+                                    <span>Order This Theme</span>
+                                </>
+                            )}
+                        </button>
+
+                        <div className="bg-[#FBF9F7] p-4 text-xs text-gray-600 flex gap-2 font-medium rounded-md">
                             <span className="text-[#7B3C1D]">
                                 <CiCircleInfo size={18} />
                             </span>

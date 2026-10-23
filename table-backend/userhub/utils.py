@@ -1209,21 +1209,42 @@ def send_admin_quotation_email(quotation):
 
 
 def send_dynamic_email(subject, message, recipient_list, from_email=None):
-    from django.core.mail import get_connection, EmailMessage
-    from uniformAdmin.models import SystemSettings
+    from django.core.mail import get_connection, EmailMessage, send_mail
     import logging
     logger = logging.getLogger(__name__)
 
     try:
-        settings_obj = SystemSettings.load()
-        host = settings_obj.email_host
-        port = settings_obj.email_port
-        username = settings_obj.email_username
-        password = settings_obj.email_password
-        use_tls = settings_obj.email_use_tls
+        host = getattr(settings, "EMAIL_HOST", None)
+        port = getattr(settings, "EMAIL_PORT", 587)
+        username = getattr(settings, "EMAIL_HOST_USER", None)
+        password = getattr(settings, "EMAIL_HOST_PASSWORD", None)
+        use_tls = getattr(settings, "EMAIL_USE_TLS", True)
+        from_addr = from_email or getattr(settings, "EMAIL_FROM_ADDRESS", getattr(settings, "EMAIL_HOST_USER", ""))
+        from_name = getattr(settings, "EMAIL_FROM_NAME", "KIREIZ SPACE")
 
-        from_addr = settings_obj.email_from_address or from_email or settings.EMAIL_HOST_USER
-        from_name = settings_obj.email_from_name or "System"
+        try:
+            from uniformAdmin.models import SystemSettings
+            settings_obj = SystemSettings.load()
+            if settings_obj:
+                if settings_obj.email_host:
+                    host = settings_obj.email_host
+                if settings_obj.email_port:
+                    port = settings_obj.email_port
+                if settings_obj.email_username:
+                    username = settings_obj.email_username
+                if settings_obj.email_password:
+                    password = settings_obj.email_password
+                if settings_obj.email_use_tls is not None:
+                    use_tls = settings_obj.email_use_tls
+                if settings_obj.email_from_address:
+                    from_addr = settings_obj.email_from_address
+                if settings_obj.email_from_name:
+                    from_name = settings_obj.email_from_name
+        except Exception as load_err:
+            logger.warning(f"Could not load SystemSettings for dynamic email: {load_err}")
+
+        if not from_addr:
+            from_addr = username or "noreply@kireiz.com"
         from_header = f"{from_name} <{from_addr}>"
 
         if host and username and password:
@@ -1245,11 +1266,10 @@ def send_dynamic_email(subject, message, recipient_list, from_email=None):
             email.send(fail_silently=False)
             logger.info(f"Dynamically sent email to {recipient_list} via custom SMTP ({host})")
         else:
-            from django.core.mail import send_mail
             send_mail(
                 subject=subject,
                 message=message,
-                from_email=from_addr,
+                from_email=from_header,
                 recipient_list=recipient_list,
                 fail_silently=False
             )
@@ -1341,80 +1361,159 @@ def send_order_confirmation_email(user, order, start_date, end_date, total_amoun
         create_admin_notification(
             instance=order,
             title="New Order Placed",
-            message=f"Order #{order.order_id} placed by {user.email}. Total: ${total_amount}",
+            message=f"Order #{order.order_id} placed by {getattr(user, 'email', 'user')}. Total: ${total_amount}",
             priority="high"
         )
     except Exception:
         pass
 
-    settings_obj = SystemSettings.load()
-    if not settings_obj.email_notify_order_placed:
-        return
+    try:
+        settings_obj = SystemSettings.load()
+        if settings_obj and not settings_obj.email_notify_order_placed:
+            return
+    except Exception:
+        pass
 
-    send_dynamic_email(
-        subject="Order Confirmation",
-        message=f"""
-Hello {user.userName},
+    user_name = getattr(user, 'firstName', None) or getattr(user, 'userName', None) or (user.email.split('@')[0] if getattr(user, 'email', None) else "Valued Customer")
+    recipient_email = getattr(user, 'email', None)
+    if not recipient_email and hasattr(order, 'customer') and getattr(order.customer, 'email', None):
+        recipient_email = order.customer.email
 
-Your order has been placed successfully 
+    if recipient_email:
+        send_dynamic_email(
+            subject=f"Order Confirmation - #{order.order_id} - KIREIZ SPACE",
+            message=f"""
+Hello {user_name},
 
+Thank you for choosing KIREIZ SPACE! Your order has been placed successfully.
+
+Order Details:
+--------------
 Order ID: {order.order_id}
 Rental Period: {start_date} to {end_date}
 Total Amount: ${total_amount}
 
-Thank You,
-UserHub Team
+You can view your order status and manage your rentals at any time from your account dashboard:
+https://table.172.237.71.124.sslip.io/profile/my-order-rentals
+
+Best Regards,
+KIREIZ SPACE Team
 """,
-        recipient_list=[user.email],
-    )
+            recipient_list=[recipient_email],
+        )
+
+def send_order_cancellation_email(user, order, reason=""):
+    from uniformAdmin.models import SystemSettings
+    from uniformAdmin.utils import create_admin_notification
+    try:
+        create_user_notification(
+            user=user,
+            title="Order Cancelled",
+            message=f"Your order #{order.order_id} has been cancelled. Reason: {reason or 'Customer request'}",
+            notification_type="order",
+            order=order
+        )
+        create_admin_notification(
+            instance=order,
+            title="Order Cancelled",
+            message=f"Order #{order.order_id} cancelled for {getattr(user, 'email', 'user')}. Reason: {reason or 'N/A'}",
+            priority="medium"
+        )
+    except Exception:
+        pass
+
+    user_name = getattr(user, 'firstName', None) or getattr(user, 'userName', None) or (user.email.split('@')[0] if getattr(user, 'email', None) else "Valued Customer")
+    recipient_email = getattr(user, 'email', None)
+    if not recipient_email and hasattr(order, 'customer') and getattr(order.customer, 'email', None):
+        recipient_email = order.customer.email
+    if not recipient_email and hasattr(order, 'user') and getattr(order.user, 'email', None):
+        recipient_email = order.user.email
+
+    if recipient_email:
+        send_dynamic_email(
+            subject=f"Order Cancellation Notice - #{order.order_id} - KIREIZ SPACE",
+            message=f"""
+Dear {user_name},
+
+Your order #{order.order_id} has been cancelled successfully.
+
+Cancellation Details:
+---------------------
+Order ID: {order.order_id}
+Status: Cancelled
+Reason: {reason or 'Requested by customer'}
+
+If your cancellation complies with our 5-day cancellation cutoff policy, any applicable payments will be refunded to your original payment method.
+If you did not request this cancellation or have questions, please reach out to our support team.
+
+Best Regards,
+KIREIZ SPACE Team
+""",
+            recipient_list=[recipient_email],
+        )
 
 def send_payment_success_email(user, payment, currency_symbol="$"):
     from uniformAdmin.models import SystemSettings
     from uniformAdmin.utils import create_admin_notification
     try:
         order_id = payment.order.order_id if hasattr(payment, 'order') and payment.order else '-'
-        create_user_notification(
-            user=user,
-            title="Payment Successful",
-            message=f"Payment of {currency_symbol}{payment.amount} for order {order_id} was successful.",
-            notification_type="payment",
-            order=getattr(payment, 'order', None)
-        )
+        target_user = user or (getattr(payment, 'order', None) and getattr(payment.order, 'user', None))
+        if target_user:
+            create_user_notification(
+                user=target_user,
+                title="Payment Successful",
+                message=f"Payment of {currency_symbol}{payment.amount} for order {order_id} was successful.",
+                notification_type="payment",
+                order=getattr(payment, 'order', None)
+            )
         create_admin_notification(
             instance=payment,
             title="Payment Received",
-            message=f"Payment {payment.id} of {currency_symbol}{payment.amount} received from {user.email} (Order: {order_id}).",
+            message=f"Payment {payment.id} of {currency_symbol}{payment.amount} received (Order: {order_id}).",
             priority="medium"
         )
     except Exception:
         pass
 
-    settings_obj = SystemSettings.load()
-    if not settings_obj.email_notify_payment_success:
-        return
+    try:
+        settings_obj = SystemSettings.load()
+        if settings_obj and not settings_obj.email_notify_payment_success:
+            return
+    except Exception:
+        pass
 
-    send_dynamic_email(
-        subject="Payment Successful - KIREIZ SPACE",
-        message=f"""
-Dear {user.firstName if user.lastName else "User"},
+    recipient_email = getattr(user, 'email', None)
+    if not recipient_email and hasattr(payment, 'order') and payment.order:
+        recipient_email = getattr(payment.order.user, 'email', None) or (
+            getattr(payment.order.customer.user, 'email', None) if getattr(payment.order, 'customer', None) else None
+        )
 
-Thank you for your payment. We have successfully received your transaction.
+    user_name = getattr(user, 'firstName', None) or getattr(user, 'userName', None) or (recipient_email.split('@')[0] if recipient_email else "Valued Customer")
 
-Payment Details:
-----------------
+    if recipient_email:
+        send_dynamic_email(
+            subject=f"Payment Receipt - Order #{getattr(payment.order, 'order_id', payment.id)} - KIREIZ SPACE",
+            message=f"""
+Dear {user_name},
+
+Thank you for your payment. We have successfully processed your transaction.
+
+Payment Receipt Details:
+------------------------
 Payment ID: {payment.id}
 Order ID: {payment.order.order_id if hasattr(payment, 'order') and payment.order else '-'}
-Amount: {currency_symbol}{payment.amount}
-Date: {payment.paid_at.strftime('%Y-%m-%d %H:%M') if payment.paid_at else 'N/A'}
+Amount Paid: {currency_symbol}{payment.amount}
+Payment Method: {getattr(payment, 'payment_method', 'Online Payment')}
+Date: {payment.paid_at.strftime('%Y-%m-%d %H:%M') if getattr(payment, 'paid_at', None) else 'N/A'}
 
-You can download your payment receipt from your dashboard.
+You can download your official receipt and track order status directly from your dashboard.
 If you have any questions, please contact our support team.
 
 Best Regards,
 KIREIZ SPACE Team
 """,
-        recipient_list=[user.email],
-    )
+            recipient_list=[recipient_email],
+        )
 
 def send_payment_failed_email(user, payment, currency_symbol="$"):
     from uniformAdmin.models import SystemSettings
@@ -1866,36 +1965,58 @@ def send_late_fee_email(user, invoice_or_order, fee_amount=0):
     from uniformAdmin.utils import create_admin_notification
     try:
         order_id = getattr(invoice_or_order, 'order_id', str(invoice_or_order))
-        create_user_notification(
-            user=user,
-            title="Late Fee Assessed",
-            message=f"A late fee of ${fee_amount} has been assessed for order #{order_id} due to overdue return items.",
-            notification_type="late_fee"
-        )
+        if user:
+            create_user_notification(
+                user=user,
+                title="Late Fee Assessed",
+                message=f"A late fee of ${fee_amount} has been assessed for order #{order_id} due to overdue return items.",
+                notification_type="late_fee"
+            )
         if hasattr(invoice_or_order, 'pk'):
             create_admin_notification(
                 instance=invoice_or_order,
                 title="Late Fee Charged",
-                message=f"Late fee of ${fee_amount} assessed for customer {user.email} (Order: {order_id}).",
+                message=f"Late fee of ${fee_amount} assessed for customer {getattr(user, 'email', 'user')} (Order: {order_id}).",
                 priority="medium"
             )
     except Exception:
         pass
 
-    send_dynamic_email(
-        subject="Late Fee Invoice Notice - KIREIZ SPACE",
-        message=f"""
-Dear {user.firstName if getattr(user, 'lastName', None) else "User"},
+    recipient_email = getattr(user, 'email', None)
+    if not recipient_email and hasattr(invoice_or_order, 'order') and invoice_or_order.order:
+        recipient_email = getattr(invoice_or_order.order.user, 'email', None) or (
+            getattr(invoice_or_order.order.customer.user, 'email', None) if getattr(invoice_or_order.order, 'customer', None) else None
+        )
+    if not recipient_email and hasattr(invoice_or_order, 'customer') and invoice_or_order.customer:
+        recipient_email = getattr(invoice_or_order.customer, 'email', None)
 
-A late fee of ${fee_amount} has been assessed due to overdue rental items.
+    user_name = getattr(user, 'firstName', None) or getattr(user, 'userName', None) or (recipient_email.split('@')[0] if recipient_email else "Valued Customer")
+    order_id = getattr(invoice_or_order, 'order_id', str(invoice_or_order))
 
-Please log in to your account dashboard to view details and clear outstanding charges.
+    if recipient_email:
+        send_dynamic_email(
+            subject=f"Late Fee Notice - Order #{order_id} - KIREIZ SPACE",
+            message=f"""
+Dear {user_name},
+
+A late fee of ${fee_amount} has been assessed for your order #{order_id} due to overdue rental items.
+
+Calculation Details:
+--------------------
+Order ID: #{order_id}
+Assessed Late Fee: ${fee_amount}
+Reason: Returned after agreed rental return schedule.
+
+Please log in to your account dashboard to view the full details and settle any outstanding amounts:
+https://table.172.237.71.124.sslip.io/profile/my-order-rentals
+
+If you have already returned the items or believe this notice is an error, please contact our support team.
 
 Best Regards,
 KIREIZ SPACE Team
 """,
-        recipient_list=[user.email],
-    )
+            recipient_list=[recipient_email],
+        )
 
 
 def send_lost_item_compensation_email(user, detail_msg=""):

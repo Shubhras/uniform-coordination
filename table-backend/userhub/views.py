@@ -1112,6 +1112,64 @@ class AddToCartAPIView(APIView):
     @transaction.atomic
     def post(self, request):
         try:
+            theme_id = request.data.get("theme_id")
+            if theme_id:
+                from uniformAdmin.models import TableTheme, ThemeItem
+                try:
+                    theme = TableTheme.objects.get(id=theme_id, isDeleted=False)
+                except TableTheme.DoesNotExist:
+                    return Response({
+                        "status": False,
+                        "statusCode": 404,
+                        "message": "Theme not found."
+                    }, status=status.HTTP_404_NOT_FOUND)
+
+                theme_items = ThemeItem.objects.filter(theme=theme).select_related('product')
+                if not theme_items.exists():
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "This theme has no products configured."
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+                cart, _ = Cart.objects.get_or_create(
+                    user=request.user,
+                    is_active=True,
+                )
+
+                added_items = []
+                for theme_item in theme_items:
+                    prod = theme_item.product
+                    if not prod or not prod.isActive:
+                        continue
+
+                    item, created = CartItem.objects.select_for_update().get_or_create(
+                        cart=cart,
+                        product=prod,
+                        defaults={"quantity": 0}
+                    )
+
+                    new_quantity = item.quantity + 1
+                    if prod.available_quantity and new_quantity > prod.available_quantity:
+                        new_quantity = max(prod.available_quantity, 1)
+
+                    item.quantity = new_quantity
+                    item.save()
+                    added_items.append(item)
+
+                serializer = CartItemSerializer(
+                    added_items,
+                    many=True,
+                    context={"request": request}
+                )
+
+                return Response({
+                    "status": True,
+                    "statusCode": 201,
+                    "message": f"All items from {theme.title} added to cart successfully.",
+                    "data": serializer.data
+                }, status=status.HTTP_201_CREATED)
+
             custom_theme_id = request.data.get("custom_theme_id")
             if custom_theme_id:
                 try:
@@ -2471,6 +2529,12 @@ class UserCancelOrderAPIView(APIView):
             from userhub.models import Rental
             Rental.objects.filter(order=order).delete()
 
+        from userhub.utils import send_order_cancellation_email
+        try:
+            send_order_cancellation_email(request.user, order, reason=reason)
+        except Exception:
+            pass
+
         return Response({
             "statusCode": 200,
             "status": True,
@@ -2633,6 +2697,14 @@ class ReturnOrderAPIView(APIView):
             order.status = "returned"
             order.is_returned = True
             order.save()
+
+            from userhub.utils import send_late_fee_email, send_return_received_email
+            try:
+                if total_late_fee > 0:
+                    send_late_fee_email(request.user, order, fee_amount=float(total_late_fee))
+                send_return_received_email(request.user, order)
+            except Exception:
+                pass
 
             return Response({
                 "status": True,

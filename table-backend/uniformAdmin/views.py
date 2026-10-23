@@ -3020,6 +3020,14 @@ class AdminOrderCancelAPIView(APIView):
             # Delete the associated Rental if it exists
             if hasattr(order, 'rental') and order.rental:
                 order.rental.delete()
+
+            from userhub.utils import send_order_cancellation_email
+            try:
+                target_user = getattr(order, 'user', None) or (getattr(order.customer, 'user', None) if getattr(order, 'customer', None) else None)
+                send_order_cancellation_email(target_user, order, reason=reason)
+            except Exception:
+                pass
+
             return Response({
                 "statusCode":200,
                 "status":True,
