@@ -129,6 +129,8 @@ const UniformSingle = () => {
             {singleProductData.productName} (x{quantity}) added to cart.
           </Notification>
         );
+
+        router.push("/cart-summary");
       } else {
         toast.push(
           <Notification title="Error" type="danger">
@@ -255,7 +257,7 @@ const UniformSingle = () => {
                     {/* Quantity Selector */}
                     <div className="flex items-center justify-between">
                       <label className="text-sm font-semibold text-[#2C1810]">
-                        Quantity:
+                        Quantity: <span className="text-[#7B3C1D] font-bold">{quantity}</span>
                       </label>
                       <div className="flex items-center border border-[#DCCBC1] rounded-lg bg-white overflow-hidden shadow-sm">
                         <button
@@ -270,18 +272,25 @@ const UniformSingle = () => {
                         <input
                           type="number"
                           min={1}
-                          max={singleProductData.available_quantity || 99}
+                          max={singleProductData?.available_quantity || 99}
                           value={quantity}
                           onChange={(e) => {
                             const val = parseInt(e.target.value, 10);
-                            if (!isNaN(val) && val >= 1) setQuantity(val);
+                            const maxVal = singleProductData?.available_quantity || 99;
+                            if (!isNaN(val)) {
+                              setQuantity(Math.min(Math.max(1, val), maxVal));
+                            }
                           }}
                           className="w-12 text-center text-sm font-semibold text-[#2C1810] focus:outline-none"
                         />
                         <button
                           type="button"
-                          onClick={() => setQuantity((prev) => prev + 1)}
-                          className="px-3 py-1.5 text-gray-600 hover:bg-[#F5F0EE] transition-colors"
+                          onClick={() => {
+                            const maxVal = singleProductData?.available_quantity || 99;
+                            setQuantity((prev) => Math.min(maxVal, prev + 1));
+                          }}
+                          disabled={quantity >= (singleProductData?.available_quantity || 99)}
+                          className="px-3 py-1.5 text-gray-600 hover:bg-[#F5F0EE] disabled:opacity-40 transition-colors"
                           aria-label="Increase quantity"
                         >
                           <FiPlus size={14} />
@@ -290,55 +299,7 @@ const UniformSingle = () => {
                     </div>
 
                     {/* Rental Period Date Pickers */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-1.5 text-sm font-semibold text-[#2C1810]">
-                        <FiCalendar className="text-[#7B3C1D]" size={16} />
-                        <span>Select Rental Period:</span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <span className="block text-xs font-medium text-gray-600 mb-1">
-                            Start Date
-                          </span>
-                          <DatePicker
-                            value={startDate}
-                            onChange={(date) => {
-                              setStartDate(date);
-                              if (returnDate && date && new Date(date) > new Date(returnDate)) {
-                                const nextDay = new Date(date);
-                                nextDay.setDate(nextDay.getDate() + 3);
-                                setReturnDate(nextDay);
-                              }
-                            }}
-                            minDate={new Date()}
-                            placeholder="Start Date"
-                            size="sm"
-                            className="w-full text-xs"
-                          />
-                        </div>
-                        <div>
-                          <span className="block text-xs font-medium text-gray-600 mb-1">
-                            Return Date
-                          </span>
-                          <DatePicker
-                            value={returnDate}
-                            onChange={(date) => setReturnDate(date)}
-                            minDate={startDate ? new Date(startDate) : new Date()}
-                            placeholder="Return Date"
-                            size="sm"
-                            className="w-full text-xs"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center text-xs text-[#8B5A3C] bg-[#FBF9F7] px-3 py-2 rounded-md border border-[#E8E0D9]">
-                        <span>
-                          Rental Duration: <strong>{rentalDays} day{rentalDays !== 1 ? "s" : ""}</strong>
-                        </span>
-                        <span>
-                          Estimated Total: <strong>${estimatedTotal}</strong>
-                        </span>
-                      </div>
-                    </div>
+
                   </div>
 
                   {/* Action Buttons: Add to Cart + Customize */}
