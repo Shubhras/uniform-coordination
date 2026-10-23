@@ -309,7 +309,7 @@ const DesignResultPage = () => {
                                                 rounded-lg
                                                 bg-white
                                                 text-[#7B3C1D]
-                                                hover:bg-[#F5F8FF]
+                                                hover:bg-[#FCF7F3]
                                                 transition
                                             "
                                             onClick={handleSaveDesign}
@@ -330,7 +330,7 @@ const DesignResultPage = () => {
                                                 rounded-lg
                                                 bg-white
                                                 text-[#7B3C1D]
-                                                hover:bg-[#F5F8FF]
+                                                hover:bg-[#FCF7F3]
                                                 transition
                                             "
                                             onClick={handleExportPdf}

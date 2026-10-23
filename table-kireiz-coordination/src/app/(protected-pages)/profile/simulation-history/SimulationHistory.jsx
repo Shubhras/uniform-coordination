@@ -13,6 +13,7 @@ import { useSession } from 'next-auth/react'
 import { Alert } from '@/components/ui/Alert'
 import Select from '@/components/ui/Select'
 import Pagination from '@/components/ui/Pagination'
+import Spinner from '@/components/ui/Spinner'
 import { formatUSDate as formatDate } from '@/utils/formatDate'
 import { HiCheck } from 'react-icons/hi'
 
@@ -331,7 +332,7 @@ const SimulationHistory = () => {
             {loading ? (
                 <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
                     <div className="flex justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
+                        <Spinner size={48} customColorClass="text-[#A0522D]" />
                     </div>
                 </section>
             ) : (
@@ -351,11 +352,10 @@ const SimulationHistory = () => {
                                             className="object-cover rounded-xl p-3"
                                             unoptimized
                                         />
-                                        <span className={`absolute top-5 right-5 px-3 py-1 text-[11px] font-semibold tracking-wider uppercase rounded-full shadow-sm z-10 ${
-                                            item?.isTheme 
-                                                ? 'bg-[#A0522D] text-white' 
+                                        <span className={`absolute top-5 right-5 px-3 py-1 text-[11px] font-semibold tracking-wider uppercase rounded-full shadow-sm z-10 ${item?.isTheme
+                                                ? 'bg-[#A0522D] text-white'
                                                 : 'bg-white/80 backdrop-blur-sm text-[#3E3E3E] border border-[#D0BEB6]'
-                                        }`}>
+                                            }`}>
                                             {item?.isTheme ? 'Theme' : 'Product'}
                                         </span>
                                     </div>

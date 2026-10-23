@@ -10,6 +10,7 @@ import { FiCalendar, FiMapPin, FiRefreshCw } from 'react-icons/fi'
 import Pagination from '@/components/ui/Pagination'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
+import Spinner from '@/components/ui/Spinner'
 
 // Order image component with fallback pattern
 const OrderImage = ({ src, alt }) => (
@@ -163,7 +164,7 @@ const CompletedOrders = ({ onTotalCountChange }) => {
             <div className="mt-5 space-y-4">
                 {loading ? (
                     <div className="flex justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
+                        <Spinner size={48} customColorClass="text-[#A0522D]" />
                     </div>
                 ) : ordersList.length === 0 ? (
                     <div className="rounded-2xl border border-[#F0E4DE] bg-white p-8 text-center text-[#8D7769]">

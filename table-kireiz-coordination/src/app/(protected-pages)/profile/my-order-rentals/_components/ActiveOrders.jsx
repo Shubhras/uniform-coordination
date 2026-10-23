@@ -13,6 +13,7 @@ import Pagination from '@/components/ui/Pagination'
 import Notification from '@/components/ui/Notification'
 import Dialog from '@/components/ui/Dialog'
 import toast from '@/components/ui/toast'
+import Spinner from '@/components/ui/Spinner'
 import { HiCheck } from 'react-icons/hi'
 
 // Order image component with fallback pattern
@@ -357,7 +358,7 @@ const ActiveOrders = ({ onTotalCountChange }) => {
             <div className="mt-5 space-y-4">
                 {loading ? (
                     <div className="flex justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
+                        <Spinner size={48} customColorClass="text-[#A0522D]" />
                     </div>
                 ) : ordersList.length === 0 ? (
                     <div className="rounded-2xl border border-[#F0E4DE] bg-white p-8 text-center text-[#8D7769]">
@@ -530,7 +531,7 @@ const ActiveOrders = ({ onTotalCountChange }) => {
                     </div>
 
                     <p className="mt-4 text-sm text-[#5C4538] leading-relaxed">
-                        Are you sure you want to cancel this order? Any reserved products will be released immediately back into available stock.
+                        Are you sure you want to cancel this order?
                     </p>
 
                     <div className="mt-4">

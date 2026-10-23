@@ -234,7 +234,6 @@ const ATTRIBUTE_OPTIONS = {
     { name: "Green", img: "/img/table-form/centre-piece/green.png" },
   ],
 };
-
 const ATTRIBUTE_API_MAPPING = {
   Fabric: "fabrics",
   Material: "fabrics",
@@ -259,6 +258,7 @@ const ATTRIBUTE_API_MAPPING = {
   Trim: "patterns",
   "Table Shape": "table_shapes",
 };
+
 
 const Uniform3DmoduleDegisn = () => {
   const searchParams = useSearchParams();
@@ -363,7 +363,23 @@ const Uniform3DmoduleDegisn = () => {
   }, [isThemeMode, active]);
 
   const handleProductSelect = (product) => {
-    setSingleProductData(product);
+    const normalizedProduct = {
+      ...product,
+      ProductImage:
+        product.ProductImage ||
+        product.productImage ||
+        product.image ||
+        product.cover_image,
+    };
+    setSingleProductData(normalizedProduct);
+    setFullView(false);
+
+    if (normalizedProduct.ProductImage) {
+      setSelectedTheme((prev) => ({
+        ...prev,
+        cardImage: normalizedProduct.ProductImage,
+      }));
+    }
 
     // Auto-update standard attributes in selectedOptions based on this product's properties
     setSelectedOptions((prev) => {
@@ -804,6 +820,13 @@ const Uniform3DmoduleDegisn = () => {
       setIsSaving(false);
     }
   };
+
+  const activeProductImage =
+    singleProductData?.ProductImage ||
+    singleProductData?.productImage ||
+    singleProductData?.image ||
+    singleProductData?.cover_image;
+
   return (
     <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-15">
       <div className="flex gap-6">
@@ -814,12 +837,12 @@ const Uniform3DmoduleDegisn = () => {
             { key: "category", label: "Categories", icon: FiLayers },
             ...(!isThemeMode
               ? [
-                  {
-                    key: "simulationProducts",
-                    label: "Simulation Products",
-                    icon: FiBox,
-                  },
-                ]
+                {
+                  key: "simulationProducts",
+                  label: "Simulation Products",
+                  icon: FiBox,
+                },
+              ]
               : []),
           ].map((item) => {
             const Icon = item.icon;
@@ -828,11 +851,10 @@ const Uniform3DmoduleDegisn = () => {
               <button
                 key={item.key}
                 onClick={() => onIconClick(item.key)}
-                className={`w-[75px] h-[100px] rounded-lg p-2 flex flex-col justify-center items-center transition ${
-                  isActive
-                    ? "border-l-[0px] border-b-[0px] border-t-[3.5px] border-r-[3.5px] border-[#A0522D] shadow-md bg-white"
-                    : "bg-white border border-gray-200 shadow-sm hover:bg-gray-50"
-                }`}
+                className={`w-[75px] h-[100px] rounded-lg p-2 flex flex-col justify-center items-center transition ${isActive
+                  ? "border-l-[0px] border-b-[0px] border-t-[3.5px] border-r-[3.5px] border-[#A0522D] shadow-md bg-white"
+                  : "bg-white border border-gray-200 shadow-sm hover:bg-gray-50"
+                  }`}
               >
                 <Icon
                   className={`w-6 h-6 mb-1.5 ${isActive ? "text-[#A0522D]" : "text-gray-500"}`}
@@ -865,25 +887,25 @@ const Uniform3DmoduleDegisn = () => {
                   {(adminTableShapes.length > 0
                     ? adminTableShapes
                     : [
-                        {
-                          id: "Circle",
-                          label: "Circle",
-                          name: "Circle",
-                          img: "/img/table-form/table-shape/round.png",
-                        },
-                        {
-                          id: "Rectangle",
-                          label: "Rectangle",
-                          name: "Rectangle",
-                          img: "/img/table-form/table-shape/rectangle.png",
-                        },
-                        {
-                          id: "Square",
-                          label: "Square",
-                          name: "Square",
-                          img: "/img/table-form/table-shape/square.png",
-                        },
-                      ]
+                      {
+                        id: "Circle",
+                        label: "Circle",
+                        name: "Circle",
+                        img: "/img/table-form/table-shape/round.png",
+                      },
+                      {
+                        id: "Rectangle",
+                        label: "Rectangle",
+                        name: "Rectangle",
+                        img: "/img/table-form/table-shape/rectangle.png",
+                      },
+                      {
+                        id: "Square",
+                        label: "Square",
+                        name: "Square",
+                        img: "/img/table-form/table-shape/square.png",
+                      },
+                    ]
                   ).map((item) => {
                     const shapeName = item.label || item.name;
                     const shapeImg = item.image || item.img;
@@ -896,11 +918,10 @@ const Uniform3DmoduleDegisn = () => {
                         className="relative"
                       >
                         <div
-                          className={`rounded-sm border p-2 w-full h-[70px] flex items-center justify-center ${
-                            isSelected
-                              ? "bg-[#A0522D33] border-[#A0522D]"
-                              : "bg-white border-[#A0522D4D]"
-                          }`}
+                          className={`rounded-sm border p-2 w-full h-[70px] flex items-center justify-center ${isSelected
+                            ? "bg-[#A0522D33] border-[#A0522D]"
+                            : "bg-white border-[#A0522D4D]"
+                            }`}
                         >
                           {shapeImg ? (
                             <img
@@ -1082,11 +1103,10 @@ const Uniform3DmoduleDegisn = () => {
                                   <button
                                     key={prod.id}
                                     onClick={() => handleProductSelect(prod)}
-                                    className={`relative flex flex-col items-center p-2 rounded-xl bg-white border transition-all ${
-                                      isSelected
-                                        ? "border-[#A0522D] bg-[#FFF5F1] ring-1 ring-[#A0522D]"
-                                        : "border-gray-200 hover:border-gray-300"
-                                    }`}
+                                    className={`relative flex flex-col items-center p-2 rounded-xl bg-white border transition-all ${isSelected
+                                      ? "border-[#A0522D] bg-[#FFF5F1] ring-1 ring-[#A0522D]"
+                                      : "border-gray-200 hover:border-gray-300"
+                                      }`}
                                   >
                                     <div className="w-full h-[80px] rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 mb-2">
                                       <img
@@ -1127,7 +1147,7 @@ const Uniform3DmoduleDegisn = () => {
                           // Extract dynamic options from the API response
                           const apiOptionsList =
                             attrKey &&
-                            categoryOptions[selectedCat.name]?.[attrKey]
+                              categoryOptions[selectedCat.name]?.[attrKey]
                               ? categoryOptions[selectedCat.name][attrKey]
                               : [];
 
@@ -1223,7 +1243,7 @@ const Uniform3DmoduleDegisn = () => {
                                   {displayedOptions.map((opt) => {
                                     const isSelected =
                                       selectedOptions[selectedCat.name]?.[
-                                        attrName
+                                      attrName
                                       ] === opt.name;
                                     return (
                                       <button
@@ -1251,11 +1271,10 @@ const Uniform3DmoduleDegisn = () => {
                                             };
                                           });
                                         }}
-                                        className={`relative flex flex-col items-center p-1 rounded-lg border transition ${
-                                          isSelected
-                                            ? "border-[#A0522D] bg-[#FFF5F1] shadow-sm ring-1 ring-[#A0522D]"
-                                            : "border-gray-200 bg-white hover:border-gray-300"
-                                        }`}
+                                        className={`relative flex flex-col items-center p-1 rounded-lg border transition ${isSelected
+                                          ? "border-[#A0522D] bg-[#FFF5F1] shadow-sm ring-1 ring-[#A0522D]"
+                                          : "border-gray-200 bg-white hover:border-gray-300"
+                                          }`}
                                       >
                                         <div className="rounded-md w-full h-[55px] overflow-hidden flex items-center justify-center bg-gray-50 relative">
                                           {opt.colorCode ? (
@@ -1333,11 +1352,10 @@ const Uniform3DmoduleDegisn = () => {
                       <button
                         key={prod.id}
                         onClick={() => handleProductSelect(prod)}
-                        className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${
-                          isSelected
-                            ? "border-[#A0522D] bg-white ring-1 ring-[#A0522D] shadow-sm"
-                            : "border-[#F3D3C8] bg-white hover:border-[#A0522D]"
-                        }`}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${isSelected
+                          ? "border-[#A0522D] bg-white ring-1 ring-[#A0522D] shadow-sm"
+                          : "border-[#F3D3C8] bg-white hover:border-[#A0522D]"
+                          }`}
                       >
                         <div className="flex items-center gap-3 min-w-0 flex-1">
                           <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 shrink-0 border border-gray-100">
@@ -1375,11 +1393,10 @@ const Uniform3DmoduleDegisn = () => {
             <button
               onClick={() => setFullView(false)}
               className={` w-full flex items-center justify-center font-bold gap-2 px-4 py-2 rounded-lg text-sm transition-all
-                                ${
-                                  !fullView
-                                    ? "bg-[#A0522D] hover:bg-[#A0522D shadow text-white "
-                                    : "bg-transparent text-gray-700 hover:bg-gray-100"
-                                }`}
+                                ${!fullView
+                  ? "bg-[#A0522D] hover:bg-[#A0522D shadow text-white "
+                  : "bg-transparent text-gray-700 hover:bg-gray-100"
+                }`}
             >
               <TbTable className="text-lg" />
               Single Table
@@ -1389,11 +1406,10 @@ const Uniform3DmoduleDegisn = () => {
             <button
               onClick={() => setFullView(true)}
               className={` w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm transition-all
-                                ${
-                                  fullView
-                                    ? "bg-[#A0522D] hover:bg-[#A0522D] text-white shadow"
-                                    : "bg-transparent text-gray-700 hover:bg-gray-100"
-                                }`}
+                                ${fullView
+                  ? "bg-[#A0522D] hover:bg-[#A0522D] text-white shadow"
+                  : "bg-transparent text-gray-700 hover:bg-gray-100"
+                }`}
             >
               <RiTable2 className="text-lg" />
               Full Venue
@@ -1403,34 +1419,78 @@ const Uniform3DmoduleDegisn = () => {
             className="relative z-10  overflow-hidden 
                 h-[620px] w-full flex items-center justify-center"
           >
-            {fullView ? (
-              <Image
-                src={
-                  selectedTheme.cardImage ||
-                  singleProductData?.ProductImage ||
-                  "/img/table-form/full-venue.png"
-                }
-                alt={selectedTheme.title}
-                width={700}
-                height={500}
-                className="object-contain "
-                priority
-                unoptimized
-              />
+            {isThemeMode ? (
+              fullView ? (
+                <Image
+                  src={
+                    selectedTheme.cardImage ||
+                    activeProductImage ||
+                    "/img/table-form/full-venue.png"
+                  }
+                  alt={selectedTheme.title || "Venue Preview"}
+                  width={700}
+                  height={500}
+                  className="object-contain"
+                  priority
+                  unoptimized
+                />
+              ) : (
+                <Image
+                  src={
+                    activeProductImage ||
+                    selectedTheme.cardImage ||
+                    "/img/table-form/3dtable.png"
+                  }
+                  alt={selectedTheme.title || "Table Preview"}
+                  width={500}
+                  height={500}
+                  className="object-contain"
+                  priority
+                  unoptimized
+                />
+              )
+            ) : activeProductImage ? (
+              fullView ? (
+                <Image
+                  src={activeProductImage}
+                  alt={
+                    singleProductData?.productName ||
+                    selectedTheme.title ||
+                    "Venue Preview"
+                  }
+                  width={700}
+                  height={500}
+                  className="object-contain"
+                  priority
+                  unoptimized
+                />
+              ) : (
+                <Image
+                  src={activeProductImage}
+                  alt={
+                    singleProductData?.productName ||
+                    selectedTheme.title ||
+                    "Table Preview"
+                  }
+                  width={500}
+                  height={500}
+                  className="object-contain"
+                  priority
+                  unoptimized
+                />
+              )
             ) : (
-              <Image
-                src={
-                  singleProductData?.ProductImage ||
-                  selectedTheme.cardImage ||
-                  "/img/table-form/3dtable.png"
-                }
-                alt={selectedTheme.title}
-                width={500}
-                height={500}
-                className="object-contain"
-                priority
-                unoptimized
-              />
+              <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-[#F3D3C8] rounded-2xl bg-[#FFF5F1]/50 max-w-sm mx-auto shadow-sm">
+                <div className="w-16 h-16 rounded-full bg-white border border-[#F3D3C8] flex items-center justify-center mb-3 text-[#A0522D] shadow-sm">
+                  <TbTable className="w-8 h-8 text-[#A0522D]" />
+                </div>
+                <h3 className="text-base font-semibold text-[#1C2C56] mb-1">
+                  Please select the product
+                </h3>
+                <p className="text-xs text-gray-500 max-w-xs">
+                  Choose a product from Categories or Simulation Products on the left to preview and customize it.
+                </p>
+              </div>
             )}
           </div>
 

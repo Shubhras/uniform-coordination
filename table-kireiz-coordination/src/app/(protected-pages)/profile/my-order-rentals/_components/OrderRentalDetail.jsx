@@ -10,6 +10,7 @@ import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import Notification from '@/components/ui/Notification'
 import Dialog from '@/components/ui/Dialog'
 import toast from '@/components/ui/toast'
+import Spinner from '@/components/ui/Spinner'
 import {
     FiArrowLeft,
     FiCalendar,
@@ -229,7 +230,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
 
     return (
         // <div className="mx-auto w-full max-w-7xl py-6 px-4 md:px-8">
-          <div className="mx-auto w-full max-w-8xl pt-[70px] pb-6 px-2 md:px-1">
+        <div className="mx-auto w-full max-w-8xl pt-[70px] pb-6 px-2 md:px-1">
             {/* Header */}
             <div className="mb-6 flex items-center gap-3">
                 <button
@@ -255,7 +256,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
 
             {loading ? (
                 <div className="flex justify-center items-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A0522D]"></div>
+                    <Spinner size={48} customColorClass="text-[#A0522D]" />
                 </div>
             ) : (
                 <>
@@ -450,102 +451,102 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                         </div>
                     </div>
 
-                        <div className="mt-4 space-y-4">
-                            <DetailCard
-                                title="Customer Information"
-                                icon={<FiUser size={14} className="text-[#B66636]" />}
-                            >
-                                <div className="grid gap-x-8 gap-y-4 md:grid-cols-3">
+                    <div className="mt-4 space-y-4">
+                        <DetailCard
+                            title="Customer Information"
+                            icon={<FiUser size={14} className="text-[#B66636]" />}
+                        >
+                            <div className="grid gap-x-8 gap-y-4 md:grid-cols-3">
+                                <div>
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C8A18C]">
+                                        Customer Name
+                                    </p>
+                                    <div className="mt-1 flex items-center gap-2">
+                                        <span className="text-sm font-medium text-[#2C1810]">{orderData?.delivery_address?.name}</span>
+                                    </div>
+                                </div>
+                                <InfoRow label="Business Email" value={orderData?.delivery_address?.email} />
+                                <div className="flex items-center gap-2 text-sm text-[#2C1810]">
+                                    {/* <FiPhone size={14} className="text-[#B48A73]" /> */}
                                     <div>
                                         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C8A18C]">
-                                            Customer Name
+                                            Phone Number
                                         </p>
-                                        <div className="mt-1 flex items-center gap-2">
-                                            <span className="text-sm font-medium text-[#2C1810]">{orderData?.delivery_address?.name}</span>
-                                        </div>
+                                        <p className="mt-1 font-medium">{orderData?.delivery_address?.phone}</p>
                                     </div>
-                                    <InfoRow label="Business Email" value={orderData?.delivery_address?.email} />
-                                    <div className="flex items-center gap-2 text-sm text-[#2C1810]">
-                                        {/* <FiPhone size={14} className="text-[#B48A73]" /> */}
+                                </div>
+                                <div className="md:col-span-2">
+                                    <div className="flex items-start gap-2 text-sm text-[#2C1810]">
+                                        {/* <FiMail size={14} className="mt-0.5 text-transparent" /> */}
                                         <div>
                                             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C8A18C]">
-                                                Phone Number
+                                                Delivery Address
                                             </p>
-                                            <p className="mt-1 font-medium">{orderData?.delivery_address?.phone}</p>
+                                            <p className="mt-1 font-medium leading-5">
+                                                {formatAddress(orderData?.delivery_address) && (
+                                                    <>
+                                                        {formatAddress(orderData?.delivery_address)}
+                                                    </>
+                                                )}
+                                            </p>
                                         </div>
                                     </div>
-                                    <div className="md:col-span-2">
-                                        <div className="flex items-start gap-2 text-sm text-[#2C1810]">
-                                            {/* <FiMail size={14} className="mt-0.5 text-transparent" /> */}
-                                            <div>
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C8A18C]">
-                                                    Delivery Address
-                                                </p>
-                                                <p className="mt-1 font-medium leading-5">
-                                                    {formatAddress(orderData?.delivery_address) && (
-                                                        <>
-                                                            {formatAddress(orderData?.delivery_address)}
-                                                        </>
-                                                    )}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </DetailCard>
-
-                            <div className={`${cardClassName} overflow-hidden`}>
-                                <div className="flex items-center justify-between border-b border-[#F4E8E2] px-4 py-4">
-                                    <h3 className="text-[14px] font-semibold text-[#2C1810]">Ordered Items</h3>
-                                    <span className="text-[13px] text-[#B8A89E]">{orderData?.order_items?.length} items</span>
-                                </div>
-                                <div className="hidden overflow-x-auto md:block">
-                                    <table className="min-w-full">
-                                        <thead className="bg-[#FFFDFC] text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-[#A0725B]">
-                                            <tr>
-                                                <th className="px-4 py-3">Item</th>
-                                                <th className="px-4 py-3">Qty</th>
-                                                <th className="px-4 py-3">Days</th>
-                                                <th className="px-4 py-3">Unit Price</th>
-                                                <th className="px-4 py-3">Subtotal</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {orderData?.order_items?.map((item, index) => (
-                                                <tr
-                                                    key={`${item.product_name}-${index}`}
-                                                    className="border-t border-[#F7EEEA] text-sm text-[#2C1810]"
-                                                >
-                                                    <td className="px-4 py-3.5">{item.product_name}</td>
-                                                    <td className="px-4 py-3.5">{item.quantity}</td>
-                                                    <td className="px-4 py-3.5">{item.rental_days}</td>
-                                                    <td className="px-4 py-3.5">{formatCurrency(item.price_per_day, currencyCode)}</td>
-                                                    <td className="px-4 py-3.5">{formatCurrency(item.subtotal, currencyCode)}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div className="space-y-3 p-4 md:hidden">
-                                    {orderData?.order_items?.map((item, index) => (
-                                        <div
-                                            key={`${item.product_name}-${index}-mobile`}
-                                            className="rounded-xl border border-[#F3E7E1] bg-[#FFFDFC] p-4"
-                                        >
-                                            <p className="text-sm font-semibold text-[#2C1810]">{item.product_name}</p>
-                                            <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-[#6D5548]">
-                                                <span>Qty: {item.quantity}</span>
-                                                <span>Days: {item.rental_days}</span>
-                                                <span>{formatCurrency(item.price_per_day, currencyCode)}</span>
-                                                <span>{formatCurrency(item.subtotal, currencyCode)}</span>
-                                            </div>
-                                        </div>
-                                    ))}
                                 </div>
                             </div>
+                        </DetailCard>
+
+                        <div className={`${cardClassName} overflow-hidden`}>
+                            <div className="flex items-center justify-between border-b border-[#F4E8E2] px-4 py-4">
+                                <h3 className="text-[14px] font-semibold text-[#2C1810]">Ordered Items</h3>
+                                <span className="text-[13px] text-[#B8A89E]">{orderData?.order_items?.length} items</span>
+                            </div>
+                            <div className="hidden overflow-x-auto md:block">
+                                <table className="min-w-full">
+                                    <thead className="bg-[#FFFDFC] text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-[#A0725B]">
+                                        <tr>
+                                            <th className="px-4 py-3">Item</th>
+                                            <th className="px-4 py-3">Qty</th>
+                                            <th className="px-4 py-3">Days</th>
+                                            <th className="px-4 py-3">Unit Price</th>
+                                            <th className="px-4 py-3">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {orderData?.order_items?.map((item, index) => (
+                                            <tr
+                                                key={`${item.product_name}-${index}`}
+                                                className="border-t border-[#F7EEEA] text-sm text-[#2C1810]"
+                                            >
+                                                <td className="px-4 py-3.5">{item.product_name}</td>
+                                                <td className="px-4 py-3.5">{item.quantity}</td>
+                                                <td className="px-4 py-3.5">{item.rental_days}</td>
+                                                <td className="px-4 py-3.5">{formatCurrency(item.price_per_day, currencyCode)}</td>
+                                                <td className="px-4 py-3.5">{formatCurrency(item.subtotal, currencyCode)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div className="space-y-3 p-4 md:hidden">
+                                {orderData?.order_items?.map((item, index) => (
+                                    <div
+                                        key={`${item.product_name}-${index}-mobile`}
+                                        className="rounded-xl border border-[#F3E7E1] bg-[#FFFDFC] p-4"
+                                    >
+                                        <p className="text-sm font-semibold text-[#2C1810]">{item.product_name}</p>
+                                        <div className="mt-2 grid grid-cols-2 gap-2 text-sm text-[#6D5548]">
+                                            <span>Qty: {item.quantity}</span>
+                                            <span>Days: {item.rental_days}</span>
+                                            <span>{formatCurrency(item.price_per_day, currencyCode)}</span>
+                                            <span>{formatCurrency(item.subtotal, currencyCode)}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </>
-                )}
+                    </div>
+                </>
+            )}
 
             {/* Cancel Order Confirmation Dialog */}
             <Dialog

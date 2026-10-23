@@ -419,9 +419,9 @@ const ThemeDesignResultPage = () => {
                       in Theme Setup
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                      {themeDesignData.products.map((prod) => (
+                      {themeDesignData.products.map((prod, index) => (
                         <div
-                          key={prod.id}
+                          key={prod.id ? `${prod.id}-${index}` : index}
                           className="bg-white border border-[#E8E0D9]/50 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col justify-between group"
                         >
                           <div>
