@@ -182,8 +182,8 @@ const SavedSimulations = () => {
         <div
           onClick={() => { setActiveTab("all"); setCurrentPage(1); }}
           className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${activeTab === "all"
-              ? "border-[#1C2C56] bg-[#F1F5F9] shadow-sm"
-              : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1]"
+            ? "border-[#1C2C56] bg-[#F1F5F9] shadow-sm"
+            : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1]"
             }`}
         >
           <div className="flex items-center justify-between">
@@ -198,8 +198,8 @@ const SavedSimulations = () => {
         <div
           onClick={() => { setActiveTab("product"); setCurrentPage(1); }}
           className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${activeTab === "product"
-              ? "border-[#2563EB] bg-[#EFF6FF] shadow-sm"
-              : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1]"
+            ? "border-[#2563EB] bg-[#EFF6FF] shadow-sm"
+            : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1]"
             }`}
         >
           <div className="flex items-center justify-between">
@@ -214,8 +214,8 @@ const SavedSimulations = () => {
         <div
           onClick={() => { setActiveTab("theme"); setCurrentPage(1); }}
           className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${activeTab === "theme"
-              ? "border-[#9333EA] bg-[#FAF5FF] shadow-sm"
-              : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1]"
+            ? "border-[#9333EA] bg-[#FAF5FF] shadow-sm"
+            : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1]"
             }`}
         >
           <div className="flex items-center justify-between">
@@ -260,8 +260,8 @@ const SavedSimulations = () => {
             <button
               onClick={() => { setActiveTab("all"); setCurrentPage(1); }}
               className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === "all"
-                  ? "bg-white text-[#1C2C56] shadow-sm"
-                  : "text-[#64748B] hover:text-[#1C2C56]"
+                ? "bg-white text-[#1C2C56] shadow-sm"
+                : "text-[#64748B] hover:text-[#1C2C56]"
                 }`}
             >
               {t("tabs.all")} ({counts.total})
@@ -269,8 +269,8 @@ const SavedSimulations = () => {
             <button
               onClick={() => { setActiveTab("product"); setCurrentPage(1); }}
               className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === "product"
-                  ? "bg-white text-[#2563EB] shadow-sm"
-                  : "text-[#64748B] hover:text-[#2563EB]"
+                ? "bg-white text-[#2563EB] shadow-sm"
+                : "text-[#64748B] hover:text-[#2563EB]"
                 }`}
             >
               {t("tabs.products")} ({counts.product})
@@ -278,8 +278,8 @@ const SavedSimulations = () => {
             <button
               onClick={() => { setActiveTab("theme"); setCurrentPage(1); }}
               className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === "theme"
-                  ? "bg-white text-[#9333EA] shadow-sm"
-                  : "text-[#64748B] hover:text-[#9333EA]"
+                ? "bg-white text-[#9333EA] shadow-sm"
+                : "text-[#64748B] hover:text-[#9333EA]"
                 }`}
             >
               {t("tabs.themes")} ({counts.theme})
@@ -341,7 +341,6 @@ const SavedSimulations = () => {
                     )}
                   </td>
 
-                  {/* Customer */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E2E8F0] text-[#1C2C56]">
