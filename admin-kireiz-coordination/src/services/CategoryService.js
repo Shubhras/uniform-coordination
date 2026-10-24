@@ -5,10 +5,12 @@ export async function apiGetCategoryList(
   page = 1,
   pageSize = 10,
   search = "",
+  paramsObj = {},
 ) {
   const params = new URLSearchParams({
     page,
     page_size: pageSize,
+    ...paramsObj,
   });
 
   if (search.trim()) {
@@ -24,9 +26,15 @@ export async function apiGetCategoryList(
   });
 }
 
-export async function apiGetSubcategoryList(accessToken, categoryId) {
+export async function apiGetSubcategoryList(accessToken, categoryId, activeOnly = false) {
+  const params = new URLSearchParams({
+    categoryId,
+  });
+  if (activeOnly) {
+    params.append("isActive", "true");
+  }
   return ApiService.fetchDataWithAxios({
-    url: `/v1/uniformAdmin/subcategory/list/?categoryId=${categoryId}`,
+    url: `/v1/uniformAdmin/subcategory/list/?${params.toString()}`,
     method: "get",
     headers: {
       Authorization: `Bearer ${accessToken}`,

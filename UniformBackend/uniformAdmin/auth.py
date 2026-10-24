@@ -989,7 +989,7 @@ class AdminUserCreateAPIView(APIView):
                 return Response({
                     "statusCode": 201,
                     "status": True,
-                    "message": "B2B user created successfully",
+                    "message": "User created successfully",
                     "data": serializer.data
                 }, status=status.HTTP_201_CREATED)
 

@@ -148,7 +148,7 @@ class SubCategoryListAPIView(APIView):
             subcategories = SubCategory.objects.filter(isDeleted=False)
 
             if active_only or is_active in ("1", "true", "True"):
-                subcategories = subcategories.filter(isActive=True)
+                subcategories = subcategories.filter(isActive=True, category__isActive=True, category__isDeleted=False)
             elif is_active in ("0", "false", "False"):
                 subcategories = subcategories.filter(isActive=False)
 

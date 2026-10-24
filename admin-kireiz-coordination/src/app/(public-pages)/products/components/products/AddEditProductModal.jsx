@@ -213,10 +213,10 @@ const AddEditProductModal = ({
     const fetchCategories = async () => {
       setLoadingCategories(true);
       try {
-        const response = await apiGetCategoryList(accessToken);
+        const response = await apiGetCategoryList(accessToken, 1, 100, "", { isActive: "true" });
         if (response?.status && response?.data) {
           const options = response.data
-            .filter((c) => c.isActive !== false)
+            .filter((c) => (c.isActive === true || c.isActive === "true" || c.is_active === true) && !c.isDeleted)
             .map((c) => ({
               value: c.id,
               label: c.categoryName,
@@ -271,13 +271,16 @@ const AddEditProductModal = ({
         const response = await apiGetSubcategoryList(
           accessToken,
           selectedCategory.value,
+          true,
         );
 
         if (response?.status && response?.data) {
-          const options = response.data.map((item) => ({
-            value: item.id,
-            label: item.name,
-          }));
+          const options = response.data
+            .filter((item) => (item.isActive === true || item.isActive === "true" || item.is_active === true) && !item.isDeleted)
+            .map((item) => ({
+              value: item.id,
+              label: item.name,
+            }));
 
           setSubcategoryOptions(options);
         }

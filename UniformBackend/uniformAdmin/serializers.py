@@ -1418,7 +1418,7 @@ class ProductSerializer(serializers.ModelSerializer):
     )
  
     subcategory_id = serializers.PrimaryKeyRelatedField(
-        queryset=SubCategory.objects.filter(isDeleted=False),
+        queryset=SubCategory.objects.filter(isDeleted=False, isActive=True),
         source="subcategory",
         write_only=True,
         required=False,
@@ -1537,10 +1537,20 @@ class ProductSerializer(serializers.ModelSerializer):
         category = data.get("category")
         subcategory = data.get("subcategory")
  
-        if subcategory and category and subcategory.category != category:
+        if category and (not category.isActive or category.isDeleted):
             raise serializers.ValidationError({
-                "subcategory": "Selected subcategory does not belong to selected category"
+                "category": "Selected category is inactive or deleted."
             })
+
+        if subcategory:
+            if not subcategory.isActive or subcategory.isDeleted:
+                raise serializers.ValidationError({
+                    "subcategory": "Selected subcategory is inactive or deleted."
+                })
+            if category and subcategory.category != category:
+                raise serializers.ValidationError({
+                    "subcategory": "Selected subcategory does not belong to selected category"
+                })
  
         total_qty = data.get("total_quantity", 0)
         avail_qty = data.get("available_quantity", 0)

@@ -105,12 +105,19 @@ class CategoryListAPIView(APIView):
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
+            is_active = request.query_params.get("isActive") or request.query_params.get("is_active")
+            active_only = request.query_params.get("active_only") in ("1", "true", "True")
 
             # FIX 1: newest data first
             categories = Category.objects.filter(
                 isDeleted=False,
                 type = "uniform"
             ).order_by("order")
+
+            if active_only or is_active in ("1", "true", "True"):
+                categories = categories.filter(isActive=True)
+            elif is_active in ("0", "false", "False"):
+                categories = categories.filter(isActive=False)
 
             if search:
                 categories = categories.filter(categoryName__icontains=search)
