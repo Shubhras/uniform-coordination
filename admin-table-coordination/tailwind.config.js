@@ -100,4 +100,4 @@ const config = {
         require('@tailwindcss/typography'),
 	],
 };
-export default config;
+module.exports = config;
