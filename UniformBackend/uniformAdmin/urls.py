@@ -220,6 +220,7 @@ urlpatterns = [
     path("simulation-assets/structure/", SimulationStructureAPIView.as_view(), name="simulation-assets-structure"),
     path("simulation-assets/product-visibility/", ProductSimulationVisibilityAPIView.as_view(), name="simulation-assets-visibility"),
     path("simulation-assets/reorder/", SimulationAssetReorderAPIView.as_view(), name="simulation-assets-reorder"),
+    path("simulations/saved/", AdminSavedSimulationsAPIView.as_view(), name="admin-saved-simulations"),
 
     # Public Simulation endpoints
     path("simulation/options/", SimulationOptionsAPIView.as_view(), name="simulation-options"),

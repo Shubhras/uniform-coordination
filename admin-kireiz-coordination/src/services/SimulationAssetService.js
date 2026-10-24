@@ -118,7 +118,7 @@ export async function apiReorderSimulationAssets(accessToken, order) {
 
 export async function apiGetSavedSimulations(accessToken) {
   return ApiService.fetchDataWithAxios({
-    url: "/v1/space/uniformAdmin/simulations/saved/",
+    url: "/v1/uniformAdmin/simulations/saved/",
     method: "get",
     headers: authHeader(accessToken),
   });
