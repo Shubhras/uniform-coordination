@@ -156,6 +156,22 @@ def generate_quotation_template_pdf(quotation, template_text):
     discount_amt = (subtotal * discount) / 100
     total = subtotal - discount_amt
 
+    # Prioritize manual quotation figures entered by admin if present
+    try:
+        if getattr(quotation, "subtotal", None) is not None and float(quotation.subtotal) > 0:
+            subtotal = float(quotation.subtotal)
+            if getattr(quotation, "discount_percent", None) is not None:
+                discount = float(quotation.discount_percent)
+            discount_amt = (subtotal * discount) / 100
+            if getattr(quotation, "total", None) is not None and float(quotation.total) > 0:
+                total = float(quotation.total)
+            else:
+                total = subtotal - discount_amt
+            if qty > 0:
+                price = round(subtotal / qty, 2)
+    except Exception:
+        pass
+
     # ---------- FILE ----------
     file_name = f"quotation_{quotation.quotation_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
     file_path = os.path.join(settings.MEDIA_ROOT, "exports", file_name)
@@ -244,7 +260,8 @@ def generate_quotation_template_pdf(quotation, template_text):
     elements.append(Spacer(1, 10))
 
     today = datetime.now().strftime("%d/%m/%Y")
-    valid = quotation.delivery_date.strftime("%d/%m/%Y") if getattr(quotation, "delivery_date", None) else today
+    valid_date_val = getattr(quotation, "valid_until", None) or getattr(quotation, "delivery_date", None)
+    valid = valid_date_val.strftime("%d/%m/%Y") if valid_date_val else today
 
     elements.append(Paragraph(f"<b>Date:</b> {today}", normal))
     elements.append(Paragraph(f"<b>Valid until:</b> {valid}", normal))

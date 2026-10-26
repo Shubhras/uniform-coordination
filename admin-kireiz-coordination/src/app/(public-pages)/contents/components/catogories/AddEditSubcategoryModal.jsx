@@ -181,16 +181,19 @@ const AddEditSubcategoryModal = ({
       return;
     }
 
+    if (!category || !category.value) {
+      setError(tm("categoryRequired") || "Please select category");
+      return;
+    }
+
     setError("");
     setSaving(true);
 
     try {
       const formData = new FormData();
       formData.append("name", name.trim());
+      formData.append("category", category.value);
 
-      if (category) {
-        formData.append("category", category.value);
-      }
       if (description.trim()) {
         formData.append("description", description.trim());
       }
@@ -199,11 +202,6 @@ const AddEditSubcategoryModal = ({
       }
       formData.append("isActive", active ? "true" : "false");
 
-      // if (mode === "edit" && initialData?.id) {
-      //     await apiUpdateSubcategory(accessToken, initialData.id, formData);
-      // } else {
-      //     await apiCreateSubcategory(accessToken, formData);
-      // }
       const response =
         mode === "edit" && initialData?.id
           ? await apiUpdateSubcategory(accessToken, initialData.id, formData)
@@ -220,7 +218,17 @@ const AddEditSubcategoryModal = ({
       }
     } catch (err) {
       console.error("Subcategory save error:", err);
-      setError(err?.response?.data?.message || tm("saveFailed"));
+      let errMsg = err?.response?.data?.message;
+      if (typeof errMsg === "object" && errMsg !== null) {
+        if (errMsg.category) {
+          errMsg = Array.isArray(errMsg.category) ? errMsg.category[0] : errMsg.category;
+        } else if (errMsg.name) {
+          errMsg = Array.isArray(errMsg.name) ? errMsg.name[0] : errMsg.name;
+        } else {
+          errMsg = Object.values(errMsg).flat().join(", ");
+        }
+      }
+      setError(errMsg || tm("saveFailed"));
     } finally {
       setSaving(false);
     }

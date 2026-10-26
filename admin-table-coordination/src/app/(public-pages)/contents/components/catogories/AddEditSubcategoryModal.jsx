@@ -146,16 +146,19 @@ const AddEditSubcategoryModal = ({
             return;
         }
 
+        if (!category || !category.value) {
+            setError(t("categoryRequired") || "Please select category");
+            return;
+        }
+
         setError("");
         setSaving(true);
 
         try {
             const formData = new FormData();
             formData.append("name", name.trim());
+            formData.append("category", category.value);
 
-            if (category) {
-                formData.append("category", category.value);
-            }
             if (description.trim()) {
                 formData.append("description", description.trim());
             }
@@ -175,7 +178,17 @@ const AddEditSubcategoryModal = ({
             }
         } catch (err) {
             console.error("Subcategory save error:", err);
-            setError(err?.response?.data?.message || t("saveFailed"));
+            let errMsg = err?.response?.data?.message;
+            if (typeof errMsg === "object" && errMsg !== null) {
+                if (errMsg.category) {
+                    errMsg = Array.isArray(errMsg.category) ? errMsg.category[0] : errMsg.category;
+                } else if (errMsg.name) {
+                    errMsg = Array.isArray(errMsg.name) ? errMsg.name[0] : errMsg.name;
+                } else {
+                    errMsg = Object.values(errMsg).flat().join(", ");
+                }
+            }
+            setError(errMsg || t("saveFailed"));
         } finally {
             setSaving(false);
         }

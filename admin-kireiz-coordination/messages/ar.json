@@ -1031,6 +1031,7 @@
         "save": "Save",
         "update": "Update",
         "nameRequired": "Subcategory name is required",
+        "categoryRequired": "يرجى تحديد الفئة",
         "saveFailed": "Failed to save subcategory. Please try again."
       }
     },

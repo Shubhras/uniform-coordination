@@ -1195,6 +1195,17 @@ class CatalogImageSerializer(serializers.ModelSerializer):
 
 
 class SubCategorySerializer(serializers.ModelSerializer):
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isDeleted=False),
+        required=True,
+        allow_null=False,
+        error_messages={
+            "required": "Please select category.",
+            "null": "Please select category.",
+            "does_not_exist": "Selected category does not exist.",
+            "incorrect_type": "Please select category.",
+        }
+    )
     category_name = serializers.CharField(
         source="category.categoryName",
         read_only=True
@@ -1251,6 +1262,11 @@ class SubCategorySerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         name = attrs.get("name", self.instance.name if self.instance else None)
         category = attrs.get("category", self.instance.category if self.instance else None)
+
+        if not category:
+            raise serializers.ValidationError({
+                "category": "Please select category."
+            })
 
         exists = SubCategory.objects.filter(
             name__iexact=name,
@@ -2374,10 +2390,14 @@ class QuotationRequestUpdateSerializer(serializers.ModelSerializer):
             self.instance.cancel_reason if self.instance else None
         )
 
-        if quotation_status == "cancelled" and not cancel_reason:
-            raise serializers.ValidationError({
-                "cancel_reason": "Cancel reason is required when quotation is cancelled."
-            })
+        if quotation_status == "cancelled":
+            if not cancel_reason:
+                additional_note = attrs.get("additional_note")
+                if additional_note is None and self.instance:
+                    additional_note = self.instance.additional_note
+                attrs["cancel_reason"] = additional_note or ""
+            if not attrs.get("cancelled_by"):
+                attrs["cancelled_by"] = "admin"
 
         return attrs
 

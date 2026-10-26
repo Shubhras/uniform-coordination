@@ -518,6 +518,7 @@
                 "update": "更新",
                 "save": "保存",
                 "nameRequired": "サブカテゴリー名は必須です",
+                "categoryRequired": "カテゴリーを選択してください",
                 "saveFailed": "サブカテゴリーの保存に失敗しました。もう一度お試しください。"
             }
         },

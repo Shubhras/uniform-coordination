@@ -873,6 +873,17 @@ from django.conf import settings
 from rest_framework import serializers
 
 class SubCategorySerializer(serializers.ModelSerializer):
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.filter(isDeleted=False),
+        required=True,
+        allow_null=False,
+        error_messages={
+            "required": "Please select category.",
+            "null": "Please select category.",
+            "does_not_exist": "Selected category does not exist.",
+            "incorrect_type": "Please select category.",
+        }
+    )
     category_name = serializers.CharField(
         source="category.categoryName",
         read_only=True
@@ -917,8 +928,13 @@ class SubCategorySerializer(serializers.ModelSerializer):
         return f"{site_url}{obj.subcategoryImage.url}"
 
     def validate(self, attrs):
-        name = attrs.get("name")
-        category = attrs.get("category")
+        name = attrs.get("name", self.instance.name if self.instance else None)
+        category = attrs.get("category", self.instance.category if self.instance else None)
+
+        if not category:
+            raise serializers.ValidationError({
+                "category": "Please select category."
+            })
 
         if name and category:
             exists = SubCategory.objects.filter(

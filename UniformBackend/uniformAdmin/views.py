@@ -1166,6 +1166,15 @@ class QuotationRequestUpdateAPIView(APIView):
                     instance.cancelled_by = "admin"
                     instance.save(update_fields=["cancelled_by"])
 
+                # If sales_rep was updated, also sync assigned_sales_rep on matching AdminUser account
+                if "sales_rep" in request.data:
+                    lookup = Q(email__iexact=instance.email)
+                    if instance.company_name:
+                        lookup |= Q(company_name__iexact=instance.company_name)
+                    AdminUser.objects.filter(lookup).exclude(role__role_name__in=["admin", "sales"]).update(
+                        assigned_sales_rep=instance.sales_rep
+                    )
+
                 return Response(
                     {
                         "statusCode": 200,

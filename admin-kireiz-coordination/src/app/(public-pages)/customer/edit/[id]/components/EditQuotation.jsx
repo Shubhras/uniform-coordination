@@ -94,6 +94,7 @@ const EditQuotation = () => {
     discount_percent: "",
     total: "",
     sales_rep: "",
+    cancel_reason: "",
   });
 
   const getQuotationDetails = async () => {
@@ -115,6 +116,7 @@ const EditQuotation = () => {
           size_quantity: data.size_quantity || "",
           delivery_date: data.delivery_date || "",
           additional_note: data.additional_note || "",
+          cancel_reason: data.cancel_reason || "",
           quotation_status: data.quotation_status || "",
           workflow_status: data.workflow_status || "",
           isActive: data.isActive ?? true,
@@ -123,6 +125,7 @@ const EditQuotation = () => {
           discount_percent: data.discount_percent ?? "",
           total: data.total ?? "",
           sales_rep: data.sales_rep ?? "",
+          quotation_id: data.quotation_id || "",
         });
       }
     } catch (error) {
@@ -205,6 +208,7 @@ const EditQuotation = () => {
         size_quantity: formData.size_quantity,
         delivery_date: formatDateToISO(formData.delivery_date) || formData.delivery_date,
         additional_note: formData.additional_note,
+        cancel_reason: formData.cancel_reason || formData.additional_note || "",
         valid_until: formatDateToISO(formData.valid_until),
         quotation_status: shouldSend ? "sent" : (formData.quotation_status || "pending"),
         sales_rep: formData.sales_rep ? Number(formData.sales_rep) : null,

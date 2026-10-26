@@ -34,10 +34,27 @@ class SubCategoryCreateAPIView(APIView):
 
     def post(self, request):
         try:
+            # Explicit category validation check
+            category_val = request.data.get("category")
+            if not category_val or str(category_val).strip() in ("", "null", "undefined", "None"):
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Please select category.",
+                    "data": None
+                }, status=status.HTTP_400_BAD_REQUEST)
+
             serializer = SubCategorySerializer(data=request.data,context={"request": request})
             if serializer.is_valid():
                 
                 category = serializer.validated_data.get("category")
+                if not category:
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "Please select category.",
+                        "data": None
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
                 #FIX: Auto-assign order per category
                 max_order = SubCategory.objects.filter(
@@ -58,30 +75,41 @@ class SubCategoryCreateAPIView(APIView):
                     "data": serializer.data
                 }, status=status.HTTP_200_OK)
 
+            # CATEGORY ERROR
+            if "category" in serializer.errors:
+                cat_err = serializer.errors["category"]
+                cat_msg = cat_err[0] if isinstance(cat_err, (list, tuple)) and cat_err else str(cat_err)
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": str(cat_msg),
+                    "data": None
+                }, status=status.HTTP_400_BAD_REQUEST)
+
             # REQUIRED FIELD ERROR
             if "name" in serializer.errors and "required" in str(serializer.errors["name"]).lower():
                 return Response({
                     "status": False,
-                    "statusCode": 200,
-                    "message": "Validation Failed;subcategory name is required.",
+                    "statusCode": 400,
+                    "message": "Subcategory name is required.",
                     "data": None
-                }, status=status.HTTP_200_OK)
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             # DUPLICATE (subcategory + category) ERROR
             if "name" in serializer.errors and "already exists" in str(serializer.errors["name"]).lower():
                 return Response({
                     "status": False,
-                    "statusCode": 200,
-                    "message": "Validation Failed;subcategory with this name is already exits.",
+                    "statusCode": 400,
+                    "message": "Subcategory with this name already exists in this category.",
                     "data": None
-                }, status=status.HTTP_200_OK)
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 400,
                 "message": serializer.errors,
                 "data": None
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({
@@ -265,6 +293,16 @@ class SubCategoryUpdateAPIView(APIView):
                 isDeleted=False
             )
 
+            if "category" in request.data:
+                category_val = request.data.get("category")
+                if not category_val or str(category_val).strip() in ("", "null", "undefined", "None"):
+                    return Response({
+                        "status": False,
+                        "statusCode": 400,
+                        "message": "Please select category.",
+                        "data": None
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
             serializer = SubCategorySerializer(
                 subcategory,
                 data=request.data,
@@ -281,30 +319,41 @@ class SubCategoryUpdateAPIView(APIView):
                     "data": serializer.data
                 }, status=status.HTTP_200_OK)
 
+            # CATEGORY ERROR
+            if "category" in serializer.errors:
+                cat_err = serializer.errors["category"]
+                cat_msg = cat_err[0] if isinstance(cat_err, (list, tuple)) and cat_err else str(cat_err)
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": str(cat_msg),
+                    "data": None
+                }, status=status.HTTP_400_BAD_REQUEST)
+
             # REQUIRED FIELD ERROR
             if "name" in serializer.errors and "required" in str(serializer.errors["name"]).lower():
                 return Response({
                     "status": False,
-                    "statusCode": 200,
-                    "message": "Validation Failed;subcategory name is required.",
+                    "statusCode": 400,
+                    "message": "Subcategory name is required.",
                     "data": None
-                }, status=status.HTTP_200_OK)
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             # DUPLICATE (subcategory + category) ERROR
             if "name" in serializer.errors and "already exists" in str(serializer.errors["name"]).lower():
                 return Response({
                     "status": False,
-                    "statusCode": 200,
-                    "message": "Validation Failed;subcategory with this name is already exits.",
+                    "statusCode": 400,
+                    "message": "Subcategory with this name already exists in this category.",
                     "data": None
-                }, status=status.HTTP_200_OK)
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({
                 "status": False,
-                "statusCode": 200,
+                "statusCode": 400,
                 "message": serializer.errors,
                 "data": None
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({

@@ -14,6 +14,7 @@ from decimal import Decimal
 
 from django.db import transaction
 from django.db.models import Count, Q, Sum
+from django.utils.text import slugify
 from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiResponse,
@@ -81,8 +82,8 @@ def sales_rep_queryset():
 
 
 def b2b_account_queryset():
-    return AdminUser.objects.filter(
-        role__role_name__in=B2B_ROLE_NAMES
+    return AdminUser.objects.exclude(
+        role__role_name__in=["admin", "sales"]
     ).select_related("role", "assigned_sales_rep").order_by("company_name", "name", "id")
 
 
@@ -456,6 +457,35 @@ class SalesRepAssignmentBoardAPIView(APIView):
     )
     def get(self, request):
         try:
+            # Sync any distinct customer companies from QuotationRequest into AdminUser as B2B accounts if not already present
+            b2b_role = Role.objects.filter(role_name="b2b").first()
+            if b2b_role:
+                for q in QuotationRequest.objects.filter(isDeleted=False).values("company_name", "email", "contact_person", "sales_rep_id").distinct():
+                    c_name = (q.get("company_name") or "").strip()
+                    c_email = (q.get("email") or "").strip().lower()
+                    if not c_name and not c_email:
+                        continue
+                    query_lookup = Q(email__iexact=c_email) if c_email else Q()
+                    if c_name:
+                        query_lookup |= Q(company_name__iexact=c_name)
+                    if not AdminUser.objects.filter(query_lookup).exists():
+                        try:
+                            # Generate a unique email if needed
+                            safe_email = c_email or f"{slugify(c_name)}@customer.kireiz.com"
+                            if AdminUser.objects.filter(email__iexact=safe_email).exists():
+                                safe_email = f"b2b_{slugify(c_name)}_{q.get('sales_rep_id') or 'acc'}@customer.kireiz.com"
+                            AdminUser.objects.create(
+                                email=safe_email,
+                                name=q.get("contact_person") or c_name,
+                                company_name=c_name or "Corporate Account",
+                                role=b2b_role,
+                                tier="silver",
+                                assigned_sales_rep_id=q.get("sales_rep_id"),
+                                is_active=True,
+                            )
+                        except Exception:
+                            pass
+
             accounts = b2b_account_queryset()
 
             search = request.GET.get("search")
@@ -552,6 +582,12 @@ class SalesRepAssignmentBoardAPIView(APIView):
             with transaction.atomic():
                 account.assigned_sales_rep = rep
                 account.save(update_fields=["assigned_sales_rep", "updated_at"])
+
+                # Propagate sales rep assignment to all quotation requests for this account/company
+                lookup = Q(email__iexact=account.email)
+                if account.company_name:
+                    lookup |= Q(company_name__iexact=account.company_name)
+                QuotationRequest.objects.filter(lookup, isDeleted=False).update(sales_rep=rep)
 
             return Response({
                 "status": True,
