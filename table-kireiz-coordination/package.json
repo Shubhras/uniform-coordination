@@ -22,6 +22,8 @@
     "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^3.9.0",
     "@paypal/react-paypal-js": "^8.9.2",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.4.2",
     "@stripe/react-stripe-js": "^5.4.1",
     "@stripe/stripe-js": "^8.6.3",
     "@tanstack/match-sorter-utils": "^8.19.4",
@@ -43,14 +45,14 @@
     "html-react-parser": "^5.2.1",
     "lodash": "^4.17.21",
     "marked": "^14.1.2",
-    "next": "^15.3.8",
-    "next-auth": "^5.0.0-beta.25",
+    "next": "~15.5.28",
+    "next-auth": "^5.0.0-beta.32",
     "next-intl": "^4.1.0",
-    "react": "^19.0.1",
+    "react": "^19.3.1",
     "react-apexcharts": "^1.7.0",
     "react-colorful": "^5.6.1",
     "react-csv": "^2.2.2",
-    "react-dom": "^19.0.1",
+    "react-dom": "^19.3.1",
     "react-highlight-words": "^0.21.0",
     "react-hook-form": "^7.53.0",
     "react-icons": "5.4.0",
@@ -66,8 +68,6 @@
     "swr": "^2.3.0",
     "tailwind-merge": "^2.5.2",
     "three": "^0.182.0",
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.4.2",
     "valtio": "^2.2.0",
     "yet-another-react-lightbox": "^3.21.7",
     "zod": "^3.23.8",
@@ -80,7 +80,7 @@
     "autoprefixer": "^10.4.20",
     "color": "^4.2.3",
     "eslint": "^9",
-    "eslint-config-next": "15.3.1",
+    "eslint-config-next": "^15.5.28",
     "eslint-plugin-react-hooks": "^5.2.0",
     "postcss": "^8.4.45",
     "postcss-nesting": "^13.0.0",
@@ -89,12 +89,12 @@
   },
   "overrides": {
     "gantt-task-react": {
-      "react": "^19.0.1",
-      "react-dom": "^19.0.1"
+      "react": "^19.0.9",
+      "react-dom": "^19.0.9"
     },
     "react-simple-maps": {
-      "react": "^19.0.1",
-      "react-dom": "^19.0.1"
+      "react": "^19.0.9",
+      "react-dom": "^19.0.9"
     },
     "react-syntax-highlighter": {
       "prismjs": "1.30.0"
