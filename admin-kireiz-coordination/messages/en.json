@@ -1625,6 +1625,7 @@
           "nameRequired": "Full Name is required",
           "emailRequired": "Email is required",
           "emailInvalid": "Please enter a valid email address",
+          "invalidMobile": "Enter a valid 10-digit mobile number",
           "designationRequired": "Designation is required",
           "passwordRequired": "Password is required"
         }
