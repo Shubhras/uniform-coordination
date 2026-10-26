@@ -48,6 +48,8 @@ const EditQuotation = () => {
 
     if (!formData.phone_number.trim()) {
       newErrors.phone_number = t("validation.phoneRequired");
+    } else if (formData.phone_number.trim().length !== 10) {
+      newErrors.phone_number = t("validation.invalidPhone");
     }
 
     if (!formData.item_type.trim()) {
@@ -158,6 +160,19 @@ const EditQuotation = () => {
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
+
+    if (name === "phone_number") {
+      const numericValue = value.replace(/\D/g, "").slice(0, 10);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: numericValue,
+      }));
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+      return;
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -343,8 +358,11 @@ const EditQuotation = () => {
             </label>
 
             <input
-              type="text"
+              type="tel"
+              inputMode="numeric"
+              pattern="[0-9]*"
               name="phone_number"
+              maxLength={10}
               value={formData.phone_number}
               onChange={handleChange}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"

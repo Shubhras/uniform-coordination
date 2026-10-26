@@ -26,11 +26,10 @@ const Tabs = ({ activeTab, setActiveTab }) => {
         <button
           key={id}
           onClick={() => setActiveTab(id)}
-          className={`pb-3 text-base font-medium flex items-center gap-2 whitespace-nowrap transition-colors ${
-            activeTab === id
+          className={`pb-1 text-base font-medium flex items-center gap-2 whitespace-nowrap transition-colors ${activeTab === id
               ? "text-[#1C2C56] border-b-4 border-[#1C2C56]"
               : "text-[#64748B] hover:text-[#1C2C56]"
-          }`}
+            }`}
         >
           <Icon size={16} />
           {t(key)}

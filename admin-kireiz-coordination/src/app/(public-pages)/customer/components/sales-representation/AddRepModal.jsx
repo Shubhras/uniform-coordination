@@ -174,7 +174,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
         <div className="flex items-start justify-between mb-5">
           <h3 className="text-lg font-semibold text-[#1C2C56]">
-            {isEdit ? "Edit Sales Representative" : t("modalTitle")}
+            {isEdit ? t("editModalTitle") : t("modalTitle")}
           </h3>
           <button
             onClick={onClose}
@@ -189,7 +189,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
             <div key={field.name}>
               <label className="block text-sm font-medium text-[#1C2C56] mb-1">
                 {field.name === "password" && isEdit
-                  ? "Password (Leave blank to keep current)"
+                  ? t("passwordEditLabel")
                   : t(field.labelKey)}
                 {field.required && (field.name !== "password" || !isEdit) && (
                   <span className="text-red-500 ml-0.5">*</span>
@@ -211,7 +211,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
                   autoComplete={field.autoComplete}
                   placeholder={
                     field.name === "password" && isEdit
-                      ? "Leave blank to keep unchanged"
+                      ? t("passwordPlaceholder")
                       : ""
                   }
                   className={`w-full border rounded-lg px-3 py-2 pr-10 text-sm outline-none transition-colors ${errors[field.name]
@@ -255,7 +255,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
             disabled={saving}
             className="px-4 py-2 rounded-lg text-sm bg-[#1C4FA8] text-white disabled:opacity-50"
           >
-            {saving ? t("saving") : isEdit ? "Update" : t("submit")}
+            {saving ? t("saving") : isEdit ? t("update") : t("submit")}
           </button>
         </div>
       </div>

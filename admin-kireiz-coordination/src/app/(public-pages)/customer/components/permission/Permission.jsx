@@ -153,18 +153,18 @@ const Permission = () => {
         </div>
 
         {/* Table */}
-        <div className="border border-[#E2E8F0] rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="border border-[#E2E8F0] rounded-xl overflow-x-auto">
+          <table className="w-full text-sm min-w-max">
             <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <tr className="text-[#486284]">
-                <th className="text-left px-5 py-3 font-medium">
+                <th className="text-left px-5 py-3 font-medium whitespace-nowrap sticky left-0 bg-[#F8FAFC] z-10 border-r border-[#E2E8F0]">
                   {t("featureCapability")}
                 </th>
 
                 {roles.map((role) => (
                   <th
                     key={role.role_name}
-                    className="text-center px-5 py-3 font-medium"
+                    className="text-center px-6 py-3 font-medium whitespace-nowrap min-w-[110px]"
                   >
                     {role.role_name}
                   </th>
@@ -173,23 +173,15 @@ const Permission = () => {
             </thead>
 
             <tbody>
-              {permissions.map((perm, index) => (
+              {permissions.map((perm) => (
                 <tr
                   key={perm.id}
-                  className="border-b last:border-none border-[#E2E8F0]"
+                  className="border-b last:border-none border-[#E2E8F0] hover:bg-slate-50 transition-colors group"
                 >
-                  <td className="px-5 py-4 font-medium">{perm.name}</td>
+                  <td className="px-5 py-4 font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-slate-50 transition-colors z-10 border-r border-[#E2E8F0]">
+                    {perm.name}
+                  </td>
 
-                  {/* <td className="px-5 py-4 text-center">
-                  <ToggleSwitch checked={perm.admin} disabled />
-                </td>
-
-                <td className="px-5 py-4 text-center">
-                  <ToggleSwitch
-                    checked={perm.b2b}
-                    onClick={() => togglePermission(index, "b2b")}
-                  />
-                </td> */}
                   {roles.map((role) => {
                     const permission = role.permissions.find(
                       (item) => item.menu_id === perm.id,
@@ -200,7 +192,7 @@ const Permission = () => {
                     return (
                       <td
                         key={role.role_name}
-                        className="px-5 py-4 text-center"
+                        className="px-6 py-4 text-center whitespace-nowrap min-w-[110px]"
                       >
                         <ToggleSwitch
                           checked={permission?.can_view ?? false}
