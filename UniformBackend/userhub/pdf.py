@@ -1,20 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.reverse import reverse
 from .models import QuotationRequest
 from .serializers import QuotationSummarySerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from django.http import FileResponse
 from django.template.loader import render_to_string
+from django.db.models import Q
+import uuid
 from weasyprint import HTML
 import io
 import base64
 import os
 from django.conf import settings
-from rest_framework.permissions import AllowAny
 
 
 def _get_logo_data_uri():
@@ -35,8 +33,15 @@ class QuotationDetailView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, pk):
+        lookup = Q(quotation_id=pk)
+        try:
+            uuid.UUID(str(pk))
+            lookup |= Q(uuids=pk)
+        except (ValueError, TypeError):
+            pass
+
         quotation = QuotationRequest.objects.filter(
-            uuids=pk, isDeleted=False
+            lookup, isDeleted=False
         ).select_related('customupdatemodel__model_info__product').first()
 
         if not quotation:
@@ -71,8 +76,15 @@ class QuotationPDFView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, pk):
+        lookup = Q(quotation_id=pk)
+        try:
+            uuid.UUID(str(pk))
+            lookup |= Q(uuids=pk)
+        except (ValueError, TypeError):
+            pass
+
         quotation = QuotationRequest.objects.filter(
-            uuids=pk, isDeleted=False
+            lookup, isDeleted=False
         ).select_related('customupdatemodel__model_info__product').first()
         if not quotation:
             return Response({"detail": "Not found"}, status=404)

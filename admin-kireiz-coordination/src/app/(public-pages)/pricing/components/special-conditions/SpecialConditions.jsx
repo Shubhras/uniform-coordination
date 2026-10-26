@@ -24,8 +24,8 @@ import {
   apiDeleteSpecialCondition,
 } from "@/services/SpecialConditionService";
 import {
-  apiGetB2BAccountList,
-  apiUpdateB2BAccount,
+  apiGetCustomersList,
+  apiUpdateCustomer,
 } from "@/services/B2BAccountService";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
@@ -463,13 +463,21 @@ const AssignB2BAccountsModal = ({
     const loadAccounts = async () => {
       try {
         setLoading(true);
-        const res = await apiGetB2BAccountList(accessToken, 1, 100);
-        const list = res?.data || [];
+        // Call customer list with userType=uniform to fetch B2B accounts
+        const res = await apiGetCustomersList(accessToken, 1, 100, "", "uniform");
+        const list = res?.results || res?.data || (Array.isArray(res) ? res : []);
         setAccounts(list);
 
         const currentAssigned = new Set();
         list.forEach((acc) => {
-          if (acc.tier === condition.condition_type) {
+          const roleName = (acc.role || "").toLowerCase();
+          const condType = (condition.condition_type || "").toLowerCase();
+          const condTitle = (condition.title || "").toLowerCase();
+          if (
+            roleName === condType ||
+            roleName === condTitle ||
+            acc.tier === condType
+          ) {
             currentAssigned.add(acc.id);
           }
         });
@@ -503,9 +511,13 @@ const AssignB2BAccountsModal = ({
     const q = search.toLowerCase();
     return accounts.filter(
       (a) =>
-        (a.company_name || "").toLowerCase().includes(q) ||
-        (a.name || "").toLowerCase().includes(q) ||
-        (a.email || "").toLowerCase().includes(q),
+        (a.full_name || "").toLowerCase().includes(q) ||
+        (a.userName || "").toLowerCase().includes(q) ||
+        (a.firstName || "").toLowerCase().includes(q) ||
+        (a.lastName || "").toLowerCase().includes(q) ||
+        (a.email || "").toLowerCase().includes(q) ||
+        (a.phone || "").toLowerCase().includes(q) ||
+        (a.role || "").toLowerCase().includes(q),
     );
   }, [accounts, search]);
 
@@ -522,13 +534,17 @@ const AssignB2BAccountsModal = ({
       );
 
       for (const acc of toAssign) {
-        await apiUpdateB2BAccount(accessToken, acc.id, {
-          tier: condition.condition_type,
+        await apiUpdateCustomer(accessToken, acc.id, {
+          role: condition.condition_type,
+        }).catch((err) => {
+          console.warn(`Failed to update customer ${acc.id} role:`, err);
         });
       }
       for (const acc of toRemove) {
-        await apiUpdateB2BAccount(accessToken, acc.id, {
-          tier: "silver",
+        await apiUpdateCustomer(accessToken, acc.id, {
+          role: "b2b",
+        }).catch((err) => {
+          console.warn(`Failed to reset customer ${acc.id} role:`, err);
         });
       }
 
@@ -621,6 +637,11 @@ const AssignB2BAccountsModal = ({
             ) : (
               filteredAccounts.map((acc) => {
                 const isChecked = selectedIds.has(acc.id);
+                const displayName =
+                  acc.full_name ||
+                  `${acc.firstName || ""} ${acc.lastName || ""}`.trim() ||
+                  acc.userName ||
+                  acc.email;
                 return (
                   <label
                     key={acc.id}
@@ -635,16 +656,16 @@ const AssignB2BAccountsModal = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-semibold text-[#1C2C56] truncate">
-                          {acc.company_name || acc.name}
+                          {displayName}
                         </p>
-                        {acc.tier && (
+                        {acc.role && (
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-[#1C4FA8] border border-blue-200 capitalize font-medium">
-                            {acc.tier}
+                            {acc.role}
                           </span>
                         )}
                       </div>
                       <p className="text-xs text-gray-500 truncate">
-                        {acc.name} • {acc.email}
+                        {acc.email} {acc.phone ? `• ${acc.phone}` : ""}
                       </p>
                     </div>
                   </label>

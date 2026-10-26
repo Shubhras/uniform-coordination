@@ -137,13 +137,14 @@ export async function apiGetCustomersDetails(accessToken, id) {
 }
 
 export async function apiUpdateCustomer(accessToken, id, payload) {
+  const isFormData = typeof FormData !== "undefined" && payload instanceof FormData;
   return ApiService.fetchDataWithAxios({
     url: `/v1/uniformAdmin/customers/${id}/update/`,
     method: "put",
     data: payload,
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "multipart/form-data",
+      ...(isFormData ? { "Content-Type": "multipart/form-data" } : {}),
     },
   });
 }

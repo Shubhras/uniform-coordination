@@ -544,6 +544,13 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
     product_subcategory_id = serializers.SerializerMethodField()
     product_subcategory_name = serializers.SerializerMethodField()
 
+    # Quotation Tracking Features (FU-032, FU-033, FU-034)
+    sales_rep_details = serializers.SerializerMethodField()
+    sales_rep_name = serializers.SerializerMethodField()
+    signed_pdf_url = serializers.SerializerMethodField()
+    export_pdf_url = serializers.SerializerMethodField()
+    attachments = serializers.SerializerMethodField()
+
     valid_until = FlexibleDateField(required=False, allow_null=True)
     delivery_date = FlexibleDateField(required=False, allow_null=True)
 
@@ -589,10 +596,18 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             # Admin-entered quotation figures (manual quoting, no auto-calculation)
             "valid_until",
             "sales_rep",
+            "sales_rep_name",
+            "sales_rep_details",
             "subtotal",
             "discount_percent",
             "total",
             "last_sent_at",
+            "signed_pdf",
+            "signed_pdf_url",
+            "signed_at",
+            "is_signed",
+            "export_pdf_url",
+            "attachments",
 
             "agreed_to_terms",
             "isActive",
@@ -706,6 +721,74 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
         ):
             return obj.customupdatemodel.model_info.product.productType
         return None
+
+    def get_sales_rep_details(self, obj):
+        rep = obj.sales_rep
+        if not rep:
+            return None
+        return {
+            "id": rep.id,
+            "name": rep.name or (rep.email.split("@")[0] if rep.email else "Sales Representative"),
+            "email": rep.email,
+            "phone": rep.mobile or "",
+            "mobile": rep.mobile or "",
+            "designation": rep.designation or "Sales Representative",
+            "company_name": rep.company_name or "",
+        }
+
+    def get_sales_rep_name(self, obj):
+        if not obj.sales_rep:
+            return None
+        return obj.sales_rep.name or (obj.sales_rep.email.split("@")[0] if obj.sales_rep.email else None)
+
+    def get_signed_pdf_url(self, obj):
+        if obj.signed_pdf:
+            return new_build_media_url(obj.signed_pdf)
+        return None
+
+    def get_export_pdf_url(self, obj):
+        if not obj.quotation_id:
+            return None
+        domain = getattr(settings, "SITE_DOMAIN", "") or getattr(settings, "SITE_URL", "") or ""
+        domain = domain.rstrip("/")
+        return f"{domain}/api/v1/userhub/quotationrequest/{obj.quotation_id}/export/"
+
+    def get_attachments(self, obj):
+        attachments = []
+        domain = getattr(settings, "SITE_DOMAIN", "") or getattr(settings, "SITE_URL", "") or ""
+        domain = domain.rstrip("/")
+
+        # 1. Quotation Document / Proposal PDF
+        quotation_export_url = f"{domain}/api/v1/userhub/quotationrequest/{obj.quotation_id}/export/" if obj.quotation_id else None
+        attachments.append({
+            "id": "quotation-pdf",
+            "name": f"Quotation_{obj.quotation_id or 'Document'}.pdf",
+            "title": "Quotation Proposal",
+            "type": "quotation_pdf",
+            "category": "Official Quotation",
+            "file_url": quotation_export_url,
+            "download_url": quotation_export_url,
+            "is_available": True,
+            "created_at": obj.last_sent_at or obj.updated_at or obj.created_at,
+        })
+
+        # 2. Signed Contract / Agreement PDF
+        if obj.signed_pdf:
+            signed_url = new_build_media_url(obj.signed_pdf)
+            attachments.append({
+                "id": "signed-contract-pdf",
+                "name": f"Signed_Contract_{obj.quotation_id or 'Document'}.pdf",
+                "title": "Signed Agreement / Contract",
+                "type": "signed_contract",
+                "category": "Signed Document",
+                "file_url": signed_url,
+                "download_url": signed_url,
+                "is_available": True,
+                "created_at": obj.signed_at or obj.updated_at,
+            })
+
+        return attachments
+
 
 
 # new 
