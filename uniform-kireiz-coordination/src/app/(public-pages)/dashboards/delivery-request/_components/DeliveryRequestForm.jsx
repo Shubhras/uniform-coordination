@@ -33,8 +33,8 @@ const validationSchema = z.object({
         .email({ message: 'Please enter a valid email address' }),
     phone_number: z
         .string({ required_error: 'Please enter phone number' })
-        .regex(/^\d+$/, { message: 'Phone number must contain only numbers' })
-        .min(8, { message: 'Please enter a valid phone number (min. 8 digits)' }),
+        .min(1, { message: 'Please enter phone number' })
+        .regex(/^[0-9]{10}$/, { message: 'Please enter a valid 10-digit phone number' }),
     item_type: z
         .string({ required_error: 'Please enter item type' })
         .min(1, { message: 'Please enter item type' }),
@@ -243,7 +243,29 @@ const DeliveryRequestForm = () => {
                                     name="phone_number"
                                     control={control}
                                     render={({ field }) => (
-                                        <Input placeholder="Phone Number" {...field} />
+                                        <Input
+                                            type="text"
+                                            inputMode="numeric"
+                                            autoComplete="tel"
+                                            placeholder="Phone Number"
+                                            maxLength={10}
+                                            {...field}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                                                field.onChange(value)
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (
+                                                    e.key &&
+                                                    e.key.length === 1 &&
+                                                    !/\d/.test(e.key) &&
+                                                    !e.ctrlKey &&
+                                                    !e.metaKey
+                                                ) {
+                                                    e.preventDefault()
+                                                }
+                                            }}
+                                        />
                                     )}
                                 />
                             </FormItem>
