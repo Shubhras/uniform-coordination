@@ -914,6 +914,8 @@
             "qty": "Qty",
             "days": "Days",
             "unitPrice": "Unit Price",
+            "tax": "Tax",
+            "cancelOrder": "Cancel Order",
             "subtotal": "Subtotal",
             "paymentSummary": "PAYMENT SUMMARY",
             "totalItems": "Total Items",

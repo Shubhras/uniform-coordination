@@ -166,7 +166,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                 onClick={() => setOpenCancelModal(true)}
                 className="rounded-lg border border-red-200 bg-white px-5 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
               >
-                Cancel Order
+                {t("cancelOrder")}
               </button>
             )}
 
@@ -300,6 +300,9 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                     <th className="text-left px-4 py-3 font-medium">
                       {t("unitPrice")}
                     </th>
+                    <th className="text-left px-4 py-3 font-medium">
+                      {t("tax")}
+                    </th>
 
                     <th className="text-left px-4 py-3 font-medium">
                       {t("subtotal")}
@@ -333,6 +336,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                       <td className="px-4 py-3">{item.rental_days}d</td>
 
                       <td className="px-4 py-3">${item.price_per_day}</td>
+                      <td className="px-4 py-3">${order?.payment_summary?.tax}</td>
 
                       <td className="px-4 py-3 font-semibold text-[#1A1714]">
                         ${item.subtotal}
