@@ -166,7 +166,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                 onClick={() => setOpenCancelModal(true)}
                 className="rounded-lg border border-red-200 bg-white px-5 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
               >
-                Cancel Order
+                {t("cancelOrder")}
               </button>
             )}
 
@@ -300,6 +300,9 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                     <th className="text-left px-4 py-3 font-medium">
                       {t("unitPrice")}
                     </th>
+                    <th className="text-left px-4 py-3 font-medium">
+                      {t("tax")}
+                    </th>
 
                     <th className="text-left px-4 py-3 font-medium">
                       {t("subtotal")}
@@ -333,6 +336,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                       <td className="px-4 py-3">{item.rental_days}d</td>
 
                       <td className="px-4 py-3">${item.price_per_day}</td>
+                      <td className="px-4 py-3">${order?.payment_summary?.tax}</td>
 
                       <td className="px-4 py-3 font-semibold text-[#1A1714]">
                         ${item.subtotal}
@@ -359,7 +363,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
               <div className="flex justify-between">
                 <span className="text-[#7A6E66]">{t("shipping")}</span>
-                <span>{order?.payment_summary?.shipping_charge || 0}</span>
+                <span>${order?.payment_summary?.shipping_charge || 0}</span>
               </div>
 
               <div className="flex justify-between">
@@ -368,13 +372,13 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#7A6E66]">{t("subtotal")}</span>
-                <span>${order?.payment_summary?.subtotal}</span>
+                <span className="text-[#7A6E66]">{t("tax")}</span>
+                <span>${order?.payment_summary?.tax || 0}</span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#7A6E66]">{t("deliveryFee")}</span>
-                <span>${order?.payment_summary?.shipping_charge}</span>
+                <span className="text-[#7A6E66]">{t("subtotal")}</span>
+                <span>${order?.payment_summary?.subtotal}</span>
               </div>
 
               {/* <div className="flex justify-between">

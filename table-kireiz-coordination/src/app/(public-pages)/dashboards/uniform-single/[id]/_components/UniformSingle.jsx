@@ -45,10 +45,24 @@ const UniformSingle = () => {
     return diffDays > 0 ? diffDays : 1;
   }, [startDate, returnDate]);
 
+  const availableQuantity = useMemo(() => {
+    if (!singleProductData) return null;
+    if (
+      singleProductData.available_quantity !== undefined &&
+      singleProductData.available_quantity !== null
+    ) {
+      const parsed = Number(singleProductData.available_quantity);
+      return !isNaN(parsed) ? parsed : null;
+    }
+    return null;
+  }, [singleProductData]);
+
+  const isOutOfStock = availableQuantity !== null && availableQuantity <= 0;
+
   const estimatedTotal = useMemo(() => {
     if (!singleProductData) return 0;
     const pricePerDay = Number(singleProductData.rental_price_per_day || singleProductData.price || 0);
-    return (pricePerDay * rentalDays * quantity).toFixed(2);
+    return (pricePerDay * rentalDays * (Number(quantity) || 0)).toFixed(2);
   }, [singleProductData, rentalDays, quantity]);
 
   /**
@@ -64,6 +78,17 @@ const UniformSingle = () => {
 
         if (res?.status && res?.data) {
           setSingleProductData(res.data);
+          const avail =
+            res.data.available_quantity !== undefined &&
+              res.data.available_quantity !== null
+              ? Number(res.data.available_quantity)
+              : null;
+
+          if (avail !== null && avail <= 0) {
+            setQuantity(0);
+          } else {
+            setQuantity(1);
+          }
         } else {
           toast.push(
             <Notification title="Error!" type="danger">
@@ -109,9 +134,37 @@ const UniformSingle = () => {
       return;
     }
 
+    if (isOutOfStock) {
+      toast.push(
+        <Notification title="Out of Stock" type="danger">
+          Sorry, this item is currently out of stock.
+        </Notification>
+      );
+      return;
+    }
+
+    const selectedQty = Number(quantity);
+    if (!selectedQty || selectedQty <= 0) {
+      toast.push(
+        <Notification title="Invalid Quantity" type="warning">
+          Please select a valid quantity (at least 1).
+        </Notification>
+      );
+      return;
+    }
+
+    if (availableQuantity !== null && selectedQty > availableQuantity) {
+      toast.push(
+        <Notification title="Stock Limit Exceeded" type="danger">
+          Only {availableQuantity} item{availableQuantity > 1 ? "s" : ""} available in stock. You cannot add {selectedQty} to cart.
+        </Notification>
+      );
+      return;
+    }
+
     try {
       setAddingToCart(true);
-      const res = await apiAddToCart(token, id, quantity);
+      const res = await apiAddToCart(token, id, selectedQty);
       if (res?.status || res?.statusCode === 200 || res?.statusCode === 201) {
         if (typeof window !== "undefined") {
           localStorage.setItem(
@@ -126,7 +179,7 @@ const UniformSingle = () => {
 
         toast.push(
           <Notification title="Added to Cart!" type="success">
-            {singleProductData.productName} (x{quantity}) added to cart.
+            {singleProductData.productName} (x{selectedQty}) added to cart.
           </Notification>
         );
 
@@ -249,6 +302,23 @@ const UniformSingle = () => {
                           Save {singleProductData.discount}%
                         </span>
                       )}
+                      {availableQuantity !== null && (
+                        <div className="border-l border-gray-300 pl-4">
+                          {isOutOfStock ? (
+                            <span className="bg-red-100 text-red-700 text-xs px-2.5 py-1 rounded-md font-medium inline-flex items-center">
+                              Out of Stock
+                            </span>
+                          ) : availableQuantity <= 5 ? (
+                            <span className="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-md font-medium inline-flex items-center">
+                              Only {availableQuantity} left in stock
+                            </span>
+                          ) : (
+                            <span className="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-md font-medium inline-flex items-center">
+                              In Stock ({availableQuantity} available)
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -256,41 +326,82 @@ const UniformSingle = () => {
                   <div className="mt-5 pt-4 border-t border-[#E8E0D9] space-y-4">
                     {/* Quantity Selector */}
                     <div className="flex items-center justify-between">
-                      <label className="text-sm font-semibold text-[#2C1810]">
-                        Quantity: <span className="text-[#7B3C1D] font-bold">{quantity}</span>
-                      </label>
+                      <div>
+                        <label className="text-sm font-semibold text-[#2C1810]">
+                          Quantity: <span className="text-[#7B3C1D] font-bold">{quantity}</span>
+                        </label>
+                        {availableQuantity !== null && (
+                          <p className="text-xs text-[#6B7280] mt-0.5">
+                            {isOutOfStock
+                              ? "Currently out of stock"
+                              : `Available stock: ${availableQuantity}`}
+                          </p>
+                        )}
+                      </div>
                       <div className="flex items-center border border-[#DCCBC1] rounded-lg bg-white overflow-hidden shadow-sm">
                         <button
                           type="button"
-                          onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                          disabled={quantity <= 1}
-                          className="px-3 py-1.5 text-gray-600 hover:bg-[#F5F0EE] disabled:opacity-40 transition-colors"
+                          onClick={() => setQuantity((prev) => Math.max(1, (Number(prev) || 1) - 1))}
+                          disabled={isOutOfStock || Number(quantity) <= 1}
+                          className="px-3 py-1.5 text-gray-600 hover:bg-[#F5F0EE] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                           aria-label="Decrease quantity"
                         >
                           <FiMinus size={14} />
                         </button>
                         <input
                           type="number"
-                          min={1}
-                          max={singleProductData?.available_quantity || 99}
+                          min={isOutOfStock ? 0 : 1}
+                          max={availableQuantity !== null ? availableQuantity : 99}
                           value={quantity}
+                          disabled={isOutOfStock}
                           onChange={(e) => {
-                            const val = parseInt(e.target.value, 10);
-                            const maxVal = singleProductData?.available_quantity || 99;
+                            const raw = e.target.value;
+                            if (raw === "") {
+                              setQuantity("");
+                              return;
+                            }
+                            const val = parseInt(raw, 10);
                             if (!isNaN(val)) {
-                              setQuantity(Math.min(Math.max(1, val), maxVal));
+                              if (availableQuantity !== null && val > availableQuantity) {
+                                toast.push(
+                                  <Notification title="Quantity Exceeded" type="warning">
+                                    Only {availableQuantity} unit{availableQuantity > 1 ? "s" : ""} available in stock.
+                                  </Notification>
+                                );
+                                setQuantity(availableQuantity);
+                              } else if (val < 1) {
+                                setQuantity(1);
+                              } else {
+                                setQuantity(val);
+                              }
                             }
                           }}
-                          className="w-12 text-center text-sm font-semibold text-[#2C1810] focus:outline-none"
+                          onBlur={() => {
+                            if (quantity === "" || Number(quantity) < 1) {
+                              setQuantity(isOutOfStock ? 0 : 1);
+                            }
+                          }}
+                          className="w-12 text-center text-sm font-semibold text-[#2C1810] focus:outline-none disabled:bg-gray-100 disabled:text-gray-400"
                         />
                         <button
                           type="button"
                           onClick={() => {
-                            const maxVal = singleProductData?.available_quantity || 99;
-                            setQuantity((prev) => Math.min(maxVal, prev + 1));
+                            const maxVal = availableQuantity !== null ? availableQuantity : 99;
+                            if (availableQuantity !== null && Number(quantity) >= availableQuantity) {
+                              toast.push(
+                                <Notification title="Maximum Stock Reached" type="warning">
+                                  Only {availableQuantity} unit{availableQuantity > 1 ? "s" : ""} available in stock.
+                                </Notification>
+                              );
+                              return;
+                            }
+                            setQuantity((prev) => Math.min(maxVal, (Number(prev) || 0) + 1));
                           }}
-                          disabled={quantity >= (singleProductData?.available_quantity || 99)}
-                          className="px-3 py-1.5 text-gray-600 hover:bg-[#F5F0EE] disabled:opacity-40 transition-colors"
+                          disabled={
+                            isOutOfStock ||
+                            (availableQuantity !== null && Number(quantity) >= availableQuantity)
+                          }
+                          className="px-3 py-1.5 text-gray-600 hover:bg-[#F5F0EE] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                           aria-label="Increase quantity"
                         >
                           <FiPlus size={14} />
@@ -306,15 +417,20 @@ const UniformSingle = () => {
                   <div className="flex flex-col sm:flex-row gap-3 mt-6">
                     <button
                       type="button"
-                      disabled={addingToCart}
+                      disabled={addingToCart || isOutOfStock}
                       onClick={handleAddToCart}
-                      className="flex-1 bg-[#7B3C1D] hover:bg-[#602D15] transition-colors text-white py-3 px-4 rounded-md text-sm font-medium shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+                      className={`flex-1 transition-colors text-white py-3 px-4 rounded-md text-sm font-medium shadow-sm flex items-center justify-center gap-2 ${isOutOfStock
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-[#7B3C1D] hover:bg-[#602D15] cursor-pointer disabled:opacity-70"
+                        }`}
                     >
                       {addingToCart ? (
                         <>
                           <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
                           <span>Adding to Cart...</span>
                         </>
+                      ) : isOutOfStock ? (
+                        <span>Out of Stock</span>
                       ) : (
                         <>
                           <FiShoppingCart size={18} />
@@ -327,7 +443,7 @@ const UniformSingle = () => {
                       onClick={handleUniformDesigning}
                       className="sm:w-auto bg-white hover:bg-[#F5F0EE] border border-[#8B4513] text-[#8B4513] transition-colors py-3 px-5 rounded-md text-sm font-medium shadow-sm whitespace-nowrap cursor-pointer"
                     >
-                      Customize in 3D
+                      Customize
                     </button>
                   </div>
 

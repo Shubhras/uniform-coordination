@@ -916,6 +916,8 @@
             "qty": "数量",
             "days": "日数",
             "unitPrice": "単価",
+            "cancelOrder": "注文をキャンセル",
+            "tax": "税金",
             "subtotal": "小計",
             "paymentSummary": "支払い概要",
             "totalItems": "商品合計",
