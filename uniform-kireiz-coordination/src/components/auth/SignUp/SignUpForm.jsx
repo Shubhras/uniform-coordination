@@ -11,21 +11,21 @@ import PasswordInput from "@/components/shared/PasswordInput";
 const validationSchema = z
   .object({
     firstName: z
-      .string({ required_error: "Please enter your first name" })
+      .string({ error: "Please enter your first name" })
       .min(1, "Please enter your first name"),
     lastName: z
-      .string({ required_error: "Please enter your last name" })
+      .string({ error: "Please enter your last name" })
       .min(1, "Please enter your last name"),
     phone: z
-      .string({ required_error: "Please enter your mobile no." })
+      .string({ error: "Please enter your mobile no." })
       .min(1, "Please enter your mobile no.")
       .regex(/^[0-9]{10}$/, "Please enter a valid 10-digit mobile number"),
     email: z
-      .string({ required_error: "Please enter your email" })
+      .string({ error: "Please enter your email" })
       .min(1, "Please enter your email")
       .email({ message: "Please enter a valid email address" }),
     password: z
-      .string({ required_error: "Please enter your password" })
+      .string({ error: "Please enter your password" })
       .min(1, "Please enter your password")
       .min(8, "Password must be at least 8 characters")
       .regex(/[^A-Za-z0-9]/, "Must include a symbol"),
