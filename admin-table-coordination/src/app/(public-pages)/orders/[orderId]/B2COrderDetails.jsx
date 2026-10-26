@@ -363,7 +363,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
               <div className="flex justify-between">
                 <span className="text-[#7A6E66]">{t("shipping")}</span>
-                <span>{order?.payment_summary?.shipping_charge || 0}</span>
+                <span>${order?.payment_summary?.shipping_charge || 0}</span>
               </div>
 
               <div className="flex justify-between">
@@ -372,13 +372,13 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#7A6E66]">{t("subtotal")}</span>
-                <span>${order?.payment_summary?.subtotal}</span>
+                <span className="text-[#7A6E66]">{t("tax")}</span>
+                <span>${order?.payment_summary?.tax || 0}</span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#7A6E66]">{t("deliveryFee")}</span>
-                <span>${order?.payment_summary?.shipping_charge}</span>
+                <span className="text-[#7A6E66]">{t("subtotal")}</span>
+                <span>${order?.payment_summary?.subtotal}</span>
               </div>
 
               {/* <div className="flex justify-between">
