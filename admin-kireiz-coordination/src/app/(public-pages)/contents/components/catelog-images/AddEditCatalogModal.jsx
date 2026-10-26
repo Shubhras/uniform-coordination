@@ -109,14 +109,36 @@ const AddEditCatalogModal = ({
     const fetchCategories = async () => {
       setLoadingCategories(true);
       try {
-        const response = await apiGetCategoryList(accessToken);
-        if (response?.status && response?.data) {
-          const options = response.data.map((c) => ({
-            value: c.id,
-            label: c.categoryName,
-          }));
-          setCategoryOptions(options);
-        }
+        const response = await apiGetCategoryList(accessToken, 1, 100, "", {
+          isActive: "true",
+        });
+        const list = Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response?.data?.results)
+          ? response.data.results
+          : [];
+
+        // Filter out inactive categories
+        const activeCategories = list.filter((c) => {
+          if (c.isActive !== undefined && c.isActive !== null) {
+            return c.isActive === true || c.isActive === "true";
+          }
+          if (c.status !== undefined && c.status !== null) {
+            return (
+              c.status === true ||
+              c.status === "true" ||
+              c.status === "active" ||
+              c.status === "Active"
+            );
+          }
+          return true;
+        });
+
+        const options = activeCategories.map((c) => ({
+          value: c.id,
+          label: c.categoryName,
+        }));
+        setCategoryOptions(options);
       } catch (err) {
         console.error("Failed to load categories:", err);
       } finally {

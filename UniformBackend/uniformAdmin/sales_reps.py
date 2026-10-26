@@ -262,6 +262,13 @@ class SalesRepListAPIView(APIView):
                 is_staff=True,
             )
 
+            # Send welcome email with login credentials
+            try:
+                from uniformAdmin.utils import send_b2b_welcome_email
+                send_b2b_welcome_email(rep, password)
+            except Exception as mail_err:
+                print(f"[SalesRepCreate] Error sending welcome email: {mail_err}")
+
             return Response({
                 "status": True,
                 "statusCode": 201,

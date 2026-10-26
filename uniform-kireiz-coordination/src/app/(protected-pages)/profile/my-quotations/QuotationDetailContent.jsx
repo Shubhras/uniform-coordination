@@ -20,6 +20,7 @@ import {
     FiPaperclip,
     FiCalendar,
     FiDollarSign,
+    FiCopy,
 } from 'react-icons/fi'
 import { formatDate } from '@/utils/dateFormater'
 
@@ -237,11 +238,21 @@ const StatusProgressionStepper = ({ quotation }) => {
  * Displays sales representative contact card or pending assignment state.
  */
 const SalesRepresentativeCard = ({ salesRep }) => {
+    const [copied, setCopied] = React.useState(false)
+
     const getInitials = (name) => {
         if (!name) return 'SR'
         const parts = name.trim().split(/\s+/)
         if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase()
         return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    }
+
+    const handleCopySupportEmail = () => {
+        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+            navigator.clipboard.writeText('support@kireiz.jp')
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2500)
+        }
     }
 
     return (
@@ -319,13 +330,33 @@ const SalesRepresentativeCard = ({ salesRep }) => {
                             </p>
                         </div>
                     </div>
-                    <a
-                        href="mailto:support@kireiz.jp"
-                        className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#CBD5E1] bg-white px-3 py-1.5 text-xs font-medium text-[#003560] hover:bg-[#F1F5F9] transition-colors"
-                    >
-                        <FiMail size={13} />
-                        Contact Support
-                    </a>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <a
+                            href="mailto:support@kireiz.jp"
+                            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#CBD5E1] bg-white px-3 py-1.5 text-xs font-medium text-[#003560] hover:bg-[#F1F5F9] transition-colors"
+                        >
+                            <FiMail size={13} />
+                            Contact Support
+                        </a>
+                        <button
+                            type="button"
+                            onClick={handleCopySupportEmail}
+                            title="Copy support email address to clipboard"
+                            className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-[#CBD5E1] bg-white px-2.5 py-1.5 text-xs font-medium text-[#475569] hover:bg-[#F1F5F9] hover:text-[#003560] transition-colors"
+                        >
+                            {copied ? (
+                                <>
+                                    <FiCheck size={13} className="text-emerald-600" />
+                                    <span className="text-emerald-600 font-semibold">Copied!</span>
+                                </>
+                            ) : (
+                                <>
+                                    <FiCopy size={13} />
+                                    <span>Copy Email</span>
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
             )}
         </section>

@@ -147,13 +147,48 @@ RESPONSE_TRANSLATIONS = {
     "Deleted successfully.": "正常に削除しました。",
     "Something went wrong on server.": "サーバーでエラーが発生しました。",
     "Invalid data": "無効なデータです。",
-    "Authentication failed": "認証に失敗しました。"
+    # Catalog & Media
+    "Catalog images fetched successfully": "カタログ画像を正常に取得しました",
+    "Catalog image created successfully": "カタログ画像を正常に作成しました",
+    "Catalog image updated successfully": "カタログ画像を正常に更新しました",
+    "Catalog image deleted successfully": "カタログ画像を正常に削除しました",
+    "Catalog not found": "カタログが見つかりません",
+
+    # Sales & Accounts
+    "Sales representatives fetched successfully": "営業担当者一覧を正常に取得しました",
+    "Sales representative created successfully": "営業担当者を正常に作成しました",
+    "Sales representative updated successfully": "営業担当者を正常に更新しました",
+    "Sales representative deleted successfully": "営業担当者を正常に削除しました",
+    "Sales representative not found": "営業担当者が見つかりません",
+    "Sales representative profile fetched successfully": "営業担当者プロフィールを正常に取得しました",
+    "Assignment board fetched successfully": "担当割り当てボードを正常に取得しました",
+    "Account unassigned": "アカウントの割り当てを解除しました",
+
+    # Quotations & Orders
+    "Quotation requests fetched successfully": "見積もりリクエストを正常に取得しました",
+    "Quotation request fetched successfully": "見積もりリクエスト情報を正常に取得しました",
+    "Quotation created successfully": "見積もりを正常に作成しました",
+    "Quotation updated successfully": "見積もりを正常に更新しました",
+    "Orders fetched successfully": "注文一覧を正常に取得しました",
+    "Order details fetched successfully": "注文詳細を正常に取得しました",
+
+    # Statuses
+    "Active": "有効",
+    "Inactive": "無効",
+    "Pending": "保留中",
+    "Approved": "承認済み",
+    "Rejected": "却下",
+    "In Progress": "進行中",
+    "Completed": "完了",
+    "Cancelled": "キャンセル済み",
+    "Draft": "下書き",
+    "Published": "公開済み"
 }
 
 def auto_translate(text: str, target_lang='ja') -> str:
     """
-    Translates any dynamic text automatically using Google Translate API with caching.
-    Ensures newly created database entries in English are dynamically translated to Japanese.
+    Translates dynamic text using curated dictionary and cached translations.
+    Caches results and fallbacks immediately to prevent API request latency.
     """
     if not text or not isinstance(text, str):
         return text
@@ -172,7 +207,7 @@ def auto_translate(text: str, target_lang='ja') -> str:
     try:
         url = f'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={target_lang}&dt=t&q=' + urllib.parse.quote(text_str)
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=3) as resp:
+        with urllib.request.urlopen(req, timeout=0.6) as resp:
             res_data = json.loads(resp.read().decode('utf-8'))
             translated = ''.join([item[0] for item in res_data[0] if item[0]])
             if translated:
@@ -181,6 +216,8 @@ def auto_translate(text: str, target_lang='ja') -> str:
     except Exception:
         pass
 
+    # Cache original text on failure/timeout so subsequent requests return instantly without network blocking
+    TRANSLATION_CACHE[text_str] = text
     return text
 
 def get_localized_msg(request_or_lang, english_text: str) -> str:

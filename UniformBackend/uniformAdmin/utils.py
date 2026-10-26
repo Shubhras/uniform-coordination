@@ -307,6 +307,7 @@ def send_b2b_welcome_email(user, raw_password):
 
     role_lower = str(role_name).lower().strip()
     is_b2b = role_lower in ["b2b", "b2b_user", "b2b user", "client"]
+    is_sales = role_lower in ["sales", "sales_rep", "sales_representative"]
 
     def row(label, value):
         return f"{label:<15} : {value if value is not None else ''}"
@@ -323,6 +324,19 @@ def send_b2b_welcome_email(user, raw_password):
             row("Tier", getattr(user, "tier", "")),
             row("Password", raw_password),
         ]
+    elif is_sales:
+        subject = "Welcome to KIREIZ - Sales Representative Credentials 🎉"
+        header = "WELCOME TO KIREIZ SALES PORTAL"
+        intro = "Your Sales Representative account has been successfully created. Here are your login credentials:"
+        rows = [
+            row("Name", getattr(user, "name", "")),
+            row("Role", "Sales Representative"),
+            row("Designation", getattr(user, "designation", "Sales Representative")),
+            row("Email", getattr(user, "email", "")),
+        ]
+        if getattr(user, "mobile", None):
+            rows.append(row("Mobile", user.mobile))
+        rows.append(row("Password", raw_password))
     else:
         role_display = role_name.replace("_", " ").title() if role_name else "Admin"
         subject = "Welcome to KIREIZ Admin Portal 🎉"
@@ -354,10 +368,11 @@ def send_b2b_welcome_email(user, raw_password):
 
         """
 
+    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or getattr(settings, "EMAIL_HOST_USER", "noreply@kireiz.com")
     send_mail(
         subject,
         message,
-        settings.EMAIL_HOST_USER,
+        from_email,
         [user.email],  
         fail_silently=False,
     )

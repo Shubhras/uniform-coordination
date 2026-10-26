@@ -71,8 +71,7 @@ class QuotationDetailView(APIView):
 
 
 class QuotationPDFView(APIView):
-    """GET /api/v1/userhub/quotations/<uuid:pk>/pdf/"""
-    # permission_classes = [IsAuthenticated]
+    """GET /api/v1/userhub/quotations/<str:pk>/pdf/"""
     permission_classes = [AllowAny]
 
     def get(self, request, pk):
@@ -89,24 +88,49 @@ class QuotationPDFView(APIView):
         if not quotation:
             return Response({"detail": "Not found"}, status=404)
 
-        data = QuotationSummarySerializer(quotation).data
-        html_string = render_to_string("quotations/quote_pdf.html", {
-            "quotation": quotation,
-            "items": data["line_items"],
-            "total_amount": data["total_amount"],
-            "logo_data_uri": _get_logo_data_uri(),
-        })
+        download_param = request.GET.get('download', '').lower()
+        as_attachment = download_param in ('1', 'true', 'yes')
 
-        pdf_file = io.BytesIO()
-        HTML(string=html_string).write_pdf(pdf_file)
-        pdf_file.seek(0)
+        filename = f"Uniform_Quote_{quotation.quotation_id or quotation.uuids or 'Document'}.pdf"
 
-        return FileResponse(
-            pdf_file,
-            as_attachment=False,  # True forces download instead of inline view
-            filename=f"Uniform_Quote_{quotation.quotation_id}.pdf",
-            content_type='application/pdf',
-        )    
+        try:
+            data = QuotationSummarySerializer(quotation).data
+            html_string = render_to_string("quotations/quote_pdf.html", {
+                "quotation": quotation,
+                "items": data.get("line_items", []),
+                "total_amount": data.get("total_amount", 0),
+                "logo_data_uri": _get_logo_data_uri(),
+            })
+
+            pdf_file = io.BytesIO()
+            HTML(string=html_string).write_pdf(pdf_file)
+            pdf_file.seek(0)
+
+            return FileResponse(
+                pdf_file,
+                as_attachment=as_attachment,
+                filename=filename,
+                content_type='application/pdf',
+            )
+        except Exception as e:
+            # Fallback to generate_quotation_pdf (ReportLab) if Weasyprint encounters an issue
+            try:
+                from .utils import generate_quotation_pdf
+                file_path = generate_quotation_pdf(quotation, request)
+                if file_path and os.path.exists(file_path):
+                    return FileResponse(
+                        open(file_path, 'rb'),
+                        as_attachment=as_attachment,
+                        filename=filename,
+                        content_type='application/pdf',
+                    )
+            except Exception as fallback_err:
+                pass
+
+            return Response(
+                {"detail": f"Failed to generate PDF: {str(e)}"},
+                status=500
+            )    
   
   
 # # from django.core.files.base import ContentFile
