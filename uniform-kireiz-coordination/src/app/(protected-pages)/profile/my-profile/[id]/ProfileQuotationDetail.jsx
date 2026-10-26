@@ -324,8 +324,8 @@ const ProfileQuotationDetail = ({ quotationId }) => {
             console.error('Cancel quotation error:', error)
             setCancelError(
                 error?.response?.data?.message ||
-                    error?.response?.data?.detail ||
-                    'Unable to cancel quotation.',
+                error?.response?.data?.detail ||
+                'Unable to cancel quotation.',
             )
         } finally {
             setCancelSubmitting(false)
@@ -389,15 +389,15 @@ const ProfileQuotationDetail = ({ quotationId }) => {
                         </div>
 
                         <div className="rounded-[18px] border border-[#F3F4F6] bg-[#F8FAFC] p-4">
-                            <p className="text-[11px] text-[#9CA3AF]">Total Amount (USD)</p>
+                            <p className="text-sm text-[#9CA3AF]">Total Amount (USD)</p>
                             <p className="mt-2 text-xl font-semibold text-[#003560]">
                                 {quotation.amount}
                             </p>
                         </div>
 
                         <div className="rounded-[18px] bg-[#F7FBFF] p-4">
-                            <p className="mb-3 flex items-center gap-1.5 text-[11px] text-[#9CA3AF]">
-                                <FiMaximize2 size={11} />
+                            <p className="mb-3 flex items-center gap-1.5 text-sm text-[#9CA3AF]">
+                                <FiMaximize2 size={13} />
                                 Size Range
                             </p>
                             <div className="space-y-2">
