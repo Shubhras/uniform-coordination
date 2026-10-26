@@ -29,6 +29,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.http import Http404
 from django.db import transaction
+from django.db.models import Q
+import uuid
 class CustomPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = "page_size"
@@ -380,12 +382,22 @@ class QuotationRequestDetailAPIView(APIView):
     )
 
     def get(self,request,quotation_id):
-        quta = get_object_or_404(
-            QuotationRequest,
-            quotation_id=quotation_id,
-            isDeleted=False
-        )
-        serializer = QuotationRequestSerializer(quta)
+        lookup = Q(quotation_id=quotation_id)
+        try:
+            uuid.UUID(str(quotation_id))
+            lookup |= Q(uuids=quotation_id)
+        except (ValueError, TypeError):
+            pass
+
+        quta = QuotationRequest.objects.filter(lookup, isDeleted=False).first()
+        if not quta:
+            return Response({
+                'statusCode': 404,
+                'status': False,
+                'message': 'Quotation Request not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = QuotationRequestSerializer(quta, context={'request': request})
         return Response({
             'statusCode':200,
             'status':True,
@@ -412,8 +424,15 @@ class QuotationRequestExportPDFAPIView(APIView):
     )
 
     def get(self, request, quotation_id):
+        lookup = Q(quotation_id=quotation_id)
+        try:
+            uuid.UUID(str(quotation_id))
+            lookup |= Q(uuids=quotation_id)
+        except (ValueError, TypeError):
+            pass
+
         quotation = QuotationRequest.objects.filter(
-            quotation_id=quotation_id,
+            lookup,
             isDeleted=False
         ).first()
 

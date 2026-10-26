@@ -293,24 +293,62 @@ def generate_quotation_template_pdf(quotation, template_text):
     return f"{settings.MEDIA_URL}exports/{file_name}"
 
 def send_b2b_welcome_email(user, raw_password):
-    subject = "Welcome to Our B2B Portal 🎉"
+    role_name = ""
+    if getattr(user, "role", None):
+        role_name = getattr(user.role, "role_name", "") or ""
+    elif getattr(user, "role_id", None):
+        try:
+            from .models import Role
+            role_obj = Role.objects.filter(id=user.role_id).first()
+            if role_obj:
+                role_name = role_obj.role_name or ""
+        except Exception:
+            pass
+
+    role_lower = str(role_name).lower().strip()
+    is_b2b = role_lower in ["b2b", "b2b_user", "b2b user", "client"]
 
     def row(label, value):
-        return f"{label:<15} : {value}"
+        return f"{label:<15} : {value if value is not None else ''}"
+
+    if is_b2b:
+        subject = "Welcome to Our B2B Portal 🎉"
+        header = "WELCOME B2B USER"
+        intro = "Your B2B account has been successfully created."
+        rows = [
+            row("Name", getattr(user, "name", "")),
+            row("Company", getattr(user, "company_name", "")),
+            row("Email", getattr(user, "email", "")),
+            row("Mobile", getattr(user, "mobile", "")),
+            row("Tier", getattr(user, "tier", "")),
+            row("Password", raw_password),
+        ]
+    else:
+        role_display = role_name.replace("_", " ").title() if role_name else "Admin"
+        subject = "Welcome to KIREIZ Admin Portal 🎉"
+        header = "WELCOME TO KIREIZ ADMIN PORTAL"
+        intro = f"Your {role_display} account has been successfully created."
+        rows = [
+            row("Name", getattr(user, "name", "")),
+            row("Role", role_display),
+        ]
+        if getattr(user, "company_name", None):
+            rows.append(row("Company", user.company_name))
+        rows.append(row("Email", getattr(user, "email", "")))
+        if getattr(user, "mobile", None):
+            rows.append(row("Mobile", user.mobile))
+        rows.append(row("Password", raw_password))
+
+    details_text = "\n        ".join(rows)
 
     message = f"""
-                    WELCOME B2B USER
+                    {header}
 
-        Hello {user.name},
+        Hello {getattr(user, "name", "")},
 
-        Your B2B account has been successfully created.
+        {intro}
 
-        {row("Name", user.name)}
-        {row("Company", user.company_name)}
-        {row("Email", user.email)}
-        {row("Mobile", user.mobile)}
-        {row("Tier", user.tier)}
-        {row("Password", raw_password)}
+        {details_text}
 
         Please login and change your password after first login.
 

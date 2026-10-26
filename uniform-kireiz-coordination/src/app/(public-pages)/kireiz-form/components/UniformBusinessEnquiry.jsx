@@ -412,11 +412,12 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
                     bg-white border border-[#E3E8F1]
                     rounded-[15px] shadow-md p-4 cursor-pointer
                     w-full sm:w-[280px] md:w-[300px] lg:w-[320px]
+                    flex flex-col overflow-hidden
                   "
                 onClick={() => handleMedicalFormDesigning(item.id)}
               >
                 <div className="flex justify-center mb-6">
-                  <div className="w-[180px] h-[200px] md:w-[200px] md:h-[220px] rounded-full overflow-hidden">
+                  <div className="w-[180px] h-[200px] md:w-[200px] md:h-[220px] rounded-full overflow-hidden shrink-0">
                     <Image
                       src={item.img}
                       alt={item.id}
@@ -428,10 +429,12 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
                   </div>
                 </div>
 
-                <h3 className="text-[#1C2C56] text-[18px] font-semibold">
+                <h3 className="text-[#1C2C56] text-[18px] font-semibold break-words break-all line-clamp-1">
                   {item.title}
                 </h3>
-                <p className="text-[#6B7280] text-[14px] mt-2">{item.desc}</p>
+                <p className="text-[#6B7280] text-[14px] mt-2 break-words break-all [overflow-wrap:anywhere] line-clamp-2">
+                  {item.desc}
+                </p>
               </div>
             ))}
           </div>

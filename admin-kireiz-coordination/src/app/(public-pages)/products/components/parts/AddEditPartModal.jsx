@@ -154,10 +154,10 @@ const AddEditPartModal = ({
     const fetchCategories = async () => {
       try {
         setLoadingCategories(true);
-        const res = await apiGetCategoryList();
+        const res = await apiGetCategoryList(accessToken, 1, 100, "", { isActive: "true" });
         if (res?.status && res?.data) {
           const opts = res.data
-            .filter((c) => c.isActive !== false)
+            .filter((c) => (c.isActive === true || c.isActive === "true" || c.is_active === true) && !c.isDeleted)
             .map((c) => ({
               value: c.id,
               label: c.categoryName,
@@ -172,7 +172,7 @@ const AddEditPartModal = ({
     };
 
     fetchCategories();
-  }, [isOpen]);
+  }, [isOpen, accessToken]);
 
   /* ---------- FETCH SUBCATEGORIES ---------- */
   useEffect(() => {
@@ -190,12 +190,15 @@ const AddEditPartModal = ({
         const res = await apiGetSubcategoryList(
           accessToken,
           selectedCategory.value,
+          true,
         );
         if (res?.status && res?.data) {
-          const opts = res.data.map((sc) => ({
-            value: sc.id,
-            label: sc.name,
-          }));
+          const opts = res.data
+            .filter((sc) => (sc.isActive === true || sc.isActive === "true" || sc.is_active === true) && !sc.isDeleted)
+            .map((sc) => ({
+              value: sc.id,
+              label: sc.name,
+            }));
           setSubcategoryOptions(opts);
         }
       } catch (err) {

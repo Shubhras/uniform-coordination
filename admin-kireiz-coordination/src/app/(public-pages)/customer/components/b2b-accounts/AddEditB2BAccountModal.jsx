@@ -99,11 +99,38 @@ const AddEditB2BAccountModal = ({
       try {
         const res = await apiGetRoleList(accessToken);
         if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-          const opts = res.data.map((r) => ({
-            value: r.id,
-            label: r.role_name || r.name,
-            slug: r.slug,
-          }));
+          // Only administrative roles (Admin, Manager, Editor, Operations, Accountant, Staff)
+          // Exclude sales, customer, and b2b/b2c roles regardless of delimiter (b2b_user, b2b-user, etc.)
+          const opts = res.data
+            .filter((r) => {
+              const identifiers = [r.slug, r.role_name, r.name]
+                .filter(Boolean)
+                .map((val) => val.toLowerCase().replace(/[-_\s]/g, ""));
+
+              const isExcluded = identifiers.some(
+                (v) =>
+                  v.includes("b2b") ||
+                  v.includes("b2c") ||
+                  v.includes("sale") ||
+                  v === "customer" ||
+                  v === "user" ||
+                  v === "corporate"
+              );
+
+              return !isExcluded;
+            })
+            .map((r) => {
+              const rawName = r.role_name || r.name || "";
+              const label =
+                rawName.length > 0
+                  ? rawName.charAt(0).toUpperCase() + rawName.slice(1)
+                  : rawName;
+              return {
+                value: r.id,
+                label: label,
+                slug: r.slug,
+              };
+            });
           setRoleOptions(opts);
         }
       } catch (err) {

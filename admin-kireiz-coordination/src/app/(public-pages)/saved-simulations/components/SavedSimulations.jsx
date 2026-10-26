@@ -14,7 +14,6 @@ import {
   FiCopy,
   FiCheck,
 } from "react-icons/fi";
-import { IoColorPaletteOutline } from "react-icons/io5";
 import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import Spinner from "@/components/ui/Spinner";
@@ -117,20 +116,24 @@ const SavedSimulations = () => {
 
     const badges = [];
 
-    const colorVal = specs.color || config.color;
+    if (item.quotation_id) {
+      badges.push(`Quote: #${item.quotation_id}`);
+    }
+
+    const colorVal = specs.color || config.color || config.colour;
     if (colorVal && colorVal !== "N/A") badges.push(`${t("specs.color")}: ${colorVal}`);
 
     const fabricVal = specs.fabric || config.fabric;
     if (fabricVal && fabricVal !== "N/A") badges.push(`${t("specs.fabric")}: ${fabricVal}`);
 
-    const shapeVal = specs.table_shape || config.table_shape;
-    if (shapeVal && shapeVal !== "N/A") badges.push(`${t("specs.shape")}: ${shapeVal}`);
+    const partVal = specs.part || config.part;
+    if (partVal && partVal !== "N/A") badges.push(`Part: ${partVal}`);
 
     const sizeVal = specs.size || config.size;
     if (sizeVal && sizeVal !== "N/A") badges.push(`${t("specs.size")}: ${sizeVal}`);
 
-    const seatingVal = specs.seating || config.seating;
-    if (seatingVal && seatingVal !== "N/A") badges.push(`${t("specs.seating")}: ${seatingVal}`);
+    const qtyVal = specs.quantity || config.quantity || config.total_quantity;
+    if (qtyVal && qtyVal !== "N/A") badges.push(`Qty: ${qtyVal}`);
 
     if (badges.length === 0 && Object.keys(specs).length > 0) {
       Object.entries(specs).slice(0, 3).forEach(([key, val]) => {
@@ -149,7 +152,11 @@ const SavedSimulations = () => {
         {badges.slice(0, 3).map((b, idx) => (
           <span
             key={idx}
-            className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#E8EEF9] text-[#1C2C56]"
+            className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${
+              b.startsWith("Quote:")
+                ? "bg-green-50 text-green-700 border border-green-200"
+                : "bg-[#E8EEF9] text-[#1C2C56]"
+            }`}
           >
             {b}
           </span>
@@ -178,7 +185,7 @@ const SavedSimulations = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div
           onClick={() => { setActiveTab("all"); setCurrentPage(1); }}
           className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${activeTab === "all"
@@ -209,22 +216,6 @@ const SavedSimulations = () => {
             </div>
           </div>
           <p className="mt-2 text-3xl font-bold text-[#1C2C56]">{counts.product}</p>
-        </div>
-
-        <div
-          onClick={() => { setActiveTab("theme"); setCurrentPage(1); }}
-          className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${activeTab === "theme"
-            ? "border-[#9333EA] bg-[#FAF5FF] shadow-sm"
-            : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1]"
-            }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-[#64748B]">{t("summaryCards.themeCustomizations")}</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3E8FF] text-[#9333EA]">
-              <IoColorPaletteOutline size={20} />
-            </div>
-          </div>
-          <p className="mt-2 text-3xl font-bold text-[#1C2C56]">{counts.theme}</p>
         </div>
       </div>
 
@@ -275,15 +266,6 @@ const SavedSimulations = () => {
             >
               {t("tabs.products")} ({counts.product})
             </button>
-            <button
-              onClick={() => { setActiveTab("theme"); setCurrentPage(1); }}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === "theme"
-                ? "bg-white text-[#9333EA] shadow-sm"
-                : "text-[#64748B] hover:text-[#9333EA]"
-                }`}
-            >
-              {t("tabs.themes")} ({counts.theme})
-            </button>
           </div>
 
           <button
@@ -328,17 +310,10 @@ const SavedSimulations = () => {
                 >
                   {/* Type Badge */}
                   <td className="px-4 py-3">
-                    {item.simulation_type === "product" ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                        <FiBox size={13} />
-                        {t("typeProduct")}
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
-                        <IoColorPaletteOutline size={13} />
-                        {t("typeTheme")}
-                      </span>
-                    )}
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                      <FiBox size={13} />
+                      {item.quotation_id ? `Quote #${item.quotation_id}` : t("typeProduct")}
+                    </span>
                   </td>
 
                   <td className="px-4 py-3">
@@ -440,22 +415,16 @@ const SavedSimulations = () => {
             {/* Modal Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0] bg-[#F8FAFC]">
               <div className="flex items-center gap-2.5">
-                {selectedSimulation.simulation_type === "product" ? (
-                  <span className="p-2 rounded-lg bg-blue-100 text-blue-700">
-                    <FiBox size={20} />
-                  </span>
-                ) : (
-                  <span className="p-2 rounded-lg bg-purple-100 text-purple-700">
-                    <IoColorPaletteOutline size={20} />
-                  </span>
-                )}
+                <span className="p-2 rounded-lg bg-blue-100 text-blue-700">
+                  <FiBox size={20} />
+                </span>
                 <div>
                   <h3 className="text-lg font-bold text-[#1C2C56]">
                     {selectedSimulation.item_name}
                   </h3>
                   <p className="text-xs text-[#64748B]">
                     {t("modal.savedSimulationNumber", { id: selectedSimulation.id })} &bull;{" "}
-                    {selectedSimulation.simulation_type === "product" ? t("typeProduct") : t("typeTheme")}
+                    {selectedSimulation.quotation_id ? `Quote #${selectedSimulation.quotation_id}` : t("typeProduct")}
                   </p>
                 </div>
               </div>
@@ -485,6 +454,11 @@ const SavedSimulations = () => {
                   <p className="text-sm font-bold text-[#1C2C56] mt-1">{selectedSimulation.item_name}</p>
                   <p className="text-xs text-gray-600">{t("categoryLabel")}: {selectedSimulation.category_name}</p>
                   <p className="text-[11px] text-gray-400 mt-0.5">{t("modal.savedDateLabel")}: {selectedSimulation.formatted_date}</p>
+                  {selectedSimulation.quotation_id && (
+                    <p className="text-xs font-semibold text-green-700 mt-1">
+                      Quotation Request: #{selectedSimulation.quotation_id} ({selectedSimulation.quotation_status || "Pending"})
+                    </p>
+                  )}
                 </div>
               </div>
 

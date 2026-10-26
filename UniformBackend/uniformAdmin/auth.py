@@ -9,7 +9,7 @@ from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, Bl
 from django.db import transaction
 from django.utils import timezone
 from django.contrib.auth.tokens import default_token_generator
-from .models import AdminUser, Menu, RoleMenuPermission, RoleSubMenuPermission
+from .models import AdminUser, Role, Menu, RoleMenuPermission, RoleSubMenuPermission
 from .serializers import *
 from rest_framework.views import APIView
 from rest_framework.permissions import BasePermission
@@ -989,7 +989,7 @@ class AdminUserCreateAPIView(APIView):
                 return Response({
                     "statusCode": 201,
                     "status": True,
-                    "message": "B2B user created successfully",
+                    "message": "User created successfully",
                     "data": serializer.data
                 }, status=status.HTTP_201_CREATED)
 
@@ -1584,6 +1584,22 @@ class CustomerUpdateAPIView(APIView):
             )
 
             if serializer.is_valid():
+                role_input = request.data.get("role") or request.data.get("role_id")
+                if role_input is not None:
+                    if isinstance(role_input, int) or (isinstance(role_input, str) and str(role_input).isdigit()):
+                        role_obj = Role.objects.filter(id=int(role_input)).first()
+                    else:
+                        role_obj = Role.objects.filter(
+                            Q(role_name__iexact=str(role_input)) | Q(slug__iexact=str(role_input))
+                        ).first()
+                        if not role_obj and str(role_input).strip():
+                            role_obj = Role.objects.create(
+                                role_name=str(role_input).strip(),
+                                slug=str(role_input).strip().lower()
+                            )
+                    customer.role = role_obj
+                    customer.save(update_fields=["role"])
+
                 serializer.save()
 
                 return Response(
@@ -1591,7 +1607,7 @@ class CustomerUpdateAPIView(APIView):
                         "statusCode": 200,
                         "status": True,
                         "message": "Customer updated successfully.",
-                        "data": serializer.data,
+                        "data": CustomerListSerializer(customer).data,
                     },
                     status=status.HTTP_200_OK,
                 )

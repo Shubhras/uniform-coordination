@@ -2812,23 +2812,15 @@ class AdminSavedSimulationsAPIView(APIView):
     @extend_schema(
         tags=["Admin Dashboard"],
         summary="List all user saved simulations",
-        description="Fetch all user customized products and themes with configurations and specs.",
+        description="Fetch all user customized products with configurations and specs.",
         responses={200: OpenApiResponse(description="Saved simulations fetched successfully")},
     )
     def get(self, request):
         try:
-            # 1. Fetch user custom product models
+            # Fetch user custom product models for uniform
             product_customs = CustomUpdateModels.objects.filter(isDeleted=False).select_related(
                 'user', 'model_info', 'model_info__product', 'model_info__product__category'
-            ).order_by('-created_at')
-
-            # 2. Fetch user custom theme models
-            if CustomUpdateThemes is not None:
-                theme_customs = CustomUpdateThemes.objects.filter(isDeleted=False).select_related(
-                    'user', 'theme', 'theme__category'
-                ).order_by('-created_at')
-            else:
-                theme_customs = []
+            ).prefetch_related('quotation_requests').order_by('-created_at')
 
             saved_simulations = []
 
@@ -2837,12 +2829,23 @@ class AdminSavedSimulationsAPIView(APIView):
                 user_name = ""
                 user_email = ""
                 if user_obj:
-                    user_name = getattr(user_obj, 'name', '') or f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip() or getattr(user_obj, 'email', '')
+                    user_name = (
+                        f"{getattr(user_obj, 'firstName', '')} {getattr(user_obj, 'lastName', '')}".strip()
+                        or f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip()
+                        or getattr(user_obj, 'userName', '')
+                        or getattr(user_obj, 'name', '')
+                        or getattr(user_obj, 'email', '')
+                    )
                     user_email = getattr(user_obj, 'email', '') or ""
 
                 prod = p.model_info.product if p.model_info else None
                 image_url = ""
-                if prod and getattr(prod, 'productImage', None):
+                if prod and getattr(prod, 'ProductImage', None):
+                    try:
+                        image_url = request.build_absolute_uri(prod.ProductImage.url)
+                    except Exception:
+                        image_url = str(prod.ProductImage)
+                elif prod and getattr(prod, 'productImage', None):
                     try:
                         image_url = request.build_absolute_uri(prod.productImage.url)
                     except Exception:
@@ -2852,6 +2855,12 @@ class AdminSavedSimulationsAPIView(APIView):
                         image_url = request.build_absolute_uri(p.model_info.model_file.url)
                     except Exception:
                         image_url = str(p.model_info.model_file)
+
+                # Check linked quotation request
+                quotation_obj = p.quotation_requests.filter(isDeleted=False).first() if hasattr(p, 'quotation_requests') else None
+                quotation_id = quotation_obj.quotation_id if quotation_obj else None
+                quotation_status = getattr(quotation_obj, 'quotation_status', None) if quotation_obj else None
+                total_amount = float(quotation_obj.total) if quotation_obj and hasattr(quotation_obj, 'total') and quotation_obj.total is not None else None
 
                 saved_simulations.append({
                     "id": p.id,
@@ -2868,55 +2877,20 @@ class AdminSavedSimulationsAPIView(APIView):
                     "design_specifications": p.design_specifications or {},
                     "json_file_path": p.json_file_path or "",
                     "is_active": p.isActive,
+                    "quotation_id": quotation_id,
+                    "quotation_status": quotation_status,
+                    "total_amount": total_amount,
                     "created_at": p.created_at.strftime("%Y-%m-%d %H:%M:%S") if p.created_at else "",
                     "formatted_date": p.created_at.strftime("%b %d, %Y %I:%M %p") if p.created_at else ""
                 })
-
-            for t in theme_customs:
-                user_obj = t.user
-                user_name = ""
-                user_email = ""
-                if user_obj:
-                    user_name = getattr(user_obj, 'name', '') or f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip() or getattr(user_obj, 'email', '')
-                    user_email = getattr(user_obj, 'email', '') or ""
-
-                theme_obj = t.theme
-                image_url = ""
-                if theme_obj and getattr(theme_obj, 'image', None):
-                    try:
-                        image_url = request.build_absolute_uri(theme_obj.image.url)
-                    except Exception:
-                        image_url = str(theme_obj.image)
-
-                saved_simulations.append({
-                    "id": t.id,
-                    "simulation_type": "theme",
-                    "user_id": user_obj.id if user_obj else None,
-                    "user_name": user_name or "Anonymous User",
-                    "user_email": user_email,
-                    "item_id": theme_obj.id if theme_obj else None,
-                    "item_name": theme_obj.title if theme_obj else "Custom Theme Simulation",
-                    "item_code": f"THEME-{theme_obj.id}" if theme_obj else f"THEME-{t.id}",
-                    "category_name": theme_obj.category.categoryName if (theme_obj and theme_obj.category) else "Theme",
-                    "image_url": image_url,
-                    "config_json": t.config_json or {},
-                    "design_specifications": t.design_specifications or {},
-                    "json_file_path": t.json_file_path or "",
-                    "is_active": t.isActive,
-                    "created_at": t.created_at.strftime("%Y-%m-%d %H:%M:%S") if t.created_at else "",
-                    "formatted_date": t.created_at.strftime("%b %d, %Y %I:%M %p") if t.created_at else ""
-                })
-
-            # Sort combined list by created_at descending
-            saved_simulations.sort(key=lambda x: x["created_at"], reverse=True)
 
             return Response({
                 "status": True,
                 "statusCode": 200,
                 "message": "Saved simulations fetched successfully",
                 "total_count": len(saved_simulations),
-                "product_count": len(product_customs),
-                "theme_count": len(theme_customs),
+                "product_count": len(saved_simulations),
+                "theme_count": 0,
                 "data": saved_simulations
             }, status=status.HTTP_200_OK)
         except Exception as e:

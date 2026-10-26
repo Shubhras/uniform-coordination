@@ -11,10 +11,17 @@ from django.contrib.contenttypes.models import ContentType
 class Role(models.Model):
     ROLE_CHOICES = [
         ("admin", "Admin"),
+        ("manager", "Manager"),
+        ("editor", "Editor"),
+        ("operations", "Operations"),
+        ("accountant", "Accountant"),
+        ("staff", "Staff"),
         ("sales_rep", "Sales Rep"),
+        ("sales", "Sales Rep"),
         ("corporate", "Corporate"),
         ("customer", "Customer"),
         ("b2b", "B2B"),
+        ("b2b_user", "B2B User"),
         ("b2c", "B2C"),
     ]
     role_name = models.CharField(max_length=60, choices=ROLE_CHOICES)

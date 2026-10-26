@@ -53,12 +53,12 @@ const getNormalizedStatus = (quotation) => {
             'submitted',
     ).toLowerCase()
 
-    if (rawStatus.includes('approv') || rawStatus.includes('accept')) return 'approved'
+    if (rawStatus.includes('approv') || rawStatus.includes('accept') || rawStatus.includes('agree')) return 'approved'
     if (rawStatus.includes('cancel')) return 'cancelled'
     if (rawStatus.includes('declin') || rawStatus.includes('reject')) return 'declined'
     if (rawStatus.includes('pend')) return 'pending'
-    if (rawStatus.includes('submit')) return 'submitted'
-    if (rawStatus.includes('receiv') || rawStatus.includes('review')) return 'received'
+    if (rawStatus.includes('submit') || rawStatus.includes('sent')) return 'submitted'
+    if (rawStatus.includes('receiv') || rawStatus.includes('review') || rawStatus.includes('request')) return 'received'
 
     return 'pending'
 }
@@ -160,6 +160,70 @@ const extractQuotationDetailRecord = (payload) =>
 
 const normalizeQuotation = (quotation) => {
     const statusKey = getNormalizedStatus(quotation)
+    const exportPdfUrl = normalizePdfUrl(quotation?.export_pdf_url || getPdfUrl(quotation))
+    const downloadUrl = normalizePdfUrl(getDownloadUrl(quotation)) || exportPdfUrl
+    const signedPdfUrl = normalizePdfUrl(quotation?.signed_pdf_url || quotation?.signed_pdf || '')
+
+    // Build comprehensive attachments array
+    const rawAttachments = quotation?.attachments || []
+    const normalizedAttachments = Array.isArray(rawAttachments) ? [...rawAttachments] : []
+
+    const hasQuotationAttachment = normalizedAttachments.some(
+        (a) => a.type === 'quotation_pdf' || a.id === 'quotation-pdf',
+    )
+    if (!hasQuotationAttachment) {
+        normalizedAttachments.unshift({
+            id: 'quotation-pdf',
+            name: `Quotation_${quotation?.quotation_id || quotation?.quotationNo || 'Proposal'}.pdf`,
+            title: 'Quotation Proposal (Official PDF)',
+            type: 'quotation_pdf',
+            category: 'Official Quotation',
+            file_url: exportPdfUrl,
+            download_url: downloadUrl,
+            is_available: true,
+            created_at: quotation?.last_sent_at || quotation?.updated_at || quotation?.created_at || '',
+        })
+    }
+
+    if (signedPdfUrl) {
+        const hasSignedAttachment = normalizedAttachments.some(
+            (a) => a.type === 'signed_contract' || a.id === 'signed-contract-pdf',
+        )
+        if (!hasSignedAttachment) {
+            normalizedAttachments.push({
+                id: 'signed-contract-pdf',
+                name: `Signed_Contract_${quotation?.quotation_id || quotation?.quotationNo || 'Document'}.pdf`,
+                title: 'Signed Agreement & Contract',
+                type: 'signed_contract',
+                category: 'Signed Document',
+                file_url: signedPdfUrl,
+                download_url: signedPdfUrl,
+                is_available: true,
+                created_at: quotation?.signed_at || quotation?.updated_at || '',
+            })
+        }
+    }
+
+    // Extract assigned sales rep
+    let salesRep = quotation?.sales_rep_details || null
+    if (!salesRep && (quotation?.sales_rep_name || quotation?.sales_rep)) {
+        salesRep = {
+            name:
+                quotation?.sales_rep_name ||
+                (typeof quotation?.sales_rep === 'object' ? quotation?.sales_rep?.name : null) ||
+                'Assigned Sales Representative',
+            email:
+                (typeof quotation?.sales_rep === 'object' ? quotation?.sales_rep?.email : '') || '',
+            phone:
+                (typeof quotation?.sales_rep === 'object'
+                    ? quotation?.sales_rep?.phone || quotation?.sales_rep?.mobile
+                    : '') || '',
+            designation:
+                (typeof quotation?.sales_rep === 'object'
+                    ? quotation?.sales_rep?.designation
+                    : '') || 'B2B Sales Account Specialist',
+        }
+    }
 
     return {
         id: quotation?.id || quotation?.quotation_id || quotation?.quotationNo || '',
@@ -171,15 +235,26 @@ const normalizeQuotation = (quotation) => {
             '',
         requestId: quotation?.quotationNo || quotation?.quotation_id || '-',
         statusKey,
-        statusLabel: statusStyles[statusKey].label,
+        statusLabel: statusStyles[statusKey]?.label || quotation?.status || 'Pending',
+        rawStatus: quotation?.quotation_status || quotation?.status || '',
+        workflowStatus: quotation?.workflow_status || '',
         companyName: quotation?.company_name || '-',
         contactPerson: quotation?.contact_person || quotation?.name || '-',
         email: quotation?.email || '-',
         phoneNumber: quotation?.phone_number || quotation?.phone || '-',
         tier: quotation?.tier || '-',
         requestedDate: quotation?.requested_date || quotation?.created_at || '',
-        pdfUrl: normalizePdfUrl(getPdfUrl(quotation)),
-        downloadUrl: normalizePdfUrl(getDownloadUrl(quotation)),
+        validUntil: quotation?.valid_until || null,
+        subtotal: quotation?.subtotal || null,
+        discountPercent: quotation?.discount_percent || null,
+        total: quotation?.total || null,
+        lastSentAt: quotation?.last_sent_at || null,
+        salesRep,
+        attachments: normalizedAttachments,
+        signedPdfUrl,
+        exportPdfUrl,
+        pdfUrl: exportPdfUrl,
+        downloadUrl,
         items: getRequestedItems(quotation),
     }
 }
@@ -232,34 +307,79 @@ const QuotationDetailPage = ({ quotationId }) => {
         fetchQuotationDetail()
     }, [quotationId, session?.accessToken])
 
-    const handleDownloadQuotationPdf = async () => {
+    const handleDownloadDocument = async (attachmentOrEvent) => {
         if (!session?.accessToken || !quotation) return
+
+        const attachment =
+            attachmentOrEvent && typeof attachmentOrEvent === 'object' && attachmentOrEvent.name
+                ? attachmentOrEvent
+                : null
+
+        const targetUrl =
+            attachment?.download_url ||
+            attachment?.file_url ||
+            quotation.downloadUrl ||
+            quotation.exportPdfUrl ||
+            quotation.pdfUrl
 
         try {
             setDownloadLoading(true)
+
+            // Direct download link if it's an external file or static media
+            if (targetUrl && (targetUrl.includes('/media/') || targetUrl.endsWith('.pdf'))) {
+                const link = document.createElement('a')
+                link.href = targetUrl
+                link.download = attachment?.name || `${quotation.requestId || 'quotation'}.pdf`
+                link.target = '_blank'
+                document.body.appendChild(link)
+                link.click()
+                link.remove()
+                return
+            }
+
+            // Otherwise download via authorized API blob
             const pdfBlob = await apiDownloadUserQuotationPdf(
                 quotation.quotationId,
                 session.accessToken,
-                quotation.downloadUrl,
+                targetUrl,
             )
 
             const blobUrl = window.URL.createObjectURL(pdfBlob)
             const link = document.createElement('a')
             link.href = blobUrl
-            link.download = `${quotation.requestId || 'quotation'}.pdf`
+            link.download = attachment?.name || `${quotation.requestId || 'quotation'}.pdf`
             document.body.appendChild(link)
             link.click()
             link.remove()
             window.URL.revokeObjectURL(blobUrl)
         } catch (error) {
-            console.error('Quotation PDF download error:', error)
+            console.error('Quotation document download error:', error)
+            // Fallback: direct window.open
+            if (targetUrl) {
+                window.open(targetUrl, '_blank')
+                return
+            }
             setErrorMessage(
                 error?.response?.data?.message ||
                     error?.message ||
-                    'Unable to download quotation PDF right now.',
+                    'Unable to download document right now.',
             )
         } finally {
             setDownloadLoading(false)
+        }
+    }
+
+    const handleViewDocument = (attachment) => {
+        const targetUrl =
+            attachment?.file_url ||
+            attachment?.download_url ||
+            quotation?.pdfUrl ||
+            quotation?.exportPdfUrl
+
+        if (targetUrl) {
+            window.open(targetUrl, '_blank')
+        } else {
+            handleDownloadDocument(attachment)
         }
     }
 
@@ -292,7 +412,8 @@ const QuotationDetailPage = ({ quotationId }) => {
             <QuotationDetailContent
                 quotation={quotation}
                 onBack={() => router.push('/profile/my-quotations')}
-                onDownload={handleDownloadQuotationPdf}
+                onDownload={handleDownloadDocument}
+                onView={handleViewDocument}
                 downloadLoading={downloadLoading}
             />
         </div>
