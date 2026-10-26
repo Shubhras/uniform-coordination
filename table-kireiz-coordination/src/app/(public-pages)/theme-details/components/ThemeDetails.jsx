@@ -57,7 +57,10 @@ const ThemeDetails = () => {
                         const apiData = response.data;
                         const formattedTheme = {
                             ...apiData,
-                            gallery: apiData.cover_images?.length > 0 ? apiData.cover_images.map(c => c.image) : (apiData.image ? [apiData.image] : ['/img/placeholder.png']),
+                            title: apiData.title || apiData.category_name || 'Theme Details',
+                            gallery: apiData.image
+                                ? (Array.isArray(apiData.image) ? apiData.image : [apiData.image])
+                                : ['/img/placeholder.png'],
                             packageLabel: 'Items Included',
                             packageValueLabel: 'Estimated Package Value',
                             priceLabel: 'Price TBD',
@@ -91,11 +94,11 @@ const ThemeDetails = () => {
     }, [idParam, themeIdParam, selectedThemeId])
 
     const totalItems = theme?.theme_items
-    ? Object.values(theme.theme_items).reduce(
-        (count, products) => count + products.length,
-        0
+        ? Object.values(theme.theme_items).reduce(
+            (count, products) => count + products.length,
+            0
         )
-    : 0;
+        : 0;
     /**
      * Toggles open/close state of an accordion section by index.
      * 
@@ -265,7 +268,7 @@ const ThemeDetails = () => {
                         >
                             {theme.gallery.map((image, index) => (
                                 <div
-                                    key={image}
+                                    key={`${image}-${index}`}
                                     className="relative w-full h-[240px] sm:h-[360px] md:h-[500px] flex-shrink-0 snap-center cursor-pointer"
                                     onClick={() => {
                                         setActiveIndex(index)
@@ -295,18 +298,20 @@ const ThemeDetails = () => {
                             <AiOutlineExpand size={18} />
                         </button>
 
-                        <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-3">
-                            {theme.gallery.map((image, index) => (
-                                <button
-                                    type="button"
-                                    key={`${image}-dot`}
-                                    onClick={() => scrollToIndex(index)}
-                                    className={`w-3 h-3 sm:w-2 sm:h-2 rounded-full transition ${activeIndex === index ? 'bg-white' : 'bg-white/50'
-                                        }`}
-                                    aria-label={`Show preview ${index + 1}`}
-                                />
-                            ))}
-                        </div>
+                        {theme.gallery.length > 1 && (
+                            <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-3">
+                                {theme.gallery.map((image, index) => (
+                                    <button
+                                        type="button"
+                                        key={`${image}-dot-${index}`}
+                                        onClick={() => scrollToIndex(index)}
+                                        className={`w-3 h-3 sm:w-2 sm:h-2 rounded-full transition ${activeIndex === index ? 'bg-white' : 'bg-white/50'
+                                            }`}
+                                        aria-label={`Show preview ${index + 1}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {open && (
@@ -332,7 +337,7 @@ const ThemeDetails = () => {
                                 Items Included in This Theme
                             </h3>
                             <span className="text-[14px] sm:text-xs text-[#8B5A3C] px-2 py-1 shadow-sm rounded-full">
-                              {`${totalItems} items total`}
+                                {`${totalItems} items total`}
                             </span>
                         </div>
 
