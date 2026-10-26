@@ -68,7 +68,10 @@ const normalizePdfUrl = (rawUrl) => {
         return ''
     }
 
-    const preferredBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+    const preferredBaseUrl =
+        process.env.NEXT_PUBLIC_API_BASE_URL ||
+        (typeof window !== 'undefined' ? window.location.origin : '')
+
     if (!preferredBaseUrl) {
         return rawUrl
     }
@@ -81,7 +84,11 @@ const normalizePdfUrl = (rawUrl) => {
         }
 
         const parsedUrl = new URL(rawUrl)
-        if (parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1') {
+        if (
+            parsedUrl.hostname === 'localhost' ||
+            parsedUrl.hostname === '127.0.0.1' ||
+            parsedUrl.hostname.includes('dxtspace.com')
+        ) {
             return new URL(
                 `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`,
                 preferredOrigin,

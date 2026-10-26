@@ -750,18 +750,28 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
         target_id = obj.uuids or obj.quotation_id
         if not target_id:
             return None
+        request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
+        if request:
+            return request.build_absolute_uri(f"/api/v1/userhub/quotations/{target_id}/pdf/")
         domain = getattr(settings, "SITE_DOMAIN", "") or getattr(settings, "SITE_URL", "") or ""
         domain = domain.rstrip("/")
-        return f"{domain}/api/v1/userhub/quotations/{target_id}/pdf/"
+        path = f"/api/v1/userhub/quotations/{target_id}/pdf/"
+        return f"{domain}{path}" if domain else path
 
     def get_attachments(self, obj):
         attachments = []
-        domain = getattr(settings, "SITE_DOMAIN", "") or getattr(settings, "SITE_URL", "") or ""
-        domain = domain.rstrip("/")
+        target_id = obj.uuids or obj.quotation_id
+
+        request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
+        if request:
+            quotation_pdf_url = request.build_absolute_uri(f"/api/v1/userhub/quotations/{target_id}/pdf/") if target_id else None
+        else:
+            domain = getattr(settings, "SITE_DOMAIN", "") or getattr(settings, "SITE_URL", "") or ""
+            domain = domain.rstrip("/")
+            path = f"/api/v1/userhub/quotations/{target_id}/pdf/" if target_id else ""
+            quotation_pdf_url = f"{domain}{path}" if (domain and path) else path
 
         # 1. Quotation Document / Proposal PDF
-        target_id = obj.uuids or obj.quotation_id
-        quotation_pdf_url = f"{domain}/api/v1/userhub/quotations/{target_id}/pdf/" if target_id else None
         attachments.append({
             "id": "quotation-pdf",
             "name": f"Quotation_{obj.quotation_id or 'Document'}.pdf",

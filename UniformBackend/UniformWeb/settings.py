@@ -179,8 +179,8 @@ MEDIA_ROOT = BASE_DIR / "media"
 #
 # Env-driven now, defaulting to production so deployed behaviour is unchanged. Set
 # SITE_DOMAIN and SITE_URL in .env for local work (e.g. http://localhost:8005).
-SITE_DOMAIN = config("SITE_DOMAIN", default="https://uniform-admin.dxtspace.com")
-SITE_URL = config("SITE_URL", default="https://uniform-admin.dxtspace.com")
+SITE_DOMAIN = config("SITE_DOMAIN", default="")
+SITE_URL = config("SITE_URL", default="")
 
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024

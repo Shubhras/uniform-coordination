@@ -28,8 +28,8 @@ def render_quotation_template(template_text: str, quotation):
         print("Error fetching product:", e)
         product = None
 
-    price = float(getattr(product, "price", 0)) if product else 0
-    discount = float(getattr(product, "discount", 0)) if product else 0
+    price = float(getattr(product, "price", 0) or 0) if product else 0
+    discount = float(getattr(product, "discount", 0) or 0) if product else 0
     quantity = 0
     if getattr(quotation, "size_quantity", None):
         numbers = re.findall(r"\d+", quotation.size_quantity)
@@ -139,13 +139,21 @@ def generate_quotation_template_pdf(quotation, template_text):
     # ---------- RENDER DATA ----------
     render_quotation_template(template_text, quotation)
 
-    product = quotation.customupdatemodel.model_info.product
-    price = float(product.price)
-    discount = float(product.discount)
+    product = None
+    try:
+        if getattr(quotation, "customupdatemodel", None) and getattr(quotation.customupdatemodel, "model_info", None):
+            product = getattr(quotation.customupdatemodel.model_info, "product", None)
+    except Exception:
+        product = None
 
-    qty = sum(int(x) for x in __import__("re").findall(r"\d+", quotation.size_quantity))
+    price = float(getattr(product, "price", 0) or 0) if product else 0
+    discount = float(getattr(product, "discount", 0) or 0) if product else 0
+
+    size_qty_str = str(getattr(quotation, "size_quantity", "") or "")
+    numbers = re.findall(r"\d+", size_qty_str) if size_qty_str else []
+    qty = sum(int(x) for x in numbers) if numbers else 1
     subtotal = qty * price
-    discount_amt = subtotal * discount / 100
+    discount_amt = (subtotal * discount) / 100
     total = subtotal - discount_amt
 
     # ---------- FILE ----------
@@ -236,7 +244,7 @@ def generate_quotation_template_pdf(quotation, template_text):
     elements.append(Spacer(1, 10))
 
     today = datetime.now().strftime("%d/%m/%Y")
-    valid = quotation.delivery_date.strftime("%d/%m/%Y")
+    valid = quotation.delivery_date.strftime("%d/%m/%Y") if getattr(quotation, "delivery_date", None) else today
 
     elements.append(Paragraph(f"<b>Date:</b> {today}", normal))
     elements.append(Paragraph(f"<b>Valid until:</b> {valid}", normal))
@@ -244,7 +252,8 @@ def generate_quotation_template_pdf(quotation, template_text):
     elements.append(Spacer(1, 20))
 
     # ---------- BODY ----------
-    elements.append(Paragraph(f"Dear {quotation.contact_person},", normal))
+    contact_name = getattr(quotation, "contact_person", None) or getattr(quotation, "name", None) or "Valued Customer"
+    elements.append(Paragraph(f"Dear {contact_name},", normal))
     elements.append(Spacer(1, 10))
 
     elements.append(Paragraph(
@@ -255,10 +264,12 @@ def generate_quotation_template_pdf(quotation, template_text):
     elements.append(Spacer(1, 20))
 
     # ---------- PRODUCT ----------
-    elements.append(Paragraph(f"<b>Item:</b> {quotation.item_type}", normal))
-    elements.append(Paragraph(f"<b>Material:</b> {quotation.material}", normal))
-    elements.append(Paragraph(f"<b>Quantity:</b> {qty} meters", normal))
-    elements.append(Paragraph(f"<b>Unit Price:</b>  {price}", normal))
+    item_type = getattr(quotation, "item_type", None) or "Custom Uniform"
+    material = getattr(quotation, "material", None) or "-"
+    elements.append(Paragraph(f"<b>Item:</b> {item_type}", normal))
+    elements.append(Paragraph(f"<b>Material:</b> {material}", normal))
+    elements.append(Paragraph(f"<b>Quantity:</b> {qty} pieces", normal))
+    elements.append(Paragraph(f"<b>Unit Price:</b> {price}", normal))
 
     elements.append(Spacer(1, 10))
 

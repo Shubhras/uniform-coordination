@@ -1580,18 +1580,23 @@ class QuotationTamplateExportAPIView(APIView):
                 "message": "Template not found"
             }, status=404)
 
-        # ✅ Generate PDF (this returns MEDIA_URL path)
-        pdf_path = generate_quotation_template_pdf(quotation, template.content)
+        try:
+            # Generate PDF (this returns MEDIA_URL path)
+            pdf_path = generate_quotation_template_pdf(quotation, template.content)
+            pdf_url = request.build_absolute_uri(pdf_path)
 
-        # ✅ Convert to full absolute URL
-        pdf_url = request.build_absolute_uri(pdf_path)
-
-        return Response({
-            "statusCode": 200,
-            "status": True,
-            "message": "PDF generated successfully",
-            "pdf_url": pdf_url
-        })
+            return Response({
+                "statusCode": 200,
+                "status": True,
+                "message": "PDF generated successfully",
+                "pdf_url": pdf_url
+            })
+        except Exception as e:
+            return Response({
+                "statusCode": 500,
+                "status": False,
+                "message": f"Failed to generate template PDF: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 #<------------------AdminNotification------------------>
 
 class AdminNotificationListAPIView(APIView):

@@ -2681,3 +2681,59 @@ class UserNotificationListAPIView(APIView):
                 "error": str(e),
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class ContactSupportAPIView(APIView):
+    """
+    POST /api/v1/userhub/contact-support/
+    Allows uniform users to send messages directly to support@kireiz.jp from the in-app modal.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        to_email = request.data.get("to_email") or "support@kireiz.jp"
+        subject = (request.data.get("subject") or "").strip()
+        message = (request.data.get("message") or "").strip()
+
+        user_email = ""
+        if request.user and request.user.is_authenticated:
+            user_email = getattr(request.user, "email", "")
+        if not user_email:
+            user_email = request.data.get("from_email", "") or "customer@kireiz.com"
+
+        if not subject:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Subject is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not message:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Message body is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or getattr(settings, "EMAIL_HOST_USER", "noreply@kireiz.com")
+        body = f"Support Message from: {user_email}\n\n{message}"
+
+        try:
+            send_mail(
+                subject=f"[Support Request] {subject}",
+                message=body,
+                from_email=from_email,
+                recipient_list=[to_email],
+                fail_silently=False
+            )
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": f"Your email was sent to {to_email} successfully."
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": f"Failed to send support email: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

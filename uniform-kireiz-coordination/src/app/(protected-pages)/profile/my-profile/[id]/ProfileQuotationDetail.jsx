@@ -55,7 +55,11 @@ const normalizePdfUrl = (url) => {
         }
 
         const parsedUrl = new URL(cleanUrl)
-        if (parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1') {
+        if (
+            parsedUrl.hostname === 'localhost' ||
+            parsedUrl.hostname === '127.0.0.1' ||
+            parsedUrl.hostname.includes('dxtspace.com')
+        ) {
             return new URL(
                 `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`,
                 preferredOrigin,
