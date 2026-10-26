@@ -47,3 +47,10 @@ doc
 # Server notes & sensitive setup files
 SERVER_SETUP_NOTES.md
 
+
+# Secrets and data dumps must never be committed (these were, and are treated as leaked)
+*.key
+*.pem
+*.sql
+*.sql.gz
+**/.env

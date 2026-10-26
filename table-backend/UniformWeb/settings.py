@@ -352,10 +352,12 @@ SPECTACULAR_SETTINGS = {
 
 
 #Docusign 
-DOCUSIGN_INTEGRATION_KEY = "2abc67a8-b4d2-439d-8742-e26437450cc1"
-DOCUSIGN_USER_ID = "02601a1d-eb9b-41de-a590-ea0c4e99d6ea"
-DOCUSIGN_ACCOUNT_ID = "e1187f26-fc71-49cc-b41f-8f1ac6215e5e"
-DOCUSIGN_PRIVATE_KEY_PATH = "private.key"
+# IDs and the RSA key come from .env; the key file is not committed (it was, and is
+# treated as leaked). Point DOCUSIGN_PRIVATE_KEY_PATH at the newly generated key.
+DOCUSIGN_INTEGRATION_KEY = config("DOCUSIGN_INTEGRATION_KEY", default="")
+DOCUSIGN_USER_ID = config("DOCUSIGN_USER_ID", default="")
+DOCUSIGN_ACCOUNT_ID = config("DOCUSIGN_ACCOUNT_ID", default="")
+DOCUSIGN_PRIVATE_KEY_PATH = config("DOCUSIGN_PRIVATE_KEY_PATH", default=str(BASE_DIR / "private.key"))
 
 # KIREIZ SPACE Configurations
 from decimal import Decimal

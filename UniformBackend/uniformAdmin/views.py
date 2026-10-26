@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .authentication import StaffJWTAuthentication
 from datetime import timedelta
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
@@ -44,7 +45,7 @@ from docusign_esign import ApiClient, EnvelopesApi
 
 class TableThemeCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
     
     @extend_schema(
     tags=["Table Theme"],
@@ -88,7 +89,7 @@ class TableThemeCreateAPIView(APIView):
 
 class TableThemeListAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     @extend_schema(
     tags=["Table Theme"],
@@ -159,6 +160,7 @@ class TableThemeDetailAPIView(APIView):
         
         
 class TableThemeUpdateAPIView(APIView):
+    authentication_classes = [StaffJWTAuthentication]
     @extend_schema(
     tags=["Table Theme"],
     summary="Update Table Theme",
@@ -215,7 +217,7 @@ class TableThemeUpdateAPIView(APIView):
 
 class TableThemeDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     @extend_schema(
     tags=["Table Theme"],
@@ -315,7 +317,7 @@ class TableThemeDeleteAPIView(APIView):
 # products/views/update_product.py
 class AdminCreateProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     @extend_schema(
     tags=["Admin Product"],
@@ -394,7 +396,7 @@ class AdminCreateProductAPIView(APIView):
 
 class AdminUpdateProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     @extend_schema(
     tags=["Admin Product"],
@@ -631,7 +633,7 @@ class AdminListProductsAPIView(APIView):
 # products/views/delete_product.py
 class AdminDeleteProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     @extend_schema(
     tags=["Admin Product"],
@@ -682,7 +684,7 @@ class AdminDeleteProductAPIView(APIView):
 
 class SpecialConditionCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def post(self, request):
         try:
@@ -715,7 +717,7 @@ class SpecialConditionCreateAPIView(APIView):
     
 class  SpecialConditionListAPIView(APIView):
     # permission_classes = [IsAdminUserJWT]
-    authentication_classes = [JWTAuthentication] 
+    authentication_classes = [StaffJWTAuthentication] 
 
     @extend_schema(
     tags=["Special Condition"],
@@ -760,7 +762,7 @@ class  SpecialConditionListAPIView(APIView):
         },status=status.HTTP_200_OK)
     
 class SpecialConditionDetailAPIView(APIView):
-    authentication_classes = [JWTAuthentication] 
+    authentication_classes = [StaffJWTAuthentication] 
 
     @extend_schema(
     tags=["Special Condition"],
@@ -791,7 +793,7 @@ class SpecialConditionDetailAPIView(APIView):
 
 class SpecialConditionUpdateAPIView(APIView):
     
-    authentication_classes = [JWTAuthentication] 
+    authentication_classes = [StaffJWTAuthentication] 
 
     @extend_schema(
     tags=["Special Condition"],
@@ -831,7 +833,7 @@ class SpecialConditionUpdateAPIView(APIView):
                 'error':serializer.errors
             },status=status.HTTP_400_BAD_REQUEST)
 class SpecialConditionDeleteAPIView(APIView):
-    authentication_classes = [JWTAuthentication] 
+    authentication_classes = [StaffJWTAuthentication] 
 
     @extend_schema(
     tags=["Special Condition"],
@@ -2202,7 +2204,7 @@ class DashboardAlertMarkReadAPIView(APIView):
 
 
 class AdminRefundProcessAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def patch(self, request, refund_id):
         refund = get_object_or_404(Refund, id=refund_id)
@@ -2272,7 +2274,7 @@ class AdminRefundProcessAPIView(APIView):
         return Response({"status": False, "message": serializer.errors}, status=400)
 
 class AdminOrderRefundAPI(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def post(self, request):
         data = request.data
@@ -2546,7 +2548,7 @@ class QuotationStatusUpdateAPIView(APIView):
 
 
 class UserDetailAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
     def get(self, request):
         try:
             users = Users.objects.all()
@@ -2576,7 +2578,7 @@ class UserDetailAPIView(APIView):
 
 #<-------------orderUpdate----------->
 class AdminOderUpdateAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def put(self,request,order_id,format=None):
         try:
@@ -2612,7 +2614,7 @@ class AdminOderUpdateAPIView(APIView):
 
 #<---------------OrderUpdateList--------------->
 class AdminOrderListAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def get(self, request):
         try:
@@ -2671,7 +2673,7 @@ class AdminOrderListAPIView(APIView):
        
 
 class AdminOrderDetailAPIView(APIView):
-    authentication_classes=[JWTAuthentication]
+    authentication_classes=[StaffJWTAuthentication]
  
     def get(self,request,order_id):
         try:
