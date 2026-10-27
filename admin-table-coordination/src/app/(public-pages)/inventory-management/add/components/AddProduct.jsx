@@ -323,7 +323,9 @@ const AddProduct = () => {
       payload.append("price", formData.rentalPricePerDay);
       payload.append("rental_price_per_day", formData.rentalPricePerDay);
       payload.append("total_quantity", formData.total_quantity);
-      payload.append("available_quantity", formData.total_quantity);
+      if (!isEdit) {
+        payload.append("available_quantity", formData.total_quantity);
+      }
       payload.append("isActive", formData.isActive);
 
       if (formData.productImage) {

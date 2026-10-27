@@ -2693,6 +2693,7 @@ class AdminOrderUpdateAPIView(APIView):
         if new_status not in valid_statuses:
             return Response({"status": False, "statusCode": 400, "message": f"Invalid status. Must be one of: {', '.join(valid_statuses)}"}, status=status.HTTP_400_BAD_REQUEST)
 
+        old_status = order.status
         order.status = new_status
         if new_status == 'cancelled':
             order.admin_cancel_reason = request.data.get('admin_cancel_reason', '')
@@ -2700,11 +2701,22 @@ class AdminOrderUpdateAPIView(APIView):
 
         order.save()
 
+        # Handle Cancellation - release stock and delete/clean rental
+        if new_status == 'cancelled' and old_status != 'cancelled':
+            from userhub.models import Rental
+            Rental.objects.filter(order=order).delete()
+            for item in order.items.select_related("product"):
+                if item.product:
+                    prod = item.product
+                    prod.available_quantity = min(prod.total_quantity, prod.available_quantity + item.quantity)
+                    prod.save(update_fields=["available_quantity"])
+
         # Handle Inspection Queue for returned items
         if new_status == 'returned':
+            order.is_returned = True
+            order.save(update_fields=['is_returned'])
             rental = getattr(order, 'rental', None)
             if not rental:
-                # Ensure start_date and end_date are valid dates
                 from django.utils import timezone
                 today = timezone.now().date()
                 rental = Rental.objects.create(
@@ -2716,16 +2728,26 @@ class AdminOrderUpdateAPIView(APIView):
                     shipping_fee=order.shipping_charge or 0,
                     tax=order.tax or 0,
                     total_amount=order.total_amount or 0,
-                    status='rented'
+                    status='returned'
                 )
                 for item in order.items.all():
                     RentalItem.objects.create(
                         rental=rental,
                         product=item.product,
                         quantity=item.quantity,
+                        returned_quantity=item.quantity,
+                        is_returned=True,
                         price_per_day=item.price_per_day or 0,
                         subtotal=item.subtotal or 0
                     )
+            else:
+                rental.status = 'returned'
+                rental.save(update_fields=['status'])
+                for r_item in rental.items.all():
+                    r_item.is_returned = True
+                    if not r_item.returned_quantity:
+                        r_item.returned_quantity = r_item.quantity
+                    r_item.save(update_fields=['is_returned', 'returned_quantity'])
             
             # Generate InspectionItems for the admin warehouse queue
             for r_item in rental.items.all():
