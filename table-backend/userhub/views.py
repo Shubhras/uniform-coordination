@@ -1726,6 +1726,7 @@ class ItemSummaryAPIView(APIView):
                 tax_rate = Decimal(str(policy.tax_percentage or "0.00"))
                 tax = (taxable_amount * tax_rate) / Decimal("100")
             else:
+                tax_rate = Decimal("0.00")
                 tax = Decimal("0.00")
 
             fees = cart.fees_amount if hasattr(cart, "fees_amount") else Decimal("0.00")
@@ -1745,6 +1746,8 @@ class ItemSummaryAPIView(APIView):
                     "discount": total_discount,
                     "shipping": shipping,
                     "tax": tax,
+                    "tax_percentage": float(tax_rate),
+                    "tax_rate": float(tax_rate),
                     "fees": fees,
                     "grand_total": grand_total
                 }
