@@ -43,7 +43,12 @@ const validationSchema = z.object({
         .min(1, { message: 'Please enter material' }),
     size_quantity: z
         .string({ required_error: 'Please enter size and quantity' })
-        .min(1, { message: 'Please enter size and quantity' }),
+        .trim()
+        .min(1, { message: 'Please enter size and quantity' })
+        .regex(
+            /^([A-Za-z0-9]+)\s*-\s*(\d+)(\s*,\s*([A-Za-z0-9]+)\s*-\s*(\d+))*$/,
+            { message: 'Please use format like "M-10, L-20" (Size-Quantity)' }
+        ),
     delivery_date: z.date({
         required_error: 'Please select delivery date',
     }),
@@ -67,7 +72,7 @@ const formatSizes = (sizes) => {
     if (!sizes) return ""
     return SIZE_ORDER
         .filter((label) => Number(sizes[label]) > 0)
-        .map((label) => `${label} x ${sizes[label]}`)
+        .map((label) => `${label}-${sizes[label]}`)
         .join(", ")
 }
 
@@ -308,9 +313,21 @@ const DeliveryRequestForm = () => {
                                     name="size_quantity"
                                     control={control}
                                     render={({ field }) => (
-                                        <Input placeholder="Size & Quantity" {...field} />
+                                        <Input
+                                            placeholder="Size & Quantity (e.g. M-10, L-20)"
+                                            {...field}
+                                            onChange={(e) => {
+                                                const sanitized = e.target.value
+                                                    .replace(/[^a-zA-Z0-9\s,-]/g, '')
+                                                    .toUpperCase()
+                                                field.onChange(sanitized)
+                                            }}
+                                        />
                                     )}
                                 />
+                                <span className="text-[11px] text-gray-400 mt-1 block">
+                                    Example: M-10, L-20
+                                </span>
                             </FormItem>
 
                             <FormItem
