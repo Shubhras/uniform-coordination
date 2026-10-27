@@ -1114,6 +1114,7 @@ class ProductSerializer(serializers.ModelSerializer):
     ProductImage_file = serializers.ImageField(write_only=True, required=False) 
     
     # New Computed Fields for Inventory Quantities
+    available_quantity = serializers.SerializerMethodField()
     on_rent_quantity = serializers.SerializerMethodField()
     cleaning_quantity = serializers.SerializerMethodField()
     inspect_quantity = serializers.SerializerMethodField()
@@ -1235,29 +1236,65 @@ class ProductSerializer(serializers.ModelSerializer):
     #     return new_build_media_url(obj.ProductImage)
     
     def get_on_rent_quantity(self, obj):
-        # We need to fetch from userhub RentalItem where rental is active
-        # To avoid complex cross-app imports in the serializer, we use the reverse relation if possible
-        # or we dynamically import it.
         try:
             from userhub.models import RentalItem
-            return sum(item.quantity for item in obj.rentalitem_set.filter(rental__status='rented'))
+            rental_items = obj.rentalitem_set.filter(
+                isDeleted=False,
+                isActive=True,
+                is_returned=False,
+                is_lost=False,
+                rental__isDeleted=False,
+                rental__isActive=True,
+                rental__status__in=['rented', 'late', 'partial_return']
+            ).exclude(
+                rental__order__status__in=['cancelled', 'returned']
+            )
+            on_rent = 0
+            for item in rental_items:
+                qty = item.quantity - (item.returned_quantity or 0)
+                if qty > 0:
+                    on_rent += qty
+            total = obj.total_quantity or 0
+            return min(on_rent, total)
         except Exception:
             return 0
             
     def get_cleaning_quantity(self, obj):
-        return sum(item.quantity for item in obj.cleaning_records.filter(status='cleaning'))
+        try:
+            return sum(item.quantity for item in obj.cleaning_records.filter(status='cleaning'))
+        except Exception:
+            return 0
         
     def get_inspect_quantity(self, obj):
-        # Inspections are linked to RentalItem or Order. 
-        # But we need to know the product.
-        # Actually, InspectionItem links to RentalItem which links to Product.
         try:
             from uniformAdmin.models import InspectionItem
             return sum(insp.returned_qty for insp in InspectionItem.objects.filter(
                 rental_item__product=obj, result='pending'))
         except Exception:
             return 0
-            
+
+    def get_damaged_quantity(self, obj):
+        try:
+            return sum(item.quantity for item in obj.damaged_records.filter(status__in=['pending', 'repair']))
+        except Exception:
+            return 0
+
+    def get_available_quantity(self, obj):
+        total = obj.total_quantity or 0
+        on_rent = self.get_on_rent_quantity(obj)
+        cleaning = self.get_cleaning_quantity(obj)
+        inspect = self.get_inspect_quantity(obj)
+        damaged = self.get_damaged_quantity(obj)
+        computed_available = max(0, total - (on_rent + cleaning + inspect + damaged))
+        if obj.available_quantity != computed_available:
+            try:
+                from uniformAdmin.models import Product
+                Product.objects.filter(pk=obj.pk).update(available_quantity=computed_available)
+                obj.available_quantity = computed_available
+            except Exception:
+                pass
+        return computed_available
+
     def get_fabric_details(self, obj):
         if not obj.fabric:
             return None
@@ -1267,7 +1304,6 @@ class ProductSerializer(serializers.ModelSerializer):
             "name": obj.fabric.fabricName
         }
 
-
     def get_color_details(self, obj):
         if not obj.color:
             return None
@@ -1276,8 +1312,6 @@ class ProductSerializer(serializers.ModelSerializer):
             "id": obj.color.id,
             "name": obj.color.colorName
         }
-    def get_damaged_quantity(self, obj):
-        return sum(item.quantity for item in obj.damaged_records.filter(status__in=['pending', 'repair']))
     
     
 
@@ -1288,10 +1322,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         image = validated_data.pop('ProductImage_file', None)
+        total_quantity = validated_data.get('total_quantity', 0)
+        validated_data['available_quantity'] = total_quantity
         product = super().create(validated_data)
         if image:
             product.ProductImage = image
-            product.save()
+            product.save(update_fields=["ProductImage"])
         return product    
  
   
@@ -1311,12 +1347,18 @@ class ProductSerializer(serializers.ModelSerializer):
  
     def update(self, instance, validated_data):
         image = validated_data.pop("ProductImage_file", None)
+        validated_data.pop("available_quantity", None)
 
         instance = super().update(instance, validated_data)
 
         if image:
             instance.ProductImage = image
             instance.save(update_fields=["ProductImage"])
+
+        computed_avail = self.get_available_quantity(instance)
+        if instance.available_quantity != computed_avail:
+            instance.available_quantity = computed_avail
+            instance.save(update_fields=["available_quantity"])
 
         return instance
 
@@ -1351,15 +1393,12 @@ class ProductSerializer(serializers.ModelSerializer):
             self.instance.total_quantity if self.instance else 0
         )
 
-        avail_qty = data.get(
-            "available_quantity",
-            self.instance.available_quantity if self.instance else 0
-        )
-
-        if avail_qty > total_qty:
-            raise serializers.ValidationError({
-                "available_quantity": "Available quantity cannot exceed total quantity"
-            })
+        if "available_quantity" in data:
+            avail_qty = data.get("available_quantity")
+            if avail_qty is not None and avail_qty > total_qty:
+                raise serializers.ValidationError({
+                    "available_quantity": "Available quantity cannot exceed total quantity"
+                })
             
 
         # if product_type == "table" and not theme_value:
