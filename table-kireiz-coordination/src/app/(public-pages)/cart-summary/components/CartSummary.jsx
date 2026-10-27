@@ -40,6 +40,19 @@ const CartSummary = () => {
 
     /* Item Update States */
     const [updatingItemId, setUpdatingItemId] = useState(null)
+    const [expandedDescriptions, setExpandedDescriptions] = useState({})
+
+    /**
+     * Toggles expanded description visibility for a cart item.
+     * 
+     * @param {string|number} id - Cart item ID.
+     */
+    const toggleDescription = (id) => {
+        setExpandedDescriptions((prev) => ({
+            ...prev,
+            [id]: !prev[id],
+        }))
+    }
 
     /**
      * Fetches current user cart items list from the CartSummary API.
@@ -102,20 +115,44 @@ const CartSummary = () => {
             await fetchCartSummary(true)
         } catch (error) {
             console.error("Failed to update item quantity", error)
-            toast.push(<Notification title="Error!" type="danger">Failed to update cart</Notification>);
+            const errorMsg = error?.response?.data?.message || error?.response?.data?.error || error?.response?.data?.detail || "Failed to update cart"
+            toast.push(<Notification title="Error!" type="danger">{errorMsg}</Notification>);
         } finally {
             setUpdatingItemId(null)
         }
     }
 
     /**
-     * Increases the quantity of a cart item by 1.
+     * Increases the quantity of a cart item by 1 if within available quantity limit.
      * 
      * @param {number} index - Index of the item in the cartItems array.
      */
     const increaseQty = (index) => {
         const item = cartItems[index]
         if (!item || updatingItemId || summaryLoading) return;
+
+        if (item.available_quantity !== null && item.available_quantity !== undefined) {
+            const availableQty = Number(item.available_quantity)
+            if (!isNaN(availableQty)) {
+                if (availableQty <= 0) {
+                    toast.push(
+                        <Notification title="Out of Stock" type="danger">
+                            This item is currently out of stock.
+                        </Notification>
+                    );
+                    return;
+                }
+                if (item.quantity >= availableQty) {
+                    toast.push(
+                        <Notification title="Stock Limit Reached" type="warning">
+                            Only {availableQty} item{availableQty > 1 ? "s" : ""} available in stock.
+                        </Notification>
+                    );
+                    return;
+                }
+            }
+        }
+
         updateItemQuantity(item.id, 1)
     }
 
@@ -139,6 +176,21 @@ const CartSummary = () => {
      * Navigates to the delivery information checkout step.
      */
     const handleProceed = () => {
+        const exceededItem = cartItems.find(
+            (item) =>
+                item.available_quantity !== null &&
+                item.available_quantity !== undefined &&
+                item.quantity > Number(item.available_quantity)
+        )
+        if (exceededItem) {
+            toast.push(
+                <Notification title="Stock Limit Exceeded" type="danger">
+                    Please adjust quantity. &quot;{exceededItem.product_name}&quot; exceeds available stock ({exceededItem.available_quantity}).
+                </Notification>
+            )
+            return
+        }
+
         const targetCartId = cartId
         router.push(`/delivery-information/${targetCartId}`)
     }
@@ -175,72 +227,111 @@ const CartSummary = () => {
                                 </div>
                             ) : (
                                 /* Cart Item Row List */
-                                cartItems.map((item, i) => (
-                                    <div key={item.id} className="flex gap-4 bg-white rounded-lg p-4 mb-4">
-                                        <div className="relative w-40 h-28 rounded-md overflow-hidden shrink-0">
-                                            <Image
-                                                src={item?.product_image}
-                                                alt={item?.product_name}
-                                                fill
-                                                className="object-cover"
-                                                unoptimized
-                                            />
-                                        </div>
+                                cartItems.map((item, i) => {
+                                    const isMaxReached =
+                                        item?.available_quantity !== null &&
+                                        item?.available_quantity !== undefined &&
+                                        item?.quantity >= Number(item?.available_quantity);
 
-                                        <div className="flex-1 flex flex-col justify-center py-1">
-                                            <h4 className="text-[17px] font-semibold text-gray-800 capitalize mb-1">
-                                                {item?.product_name}
-                                            </h4>
-                                            <p className="text-sm text-gray-500 mb-2 line-clamp-1">
-                                                Description: {item?.product_description || "-"}
-                                            </p>
-
-                                            <div className="space-y-1 mt-1">
-                                                <p className="text-sm text-gray-600">
-                                                    Quantity: {item?.quantity}
-                                                </p>
-                                                <p className="text-sm font-medium">
-                                                    <span className="text-green-600">
-                                                        Price:{" "}${item?.price} × {item?.quantity} = ${item?.total_price}
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center">
-                                            <div className="flex items-center justify-between border rounded-full px-3 py-1 w-24">
-                                                {item.quantity > 1 ? (
-                                                    <FaMinus
-                                                        size={16}
-                                                        className={`cursor-pointer ${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : ''}`}
-                                                        onClick={() => decreaseQty(i)}
-                                                    />
-                                                ) : (
-                                                    <FiTrash2
-                                                        size={16}
-                                                        className={`cursor-pointer text-[#B05B3B] ${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : ''}`}
-                                                        onClick={() => decreaseQty(i)}
-                                                    />
-                                                )}
-
-                                                {updatingItemId && String(updatingItemId) === String(item.id) ? (
-                                                    <span
-                                                        className="inline-block rounded-full border-2 border-gray-300 border-t-[#8B4513] animate-spin"
-                                                        style={{ width: 20, height: 20, margin: "2px" }}
-                                                    />
-                                                ) : (
-                                                    <span>{item.quantity}</span>
-                                                )}
-
-                                                <FaPlus
-                                                    size={16}
-                                                    className={`cursor-pointer ${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : ''}`}
-                                                    onClick={() => increaseQty(i)}
+                                    return (
+                                        <div key={item.id} className="flex gap-4 bg-white rounded-lg p-4 mb-4">
+                                            <div className="relative w-40 h-28 rounded-md overflow-hidden shrink-0">
+                                                <Image
+                                                    src={item?.product_image}
+                                                    alt={item?.product_name}
+                                                    fill
+                                                    className="object-cover"
+                                                    unoptimized
                                                 />
                                             </div>
+
+                                            <div className="flex-1 flex flex-col justify-center py-1">
+                                                <h4 className="text-[17px] font-semibold text-gray-800 capitalize mb-1">
+                                                    {item?.product_name}
+                                                </h4>
+                                                <div className="mb-2">
+                                                    <p
+                                                        className={`text-sm text-gray-500 break-words ${
+                                                            expandedDescriptions[item.id]
+                                                                ? "line-clamp-none max-h-36 overflow-y-auto pr-1 leading-relaxed text-gray-600"
+                                                                : "line-clamp-2"
+                                                        }`}
+                                                        title={item?.product_description || ""}
+                                                    >
+                                                        <span className="font-medium text-gray-700">Description:</span>{" "}
+                                                        {item?.product_description || "-"}
+                                                    </p>
+                                                    {item?.product_description && item.product_description.length > 80 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => toggleDescription(item.id)}
+                                                            className="text-xs font-semibold text-[#8B4513] hover:text-[#72380f] hover:underline mt-0.5 inline-block cursor-pointer focus:outline-none"
+                                                        >
+                                                            {expandedDescriptions[item.id] ? "Show less" : "Read more"}
+                                                        </button>
+                                                    )}
+                                                </div>
+
+                                                <div className="space-y-1 mt-1">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <p className="text-sm text-gray-600">
+                                                            Quantity: {item?.quantity}
+                                                        </p>
+                                                        {item?.available_quantity !== null && item?.available_quantity !== undefined && (
+                                                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                                                Available: {item.available_quantity}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-sm font-medium">
+                                                        <span className="text-green-600">
+                                                            Price:{" "}${item?.price} × {item?.quantity} = ${item?.total_price}
+                                                        </span>
+                                                    </p>
+                                                    {isMaxReached && (
+                                                        <p className="text-xs text-amber-600 font-medium">
+                                                            Max available stock reached ({item.available_quantity})
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center">
+                                                <div className="flex items-center justify-between border rounded-full px-3 py-1 w-24">
+                                                    {item.quantity > 1 ? (
+                                                        <FaMinus
+                                                            size={16}
+                                                            className={`cursor-pointer ${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : ''}`}
+                                                            onClick={() => decreaseQty(i)}
+                                                        />
+                                                    ) : (
+                                                        <FiTrash2
+                                                            size={16}
+                                                            className={`cursor-pointer text-[#B05B3B] ${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : ''}`}
+                                                            onClick={() => decreaseQty(i)}
+                                                        />
+                                                    )}
+
+                                                    {updatingItemId && String(updatingItemId) === String(item.id) ? (
+                                                        <span
+                                                            className="inline-block rounded-full border-2 border-gray-300 border-t-[#8B4513] animate-spin"
+                                                            style={{ width: 20, height: 20, margin: "2px" }}
+                                                        />
+                                                    ) : (
+                                                        <span>{item.quantity}</span>
+                                                    )}
+
+                                                    <FaPlus
+                                                        size={16}
+                                                        className={`${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : isMaxReached ? 'opacity-40 cursor-not-allowed text-gray-400' : 'cursor-pointer hover:text-[#8B4513]'}`}
+                                                        onClick={() => increaseQty(i)}
+                                                        title={isMaxReached ? `Maximum available quantity reached (${item.available_quantity})` : 'Increase quantity'}
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
+                                    )
+                                })
                             )}
                         </div>
 
@@ -295,7 +386,7 @@ const CartSummary = () => {
                                                     Qty: {item.quantity}
                                                 </p>
                                             </div>
-                                            <span className="text-gray-800">${Number(item.total_price || 0).toLocaleString()}</span>
+                                            <span className="text-gray-800">${Number(item.total_price || 0).toLocaleString()} /day</span>
                                         </div>
                                     ))}
                                 </div>
@@ -316,12 +407,15 @@ const CartSummary = () => {
                                         <span>${Number(cartSummary?.summary?.discount || 0).toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-gray-700">
-                                        <span>Tax</span>
+                                        <span>
+                                            Tax
+                                            {cartSummary?.summary?.tax_percentage != null
+                                                ? ` (${Number(cartSummary.summary.tax_percentage)}%)`
+                                                : cartSummary?.summary?.tax_rate != null
+                                                    ? ` (${Number(cartSummary.summary.tax_rate)}%)`
+                                                    : ""}
+                                        </span>
                                         <span>${Number(cartSummary?.summary?.tax || 0).toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between text-[#B05B3B]">
-                                        <span>Fees:</span>
-                                        <span>${Number(cartSummary?.summary?.fees || 0).toLocaleString()}</span>
                                     </div>
                                 </div>
 

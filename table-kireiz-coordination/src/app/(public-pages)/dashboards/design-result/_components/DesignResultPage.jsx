@@ -203,16 +203,26 @@ const DesignResultPage = () => {
                 modalInfoDesignData?.product_id,
                 1
             );
-            if (!response?.status) {
-                throw new Error("Failed to add to cart");
+            if (response?.status) {
+                toast.push(<Notification title="Success!" type="success">Added to cart successfully</Notification>);
+                router.push('/cart-summary');
+            } else {
+                toast.push(
+                    <Notification title="Warning!" type="warning">
+                        {response?.message || response?.error || "Failed to add to cart"}
+                    </Notification>
+                );
             }
-            toast.push(<Notification title="Success!" type="success">Added to cart successfully</Notification>);
-            router.push('/cart-summary')
         } catch (error) {
             console.error("Add to Cart Error:", error);
+            const errorMessage =
+                error?.response?.data?.message ||
+                error?.response?.data?.error ||
+                error?.message ||
+                "Failed to add to cart";
             toast.push(
                 <Notification title="Error!" type="danger">
-                    Failed to add to cart
+                    {errorMessage}
                 </Notification>
             );
         } finally {

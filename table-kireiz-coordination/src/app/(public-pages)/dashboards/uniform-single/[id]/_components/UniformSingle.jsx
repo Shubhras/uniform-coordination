@@ -420,8 +420,8 @@ const UniformSingle = () => {
                       disabled={addingToCart || isOutOfStock}
                       onClick={handleAddToCart}
                       className={`flex-1 transition-colors text-white py-3 px-4 rounded-md text-sm font-medium shadow-sm flex items-center justify-center gap-2 ${isOutOfStock
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-[#7B3C1D] hover:bg-[#602D15] cursor-pointer disabled:opacity-70"
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-[#7B3C1D] hover:bg-[#602D15] cursor-pointer disabled:opacity-70"
                         }`}
                     >
                       {addingToCart ? (
