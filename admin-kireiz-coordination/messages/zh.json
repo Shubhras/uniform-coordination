@@ -1031,6 +1031,7 @@
         "save": "Save",
         "update": "Update",
         "nameRequired": "Subcategory name is required",
+        "categoryRequired": "请选择类别",
         "saveFailed": "Failed to save subcategory. Please try again."
       }
     },

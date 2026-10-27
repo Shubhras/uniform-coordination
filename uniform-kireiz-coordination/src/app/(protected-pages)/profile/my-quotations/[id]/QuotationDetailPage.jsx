@@ -68,7 +68,10 @@ const normalizePdfUrl = (rawUrl) => {
         return ''
     }
 
-    const preferredBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+    const preferredBaseUrl =
+        process.env.NEXT_PUBLIC_API_BASE_URL ||
+        (typeof window !== 'undefined' ? window.location.origin : '')
+
     if (!preferredBaseUrl) {
         return rawUrl
     }
@@ -81,7 +84,11 @@ const normalizePdfUrl = (rawUrl) => {
         }
 
         const parsedUrl = new URL(rawUrl)
-        if (parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1') {
+        if (
+            parsedUrl.hostname === 'localhost' ||
+            parsedUrl.hostname === '127.0.0.1' ||
+            parsedUrl.hostname.includes('dxtspace.com')
+        ) {
             return new URL(
                 `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`,
                 preferredOrigin,
@@ -315,7 +322,7 @@ const QuotationDetailPage = ({ quotationId }) => {
                 ? attachmentOrEvent
                 : null
 
-        const targetUrl =
+        let targetUrl =
             attachment?.download_url ||
             attachment?.file_url ||
             quotation.downloadUrl ||
@@ -325,10 +332,38 @@ const QuotationDetailPage = ({ quotationId }) => {
         try {
             setDownloadLoading(true)
 
-            // Direct download link if it's an external file or static media
-            if (targetUrl && (targetUrl.includes('/media/') || targetUrl.endsWith('.pdf'))) {
+            // If the URL is an export endpoint returning JSON, call export to get the static PDF url
+            if (targetUrl && targetUrl.includes('/export/')) {
+                try {
+                    const exportRes = await apiExportQuotationPdf(
+                        quotation.quotationId,
+                        session.accessToken,
+                    )
+                    const extractedUrl =
+                        exportRes?.pdf_url || exportRes?.data?.pdf_url || exportRes?.data?.url
+                    if (extractedUrl) {
+                        targetUrl = extractedUrl
+                    }
+                } catch (exportErr) {
+                    console.warn('apiExportQuotationPdf fallback error:', exportErr)
+                }
+            }
+
+            // Direct download link if it's an external file, media PDF, or direct PDF stream
+            if (
+                targetUrl &&
+                (targetUrl.includes('/media/') ||
+                    targetUrl.endsWith('.pdf') ||
+                    targetUrl.includes('/pdf/'))
+            ) {
+                // Ensure ?download=1 is appended for PDF stream endpoints
+                const finalDownloadUrl =
+                    targetUrl.includes('/pdf/') && !targetUrl.includes('download=1')
+                        ? `${targetUrl}${targetUrl.includes('?') ? '&' : '?'}download=1`
+                        : targetUrl
+
                 const link = document.createElement('a')
-                link.href = targetUrl
+                link.href = finalDownloadUrl
                 link.download = attachment?.name || `${quotation.requestId || 'quotation'}.pdf`
                 link.target = '_blank'
                 document.body.appendChild(link)
@@ -354,7 +389,6 @@ const QuotationDetailPage = ({ quotationId }) => {
             window.URL.revokeObjectURL(blobUrl)
         } catch (error) {
             console.error('Quotation document download error:', error)
-            // Fallback: direct window.open
             if (targetUrl) {
                 window.open(targetUrl, '_blank')
                 return
@@ -370,14 +404,16 @@ const QuotationDetailPage = ({ quotationId }) => {
     }
 
     const handleViewDocument = (attachment) => {
-        const targetUrl =
+        let targetUrl =
             attachment?.file_url ||
             attachment?.download_url ||
             quotation?.pdfUrl ||
             quotation?.exportPdfUrl
 
         if (targetUrl) {
-            window.open(targetUrl, '_blank')
+            // Remove download=1 parameter when viewing inline
+            const viewUrl = targetUrl.replace(/[?&]download=1/, '')
+            window.open(viewUrl, '_blank')
         } else {
             handleDownloadDocument(attachment)
         }

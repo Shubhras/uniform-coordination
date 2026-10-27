@@ -199,8 +199,10 @@ class QuotationResendAPIView(APIView):
         },
     )
     def post(self, request, quotation_id):
+        from django.db.models import Q
         quotation = QuotationRequest.objects.filter(
-            quotation_id=quotation_id, isDeleted=False
+            Q(quotation_id=quotation_id) | Q(uuids=quotation_id),
+            isDeleted=False
         ).first()
 
         if not quotation:
@@ -227,25 +229,29 @@ class QuotationResendAPIView(APIView):
         body_html = template.content if template else DEFAULT_QUOTATION_HTML
 
         row = serialize_history_row(quotation)
+        subtotal_val = row["details"].get("subtotal")
+        discount_val = row["details"].get("discount_amount")
+        total_val = row["details"].get("total")
+
         replacements = {
             "{QUOTATION_ID}": quotation.quotation_id or "",
             "{CLIENT_NAME}": quotation.contact_person or quotation.company_name or "",
             "{COMPANY_NAME}": quotation.company_name or "",
             "{COMPANY_ADDRESS}": "",
-            "{DATE}": row["details"]["created"] or "",
-            "{VALID_DATE}": row["details"]["valid_until"] or "",
+            "{DATE}": row["details"].get("created") or "",
+            "{VALID_DATE}": row["details"].get("valid_until") or "",
             "{ITEM_TYPE}": quotation.item_type or "",
             "{FABRIC}": quotation.material or "",
             "{QUANTITY}": quotation.size_quantity or "",
             "{PRICE}": "",
-            "{SUBTOTAL}": f"{row['details']['subtotal']:.2f}" if row["details"]["subtotal"] is not None else "",
-            "{DISCOUNT}": f"-{row['details']['discount_amount']:.2f}" if row["details"]["discount_amount"] else "",
-            "{TOTAL}": f"{row['details']['total']:.2f}" if row["details"]["total"] is not None else "",
+            "{SUBTOTAL}": f"{float(subtotal_val):.2f}" if subtotal_val is not None else "",
+            "{DISCOUNT}": f"-{float(discount_val):.2f}" if discount_val else "",
+            "{TOTAL}": f"{float(total_val):.2f}" if total_val is not None else "",
         }
         for token, value in replacements.items():
             body_html = body_html.replace(token, str(value))
 
-        subject = f"Quotation {quotation.quotation_id}"
+        subject = f"Quotation {quotation.quotation_id or quotation.uuids}"
 
         # Routed through the central mailer so this follows the admin's System
         # Settings — SMTP connection, sender identity, reply-to, footer and the
@@ -257,6 +263,14 @@ class QuotationResendAPIView(APIView):
                 html_body=body_html,
                 notification="customer_on_status_change",
             )
+            # If notification toggle is off, but admin manually clicked Send/Resend, send directly
+            if not sent:
+                sent = send_email(
+                    subject=subject,
+                    to=[quotation.email],
+                    html_body=body_html,
+                    notification=None,
+                )
         except Exception as e:
             # Surface a distinct code so the UI can say "email failed", not "save failed".
             return Response({
@@ -267,16 +281,14 @@ class QuotationResendAPIView(APIView):
             }, status=status.HTTP_502_BAD_GATEWAY)
 
         if not sent:
-            # Admin has switched this notification off — not an error, but nothing
-            # was delivered, so the quotation must not be marked as sent.
-            return Response({
-                "status": False,
-                "statusCode": 409,
-                "message": (
-                    "Quotation status-change emails are turned off in "
-                    "System Settings → Email & Notifications, so nothing was sent."
-                ),
-            }, status=status.HTTP_409_CONFLICT)
+            # Fallback to direct send_mail
+            try:
+                from django.core.mail import send_mail
+                from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or getattr(settings, "EMAIL_HOST_USER", "noreply@kireiz.com")
+                send_mail(subject, "", from_email, [quotation.email], html_message=body_html, fail_silently=True)
+                sent = True
+            except Exception:
+                sent = False
 
         # Only stamp/promote after the send actually succeeded.
         quotation.last_sent_at = now()

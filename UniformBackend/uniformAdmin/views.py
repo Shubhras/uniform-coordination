@@ -1166,6 +1166,15 @@ class QuotationRequestUpdateAPIView(APIView):
                     instance.cancelled_by = "admin"
                     instance.save(update_fields=["cancelled_by"])
 
+                # If sales_rep was updated, also sync assigned_sales_rep on matching AdminUser account
+                if "sales_rep" in request.data:
+                    lookup = Q(email__iexact=instance.email)
+                    if instance.company_name:
+                        lookup |= Q(company_name__iexact=instance.company_name)
+                    AdminUser.objects.filter(lookup).exclude(role__role_name__in=["admin", "sales"]).update(
+                        assigned_sales_rep=instance.sales_rep
+                    )
+
                 return Response(
                     {
                         "statusCode": 200,
@@ -1580,18 +1589,23 @@ class QuotationTamplateExportAPIView(APIView):
                 "message": "Template not found"
             }, status=404)
 
-        # ✅ Generate PDF (this returns MEDIA_URL path)
-        pdf_path = generate_quotation_template_pdf(quotation, template.content)
+        try:
+            # Generate PDF (this returns MEDIA_URL path)
+            pdf_path = generate_quotation_template_pdf(quotation, template.content)
+            pdf_url = request.build_absolute_uri(pdf_path)
 
-        # ✅ Convert to full absolute URL
-        pdf_url = request.build_absolute_uri(pdf_path)
-
-        return Response({
-            "statusCode": 200,
-            "status": True,
-            "message": "PDF generated successfully",
-            "pdf_url": pdf_url
-        })
+            return Response({
+                "statusCode": 200,
+                "status": True,
+                "message": "PDF generated successfully",
+                "pdf_url": pdf_url
+            })
+        except Exception as e:
+            return Response({
+                "statusCode": 500,
+                "status": False,
+                "message": f"Failed to generate template PDF: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 #<------------------AdminNotification------------------>
 
 class AdminNotificationListAPIView(APIView):

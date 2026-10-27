@@ -43,3 +43,7 @@ doc
 # PnP (Yarn Plug'n'Play)
 .pnp
 .pnp.js
+
+# Server notes & sensitive setup files
+SERVER_SETUP_NOTES.md
+

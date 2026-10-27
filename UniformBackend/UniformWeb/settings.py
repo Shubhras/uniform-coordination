@@ -179,8 +179,8 @@ MEDIA_ROOT = BASE_DIR / "media"
 #
 # Env-driven now, defaulting to production so deployed behaviour is unchanged. Set
 # SITE_DOMAIN and SITE_URL in .env for local work (e.g. http://localhost:8005).
-SITE_DOMAIN = config("SITE_DOMAIN", default="https://uniform-admin.dxtspace.com")
-SITE_URL = config("SITE_URL", default="https://uniform-admin.dxtspace.com")
+SITE_DOMAIN = config("SITE_DOMAIN", default="")
+SITE_URL = config("SITE_URL", default="")
 
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
@@ -264,6 +264,7 @@ EMAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "True") == "True"
 
 EMAIL_HOST_USER = os.getenv("MAIL_USERNAME")
 EMAIL_HOST_PASSWORD = os.getenv("MAIL_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("MAIL_FROM_ADDRESS", EMAIL_HOST_USER or "saksri.s@eqho.com")
 
 
 

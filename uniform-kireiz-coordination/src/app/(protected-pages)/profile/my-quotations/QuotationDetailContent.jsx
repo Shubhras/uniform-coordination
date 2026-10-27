@@ -20,8 +20,10 @@ import {
     FiPaperclip,
     FiCalendar,
     FiDollarSign,
+    FiCopy,
 } from 'react-icons/fi'
 import { formatDate } from '@/utils/dateFormater'
+import ComposeEmailModal from '@/components/shared/ComposeEmailModal'
 
 const statusStyles = {
     approved: {
@@ -236,12 +238,59 @@ const StatusProgressionStepper = ({ quotation }) => {
  * Assigned Sales Representative Card (FU-033)
  * Displays sales representative contact card or pending assignment state.
  */
-const SalesRepresentativeCard = ({ salesRep }) => {
+const copyToClipboardFallback = (text) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text)
+    }
+
+    // Robust fallback for non-secure HTTP contexts
+    return new Promise((resolve, reject) => {
+        try {
+            const textArea = document.createElement('textarea')
+            textArea.value = text
+            textArea.style.position = 'fixed'
+            textArea.style.left = '-999999px'
+            textArea.style.top = '-999999px'
+            textArea.setAttribute('readonly', '')
+            document.body.appendChild(textArea)
+            textArea.focus()
+            textArea.select()
+            const successful = document.execCommand('copy')
+            document.body.removeChild(textArea)
+            if (successful) {
+                resolve()
+            } else {
+                reject(new Error('execCommand returned false'))
+            }
+        } catch (err) {
+            reject(err)
+        }
+    })
+}
+
+const SalesRepresentativeCard = ({ salesRep, quotationId }) => {
+    const [copied, setCopied] = React.useState(false)
+    const [isEmailModalOpen, setIsEmailModalOpen] = React.useState(false)
+
     const getInitials = (name) => {
         if (!name) return 'SR'
         const parts = name.trim().split(/\s+/)
         if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase()
         return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    }
+
+    const targetEmail = salesRep?.email || 'support@kireiz.jp'
+    const targetName = salesRep?.name || 'Support Team'
+
+    const handleCopySupportEmail = () => {
+        copyToClipboardFallback(targetEmail)
+            .then(() => {
+                setCopied(true)
+                setTimeout(() => setCopied(false), 2500)
+            })
+            .catch((err) => {
+                console.error('Failed to copy email:', err)
+            })
     }
 
     return (
@@ -282,14 +331,35 @@ const SalesRepresentativeCard = ({ salesRep }) => {
 
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                         {salesRep.email && (
-                            <a
-                                href={`mailto:${salesRep.email}`}
-                                className="inline-flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2 text-xs font-medium text-[#374151] hover:border-[#003560] hover:text-[#003560] transition-colors"
-                                title="Send Email"
-                            >
-                                <FiMail size={14} className="text-[#003560]" />
-                                <span>{salesRep.email}</span>
-                            </a>
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEmailModalOpen(true)}
+                                    className="inline-flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2 text-xs font-medium text-[#374151] hover:border-[#003560] hover:text-[#003560] transition-colors"
+                                    title="Send In-App Email"
+                                >
+                                    <FiMail size={14} className="text-[#003560]" />
+                                    <span>{salesRep.email}</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleCopySupportEmail}
+                                    title="Copy email to clipboard"
+                                    className="inline-flex items-center gap-1 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-2.5 py-2 text-xs font-medium text-[#475569] hover:bg-[#F1F5F9] hover:text-[#003560] transition-colors"
+                                >
+                                    {copied ? (
+                                        <>
+                                            <FiCheck size={13} className="text-emerald-600" />
+                                            <span className="text-emerald-600 font-semibold">Copied!</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FiCopy size={13} />
+                                            <span>Copy</span>
+                                        </>
+                                    )}
+                                </button>
+                            </>
                         )}
 
                         {salesRep.phone && (
@@ -319,15 +389,44 @@ const SalesRepresentativeCard = ({ salesRep }) => {
                             </p>
                         </div>
                     </div>
-                    <a
-                        href="mailto:support@kireiz.jp"
-                        className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#CBD5E1] bg-white px-3 py-1.5 text-xs font-medium text-[#003560] hover:bg-[#F1F5F9] transition-colors"
-                    >
-                        <FiMail size={13} />
-                        Contact Support
-                    </a>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => setIsEmailModalOpen(true)}
+                            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#CBD5E1] bg-white px-3 py-1.5 text-xs font-medium text-[#003560] hover:bg-[#F1F5F9] transition-colors"
+                        >
+                            <FiMail size={13} />
+                            Contact Support
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleCopySupportEmail}
+                            title="Copy support email address to clipboard"
+                            className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-[#CBD5E1] bg-white px-2.5 py-1.5 text-xs font-medium text-[#475569] hover:bg-[#F1F5F9] hover:text-[#003560] transition-colors"
+                        >
+                            {copied ? (
+                                <>
+                                    <FiCheck size={13} className="text-emerald-600" />
+                                    <span className="text-emerald-600 font-semibold">Copied!</span>
+                                </>
+                            ) : (
+                                <>
+                                    <FiCopy size={13} />
+                                    <span>Copy Email</span>
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
             )}
+
+            <ComposeEmailModal
+                isOpen={isEmailModalOpen}
+                onClose={() => setIsEmailModalOpen(false)}
+                recipientEmail={targetEmail}
+                recipientName={targetName}
+                initialSubject={quotationId ? `Inquiry regarding Quotation #${quotationId}` : 'Support Request'}
+            />
         </section>
     )
 }
@@ -455,7 +554,10 @@ const QuotationDetailContent = ({
             <StatusProgressionStepper quotation={quotation} />
 
             {/* Feature 2: Assigned Sales Representative (FU-033) */}
-            <SalesRepresentativeCard salesRep={quotation.salesRep} />
+            <SalesRepresentativeCard
+                salesRep={quotation.salesRep}
+                quotationId={quotation.requestId || quotation.quotationId}
+            />
 
             {/* Feature 3: Attached Documents Section (FU-032) */}
             <AttachmentsSection

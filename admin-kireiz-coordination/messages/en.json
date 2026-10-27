@@ -1073,6 +1073,7 @@
         "save": "Save",
         "update": "Update",
         "nameRequired": "Subcategory name is required",
+        "categoryRequired": "Please select category",
         "saveFailed": "Failed to save subcategory. Please try again."
       }
     },

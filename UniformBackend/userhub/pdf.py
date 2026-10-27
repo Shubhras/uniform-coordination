@@ -71,8 +71,7 @@ class QuotationDetailView(APIView):
 
 
 class QuotationPDFView(APIView):
-    """GET /api/v1/userhub/quotations/<uuid:pk>/pdf/"""
-    # permission_classes = [IsAuthenticated]
+    """GET /api/v1/userhub/quotations/<str:pk>/pdf/"""
     permission_classes = [AllowAny]
 
     def get(self, request, pk):
@@ -89,24 +88,86 @@ class QuotationPDFView(APIView):
         if not quotation:
             return Response({"detail": "Not found"}, status=404)
 
-        data = QuotationSummarySerializer(quotation).data
-        html_string = render_to_string("quotations/quote_pdf.html", {
-            "quotation": quotation,
-            "items": data["line_items"],
-            "total_amount": data["total_amount"],
-            "logo_data_uri": _get_logo_data_uri(),
-        })
+        download_param = request.GET.get('download', '').lower()
+        as_attachment = download_param in ('1', 'true', 'yes')
 
-        pdf_file = io.BytesIO()
-        HTML(string=html_string).write_pdf(pdf_file)
-        pdf_file.seek(0)
+        filename = f"Uniform_Quote_{quotation.quotation_id or quotation.uuids or 'Document'}.pdf"
 
-        return FileResponse(
-            pdf_file,
-            as_attachment=False,  # True forces download instead of inline view
-            filename=f"Uniform_Quote_{quotation.quotation_id}.pdf",
-            content_type='application/pdf',
-        )    
+        # 1. Primary: Generate PDF using the official quotation template format (ReportLab matching admin export)
+        try:
+            from uniformAdmin.models import QuotationTemplate
+            from uniformAdmin.utils import generate_quotation_template_pdf
+
+            template = (
+                QuotationTemplate.objects.filter(title="quotation", is_active=True, is_deleted=False).first()
+                or QuotationTemplate.objects.filter(is_active=True, is_deleted=False).order_by("-created_at").first()
+                or QuotationTemplate.objects.filter(title="quotation").first()
+                or QuotationTemplate.objects.first()
+            )
+            template_content = template.content if template else ""
+
+            rel_pdf_path = generate_quotation_template_pdf(quotation, template_content)
+            file_name = os.path.basename(rel_pdf_path)
+            file_path = os.path.join(settings.MEDIA_ROOT, "exports", file_name)
+
+            if os.path.exists(file_path):
+                response = FileResponse(
+                    open(file_path, 'rb'),
+                    as_attachment=as_attachment,
+                    filename=filename,
+                    content_type='application/pdf',
+                )
+                disp_type = 'attachment' if as_attachment else 'inline'
+                response["Content-Disposition"] = f'{disp_type}; filename="{filename}"'
+                return response
+        except Exception as template_pdf_err:
+            pass
+
+        # 2. Fallback: HTML to Weasyprint / fallback generator
+        try:
+            data = QuotationSummarySerializer(quotation).data
+            html_string = render_to_string("quotations/quote_pdf.html", {
+                "quotation": quotation,
+                "items": data.get("line_items", []),
+                "total_amount": data.get("total_amount", 0),
+                "logo_data_uri": _get_logo_data_uri(),
+            })
+
+            pdf_file = io.BytesIO()
+            HTML(string=html_string).write_pdf(pdf_file)
+            pdf_file.seek(0)
+
+            response = FileResponse(
+                pdf_file,
+                as_attachment=as_attachment,
+                filename=filename,
+                content_type='application/pdf',
+            )
+            disp_type = 'attachment' if as_attachment else 'inline'
+            response["Content-Disposition"] = f'{disp_type}; filename="{filename}"'
+            return response
+        except Exception as e:
+            # Fallback to generate_quotation_pdf (ReportLab) if Weasyprint encounters an issue
+            try:
+                from .utils import generate_quotation_pdf
+                file_path = generate_quotation_pdf(quotation, request)
+                if file_path and os.path.exists(file_path):
+                    response = FileResponse(
+                        open(file_path, 'rb'),
+                        as_attachment=as_attachment,
+                        filename=filename,
+                        content_type='application/pdf',
+                    )
+                    disp_type = 'attachment' if as_attachment else 'inline'
+                    response["Content-Disposition"] = f'{disp_type}; filename="{filename}"'
+                    return response
+            except Exception:
+                pass
+
+            return Response(
+                {"detail": f"Failed to generate PDF: {str(e)}"},
+                status=500
+            )    
   
   
 # # from django.core.files.base import ContentFile
