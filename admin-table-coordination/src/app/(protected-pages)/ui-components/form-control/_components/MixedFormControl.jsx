@@ -40,22 +40,20 @@ const validationSchema = z.object({
         .array(z.object({ value: z.string(), label: z.string() }))
         .nonempty('At least one is selected!'),
     date: z.date({
-        required_error: 'Date Required!',
-        invalid_type_error: 'Invalid Date',
+        error: (issue) => (issue.input === undefined ? 'Date Required!' : 'Invalid Date'),
     }),
     time: z.date({
-        required_error: 'Time Required!',
-        invalid_type_error: 'Invalid Time',
+        error: (issue) => (issue.input === undefined ? 'Time Required!' : 'Invalid Time'),
     }),
     singleCheckbox: z.literal(true, {
-        errorMap: () => ({ message: 'You must tick this!' }),
+        error: 'You must tick this!',
     }),
     multipleCheckbox: z
         .array(z.union([z.string(), z.number()]))
         .nonempty('Select at least one option!'),
     radio: z.string().min(1, 'Please select one!'),
     switcher: z.literal(true, {
-        errorMap: () => ({ message: 'You must turn this on!' }),
+        error: 'You must turn this on!',
     }),
     upload: z.array(z.instanceof(File)).nonempty('At least one file uploaded!'),
     segment: z.array(z.string()).nonempty('Select at least one option!'),

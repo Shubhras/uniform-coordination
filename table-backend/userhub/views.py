@@ -2303,6 +2303,7 @@ class OrderSummaryAPIView(APIView):
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from uniformAdmin.authentication import StaffJWTAuthentication
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -2310,7 +2311,7 @@ from uniformAdmin.models import Product
 from userhub.models import OrderItem
 
 class ProductOrderListAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, product_id):
@@ -3154,10 +3155,30 @@ class CloudSignWebhookAPIView(APIView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
+def _valid_docusign_signature(request):
+    """
+    DocuSign Connect HMAC check: X-DocuSign-Signature-N = base64(HMAC-SHA256(key, raw body)).
+    Without it anyone could POST {"envelopeId": ..., "status": "completed"} and mark a
+    quotation as signed. Set DOCUSIGN_CONNECT_HMAC_KEY (Connect > HMAC key in DocuSign).
+    """
+    import base64, hashlib, hmac, os
+    key = os.getenv("DOCUSIGN_CONNECT_HMAC_KEY", "")
+    if not key:
+        # Fail closed in production; allow unsigned calls only for local DEBUG testing.
+        return settings.DEBUG
+    expected = base64.b64encode(hmac.new(key.encode(), request.body, hashlib.sha256).digest()).decode()
+    signatures = [v for k, v in request.headers.items() if k.lower().startswith("x-docusign-signature-")]
+    return any(hmac.compare_digest(expected, sig) for sig in signatures)
+
+
 class DocuSignWebhookAPIView(APIView):
+    authentication_classes = []
     permission_classes = []
 
     def post(self, request):
+        # Read the raw body before request.data parses it (needed for the HMAC).
+        if not _valid_docusign_signature(request):
+            return Response({"statusCode":401,"status":False,"message": "Invalid signature"}, status=401)
         data = request.data
         print("WEBHOOK DATA:", data)
 

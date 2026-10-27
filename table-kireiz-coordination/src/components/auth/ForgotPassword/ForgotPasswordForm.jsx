@@ -9,7 +9,7 @@ import { z } from "zod";
 
 const validationSchema = z.object({
   email: z
-    .string({ required_error: "Please enter your email" })
+    .string({ error: "Please enter your email" })
     .min(1, { message: "Please enter your email" })
     .email({ message: "Please enter a valid email address" }),
 });

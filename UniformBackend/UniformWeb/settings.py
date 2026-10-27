@@ -27,11 +27,17 @@ load_dotenv(dotenv_path)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-a)&ww89mdf0z@0z_&lm=9ia79zry+d_wi((4x=5-*!ysby@&fz')
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() in ('true', '1')
+
+# SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY also signs every login JWT, so a key committed to the repo lets anyone forge
+# admin tokens. It must come from .env; only a DEBUG run may fall back to a throwaway key.
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    if not DEBUG:
+        raise RuntimeError("SECRET_KEY is not set. Add a strong random SECRET_KEY to .env.")
+    SECRET_KEY = 'django-insecure-local-development-only'
 
 allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
 if allowed_hosts_env:
@@ -320,13 +326,12 @@ SPECTACULAR_SETTINGS = {
 
 
 #Docusign 
-DOCUSIGN_INTEGRATION_KEY = "2abc67a8-b4d2-439d-8742-e26437450cc1"
-DOCUSIGN_USER_ID = "02601a1d-eb9b-41de-a590-ea0c4e99d6ea"
-DOCUSIGN_ACCOUNT_ID = "e1187f26-fc71-49cc-b41f-8f1ac6215e5e"
-DOCUSIGN_PRIVATE_KEY_PATH = "private.key"
-
-#ngrok for webhook
-ALLOWED_HOSTS = ["*"]
+# IDs and the RSA key come from .env; the key file is not committed (it was, and is
+# treated as leaked). Point DOCUSIGN_PRIVATE_KEY_PATH at the newly generated key.
+DOCUSIGN_INTEGRATION_KEY = config("DOCUSIGN_INTEGRATION_KEY", default="")
+DOCUSIGN_USER_ID = config("DOCUSIGN_USER_ID", default="")
+DOCUSIGN_ACCOUNT_ID = config("DOCUSIGN_ACCOUNT_ID", default="")
+DOCUSIGN_PRIVATE_KEY_PATH = config("DOCUSIGN_PRIVATE_KEY_PATH", default=str(BASE_DIR / "private.key"))
 
 
 

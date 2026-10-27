@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from .authentication import IsStaffUser, StaffWriteOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
@@ -11,7 +12,8 @@ class SimulationStructureAPIView(APIView):
     """
     Get or Update Simulation Structure Config for Categories strictly from database.
     """
-    permission_classes = [AllowAny] # Set to AllowAny for client requests, write will use admin checks if desired.
+    # GET is public (customer simulation); saving the structure is staff-only.
+    permission_classes = [StaffWriteOrReadOnly]
     
     def get(self, request):
         try:
@@ -86,7 +88,7 @@ class ProductSimulationVisibilityAPIView(APIView):
     """
     Toggle a product's visibility in the simulation.
     """
-    permission_classes = [AllowAny]
+    permission_classes = [IsStaffUser]
     
     def post(self, request):
         product_id = request.data.get("product_id")

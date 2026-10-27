@@ -22,30 +22,30 @@ import { useParams } from 'next/navigation'
  */
 const validationSchema = z.object({
     company_name: z
-        .string({ required_error: 'Please enter company name' })
+        .string({ error: 'Please enter company name' })
         .min(1, { message: 'Please enter company name' }),
     contact_person: z
-        .string({ required_error: 'Please enter contact person' })
+        .string({ error: 'Please enter contact person' })
         .min(1, { message: 'Please enter contact person' }),
     email: z
-        .string({ required_error: 'Please enter your email' })
+        .string({ error: 'Please enter your email' })
         .min(1, { message: 'Please enter your email' })
         .email({ message: 'Please enter a valid email address' }),
     phone_number: z
-        .string({ required_error: 'Please enter phone number' })
+        .string({ error: 'Please enter phone number' })
         .regex(/^\d+$/, { message: 'Phone number must contain only numbers' })
         .min(8, { message: 'Please enter a valid phone number (min. 8 digits)' }),
     item_type: z
-        .string({ required_error: 'Please enter item type' })
+        .string({ error: 'Please enter item type' })
         .min(1, { message: 'Please enter item type' }),
     material: z
-        .string({ required_error: 'Please enter material' })
+        .string({ error: 'Please enter material' })
         .min(1, { message: 'Please enter material' }),
     size_quantity: z
-        .string({ required_error: 'Please enter size and quantity' })
+        .string({ error: 'Please enter size and quantity' })
         .min(1, { message: 'Please enter size and quantity' }),
     delivery_date: z.date({
-        required_error: 'Please select delivery date',
+        error: 'Please select delivery date',
     }),
     additional_note: z.string().optional(),
     agreed_to_terms: z.boolean().refine(val => val === true, { message: 'Please agree to terms and conditions' }),

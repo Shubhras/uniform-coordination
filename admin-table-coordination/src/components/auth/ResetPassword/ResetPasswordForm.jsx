@@ -17,7 +17,7 @@ const passwordComplexityRegex = {
 const validationSchema = z
   .object({
     newPassword: z
-      .string({ required_error: "Please enter your password" })
+      .string({ error: "Please enter your password" })
       .min(1, "Password is required")
       .min(12, "Password must be at least 12 characters long")
       .refine((val) => passwordComplexityRegex.upper.test(val), {
@@ -35,7 +35,7 @@ const validationSchema = z
       }),
     confirmPassword: z
       .string({
-        required_error: "Confirm Password Required",
+        error: "Confirm Password Required",
       })
       .min(1, "Please confirm your password"),
   })

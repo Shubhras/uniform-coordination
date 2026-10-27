@@ -1,0 +1,51 @@
+# Fails the build when a dependency has a known critical vulnerability, so an unpatched
+# Next.js/React (like CVE-2025-55182) can never be merged or deployed unnoticed again.
+name: Security audit
+
+on:
+  push:
+    branches: [master, staging, "dev_*"]
+  pull_request:
+  schedule:
+    - cron: "0 3 * * 1" # every Monday, catches advisories published after the last push
+  workflow_dispatch:
+
+jobs:
+  npm-audit:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - uniform-kireiz-coordination
+          - admin-kireiz-coordination
+          - table-kireiz-coordination
+          - admin-table-coordination
+    defaults:
+      run:
+        working-directory: ${{ matrix.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Audit production dependencies (fail on critical)
+        run: npm audit --omit=dev --audit-level=critical
+      - name: Full report (high and above, informational)
+        if: always()
+        run: npm audit --omit=dev --audit-level=high || true
+
+  pip-audit:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        backend: [UniformBackend, table-backend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pip-audit
+      - name: Audit Python dependencies
+        run: pip-audit -r ${{ matrix.backend }}/requirements.txt --progress-spinner off

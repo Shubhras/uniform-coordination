@@ -11,6 +11,7 @@ from .serializers import *
 from uniformAdmin.fabric import IsAdministrator
 import stripe
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from uniformAdmin.authentication import StaffJWTAuthentication
 from .utils import generate_payment_pdf,generate_payment_pdf, send_payment_success_email, send_payment_failed_email
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -759,7 +760,7 @@ class UserPaymentDetailAPIView(APIView):
         
 class AdminPaymentListAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def get(self, request):
         try:

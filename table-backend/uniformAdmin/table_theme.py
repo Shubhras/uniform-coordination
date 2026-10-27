@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .authentication import StaffJWTAuthentication
 from django.db import transaction
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes, OpenApiExample, OpenApiResponse
 
@@ -21,7 +22,7 @@ class CustomPagination(PageNumberPagination):
 
 class TableThemeCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
     
     @extend_schema(
     tags=["Table Theme"],
@@ -226,6 +227,7 @@ class TableThemeDetailAPIView(APIView):
         
         
 class TableThemeUpdateAPIView(APIView):
+    authentication_classes = [StaffJWTAuthentication]
     @extend_schema(
     tags=["Table Theme"],
     summary="Update Table Theme",
@@ -308,7 +310,7 @@ class TableThemeUpdateAPIView(APIView):
 
 class TableThemeDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     @extend_schema(
     tags=["Table Theme"],
