@@ -1704,11 +1704,12 @@ class ItemSummaryAPIView(APIView):
                 total_items += item.quantity 
 
                 items.append({
-                    "product_id": item.product.id,
-                    "product_name": item.product.productName,
+                    "product_id": item.product.id if item.product else None,
+                    "product_name": item.product.productName if item.product else "",
                     # "product_image": item.product.ProductImage.url if item.product.ProductImage else None,
-                    "product_image": new_build_media_url(item.product.ProductImage),
+                    "product_image": new_build_media_url(item.product.ProductImage) if item.product else None,
                     "quantity": item.quantity,
+                    "available_quantity": (item.product.available_quantity if item.product else 0) or 0,
                     "unit_price": item.price,
                     "final_price": item.final_price,
                     "total_price": discounted_total,

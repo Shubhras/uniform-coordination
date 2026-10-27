@@ -193,6 +193,10 @@ from uniformAdmin.utils import new_build_media_url
 class CartItemSerializer(serializers.ModelSerializer):
     cart = CartSerializer(read_only=True)
 
+    product_id = serializers.IntegerField(
+        source="product.id",
+        read_only=True
+    )
     product_name = serializers.CharField(
         source="product.productName",
         read_only=True
@@ -203,15 +207,18 @@ class CartItemSerializer(serializers.ModelSerializer):
     )
 
     product_image = serializers.SerializerMethodField()
+    available_quantity = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
         fields = [
             "id",
             "cart",
+            "product_id",
             "product_name",
             "product_description",
             "product_image",
+            "available_quantity",
             "quantity",
             "price",
             "final_price",
@@ -229,6 +236,11 @@ class CartItemSerializer(serializers.ModelSerializer):
         if obj.product:
             return new_build_media_url(obj.product.ProductImage)
         return None
+
+    def get_available_quantity(self, obj):
+        if obj.product:
+            return obj.product.available_quantity or 0
+        return 0
    
 #class CartSerializer(serializers.ModelSerializer):
     
