@@ -1347,9 +1347,9 @@ class AddToCartAPIView(APIView):
             if new_quantity > product.available_quantity:
                 return Response({
                     "status": False,
-                    "statusCode": 400,
-                    "error": "Not enough stock available"
-                }, status=status.HTTP_400_BAD_REQUEST)
+                    "statusCode": 200,
+                    "message": "Not enough stock available"
+                }, status=status.HTTP_200_OK)
 
             item.quantity = new_quantity
             item.save()
