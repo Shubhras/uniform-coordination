@@ -1,0 +1,27 @@
+# Weekly dependency/security update PRs for every app in the monorepo.
+# Security advisories (e.g. CVE-2025-55182 in Next.js/React) also raise PRs immediately
+# once "Dependabot security updates" is enabled in the GitHub repo settings.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directories:
+      - "/uniform-kireiz-coordination"
+      - "/admin-kireiz-coordination"
+      - "/table-kireiz-coordination"
+      - "/admin-table-coordination"
+    schedule:
+      interval: "weekly"
+    target-branch: "staging"
+    open-pull-requests-limit: 10
+    groups:
+      next-react:
+        patterns: ["next", "react", "react-dom", "eslint-config-next", "next-auth"]
+
+  - package-ecosystem: "pip"
+    directories:
+      - "/UniformBackend"
+      - "/table-backend"
+    schedule:
+      interval: "weekly"
+    target-branch: "staging"
+    open-pull-requests-limit: 10

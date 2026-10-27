@@ -24,7 +24,7 @@ const validationSchema = z.object({
     material: z.string().min(1, 'Material Required'),
     sizeQty: z.string().min(1, 'Size & Quantity Required'),
     deliveryDate: z.date({
-        required_error: 'Delivery Date Required',
+        error: 'Delivery Date Required',
     }),
     notes: z.string().optional(),
     agree: z.boolean().refine(val => val === true, { message: 'Required' }),

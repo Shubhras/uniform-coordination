@@ -9,9 +9,9 @@ import { z } from "zod";
 
 const validationSchema = z
   .object({
-    newPassword: z.string({ required_error: "Please enter your password" }),
+    newPassword: z.string({ error: "Please enter your password" }),
     confirmPassword: z.string({
-      required_error: "Confirm Password Required",
+      error: "Confirm Password Required",
     }),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {

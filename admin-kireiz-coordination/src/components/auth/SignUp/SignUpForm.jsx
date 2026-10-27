@@ -9,9 +9,9 @@ import { z } from "zod";
 import PasswordInput from "@/components/shared/PasswordInput";
 
 const validationSchema = z.object({
-  // email: z.string({ required_error: "Please enter your email" }),
-  // userName: z.string({ required_error: "Please enter your name" }),
-  // password: z.string({ required_error: "Password Required" }),
+  // email: z.string({ error: "Please enter your email" }),
+  // userName: z.string({ error: "Please enter your name" }),
+  // password: z.string({ error: "Password Required" }),
 
   userName: z.string().trim().min(1, { message: "Please enter your name" }),
 
@@ -24,7 +24,7 @@ const validationSchema = z.object({
   password: z.string().min(1, { message: "Please enter your password" }),
 
   // confirmPassword: z.string({
-  //   required_error: "Confirm Password Required",
+  //   error: "Confirm Password Required",
   // }),
 });
 // .refine((data) => data.password === data.confirmPassword, {

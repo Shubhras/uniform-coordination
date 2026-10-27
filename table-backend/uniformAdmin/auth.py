@@ -58,103 +58,17 @@ from .utils import send_b2b_welcome_email
 # uniformAdmin/auth.py
 
 
-class IsAdminUserJWT(BaseAuthentication):
-    
-    """
-    Custom JWT Authentication for AdminUser
-    """
-
-    def authenticate(self, request):
-        # Get Authorization header
-        auth_header = request.headers.get("Authorization")
-        if not auth_header:
-            return None  # No token provided
-
-        # Extract token (accept with or without "Bearer ")
-        if " " in auth_header:
-            prefix, token = auth_header.split(" ", 1)
-            if prefix.lower() != "bearer":
-                raise AuthenticationFailed("Invalid token prefix")
-        else:
-            token = auth_header  # token sent directly without "Bearer"
-
-        # Decode JWT
-        try:
-            decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed("Token has expired")
-        except jwt.InvalidTokenError:
-            raise AuthenticationFailed("Invalid token")
-
-        # Get user_id from token
-        user_id = decoded.get("user_id")
-        if not user_id:
-            raise AuthenticationFailed("Token missing user ID")
-
-        # Fetch admin user from DB
-        try:
-            user = AdminUser.objects.get(id=user_id, is_active=True)
-        except AdminUser.DoesNotExist:
-            raise AuthenticationFailed("User not found or inactive")
-
-        # Allow any active AdminUser (Admin, Sales Rep, Staff, etc.)
-        user.role_name = user.role.role_name if user.role else "user"
-        return (user, token)
-
-#<-----------------------Authentication access Admin,B2B,Sales-------------------->
-
-class MultiRoleJWTAuth(BaseAuthentication):
-    """
-    JWT Authentication for Admin, Sales, and B2B users
-    """
-
-    def authenticate(self, request):
-        auth_header = request.headers.get("Authorization")
-        if not auth_header:
-            return None
-
-        # Extract token
-        if " " in auth_header:
-            prefix, token = auth_header.split(" ", 1)
-            if prefix.lower() != "bearer":
-                raise AuthenticationFailed("Invalid token prefix")
-        else:
-            token = auth_header
-
-        # Decode JWT
-        try:
-            decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed("Token expired")
-        except jwt.InvalidTokenError:
-            raise AuthenticationFailed("Invalid token")
-
-        user_id = decoded.get("user_id")
-        role_name = decoded.get("role")
-
-        if not user_id or not role_name:
-            raise AuthenticationFailed("Invalid token")
-
-        try:
-            user = AdminUser.objects.get(id=user_id, is_active=True)
-        except AdminUser.DoesNotExist:
-            raise AuthenticationFailed("User not found")
-
-        # attach role instance for convenience
-        user.role_instance = user.role  # original Role instance
-        user.role_name = user.role.role_name if user.role else None
-
-        if user.role_name.lower() != role_name.lower():
-            raise AuthenticationFailed("Role mismatch")
-
-        return (user, token)
-
-
+# Strict staff authentication lives in .authentication (token required, customer
+# tokens and customer roles rejected). Re-exported here because many modules import
+# these names from .auth.
+from .authentication import IsAdminUserJWT, MultiRoleJWTAuth  # noqa: E402,F401
+from .fabric import IsAdministrator  # noqa: E402
 
 
 class AdminSignupAPIView(APIView):
-    authentication_classes = []
-    permission_classes = []
+    # Creates an account with the 'admin' role, so only an existing admin may call it.
+    authentication_classes = [IsAdminUserJWT]
+    permission_classes = [IsAdministrator]
 
     @extend_schema(
         tags=["Admin Authentication"],

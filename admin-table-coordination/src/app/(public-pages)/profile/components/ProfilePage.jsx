@@ -24,21 +24,21 @@ const { Control } = components;
 const validationSchema = z.object({
   firstName: z
     .string({
-      required_error: "First name is required",
+      error: "First name is required",
     })
     .trim()
     .min(1, "First name is required"),
 
   lastName: z
     .string({
-      required_error: "Last name is required",
+      error: "Last name is required",
     })
     .trim()
     .min(1, "Last name is required"),
 
   email: z
     .string({
-      required_error: "Email is required",
+      error: "Email is required",
     })
     .trim()
     .min(1, "Email is required")
@@ -46,20 +46,20 @@ const validationSchema = z.object({
 
   dialCode: z
     .string({
-      required_error: "Country code is required",
+      error: "Country code is required",
     })
     .min(1, "Country code is required"),
 
   phoneNumber: z
     .string({
-      required_error: "Phone number is required",
+      error: "Phone number is required",
     })
     .trim()
     .min(1, "Phone number is required"),
 
   position: z
     .string({
-      required_error: "Position is required",
+      error: "Position is required",
     })
     .trim()
     .min(1, "Position is required"),

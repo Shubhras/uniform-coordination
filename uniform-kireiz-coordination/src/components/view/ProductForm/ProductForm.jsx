@@ -17,16 +17,16 @@ const validationSchema = z.object({
     productCode: z.string().min(1, { message: 'Produc code required!' }),
     description: z.string().min(1, { message: 'Produc description required!' }),
     price: z.union([z.string(), z.number()], {
-        errorMap: () => ({ message: 'Price required!' }),
+        error: 'Price required!',
     }),
     taxRate: z.union([z.string(), z.number()], {
-        errorMap: () => ({ message: 'Tax rate required!' }),
+        error: 'Tax rate required!',
     }),
     costPerItem: z.union([z.string(), z.number()], {
-        errorMap: () => ({ message: 'Cost required!' }),
+        error: 'Cost required!',
     }),
     bulkDiscountPrice: z.union([z.string(), z.number()], {
-        errorMap: () => ({ message: 'Bulk discount price required!' }),
+        error: 'Bulk discount price required!',
     }),
     imgList: z
         .array(

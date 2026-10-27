@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated,IsAdminUser,BasePermissio
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .authentication import StaffJWTAuthentication
 from datetime import timedelta
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
@@ -48,7 +49,7 @@ from docusign_esign import ApiClient, EnvelopesApi
 
 class AdminCreateProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     @extend_schema(
     tags=["Admin Product"],
@@ -127,7 +128,7 @@ class AdminCreateProductAPIView(APIView):
 
 class AdminUpdateProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     @extend_schema(
     tags=["Admin Product"],
@@ -386,7 +387,7 @@ class AdminListProductsAPIView(APIView):
 # products/views/delete_product.py
 class AdminDeleteProductAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     @extend_schema(
     tags=["Admin Product"],
@@ -1840,7 +1841,7 @@ class AdminDashAPIView(APIView):
 
 class AdminRefundListAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def get(self, request):
         try:
@@ -1895,7 +1896,7 @@ class AdminRefundListAPIView(APIView):
 
 
 class AdminRefundProcessAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def patch(self, request, refund_id):
         refund = get_object_or_404(Refund, id=refund_id)
@@ -1966,7 +1967,7 @@ class AdminRefundProcessAPIView(APIView):
 
 
 class AdminOrderRefundAPI(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def post(self, request):
         data = request.data
@@ -2242,7 +2243,7 @@ class QuotationStatusUpdateAPIView(APIView):
 
 # normaluser 
 class UserDetailAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def get(self, request):
         try:
@@ -2414,7 +2415,7 @@ class UserDetailAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
 class UserByIdAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     @extend_schema(
         tags=["Users"],
@@ -2550,7 +2551,7 @@ class UserByIdAPIView(APIView):
             
 #<-------------orderUpdate----------->
 class AdminOderUpdateAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def put(self,request,order_id,format=None):
         try:
@@ -2586,7 +2587,7 @@ class AdminOderUpdateAPIView(APIView):
 
 #<---------------OrderUpdateList--------------->
 class AdminOrderListAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def get(self, request):
         try:
@@ -2676,7 +2677,7 @@ class AdminOrderListAPIView(APIView):
 
 
 class AdminOrderUpdateAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
     
     def patch(self, request, order_id):
         try:
@@ -2888,7 +2889,7 @@ class AdminOrderUpdateAPIView(APIView):
 
 
 class AdminOrderDetailAPIView(APIView):
-    authentication_classes=[JWTAuthentication]
+    authentication_classes=[StaffJWTAuthentication]
  
     def get(self,request,order_id):
         try:
@@ -3037,7 +3038,7 @@ class AdminOrderCancelAPIView(APIView):
 
 
 class CompensationInvoicePreviewAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def get(self, request, order_id):
         try:
@@ -3110,7 +3111,7 @@ class CompensationInvoicePreviewAPIView(APIView):
 
 
 class CompensationInvoiceGenerateAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def post(self, request, order_id):
         try:
@@ -3173,7 +3174,7 @@ class CompensationInvoiceGenerateAPIView(APIView):
 
 class AdminContractsListAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def get(self, request):
         from userhub.models import Contract
@@ -3237,7 +3238,7 @@ class AdminContractsListAPIView(APIView):
 
 class AdminContractDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [StaffJWTAuthentication]
 
     def get(self, request, contract_id):
         from userhub.models import Contract, ContractAuditLog

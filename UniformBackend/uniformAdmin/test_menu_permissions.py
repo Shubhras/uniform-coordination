@@ -38,7 +38,8 @@ class MenuAndPermissionsTestCase(APITestCase):
     def _get_auth_headers(self, user):
         payload = {
             "user_id": user.id,
-            "role": user.role.role_name
+            "role": user.role.role_name,
+            "token_type": "access",
         }
         token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
         return {"HTTP_AUTHORIZATION": f"Bearer {token}"}
