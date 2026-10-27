@@ -63,12 +63,7 @@ const validationSchema = z.object({
     .trim()
     .min(1, "Phone number is required"),
 
-  position: z
-    .string({
-      required_error: "Position is required",
-    })
-    .trim()
-    .min(1, "Position is required"),
+  position: z.string().optional(),
 
   img: z.string().optional(),
 });
@@ -410,6 +405,7 @@ const ProfilePage = () => {
                     type="text"
                     autoComplete="off"
                     placeholder="Position"
+                    disabled
                     {...field}
                   />
                 )}

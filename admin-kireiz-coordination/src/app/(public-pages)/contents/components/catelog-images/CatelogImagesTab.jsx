@@ -197,7 +197,7 @@ const CatelogImagesTab = () => {
               className="bg-[#1C4FA8] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
             >
               <FiPlus size={16} />
-              {t("addNew")}
+              {t("newCatalog")}
             </button>
           </div>
         </div>

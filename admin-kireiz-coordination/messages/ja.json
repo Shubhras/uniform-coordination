@@ -1081,6 +1081,7 @@
       "title": "カタログ画像",
       "subtitle": "カタログ写真のアップロードと管理",
       "addNew": "画像をアップロード",
+      "newCatalog": "新しいカタログを追加",
       "searchPlaceholder": "カタログを検索...",
       "noData": "カタログ画像が見つかりません",
       "showingRange": "表示中 ",

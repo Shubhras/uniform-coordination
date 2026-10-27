@@ -1081,6 +1081,7 @@
       "title": "Catalog Images",
       "subtitle": "Upload and manage catalog photography",
       "addNew": "Upload Image",
+      "newCatalog": "Add New Catalog",
       "searchPlaceholder": "Search Catalog...",
       "noData": "No catalog images found",
       "showingRange": "Showing ",
