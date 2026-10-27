@@ -1616,6 +1616,10 @@
       "addRepresentative": "Add Representative",
       "noData": "No sales representatives yet",
       "noDataSubtitle": "Use \"Add Representative\" to create the first one.",
+      "viewProfile": "View Profile",
+      "clients": "Clients",
+      "revenue": "Revenue",
+      "winRate": "Win Rate",
       "addRepresentativeModal": {
         "modalTitle": "Add Representative",
         "fullNameLabel": "Full Name",
@@ -1655,6 +1659,22 @@
           "designationRequired": "Designation is required",
           "passwordRequired": "Password is required"
         }
+      },
+      "viewProfileModal": {
+        "clients": "Clients",
+        "revenue": "Revenue",
+        "winRate": "Win Rate",
+        "email": "Email",
+        "compose": "Compose",
+        "sendEmailTitle": "Send Email to {email}",
+        "mobile": "Mobile",
+        "quotations": "Quotations",
+        "quotationsRatio": "{won} won of {assigned} assigned",
+        "assignedAccounts": "Assigned Accounts",
+        "noAccounts": "No accounts assigned yet.",
+        "recentQuotations": "Recent Quotations",
+        "noQuotations": "No quotations yet.",
+        "close": "Close"
       }
     },
     "assignments": {

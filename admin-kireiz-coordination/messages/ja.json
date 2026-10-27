@@ -1614,6 +1614,10 @@
       "addRepresentative": "担当者を追加",
       "noData": "営業担当者はまだいません",
       "noDataSubtitle": "「担当者を追加」から最初の担当者を作成してください。",
+      "viewProfile": "プロフィールを表示",
+      "clients": "顧客数",
+      "revenue": "売上",
+      "winRate": "受注率",
       "addRepresentativeModal": {
         "modalTitle": "担当者を追加",
         "fullNameLabel": "氏名",
@@ -1653,6 +1657,22 @@
           "designationRequired": "役職は必須です",
           "passwordRequired": "パスワードは必須です"
         }
+      },
+      "viewProfileModal": {
+        "clients": "顧客数",
+        "revenue": "売上",
+        "winRate": "受注率",
+        "email": "メールアドレス",
+        "compose": "作成",
+        "sendEmailTitle": "{email} にメールを送信",
+        "mobile": "携帯電話",
+        "quotations": "見積もり",
+        "quotationsRatio": "割り当て {assigned} 件中 {won} 件成約",
+        "assignedAccounts": "担当アカウント",
+        "noAccounts": "割り当てられたアカウントはまだありません。",
+        "recentQuotations": "最近の見積もり",
+        "noQuotations": "見積もりはまだありません。",
+        "close": "閉じる"
       }
     },
     "assignments": {
