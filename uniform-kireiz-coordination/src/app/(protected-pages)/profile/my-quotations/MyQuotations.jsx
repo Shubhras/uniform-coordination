@@ -476,7 +476,7 @@ const MyQuotations = () => {
                       >
                         {errorMessage
                           ? "Quotation data could not be loaded."
-                          : "No quotations found for the selected status."}
+                          : "No quotations found."}
                       </td>
                     </tr>
                   )}

@@ -18,6 +18,7 @@ const validationSchema = z
       .min(1, "Please enter your last name"),
     phone: z
       .string({ required_error: "Please enter your mobile no." })
+      .trim()
       .min(1, "Please enter your mobile no.")
       .regex(/^[0-9]{10}$/, "Please enter a valid 10-digit mobile number"),
     email: z
@@ -36,15 +37,38 @@ const SignUpForm = (props) => {
   const { onSignUp, className, setMessage, termConditionHint } = props;
 
   const [isSubmitting, setSubmitting] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const {
     handleSubmit,
     formState: { errors },
     control,
+    watch,
   } = useForm({
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      phone: "",
+      email: "",
+      password: "",
+    },
     resolver: zodResolver(validationSchema),
   });
-  console.log(errors)
+
+  const watchedFirstName = watch("firstName");
+  const watchedLastName = watch("lastName");
+  const watchedPhone = watch("phone");
+  const watchedEmail = watch("email");
+  const watchedPassword = watch("password");
+
+  const isFormValid = Boolean(
+    watchedFirstName?.trim() &&
+    watchedLastName?.trim() &&
+    watchedPhone?.trim()?.length === 10 &&
+    watchedEmail?.trim() &&
+    watchedPassword &&
+    agreedToTerms
+  );
 
   const handleSignUp = async (values) => {
     if (onSignUp) {
@@ -99,10 +123,28 @@ const SignUpForm = (props) => {
             control={control}
             render={({ field }) => (
               <Input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="Mobile no."
-                autoComplete="off"
+                autoComplete="tel"
+                maxLength={10}
                 {...field}
+                value={field.value || ""}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                  field.onChange(value);
+                }}
+                onKeyDown={(e) => {
+                  if (
+                    e.key &&
+                    e.key.length === 1 &&
+                    !/\d/.test(e.key) &&
+                    !e.ctrlKey &&
+                    !e.metaKey
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
               />
             )}
           />
@@ -142,13 +184,44 @@ const SignUpForm = (props) => {
             )}
           />
         </FormItem>
-        {termConditionHint}
+        {termConditionHint ? (
+          termConditionHint
+        ) : (
+          <div className="mb-6 mt-0 flex justify-between items-center">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <div className="relative w-5 h-5 shrink-0 flex items-center justify-center">
+                <input
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded bg-white checked:bg-[#003562] checked:border-[#003562] cursor-pointer transition-all m-0"
+                />
+                <svg
+                  className="absolute w-3.5 h-3.5 pointer-events-none opacity-0 peer-checked:opacity-100 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <p>
+                I Agree to privacy
+                <span className="text-[#87CEEB]"> policy & terms</span>
+              </p>
+            </label>
+          </div>
+        )}
         <Button
           block
           loading={isSubmitting}
+          disabled={!isFormValid || isSubmitting}
           variant="solid"
           type="submit"
-          className="bg-[#1C2C56] hover:bg-[#152243] text-white"
+          className="bg-[#1C2C56] hover:bg-[#152243] text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Creating Account..." : "Create Account"}
         </Button>

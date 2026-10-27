@@ -10,6 +10,7 @@ import {
     FiTag,
     FiLayers,
     FiArchive,
+    FiMaximize2,
 } from "react-icons/fi"
 import { useRouter, useParams } from 'next/navigation'
 import { apiUpadteDesign, apiExportDesignPdf, apiGetModalInfo } from '@/services/SaveDesignService'
@@ -28,6 +29,7 @@ const iconMap = {
     "Top Colour": FiTag,
     "Bottom Colour": FiTag,
     "Fabric": FiLayers,
+    "Size": FiMaximize2,
     "Part": FiLayers,
     "Pant": FiArchive,
     "Collar": FiLayers,
@@ -107,7 +109,6 @@ const DesignResultPage = () => {
         const rows = []
 
         if (config.fabric) rows.push({ title: "Fabric", value: config.fabric })
-        if (config.part) rows.push({ title: "Part", value: config.part })
 
         const colors = config.colors || {}
         Object.entries(colors)
@@ -120,6 +121,28 @@ const DesignResultPage = () => {
                 }),
             )
 
+        // Parse sizes from config_json or state
+        const sizesData = config.sizes || sizes || config.size
+        let sizeValue = ""
+        if (typeof sizesData === "string") {
+            sizeValue = sizesData.toUpperCase()
+        } else if (Array.isArray(sizesData)) {
+            sizeValue = sizesData.map((s) => String(s).toUpperCase()).join(", ")
+        } else if (sizesData && typeof sizesData === "object") {
+            const activeSizes = Object.entries(sizesData)
+                .filter(([, qty]) => Number(qty) > 0 || qty)
+                .map(([s]) => s.toUpperCase())
+            if (activeSizes.length > 0) {
+                sizeValue = activeSizes.join(", ")
+            }
+        }
+
+        if (sizeValue) {
+            rows.push({ title: "Size", value: sizeValue })
+        }
+
+        if (config.part) rows.push({ title: "Part", value: config.part })
+
         Object.entries(config.options || {})
             .filter(([, v]) => v)
             .forEach(([key, value]) =>
@@ -127,7 +150,7 @@ const DesignResultPage = () => {
             )
 
         return rows
-    }, [config])
+    }, [config, sizes])
 
     const changeSize = (label, delta) =>
         setSizes((prev) => {
@@ -189,16 +212,16 @@ const DesignResultPage = () => {
             </button>
         </div>
     )
- /**
-     * Redirects to the Delivery Request Form page for the current design.
-     */
+    /**
+        * Redirects to the Delivery Request Form page for the current design.
+        */
     const handleRedirect = () => {
         router.push(`/dashboards/delivery-request/${id}`);
     }
-        /**
-     * Saves the current design configuration by calling the update
-     * design API and shows a success/error notification.
-     */
+    /**
+ * Saves the current design configuration by calling the update
+ * design API and shows a success/error notification.
+ */
     const handleSaveDesign = async () => {
         if (!session?.accessToken) return
         setIsSaving(true);
@@ -235,10 +258,10 @@ const DesignResultPage = () => {
         }
     };
 
-  /**
-     * Exports the current design as a PDF by calling the API and
-     * opening the returned PDF URL in a new tab.
-     */
+    /**
+       * Exports the current design as a PDF by calling the API and
+       * opening the returned PDF URL in a new tab.
+       */
     const handleExportPdf = async () => {
         if (!session?.accessToken) {
             toast.push(
@@ -347,7 +370,7 @@ const DesignResultPage = () => {
                                         </div>
                                     )}
 
-                                    {!loading && (
+                                    {/* {!loading && (
                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
                                             <div className="border border-[#E5E7EB] rounded-xl px-4 py-3 bg-white sm:col-span-1">
                                                 <p className="text-xs text-gray-500 mb-3">Size Range</p>
@@ -363,7 +386,7 @@ const DesignResultPage = () => {
                                                 ))}
                                             </div>
                                         </div>
-                                    )}
+                                    )} */}
                                 </div>
                             </div>
                             <div className="flex flex-col sm:flex-row justify-between items-center mt-10 gap-4 w-full">
