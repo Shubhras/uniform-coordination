@@ -626,7 +626,7 @@ const QuotationDetailContent = ({
                             <div>
                                 <p className="text-[11px] uppercase tracking-wide text-[#64748B]">Quoted Total</p>
                                 <p className="mt-1 text-sm font-bold text-[#003560]">
-                                    ¥{Number(quotation.total).toLocaleString()}
+                                    ${Number(quotation.total).toLocaleString()}
                                 </p>
                             </div>
                         ) : null}
