@@ -141,12 +141,13 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
               <span
                 className={`px-3 py-1 rounded-lg border text-xs font-semibold capitalize
-    ${order?.status === "completed"
-                    ? "bg-[#E9F9F0] text-[#22A06B] border-[#22A06B]"
-                    : order?.status === "pending"
-                      ? "bg-[#FFF4E5] text-[#BB4D00] border-[#FEE685]"
-                      : "bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]"
-                  }`}
+    ${
+      order?.status === "completed"
+        ? "bg-[#E9F9F0] text-[#22A06B] border-[#22A06B]"
+        : order?.status === "pending"
+          ? "bg-[#FFF4E5] text-[#BB4D00] border-[#FEE685]"
+          : "bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]"
+    }`}
               >
                 {order?.status}
               </span>
@@ -336,7 +337,9 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                       <td className="px-4 py-3">{item.rental_days}d</td>
 
                       <td className="px-4 py-3">${item.price_per_day}</td>
-                      <td className="px-4 py-3">${order?.payment_summary?.tax}</td>
+                      <td className="px-4 py-3">
+                        ${order?.payment_summary?.tax}
+                      </td>
 
                       <td className="px-4 py-3 font-semibold text-[#1A1714]">
                         ${item.subtotal}
@@ -416,10 +419,11 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                 </p>
 
                 <span
-                  className={`px-3 py-1 rounded-md text-[11px] font-semibold uppercase ${order?.payment_summary?.payment_status === "success"
-                    ? "bg-[#EAF9F0] text-[#22A06B] border border-[#B7E8C9]"
-                    : "bg-[#FEE2E2] text-[#DC2626]"
-                    }`}
+                  className={`px-3 py-1 rounded-md text-[11px] font-semibold uppercase ${
+                    order?.payment_summary?.payment_status === "success"
+                      ? "bg-[#EAF9F0] text-[#22A06B] border border-[#B7E8C9]"
+                      : "bg-[#FEE2E2] text-[#DC2626]"
+                  }`}
                 >
                   {order?.payment_summary?.payment_status === "success"
                     ? t("paid")
@@ -434,14 +438,15 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                 </p>
 
                 <p className="text-[14px] text-[#6B7280]">
-                  {new Date(order?.payment_summary?.paid_at).toLocaleDateString(
-                    locale,
-                    {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    },
-                  )}
+                  {order?.payment_summary?.paid_at
+                    ? new Date(
+                        order.payment_summary.paid_at,
+                      ).toLocaleDateString(locale, {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : t("na")}
                 </p>
               </div>
             </div>

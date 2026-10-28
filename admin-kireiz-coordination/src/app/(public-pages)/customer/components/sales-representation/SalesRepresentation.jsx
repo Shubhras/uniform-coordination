@@ -180,30 +180,35 @@ const SalesRepresentation = () => {
                     {reps.map((rep) => (
                         <div
                             key={rep.id}
-                            className="bg-[#F5F7FB] border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition"
+                            className="bg-[#F5F7FB] border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition overflow-hidden"
                         >
                             {/* Top */}
-                            <div className="flex justify-between items-center mb-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center font-semibold text-gray-700">
+                            <div className="flex items-start justify-between gap-2.5 mb-4">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center font-semibold text-gray-700 shrink-0">
                                         {rep.initials}
                                     </div>
-                                    <div>
-                                        <h3 className="font-semibold text-[#1C2C56]">
+                                    <div className="min-w-0 flex-1">
+                                        <h3
+                                            className="font-semibold text-[#1C2C56] truncate"
+                                            title={rep.name}
+                                        >
                                             {rep.name}
                                         </h3>
-                                        <p className="text-sm text-gray-500">
+                                        <p
+                                            className="text-sm text-gray-500 truncate"
+                                            title={rep.designation}
+                                        >
                                             {rep.designation}
                                         </p>
                                     </div>
                                 </div>
 
                                 <span
-                                    className={`text-xs px-2 py-1 rounded-full font-medium ${
-                                        rep.is_active
+                                    className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap self-start ${rep.is_active
                                             ? "bg-green-100 text-green-700"
                                             : "bg-gray-200 text-gray-600"
-                                    }`}
+                                        }`}
                                 >
                                     {rep.is_active ? tStatus("active") : tStatus("inactive")}
                                 </span>
@@ -216,7 +221,7 @@ const SalesRepresentation = () => {
                                         {rep.clients}
                                     </p>
                                     <p className="text-xs text-gray-500">
-                                        Clients
+                                        {t("clients")}
                                     </p>
                                 </div>
                                 <div className="bg-white p-3 rounded-lg shadow text-center">
@@ -224,7 +229,7 @@ const SalesRepresentation = () => {
                                         {money(rep.revenue)}
                                     </p>
                                     <p className="text-xs text-gray-500">
-                                        Revenue
+                                        {t("revenue")}
                                     </p>
                                 </div>
                                 <div className="bg-white p-3 rounded-lg shadow text-center">
@@ -232,7 +237,7 @@ const SalesRepresentation = () => {
                                         {rep.win_rate}%
                                     </p>
                                     <p className="text-xs text-gray-500">
-                                        Win Rate
+                                        {t("winRate")}
                                     </p>
                                 </div>
                             </div>
@@ -243,7 +248,7 @@ const SalesRepresentation = () => {
                                     onClick={() => openProfile(rep)}
                                     className="flex-1 bg-[#1C4FA8] text-white py-2 rounded-lg text-sm font-medium hover:bg-[#153e85] transition"
                                 >
-                                    View Profile
+                                    {t("viewProfile")}
                                 </button>
                                 <button
                                     onClick={() => setEditRep(rep)}
@@ -330,109 +335,121 @@ const SalesRepresentation = () => {
 };
 
 /* ---------- View Profile ---------- */
-const ProfileModal = ({ profile, onClose, onSendEmail }) => (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto">
-            <div className="flex items-start justify-between mb-5">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center font-semibold text-gray-700">
-                        {profile.initials}
+const ProfileModal = ({ profile, onClose, onSendEmail }) => {
+    const t = useTranslations("customerSalesRep.salesRepresentation.viewProfileModal");
+
+    return (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto">
+                <div className="flex items-start justify-between gap-3 mb-5">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center font-semibold text-gray-700 shrink-0">
+                            {profile.initials}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <h3 className="text-lg font-semibold text-[#1C2C56] truncate" title={profile.name}>
+                                {profile.name}
+                            </h3>
+                            <p className="text-sm text-gray-500 truncate" title={profile.designation}>
+                                {profile.designation}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="text-lg font-semibold text-[#1C2C56]">
-                            {profile.name}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                            {profile.designation}
-                        </p>
-                    </div>
+                    <button
+                        onClick={onClose}
+                        title={t("close")}
+                        aria-label={t("close")}
+                        className="text-gray-400 hover:text-gray-600 shrink-0"
+                    >
+                        <FiX size={20} />
+                    </button>
                 </div>
-                <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-                    <FiX size={20} />
-                </button>
-            </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-5">
-                <Stat label="Clients" value={profile.clients} />
-                <Stat label="Revenue" value={money(profile.revenue)} />
-                <Stat label="Win Rate" value={`${profile.win_rate}%`} />
-            </div>
+                <div className="grid grid-cols-3 gap-3 mb-5">
+                    <Stat label={t("clients")} value={profile.clients} />
+                    <Stat label={t("revenue")} value={money(profile.revenue)} />
+                    <Stat label={t("winRate")} value={`${profile.win_rate}%`} />
+                </div>
 
-            <dl className="text-sm space-y-2 mb-5">
-                <div className="flex items-center justify-between">
-                    <div className="flex gap-2">
-                        <dt className="text-gray-500 w-24">Email:</dt>
-                        <dd className="text-[#1C2C56] font-medium">{profile.email}</dd>
+                <dl className="text-sm space-y-2 mb-5">
+                    <div className="flex items-center justify-between">
+                        <div className="flex gap-2">
+                            <dt className="text-gray-500 w-24">{t("email")}:</dt>
+                            <dd className="text-[#1C2C56] font-medium">{profile.email}</dd>
+                        </div>
+                        {profile.email && onSendEmail && (
+                            <button
+                                type="button"
+                                onClick={() => onSendEmail(profile.email, profile.name)}
+                                title={t("sendEmailTitle", { email: profile.email })}
+                                className="text-[#1C4FA8] hover:text-[#153e85] text-xs flex items-center gap-1 font-medium bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md transition"
+                            >
+                                <FiMail size={12} />
+                                {t("compose")}
+                            </button>
+                        )}
                     </div>
-                    {profile.email && onSendEmail && (
-                        <button
-                            type="button"
-                            onClick={() => onSendEmail(profile.email, profile.name)}
-                            title={`Send Email to ${profile.email}`}
-                            className="text-[#1C4FA8] hover:text-[#153e85] text-xs flex items-center gap-1 font-medium bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md transition"
-                        >
-                            <FiMail size={12} />
-                            Compose
-                        </button>
+                    <Row label={t("mobile")} value={profile.mobile || "—"} />
+                    <Row
+                        label={t("quotations")}
+                        value={t("quotationsRatio", {
+                            won: profile.won_quotations,
+                            assigned: profile.assigned_quotations,
+                        })}
+                    />
+                </dl>
+
+                <section className="mb-5">
+                    <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2">
+                        {t("assignedAccounts")} ({profile.accounts?.length || 0})
+                    </p>
+                    {profile.accounts?.length ? (
+                        <ul className="space-y-1">
+                            {profile.accounts.map((a) => (
+                                <li
+                                    key={a.id}
+                                    className="flex items-center justify-between text-sm border border-[#E2E8F0] rounded-lg px-3 py-2"
+                                >
+                                    <span className="text-[#1C2C56]">{a.name}</span>
+                                    <span className="text-xs bg-[#F1F5F9] text-[#486284] px-2 py-0.5 rounded">
+                                        {a.tier}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-sm text-gray-400">{t("noAccounts")}</p>
                     )}
-                </div>
-                <Row label="Mobile" value={profile.mobile || "—"} />
-                <Row
-                    label="Quotations"
-                    value={`${profile.won_quotations} won of ${profile.assigned_quotations} assigned`}
-                />
-            </dl>
+                </section>
 
-            <section className="mb-5">
-                <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2">
-                    Assigned Accounts ({profile.accounts?.length || 0})
-                </p>
-                {profile.accounts?.length ? (
-                    <ul className="space-y-1">
-                        {profile.accounts.map((a) => (
-                            <li
-                                key={a.id}
-                                className="flex items-center justify-between text-sm border border-[#E2E8F0] rounded-lg px-3 py-2"
-                            >
-                                <span className="text-[#1C2C56]">{a.name}</span>
-                                <span className="text-xs bg-[#F1F5F9] text-[#486284] px-2 py-0.5 rounded">
-                                    {a.tier}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p className="text-sm text-gray-400">No accounts assigned yet.</p>
-                )}
-            </section>
-
-            <section>
-                <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2">
-                    Recent Quotations
-                </p>
-                {profile.recent_quotations?.length ? (
-                    <ul className="space-y-1">
-                        {profile.recent_quotations.map((q) => (
-                            <li
-                                key={q.quotation_id}
-                                className="flex items-center justify-between text-sm border border-[#E2E8F0] rounded-lg px-3 py-2"
-                            >
-                                <span className="text-[#1C2C56]">
-                                    {q.company || q.quotation_id}
-                                </span>
-                                <span className="text-xs text-[#64748B]">
-                                    {q.status} · {q.date}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p className="text-sm text-gray-400">No quotations yet.</p>
-                )}
-            </section>
+                <section>
+                    <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2">
+                        {t("recentQuotations")}
+                    </p>
+                    {profile.recent_quotations?.length ? (
+                        <ul className="space-y-1">
+                            {profile.recent_quotations.map((q) => (
+                                <li
+                                    key={q.quotation_id}
+                                    className="flex items-center justify-between text-sm border border-[#E2E8F0] rounded-lg px-3 py-2"
+                                >
+                                    <span className="text-[#1C2C56]">
+                                        {q.company || q.quotation_id}
+                                    </span>
+                                    <span className="text-xs text-[#64748B]">
+                                        {q.status} · {q.date}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-sm text-gray-400">{t("noQuotations")}</p>
+                    )}
+                </section>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 const Stat = ({ label, value }) => (
     <div className="bg-[#F5F7FB] p-3 rounded-lg text-center">

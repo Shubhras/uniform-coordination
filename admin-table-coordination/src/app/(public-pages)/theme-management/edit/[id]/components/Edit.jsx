@@ -451,6 +451,7 @@ const Edit = () => {
                   }));
                 }}
                 styles={selectStyles}
+                placeholder={t("selectCategory")}
               />
               {errors.category && (
                 <p className="text-red-500 text-sm mt-1">{errors.category}</p>

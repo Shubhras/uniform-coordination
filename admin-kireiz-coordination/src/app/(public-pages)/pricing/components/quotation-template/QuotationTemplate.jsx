@@ -12,25 +12,24 @@ import {
   apiSaveActiveQuotationTemplate,
 } from "@/services/PdfTemplateService";
 
-// Sample values used only to render the live preview, so the admin sees what a
-// real quotation will look like instead of raw {PLACEHOLDER} tokens.
-const PREVIEW_SAMPLE = {
-  QUOTATION_ID: "Q-2024-001",
-  DATE: "04/12/2025",
-  VALID_DATE: "18/12/2025",
-  CLIENT_NAME: "John Doe",
-  COMPANY_NAME: "Acme Industries",
-  COMPANY_ADDRESS: "1-2-3 Shibuya, Tokyo",
-  FABRIC: "Premium Cotton 400TC",
-  ITEM_TYPE: "Chef Jacket",
-  QUANTITY: "150 meters",
-  PRICE: "$12.50",
-  SUBTOTAL: "$1,875.00",
-  DISCOUNT: "-$187.50",
-  TOTAL: "$1,687.50",
-};
+// Variable tokens supported by the quotation template engine.
+const VARIABLE_KEYS = [
+  "QUOTATION_ID",
+  "DATE",
+  "VALID_DATE",
+  "CLIENT_NAME",
+  "COMPANY_NAME",
+  "COMPANY_ADDRESS",
+  "FABRIC",
+  "ITEM_TYPE",
+  "QUANTITY",
+  "PRICE",
+  "SUBTOTAL",
+  "DISCOUNT",
+  "TOTAL",
+];
 
-const VARIABLES = Object.keys(PREVIEW_SAMPLE).map((key) => `{${key}}`);
+const VARIABLES = VARIABLE_KEYS.map((key) => `{${key}}`);
 
 const copyToClipboard = async (text) => {
   if (typeof window !== "undefined" && navigator?.clipboard?.writeText) {
@@ -104,14 +103,34 @@ const QuotationTemplate = () => {
     loadTemplate();
   }, [loadTemplate]);
 
+  // Sample values used for live preview, localized per user language.
+  const previewSample = useMemo(
+    () => ({
+      QUOTATION_ID: t("sample.quotationId"),
+      DATE: t("sample.date"),
+      VALID_DATE: t("sample.validDate"),
+      CLIENT_NAME: t("sample.clientName"),
+      COMPANY_NAME: t("sample.companyName"),
+      COMPANY_ADDRESS: t("sample.companyAddress"),
+      FABRIC: t("sample.fabric"),
+      ITEM_TYPE: t("sample.itemType"),
+      QUANTITY: t("sample.quantity"),
+      PRICE: t("sample.price"),
+      SUBTOTAL: t("sample.subtotal"),
+      DISCOUNT: t("sample.discount"),
+      TOTAL: t("sample.total"),
+    }),
+    [t],
+  );
+
   // Live preview: substitute the sample values into whatever is in the editor.
   const preview = useMemo(
     () =>
-      Object.entries(PREVIEW_SAMPLE).reduce(
+      Object.entries(previewSample).reduce(
         (html, [key, value]) => html.split(`{${key}}`).join(value),
         content || "",
       ),
-    [content],
+    [content, previewSample],
   );
 
   const handleSave = async () => {

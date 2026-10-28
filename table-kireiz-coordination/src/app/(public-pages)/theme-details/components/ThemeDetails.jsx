@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { AiOutlineExpand } from 'react-icons/ai'
 import { CiCircleInfo } from 'react-icons/ci'
-import { FiBox, FiChevronDown, FiChevronLeft, FiShoppingCart } from 'react-icons/fi'
+import { FiBox, FiChevronDown, FiChevronLeft, FiChevronRight, FiShoppingCart } from 'react-icons/fi'
 import { apiGetSindleThemeDetails } from '@/services/HomeService'
 import { apiAddThemeToCart } from '@/services/CartSummaryService'
 import toast from '@/components/ui/toast'
@@ -55,12 +55,44 @@ const ThemeDetails = () => {
                     const response = await apiGetSindleThemeDetails(selectedThemeId);
                     if (response?.status === true && response?.data) {
                         const apiData = response.data;
+
+                        // Collect all gallery / cover images
+                        const galleryList = [];
+                        const addImg = (item) => {
+                            if (!item) return;
+                            if (typeof item === 'string') {
+                                const trimmed = item.trim();
+                                if (trimmed && !galleryList.includes(trimmed)) galleryList.push(trimmed);
+                            } else if (typeof item === 'object') {
+                                const url = item.image || item.url || item.src || item.cover_image;
+                                if (url && typeof url === 'string') {
+                                    const trimmed = url.trim();
+                                    if (trimmed && !galleryList.includes(trimmed)) galleryList.push(trimmed);
+                                }
+                            }
+                        };
+
+                        addImg(apiData.cover_image);
+                        if (Array.isArray(apiData.image)) {
+                            apiData.image.forEach(addImg);
+                        } else {
+                            addImg(apiData.image);
+                        }
+                        if (Array.isArray(apiData.cover_images)) {
+                            apiData.cover_images.forEach(addImg);
+                        } else {
+                            addImg(apiData.cover_images);
+                        }
+                        if (Array.isArray(apiData.images)) {
+                            apiData.images.forEach(addImg);
+                        }
+
+                        const finalGallery = galleryList.length > 0 ? galleryList : ['/img/placeholder.png'];
+
                         const formattedTheme = {
                             ...apiData,
                             title: apiData.title || apiData.category_name || 'Theme Details',
-                            gallery: apiData.image
-                                ? (Array.isArray(apiData.image) ? apiData.image : [apiData.image])
-                                : ['/img/placeholder.png'],
+                            gallery: finalGallery,
                             packageLabel: 'Items Included',
                             packageValueLabel: 'Estimated Package Value',
                             priceLabel: 'Price TBD',
@@ -126,6 +158,24 @@ const ThemeDetails = () => {
             behavior: 'smooth',
         })
         setActiveIndex(index)
+    }
+
+    /**
+     * Navigates to previous image in gallery.
+     */
+    const handlePrevImage = () => {
+        if (activeIndex > 0) {
+            scrollToIndex(activeIndex - 1)
+        }
+    }
+
+    /**
+     * Navigates to next image in gallery.
+     */
+    const handleNextImage = () => {
+        if (activeIndex < theme.gallery.length - 1) {
+            scrollToIndex(activeIndex + 1)
+        }
     }
 
     /**
@@ -224,7 +274,7 @@ const ThemeDetails = () => {
                     <button
                         type="button"
                         onClick={() => router.push('/browse-by-theme')}
-                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-4 py-2 rounded-md bg-[#D4A6A6] hover:bg-[#c49292] transition-colors border border-white text-white cursor-pointer"
+                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-3 py-2 rounded-md bg-[#D4A6A6] hover:bg-[#c49292] transition-colors border border-white text-white cursor-pointer"
                     >
                         Back to Theme
                     </button>
@@ -233,7 +283,7 @@ const ThemeDetails = () => {
                         type="button"
                         disabled={orderingTheme}
                         onClick={handleOrderThisTheme}
-                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-5 py-2 rounded-md bg-[#7B3C1D] hover:bg-[#602D15] transition-colors text-white shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-5 py-2 rounded-md bg-[#D4A6A6] hover:bg-[#c49292] transition-colors text-white shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
                     >
                         {orderingTheme ? (
                             <>
@@ -251,7 +301,7 @@ const ThemeDetails = () => {
                     <button
                         type="button"
                         onClick={handleCustomizeClick}
-                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-4 py-2 rounded-md bg-[#A0614D] hover:bg-[#8B4513] transition-colors border border-white text-white cursor-pointer"
+                        className="w-full sm:w-auto whitespace-nowrap text-sm sm:text-base md:text-lg font-medium px-4 py-2 rounded-md bg-[#D4A6A6] hover:bg-[#c49292] transition-colors border border-white text-white cursor-pointer"
                     >
                         Customize in Canva
                     </button>
@@ -299,18 +349,52 @@ const ThemeDetails = () => {
                         </button>
 
                         {theme.gallery.length > 1 && (
-                            <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-3">
-                                {theme.gallery.map((image, index) => (
-                                    <button
-                                        type="button"
-                                        key={`${image}-dot-${index}`}
-                                        onClick={() => scrollToIndex(index)}
-                                        className={`w-3 h-3 sm:w-2 sm:h-2 rounded-full transition ${activeIndex === index ? 'bg-white' : 'bg-white/50'
-                                            }`}
-                                        aria-label={`Show preview ${index + 1}`}
-                                    />
-                                ))}
-                            </div>
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handlePrevImage()
+                                    }}
+                                    disabled={activeIndex === 0}
+                                    className={`absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full transition ${activeIndex === 0
+                                        ? 'bg-black/20 text-white/30 cursor-not-allowed'
+                                        : 'bg-black/50 text-white hover:bg-black/70 cursor-pointer shadow-md'
+                                        }`}
+                                    aria-label="Previous image"
+                                >
+                                    <FiChevronLeft size={20} />
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleNextImage()
+                                    }}
+                                    disabled={activeIndex === theme.gallery.length - 1}
+                                    className={`absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full transition ${activeIndex === theme.gallery.length - 1
+                                        ? 'bg-black/20 text-white/30 cursor-not-allowed'
+                                        : 'bg-black/50 text-white hover:bg-black/70 cursor-pointer shadow-md'
+                                        }`}
+                                    aria-label="Next image"
+                                >
+                                    <FiChevronRight size={20} />
+                                </button>
+
+                                <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+                                    {theme.gallery.map((image, index) => (
+                                        <button
+                                            type="button"
+                                            key={`${image}-dot-${index}`}
+                                            onClick={() => scrollToIndex(index)}
+                                            className={`w-3 h-3 sm:w-2 sm:h-2 rounded-full transition ${activeIndex === index ? 'bg-white' : 'bg-white/50'
+                                                }`}
+                                            aria-label={`Show preview ${index + 1}`}
+                                        />
+                                    ))}
+                                </div>
+                            </>
                         )}
                     </div>
 
@@ -319,7 +403,10 @@ const ThemeDetails = () => {
                             className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
                             onClick={() => setOpen(false)}
                         >
-                            <div className="relative w-[92%] h-[92%]">
+                            <div
+                                className="relative w-[92%] h-[92%] flex items-center justify-center"
+                                onClick={(e) => e.stopPropagation()}
+                            >
                                 <Image
                                     src={theme.gallery[activeIndex]}
                                     alt={`${theme.title} expanded preview`}
@@ -327,6 +414,30 @@ const ThemeDetails = () => {
                                     className="object-contain rounded-lg"
                                     unoptimized
                                 />
+                                {theme.gallery.length > 1 && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={handlePrevImage}
+                                            disabled={activeIndex === 0}
+                                            className={`absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition ${activeIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'
+                                                }`}
+                                            aria-label="Previous expanded image"
+                                        >
+                                            <FiChevronLeft size={24} />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleNextImage}
+                                            disabled={activeIndex === theme.gallery.length - 1}
+                                            className={`absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition ${activeIndex === theme.gallery.length - 1 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'
+                                                }`}
+                                            aria-label="Next expanded image"
+                                        >
+                                            <FiChevronRight size={24} />
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     )}

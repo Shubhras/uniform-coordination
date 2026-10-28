@@ -17,16 +17,18 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
     <section className="w-full bg-white px-5 md:px-8 lg:px-12">
       <div className="py-14">
         <div className="bg-[#F5F7FB] rounded-3xl px-6 py-10">
-          <div className="flex justify-between mb-10">
+          <div className="flex justify-between items-center mb-10">
             <h2 className="text-3xl font-semibold text-[#1C2C56]">
               Our Latest Blog Posts
             </h2>
-            <button
-              onClick={() => router.push("/blog")}
-              className="bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm"
-            >
-              See All Blog Posts
-            </button>
+            {blogs.length > 0 && (
+              <button
+                onClick={() => router.push("/blog")}
+                className="bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm"
+              >
+                See All Blog Posts
+              </button>
+            )}
           </div>
 
           <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">

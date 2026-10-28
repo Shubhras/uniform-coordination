@@ -2,19 +2,16 @@
 import React, { useState, useEffect } from "react"
 import useCurrentSession from "@/utils/hooks/useCurrentSession"
 import { apiGetNotifications } from "@/services/AuthProfileService"
-import {
-  IoNotificationsOutline,
-  IoChevronForward,
-  IoChevronBack,
-} from "react-icons/io5"
-
-
+import { IoNotificationsOutline } from "react-icons/io5"
+import Pagination from "@/components/ui/Pagination"
 
 const NotificationSetting = () => {
   const { session } = useCurrentSession()
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [totalCount, setTotalCount] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
@@ -25,7 +22,17 @@ const NotificationSetting = () => {
           const res = await apiGetNotifications(session.user.accessToken, currentPage)
           const data = res?.data || []
           setNotifications(Array.isArray(data) ? data : [])
-          setTotalPages(res?.total_pages || 1)
+          const pages = res?.total_pages || 1
+          setTotalPages(pages)
+          const size = res?.page_size || res?.limit || 10
+          setPageSize(size)
+          const count =
+            res?.count ??
+            res?.total ??
+            res?.total_items ??
+            res?.pagination?.total_items ??
+            pages * size
+          setTotalCount(count)
         } catch (error) {
           console.error("Error fetching notifications:", error)
         } finally {
@@ -94,35 +101,14 @@ const NotificationSetting = () => {
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-8 text-sm text-[#64748B]">
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className={`h-9 w-9 flex items-center justify-center rounded-md border transition-colors ${currentPage === 1
-                ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-                : 'border-[#1C4FA8] bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]'
-                }`}
-            >
-              <IoChevronBack size={16} />
-            </button>
-
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className={`h-9 w-9 flex items-center justify-center rounded-md border transition-colors ${currentPage === totalPages
-                ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-                : 'border-[#1C4FA8] bg-[#1C4FA8] text-white hover:bg-[#1C4FA8]'
-                }`}
-            >
-              <IoChevronForward size={16} />
-            </button>
-          </div>
+      {!loading && totalPages > 1 && (
+        <div className="mt-5">
+          <Pagination
+            currentPage={currentPage}
+            pageSize={pageSize}
+            total={totalCount}
+            onChange={(page) => setCurrentPage(page)}
+          />
         </div>
       )}
     </div>

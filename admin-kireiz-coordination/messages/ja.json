@@ -1081,6 +1081,7 @@
       "title": "カタログ画像",
       "subtitle": "カタログ写真のアップロードと管理",
       "addNew": "画像をアップロード",
+      "newCatalog": "新しいカタログを追加",
       "searchPlaceholder": "カタログを検索...",
       "noData": "カタログ画像が見つかりません",
       "showingRange": "表示中 ",
@@ -1263,7 +1264,22 @@
       "saveSuccess": "見積テンプレートを保存しました",
       "saveFailed": "テンプレートを保存できませんでした",
       "resetSuccess": "テンプレートを初期設定に戻しました",
-      "resetFailed": "テンプレートをリセットできませんでした"
+      "resetFailed": "テンプレートをリセットできませんでした",
+      "sample": {
+        "quotationId": "Q-2024-001",
+        "date": "2025/12/04",
+        "validDate": "2025/12/18",
+        "clientName": "山田 太郎",
+        "companyName": "アクメ株式会社",
+        "companyAddress": "東京都渋谷区1-2-3",
+        "fabric": "プレミアムコットン 400TC",
+        "itemType": "シェフジャケット",
+        "quantity": "150メートル",
+        "price": "¥1,800",
+        "subtotal": "¥270,000",
+        "discount": "-¥27,000",
+        "total": "¥243,000"
+      }
     },
     "unitPrice": {
       "title": "単価",
@@ -1506,6 +1522,11 @@
         "sent": "送信済み",
         "cancelled": "キャンセル済み"
       },
+      "successTitle": "成功",
+      "errorTitle": "エラー",
+      "sendSuccess": "見積を正常に送信しました！",
+      "sendFailed": "見積の送信に失敗しました",
+      "sendResponseFailed": "見積送信レスポンスの処理に失敗しました",
       "editQuotationPage": {
         "pageTitle": "見積を編集",
         "pageSubtitle": "見積情報の更新",
@@ -1552,6 +1573,7 @@
           "contactPersonRequired": "担当者名は必須です*",
           "emailRequired": "メールアドレスは必須です*",
           "phoneRequired": "電話番号は必須です*",
+          "invalidPhone": "有効な10桁の電話番号を入力してください",
           "itemTypeRequired": "アイテム種別は必須です*",
           "materialRequired": "素材は必須です*",
           "sizeQuantityRequired": "サイズ・数量は必須です*",
@@ -1593,6 +1615,10 @@
       "addRepresentative": "担当者を追加",
       "noData": "営業担当者はまだいません",
       "noDataSubtitle": "「担当者を追加」から最初の担当者を作成してください。",
+      "viewProfile": "プロフィールを表示",
+      "clients": "顧客数",
+      "revenue": "売上",
+      "winRate": "受注率",
       "addRepresentativeModal": {
         "modalTitle": "担当者を追加",
         "fullNameLabel": "氏名",
@@ -1606,20 +1632,48 @@
       },
       "addRepModal": {
         "modalTitle": "営業担当者を追加",
+        "editModalTitle": "営業担当者を編集",
         "fullNameLabel": "氏名",
         "emailLabel": "メールアドレス",
         "mobileLabel": "携帯電話（任意）",
         "designationLabel": "役職",
         "passwordLabel": "パスワード",
+        "passwordEditLabel": "パスワード（変更しない場合は空白のままにしてください）",
+        "passwordPlaceholder": "変更しない場合は空白のままにしてください",
         "cancel": "キャンセル",
         "submit": "営業担当者を追加",
+        "update": "更新",
         "saving": "保存中...",
         "requiredTitle": "入力必須",
         "successTitle": "成功",
         "errorTitle": "エラー",
         "requiredFields": "氏名、メールアドレス、パスワードは必須です",
         "addSuccess": "営業担当者を追加しました",
-        "addFailed": "営業担当者を追加できませんでした"
+        "addFailed": "営業担当者を追加できませんでした",
+        "validation": {
+          "nameRequired": "氏名は必須です",
+          "emailRequired": "メールアドレスは必須です",
+          "emailInvalid": "有効なメールアドレスを入力してください",
+          "invalidMobile": "有効な10桁の携帯電話番号を入力してください",
+          "designationRequired": "役職は必須です",
+          "passwordRequired": "パスワードは必須です"
+        }
+      },
+      "viewProfileModal": {
+        "clients": "顧客数",
+        "revenue": "売上",
+        "winRate": "受注率",
+        "email": "メールアドレス",
+        "compose": "作成",
+        "sendEmailTitle": "{email} にメールを送信",
+        "mobile": "携帯電話",
+        "quotations": "見積もり",
+        "quotationsRatio": "割り当て {assigned} 件中 {won} 件成約",
+        "assignedAccounts": "担当アカウント",
+        "noAccounts": "割り当てられたアカウントはまだありません。",
+        "recentQuotations": "最近の見積もり",
+        "noQuotations": "見積もりはまだありません。",
+        "close": "閉じる"
       }
     },
     "assignments": {

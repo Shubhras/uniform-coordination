@@ -37,7 +37,7 @@ const AddEditCategoryModal = ({
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [validated, setValidated] = useState(false);
-   const categorySchema = (mode) =>
+  const categorySchema = (mode) =>
     z.object({
       categoryName: z
         .string()
@@ -52,8 +52,8 @@ const AddEditCategoryModal = ({
       image:
         mode === "add"
           ? z.any().refine((file) => file instanceof File, {
-              message: t("categoryValidation.imageRequired"),
-            })
+            message: t("categoryValidation.imageRequired"),
+          })
           : z.any().optional(),
     });
 
@@ -193,7 +193,7 @@ const AddEditCategoryModal = ({
       console.error("Category save error:", err);
       setError(
         err?.response?.data?.message ||
-          "Failed to save category. Please try again.",
+        "Failed to save category. Please try again.",
       );
     } finally {
       setSaving(false);
@@ -325,6 +325,7 @@ const AddEditCategoryModal = ({
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
                 {t("description")}
+                <span className="text-red-500">*</span>
               </label>
               {/* <textarea
               placeholder="type....."

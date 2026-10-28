@@ -88,23 +88,23 @@ const QuotationHistory = () => {
       const res = await apiResendQuotation(accessToken, quoteId);
       if (res?.status) {
         toast.push(
-          <Notification title={t("successTitle") || "Success"} type="success">
-            {res?.message || "Quotation sent successfully!"}
+          <Notification title={t("successTitle")} type="success">
+            {res?.message || t("sendSuccess")}
           </Notification>
         );
         getQuotationList();
       } else {
         toast.push(
-          <Notification title="Error" type="danger">
-            {res?.message || "Failed to send quotation"}
+          <Notification title={t("errorTitle")} type="danger">
+            {res?.message || t("sendFailed")}
           </Notification>
         );
       }
     } catch (err) {
       console.error("Failed to send quotation:", err);
       toast.push(
-        <Notification title="Error" type="danger">
-          Failed to send quotation response
+        <Notification title={t("errorTitle")} type="danger">
+          {t("sendResponseFailed")}
         </Notification>
       );
     } finally {

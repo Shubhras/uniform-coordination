@@ -27,11 +27,10 @@ const CustomOption = (props) => {
   const { innerProps, label, isSelected, isDisabled } = props;
   return (
     <div
-      className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${
-        isSelected
-          ? "text-[#1C4FA8] bg-[#F2F7FF]"
-          : "text-[#1C2C56] hover:bg-gray-100"
-      } ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${isSelected
+        ? "text-[#1C4FA8] bg-[#F2F7FF]"
+        : "text-[#1C2C56] hover:bg-gray-100"
+        } ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
       {...innerProps}
     >
       <span className="ml-2 text-sm font-medium">{label}</span>
@@ -148,12 +147,19 @@ const SimulationHistory = () => {
     }
   };
 
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+    setCurrentPage(1);
+  };
+
   /* -------------------- FETCH SIMULATION HISTORY -------------------- */
   const fetchSimulationHistory = async () => {
     try {
       if (!session?.accessToken) return;
       setLoading(true);
-      setCurrentPage(1);
       const params = {};
 
       if (filters.category) params.category = filters.category;
@@ -233,7 +239,7 @@ const SimulationHistory = () => {
               }
             }
             onChange={(selected) =>
-              setFilters({ ...filters, category: selected?.value || "" })
+              handleFilterChange("category", selected?.value || "")
             }
             className="w-full min-w-[180px]"
             components={{ Option: CustomOption }}
@@ -289,7 +295,7 @@ const SimulationHistory = () => {
               sortOptions[0]
             }
             onChange={(selected) =>
-              setFilters({ ...filters, sort: selected?.value || "" })
+              handleFilterChange("sort", selected?.value || "")
             }
             className="w-full min-w-[180px]"
             components={{ Option: CustomOption }}
@@ -337,7 +343,7 @@ const SimulationHistory = () => {
               rangeOptions[0]
             }
             onChange={(selected) =>
-              setFilters({ ...filters, range: selected?.value || "" })
+              handleFilterChange("range", selected?.value || "")
             }
             className="w-full min-w-[160px]"
             components={{ Option: CustomOption }}
