@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import UsersPermissionsPage from "./components/UsersPermissionsPage";
 
 export default function UsersPermissions() {
-  return <UsersPermissionsPage />;
+  return (
+    <Suspense fallback={null}>
+      <UsersPermissionsPage />
+    </Suspense>
+  );
 }

@@ -19,8 +19,8 @@ const Tabs = ({ activeTab, setActiveTab }) => {
           key={id}
           type="button"
           onClick={() => setActiveTab(id)}
-          className={`whitespace-nowrap border-b pb-2 text-base ${activeTab === id
-            ? "border-[#1C2C56] text-[#2B211C]"
+          className={`whitespace-nowrap border-b pb-1 text-base ${activeTab === id
+            ? "border-b-4 border-[#1C2C56] text-[#2B211C]"
             : "border-transparent text-[#64748B]"
             }`}
         >

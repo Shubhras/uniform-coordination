@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import Pagination from "@/components/ui/Pagination";
 import Select from "react-select";
@@ -238,12 +238,53 @@ const UsersPermissionsPage = () => {
   ];
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const currentAdminEmail = session?.user?.email;
 
+  const resolveTab = useCallback((tabParam) => {
+    if (!tabParam) return "AdminUsers";
+    const lower = tabParam.toLowerCase();
+    if (lower === "users" || lower === "customers" || lower === "customer") {
+      return "Users";
+    }
+    if (lower === "permissions" || lower === "permission") {
+      return "Permissions";
+    }
+    if (
+      lower === "adminusers" ||
+      lower === "admin-users" ||
+      lower === "admins" ||
+      lower === "admin"
+    ) {
+      return "AdminUsers";
+    }
+    return "AdminUsers";
+  }, []);
+
   // Tabs: 'AdminUsers' | 'Users' | 'Permissions'
-  const [activeTab, setActiveTab] = useState("AdminUsers");
+  const [activeTab, setActiveTab] = useState(() =>
+    resolveTab(searchParams?.get("tab"))
+  );
+
+  useEffect(() => {
+    const tabParam = searchParams?.get("tab");
+    if (tabParam) {
+      setActiveTab(resolveTab(tabParam));
+    }
+  }, [searchParams, resolveTab]);
+
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    const param =
+      key === "Users"
+        ? "customers"
+        : key === "Permissions"
+        ? "permissions"
+        : "admin-users";
+    router.replace(`/users-permissions?tab=${param}`, { scroll: false });
+  };
 
   // ==========================================
   // Admin / Staff Users State
@@ -892,7 +933,7 @@ const UsersPermissionsPage = () => {
           <button
             key={tab.key}
             type="button"
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => handleTabChange(tab.key)}
             className={`pb-1 text-base font-medium whitespace-nowrap ${activeTab === tab.key
               ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
               : "text-[#525252] text-[16px]"

@@ -192,8 +192,8 @@ const UserDetails = ({ userId }) => {
       <div className="flex items-center gap-3">
         <button
           type="button"
-          onClick={() => router.back()}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058]"
+          onClick={() => router.push("/users-permissions?tab=customers")}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058] transition hover:bg-[#F8F4F1]"
         >
           <FiArrowLeft size={18} className="text-[#1A1410]" />
         </button>
