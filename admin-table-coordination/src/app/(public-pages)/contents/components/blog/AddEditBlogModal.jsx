@@ -321,8 +321,11 @@ const AddEditBlogModal = ({
               className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
             /> */}
 
+            <label className="text-[#1C2C56] text-base font-medium">
+              {t("title")}
+              <span className="text-red-500">*</span>
+            </label>
             <FormItem
-              label={t("title")}
               invalid={!!errors.title}
               errorMessage={errors.title?.message}
             >
@@ -332,31 +335,17 @@ const AddEditBlogModal = ({
                 render={({ field }) => (
                   <Input placeholder={t("titlePlaceholder")} {...field} />
                 )}
-              />{" "}
+              />
             </FormItem>
           </div>
 
           {/* Category (React Select from API) */}
           <div>
-            {/* <label className="text-[#1C2C56] text-base font-medium">
-              Category<span className="text-red-500">*</span>
+            <label className="text-[#1C2C56] text-base font-medium">
+              {t("category")}
+              <span className="text-red-500">*</span>
             </label>
-            <Select
-              options={categoryOptions}
-              value={category}
-              onChange={setCategory}
-              styles={selectStyles}
-              placeholder={t("selectCategory")}
-              isLoading={loadingCategories}
-              loadingMessage={() => "Loading categories..."}
-              noOptionsMessage={() => "No categories found"}
-              isClearable
-              menuPortalTarget={typeof document !== "undefined" ? document.body : null}
-              menuPosition="fixed"
-              className="mt-1"
-            /> */}
             <FormItem
-              label={t("category")}
               invalid={!!errors.category}
               errorMessage={errors.category?.message}
             >
@@ -370,6 +359,7 @@ const AddEditBlogModal = ({
                     styles={selectStyles}
                     value={field.value}
                     onChange={field.onChange}
+                    placeholder={t("selectCategory")}
                   />
                 )}
               />
@@ -450,8 +440,11 @@ const AddEditBlogModal = ({
               onChange={(e) => setDescription(e.target.value)}
               className="mt-1 w-full border rounded-md px-3 py-2 text-sm h-[150px] resize-none focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"
             /> */}
+            <label className="text-[#1C2C56] text-base font-medium">
+              {t("description")}
+              <span className="text-red-500">*</span>
+            </label>
             <FormItem
-              label={t("description")}
               invalid={!!errors.description}
               errorMessage={errors.description?.message}
             >
@@ -461,6 +454,7 @@ const AddEditBlogModal = ({
                 render={({ field }) => (
                   <textarea
                     {...field}
+                    placeholder={t("descriptionPlaceholder")}
                     className="mt-1 w-full border rounded-md px-3 py-2 h-[150px]"
                   />
                 )}

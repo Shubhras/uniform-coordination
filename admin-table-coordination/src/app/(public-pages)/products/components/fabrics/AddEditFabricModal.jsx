@@ -135,6 +135,10 @@ const AddEditFabricModal = ({
       message: t("validation.materialTypeRequired"),
     }),
 
+    category: z.any().refine((val) => val !== null && val !== undefined, {
+      message: t("validation.categoryRequired"),
+    }),
+
     price: z
       .string()
       .trim()
@@ -153,6 +157,7 @@ const AddEditFabricModal = ({
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(validationSchema),
@@ -279,10 +284,10 @@ const AddEditFabricModal = ({
       );
       if (cat) {
         setCategory(cat);
-        reset((prev) => ({ ...prev, category: cat }));
+        setValue("category", cat, { shouldValidate: true });
       }
     }
-  }, [categoryOptions, mode, initialData]);
+  }, [categoryOptions, mode, initialData, setValue]);
 
   const handleSave = async (values) => {
     console.log("Save clicked");
@@ -318,9 +323,10 @@ const AddEditFabricModal = ({
     //   payload.fabricType = category.value;
     // }
 
-    if (category) {
-      payload.category_id = category.value;
-      payload.fabricType = category.type;
+    const selectedCategory = values.category || category;
+    if (selectedCategory) {
+      payload.category_id = selectedCategory.value;
+      payload.fabricType = selectedCategory.type;
     }
 
     if (subCategory) {
@@ -380,7 +386,7 @@ const AddEditFabricModal = ({
 
   const handleSaveAndAdd = async () => {
     // Same save logic but keep model open and reset form
-    if (!fabricName.trim() || !materialType || !price || isNaN(Number(price))) {
+    if (!fabricName.trim() || !materialType || !category || !price || isNaN(Number(price))) {
       setError(t("requiredFields"));
       return;
     }
@@ -560,6 +566,7 @@ const AddEditFabricModal = ({
                       styles={selectStyles}
                       value={field.value}
                       onChange={field.onChange}
+                      placeholder={t("selectType")}
                     />
                   )}
                 />
@@ -569,17 +576,33 @@ const AddEditFabricModal = ({
             {/* Category */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Category
+                {t("category")}
+                <span className="text-red-500">*</span>
               </label>
-              <Select
-                options={categoryOptions}
-                styles={selectStyles}
-                value={category}
-                onChange={(selected) => setCategory(selected)}
-                placeholder="Select Category"
-                isClearable
+              <FormItem
+                invalid={Boolean(errors.category)}
+                errorMessage={errors.category?.message}
                 className="mt-1"
-              />
+              >
+                <Controller
+                  name="category"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={categoryOptions}
+                      styles={selectStyles}
+                      value={field.value}
+                      onChange={(selected) => {
+                        field.onChange(selected);
+                        setCategory(selected);
+                      }}
+                      placeholder={t("selectCategory")}
+                      isClearable
+                    />
+                  )}
+                />
+              </FormItem>
             </div>
 
             {/* Price */}

@@ -32,9 +32,9 @@ const validationSchema = z.object({
         .min(1, { message: 'Please enter your email' })
         .email({ message: 'Please enter a valid email address' }),
     phone_number: z
-        .string({ error: 'Please enter phone number' })
-        .regex(/^\d+$/, { message: 'Phone number must contain only numbers' })
-        .min(8, { message: 'Please enter a valid phone number (min. 8 digits)' }),
+        .string({ required_error: 'Please enter phone number' })
+        .min(1, { message: 'Please enter phone number' })
+        .regex(/^[0-9]{10}$/, { message: 'Please enter a valid 10-digit phone number' }),
     item_type: z
         .string({ error: 'Please enter item type' })
         .min(1, { message: 'Please enter item type' }),
@@ -42,8 +42,13 @@ const validationSchema = z.object({
         .string({ error: 'Please enter material' })
         .min(1, { message: 'Please enter material' }),
     size_quantity: z
-        .string({ error: 'Please enter size and quantity' })
-        .min(1, { message: 'Please enter size and quantity' }),
+        .string({ required_error: 'Please enter size and quantity' })
+        .trim()
+        .min(1, { message: 'Please enter size and quantity' })
+        .regex(
+            /^([A-Za-z0-9]+)\s*-\s*(\d+)(\s*,\s*([A-Za-z0-9]+)\s*-\s*(\d+))*$/,
+            { message: 'Please use format like "M-10, L-20" (Size-Quantity)' }
+        ),
     delivery_date: z.date({
         error: 'Please select delivery date',
     }),
@@ -67,7 +72,7 @@ const formatSizes = (sizes) => {
     if (!sizes) return ""
     return SIZE_ORDER
         .filter((label) => Number(sizes[label]) > 0)
-        .map((label) => `${label} x ${sizes[label]}`)
+        .map((label) => `${label}-${sizes[label]}`)
         .join(", ")
 }
 
@@ -243,7 +248,29 @@ const DeliveryRequestForm = () => {
                                     name="phone_number"
                                     control={control}
                                     render={({ field }) => (
-                                        <Input placeholder="Phone Number" {...field} />
+                                        <Input
+                                            type="text"
+                                            inputMode="numeric"
+                                            autoComplete="tel"
+                                            placeholder="Phone Number"
+                                            maxLength={10}
+                                            {...field}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                                                field.onChange(value)
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (
+                                                    e.key &&
+                                                    e.key.length === 1 &&
+                                                    !/\d/.test(e.key) &&
+                                                    !e.ctrlKey &&
+                                                    !e.metaKey
+                                                ) {
+                                                    e.preventDefault()
+                                                }
+                                            }}
+                                        />
                                     )}
                                 />
                             </FormItem>
@@ -286,9 +313,21 @@ const DeliveryRequestForm = () => {
                                     name="size_quantity"
                                     control={control}
                                     render={({ field }) => (
-                                        <Input placeholder="Size & Quantity" {...field} />
+                                        <Input
+                                            placeholder="Size & Quantity (e.g. M-10, L-20)"
+                                            {...field}
+                                            onChange={(e) => {
+                                                const sanitized = e.target.value
+                                                    .replace(/[^a-zA-Z0-9\s,-]/g, '')
+                                                    .toUpperCase()
+                                                field.onChange(sanitized)
+                                            }}
+                                        />
                                     )}
                                 />
+                                <span className="text-[11px] text-gray-400 mt-1 block">
+                                    Example: M-10, L-20
+                                </span>
                             </FormItem>
 
                             <FormItem

@@ -239,6 +239,17 @@ const Uniform3DmoduleDegisn = () => {
       aprons: ""
     },
 
+    optionKeys: {
+      collar: "",
+      sleeves: "",
+      cap: "",
+      zipper: "",
+      cuff: "",
+      pants: "",
+      pocket: "",
+      aprons: ""
+    },
+
     sizes: {}   // ✅ quantity based sizes
   });
 
@@ -682,6 +693,7 @@ const Uniform3DmoduleDegisn = () => {
         "fabric": designJSON.fabric,
         "part": designJSON.part || "",
         "options": designJSON.options,
+        "option_keys": designJSON.optionKeys,
         "sizes": designJSON.sizes,
       },
       "isActive": true
@@ -1035,7 +1047,11 @@ const Uniform3DmoduleDegisn = () => {
                 <div className="w-full max-h-[300px] overflow-y-auto pr-1">
                   <div className="grid grid-cols-3 gap-3">
                     {panels[active].data.map((opt) => {
-                      const selected = designJSON.options?.[active] === opt.name;
+                      const selected =
+                        designJSON.optionKeys?.[active] !== undefined &&
+                        designJSON.optionKeys?.[active] !== ""
+                          ? designJSON.optionKeys[active] === String(opt.id)
+                          : designJSON.options?.[active] === opt.name;
                       return (
                         <button
                           key={opt.id}
@@ -1045,6 +1061,10 @@ const Uniform3DmoduleDegisn = () => {
                               options: {
                                 ...prev.options,
                                 [active]: opt.name,
+                              },
+                              optionKeys: {
+                                ...prev.optionKeys,
+                                [active]: String(opt.id),
                               },
                             }));
                           }}
@@ -1082,7 +1102,12 @@ const Uniform3DmoduleDegisn = () => {
               {panels[active].type === "options" && (
                 <div className="grid grid-cols-3 gap-3">
                   {panels[active].data.map((opt, i) => {
-                    const selected = designJSON.options?.[active] === opt;
+                    const optKey = String(i);
+                    const selected =
+                      designJSON.optionKeys?.[active] !== undefined &&
+                      designJSON.optionKeys?.[active] !== ""
+                        ? designJSON.optionKeys[active] === optKey
+                        : designJSON.options?.[active] === opt;
                     return (
                       <button key={i} onClick={() => {
                         setDesignJSON((prev) => ({
@@ -1090,6 +1115,10 @@ const Uniform3DmoduleDegisn = () => {
                           options: {
                             ...prev.options,
                             [active]: opt   // collar / pants / pocket / aprons
+                          },
+                          optionKeys: {
+                            ...prev.optionKeys,
+                            [active]: optKey
                           }
                         }));
                       }} className={`p-2 rounded-lg shadow relative transition ${selected ? "ring-2 ring-[#1C4FA8]" : ""

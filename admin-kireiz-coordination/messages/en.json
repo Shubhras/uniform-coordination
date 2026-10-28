@@ -1081,6 +1081,7 @@
       "title": "Catalog Images",
       "subtitle": "Upload and manage catalog photography",
       "addNew": "Upload Image",
+      "newCatalog": "Add New Catalog",
       "searchPlaceholder": "Search Catalog...",
       "noData": "No catalog images found",
       "showingRange": "Showing ",
@@ -1263,7 +1264,22 @@
       "saveSuccess": "Quotation template saved",
       "saveFailed": "Could not save the template",
       "resetSuccess": "Template reset to default",
-      "resetFailed": "Could not reset the template"
+      "resetFailed": "Could not reset the template",
+      "sample": {
+        "quotationId": "Q-2024-001",
+        "date": "04/12/2025",
+        "validDate": "18/12/2025",
+        "clientName": "John Doe",
+        "companyName": "Acme Industries",
+        "companyAddress": "1-2-3 Shibuya, Tokyo",
+        "fabric": "Premium Cotton 400TC",
+        "itemType": "Chef Jacket",
+        "quantity": "150 meters",
+        "price": "$12.50",
+        "subtotal": "$1,875.00",
+        "discount": "-$187.50",
+        "total": "$1,687.50"
+      }
     },
     "unitPrice": {
       "title": "Unit Price",
@@ -1508,6 +1524,11 @@
         "sent": "Sent",
         "cancelled": "Cancelled"
       },
+      "successTitle": "Success",
+      "errorTitle": "Error",
+      "sendSuccess": "Quotation sent successfully!",
+      "sendFailed": "Failed to send quotation",
+      "sendResponseFailed": "Failed to send quotation response",
       "editQuotationPage": {
         "pageTitle": "Edit Quotation",
         "pageSubtitle": "Update quotation information",
@@ -1554,6 +1575,7 @@
           "contactPersonRequired": "Contact person is required",
           "emailRequired": "Email is required",
           "phoneRequired": "Phone number is required",
+          "invalidPhone": "Enter a valid 10-digit phone number",
           "itemTypeRequired": "Item type is required",
           "materialRequired": "Material is required",
           "sizeQuantityRequired": "Size & Quantity is required",
@@ -1595,6 +1617,10 @@
       "addRepresentative": "Add Representative",
       "noData": "No sales representatives yet",
       "noDataSubtitle": "Use \"Add Representative\" to create the first one.",
+      "viewProfile": "View Profile",
+      "clients": "Clients",
+      "revenue": "Revenue",
+      "winRate": "Win Rate",
       "addRepresentativeModal": {
         "modalTitle": "Add Representative",
         "fullNameLabel": "Full Name",
@@ -1608,13 +1634,17 @@
       },
       "addRepModal": {
         "modalTitle": "Add Representative",
+        "editModalTitle": "Edit Sales Representative",
         "fullNameLabel": "Full Name",
         "emailLabel": "Email",
         "mobileLabel": "Mobile (optional)",
         "designationLabel": "Designation",
         "passwordLabel": "Password",
+        "passwordEditLabel": "Password (Leave blank to keep current)",
+        "passwordPlaceholder": "Leave blank to keep unchanged",
         "cancel": "Cancel",
         "submit": "Add Representative",
+        "update": "Update",
         "saving": "Saving...",
         "requiredTitle": "Required",
         "successTitle": "Success",
@@ -1626,9 +1656,26 @@
           "nameRequired": "Full Name is required",
           "emailRequired": "Email is required",
           "emailInvalid": "Please enter a valid email address",
+          "invalidMobile": "Enter a valid 10-digit mobile number",
           "designationRequired": "Designation is required",
           "passwordRequired": "Password is required"
         }
+      },
+      "viewProfileModal": {
+        "clients": "Clients",
+        "revenue": "Revenue",
+        "winRate": "Win Rate",
+        "email": "Email",
+        "compose": "Compose",
+        "sendEmailTitle": "Send Email to {email}",
+        "mobile": "Mobile",
+        "quotations": "Quotations",
+        "quotationsRatio": "{won} won of {assigned} assigned",
+        "assignedAccounts": "Assigned Accounts",
+        "noAccounts": "No accounts assigned yet.",
+        "recentQuotations": "Recent Quotations",
+        "noQuotations": "No quotations yet.",
+        "close": "Close"
       }
     },
     "assignments": {

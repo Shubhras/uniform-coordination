@@ -388,8 +388,10 @@
             "pricePer": "単価",
             "actions": "操作",
             "materialType": "素材タイプ",
+            "selectType": "タイプを選択",
             "material": "素材",
             "category": "カテゴリー",
+            "selectCategory": "カテゴリーを選択",
             "subCategory": "サブカテゴリー",
             "status": "ステータス",
             "active": "有効",
@@ -414,6 +416,7 @@
             "validation": {
                 "fabricNameRequired": "生地名は必須です",
                 "materialTypeRequired": "素材タイプは必須です",
+                "categoryRequired": "カテゴリーは必須です",
                 "priceRequired": "価格は必須です",
                 "validPrice": "有効な価格を入力してください",
                 "priceGreaterThanZero": "価格は0より大きい必要があります"
@@ -430,6 +433,8 @@
             "colorName": "カラー名",
             "color": "カラー",
             "hexCode": "HEXコード",
+            "selectCategory": "カテゴリーを選択",
+            "category": "カテゴリー",
             "compatibleFabric": "対応する生地",
             "enterColorname": "カラー名を入力",
             "selectFabric": "対応する生地を選択",
@@ -449,6 +454,7 @@
                 "colorNameRequired": "カラー名は必須です",
                 "colorCodeRequired": "カラーコードは必須です",
                 "validHexCode": "有効なHEXコードを入力してください",
+                "categoryRequired": "カテゴリーは必須です",
                 "compatibleFabricRequired": "対応する生地は必須です"
             }
         },
@@ -629,6 +635,7 @@
             "themeName": "テーマ名",
             "placeholderThemeName": "テーマ名を入力",
             "category": "カテゴリー",
+            "selectCategory": "カテゴリーを選択",
             "shortDescription": "簡単な説明",
             "descriptionPlaceholder": "簡単な説明を入力",
             "themeImage": "テーマ画像",

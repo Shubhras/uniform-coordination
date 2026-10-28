@@ -93,7 +93,7 @@ const AddEditAttributeModal = ({
     }
 
     if (!category) {
-      newErrors.category = "Category is required";
+      newErrors.category = t("validation.categoryRequired");
     }
 
     setErrors(newErrors);
@@ -275,7 +275,7 @@ const AddEditAttributeModal = ({
 
           <div>
             <label className="block text-xs font-semibold text-[#1C2C56] mb-1">
-              Category <span className="text-red-500">*</span>
+              {t("category")} <span className="text-red-500">*</span>
             </label>
             <Select
               options={categoryOptions}
@@ -289,7 +289,7 @@ const AddEditAttributeModal = ({
                   category: "",
                 }));
               }}
-              placeholder="Select Category"
+              placeholder={t("selectCategory")}
               isClearable
               className="mt-1"
               menuPortalTarget={

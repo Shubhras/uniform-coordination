@@ -388,8 +388,10 @@
             "pricePer": "Price per Unit",
             "actions": "Actions",
             "materialType": "Material Type",
+            "selectType": "Select Type",
             "material": "Material",
             "category": "Category",
+            "selectCategory": "Select Category",
             "subCategory": "Sub Category",
             "status": "Status",
             "update": "Update",
@@ -414,6 +416,7 @@
             "validation": {
                 "fabricNameRequired": "Fabric name is required",
                 "materialTypeRequired": "Material type is required",
+                "categoryRequired": "Category is required",
                 "priceRequired": "Price is required",
                 "validPrice": "Enter a valid price",
                 "priceGreaterThanZero": "Price must be greater than 0"
@@ -430,6 +433,8 @@
             "colorName": "Color Name",
             "color": "Color",
             "hexCode": "HEX Code",
+            "selectCategory": "Select Category",
+            "category": "Category",
             "compatibleFabric": "Compatible Fabrics",
             "enterColorname": "Enter Color Name",
             "selectFabric": "Select compatible fabrics",
@@ -449,6 +454,7 @@
                 "colorNameRequired": "Color name is required",
                 "colorCodeRequired": "Color code is required",
                 "validHexCode": "Enter a valid HEX code",
+                "categoryRequired": "Category is required",
                 "compatibleFabricRequired": "Compatible fabric is required"
             }
         },
@@ -629,6 +635,7 @@
             "themeName": "THEME NAME",
             "placeholderThemeName": "Enter theme name",
             "category": "Category",
+            "selectCategory": "Select Category",
             "shortDescription": "Short Description",
             "descriptionPlaceholder": "Enter Short Description",
             "themeImage": "Theme Images",

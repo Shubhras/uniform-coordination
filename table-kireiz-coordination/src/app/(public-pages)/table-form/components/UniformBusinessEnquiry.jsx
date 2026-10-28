@@ -153,11 +153,10 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
         <button
           onClick={handlePrev}
           disabled={index === 0}
-          className={`${
-            index === 0
+          className={`${index === 0
               ? "text-gray-300 cursor-not-allowed"
               : "text-[#5D4A4A] cursor-pointer"
-          }`}
+            }`}
         >
           <FiArrowLeft size={25} />
         </button>
@@ -165,11 +164,10 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
         <button
           onClick={handleNext}
           disabled={index + cardsPerView >= cards.length}
-          className={`ml-8 ${
-            index + cardsPerView >= cards.length
+          className={`ml-8 ${index + cardsPerView >= cards.length
               ? "text-gray-300 cursor-not-allowed"
               : "text-[#5D4A4A] cursor-pointer"
-          }`}
+            }`}
         >
           <FiArrowRight size={25} />
         </button>

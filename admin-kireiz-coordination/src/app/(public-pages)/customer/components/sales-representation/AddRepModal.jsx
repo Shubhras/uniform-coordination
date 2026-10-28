@@ -21,7 +21,8 @@ const FIELDS = [
     name: "mobile",
     labelKey: "mobileLabel",
     type: "tel",
-    maxLength: 15,
+    maxLength: 10,
+    inputMode: "numeric",
     autoComplete: "off",
     required: false,
   },
@@ -48,7 +49,9 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
   const [form, setForm] = useState({
     name: initialData?.name || "",
     email: initialData?.email || "",
-    mobile: initialData?.mobile || "",
+    mobile: initialData?.mobile
+      ? String(initialData.mobile).replace(/\D/g, "").slice(0, 10)
+      : "",
     designation: initialData?.designation || "Sales Representative",
     password: "",
   });
@@ -58,9 +61,36 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
 
   const change = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const finalValue =
+      name === "mobile" ? value.replace(/\D/g, "").slice(0, 10) : value;
+    setForm((prev) => ({ ...prev, [name]: finalValue }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleKeyDown = (e, fieldName) => {
+    if (fieldName === "mobile") {
+      if (
+        e.key === "Backspace" ||
+        e.key === "Delete" ||
+        e.key === "Tab" ||
+        e.key === "Escape" ||
+        e.key === "Enter" ||
+        e.key === "ArrowLeft" ||
+        e.key === "ArrowRight" ||
+        e.key === "ArrowUp" ||
+        e.key === "ArrowDown" ||
+        e.key === "Home" ||
+        e.key === "End" ||
+        e.ctrlKey ||
+        e.metaKey
+      ) {
+        return;
+      }
+      if (!/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+      }
     }
   };
 
@@ -76,6 +106,9 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
       if (!emailRegex.test(form.email.trim())) {
         errs.email = t("validation.emailInvalid") || "Please enter a valid email address";
       }
+    }
+    if (form.mobile && form.mobile.trim().length > 0 && form.mobile.trim().length !== 10) {
+      errs.mobile = t("validation.invalidMobile") || "Enter a valid 10-digit mobile number";
     }
     if (!form.designation.trim()) {
       errs.designation = t("validation.designationRequired") || "Designation is required";
@@ -141,7 +174,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
         <div className="flex items-start justify-between mb-5">
           <h3 className="text-lg font-semibold text-[#1C2C56]">
-            {isEdit ? "Edit Sales Representative" : t("modalTitle")}
+            {isEdit ? t("editModalTitle") : t("modalTitle")}
           </h3>
           <button
             onClick={onClose}
@@ -156,7 +189,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
             <div key={field.name}>
               <label className="block text-sm font-medium text-[#1C2C56] mb-1">
                 {field.name === "password" && isEdit
-                  ? "Password (Leave blank to keep current)"
+                  ? t("passwordEditLabel")
                   : t(field.labelKey)}
                 {field.required && (field.name !== "password" || !isEdit) && (
                   <span className="text-red-500 ml-0.5">*</span>
@@ -172,18 +205,19 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
                   name={field.name}
                   value={form[field.name]}
                   onChange={change}
+                  onKeyDown={(e) => handleKeyDown(e, field.name)}
                   maxLength={field.maxLength}
+                  inputMode={field.inputMode}
                   autoComplete={field.autoComplete}
                   placeholder={
                     field.name === "password" && isEdit
-                      ? "Leave blank to keep unchanged"
+                      ? t("passwordPlaceholder")
                       : ""
                   }
-                  className={`w-full border rounded-lg px-3 py-2 pr-10 text-sm outline-none transition-colors ${
-                    errors[field.name]
+                  className={`w-full border rounded-lg px-3 py-2 pr-10 text-sm outline-none transition-colors ${errors[field.name]
                       ? "border-red-500 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                       : "border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-400"
-                  }`}
+                    }`}
                 />
                 {field.name === "password" && (
                   <button
@@ -221,7 +255,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
             disabled={saving}
             className="px-4 py-2 rounded-lg text-sm bg-[#1C4FA8] text-white disabled:opacity-50"
           >
-            {saving ? t("saving") : isEdit ? "Update" : t("submit")}
+            {saving ? t("saving") : isEdit ? t("update") : t("submit")}
           </button>
         </div>
       </div>

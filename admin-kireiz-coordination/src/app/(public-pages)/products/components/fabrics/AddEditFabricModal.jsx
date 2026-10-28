@@ -615,10 +615,16 @@ const AddEditFabricModal = ({
                       options={categoryOptions}
                       styles={selectStyles}
                       value={field.value}
+
                       onChange={(value) => {
                         field.onChange(value);
                         setCategory(value);
+
+                        // Clear selected subcategory when category changes
+                        setSubCategory(null);
+                        setSubCategoryOptions([]);
                       }}
+
                       placeholder={tm("categoryPlaceholder")}
                       menuPortalTarget={
                         typeof document !== "undefined" ? document.body : null

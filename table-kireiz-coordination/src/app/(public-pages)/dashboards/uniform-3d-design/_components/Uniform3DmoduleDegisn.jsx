@@ -413,7 +413,7 @@ const Uniform3DmoduleDegisn = () => {
 
     toast.push(
       <Notification title="Product Selected" type="success">
-        Loaded base template: {product.productName}
+        {product.productName}
       </Notification>,
     );
   };
@@ -1222,6 +1222,10 @@ const Uniform3DmoduleDegisn = () => {
                           const isColorAttr = attrName
                             .toLowerCase()
                             .includes("color");
+                          const isFabricAttr =
+                            attrName.toLowerCase().includes("fabric") ||
+                            attrName.toLowerCase().includes("material") ||
+                            attrKey === "fabrics";
 
                           return (
                             <div key={attrName} className="mb-4">
@@ -1232,6 +1236,70 @@ const Uniform3DmoduleDegisn = () => {
                                 <p className="text-xs text-gray-500 italic">
                                   No {attrName.toLowerCase()} options available.
                                 </p>
+                              ) : isFabricAttr ? (
+                                <div className="space-y-2">
+                                  {displayedOptions.map((opt) => {
+                                    const isSelected =
+                                      selectedOptions[selectedCat.name]?.[
+                                        attrName
+                                      ] === opt.name;
+                                    return (
+                                      <button
+                                        key={opt.id || opt.name}
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedOptions((prev) => {
+                                            const currentCatOptions = {
+                                              ...(prev[selectedCat.name] || {}),
+                                            };
+                                            if (
+                                              currentCatOptions[attrName] ===
+                                              opt.name
+                                            ) {
+                                              delete currentCatOptions[
+                                                attrName
+                                              ];
+                                            } else {
+                                              currentCatOptions[attrName] =
+                                                opt.name;
+                                            }
+                                            return {
+                                              ...prev,
+                                              [selectedCat.name]:
+                                                currentCatOptions,
+                                            };
+                                          });
+                                        }}
+                                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-left transition-all duration-200 group ${isSelected
+                                          ? "border-[#A0522D] bg-[#FFF5F1] shadow-sm ring-1 ring-[#A0522D]"
+                                          : "border-gray-200 bg-white hover:border-[#A0522D]/60 hover:bg-[#FFF9F6]"
+                                          }`}
+                                      >
+                                        <span
+                                          className={`text-xs font-medium pr-2 leading-relaxed ${isSelected
+                                            ? "text-[#A0522D] font-semibold"
+                                            : "text-[#1C2C56]"
+                                            }`}
+                                        >
+                                          {opt.name}
+                                        </span>
+
+                                        <div
+                                          className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${isSelected
+                                            ? "bg-[#A0522D] text-white shadow-sm"
+                                            : "border border-gray-300 bg-white group-hover:border-[#A0522D]"
+                                            }`}
+                                        >
+                                          {isSelected && (
+                                            <span className="text-white text-[9px] font-bold leading-none">
+                                              ✓
+                                            </span>
+                                          )}
+                                        </div>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
                               ) : (
                                 <div
                                   className={
@@ -1243,7 +1311,7 @@ const Uniform3DmoduleDegisn = () => {
                                   {displayedOptions.map((opt) => {
                                     const isSelected =
                                       selectedOptions[selectedCat.name]?.[
-                                      attrName
+                                        attrName
                                       ] === opt.name;
                                     return (
                                       <button
