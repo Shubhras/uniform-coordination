@@ -413,7 +413,7 @@ const Uniform3DmoduleDegisn = () => {
 
     toast.push(
       <Notification title="Product Selected" type="success">
-        Loaded base template: {product.productName}
+        {product.productName}
       </Notification>,
     );
   };
