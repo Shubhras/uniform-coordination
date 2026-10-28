@@ -30,11 +30,12 @@ def create_admin_notification(instance, title, message, priority="low"):
     """
     AdminNotification.objects.create(
         content_type=ContentType.objects.get_for_model(instance),
-        object_id=str(instance.quotation_id),
+        object_id=str(instance.pk),
         title=title,
         message=message,
         priority=priority
     )
+
 
 
 

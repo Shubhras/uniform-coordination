@@ -10,7 +10,7 @@ def create_admin_notification(instance, title, message, priority="low"):
     Generic function to create admin notification for any model instance.
     """
     try:
-        obj_id = getattr(instance, "quotation_id", None) or getattr(instance, "order_id", None) or getattr(instance, "pk", "")
+        obj_id = getattr(instance, "pk", "")
         AdminNotification.objects.create(
             content_type=ContentType.objects.get_for_model(instance),
             object_id=str(obj_id),
@@ -28,9 +28,10 @@ def create_admin_order_notification(instance, object_id, title, message, priorit
     Generic function to create admin notification for order instance.
     """
     try:
+        obj_id = getattr(instance, "pk", object_id)
         AdminNotification.objects.create(
             content_type=ContentType.objects.get_for_model(instance),
-            object_id=str(object_id),
+            object_id=str(obj_id),
             title=title,
             message=message,
             priority=priority
@@ -46,7 +47,7 @@ def quotation_notification_receiver(sender, instance, created, **kwargs):
         if created:
             AdminNotification.objects.create(
                 content_type=ContentType.objects.get_for_model(instance),
-                object_id=str(instance.quotation_id or instance.pk),
+                object_id=str(instance.pk),
                 title=f"New Quotation Request: {instance.quotation_id}",
                 message=f"A new quotation request has been created by {getattr(instance, 'company_name', 'Client')}.",
                 priority="high"
@@ -54,7 +55,7 @@ def quotation_notification_receiver(sender, instance, created, **kwargs):
         else:
             AdminNotification.objects.create(
                 content_type=ContentType.objects.get_for_model(instance),
-                object_id=str(instance.quotation_id or instance.pk),
+                object_id=str(instance.pk),
                 title=f"Quotation Updated: {instance.quotation_id}",
                 message=f"The quotation request {instance.quotation_id} has been updated.",
                 priority="medium"
@@ -70,7 +71,7 @@ def order_notification_receiver(sender, instance, created, **kwargs):
         if created:
             AdminNotification.objects.create(
                 content_type=ContentType.objects.get_for_model(instance),
-                object_id=str(instance.order_id or instance.pk),
+                object_id=str(instance.pk),
                 title=f"New Order Placed: {instance.order_id}",
                 message=f"Order {instance.order_id} has been placed for total ${instance.total_amount}.",
                 priority="high"
@@ -78,7 +79,7 @@ def order_notification_receiver(sender, instance, created, **kwargs):
         elif kwargs.get("update_fields") and "is_paid" in kwargs.get("update_fields") and instance.is_paid:
             AdminNotification.objects.create(
                 content_type=ContentType.objects.get_for_model(instance),
-                object_id=str(instance.order_id or instance.pk),
+                object_id=str(instance.pk),
                 title=f"Order Payment Received: {instance.order_id}",
                 message=f"Payment received for order {instance.order_id}.",
                 priority="medium"
@@ -86,5 +87,6 @@ def order_notification_receiver(sender, instance, created, **kwargs):
     except Exception as e:
         import logging
         logging.getLogger(__name__).error(f"Order notification error: {e}")
+
 
 

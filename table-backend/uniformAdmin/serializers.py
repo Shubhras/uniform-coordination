@@ -1732,32 +1732,69 @@ class AdminNotificationSerializer(serializers.ModelSerializer):
         model = AdminNotification
         fields = "__all__"
 
+    def _get_target_object(self, obj):
+        try:
+            target = obj.content_object
+            if target is not None:
+                return target
+        except Exception:
+            pass
+
+        # Fallback if object_id was saved as order_id or quotation_id instead of pk
+        try:
+            if obj.content_type:
+                model_name = obj.content_type.model.lower()
+                if model_name == "order":
+                    from userhub.models import Order
+                    # Try looking up by order_id first, then numeric id if applicable
+                    order = Order.objects.filter(order_id=obj.object_id).first()
+                    if not order and str(obj.object_id).isdigit():
+                        order = Order.objects.filter(id=int(obj.object_id)).first()
+                    return order
+                elif model_name == "quotationrequest":
+                    from userhub.models import QuotationRequest
+                    qr = QuotationRequest.objects.filter(quotation_id=obj.object_id).first()
+                    if not qr:
+                        try:
+                            qr = QuotationRequest.objects.filter(uuids=obj.object_id).first()
+                        except Exception:
+                            pass
+                    return qr
+        except Exception:
+            pass
+        return None
+
     def get_recipient_name(self, obj):
-        if obj.content_object:
-            return getattr(obj.content_object, "contact_person", None) or getattr(obj.content_object, "company_name", None) or "-"
+        target = self._get_target_object(obj)
+        if target:
+            return getattr(target, "contact_person", None) or getattr(target, "company_name", None) or "-"
         return "-"
 
     def get_recipient_email(self, obj):
-        if obj.content_object:
-            return getattr(obj.content_object, "email", None) or "-"
+        target = self._get_target_object(obj)
+        if target:
+            return getattr(target, "email", None) or "-"
         return "-"
 
     def get_order_id(self, obj):
-        if obj.content_object:
-            order = getattr(obj.content_object, "order", None)
+        target = self._get_target_object(obj)
+        if target:
+            order = getattr(target, "order", None)
             if order:
                 return getattr(order, "order_id", "-")
-            return getattr(obj.content_object, "contract_id", None) or getattr(obj.content_object, "quotation_id", None) or "-"
+            return getattr(target, "order_id", None) or getattr(target, "contract_id", None) or getattr(target, "quotation_id", None) or "-"
         return "-"
 
     def get_notification_status(self, obj):
-        if obj.content_object:
-            status_val = getattr(obj.content_object, "workflow_status", None) or getattr(obj.content_object, "contract_status", None) or getattr(obj.content_object, "quotation_status", None) or "sent"
+        target = self._get_target_object(obj)
+        if target:
+            status_val = getattr(target, "workflow_status", None) or getattr(target, "contract_status", None) or getattr(target, "quotation_status", None) or "sent"
             status_lower = str(status_val).lower()
             if status_lower in ["sent", "success", "delivered", "done", "completed", "signed", "requested", "agreed"]:
                 return "sent"
             return "failed"
         return "sent"
+
         
         
 class UnitPriceSerializer(serializers.Serializer):
