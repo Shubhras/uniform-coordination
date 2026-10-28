@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
-import { FiUpload } from "react-icons/fi";
+import { FiUpload, FiCheckCircle } from "react-icons/fi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "@/components/ui/toast";
@@ -18,6 +18,8 @@ import {
   apiUpdateCategory,
 } from "@/services/CategoryService";
 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+
 const AddEditCategoryModal = ({
   isOpen,
   onClose,
@@ -31,6 +33,7 @@ const AddEditCategoryModal = ({
   const accessToken = session?.user?.accessToken;
   const t = useTranslations("contentMedia.categories");
   const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
 
   const [categoryName, setCategoryName] = useState("");
   const [description, setDescription] = useState("");
@@ -51,10 +54,32 @@ const AddEditCategoryModal = ({
 
       image:
         mode === "add"
-          ? z.any().refine((file) => file instanceof File, {
-            message: t("categoryValidation.imageRequired"),
-          })
-          : z.any().optional(),
+          ? z
+              .any()
+              .refine((file) => Boolean(file), {
+                message: t("categoryValidation.imageRequired"),
+              })
+              .refine(
+                (file) =>
+                  !file ||
+                  !(file instanceof File) ||
+                  file.size <= MAX_IMAGE_SIZE,
+                {
+                  message: t("categoryValidation.imageSizeLimit"),
+                },
+              )
+          : z
+            .any()
+            .refine(
+              (file) =>
+                !file ||
+                !(file instanceof File) ||
+                file.size <= MAX_IMAGE_SIZE,
+              {
+                message: t("categoryValidation.imageSizeLimit"),
+              },
+            )
+            .optional(),
     });
 
   const {
@@ -62,6 +87,8 @@ const AddEditCategoryModal = ({
     handleSubmit,
     reset,
     setValue,
+    setError: setFormError,
+    clearErrors,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(categorySchema(mode)),
@@ -110,6 +137,24 @@ const AddEditCategoryModal = ({
   /* ---------- FILE HANDLERS ---------- */
   const handleFile = (file) => {
     if (!file || !file.type.startsWith("image/")) return;
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      const errorMsg = t("categoryValidation.imageSizeLimit");
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
+      setValue("image", null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      setFormError("image", {
+        type: "manual",
+        message: errorMsg,
+      });
+      return;
+    }
+
+    clearErrors("image");
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
     setValidated(true);
@@ -298,7 +343,7 @@ const AddEditCategoryModal = ({
               >
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/png, image/jpeg, image/jpg, image/webp"
                   ref={fileInputRef}
                   className="hidden"
                   onChange={handleBrowse}
@@ -307,9 +352,10 @@ const AddEditCategoryModal = ({
             </div>
 
             {validated && (
-              <p className="text-sm text-green-600 flex items-center gap-1">
-                ✔ {t("imageValidation")}
-              </p>
+              <div className="mt-2 flex items-center gap-2 text-sm text-green-600 font-medium">
+                <FiCheckCircle className="text-green-600" size={16} />
+                <span>{t("imageValidation")}</span>
+              </div>
             )}
             {preview && (
               <div className="flex justify-center">

@@ -5,11 +5,16 @@ export async function apiGetFabricList(
   page = 1,
   pageSize = 10,
   search = "",
+  categoryId = null,
 ) {
-  const params = new URLSearchParams({
-    page,
-    page_size: pageSize,
-  });
+  const params = new URLSearchParams();
+
+  if (categoryId) {
+    params.append("category_id", categoryId);
+  }
+
+  params.append("page", page);
+  params.append("page_size", pageSize);
 
   if (search) {
     params.append("search", search);

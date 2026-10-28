@@ -1580,7 +1580,8 @@
           "materialRequired": "Material is required",
           "sizeQuantityRequired": "Size & Quantity is required",
           "deliveryDateRequired": "Delivery date is required",
-          "quotationStatusRequired": "Quotation status is required"
+          "quotationStatusRequired": "Quotation status is required",
+          "subtotalNegative": "Subtotal cannot be negative"
         }
       },
       "viewQuotationPage": {

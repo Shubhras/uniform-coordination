@@ -392,6 +392,7 @@
             "material": "素材",
             "category": "カテゴリー",
             "selectCategory": "カテゴリーを選択",
+            "reset": "リセット",
             "subCategory": "サブカテゴリー",
             "status": "ステータス",
             "active": "有効",
@@ -419,7 +420,8 @@
                 "categoryRequired": "カテゴリーは必須です",
                 "priceRequired": "価格は必須です",
                 "validPrice": "有効な価格を入力してください",
-                "priceGreaterThanZero": "価格は0より大きい必要があります"
+                "priceGreaterThanZero": "価格は0より大きい必要があります",
+                "imageSizeLimit": "画像サイズは5MB以下にしてください"
             }
         },
         "color": {
@@ -434,6 +436,7 @@
             "color": "カラー",
             "hexCode": "HEXコード",
             "selectCategory": "カテゴリーを選択",
+            "reset": "リセット",
             "category": "カテゴリー",
             "compatibleFabric": "対応する生地",
             "enterColorname": "カラー名を入力",
@@ -487,7 +490,7 @@
             "drapDrop": "ここに画像ファイルをドラッグ＆ドロップ",
             "clickHere": "またはここをクリックして参照",
             "jpgFile": "JPG、PNG、またはWEBPファイル",
-            "maxDimension": "最大サイズ 1000×1000px",
+            "maxDimension": "最大ファイルサイズ 5MB",
             "imageValidation": "画像の検証に成功しました",
             "description": "説明",
             "update": "更新",
@@ -503,7 +506,8 @@
             "categoryValidation": {
                 "categoryNameRequired": "カテゴリー名は必須です",
                 "descriptionRequired": "説明は必須です",
-                "imageRequired": "画像は必須です"
+                "imageRequired": "画像は必須です",
+                "imageSizeLimit": "画像サイズは5MB以下にしてください"
             },
             "subcategory": {
                 "addSubcategory": "サブカテゴリーを追加",
@@ -564,7 +568,7 @@
                 "or": "または",
                 "clickToBrowse": "クリックして参照",
                 "imageFiles": "JPG、PNG、またはWEBPファイル",
-                "recommendedSize": "推奨サイズ 1200×800px",
+                "recommendedSize": "最大ファイルサイズ 5MB",
                 "imageValidated": "画像の検証に成功しました",
                 "preview": "プレビュー",
                 "description": "説明",
@@ -578,7 +582,9 @@
                 "validation": {
                     "titleRequired": "タイトルは必須です",
                     "categoryRequired": "カテゴリーは必須です",
-                    "descriptionRequired": "説明は必須です"
+                    "descriptionRequired": "説明は必須です",
+                    "imageRequired": "画像は必須です",
+                    "imageSizeLimit": "画像サイズは5MB以下にしてください"
                 }
             }
         },
@@ -681,7 +687,8 @@
                 "categoryRequired": "カテゴリーは必須です",
                 "descriptionRequired": "説明は必須です",
                 "thumbnailRequired": "サムネイルは必須です",
-                "sectionRequired": "いずれかのセクションに少なくとも1つの商品を追加する必要があります。"
+                "sectionRequired": "いずれかのセクションに少なくとも1つの商品を追加する必要があります。",
+                "imageSizeLimit": "画像サイズは5MB以下にしてください"
             }
         }
     },
@@ -770,7 +777,8 @@
                 "rentalPriceGreaterThanZero": "レンタル価格は0より大きい必要があります",
                 "quantityRequired": "在庫数量は必須です",
                 "quantityGreaterThanZero": "在庫数量は0より大きい必要があります",
-                "imageRequired": "商品画像は必須です"
+                "imageRequired": "商品画像は必須です",
+                "imageSizeLimit": "画像サイズは5MB以下にしてください"
             }
         },
         "inventoryDetails": {
@@ -1130,6 +1138,7 @@
                 "amountNegative": "割引額は負の数にできません",
                 "amountPercentageMax": "割引率は1〜99%の間である必要があります",
                 "startDateRequired": "開始日は必須です",
+                "startDatePast": "開始日は本日以降の日付を選択してください",
                 "endDateRequired": "終了日は必須です",
                 "endAfterStart": "終了日は開始日より後である必要があります",
                 "descriptionRequired": "説明は必須です"
@@ -1298,7 +1307,59 @@
             "reasonEmailNote": "この理由を記載したメールが次のアドレスに自動的に送信されます",
             "cancel": "キャンセル",
             "deactivateAndSendEmail": "ユーザーを無効化してメールを送信",
-            "reactivateUser": "ユーザーを再有効化"
+            "reactivateUser": "ユーザーを再有効化",
+            "addAdminAccountTitle": "管理者・スタッフアカウントを追加",
+            "fullNameLabel": "氏名",
+            "fullNamePlaceholder": "例：山田 太郎",
+            "emailAddressLabel": "メールアドレス",
+            "emailPlaceholder": "staff@kireiz.com",
+            "passwordLabel": "パスワード",
+            "passwordPlaceholder": "安全なパスワードを入力",
+            "passwordHint": "大文字、小文字、数字、特殊文字を含む12文字以上。",
+            "phoneNumberLabel": "電話番号",
+            "maxCharacters": "最大15文字",
+            "assignedRoleLabel": "割り当て権限",
+            "roleStaffOperational": "スタッフ（運用）",
+            "roleAdminFullAccess": "管理者（全権限）",
+            "roleLogistics": "物流",
+            "roleCorporate": "法人",
+            "roleNoticeTitle": "権限に関する注意：",
+            "roleNoticeBody": "管理者以外のユーザーには、「権限」タブでその役割に許可されたモジュールのみが表示されます。",
+            "createAccount": "アカウントを作成",
+            "creatingAccount": "作成中...",
+            "addCustomerAccountTitle": "顧客アカウントを追加",
+            "firstNameLabel": "名",
+            "firstNamePlaceholder": "名を入力",
+            "lastNameLabel": "姓",
+            "lastNamePlaceholder": "姓を入力",
+            "customerEmailPlaceholder": "customer@example.com",
+            "customerPasswordPlaceholder": "パスワードを入力",
+            "customerTypeLabel": "顧客区分",
+            "customerTypeB2C": "個人顧客（B2C）",
+            "customerTypeB2B": "法人顧客（B2B）",
+            "editAdminAccountTitle": "管理者・スタッフアカウントを編集",
+            "resetPasswordLeaveBlank": "パスワードをリセット（変更しない場合は空白）",
+            "enterNewPasswordIfChanging": "変更する場合は新しいパスワードを入力",
+            "passwordChangeHint": "変更する場合：大文字、小文字、数字、特殊文字を含む12文字以上。",
+            "accountStatus": "アカウント状態",
+            "saveChanges": "変更を保存",
+            "saving": "保存中...",
+            "you": "(自分)",
+            "editUserDetails": "ユーザー情報と役職を編集",
+            "cannotDeactivateSelf": "自身のアカウントは無効化できません",
+            "deactivateAccount": "アカウントを無効化",
+            "activateAccount": "アカウントを有効化",
+            "fullNameRequired": "氏名を入力してください",
+            "emailRequired": "メールアドレスを入力してください",
+            "emailInvalid": "有効なメールアドレスを入力してください",
+            "passwordRequired": "パスワードを入力してください",
+            "roleRequired": "役割を選択してください",
+            "phoneMaxLength": "電話番号は15文字以内で入力してください",
+            "passwordMinLength": "パスワードは12文字以上で入力してください。",
+            "passwordUppercase": "大文字（A-Z）を少なくとも1文字含める必要があります。",
+            "passwordLowercase": "小文字（a-z）を少なくとも1文字含める必要があります。",
+            "passwordNumber": "数字（0-9）を少なくとも1文字含める必要があります。",
+            "passwordSpecial": "特殊文字を少なくとも1文字含める必要があります。"
         },
         "permissions": {
             "permission": "権限",
@@ -1554,6 +1615,7 @@
             "logoLabel": "ロゴ",
             "companyLogoAlt": "会社ロゴ",
             "uploadLogo": "ロゴをアップロード",
+            "imageSizeLimit": "画像サイズは5MB以下にしてください",
             "edit": "編集",
             "cancel": "キャンセル",
             "saveChanges": "変更を保存"

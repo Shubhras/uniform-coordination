@@ -1578,7 +1578,8 @@
           "materialRequired": "素材は必須です*",
           "sizeQuantityRequired": "サイズ・数量は必須です*",
           "deliveryDateRequired": "納品日は必須です*",
-          "quotationStatusRequired": "見積ステータスは必須です*"
+          "quotationStatusRequired": "見積ステータスは必須です*",
+          "subtotalNegative": "小計を負の値にすることはできません"
         }
       },
       "viewQuotationPage": {

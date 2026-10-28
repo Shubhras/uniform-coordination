@@ -7,31 +7,7 @@ import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiFabricCategoryList } from "@/services/FabricService";
-
-const API_BASE = (
-  process.env.NEXT_PUBLIC_IMAGE_URL ||
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://127.0.0.1:8002"
-)
-  .replace(/\/api\/v1\/?$/, "")
-  .replace(/\/$/, "");
-
-const getImageUrl = (path) => {
-  if (!path) return "";
-  let clean = path;
-  if (clean.includes("table-admin.dxtspace.com")) {
-    clean = clean.replace(/https?:\/\/table-admin\.dxtspace\.com/, "");
-  }
-  if (
-    clean.startsWith("http://") ||
-    clean.startsWith("https://") ||
-    clean.startsWith("blob:")
-  ) {
-    return clean;
-  }
-  const cleanPath = clean.startsWith("/") ? clean : `/${clean}`;
-  return `${API_BASE}${cleanPath}`;
-};
+import { getImageUrl } from "@/services/AttributeService";
 
 const selectStyles = {
   control: (base) => ({
@@ -60,6 +36,8 @@ const selectStyles = {
   }),
 };
 import { useTranslations } from "next-intl";
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 const AddEditAttributeModal = ({
   isOpen,
@@ -94,6 +72,11 @@ const AddEditAttributeModal = ({
 
     if (!category) {
       newErrors.category = t("validation.categoryRequired");
+    }
+
+    if (imageFile && imageFile.size > MAX_IMAGE_SIZE) {
+      newErrors.image =
+        t("validation.imageSizeLimit") || "Image size should not exceed 5 MB";
     }
 
     setErrors(newErrors);
@@ -154,11 +137,37 @@ const AddEditAttributeModal = ({
   if (!isOpen) return null;
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      const errorMsg =
+        t("validation.imageSizeLimit") || "Image size should not exceed 5 MB";
+      setImageFile(null);
+      setImagePreview("");
+      e.target.value = "";
+      setErrors((prev) => ({
+        ...prev,
+        image: errorMsg,
+      }));
+      toast.push(
+        <Notification
+          title={te("error") || "Error"}
+          type="danger"
+          duration={2500}
+        >
+          {errorMsg}
+        </Notification>,
+      );
+      return;
     }
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setErrors((prev) => ({
+      ...prev,
+      image: "",
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -309,7 +318,7 @@ const AddEditAttributeModal = ({
             <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center relative hover:bg-gray-50 transition-colors">
               <input
                 type="file"
-                accept="image/*"
+                accept="image/png, image/jpeg, image/jpg, image/webp"
                 onChange={handleImageChange}
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
               />
@@ -331,6 +340,9 @@ const AddEditAttributeModal = ({
                 </div>
               )}
             </div>
+            {errors.image && (
+              <p className="text-red-500 text-sm mt-1">{errors.image}</p>
+            )}
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">

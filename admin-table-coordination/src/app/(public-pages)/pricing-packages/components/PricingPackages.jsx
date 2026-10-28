@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Tabs from "./Tabs";
 import PricingRules from "./pricingRules/PricingRules";
 import Promotions from "./promotions/Promotions";
@@ -9,11 +9,40 @@ import { useTranslations } from "next-intl";
 import {
   FiPlus
 } from "react-icons/fi";
+
 const PricingPackages = () => {
   const t = useTranslations("pricingPackages.pricingRules");
   const tp = useTranslations("pricingPackages.promotions");
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("Pricing Rules");
+  const searchParams = useSearchParams();
+
+  const tabParam = searchParams.get("tab");
+  const initialTab =
+    tabParam && tabParam.toLowerCase().includes("promo")
+      ? "Promotions"
+      : "Pricing Rules";
+
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    const currentTab = searchParams.get("tab");
+    if (currentTab) {
+      if (currentTab.toLowerCase().includes("promo")) {
+        setActiveTab("Promotions");
+      } else if (
+        currentTab.toLowerCase().includes("pricing") ||
+        currentTab.toLowerCase().includes("rule")
+      ) {
+        setActiveTab("Pricing Rules");
+      }
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    const param = key === "Promotions" ? "promotions" : "pricing-rules";
+    router.replace(`/pricing-packages?tab=${param}`, { scroll: false });
+  };
 
   const renderTab = () => {
     switch (activeTab) {
@@ -56,10 +85,11 @@ const PricingPackages = () => {
               <FiPlus size={16} />
               {tp("createPromotions")}
             </>
-          )}        </button>
+          )}
+        </button>
       </div>
 
-      <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
 
       {renderTab()}
     </div>

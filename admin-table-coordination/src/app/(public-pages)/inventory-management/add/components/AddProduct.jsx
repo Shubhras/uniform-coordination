@@ -30,6 +30,8 @@ import {
 } from "@/services/AttributeService";
 import { useTranslations } from "next-intl";
 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+
 const AddProduct = () => {
   const t = useTranslations("inventoryManagement.addProduct");
   const router = useRouter();
@@ -123,6 +125,11 @@ const AddProduct = () => {
 
     if (!formData.productImage && !previewImage) {
       newErrors.productImage = t("validation.imageRequired");
+    } else if (
+      formData.productImage &&
+      formData.productImage.size > MAX_IMAGE_SIZE
+    ) {
+      newErrors.productImage = t("validation.imageSizeLimit");
     }
 
     setErrors(newErrors);
@@ -156,6 +163,35 @@ const AddProduct = () => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      const errorMsg = t("validation.imageSizeLimit");
+      handleChange("productImage", null);
+      setPreviewImage("");
+      e.target.value = "";
+      setErrors((prev) => ({
+        ...prev,
+        productImage: errorMsg,
+      }));
+      toast.push(
+        <Notification title="Error" type="danger" duration={2500}>
+          {errorMsg}
+        </Notification>,
+      );
+      return;
+    }
+
+    handleChange("productImage", file);
+    setPreviewImage(URL.createObjectURL(file));
+    setErrors((prev) => ({
+      ...prev,
+      productImage: "",
     }));
   };
 
@@ -881,22 +917,9 @@ const AddProduct = () => {
           <label className="mt-5 cursor-pointer">
             <input
               type="file"
-              accept="image/*"
+              accept="image/png, image/jpeg, image/jpg"
               className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-
-                handleChange("productImage", file);
-
-                if (file) {
-                  setPreviewImage(URL.createObjectURL(file));
-                }
-
-                setErrors((prev) => ({
-                  ...prev,
-                  productImage: "",
-                }));
-              }}
+              onChange={handleImageChange}
             />
 
             <span className="px-5 py-2 border border-[#D7A07B] rounded-full text-[#A85A32] text-sm font-medium hover:bg-[#FFF4ED] transition">

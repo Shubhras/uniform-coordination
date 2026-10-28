@@ -45,23 +45,27 @@ const isUsersNotFoundError = (error) =>
   error?.response?.status === 404 &&
   getApiErrorMessage(error).toLowerCase().includes("no users found");
 
-const validatePasswordComplexity = (password) => {
+const validatePasswordComplexity = (password, t) => {
   if (!password || password.length < 12) {
-    return "Password must be at least 12 characters long.";
+    return t ? t("passwordMinLength") : "Password must be at least 12 characters long.";
   }
   if (!/[A-Z]/.test(password)) {
-    return "Password must contain at least one uppercase letter (A-Z).";
+    return t ? t("passwordUppercase") : "Password must contain at least one uppercase letter (A-Z).";
   }
   if (!/[a-z]/.test(password)) {
-    return "Password must contain at least one lowercase letter (a-z).";
+    return t ? t("passwordLowercase") : "Password must contain at least one lowercase letter (a-z).";
   }
   if (!/[0-9]/.test(password)) {
-    return "Password must contain at least one number (0-9).";
+    return t ? t("passwordNumber") : "Password must contain at least one number (0-9).";
   }
   if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(password)) {
-    return "Password must contain at least one special character (!@#$%^&* etc.).";
+    return t ? t("passwordSpecial") : "Password must contain at least one special character (!@#$%^&* etc.).";
   }
   return null;
+};
+
+const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
 const getDisplayName = (user) =>
@@ -262,6 +266,7 @@ const UsersPermissionsPage = () => {
   const [isAddAdminModalOpen, setIsAddAdminModalOpen] = useState(false);
   const [createAdminLoading, setCreateAdminLoading] = useState(false);
   const [createAdminError, setCreateAdminError] = useState("");
+  const [adminFormErrors, setAdminFormErrors] = useState({});
   const [newAdminForm, setNewAdminForm] = useState({
     name: "",
     email: "",
@@ -310,6 +315,7 @@ const UsersPermissionsPage = () => {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [createUserLoading, setCreateUserLoading] = useState(false);
   const [createUserError, setCreateUserError] = useState("");
+  const [userFormErrors, setUserFormErrors] = useState({});
   const [newUserForm, setNewUserForm] = useState({
     firstName: "",
     lastName: "",
@@ -402,21 +408,37 @@ const UsersPermissionsPage = () => {
   // Create Admin User
   const handleCreateAdminUser = async (e) => {
     e.preventDefault();
-    if (!newAdminForm.email.trim() || !newAdminForm.password.trim()) {
-      setCreateAdminError("Email Address and Password are required.");
-      return;
-    }
+    setCreateAdminError("");
 
-    const passwordError = validatePasswordComplexity(newAdminForm.password);
-    if (passwordError) {
-      setCreateAdminError(passwordError);
-      return;
+    const errors = {};
+    if (!newAdminForm.name.trim()) {
+      errors.name = t("fullNameRequired") || "Full name is required";
     }
-
+    if (!newAdminForm.email.trim()) {
+      errors.email = t("emailRequired") || "Email address is required";
+    } else if (!isValidEmail(newAdminForm.email.trim())) {
+      errors.email = t("emailInvalid") || "Please enter a valid email address";
+    }
+    if (!newAdminForm.password.trim()) {
+      errors.password = t("passwordRequired") || "Password is required";
+    } else {
+      const passwordError = validatePasswordComplexity(newAdminForm.password, t);
+      if (passwordError) {
+        errors.password = passwordError;
+      }
+    }
+    if (!newAdminForm.role) {
+      errors.role = t("roleRequired") || "Please select a role";
+    }
     if (newAdminForm.mobile && newAdminForm.mobile.trim().length > 15) {
-      setCreateAdminError("Phone number cannot exceed 15 characters.");
+      errors.mobile = t("phoneMaxLength") || "Phone number cannot exceed 15 characters";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setAdminFormErrors(errors);
       return;
     }
+    setAdminFormErrors({});
 
     try {
       setCreateAdminLoading(true);
@@ -445,20 +467,23 @@ const UsersPermissionsPage = () => {
           mobile: "",
           role: "staff",
         });
+        setAdminFormErrors({});
         fetchAdminUsers();
       } else {
         setCreateAdminError(res?.message || "Failed to create account.");
       }
     } catch (err) {
       let msg = err?.response?.data?.message;
-      if (!msg) {
-        const errors = err?.response?.data?.errors;
-        if (errors && typeof errors === "object") {
-          const firstKey = Object.keys(errors)[0];
-          const firstErr = Array.isArray(errors[firstKey])
-            ? errors[firstKey][0]
-            : errors[firstKey];
-          msg = firstErr ? `Invalid data ,${firstErr}` : "Invalid data";
+      const backendErrors = err?.response?.data?.errors;
+      if (backendErrors && typeof backendErrors === "object") {
+        const fieldErrors = {};
+        if (backendErrors.name) fieldErrors.name = Array.isArray(backendErrors.name) ? backendErrors.name[0] : backendErrors.name;
+        if (backendErrors.email) fieldErrors.email = Array.isArray(backendErrors.email) ? backendErrors.email[0] : backendErrors.email;
+        if (backendErrors.password) fieldErrors.password = Array.isArray(backendErrors.password) ? backendErrors.password[0] : backendErrors.password;
+        if (backendErrors.mobile) fieldErrors.mobile = Array.isArray(backendErrors.mobile) ? backendErrors.mobile[0] : backendErrors.mobile;
+        if (backendErrors.role) fieldErrors.role = Array.isArray(backendErrors.role) ? backendErrors.role[0] : backendErrors.role;
+        if (Object.keys(fieldErrors).length > 0) {
+          setAdminFormErrors((prev) => ({ ...prev, ...fieldErrors }));
         }
       }
       setCreateAdminError(
@@ -694,21 +719,32 @@ const UsersPermissionsPage = () => {
   // Create Customer User
   const handleCreateUser = async (e) => {
     e.preventDefault();
-    if (!newUserForm.email.trim() || !newUserForm.password.trim()) {
-      setCreateUserError("Email and Password are required.");
-      return;
-    }
+    setCreateUserError("");
 
-    const passwordError = validatePasswordComplexity(newUserForm.password);
-    if (passwordError) {
-      setCreateUserError(passwordError);
-      return;
+    const errors = {};
+    if (!newUserForm.email.trim()) {
+      errors.email = t("emailRequired") || "Email address is required";
+    } else if (!isValidEmail(newUserForm.email.trim())) {
+      errors.email = t("emailInvalid") || "Please enter a valid email address";
     }
-
+    if (!newUserForm.password.trim()) {
+      errors.password = t("passwordRequired") || "Password is required";
+    } else {
+      const passwordError = validatePasswordComplexity(newUserForm.password, t);
+      if (passwordError) {
+        errors.password = passwordError;
+      }
+    }
     if (newUserForm.phone && newUserForm.phone.trim().length > 15) {
-      setCreateUserError("Phone number cannot exceed 15 characters.");
+      errors.phone = t("phoneMaxLength") || "Phone number cannot exceed 15 characters";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setUserFormErrors(errors);
       return;
     }
+    setUserFormErrors({});
+
     try {
       setCreateUserLoading(true);
       setCreateUserError("");
@@ -729,11 +765,22 @@ const UsersPermissionsPage = () => {
           role: "b2c",
           userType: "table",
         });
+        setUserFormErrors({});
         fetchUsers();
       } else {
         setCreateUserError(res?.message || "Failed to create account.");
       }
     } catch (err) {
+      const backendErrors = err?.response?.data?.errors;
+      if (backendErrors && typeof backendErrors === "object") {
+        const fieldErrors = {};
+        if (backendErrors.email) fieldErrors.email = Array.isArray(backendErrors.email) ? backendErrors.email[0] : backendErrors.email;
+        if (backendErrors.password) fieldErrors.password = Array.isArray(backendErrors.password) ? backendErrors.password[0] : backendErrors.password;
+        if (backendErrors.phone) fieldErrors.phone = Array.isArray(backendErrors.phone) ? backendErrors.phone[0] : backendErrors.phone;
+        if (Object.keys(fieldErrors).length > 0) {
+          setUserFormErrors((prev) => ({ ...prev, ...fieldErrors }));
+        }
+      }
       setCreateUserError(
         err?.response?.data?.message ||
         err?.message ||
@@ -847,8 +894,8 @@ const UsersPermissionsPage = () => {
             type="button"
             onClick={() => setActiveTab(tab.key)}
             className={`pb-1 text-base font-medium whitespace-nowrap ${activeTab === tab.key
-                ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
-                : "text-[#525252] text-[16px]"
+              ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
+              : "text-[#525252] text-[16px]"
               }`}
           >
             {tab.label}
@@ -934,6 +981,7 @@ const UsersPermissionsPage = () => {
                 onClick={() => {
                   setIsAddAdminModalOpen(true);
                   setCreateAdminError("");
+                  setAdminFormErrors({});
                 }}
                 className="flex h-10 items-center gap-2 rounded-lg bg-[#A0522D] hover:bg-[#854122] px-4 text-sm font-medium text-white transition shadow-sm whitespace-nowrap"
               >
@@ -1011,7 +1059,7 @@ const UsersPermissionsPage = () => {
                               </div>
                               {isSelf && (
                                 <span className="text-[11px] font-medium text-[#A0522D]">
-                                  (You)
+                                  {t("you") || "(You)"}
                                 </span>
                               )}
                             </div>
@@ -1032,15 +1080,15 @@ const UsersPermissionsPage = () => {
                         <td className="px-4 py-3 font-medium text-[#2A211D]">
                           <span
                             className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${user.is_active
-                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                : "bg-red-50 text-red-600 border border-red-200"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-red-50 text-red-600 border border-red-200"
                               }`}
                           >
                             <span
                               className={`h-1.5 w-1.5 rounded-full ${user.is_active ? "bg-emerald-500" : "bg-red-500"
                                 }`}
                             />
-                            {user.is_active ? "Active" : "Inactive"}
+                            {user.is_active ? t("active") : t("inactive")}
                           </span>
                         </td>
                         <td className="px-4 py-3 font-medium text-[#2A211D]">
@@ -1048,7 +1096,7 @@ const UsersPermissionsPage = () => {
                             <button
                               type="button"
                               onClick={() => handleOpenEditAdminModal(user)}
-                              title="Edit user details & role"
+                              title={t("editUserDetails")}
                               className="p-1.5 text-gray-500 hover:text-[#A0522D] hover:bg-[#F8F2ED] rounded-lg transition"
                             >
                               <FiEdit2 size={16} />
@@ -1059,16 +1107,16 @@ const UsersPermissionsPage = () => {
                               onClick={() => handleToggleAdminStatus(user)}
                               title={
                                 isSelf
-                                  ? "Cannot deactivate your own account"
+                                  ? t("cannotDeactivateSelf")
                                   : user.is_active
-                                    ? "Deactivate Account"
-                                    : "Activate Account"
+                                    ? t("deactivateAccount")
+                                    : t("activateAccount")
                               }
                               className={`p-1.5 rounded-lg transition ${isSelf
-                                  ? "text-gray-300 cursor-not-allowed"
-                                  : user.is_active
-                                    ? "text-gray-500 hover:text-red-600 hover:bg-red-50"
-                                    : "text-emerald-600 hover:bg-emerald-50"
+                                ? "text-gray-300 cursor-not-allowed"
+                                : user.is_active
+                                  ? "text-gray-500 hover:text-red-600 hover:bg-red-50"
+                                  : "text-emerald-600 hover:bg-emerald-50"
                                 }`}
                             >
                               {user.is_active ? (
@@ -1171,6 +1219,7 @@ const UsersPermissionsPage = () => {
                   onClick={() => {
                     setIsAddUserModalOpen(true);
                     setCreateUserError("");
+                    setUserFormErrors({});
                   }}
                   className="flex h-10 items-center gap-2 rounded-lg bg-[#A0522D] hover:bg-[#854122] px-4 text-sm font-medium text-white transition shadow-sm whitespace-nowrap"
                 >
@@ -1229,10 +1278,10 @@ const UsersPermissionsPage = () => {
                         <td className="px-4 py-3 font-medium">
                           <span
                             className={`rounded px-3 py-1 text-[12px] font-medium ${user.role === "b2c"
-                                ? "bg-[#EAF4FF] text-[#4B93D4]"
-                                : user.role === "b2b"
-                                  ? "bg-[#FFF0E8] text-[#C58A62]"
-                                  : "bg-[#F3F4F6] text-[#6B7280]"
+                              ? "bg-[#EAF4FF] text-[#4B93D4]"
+                              : user.role === "b2b"
+                                ? "bg-[#FFF0E8] text-[#C58A62]"
+                                : "bg-[#F3F4F6] text-[#6B7280]"
                               }`}
                           >
                             {user.role?.toUpperCase() || "B2C"}
@@ -1245,8 +1294,8 @@ const UsersPermissionsPage = () => {
                         <td className="px-4 py-3 font-medium">
                           <span
                             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-medium ${user.isActive
-                                ? "bg-[#E8FAF2] text-[#007A55]"
-                                : "bg-[#FFE9E8] text-[#F04444]"
+                              ? "bg-[#E8FAF2] text-[#007A55]"
+                              : "bg-[#FFE9E8] text-[#F04444]"
                               }`}
                           >
                             <span
@@ -1279,8 +1328,8 @@ const UsersPermissionsPage = () => {
                                   : "Reactivate User"
                               }
                               className={`flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:shadow-lg ${user.isActive
-                                  ? "hover:bg-red-50 text-[#7D6C63] hover:text-red-600"
-                                  : "hover:bg-green-50 text-red-500 hover:text-emerald-600"
+                                ? "hover:bg-red-50 text-[#7D6C63] hover:text-red-600"
+                                : "hover:bg-green-50 text-red-500 hover:text-emerald-600"
                                 }`}
                             >
                               {user.isActive ? (
@@ -1348,7 +1397,7 @@ const UsersPermissionsPage = () => {
           <div className="border-b pb-3 flex justify-between items-center">
             <h3 className="text-xl font-semibold text-[#2A211D] flex items-center gap-2">
               <FiShield className="text-[#A0522D]" />
-              Add New Admin / Staff Account
+              {t("addAdminAccountTitle")}
             </h3>
             <button
               type="button"
@@ -1356,6 +1405,7 @@ const UsersPermissionsPage = () => {
               onClick={() => {
                 setIsAddAdminModalOpen(false);
                 setCreateAdminError("");
+                setAdminFormErrors({});
               }}
               className="text-gray-400 hover:text-gray-600 p-1 rounded-md"
             >
@@ -1369,105 +1419,151 @@ const UsersPermissionsPage = () => {
             </div>
           )}
 
-          <form onSubmit={handleCreateAdminUser} className="py-4 space-y-4">
+          <form onSubmit={handleCreateAdminUser} noValidate className="py-4 space-y-4">
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                Full Name <span className="text-red-500">*</span>
+                {t("fullNameLabel")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                required
                 value={newAdminForm.name}
-                onChange={(e) =>
-                  setNewAdminForm({ ...newAdminForm, name: e.target.value })
-                }
-                placeholder="e.g. John Doe"
-                className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
+                onChange={(e) => {
+                  setNewAdminForm({ ...newAdminForm, name: e.target.value });
+                  if (adminFormErrors.name) {
+                    setAdminFormErrors((prev) => ({ ...prev, name: "" }));
+                  }
+                }}
+                placeholder={t("fullNamePlaceholder")}
+                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
+                  adminFormErrors.name
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-[#D1D5DB] focus:border-[#A0522D]"
+                }`}
               />
+              {adminFormErrors.name && (
+                <p className="text-red-500 text-xs mt-1">{adminFormErrors.name}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                Email Address <span className="text-red-500">*</span>
+                {t("emailAddressLabel")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
-                required
                 value={newAdminForm.email}
-                onChange={(e) =>
-                  setNewAdminForm({ ...newAdminForm, email: e.target.value })
-                }
-                placeholder="staff@kireiz.com"
-                className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
+                onChange={(e) => {
+                  setNewAdminForm({ ...newAdminForm, email: e.target.value });
+                  if (adminFormErrors.email) {
+                    setAdminFormErrors((prev) => ({ ...prev, email: "" }));
+                  }
+                }}
+                placeholder={t("emailPlaceholder")}
+                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
+                  adminFormErrors.email
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-[#D1D5DB] focus:border-[#A0522D]"
+                }`}
               />
+              {adminFormErrors.email && (
+                <p className="text-red-500 text-xs mt-1">{adminFormErrors.email}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                Password <span className="text-red-500">*</span>
+                {t("passwordLabel")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="password"
-                required
                 value={newAdminForm.password}
-                onChange={(e) =>
-                  setNewAdminForm({ ...newAdminForm, password: e.target.value })
-                }
-                placeholder="Create secure password"
-                className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
+                onChange={(e) => {
+                  setNewAdminForm({ ...newAdminForm, password: e.target.value });
+                  if (adminFormErrors.password) {
+                    setAdminFormErrors((prev) => ({ ...prev, password: "" }));
+                  }
+                }}
+                placeholder={t("passwordPlaceholder")}
+                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
+                  adminFormErrors.password
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-[#D1D5DB] focus:border-[#A0522D]"
+                }`}
               />
-              <p className="text-[11px] text-gray-500 mt-1">
-                Min 12 characters with uppercase, lowercase, number, and special
-                character.
-              </p>
+              {adminFormErrors.password ? (
+                <p className="text-red-500 text-xs mt-1">{adminFormErrors.password}</p>
+              ) : (
+                <p className="text-[11px] text-gray-500 mt-1">
+                  {t("passwordHint")}
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  Phone Number
+                  {t("phoneNumberLabel")}
                 </label>
                 <input
                   type="text"
                   maxLength={15}
                   value={newAdminForm.mobile}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setNewAdminForm({
                       ...newAdminForm,
                       mobile: e.target.value.slice(0, 15),
-                    })
-                  }
+                    });
+                    if (adminFormErrors.mobile) {
+                      setAdminFormErrors((prev) => ({ ...prev, mobile: "" }));
+                    }
+                  }}
                   placeholder="+81..."
-                  className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
+                  className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
+                    adminFormErrors.mobile
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-[#D1D5DB] focus:border-[#A0522D]"
+                  }`}
                 />
-                <p className="text-[11px] text-gray-400 mt-1">
-                  Max 15 characters
-                </p>
+                {adminFormErrors.mobile ? (
+                  <p className="text-red-500 text-xs mt-1">{adminFormErrors.mobile}</p>
+                ) : (
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    {t("maxCharacters")}
+                  </p>
+                )}
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  Assigned Role <span className="text-red-500">*</span>
+                  {t("assignedRoleLabel")} <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={newAdminForm.role}
-                  onChange={(e) =>
-                    setNewAdminForm({ ...newAdminForm, role: e.target.value })
-                  }
-                  className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D] bg-white font-medium"
+                  onChange={(e) => {
+                    setNewAdminForm({ ...newAdminForm, role: e.target.value });
+                    if (adminFormErrors.role) {
+                      setAdminFormErrors((prev) => ({ ...prev, role: "" }));
+                    }
+                  }}
+                  className={`w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white font-medium ${
+                    adminFormErrors.role
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-[#D1D5DB] focus:border-[#A0522D]"
+                  }`}
                 >
-                  <option value="staff">Staff (Operational)</option>
-                  <option value="admin">Admin (Full Access)</option>
-                  <option value="logistics">Logistics</option>
-                  <option value="corporate">Corporate</option>
+                  <option value="staff">{t("roleStaffOperational")}</option>
+                  <option value="admin">{t("roleAdminFullAccess")}</option>
+                  <option value="logistics">{t("roleLogistics")}</option>
+                  <option value="corporate">{t("roleCorporate")}</option>
                 </select>
+                {adminFormErrors.role && (
+                  <p className="text-red-500 text-xs mt-1">{adminFormErrors.role}</p>
+                )}
               </div>
             </div>
 
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
-              💡 <strong>Role Permissions Notice:</strong> Non-admin users will
-              only see the modules allowed for their role under the{" "}
-              <strong>Permissions</strong> tab.
+              💡 <strong>{t("roleNoticeTitle")}</strong> {t("roleNoticeBody")}
             </div>
 
             <div className="border-t pt-4 flex justify-end gap-3">
@@ -1478,10 +1574,11 @@ const UsersPermissionsPage = () => {
                 onClick={() => {
                   setIsAddAdminModalOpen(false);
                   setCreateAdminError("");
+                  setAdminFormErrors({});
                 }}
                 className="bg-blue-100 rounded-lg"
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button
                 type="submit"
@@ -1490,7 +1587,7 @@ const UsersPermissionsPage = () => {
                 loading={createAdminLoading}
                 className="px-5 text-white bg-[#A0522D] hover:bg-[#854122] rounded-md"
               >
-                Create Account
+                {createAdminLoading ? t("creatingAccount") : t("createAccount")}
               </Button>
             </div>
           </form>
@@ -1521,7 +1618,7 @@ const UsersPermissionsPage = () => {
           <div className="border-b pb-3 flex justify-between items-center">
             <h3 className="text-xl font-semibold text-[#2A211D] flex items-center gap-2">
               <FiEdit2 className="text-[#A0522D]" />
-              Edit Admin / Staff Account
+              {t("editAdminAccountTitle")}
             </h3>
             <button
               type="button"
@@ -1545,7 +1642,7 @@ const UsersPermissionsPage = () => {
           <form onSubmit={handleSaveEditAdminUser} className="py-4 space-y-4">
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                Full Name
+                {t("fullNameLabel")}
               </label>
               <input
                 type="text"
@@ -1559,7 +1656,7 @@ const UsersPermissionsPage = () => {
 
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                Email Address
+                {t("emailAddressLabel")}
               </label>
               <input
                 type="email"
@@ -1574,7 +1671,7 @@ const UsersPermissionsPage = () => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  Phone Number
+                  {t("phoneNumberLabel")}
                 </label>
                 <input
                   type="text"
@@ -1589,13 +1686,13 @@ const UsersPermissionsPage = () => {
                   className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
                 />
                 <p className="text-[11px] text-gray-400 mt-1">
-                  Max 15 characters
+                  {t("maxCharacters")}
                 </p>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  Role
+                  {t("role")}
                 </label>
                 <select
                   value={editAdminForm.role}
@@ -1604,17 +1701,17 @@ const UsersPermissionsPage = () => {
                   }
                   className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D] bg-white font-medium"
                 >
-                  <option value="staff">Staff</option>
-                  <option value="admin">Admin</option>
-                  <option value="logistics">Logistics</option>
-                  <option value="corporate">Corporate</option>
+                  <option value="staff">{t("staff")}</option>
+                  <option value="admin">{t("admin")}</option>
+                  <option value="logistics">{t("logistics")}</option>
+                  <option value="corporate">{t("corporate")}</option>
                 </select>
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                Reset Password (Leave blank to keep current)
+                {t("resetPasswordLeaveBlank")}
               </label>
               <input
                 type="password"
@@ -1625,18 +1722,17 @@ const UsersPermissionsPage = () => {
                     password: e.target.value,
                   })
                 }
-                placeholder="Enter new password if changing"
+                placeholder={t("enterNewPasswordIfChanging")}
                 className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
               />
               <p className="text-[11px] text-gray-500 mt-1">
-                If changing, min 12 characters with uppercase, lowercase,
-                number, and special character.
+                {t("passwordChangeHint")}
               </p>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                Account Status
+                {t("accountStatus")}
               </label>
               <div className="flex items-center gap-4 mt-1">
                 <label className="flex items-center gap-2 cursor-pointer text-sm">
@@ -1648,7 +1744,7 @@ const UsersPermissionsPage = () => {
                       setEditAdminForm({ ...editAdminForm, is_active: true })
                     }
                   />
-                  <span className="text-emerald-700 font-medium">Active</span>
+                  <span className="text-emerald-700 font-medium">{t("active")}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer text-sm">
                   <input
@@ -1659,7 +1755,7 @@ const UsersPermissionsPage = () => {
                       setEditAdminForm({ ...editAdminForm, is_active: false })
                     }
                   />
-                  <span className="text-red-600 font-medium">Inactive</span>
+                  <span className="text-red-600 font-medium">{t("inactive")}</span>
                 </label>
               </div>
             </div>
@@ -1675,7 +1771,7 @@ const UsersPermissionsPage = () => {
                 }}
                 className="bg-blue-100 rounded-lg"
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button
                 type="submit"
@@ -1684,7 +1780,7 @@ const UsersPermissionsPage = () => {
                 loading={editAdminLoading}
                 className="px-5 text-white bg-[#A0522D] hover:bg-[#854122] rounded-md"
               >
-                Save Changes
+                {editAdminLoading ? t("saving") : t("saveChanges")}
               </Button>
             </div>
           </form>
@@ -1714,7 +1810,7 @@ const UsersPermissionsPage = () => {
         <div className="flex flex-col p-2">
           <div className="border-b pb-3 flex justify-between items-center">
             <h3 className="text-xl font-semibold text-[#2A211D]">
-              Add New Customer Account
+              {t("addCustomerAccountTitle")}
             </h3>
             <button
               type="button"
@@ -1722,6 +1818,7 @@ const UsersPermissionsPage = () => {
               onClick={() => {
                 setIsAddUserModalOpen(false);
                 setCreateUserError("");
+                setUserFormErrors({});
               }}
               className="text-gray-400 hover:text-gray-600 p-1 rounded-md"
             >
@@ -1735,11 +1832,11 @@ const UsersPermissionsPage = () => {
             </div>
           )}
 
-          <form onSubmit={handleCreateUser} className="py-4 space-y-4">
+          <form onSubmit={handleCreateUser} noValidate className="py-4 space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  First Name
+                  {t("firstNameLabel")}
                 </label>
                 <input
                   type="text"
@@ -1750,13 +1847,13 @@ const UsersPermissionsPage = () => {
                       firstName: e.target.value,
                     })
                   }
-                  placeholder="First name"
+                  placeholder={t("firstNamePlaceholder")}
                   className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
                 />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  Last Name
+                  {t("lastNameLabel")}
                 </label>
                 <input
                   type="text"
@@ -1764,7 +1861,7 @@ const UsersPermissionsPage = () => {
                   onChange={(e) =>
                     setNewUserForm({ ...newUserForm, lastName: e.target.value })
                   }
-                  placeholder="Last name"
+                  placeholder={t("lastNamePlaceholder")}
                   className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
                 />
               </div>
@@ -1772,66 +1869,95 @@ const UsersPermissionsPage = () => {
 
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                Email Address <span className="text-red-500">*</span>
+                {t("emailAddressLabel")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
-                required
                 value={newUserForm.email}
-                onChange={(e) =>
-                  setNewUserForm({ ...newUserForm, email: e.target.value })
-                }
-                placeholder="customer@example.com"
-                className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
+                onChange={(e) => {
+                  setNewUserForm({ ...newUserForm, email: e.target.value });
+                  if (userFormErrors.email) {
+                    setUserFormErrors((prev) => ({ ...prev, email: "" }));
+                  }
+                }}
+                placeholder={t("customerEmailPlaceholder")}
+                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
+                  userFormErrors.email
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-[#D1D5DB] focus:border-[#A0522D]"
+                }`}
               />
+              {userFormErrors.email && (
+                <p className="text-red-500 text-xs mt-1">{userFormErrors.email}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                Password <span className="text-red-500">*</span>
+                {t("passwordLabel")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="password"
-                required
                 value={newUserForm.password}
-                onChange={(e) =>
-                  setNewUserForm({ ...newUserForm, password: e.target.value })
-                }
-                placeholder="Enter password"
-                className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
+                onChange={(e) => {
+                  setNewUserForm({ ...newUserForm, password: e.target.value });
+                  if (userFormErrors.password) {
+                    setUserFormErrors((prev) => ({ ...prev, password: "" }));
+                  }
+                }}
+                placeholder={t("customerPasswordPlaceholder")}
+                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
+                  userFormErrors.password
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-[#D1D5DB] focus:border-[#A0522D]"
+                }`}
               />
-              <p className="text-[11px] text-gray-500 mt-1">
-                Min 12 characters with uppercase, lowercase, number, and special
-                character.
-              </p>
+              {userFormErrors.password ? (
+                <p className="text-red-500 text-xs mt-1">{userFormErrors.password}</p>
+              ) : (
+                <p className="text-[11px] text-gray-500 mt-1">
+                  {t("passwordHint")}
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  Phone Number
+                  {t("phoneNumberLabel")}
                 </label>
                 <input
                   type="text"
                   maxLength={15}
                   value={newUserForm.phone}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setNewUserForm({
                       ...newUserForm,
                       phone: e.target.value.slice(0, 15),
-                    })
-                  }
+                    });
+                    if (userFormErrors.phone) {
+                      setUserFormErrors((prev) => ({ ...prev, phone: "" }));
+                    }
+                  }}
                   placeholder="+81..."
-                  className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D]"
+                  className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
+                    userFormErrors.phone
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-[#D1D5DB] focus:border-[#A0522D]"
+                  }`}
                 />
-                <p className="text-[11px] text-gray-400 mt-1">
-                  Max 15 characters
-                </p>
+                {userFormErrors.phone ? (
+                  <p className="text-red-500 text-xs mt-1">{userFormErrors.phone}</p>
+                ) : (
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    {t("maxCharacters")}
+                  </p>
+                )}
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  Customer Type
+                  {t("customerTypeLabel")}
                 </label>
                 <select
                   value={newUserForm.role}
@@ -1840,8 +1966,8 @@ const UsersPermissionsPage = () => {
                   }
                   className="w-full px-3 py-2 rounded-lg border border-[#D1D5DB] text-sm outline-none focus:border-[#A0522D] bg-white"
                 >
-                  <option value="b2c">Customer (B2C)</option>
-                  <option value="b2b">Corporate (B2B)</option>
+                  <option value="b2c">{t("customerTypeB2C")}</option>
+                  <option value="b2b">{t("customerTypeB2B")}</option>
                 </select>
               </div>
             </div>
@@ -1855,10 +1981,11 @@ const UsersPermissionsPage = () => {
                 onClick={() => {
                   setIsAddUserModalOpen(false);
                   setCreateUserError("");
+                  setUserFormErrors({});
                 }}
                 className="bg-gray-100 rounded-lg px-4"
               >
-                {t("cancel") || "Cancel"}
+                {t("cancel")}
               </Button>
               <Button
                 type="submit"
@@ -1867,7 +1994,7 @@ const UsersPermissionsPage = () => {
                 loading={createUserLoading}
                 className="px-5 text-white bg-[#A0522D] hover:bg-[#854122] rounded-md"
               >
-                Create Account
+                {createUserLoading ? t("creatingAccount") : t("createAccount")}
               </Button>
             </div>
           </form>
@@ -1973,8 +2100,8 @@ const UsersPermissionsPage = () => {
               loading={statusActionLoading}
               onClick={handleConfirmStatusChange}
               className={`px-5 text-white rounded-md ${selectedUserForStatus?.isActive
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-emerald-600 hover:bg-emerald-700"
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-emerald-600 hover:bg-emerald-700"
                 }`}
             >
               {selectedUserForStatus?.isActive

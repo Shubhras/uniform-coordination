@@ -10,6 +10,10 @@ import ThemeBuilder from "./components/ThemeBuilder";
 import PreviewTheme from "./components/PreviewTheme";
 import { apiGetCategoryList } from "@/services/CategoryService";
 import { useTranslations } from "next-intl";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 const AddTheme = () => {
   const router = useRouter();
@@ -43,6 +47,8 @@ const AddTheme = () => {
 
     if (!themeData.image) {
       newErrors.image = t("validation.thumbnailRequired");
+    } else if (themeData.image.size > MAX_IMAGE_SIZE) {
+      newErrors.image = t("validation.imageSizeLimit");
     }
 
     setErrors(newErrors);
@@ -96,6 +102,63 @@ const AddTheme = () => {
       ...base,
       zIndex: 9999,
     }),
+  };
+
+  const handleThumbnailChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      const errorMsg = t("validation.imageSizeLimit");
+      setThemeData((prev) => ({
+        ...prev,
+        image: null,
+      }));
+      e.target.value = "";
+      setErrors((prev) => ({
+        ...prev,
+        image: errorMsg,
+      }));
+      toast.push(
+        <Notification title="Error" type="danger" duration={2500}>
+          {errorMsg}
+        </Notification>,
+      );
+      return;
+    }
+
+    setThemeData((prev) => ({
+      ...prev,
+      image: file,
+    }));
+    setErrors((prev) => ({
+      ...prev,
+      image: "",
+    }));
+  };
+
+  const handleGalleryChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const oversizedFiles = files.filter((f) => f.size > MAX_IMAGE_SIZE);
+    if (oversizedFiles.length > 0) {
+      const errorMsg = t("validation.imageSizeLimit");
+      toast.push(
+        <Notification title="Error" type="danger" duration={2500}>
+          {errorMsg}
+        </Notification>,
+      );
+      e.target.value = "";
+      return;
+    }
+
+    setThemeData((prev) => ({
+      ...prev,
+      image: prev.image || files[0],
+      coverImages: [...prev.coverImages, ...files],
+    }));
+    e.target.value = "";
   };
 
   return (
@@ -249,23 +312,9 @@ const AddTheme = () => {
                   <label className="mt-5 inline-block cursor-pointer">
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/png, image/jpeg, image/jpg, image/webp"
                       hidden
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-
-                        if (file) {
-                          setThemeData((prev) => ({
-                            ...prev,
-                            image: file,
-                          }));
-
-                          setErrors((prev) => ({
-                            ...prev,
-                            image: "",
-                          }));
-                        }
-                      }}
+                      onChange={handleThumbnailChange}
                     />
 
                     <span className="px-5 py-2 border border-[#D7A07B] rounded-full text-[#A85A32] text-sm font-medium hover:bg-[#FFF4ED] transition">
@@ -293,23 +342,9 @@ const AddTheme = () => {
                   <label className="mt-5 cursor-pointer">
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/png, image/jpeg, image/jpg, image/webp"
                       hidden
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-
-                        if (file) {
-                          setThemeData((prev) => ({
-                            ...prev,
-                            image: file,
-                          }));
-
-                          setErrors((prev) => ({
-                            ...prev,
-                            image: "",
-                          }));
-                        }
-                      }}
+                      onChange={handleThumbnailChange}
                     />
 
                     <span className="px-5 py-2 border border-[#D7A07B] rounded-full text-[#A85A32] text-sm font-medium hover:bg-[#FFF4ED] transition">
@@ -362,18 +397,10 @@ const AddTheme = () => {
                 <label className="w-24 h-24 border-2 border-dashed border-[#E7D9CF] rounded-xl flex items-center justify-center cursor-pointer hover:border-[#A0522D]">
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/png, image/jpeg, image/jpg, image/webp"
                     multiple
                     hidden
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-
-                      setThemeData((prev) => ({
-                        ...prev,
-                        image: prev.image || files[0],
-                        coverImages: [...prev.coverImages, ...files],
-                      }));
-                    }}
+                    onChange={handleGalleryChange}
                   />
 
                   <FiPlus size={24} className="text-[#A0522D]" />

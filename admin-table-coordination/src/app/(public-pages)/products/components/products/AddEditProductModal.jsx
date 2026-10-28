@@ -310,16 +310,16 @@ const AddEditProductModal = ({
 
         category: initialData.category
           ? {
-              value: initialData.category,
-              label: `Category #${initialData.category}`,
-            }
+            value: initialData.category,
+            label: `Category #${initialData.category}`,
+          }
           : null,
 
         subcategory: initialData.subcategory
           ? {
-              value: initialData.subcategory,
-              label: `Subcategory #${initialData.subcategory}`,
-            }
+            value: initialData.subcategory,
+            label: `Subcategory #${initialData.subcategory}`,
+          }
           : null,
 
         selectedParts:
@@ -468,7 +468,7 @@ const AddEditProductModal = ({
       console.error("Product save error:", err);
       setError(
         err?.response?.data?.message ||
-          "Failed to save product. Please try again.",
+        "Failed to save product. Please try again.",
       );
     } finally {
       setSaving(false);

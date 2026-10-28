@@ -8,11 +8,17 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiX,
-  FiPlus
+  FiPlus,
+  FiRotateCcw,
 } from "react-icons/fi";
+import Select from "react-select";
 import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import { apiGetFabricList, apiDeleteFabric } from "@/services/FabricService";
+import {
+  apiGetFabricList,
+  apiDeleteFabric,
+  apiFabricCategoryList,
+} from "@/services/FabricService";
 import Spinner from "@/components/ui/Spinner";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
@@ -29,6 +35,8 @@ const FabricsTab = () => {
   const [fabrics, setFabrics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,6 +56,27 @@ const FabricsTab = () => {
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Fetch category options
+  useEffect(() => {
+    if (!accessToken) return;
+
+    const fetchCategories = async () => {
+      try {
+        const res = await apiFabricCategoryList(accessToken);
+        const options =
+          res?.data?.map((item) => ({
+            value: item.id,
+            label: item.categoryName,
+          })) || [];
+        setCategoryOptions(options);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, [accessToken]);
 
   // Modal states
   const [openAdd, setOpenAdd] = useState(false);
@@ -71,6 +100,7 @@ const FabricsTab = () => {
           page,
           pageSize,
           debouncedSearch,
+          selectedCategory?.value || null,
         );
 
         if (response?.status && response?.data) {
@@ -85,12 +115,67 @@ const FabricsTab = () => {
         setLoading(false);
       }
     },
-    [accessToken, pageSize, debouncedSearch],
+    [accessToken, pageSize, debouncedSearch, selectedCategory],
   );
 
   useEffect(() => {
     fetchFabrics(currentPage);
   }, [fetchFabrics, currentPage, pageSize]);
+
+  // Reset filters
+  const handleReset = () => {
+    setSearchQuery("");
+    setDebouncedSearch("");
+    setSelectedCategory(null);
+    setCurrentPage(1);
+  };
+
+  const selectStyles = {
+    control: (base) => ({
+      ...base,
+      minHeight: "40px",
+      height: "40px",
+      borderColor: "#D1D5DB",
+      boxShadow: "none",
+      borderRadius: "8px",
+      "&:hover": {
+        borderColor: "#A85A32B2",
+      },
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      height: "40px",
+      padding: "0 8px",
+    }),
+    indicatorsContainer: (base) => ({
+      ...base,
+      height: "40px",
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: "#A85A32B2",
+      fontSize: "14px",
+    }),
+    placeholder: (base) => ({
+      ...base,
+      color: "#A85A32B2",
+      fontSize: "14px",
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#A0522D"
+        : state.isFocused
+          ? "#F8F2ED"
+          : "#fff",
+      color: state.isSelected ? "#fff" : "#444",
+      fontSize: "14px",
+    }),
+  };
 
   // Delete fabric
   const handleDeleteConfirm = async () => {
@@ -147,29 +232,58 @@ const FabricsTab = () => {
         </button>
       </div>
 
-      {/* Search */}
-      <div className="relative w-full md:w-72 mb-4">
-        <FiSearch
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
-          size={16}
-        />
-        <input
-          type="text"
-          placeholder={t("searchFabric")}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
-        />
+      {/* Filters: Search, Category Select, Reset */}
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        {/* Search */}
+        <div className="relative w-full md:w-72">
+          <FiSearch
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
+            size={16}
+          />
+          <input
+            type="text"
+            placeholder={t("searchFabric")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
+          />
 
-        {searchQuery && (
-          <button
-            type="button"
-            onClick={() => setSearchQuery("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
-          >
-            <FiX size={16} />
-          </button>
-        )}
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
+            >
+              <FiX size={16} />
+            </button>
+          )}
+        </div>
+
+        {/* Category Select */}
+        <div className="w-full sm:w-56">
+          <Select
+            instanceId="fabric-category-select"
+            placeholder={t("selectCategory")}
+            value={selectedCategory}
+            onChange={(val) => {
+              setSelectedCategory(val);
+              setCurrentPage(1);
+            }}
+            options={categoryOptions}
+            styles={selectStyles}
+            isClearable={false}
+          />
+        </div>
+
+        {/* Reset Button */}
+        <button
+          type="button"
+          onClick={handleReset}
+          className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
+        >
+          <FiRotateCcw size={14} />
+          {t("reset")}
+        </button>
       </div>
 
       {/* Table */}

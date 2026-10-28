@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Dialog from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
 import Select from "react-select";
-import { FiUpload } from "react-icons/fi";
+import { FiUpload, FiCheckCircle } from "react-icons/fi";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -42,6 +42,8 @@ const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+
 const AddEditBlogModal = ({
   isOpen,
   onClose,
@@ -72,7 +74,30 @@ const AddEditBlogModal = ({
 
     description: z.string().trim().min(1, t("validation.descriptionRequired")),
 
-    image: z.any().optional(),
+    image:
+      mode === "add"
+        ? z
+            .any()
+            .refine((file) => Boolean(file), {
+              message: t("validation.imageRequired"),
+            })
+            .refine(
+              (file) =>
+                !file || !(file instanceof File) || file.size <= MAX_IMAGE_SIZE,
+              {
+                message: t("validation.imageSizeLimit"),
+              },
+            )
+        : z
+            .any()
+            .refine(
+              (file) =>
+                !file || !(file instanceof File) || file.size <= MAX_IMAGE_SIZE,
+              {
+                message: t("validation.imageSizeLimit"),
+              },
+            )
+            .optional(),
   });
 
   // Category options from API
@@ -85,6 +110,8 @@ const AddEditBlogModal = ({
     reset,
     setValue,
     trigger,
+    setError: setFormError,
+    clearErrors,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(validationSchema),
@@ -199,6 +226,24 @@ const AddEditBlogModal = ({
   /* ---------- FILE HANDLERS ---------- */
   const handleFile = (file) => {
     if (!file || !file.type.startsWith("image/")) return;
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      const errorMsg = t("validation.imageSizeLimit");
+      setImageFile(null);
+      setPreview(null);
+      setValidated(false);
+      setValue("image", null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      setFormError("image", {
+        type: "manual",
+        message: errorMsg,
+      });
+      return;
+    }
+
+    clearErrors("image");
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
     setValidated(true);
@@ -403,7 +448,7 @@ const AddEditBlogModal = ({
 
             <input
               type="file"
-              accept="image/*"
+              accept="image/png, image/jpeg, image/jpg, image/webp"
               ref={fileInputRef}
               className="hidden"
               onChange={handleBrowse}
@@ -411,9 +456,10 @@ const AddEditBlogModal = ({
           </div>
 
           {validated && (
-            <p className="text-sm text-green-600 flex items-center gap-1">
-              ✔ {t("imageValidated")}
-            </p>
+            <div className="mt-2 flex items-center gap-2 text-sm text-green-600 font-medium">
+              <FiCheckCircle className="text-green-600" size={16} />
+              <span>{t("imageValidated")}</span>
+            </div>
           )}
           {errors.image && (
             <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>

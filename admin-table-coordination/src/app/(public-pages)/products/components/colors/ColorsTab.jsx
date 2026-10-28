@@ -8,7 +8,9 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiX,
+  FiRotateCcw,
 } from "react-icons/fi";
+import Select from "react-select";
 import toast from "@/components/ui/toast";
 import { useTranslations } from "next-intl";
 import Notification from "@/components/ui/Notification";
@@ -18,6 +20,7 @@ import {
   apiDeleteColor,
   apiCreateColor,
 } from "@/services/ColorsService";
+import { apiFabricCategoryList } from "@/services/FabricService";
 import AddEditColorModal from "./AddEditColorModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
@@ -33,6 +36,8 @@ const ColorsTab = () => {
   const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   // Delay search API call until user stops typing for 500ms
   // Also reset pagination to the first page for new search results
@@ -45,6 +50,27 @@ const ColorsTab = () => {
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Fetch category options
+  useEffect(() => {
+    if (!accessToken) return;
+
+    const fetchCategories = async () => {
+      try {
+        const res = await apiFabricCategoryList(accessToken);
+        const options =
+          res?.data?.map((item) => ({
+            value: item.id,
+            label: item.categoryName,
+          })) || [];
+        setCategoryOptions(options);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, [accessToken]);
 
   // Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -71,9 +97,10 @@ const ColorsTab = () => {
    - Current page
    - Page size
    - Search keyword
+   - Category ID
 ------------------------------------------------------------------- */
   const fetchColors = useCallback(
-    async (page = 1, search = "") => {
+    async (page = 1) => {
       if (!accessToken) return;
 
       try {
@@ -83,12 +110,12 @@ const ColorsTab = () => {
           accessToken,
           page,
           pageSize,
-          search,
+          debouncedSearch,
+          selectedCategory?.value || null,
         );
 
         if (response?.status && response?.data) {
           // Update color list and pagination using API response
-
           setColors(response.data);
           if (response.pagination) {
             setPagination(response.pagination);
@@ -98,18 +125,72 @@ const ColorsTab = () => {
         console.error("Failed to fetch colors:", error);
       } finally {
         // Hide loader after API request completes
-
         setLoading(false);
       }
     },
-    [accessToken, pageSize],
+    [accessToken, pageSize, debouncedSearch, selectedCategory],
   );
 
   // Automatically reload data whenever
-  // page number, page size or search query changes
+  // page number, page size, search query or category changes
   useEffect(() => {
-    fetchColors(currentPage, debouncedSearch);
-  }, [fetchColors, currentPage, pageSize, debouncedSearch]);
+    fetchColors(currentPage);
+  }, [fetchColors, currentPage, pageSize]);
+
+  // Reset filters
+  const handleReset = () => {
+    setSearchQuery("");
+    setDebouncedSearch("");
+    setSelectedCategory(null);
+    setCurrentPage(1);
+  };
+
+  const selectStyles = {
+    control: (base) => ({
+      ...base,
+      minHeight: "40px",
+      height: "40px",
+      borderColor: "#D1D5DB",
+      boxShadow: "none",
+      borderRadius: "8px",
+      "&:hover": {
+        borderColor: "#A85A32B2",
+      },
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      height: "40px",
+      padding: "0 8px",
+    }),
+    indicatorsContainer: (base) => ({
+      ...base,
+      height: "40px",
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: "#A85A32B2",
+      fontSize: "14px",
+    }),
+    placeholder: (base) => ({
+      ...base,
+      color: "#A85A32B2",
+      fontSize: "14px",
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#A0522D"
+        : state.isFocused
+          ? "#F8F2ED"
+          : "#fff",
+      color: state.isSelected ? "#fff" : "#444",
+      fontSize: "14px",
+    }),
+  };
 
   /* ---- Delete selected color from database and refresh current page------- */
   const handleDeleteConfirm = async () => {
@@ -244,28 +325,57 @@ const ColorsTab = () => {
           </button>
         </div>
 
-        {/* Search input for filtering colors */}
-        <div className="relative w-full md:w-72 mb-6">
-          <FiSearch
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
-            size={16}
-          />
-          <input
-            type="text"
-            placeholder={t("searchColor")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
-            >
-              <FiX size={16} />
-            </button>
-          )}
+        {/* Filters: Search, Category Select, Reset */}
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          {/* Search input for filtering colors */}
+          <div className="relative w-full md:w-72">
+            <FiSearch
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
+              size={16}
+            />
+            <input
+              type="text"
+              placeholder={t("searchColor")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
+              >
+                <FiX size={16} />
+              </button>
+            )}
+          </div>
+
+          {/* Category Select */}
+          <div className="w-full sm:w-56">
+            <Select
+              instanceId="color-category-select"
+              placeholder={t("selectCategory")}
+              value={selectedCategory}
+              onChange={(val) => {
+                setSelectedCategory(val);
+                setCurrentPage(1);
+              }}
+              options={categoryOptions}
+              styles={selectStyles}
+              isClearable={false}
+            />
+          </div>
+
+          {/* Reset Button */}
+          <button
+            type="button"
+            onClick={handleReset}
+            className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
+          >
+            <FiRotateCcw size={14} />
+            {t("reset")}
+          </button>
         </div>
 
         {loading ? (

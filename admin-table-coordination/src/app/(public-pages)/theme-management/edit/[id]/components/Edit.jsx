@@ -30,6 +30,8 @@ const categoryOptions = [
   { value: "Birthday", label: "Birthday" },
 ];
 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+
 const Edit = () => {
   const t = useTranslations("themeManagement.addtheme");
   const router = useRouter();
@@ -92,6 +94,8 @@ const Edit = () => {
 
     if (!thumbnailPreview && !thumbnail) {
       newErrors.thumbnail = t("validation.thumbnailRequired");
+    } else if (thumbnail && thumbnail.size > MAX_IMAGE_SIZE) {
+      newErrors.thumbnail = t("validation.imageSizeLimit");
     }
 
     const hasItem = sections.some(
@@ -184,6 +188,23 @@ const Edit = () => {
 
     if (!file) return;
 
+    if (file.size > MAX_IMAGE_SIZE) {
+      const errorMsg = t("validation.imageSizeLimit");
+      setThumbnail(null);
+      setThumbnailPreview("");
+      e.target.value = "";
+      setErrors((prev) => ({
+        ...prev,
+        thumbnail: errorMsg,
+      }));
+      toast.push(
+        <Notification title="Error" type="danger" duration={2500}>
+          {errorMsg}
+        </Notification>,
+      );
+      return;
+    }
+
     setThumbnail(file);
     setThumbnailPreview(URL.createObjectURL(file));
 
@@ -194,9 +215,21 @@ const Edit = () => {
   };
 
   const handleGalleryUpload = (e) => {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files || []);
 
     if (!files.length) return;
+
+    const oversizedFiles = files.filter((f) => f.size > MAX_IMAGE_SIZE);
+    if (oversizedFiles.length > 0) {
+      const errorMsg = t("validation.imageSizeLimit");
+      toast.push(
+        <Notification title="Error" type="danger" duration={2500}>
+          {errorMsg}
+        </Notification>,
+      );
+      e.target.value = "";
+      return;
+    }
 
     const images = files.map((file) => ({
       id: Date.now() + Math.random(),
@@ -206,6 +239,7 @@ const Edit = () => {
 
     setCoverImages((prev) => [...prev, ...images]);
     setNewCoverImages((prev) => [...prev, ...files]);
+    e.target.value = "";
   };
 
   const handleRemoveGalleryImage = (id) => {
@@ -521,7 +555,7 @@ const Edit = () => {
             <input
               id="thumbnailUpload"
               type="file"
-              accept="image/*"
+              accept="image/png, image/jpeg, image/jpg, image/webp"
               className="hidden"
               onChange={handleThumbnailUpload}
             />
@@ -554,7 +588,7 @@ const Edit = () => {
               id="galleryUpload"
               type="file"
               multiple
-              accept="image/*"
+              accept="image/png, image/jpeg, image/jpg, image/webp"
               className="hidden"
               onChange={handleGalleryUpload}
             />

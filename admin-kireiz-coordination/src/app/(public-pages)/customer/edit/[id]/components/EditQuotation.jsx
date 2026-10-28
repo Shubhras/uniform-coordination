@@ -72,6 +72,14 @@ const EditQuotation = () => {
       newErrors.quotation_status = t("validation.quotationStatusRequired");
     }
 
+    if (
+      formData.subtotal !== "" &&
+      formData.subtotal !== null &&
+      Number(formData.subtotal) < 0
+    ) {
+      newErrors.subtotal = t("validation.subtotalNegative");
+    }
+
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
@@ -177,6 +185,24 @@ const EditQuotation = () => {
       return;
     }
 
+    if (name === "subtotal") {
+      const isNegative =
+        (value !== "" && Number(value) < 0) ||
+        (value !== "" && String(value).includes("-")) ||
+        Boolean(e.target.validity?.badInput);
+
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+
+      setErrors((prev) => ({
+        ...prev,
+        subtotal: isNegative ? t("validation.subtotalNegative") : "",
+      }));
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -186,6 +212,27 @@ const EditQuotation = () => {
       ...prev,
       [name]: "",
     }));
+  };
+
+  const handleSubtotalKeyDown = (e) => {
+    if (e.key === "-" || e.key === "Subtract") {
+      e.preventDefault();
+      setErrors((prev) => ({
+        ...prev,
+        subtotal: t("validation.subtotalNegative"),
+      }));
+    }
+  };
+
+  const handleSubtotalPaste = (e) => {
+    const text = e.clipboardData?.getData("text");
+    if (text && (text.includes("-") || Number(text) < 0)) {
+      e.preventDefault();
+      setErrors((prev) => ({
+        ...prev,
+        subtotal: t("validation.subtotalNegative"),
+      }));
+    }
   };
   const formatDateToISO = (dateStr) => {
     if (!dateStr || typeof dateStr !== "string") return null;
@@ -208,7 +255,7 @@ const EditQuotation = () => {
   };
 
   const handleSubmit = async (shouldSend = false) => {
-    if (!validateForm()) return;
+    if (!validateForm() || errors.subtotal) return;
     try {
       setSaving(true);
 
@@ -530,9 +577,18 @@ const EditQuotation = () => {
               name="subtotal"
               value={formData.subtotal}
               onChange={handleChange}
+              onKeyDown={handleSubtotalKeyDown}
+              onPaste={handleSubtotalPaste}
               placeholder="0.00"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
+              className={`w-full rounded-xl border ${
+                errors.subtotal ? "border-red-500" : "border-gray-300"
+              } px-4 py-3 outline-none focus:ring-2 ${
+                errors.subtotal ? "focus:ring-red-500" : "focus:ring-[#1C2C56]"
+              }`}
             />
+            {errors.subtotal && (
+              <p className="text-red-500 text-sm mt-1">{errors.subtotal}</p>
+            )}
           </div>
 
           <div>

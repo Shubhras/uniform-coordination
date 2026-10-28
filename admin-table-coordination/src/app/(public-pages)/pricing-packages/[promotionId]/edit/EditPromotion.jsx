@@ -24,7 +24,7 @@ const EditPromotion = ({ promotionId }) => {
       <div className="flex items-center gap-3">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.push("/pricing-packages?tab=promotions")}
           className="flex h-7 w-7 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058]"
         >
           <TbArrowLeft size={14} />

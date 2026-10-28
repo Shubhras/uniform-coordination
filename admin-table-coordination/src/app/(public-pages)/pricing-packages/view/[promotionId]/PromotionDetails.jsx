@@ -54,7 +54,7 @@ const PromotionDetails = ({ promotionId }) => {
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
       <div className="flex items-center gap-3">
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push("/pricing-packages?tab=promotions")}
           className="w-9 h-9 rounded-full border border-[#E7D9CF] bg-white flex items-center justify-center hover:bg-[#F8F4F1]"
         >
           <FiArrowLeft className="text-lg text-[#5B4434]" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import {
@@ -11,23 +11,35 @@ import {
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import { useTranslations } from "next-intl";
+import Select from "react-select";
 
 import {
   FiArrowLeft,
   FiCalendar,
-  FiChevronDown,
-  FiChevronUp,
   FiPackage,
 } from "react-icons/fi";
 
 const inputClassName =
-  "h-[42px] w-full rounded-[10px] border border-[#F2E5DD] bg-[#FFFCFA] px-4 text-[13px] text-[#5C4F48] outline-none focus:border-[#B56735]";
+  "w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 outline-none focus:border-[#A85A32]";
 
 const textareaClassName =
   "min-h-[90px] w-full rounded-[10px] border border-[#F2E5DD] bg-[#FFFCFA] px-4 py-3 text-[13px] text-[#5C4F48] outline-none focus:border-[#B56735]";
 
 const labelClassName =
   "mb-2 block text-[13px] font-bold uppercase tracking-wider text-[#8C6E5D]";
+
+const formatDateToYYYYMMDD = (dateValue) => {
+  if (!dateValue) return "";
+  if (typeof dateValue === "string" && /^\d{4}-\d{2}-\d{2}/.test(dateValue)) {
+    return dateValue.slice(0, 10);
+  }
+  const d = new Date(dateValue);
+  if (isNaN(d.getTime())) return "";
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 const CreatePromotion = () => {
   const t = useTranslations("pricingPackages.promotions");
@@ -44,6 +56,14 @@ const CreatePromotion = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const [errors, setErrors] = useState({});
+
+  const today = useMemo(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -68,17 +88,14 @@ const CreatePromotion = () => {
 
     if (!form.started_at) {
       newErrors.started_at = t("validation.startDateRequired");
+    } else if (!isEdit && form.started_at < today) {
+      newErrors.started_at =
+        t("validation.startDatePast") || "Start date cannot be before today";
     }
 
     if (!form.ended_at) {
       newErrors.ended_at = t("validation.endDateRequired");
-    }
-
-    if (
-      form.started_at &&
-      form.ended_at &&
-      new Date(form.ended_at) <= new Date(form.started_at)
-    ) {
+    } else if (form.started_at && form.ended_at < form.started_at) {
       newErrors.ended_at = t("validation.endAfterStart");
     }
 
@@ -131,10 +148,10 @@ const CreatePromotion = () => {
             customerEligibility: eligibility,
             amount: data.amount || "",
             started_at: data.started_at
-              ? new Date(data.started_at).toISOString().slice(0, 16)
+              ? formatDateToYYYYMMDD(data.started_at)
               : "",
             ended_at: data.ended_at
-              ? new Date(data.ended_at).toISOString().slice(0, 16)
+              ? formatDateToYYYYMMDD(data.ended_at)
               : "",
             isActive: data.isActive,
             description: rawDesc.replace(/\[Eligibility:\s*[^\]]+\]\s*/g, "").trim(),
@@ -162,9 +179,21 @@ const CreatePromotion = () => {
       // formData.append("limit_uses", form.limit_uses);
       // formData.append("max_uses", form.max_uses);
 
-      formData.append("started_at", new Date(form.started_at).toISOString());
+      const startDateTime = new Date(`${form.started_at}T00:00:00`);
+      formData.append(
+        "started_at",
+        !isNaN(startDateTime.getTime())
+          ? startDateTime.toISOString()
+          : form.started_at,
+      );
 
-      formData.append("ended_at", new Date(form.ended_at).toISOString());
+      const endDateTime = new Date(`${form.ended_at}T23:59:59.999`);
+      formData.append(
+        "ended_at",
+        !isNaN(endDateTime.getTime())
+          ? endDateTime.toISOString()
+          : form.ended_at,
+      );
 
       formData.append("isActive", form.isActive);
       let desc = (form.description || "").trim();
@@ -190,7 +219,7 @@ const CreatePromotion = () => {
           </Notification>,
         );
 
-        router.push("/pricing-packages");
+        router.push("/pricing-packages?tab=promotions");
       }
     } catch (err) {
       toast.push(
@@ -203,16 +232,87 @@ const CreatePromotion = () => {
     }
   };
 
+  const selectStyles = {
+    control: (base) => ({
+      ...base,
+      minHeight: "48px",
+      height: "48px",
+      borderColor: "#E9DDD3",
+      borderRadius: "12px",
+      backgroundColor: "#FCFAF8",
+      boxShadow: "none",
+      cursor: "pointer",
+      "&:hover": {
+        borderColor: "#A85A32",
+      },
+    }),
+
+    valueContainer: (base) => ({
+      ...base,
+      height: "48px",
+      padding: "0 12px",
+    }),
+
+    indicatorSeparator: () => ({
+      display: "none",
+    }),
+
+    dropdownIndicator: (base) => ({
+      ...base,
+      color: "#8D7A6C",
+      "&:hover": {
+        color: "#8D7A6C",
+      },
+    }),
+
+    placeholder: (base) => ({
+      ...base,
+      color: "#8D7A6C",
+    }),
+
+    singleValue: (base) => ({
+      ...base,
+      color: "#2C1A0E",
+    }),
+
+    menu: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#A85A32"
+        : state.isFocused
+          ? "#F8F2ED"
+          : "#fff",
+      color: state.isSelected ? "#fff" : "#444",
+      cursor: "pointer",
+    }),
+  };
+
+  const promocodeTypeOptions = [
+    { value: "discount", label: t("typePercentage") },
+    { value: "fix_price", label: t("typeFixedPrice") },
+  ];
+
+  const customerEligibilityOptions = [
+    { value: "all", label: t("eligibilityAll") },
+    { value: "first_purchase", label: t("eligibilityFirstPurchase") },
+    { value: "repeat_customer", label: t("eligibilityRepeatCustomer") },
+  ];
+
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
       {/* Header */}
       <div className="flex items-center gap-3">
         <button
           type="button"
-          onClick={() => router.back()}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058]"
+          onClick={() => router.push("/pricing-packages?tab=promotions")}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058]"
         >
-          <FiArrowLeft size={16} />
+          <FiArrowLeft size={18} />
         </button>
 
         <h1 className="text-[30px] font-semibold text-[#2A211D]">
@@ -258,83 +358,72 @@ const CreatePromotion = () => {
               {t("promotionType")} <span className="text-red-500">*</span>
             </label>
 
-            <div className="relative">
-              <select
-                name="promocodeType"
-                value={form.promocodeType}
-                onChange={(e) => {
-                  const newType = e.target.value;
-                  setForm((prev) => ({
-                    ...prev,
-                    promocodeType: newType,
-                  }));
+            <Select
+              value={
+                promocodeTypeOptions.find(
+                  (opt) => opt.value === form.promocodeType
+                ) || promocodeTypeOptions[0]
+              }
+              onChange={(selected) => {
+                const newType = selected?.value;
+                setForm((prev) => ({
+                  ...prev,
+                  promocodeType: newType,
+                }));
 
-                  setErrors((prev) => {
-                    let amountError = prev.amount;
-                    if (
-                      newType === "discount" &&
-                      form.amount &&
-                      Number(form.amount) >= 100
-                    ) {
-                      amountError = t("validation.amountPercentageMax");
-                    } else if (
-                      newType === "fix_price" &&
-                      amountError === t("validation.amountPercentageMax")
-                    ) {
-                      amountError = "";
-                    }
-                    return {
-                      ...prev,
-                      promocodeType: "",
-                      amount: amountError,
-                    };
-                  });
-                }}
-                className={`${inputClassName} appearance-none`}
-              >
-                <option value="discount">{t("typePercentage")}</option>
-                <option value="fix_price">{t("typeFixedPrice")}</option>
-              </select>
-              {errors.promocodeType && (
-                <p className="mt-1 text-sm text-red-500">
-                  {errors.promocodeType}
-                </p>
-              )}
-              <FiChevronDown
-                size={18}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A38D82] pointer-events-none"
-              />
-            </div>
+                setErrors((prev) => {
+                  let amountError = prev.amount;
+                  if (
+                    newType === "discount" &&
+                    form.amount &&
+                    Number(form.amount) >= 100
+                  ) {
+                    amountError = t("validation.amountPercentageMax");
+                  } else if (
+                    newType === "fix_price" &&
+                    amountError === t("validation.amountPercentageMax")
+                  ) {
+                    amountError = "";
+                  }
+                  return {
+                    ...prev,
+                    promocodeType: "",
+                    amount: amountError,
+                  };
+                });
+              }}
+              options={promocodeTypeOptions}
+              styles={selectStyles}
+              placeholder={t("promotionType")}
+              isSearchable={false}
+            />
+            {errors.promocodeType && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.promocodeType}
+              </p>
+            )}
           </div>
 
           {/* Customer Eligibility (First Purchase / Repeat Customer / All Customers) */}
           <div>
             <label className={labelClassName}>{t("customerEligibility")}</label>
-            <div className="relative">
-              <select
-                name="customerEligibility"
-                value={form.customerEligibility || "all"}
-                onChange={(e) => {
-                  setForm((prev) => ({
-                    ...prev,
-                    customerEligibility: e.target.value,
-                  }));
-                }}
-                className={`${inputClassName} appearance-none`}
-              >
-                <option value="all">{t("eligibilityAll")}</option>
-                <option value="first_purchase">
-                  {t("eligibilityFirstPurchase")}
-                </option>
-                <option value="repeat_customer">
-                  {t("eligibilityRepeatCustomer")}
-                </option>
-              </select>
-              <FiChevronDown
-                size={18}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A38D82] pointer-events-none"
-              />
-            </div>
+            <Select
+              value={
+                customerEligibilityOptions.find(
+                  (opt) => opt.value === (form.customerEligibility || "all")
+                ) || customerEligibilityOptions[0]
+              }
+              onChange={(selected) => {
+                const newEligibility = selected?.value || "all";
+                setForm((prev) => ({
+                  ...prev,
+                  customerEligibility: newEligibility,
+                }));
+              }}
+              options={customerEligibilityOptions}
+              styles={selectStyles}
+              isSearchable={false}
+            />
             <p className="mt-1 text-xs text-gray-500">
               {t("customerEligibilityHint")}
             </p>
@@ -424,9 +513,19 @@ const CreatePromotion = () => {
 
             <div className="relative">
               <input
-                type="datetime-local"
+                type="date"
                 name="started_at"
+                min={
+                  isEdit && form.started_at && form.started_at < today
+                    ? form.started_at
+                    : today
+                }
                 value={form.started_at}
+                onClick={(e) => {
+                  try {
+                    e.target.showPicker?.();
+                  } catch (err) { }
+                }}
                 onChange={(e) => {
                   setForm((prev) => ({
                     ...prev,
@@ -438,7 +537,7 @@ const CreatePromotion = () => {
                     started_at: "",
                   }));
                 }}
-                className={inputClassName}
+                className={`${inputClassName} cursor-pointer`}
               />
 
               <FiCalendar
@@ -459,9 +558,15 @@ const CreatePromotion = () => {
 
             <div className="relative">
               <input
-                type="datetime-local"
+                type="date"
                 name="ended_at"
+                min={form.started_at || today}
                 value={form.ended_at}
+                onClick={(e) => {
+                  try {
+                    e.target.showPicker?.();
+                  } catch (err) { }
+                }}
                 onChange={(e) => {
                   setForm((prev) => ({
                     ...prev,
@@ -473,7 +578,7 @@ const CreatePromotion = () => {
                     ended_at: "",
                   }));
                 }}
-                className={inputClassName}
+                className={`${inputClassName} cursor-pointer`}
               />
 
               <FiCalendar
@@ -567,7 +672,7 @@ const CreatePromotion = () => {
       <div className="mt-6 flex justify-end gap-3">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.push("/pricing-packages?tab=promotions")}
           className="rounded-lg border border-[#EAD9CD] px-6 py-2.5 text-[13px] font-medium text-[#6E615A]"
         >
           {t("cancel")}

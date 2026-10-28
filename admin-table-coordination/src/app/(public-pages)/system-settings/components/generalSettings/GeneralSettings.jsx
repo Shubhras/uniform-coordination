@@ -12,6 +12,8 @@ import Spinner from "@/components/ui/Spinner";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+
 const GeneralSettings = () => {
   const t = useTranslations("systemSettings.generalSettings");
   const { session } = useCurrentSession();
@@ -20,6 +22,7 @@ const GeneralSettings = () => {
   const [loading, setLoading] = useState(false);
 
   const [logoFile, setLogoFile] = useState(null);
+  const [logoError, setLogoError] = useState("");
   const fileInputRef = useRef(null);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -41,6 +44,7 @@ const GeneralSettings = () => {
   }, []);
 
   const handleUpdate = async () => {
+    if (logoError) return;
     try {
       setLoading(true);
 
@@ -270,9 +274,8 @@ const GeneralSettings = () => {
 
             <div
               onClick={() => isEditing && fileInputRef.current?.click()}
-              className={`flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-[#E6D4C8] bg-[#FFFDFC] ${
-                isEditing ? "cursor-pointer hover:bg-[#FCF7F3]" : ""
-              }`}
+              className={`flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-[#E6D4C8] bg-[#FFFDFC] ${isEditing ? "cursor-pointer hover:bg-[#FCF7F3]" : ""
+                }`}
             >
               {" "}
               {settings.logo ? (
@@ -302,6 +305,16 @@ const GeneralSettings = () => {
 
                   if (!file) return;
 
+                  if (file.size > MAX_IMAGE_SIZE) {
+                    setLogoError(
+                      t("imageSizeLimit") || "Image size should not exceed 5 MB"
+                    );
+                    setLogoFile(null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                    return;
+                  }
+
+                  setLogoError("");
                   setLogoFile(file);
 
                   setSettings((prev) => ({
@@ -311,6 +324,11 @@ const GeneralSettings = () => {
                 }}
               />
             </div>
+            {logoError && (
+              <p className="mt-2 text-xs text-red-500 font-medium">
+                {logoError}
+              </p>
+            )}
           </div>
 
           {/* Footer */}
@@ -318,7 +336,10 @@ const GeneralSettings = () => {
           <div className="mt-10 flex justify-end gap-4">
             {!isEditing ? (
               <button
-                onClick={() => setIsEditing(true)}
+                onClick={() => {
+                  setLogoError("");
+                  setIsEditing(true);
+                }}
                 className="rounded-xl bg-[#A85A32] px-6 py-3 font-medium text-white hover:bg-[#8f4c2a]"
               >
                 {t("edit")}
@@ -328,6 +349,8 @@ const GeneralSettings = () => {
                 <button
                   onClick={() => {
                     setIsEditing(false);
+                    setLogoError("");
+                    setLogoFile(null);
                     getGeneralSettings();
                   }}
                   className="rounded-xl border border-[#E8DDD4] bg-white px-8 py-3 font-medium text-[#6E5A4D]"

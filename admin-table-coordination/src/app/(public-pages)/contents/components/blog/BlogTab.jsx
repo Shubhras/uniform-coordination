@@ -223,7 +223,7 @@ const BlogTab = () => {
 
         <div className="relative w-full md:w-80 mb-6">
           <FiSearch
-            className="absolute left-3 top-2.5 text-[#64748B]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
             size={16}
           />
           <input
@@ -231,7 +231,7 @@ const BlogTab = () => {
             placeholder={t("searchBlog")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none"
+            className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
           />
           {search && (
             <button
@@ -327,10 +327,10 @@ const BlogTab = () => {
           pageSize={pageSize}
           total={pagination.total_items}
           onChange={(page) => setCurrentPage(page)}
-          // onPageSizeChange={(size) => {
-          //   setPageSize(size);
-          //   setCurrentPage(1);
-          // }}
+        // onPageSizeChange={(size) => {
+        //   setPageSize(size);
+        //   setCurrentPage(1);
+        // }}
         />
       </div>
 

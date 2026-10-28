@@ -392,6 +392,7 @@
             "material": "Material",
             "category": "Category",
             "selectCategory": "Select Category",
+            "reset": "Reset",
             "subCategory": "Sub Category",
             "status": "Status",
             "update": "Update",
@@ -419,7 +420,8 @@
                 "categoryRequired": "Category is required",
                 "priceRequired": "Price is required",
                 "validPrice": "Enter a valid price",
-                "priceGreaterThanZero": "Price must be greater than 0"
+                "priceGreaterThanZero": "Price must be greater than 0",
+                "imageSizeLimit": "Image size should not exceed 5 MB"
             }
         },
         "color": {
@@ -434,6 +436,7 @@
             "color": "Color",
             "hexCode": "HEX Code",
             "selectCategory": "Select Category",
+            "reset": "Reset",
             "category": "Category",
             "compatibleFabric": "Compatible Fabrics",
             "enterColorname": "Enter Color Name",
@@ -487,7 +490,7 @@
             "drapDrop": "Drag & Drop your image file here",
             "clickHere": "or click to browse here",
             "jpgFile": "JPG, PNG, or WEBP files",
-            "maxDimension": "Maximum dimension 1000×1000px",
+            "maxDimension": "Maximum file size 5 MB",
             "imageValidation": "Image validated successfully",
             "description": "Description",
             "update": "Update",
@@ -503,7 +506,8 @@
             "categoryValidation": {
                 "categoryNameRequired": "Category name is required",
                 "descriptionRequired": "Description is required",
-                "imageRequired": "Image is required"
+                "imageRequired": "Image is required",
+                "imageSizeLimit": "Image size should not exceed 5 MB"
             },
             "subcategory": {
                 "addSubcategory": "Add Subcategory",
@@ -564,7 +568,7 @@
                 "or": "or",
                 "clickToBrowse": "click to browse here",
                 "imageFiles": "JPG, PNG, or WEBP files",
-                "recommendedSize": "Recommended size 1200×800px",
+                "recommendedSize": "Maximum file size 5 MB",
                 "imageValidated": "Image validated successfully",
                 "preview": "Preview",
                 "description": "Description",
@@ -578,7 +582,9 @@
                 "validation": {
                     "titleRequired": "Title is required",
                     "categoryRequired": "Category is required",
-                    "descriptionRequired": "Description is required"
+                    "descriptionRequired": "Description is required",
+                    "imageRequired": "Image is required",
+                    "imageSizeLimit": "Image size should not exceed 5 MB"
                 }
             }
         },
@@ -681,7 +687,8 @@
                 "categoryRequired": "Category is required",
                 "descriptionRequired": "Description is required",
                 "thumbnailRequired": "Thumbnail is required",
-                "sectionRequired": "At least one product must be added in any one section."
+                "sectionRequired": "At least one product must be added in any one section.",
+                "imageSizeLimit": "Image size should not exceed 5 MB"
             }
         }
     },
@@ -768,7 +775,8 @@
                 "rentalPriceGreaterThanZero": "Rental price must be greater than 0",
                 "quantityRequired": "Stock quantity is required",
                 "quantityGreaterThanZero": "Stock quantity must be greater than 0",
-                "imageRequired": "Product image is required"
+                "imageRequired": "Product image is required",
+                "imageSizeLimit": "Image size should not exceed 5 MB"
             }
         },
         "inventoryDetails": {
@@ -1128,6 +1136,7 @@
                 "amountNegative": "Discount value cannot be negative",
                 "amountPercentageMax": "Percentage discount must be between 1 and 99%",
                 "startDateRequired": "Start date is required",
+                "startDatePast": "Start date cannot be before today",
                 "endDateRequired": "End date is required",
                 "endAfterStart": "End date must be after start date",
                 "descriptionRequired": "Description is required"
@@ -1302,7 +1311,59 @@
             "reasonEmailNote": "An email containing this reason will be automatically sent to",
             "cancel": "Cancel",
             "deactivateAndSendEmail": "Deactivate User & Send Email",
-            "reactivateUser": "Reactivate User"
+            "reactivateUser": "Reactivate User",
+            "addAdminAccountTitle": "Add New Admin / Staff Account",
+            "fullNameLabel": "Full Name",
+            "fullNamePlaceholder": "e.g. John Doe",
+            "emailAddressLabel": "Email Address",
+            "emailPlaceholder": "staff@kireiz.com",
+            "passwordLabel": "Password",
+            "passwordPlaceholder": "Create secure password",
+            "passwordHint": "Min 12 characters with uppercase, lowercase, number, and special character.",
+            "phoneNumberLabel": "Phone Number",
+            "maxCharacters": "Max 15 characters",
+            "assignedRoleLabel": "Assigned Role",
+            "roleStaffOperational": "Staff (Operational)",
+            "roleAdminFullAccess": "Admin (Full Access)",
+            "roleLogistics": "Logistics",
+            "roleCorporate": "Corporate",
+            "roleNoticeTitle": "Role Permissions Notice:",
+            "roleNoticeBody": "Non-admin users will only see the modules allowed for their role under the Permissions tab.",
+            "createAccount": "Create Account",
+            "creatingAccount": "Creating...",
+            "addCustomerAccountTitle": "Add New Customer Account",
+            "firstNameLabel": "First Name",
+            "firstNamePlaceholder": "First name",
+            "lastNameLabel": "Last Name",
+            "lastNamePlaceholder": "Last name",
+            "customerEmailPlaceholder": "customer@example.com",
+            "customerPasswordPlaceholder": "Enter password",
+            "customerTypeLabel": "Customer Type",
+            "customerTypeB2C": "Customer (B2C)",
+            "customerTypeB2B": "Corporate (B2B)",
+            "editAdminAccountTitle": "Edit Admin / Staff Account",
+            "resetPasswordLeaveBlank": "Reset Password (Leave blank to keep current)",
+            "enterNewPasswordIfChanging": "Enter new password if changing",
+            "passwordChangeHint": "If changing, min 12 characters with uppercase, lowercase, number, and special character.",
+            "accountStatus": "Account Status",
+            "saveChanges": "Save Changes",
+            "saving": "Saving...",
+            "you": "(You)",
+            "editUserDetails": "Edit user details & role",
+            "cannotDeactivateSelf": "Cannot deactivate your own account",
+            "deactivateAccount": "Deactivate Account",
+            "activateAccount": "Activate Account",
+            "fullNameRequired": "Full name is required",
+            "emailRequired": "Email address is required",
+            "emailInvalid": "Please enter a valid email address",
+            "passwordRequired": "Password is required",
+            "roleRequired": "Please select a role",
+            "phoneMaxLength": "Phone number cannot exceed 15 characters",
+            "passwordMinLength": "Password must be at least 12 characters long.",
+            "passwordUppercase": "Password must contain at least one uppercase letter (A-Z).",
+            "passwordLowercase": "Password must contain at least one lowercase letter (a-z).",
+            "passwordNumber": "Password must contain at least one number (0-9).",
+            "passwordSpecial": "Password must contain at least one special character."
         },
         "permissions": {
             "permission": "Permissions",
@@ -1460,6 +1521,7 @@
             "logoLabel": "Logo",
             "companyLogoAlt": "Company Logo",
             "uploadLogo": "Upload Logo",
+            "imageSizeLimit": "Image size should not exceed 5 MB",
             "edit": "Edit",
             "cancel": "Cancel",
             "saveChanges": "Save Changes"
