@@ -358,14 +358,6 @@ class ColorsSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Please select at least one fabric.")
         return value
 
-    def validate_colorName(self, value):
-        query = Colors.objects.filter(colorName__iexact=value, isDeleted=False)
-        if self.instance:
-            query = query.exclude(pk=self.instance.pk)
-        if query.exists():
-            raise serializers.ValidationError("This color name already exists.")
-        return value
-
 
 def get_attribute_image_url(instance, request=None):
     if not instance or not getattr(instance, "image", None):

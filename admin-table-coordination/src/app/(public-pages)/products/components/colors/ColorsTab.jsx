@@ -155,10 +155,16 @@ const ColorsTab = () => {
 
     try {
       setLoading(true);
+      const categoryId =
+        color.category?.id ||
+        (typeof color.category === "number" ? color.category : null) ||
+        color.category_id;
+
       const payload = {
-        colorName: `${color.colorName} (Copy)`,
+        colorName: color.colorName,
         colorCode: color.colorCode,
         compatibleFabric: color.compatibleFabric || [],
+        ...(categoryId ? { category_id: categoryId } : {}),
       };
 
       const response = await apiCreateColor(accessToken, payload);
