@@ -387,6 +387,11 @@ class TableShapeSerializer(serializers.ModelSerializer):
         model = TableShape
         fields = ["id", "name", "category", "category_id", "image", "isActive", "isDeleted", "created_at", "updated_at"]
 
+    def create(self, validated_data):
+        if "isActive" not in self.initial_data:
+            validated_data["isActive"] = True
+        return super().create(validated_data)
+
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         request = self.context.get("request")
