@@ -584,14 +584,6 @@ class ColorsSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Please select at least one fabric.")
         return value
 
-    def validate_colorName(self, value):
-        qs = Colors.objects.filter(colorName__iexact=value, isDeleted=False)
-        if self.instance:
-            qs = qs.exclude(id=self.instance.id)
-        if qs.exists():
-            raise serializers.ValidationError("This color name already exists.")
-        return value
-
 
 class SpecificationListField(serializers.Field):
     """
