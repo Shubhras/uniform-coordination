@@ -79,6 +79,10 @@ const AddEditColorModal = ({
         message: t("validation.validHexCode"),
       }),
 
+    category: z.any().refine((val) => val !== null && val !== undefined, {
+      message: t("validation.categoryRequired"),
+    }),
+
     compatibleFabric: z.any().refine((val) => val?.length > 0, {
       message: t("validation.compatibleFabricRequired"),
     }),
@@ -95,9 +99,11 @@ const AddEditColorModal = ({
     formState: { errors },
   } = useForm({
     resolver: zodResolver(validationSchema),
+    mode: "onChange",
     defaultValues: {
       name: "",
       hex: "#000000",
+      category: null,
       compatibleFabric: [],
     },
   });
@@ -172,6 +178,7 @@ const AddEditColorModal = ({
         name: initialData.colorName || "",
         hex: initialData.colorCode || "#000000",
         compatibleFabric: preSelected,
+        category: matchedCat || null,
       });
     } else {
       setCategory(null);
@@ -179,6 +186,7 @@ const AddEditColorModal = ({
         name: "",
         hex: "#000000",
         compatibleFabric: [],
+        category: null,
       });
     }
     setError("");
@@ -204,8 +212,9 @@ const AddEditColorModal = ({
       compatibleFabric: values.compatibleFabric.map((f) => f.value),
     };
 
-    if (category) {
-      payload.category_id = category.value;
+    const selectedCategory = values.category || category;
+    if (selectedCategory) {
+      payload.category_id = selectedCategory.value;
     }
 
     try {
@@ -262,7 +271,7 @@ const AddEditColorModal = ({
       console.error("Color save error:", err);
       setError(
         err?.response?.data?.message ||
-          t("saveFailed"),
+        t("saveFailed"),
       );
     } finally {
       setSaving(false);
@@ -352,19 +361,37 @@ const AddEditColorModal = ({
 
             <div>
               <label className="text-[#1C2C56] text-sm font-medium">
-                Category
+                {t("category")}
+                <span className="text-red-500">*</span>
               </label>
-              <Select
-                options={categoryOptions}
-                styles={selectStyles}
-                value={category}
-                onChange={(selected) => setCategory(selected)}
-                placeholder="Select Category"
-                isClearable
+              <FormItem
+                invalid={Boolean(errors.category)}
+                errorMessage={errors.category?.message}
                 className="mt-1"
-                menuPortalTarget={typeof document !== "undefined" ? document.body : null}
-                menuPosition="fixed"
-              />
+              >
+                <Controller
+                  name="category"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={categoryOptions}
+                      styles={selectStyles}
+                      value={field.value}
+                      onChange={(selected) => {
+                        field.onChange(selected);
+                        setCategory(selected);
+                      }}
+                      placeholder={t("selectCategory")}
+                      isClearable
+                      menuPortalTarget={
+                        typeof document !== "undefined" ? document.body : null
+                      }
+                      menuPosition="fixed"
+                    />
+                  )}
+                />
+              </FormItem>
             </div>
 
             <div>
