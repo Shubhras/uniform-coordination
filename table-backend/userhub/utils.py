@@ -330,125 +330,132 @@ def generate_customization_pdf(obj, user):
         pagesize=A4,
         rightMargin=40,
         leftMargin=40,
-        topMargin=40,
-        bottomMargin=40,
+        topMargin=35,
+        bottomMargin=35,
     )
 
     styles = getSampleStyleSheet()
     elements = []
 
-    # MAIN STYLES (unchanged)
+    # Table theme color tokens:
+    # Primary Accent: #A0522D (Sienna / Table Brand)
+    # Header Navy: #1C2C56
+    # Warm Table Background: #FAF6F0
+    # Warm Table Border: #E8DDD4
+    # Value Text: #2C3E50
+
     title_style = ParagraphStyle(
         "TitleStyle",
         parent=styles["Title"],
-        fontSize=22,
+        fontSize=20,
         alignment=TA_CENTER,
-        textColor=colors.HexColor("#1F3A5F"),
-        spaceAfter=25
+        textColor=colors.HexColor("#1C2C56"),
+        fontName="Helvetica-Bold",
+        spaceAfter=15
     )
 
     section_style = ParagraphStyle(
         "SectionStyle",
         parent=styles["Heading2"],
-        fontSize=14,
-        textColor=colors.HexColor("#154360"),
-        spaceBefore=20,
-        spaceAfter=10
-    )
-
-    normal_style = ParagraphStyle(
-        "NormalStyle",
-        parent=styles["Normal"],
-        fontSize=10,
-        leading=14,
+        fontSize=12,
+        textColor=colors.HexColor("#A0522D"),
+        fontName="Helvetica-Bold",
+        spaceBefore=14,
         spaceAfter=6
-    )
-
-    muted_style = ParagraphStyle(
-        "MutedStyle",
-        parent=styles["Normal"],
-        fontSize=9,
-        textColor=colors.grey
     )
 
     cell_style = ParagraphStyle(
         "TableCellStyle",
         parent=styles["Normal"],
-        fontSize=10,
-        leading=14,
+        fontSize=9,
+        leading=13,
         textColor=colors.HexColor("#2C3E50")
     )
 
     cell_bold_style = ParagraphStyle(
         "TableCellBoldStyle",
         parent=styles["Normal"],
-        fontSize=10,
-        leading=14,
+        fontSize=9,
+        leading=13,
         fontName="Helvetica-Bold",
-        textColor=colors.HexColor("#1A252F")
+        textColor=colors.HexColor("#1C2C56")
     )
 
-    from uniformAdmin.models import SystemSettings  # adjust import to your actual path
+    muted_style = ParagraphStyle(
+        "MutedStyle",
+        parent=styles["Normal"],
+        fontSize=8,
+        textColor=colors.HexColor("#8C7A6B")
+    )
 
-    system_settings = SystemSettings.load()
+    # 1. TABLE LOGO
+    logo_file = None
+    from uniformAdmin.models import SystemSettings
+    try:
+        system_settings = SystemSettings.load()
+        if system_settings.logo and os.path.exists(system_settings.logo.path):
+            logo_file = system_settings.logo.path
+    except Exception:
+        pass
 
-    if system_settings.logo and os.path.exists(system_settings.logo.path):
-        logo_img = Image(system_settings.logo.path, width=140, height=140)
+    if not logo_file:
+        fallback_logo = os.path.join(settings.MEDIA_ROOT, "system", "logos", "logo-table.png")
+        if os.path.exists(fallback_logo):
+            logo_file = fallback_logo
+
+    if logo_file and os.path.exists(logo_file):
+        logo_img = Image(logo_file, width=120, height=76)
         logo_img.hAlign = "CENTER"
         elements.append(logo_img)
-    # else: silently skip — no crash if the file's missing
-
-    elements.append(Spacer(1, 20))
+        elements.append(Spacer(1, 10))
 
     # TITLE
     elements.append(Paragraph("Customization Summary", title_style))
 
-    # USER INFO
+    # WARM TABLE STYLE FOR ALL TABLES
+    warm_table_style = TableStyle([
+        ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#FAF6F0")),
+        ("BACKGROUND", (1, 0), (1, -1), colors.HexColor("#FFFFFF")),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#E8DDD4")),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 10),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ])
+
+    # 2. USER INFO
     full_name = f"{user.firstName or ''} {user.lastName or ''}".strip()
     user_data = [
         [Paragraph("Customization ID", cell_bold_style), Paragraph(str(obj.id), cell_style)],
         [Paragraph("User", cell_bold_style), Paragraph(full_name or user.email, cell_style)],
         [Paragraph("Email", cell_bold_style), Paragraph(user.email, cell_style)],
     ]
-    user_table = Table(user_data, colWidths=[150, 330])
-    user_table.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F4F6F7")),
-        ("GRID", (0, 0), (-1, -1), 0.3, colors.lightgrey),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("LEFTPADDING", (0, 0), (-1, -1), 8),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-        ("TOPPADDING", (0, 0), (-1, -1), 8),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-    ]))
+    user_table = Table(user_data, colWidths=[160, 320])
+    user_table.setStyle(warm_table_style)
     elements.append(user_table)
 
-    # PRODUCT DETAILS
+    # 3. PRODUCT DETAILS (Exclude "Product Type" per user request)
     product = obj.model_info.product if (obj.model_info and obj.model_info.product) else None
     product_name = product.productName if product else "N/A"
-    product_type = getattr(product, "type", None) or getattr(product, "productType", None) or "N/A"
-    product_price = f"{product.price}" if product else "N/A"
+    product_price = f"${product.price}" if product else "N/A"
+    category_name = None
+    if product and getattr(product, "category", None):
+        category_name = product.category.categoryName
 
     elements.append(Paragraph("Product Details", section_style))
-    product_table = Table(
-        [
-            [Paragraph("Product Name", cell_bold_style), Paragraph(product_name, cell_style)],
-            [Paragraph("Product Type", cell_bold_style), Paragraph(product_type, cell_style)],
-            [Paragraph("Price", cell_bold_style), Paragraph(product_price, cell_style)],
-        ],
-        colWidths=[250, 250]
-    )
-    product_table.setStyle(TableStyle([
-        ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
-        ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-        ("TOPPADDING", (0, 0), (-1, -1), 8),
-        ("LEFTPADDING", (0, 0), (-1, -1), 8),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-    ]))
+    product_rows = [
+        [Paragraph("Product Name", cell_bold_style), Paragraph(product_name, cell_style)],
+    ]
+    if category_name:
+        product_rows.append([Paragraph("Category", cell_bold_style), Paragraph(category_name, cell_style)])
+    product_rows.append([Paragraph("Price", cell_bold_style), Paragraph(product_price, cell_style)])
+
+    product_table = Table(product_rows, colWidths=[160, 320])
+    product_table.setStyle(warm_table_style)
     elements.append(product_table)
 
-    # DESIGN SPECIFICATIONS SECTION
+    # 4. DESIGN SPECIFICATIONS
     elements.append(Paragraph("Design Specifications", section_style))
     spec_rows = []
 
@@ -471,9 +478,8 @@ def generate_customization_pdf(obj, user):
 
     # Attribute values extraction
     style_val = extract_val(specs, "style") or extract_val(config, "style") or (getattr(product, "style", None) if product else None)
-    type_val = product_type or extract_val(specs, "type") or extract_val(config, "type")
     table_shape_val = extract_val(specs, "table_shape") or extract_val(specs, "tableShape") or extract_val(config, "table_shape") or (getattr(product, "table_shape", None) if product else None)
-    
+
     color_val = extract_val(specs, "color") or extract_val(config, "color")
     if not color_val and isinstance(specs.get("color_details"), dict):
         color_val = specs["color_details"].get("name") or specs["color_details"].get("colorName")
@@ -487,7 +493,7 @@ def generate_customization_pdf(obj, user):
         fabric_val = getattr(product.fabric, "fabricName", None) or getattr(product.fabric, "name", None)
 
     size_val = extract_val(specs, "size") or extract_val(config, "size") or (getattr(product, "size", None) if product else None)
-    
+
     closure_val = extract_val(specs, "closure") or extract_val(config, "closure")
     if not closure_val and isinstance(specs.get("closure_details"), dict):
         closure_val = specs["closure_details"].get("name")
@@ -500,52 +506,61 @@ def generate_customization_pdf(obj, user):
     if not pattern_val and product and getattr(product, "pattern", None):
         pattern_val = getattr(product.pattern, "name", None)
 
+    custom_text_val = extract_val(specs, "text") or extract_val(config, "text")
+
+    # Specifically omit "Type" and "Logo Position" as requested by user
     all_specs = [
-        ("Style", style_val),
-        ("Type", type_val),
         ("Table Shape", table_shape_val),
-        ("Color", color_val),
         ("Fabric", fabric_val),
+        ("Color", color_val),
+        ("Style", style_val),
         ("Size", size_val),
         ("Closure", closure_val),
         ("Pattern", pattern_val),
+        ("Custom Text", custom_text_val),
     ]
 
     for label, val in all_specs:
-        if val:
+        if val and str(val).strip():
             spec_rows.append([Paragraph(label, cell_bold_style), Paragraph(str(val), cell_style)])
 
-    # Iterate additional nested category specifications in specs if any exist
+    # Exclude technical, unwanted, or uniform-specific keys
+    EXCLUDED_KEYS = {
+        "type", "logo_position", "logoposition", "print_type", "printtype",
+        "id", "slug", "parts", "subcategory", "category", "category_id",
+        "color_details", "fabric_details", "closure_details", "pattern_details",
+        "model_info", "product", "config_json", "design_specifications"
+    }
+
     if isinstance(specs, dict):
         for cat_key, cat_val in specs.items():
-            if isinstance(cat_val, dict) and cat_key not in ["color_details", "fabric_details", "closure_details", "pattern_details"]:
+            clean_key = str(cat_key).lower().replace(" ", "_")
+            if clean_key in EXCLUDED_KEYS or clean_key in ["style", "table_shape", "tableshape", "color", "fabric", "size", "closure", "pattern", "text"]:
+                continue
+            if isinstance(cat_val, dict):
                 for item_k, item_v in cat_val.items():
+                    clean_item_k = str(item_k).lower().replace(" ", "_")
+                    if clean_item_k in EXCLUDED_KEYS:
+                        continue
                     if item_v:
                         v_str = item_v.get("name") if isinstance(item_v, dict) else str(item_v)
-                        if not any(r[0].text == item_k for r in spec_rows):
-                            spec_rows.append([Paragraph(str(item_k), cell_bold_style), Paragraph(v_str, cell_style)])
-            elif isinstance(cat_val, (str, int, float)) and cat_key not in ["style", "table_shape", "color", "fabric", "size", "closure", "pattern"]:
-                label_name = cat_key.replace("_", " ").title()
+                        label_name = str(item_k).replace("_", " ").title()
+                        if not any(r[0].text == label_name for r in spec_rows):
+                            spec_rows.append([Paragraph(label_name, cell_bold_style), Paragraph(str(v_str), cell_style)])
+            elif isinstance(cat_val, (str, int, float)):
+                label_name = str(cat_key).replace("_", " ").title()
                 if not any(r[0].text == label_name for r in spec_rows):
                     spec_rows.append([Paragraph(label_name, cell_bold_style), Paragraph(str(cat_val), cell_style)])
 
     if not spec_rows:
-        spec_rows.append([Paragraph("Status", cell_bold_style), Paragraph("Standard Design Configuration", cell_style)])
+        spec_rows.append([Paragraph("Status", cell_bold_style), Paragraph("Standard Table Design Configuration", cell_style)])
 
-    spec_table = Table(spec_rows, colWidths=[250, 250])
-    spec_table.setStyle(TableStyle([
-        ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
-        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F9F9F9")),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-        ("TOPPADDING", (0, 0), (-1, -1), 8),
-        ("LEFTPADDING", (0, 0), (-1, -1), 8),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-    ]))
+    spec_table = Table(spec_rows, colWidths=[160, 320])
+    spec_table.setStyle(warm_table_style)
     elements.append(spec_table)
 
     # FOOTER
-    elements.append(Spacer(1, 30))
+    elements.append(Spacer(1, 20))
     elements.append(
         Paragraph(
             f"Generated on {datetime.now().strftime('%d %b %Y, %I:%M %p')}",
