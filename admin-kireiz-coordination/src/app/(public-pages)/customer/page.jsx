@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Tabs from "./components/Tabs";
 import B2BAccounts from "./components/b2b-accounts/B2BAccounts";
@@ -14,8 +14,12 @@ import Permission from "./components/permission/Permission";
 const CustomerPage = () => {
   const t = useTranslations("customerSalesRep");
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState("Admin Users");
+  const tabParam = searchParams.get("tab");
+  const initialTab =
+    tabParam === "B2B Accounts" || tabParam === "B2B+Accounts"
+      ? "Admin Users"
+      : tabParam || "Admin Users";
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
     const tab = searchParams.get("tab");
@@ -27,13 +31,6 @@ const CustomerPage = () => {
       }
     }
   }, [searchParams]);
-
-  const handleTabChange = (tabId) => {
-    setActiveTab(tabId);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", tabId);
-    router.push(`/customer?${params.toString()}`, { scroll: false });
-  };
 
   const renderTab = () => {
     switch (activeTab) {
@@ -68,7 +65,7 @@ const CustomerPage = () => {
         {t("pageSubtitle")}
       </p>
 
-      <Tabs activeTab={activeTab} setActiveTab={handleTabChange} />
+      <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <div className="mt-6">{renderTab()}</div>
     </div>

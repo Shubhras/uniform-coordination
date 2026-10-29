@@ -356,7 +356,7 @@ const ColorsTab = () => {
                     <button
                       onClick={() => handleDuplicateColor(color)}
                       disabled={duplicatingId === color.id}
-                      className="flex-1 border border-gray-300 text-[#91A1B6] text-xs py-1.5 rounded-md disabled:opacity-60"
+                      className="flex-1 border border-gray-300 text-[#4c5766] text-xs py-1.5 rounded-md disabled:opacity-60 hover:bg-gray-50 hover:text-gray-700 hover:border-gray-400 transition-colors"
                     >
                       {duplicatingId === color.id
                         ? t("duplicating")
@@ -381,7 +381,7 @@ const ColorsTab = () => {
             }}
           />
         </div>
-      </div>
+      </div >
 
       <AddEditColorModal
         isOpen={isModalOpen}

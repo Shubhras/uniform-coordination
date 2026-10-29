@@ -282,7 +282,7 @@ const B2BAccounts = () => {
               setSelectedStatus(statusOptions[0]);
               setCurrentPage(1);
             }}
-            className="border border-[#CBD5E1] px-4 py-2 rounded-md text-white bg-[#1C4FA8] hover:bg-[#1C4FA8] transition-colors"
+            className="border border-[#CBD5E1] px-4 py-2 rounded-md text-white bg-[#1C4FA8] hover:bg-[#163F86] transition-colors"
           >
             {t("reset")}
           </button>
@@ -345,11 +345,10 @@ const B2BAccounts = () => {
 
                       <td className="px-5 py-4">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            acc.isActive
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${acc.isActive
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                            }`}
                         >
                           {acc.isActive ? tStatus("active") : tStatus("inactive")}
                         </span>
@@ -358,22 +357,22 @@ const B2BAccounts = () => {
                       <td className="px-5 py-4">
                         <div className="flex items-center justify-end gap-1">
                           <button
-                            className="text-[#1C4FA8] hover:bg-[#EEF4FF] p-1.5 rounded"
+                            className="p-2 rounded-md bg-[#EEF4FF] text-[#1C4FA8] hover:bg-[#DCE8FF] transition-colors"
                             onClick={() =>
                               router.push(
                                 `/customer/customer-details/${acc.id}`,
                               )
                             }
                           >
-                            <FiEye size={17} />
+                            <FiEye size={14} />
                           </button>
                           <button
-                            className="text-[#1C2C56] hover:text-[#0F172A] p-1.5 rounded hover:bg-[#EEF2FF]"
+                            className="p-2 rounded-md bg-[#EEF2FF] text-[#1C2C56] hover:bg-[#E0E7FF] transition-colors"
                             onClick={() =>
                               router.push(`/customer/customer-edit/${acc.id}`)
                             }
                           >
-                            <FiEdit2 size={16} />
+                            <FiEdit2 size={14} />
                           </button>
                         </div>
                       </td>

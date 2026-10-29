@@ -599,6 +599,7 @@ const AddEditFabricModal = ({
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
                 {tm("categoryLabel")}
+                <span className="text-red-500">*</span>
               </label>
 
               <FormItem

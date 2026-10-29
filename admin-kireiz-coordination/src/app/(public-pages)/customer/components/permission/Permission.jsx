@@ -75,9 +75,9 @@ const Permission = () => {
           permissions: role.permissions.map((permission) =>
             permission.menu_id === menuId
               ? {
-                  ...permission,
-                  can_view: !permission.can_view,
-                }
+                ...permission,
+                can_view: !permission.can_view,
+              }
               : permission,
           ),
         };
@@ -219,7 +219,7 @@ const Permission = () => {
           <Button
             onClick={handleSaveChanges}
             loading={saving}
-            className="bg-[#1C4FA8] h-9 text-white px-5 py-2 rounded-md text-sm font-medium"
+            className="bg-[#1C4FA8] h-9 text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#163F86]"
           >
             {t("saveChanges")}
           </Button>

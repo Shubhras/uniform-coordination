@@ -42,8 +42,11 @@ const EditQuotation = () => {
       newErrors.contact_person = t("validation.contactPersonRequired");
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
       newErrors.email = t("validation.emailRequired");
+    } else if (!emailRegex.test(formData.email.trim())) {
+      newErrors.email = t("validation.invalidEmail") || "Invalid email address";
     }
 
     if (!formData.phone_number.trim()) {
@@ -60,8 +63,14 @@ const EditQuotation = () => {
       newErrors.material = t("validation.materialRequired");
     }
 
+    const sizeQuantityRegex =
+      /^[A-Za-z0-9]+\s*-\s*\d+(\s*,\s*[A-Za-z0-9]+\s*-\s*\d+)*$/;
     if (!formData.size_quantity.trim()) {
       newErrors.size_quantity = t("validation.sizeQuantityRequired");
+    } else if (!sizeQuantityRegex.test(formData.size_quantity.trim())) {
+      newErrors.size_quantity =
+        t("validation.invalidSizeQuantity") ||
+        "Enter valid format like M-10, L-20";
     }
 
     if (!formData.delivery_date) {
@@ -172,6 +181,51 @@ const EditQuotation = () => {
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
 
+    if (name === "email") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      let emailError = "";
+      if (!value.trim()) {
+        emailError = t("validation.emailRequired");
+      } else if (!emailRegex.test(value.trim())) {
+        emailError = t("validation.invalidEmail") || "Invalid email address";
+      }
+
+      setErrors((prev) => ({
+        ...prev,
+        email: emailError,
+      }));
+      return;
+    }
+
+    if (name === "size_quantity") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+
+      const sizeQuantityRegex =
+        /^[A-Za-z0-9]+\s*-\s*\d+(\s*,\s*[A-Za-z0-9]+\s*-\s*\d+)*$/;
+      let sizeError = "";
+      if (!value.trim()) {
+        sizeError = t("validation.sizeQuantityRequired");
+      } else if (!sizeQuantityRegex.test(value.trim())) {
+        sizeError =
+          t("validation.invalidSizeQuantity") ||
+          "Enter valid format like M-10, L-20";
+      }
+
+      setErrors((prev) => ({
+        ...prev,
+        size_quantity: sizeError,
+      }));
+      return;
+    }
+
     if (name === "phone_number") {
       const numericValue = value.replace(/\D/g, "").slice(0, 10);
       setFormData((prev) => ({
@@ -255,7 +309,13 @@ const EditQuotation = () => {
   };
 
   const handleSubmit = async (shouldSend = false) => {
-    if (!validateForm() || errors.subtotal) return;
+    if (
+      !validateForm() ||
+      errors.subtotal ||
+      errors.email ||
+      errors.size_quantity
+    )
+      return;
     try {
       setSaving(true);
 
@@ -295,13 +355,13 @@ const EditQuotation = () => {
       toast.push(
         <Notification title={t("successTitle")} type="success">
           {shouldSend
-            ? "Quotation response sent to customer successfully!"
+            ? t("sendSuccess")
             : (res?.message || t("updateSuccess"))}
         </Notification>,
       );
 
       if (res?.status) {
-        router.push("/customer");
+        router.push("/customer?tab=Quotation+History");
       } else {
         toast.error(res?.message || t("updateFailed"));
       }
@@ -326,7 +386,7 @@ const EditQuotation = () => {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push("/customer?tab=Quotation+History")}
             className="h-10 w-10 rounded-full border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50"
           >
             <FiArrowLeft size={18} />
@@ -396,7 +456,12 @@ const EditQuotation = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
+              placeholder="example@domain.com"
+              className={`w-full rounded-xl border ${
+                errors.email ? "border-red-500" : "border-gray-300"
+              } px-4 py-3 outline-none focus:ring-2 ${
+                errors.email ? "focus:ring-red-500" : "focus:ring-[#1C2C56]"
+              }`}
             />
             {errors.email && (
               <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -475,7 +540,14 @@ const EditQuotation = () => {
               name="size_quantity"
               value={formData.size_quantity}
               onChange={handleChange}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
+              placeholder="e.g. M-10, L-20"
+              className={`w-full rounded-xl border ${
+                errors.size_quantity ? "border-red-500" : "border-gray-300"
+              } px-4 py-3 outline-none focus:ring-2 ${
+                errors.size_quantity
+                  ? "focus:ring-red-500"
+                  : "focus:ring-[#1C2C56]"
+              }`}
             />
             {errors.size_quantity && (
               <p className="text-red-500 text-sm mt-1">
@@ -580,11 +652,9 @@ const EditQuotation = () => {
               onKeyDown={handleSubtotalKeyDown}
               onPaste={handleSubtotalPaste}
               placeholder="0.00"
-              className={`w-full rounded-xl border ${
-                errors.subtotal ? "border-red-500" : "border-gray-300"
-              } px-4 py-3 outline-none focus:ring-2 ${
-                errors.subtotal ? "focus:ring-red-500" : "focus:ring-[#1C2C56]"
-              }`}
+              className={`w-full rounded-xl border ${errors.subtotal ? "border-red-500" : "border-gray-300"
+                } px-4 py-3 outline-none focus:ring-2 ${errors.subtotal ? "focus:ring-red-500" : "focus:ring-[#1C2C56]"
+                }`}
             />
             {errors.subtotal && (
               <p className="text-red-500 text-sm mt-1">{errors.subtotal}</p>
@@ -666,7 +736,7 @@ const EditQuotation = () => {
       <div className="flex items-center justify-end gap-4 pb-6">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.push("/customer?tab=Quotation+History")}
           className="px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition"
         >
           {t("cancel")}
@@ -688,7 +758,7 @@ const EditQuotation = () => {
           className="px-6 py-3 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition flex items-center gap-2 font-medium shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <FiSend className="w-4 h-4" />
-          {saving ? "Sending..." : "Send Quotation Response"}
+          {saving ? t("sending") : t("sendQuotationResponse")}
         </button>
       </div>
     </div>

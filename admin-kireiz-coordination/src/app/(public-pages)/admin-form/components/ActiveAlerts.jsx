@@ -43,8 +43,10 @@ const levelKeyMap = {
 // alert.type comes from the admindesh API. QuotationHistory seeds its status
 // filter from the ?status= param, so these land on a pre-filtered list.
 const alertRoutes = {
-    pending_review: "/quotation-requests?status=Pending",
-    awaiting_customer: "/quotation-requests?status=Sent",
+    // pending_review: "/quotation-requests?status=Pending",
+    pending_review: "/customer?tab=Quotation+History",
+    // awaiting_customer: "/quotation-requests?status=Sent",
+    awaiting_customer: "/customer?tab=Quotation+History",
 };
 
 const FALLBACK_ROUTE = "/quotation-requests";
@@ -159,17 +161,10 @@ const ActiveAlerts = ({ data, onAlertsRead }) => {
                                         onClick={() =>
                                             router.push(
                                                 alertRoutes[alert.type] ||
-                                                    FALLBACK_ROUTE,
+                                                FALLBACK_ROUTE,
                                             )
                                         }
-                                        className="
-      bg-[#1C2C56] text-white
-      px-3 py-1.5 md:px-4 md:py-2
-      rounded-md
-      text-xs md:text-sm
-      w-fit
-      hover:opacity-90
-    ">
+                                        className="bg-[#1C2C56] text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md text-xs md:text-sm w-fit hover:opacity-90">
                                         {actionLabel}
                                     </button>
                                 </div>

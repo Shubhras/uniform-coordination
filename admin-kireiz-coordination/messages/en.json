@@ -576,7 +576,7 @@
       "inactive": "Inactive"
     },
     "recentOrders": {
-      "recentOrders": "Recent Orders (Today)",
+      "recentOrders": "Recent Quotations (Today)",
       "todayBadge": "{count} Today",
       "subtitle": "Orders placed by customers today",
       "viewAll": "View All",
@@ -593,7 +593,7 @@
       "statusCancelled": "Cancelled",
       "statusFailed": "Failed",
       "details": "Details",
-      "noOrdersToday": "No orders received today yet."
+      "noOrdersToday": "No Quotations received today yet."
     },
     "quoteStatus": {
       "quoteStatusDistribution": "Quote Status Distribution",
@@ -901,6 +901,7 @@
       },
       "edit": "Edit",
       "delete": "Delete",
+      "view": "View",
       "deleteSuccess": "Product deleted successfully.",
       "addProductModal": {
         "modalTitle": "Add Product",
@@ -1504,6 +1505,9 @@
     "quotationHistory": {
       "title": "Quotation History",
       "subtitle": "Manage discount tiers and corporate rules",
+      "totalQuotations": "{count} total quotations",
+      "totalCount": "{count} total quotations",
+      "loading": "Loading quotations...",
       "searchPlaceholder": "Search...",
       "reset": "Reset",
       "exportCsv": "Export CSV",
@@ -1521,6 +1525,8 @@
         "allStatus": "All Status",
         "pending": "Pending",
         "approved": "Approved",
+        "accepted": "Accepted",
+        "received": "Received",
         "sent": "Sent",
         "cancelled": "Cancelled"
       },
@@ -1529,6 +1535,9 @@
       "sendSuccess": "Quotation sent successfully!",
       "sendFailed": "Failed to send quotation",
       "sendResponseFailed": "Failed to send quotation response",
+      "exportSuccess": "Quotation history exported successfully!",
+      "exportFailed": "Failed to export quotation history",
+      "exporting": "Exporting...",
       "editQuotationPage": {
         "pageTitle": "Edit Quotation",
         "pageSubtitle": "Update quotation information",
@@ -1559,6 +1568,9 @@
         "cancel": "Cancel",
         "saveChanges": "Save Changes",
         "saving": "Saving...",
+        "sendQuotationResponse": "Send Quotation Response",
+        "sending": "Sending...",
+        "sendSuccess": "Quotation response sent to customer successfully!",
         "selectStatus": "Select Status",
         "statusPending": "Pending",
         "statusSent": "Sent",
@@ -1574,11 +1586,13 @@
           "companyNameRequired": "Company name is required",
           "contactPersonRequired": "Contact person is required",
           "emailRequired": "Email is required",
+          "invalidEmail": "Invalid email address",
           "phoneRequired": "Phone number is required",
           "invalidPhone": "Enter a valid 10-digit phone number",
           "itemTypeRequired": "Item type is required",
           "materialRequired": "Material is required",
           "sizeQuantityRequired": "Size & Quantity is required",
+          "invalidSizeQuantity": "Enter valid format like M-10, L-20",
           "deliveryDateRequired": "Delivery date is required",
           "quotationStatusRequired": "Quotation status is required",
           "subtotalNegative": "Subtotal cannot be negative"
@@ -1587,7 +1601,7 @@
       "viewQuotationPage": {
         "pageTitle": "Quotation Details",
         "newBadge": "NEW",
-        "quotationUuid": "Quotation UUID",
+        "quotationUuid": "Quotation ID",
         "companyInfoSection": "Company Information",
         "companyLabel": "Company",
         "phoneNumberLabel": "Phone Number",
@@ -1608,7 +1622,9 @@
         "yes": "Yes",
         "no": "No",
         "createdOnLabel": "Created On",
-        "updatedOnLabel": "Updated On"
+        "updatedOnLabel": "Updated On",
+        "loading": "Loading quotation details...",
+        "notFound": "Quotation details not found"
       }
     },
     "salesRepresentation": {

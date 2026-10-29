@@ -63,11 +63,10 @@ const CustomerDetails = () => {
               </h1>
 
               <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  customer?.isActive
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
-                }`}
+                className={`px-3 py-1 rounded-full text-xs font-semibold ${customer?.isActive
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+                  }`}
               >
                 {customer?.isActive ? t("statusActive") : t("statusInactive")}
               </span>
@@ -186,11 +185,10 @@ const CustomerDetails = () => {
             <p className="text-[14px] text-[#374151]">{t("emailVerified")}</p>
 
             <span
-              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
-                customer?.is_verify
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
+              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${customer?.is_verify
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+                }`}
             >
               {customer?.is_verify ? t("verified") : t("notVerified")}
             </span>
@@ -202,11 +200,10 @@ const CustomerDetails = () => {
             </p>
 
             <span
-              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
-                customer?.email_notifications
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
+              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${customer?.email_notifications
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+                }`}
             >
               {customer?.email_notifications ? t("enabled") : t("disabled")}
             </span>
@@ -218,11 +215,10 @@ const CustomerDetails = () => {
             </p>
 
             <span
-              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
-                customer?.push_notifications
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
+              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${customer?.push_notifications
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+                }`}
             >
               {customer?.push_notifications ? t("enabled") : t("disabled")}
             </span>
@@ -232,11 +228,10 @@ const CustomerDetails = () => {
             <p className="text-[14px] text-[#374151]">{t("accountStatus")}</p>
 
             <span
-              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
-                customer?.isActive
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
+              className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${customer?.isActive
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+                }`}
             >
               {customer?.isActive ? t("statusActive") : t("statusInactive")}
             </span>

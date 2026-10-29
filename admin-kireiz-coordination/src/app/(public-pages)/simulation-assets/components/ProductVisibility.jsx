@@ -139,7 +139,7 @@ const ProductVisibility = () => {
 
   return (
     <div className="mt-5">
-      <h2 className="text-lg font-semibold text-[#1C2C56]">
+      <h2 className="text-2xl font-semibold text-[#1C2C56]">
         {t("visibilityTitle")}
       </h2>
       <p className="text-sm text-[#64748B] mt-1">{t("visibilitySubtitle")}</p>
@@ -265,7 +265,7 @@ const ProductVisibility = () => {
                         type="button"
                         onClick={() => router.push(`/products/view/${p.id}`)}
                         title={t("viewProductDetails")}
-                        className="text-[#94A3B8] hover:text-[#1C2C56]"
+                        className="p-2 rounded-md bg-[#EEF4FF] text-[#1C4FA8] hover:bg-[#DCE8FF] transition-colors"
                       >
                         <FiEye size={16} />
                       </button>

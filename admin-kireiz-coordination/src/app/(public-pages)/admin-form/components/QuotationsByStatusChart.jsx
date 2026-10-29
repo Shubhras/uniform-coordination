@@ -7,7 +7,7 @@ const QuotationsByStatusChart = ({ data }) => {
   const t = useTranslations("dashboard.quoteStatus");
 
   const statusData = Array.isArray(data?.Quote_status_distribution?.data)
-    ? data.Quote_status_distribution.data 
+    ? data.Quote_status_distribution.data
     : [];
 
   const labels = statusData.map((item) => item?.label || "");

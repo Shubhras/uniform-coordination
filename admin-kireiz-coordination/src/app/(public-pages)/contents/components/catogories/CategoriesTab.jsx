@@ -124,11 +124,10 @@ const SubcategoryList = ({
 
           <div className="flex items-center gap-3">
             <span
-              className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
-                sub.isActive !== false
+              className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${sub.isActive !== false
                   ? "bg-green-100 text-green-700"
                   : "bg-red-100 text-red-600"
-              }`}
+                }`}
             >
               {sub.isActive !== false ? "Active" : "Inactive"}
             </span>
@@ -287,7 +286,18 @@ const CategoriesTab = () => {
     setCategories(updated);
 
     try {
-      await apiReorderCategory(accessToken, moved.id, newOrder);
+      const response = await apiReorderCategory(
+        accessToken,
+        moved.id,
+        newOrder,
+      );
+      if (response?.status) {
+        toast.push(
+          <Notification title={t("successTitle")} type="success">
+            {response?.message}
+          </Notification>,
+        );
+      }
       fetchCategories();
     } catch (error) {
       console.error("Failed to reorder category:", error);
@@ -457,11 +467,10 @@ const CategoriesTab = () => {
                               </p>
 
                               <span
-                                className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
-                                  cat.isActive !== false
+                                className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${cat.isActive !== false
                                     ? "bg-green-100 text-green-700"
                                     : "bg-red-100 text-red-600"
-                                }`}
+                                  }`}
                               >
                                 {cat.isActive !== false ? "Active" : "Inactive"}
                               </span>
@@ -470,9 +479,8 @@ const CategoriesTab = () => {
                             <div className="flex items-center gap-4">
                               <FiChevronDown
                                 size={18}
-                                className={`text-[#1C2C56] transition-transform ${
-                                  openCategory === cat.id ? "rotate-180" : ""
-                                }`}
+                                className={`text-[#1C2C56] transition-transform ${openCategory === cat.id ? "rotate-180" : ""
+                                  }`}
                               />
 
                               <button
@@ -505,12 +513,11 @@ const CategoriesTab = () => {
                           {/* Expanded subcategories */}
                           <div
                             className={`ml-6 mt-3 overflow-hidden transition-all duration-500 ease-in-out
-                                                        ${
-                                                          openCategory ===
-                                                          cat.id
-                                                            ? "max-h-[1000px] opacity-100"
-                                                            : "max-h-0 opacity-0"
-                                                        }`}
+                                                        ${openCategory ===
+                                cat.id
+                                ? "max-h-[1000px] opacity-100"
+                                : "max-h-0 opacity-0"
+                              }`}
                           >
                             <SubcategoryList
                               categoryId={cat.id}

@@ -56,7 +56,7 @@ const RecentOrdersCard = ({ data }) => {
                 {t("todayBadge", { count: todayCount })}
               </span>
             </h3>
-            <p className="text-xs text-gray-500">{t("subtitle")}</p>
+            {/* <p className="text-xs text-gray-500">{t("subtitle")}</p> */}
           </div>
         </div>
         <Link

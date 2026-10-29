@@ -39,6 +39,7 @@ const UniformTemplate = () => {
             if (!categoryId) return;
             try {
                 setLoading(true);
+                setIndex(0);
                 const res = await apiGetTemplateByCategory(categoryId);
                 if (cancelled) return;
                 if (res?.status) setTemplates(res.data || []);
@@ -69,14 +70,23 @@ const UniformTemplate = () => {
         return () => window.removeEventListener("resize", updateCards);
     }, []);
 
-    /** Advances carousel slider forward */
+    const isPrevDisabled = index === 0;
+    const isNextDisabled = index + cardsPerView >= templates.length;
+
+    /** Advances carousel slider forward by cardsPerView */
     const handleNext = () => {
-        setIndex((prev) => (prev + 1) % Math.max(templates.length, 1));
+        if (index + cardsPerView < templates.length) {
+            setIndex((prev) => prev + cardsPerView);
+        }
     };
 
-    /** Rewinds carousel slider backward */
+    /** Rewinds carousel slider backward by cardsPerView */
     const handlePrev = () => {
-        setIndex((prev) => (prev === 0 ? Math.max(templates.length - 1, 0) : prev - 1));
+        if (index - cardsPerView >= 0) {
+            setIndex((prev) => prev - cardsPerView);
+        } else {
+            setIndex(0);
+        }
     };
 
     // Arrows are pointless when everything already fits on screen.
@@ -115,8 +125,24 @@ const UniformTemplate = () => {
                 {/* NAV */}
                 {showArrows && (
                     <div className="flex justify-end gap-3 mb-6 mr-6">
-                        <FiArrowLeft onClick={handlePrev} size={25} className="text-lg text-gray-600 cursor-pointer" />
-                        <FiArrowRight onClick={handleNext} size={25} className="text-lg text-gray-600 ml-8 cursor-pointer" />
+                        <FiArrowLeft
+                            onClick={!isPrevDisabled ? handlePrev : undefined}
+                            size={25}
+                            className={`transition ${
+                                isPrevDisabled
+                                    ? "text-gray-300 cursor-not-allowed"
+                                    : "text-gray-600 hover:text-black cursor-pointer"
+                            }`}
+                        />
+                        <FiArrowRight
+                            onClick={!isNextDisabled ? handleNext : undefined}
+                            size={25}
+                            className={`ml-8 transition ${
+                                isNextDisabled
+                                    ? "text-gray-300 cursor-not-allowed"
+                                    : "text-gray-600 hover:text-black cursor-pointer"
+                            }`}
+                        />
                     </div>
                 )}
 

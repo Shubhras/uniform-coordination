@@ -6,7 +6,10 @@ import { FiSearch, FiEye, FiDownload, FiX, FiEdit2, FiSend } from "react-icons/f
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetQUotationList } from "@/services/B2BAccountService";
-import { apiResendQuotation } from "@/services/QuotationHistoryService";
+import {
+  apiResendQuotation,
+  apiExportQuotationCsv,
+} from "@/services/QuotationHistoryService";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -25,12 +28,25 @@ const QuotationHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [exporting, setExporting] = useState(false);
 
   const statusOptions = useMemo(
     () => [
       { value: "", label: t("statusFilter.allStatus") },
       { value: "Pending", label: t("statusFilter.pending") },
       { value: "Approved", label: t("statusFilter.approved") },
+      {
+        value: "Accepted",
+        label: t.has("statusFilter.accepted")
+          ? t("statusFilter.accepted")
+          : "Accepted",
+      },
+      {
+        value: "Received",
+        label: t.has("statusFilter.received")
+          ? t("statusFilter.received")
+          : "Received",
+      },
       { value: "Sent", label: t("statusFilter.sent") },
       { value: "Cancelled", label: t("statusFilter.cancelled") },
     ],
@@ -109,6 +125,110 @@ const QuotationHistory = () => {
       );
     } finally {
       setSendingId(null);
+    }
+  };
+
+  const handleExportCsv = async () => {
+    if (exporting) return;
+    try {
+      setExporting(true);
+      const res = await apiExportQuotationCsv(accessToken, {
+        search: debouncedSearch,
+        status: selectedCategory?.value || "",
+      });
+
+      if (res instanceof Blob) {
+        if (res.type && res.type.includes("application/json")) {
+          const text = await res.text();
+          const json = JSON.parse(text);
+          if (json?.file_url || json?.url || json?.csv_url) {
+            window.open(json.file_url || json.url || json.csv_url, "_blank");
+            return;
+          }
+          if (json?.status === false || json?.message) {
+            toast.push(
+              <Notification
+                title={t.has("errorTitle") ? t("errorTitle") : "Error"}
+                type="danger"
+              >
+                {json.message || "Failed to export quotation history"}
+              </Notification>
+            );
+            return;
+          }
+        }
+
+        const url = window.URL.createObjectURL(res);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `quotation_history_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+        toast.push(
+          <Notification
+            title={t.has("successTitle") ? t("successTitle") : "Success"}
+            type="success"
+          >
+            {t.has("exportSuccess")
+              ? t("exportSuccess")
+              : "Quotation history exported successfully!"}
+          </Notification>
+        );
+      } else if (res?.file_url || res?.url || res?.csv_url) {
+        window.open(res.file_url || res.url || res.csv_url, "_blank");
+      } else if (typeof res === "string") {
+        const blob = new Blob([res], { type: "text/csv;charset=utf-8;" });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `quotation_history_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+        toast.push(
+          <Notification
+            title={t.has("successTitle") ? t("successTitle") : "Success"}
+            type="success"
+          >
+            {t.has("exportSuccess")
+              ? t("exportSuccess")
+              : "Quotation history exported successfully!"}
+          </Notification>
+        );
+      }
+    } catch (error) {
+      console.error("Failed to export quotation history CSV:", error);
+      let errorMsg = t.has("exportFailed")
+        ? t("exportFailed")
+        : "Failed to export quotation history";
+
+      if (error?.response?.data instanceof Blob) {
+        try {
+          const errText = await error.response.data.text();
+          const errJson = JSON.parse(errText);
+          errorMsg = errJson?.message || errJson?.detail || errorMsg;
+        } catch (e) {
+          // ignore parsing error
+        }
+      } else if (error?.response?.data?.message) {
+        errorMsg = error.response.data.message;
+      }
+
+      toast.push(
+        <Notification
+          title={t.has("errorTitle") ? t("errorTitle") : "Error"}
+          type="danger"
+        >
+          {errorMsg}
+        </Notification>
+      );
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -206,13 +326,22 @@ const QuotationHistory = () => {
               {t("title")}
             </h1>
             <p className="text-[#486284] text-sm">
-              {t("subtitle")}
+              {t("totalQuotations", { count: totalItems })}
             </p>
           </div>
 
-          <button className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium transition">
-            <FiDownload />
-            {t("exportCsv")}
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            disabled={exporting}
+            className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#163F86] transition disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <FiDownload className={exporting ? "animate-bounce" : ""} />
+            {exporting
+              ? t.has("exporting")
+                ? t("exporting")
+                : "Exporting..."
+              : t("exportCsv")}
           </button>
         </div>
 
@@ -225,7 +354,7 @@ const QuotationHistory = () => {
               placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 border border-[#00345F] rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2"
             />
             {search && (
               <button
@@ -306,17 +435,18 @@ const QuotationHistory = () => {
                       <td className="px-5 py-3">
                         <span
                           className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold capitalize
-      ${
-        q.quotation_status === "approved"
-          ? "bg-green-100 text-green-700"
-          : q.quotation_status === "pending"
-            ? "bg-yellow-100 text-yellow-700"
-            : q.quotation_status === "sent"
-              ? "bg-blue-100 text-blue-700"
-              : q.quotation_status === "cancelled"
-                ? "bg-red-100 text-red-700"
-                : "bg-gray-100 text-gray-700"
-      }`}
+      ${(q.quotation_status || "").toLowerCase() === "approved" || (q.quotation_status || "").toLowerCase() === "accepted"
+                              ? "bg-green-100 text-green-700"
+                              : (q.quotation_status || "").toLowerCase() === "pending"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : (q.quotation_status || "").toLowerCase() === "received"
+                                  ? "bg-purple-100 text-purple-700"
+                                  : (q.quotation_status || "").toLowerCase() === "sent"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : (q.quotation_status || "").toLowerCase() === "cancelled"
+                                      ? "bg-red-100 text-red-700"
+                                      : "bg-gray-100 text-gray-700"
+                            }`}
                         >
                           {(() => {
                             // next-intl has no defaultValue option — an unmapped
@@ -338,25 +468,23 @@ const QuotationHistory = () => {
                             title="Send Quotation Response"
                             disabled={sendingId === (q.quotation_id || q.id)}
                             onClick={() => handleSendQuotation(q)}
-                            className="text-gray-500 hover:text-emerald-600 transition disabled:opacity-40"
+                            className="p-2 rounded-md bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors disabled:opacity-40"
                           >
-                            <FiSend size={16} />
+                            <FiSend size={14} />
                           </button>
                           <button
                             onClick={() =>
                               router.push(`/customer/edit/${q.uuids}`)
                             }
-                            className="text-gray-500 hover:text-[#1C2C56]"
-                            title="Edit Quotation"
+                            className="p-2 rounded-md bg-[#EEF2FF] text-[#1C2C56] hover:bg-[#E0E7FF] transition-colors"
                           >
-                            <FiEdit2 size={16} />
+                            <FiEdit2 size={14} />
                           </button>
                           <button
                             onClick={() =>
                               router.push(`/customer/view/${q.uuids}`)
                             }
-                            className="text-gray-500 hover:text-[#1C2C56]"
-                            title="View Quotation"
+                            className="p-2 rounded-md bg-[#EEF4FF] text-[#1C4FA8] hover:bg-[#DCE8FF] transition-colors"
                           >
                             <FiEye size={16} />
                           </button>

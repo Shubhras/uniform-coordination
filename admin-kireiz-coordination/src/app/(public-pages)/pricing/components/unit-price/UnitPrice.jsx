@@ -357,8 +357,7 @@ const UnitPrice = () => {
                     <td className="px-4 py-4">
                       <button
                         onClick={() => handleOpenEdit(item)}
-                        title="Edit Unit Price"
-                        className="text-[#1C4FA8] hover:text-[#163E85] transition-colors p-1.5 rounded hover:bg-blue-50"
+                        className="p-2 rounded-md bg-[#EEF2FF] text-[#1C2C56] hover:bg-[#E0E7FF] transition-colors"
                       >
                         <FiEdit2 size={16} />
                       </button>
@@ -435,11 +434,10 @@ const UnitPrice = () => {
                   value={editPrice}
                   onChange={(e) => handlePriceChange(e.target.value)}
                   placeholder="0.00"
-                  className={`w-full mt-1 border ${
-                    fieldError
-                      ? "border-red-500 focus:ring-red-400"
-                      : "border-gray-300 focus:ring-[#1C4FA8]"
-                  } rounded-lg px-3 py-2 text-sm outline-none focus:ring-2`}
+                  className={`w-full mt-1 border ${fieldError
+                    ? "border-red-500 focus:ring-red-400"
+                    : "border-gray-300 focus:ring-[#1C4FA8]"
+                    } rounded-lg px-3 py-2 text-sm outline-none focus:ring-2`}
                 />
                 {fieldError && (
                   <p className="text-red-500 text-xs mt-1">{fieldError}</p>

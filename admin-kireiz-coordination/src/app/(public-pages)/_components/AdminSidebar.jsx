@@ -85,12 +85,12 @@ const sidebarMenu = [
     path: "/system-settings",
     slug: "system_settings",
   },
-  {
-    labelKey: "quotationRequests",
-    icon: FiFileText,
-    path: "/quotation-requests",
-    slug: "quotation_requests",
-  },
+  // {
+  //   labelKey: "quotationRequests",
+  //   icon: FiFileText,
+  //   path: "/quotation-requests",
+  //   slug: "quotation_requests",
+  // },
 ];
 
 const AdminSidebar = ({ collapsed, onToggle }) => {

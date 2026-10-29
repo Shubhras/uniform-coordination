@@ -73,25 +73,6 @@ const DashboardStats = ({ data }) => {
             </h2>
           </div>
 
-          <div className="mt-4 flex items-center gap-2 text-sm">
-            {quoteChange >= 0 ? (
-              <>
-                <FiTrendingUp className="text-base text-green-400" />
-                <span className="font-medium text-green-400">
-                  {quoteChange}%
-                </span>
-                <span className="text-[#486284]">{t("upFromYesterday")}</span>
-              </>
-            ) : (
-              <>
-                <FiTrendingDown className="text-base text-red-400" />
-                <span className="font-medium text-red-400">
-                  {Math.abs(quoteChange)}%
-                </span>
-                <span className="text-[#486284]">{t("downFromYesterday")}</span>
-              </>
-            )}
-          </div>
         </div>
         <div className="bg-[#F4F7FC] rounded-xl border border-[#ececec] shadow-md p-6 flex flex-col justify-between">
           <div>

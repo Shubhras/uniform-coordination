@@ -231,7 +231,7 @@ const SimulationStructure = () => {
 
   return (
     <div className="mt-5">
-      <h2 className="text-lg font-semibold text-[#1C2C56]">
+      <h2 className="text-2xl font-semibold text-[#1C2C56]">
         {t("structureTitle")}
       </h2>
       <p className="text-sm text-[#64748B] mt-1">{t("structureSubtitle")}</p>
@@ -248,11 +248,10 @@ const SimulationStructure = () => {
                 <button
                   type="button"
                   onClick={() => setActive(name)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm truncate transition ${
-                    active === name
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm truncate transition ${active === name
                       ? "bg-[#E8EEF9] text-[#1C2C56] font-medium"
                       : "text-[#486284] hover:bg-[#F8FAFC]"
-                  }`}
+                    }`}
                 >
                   {name}
                 </button>

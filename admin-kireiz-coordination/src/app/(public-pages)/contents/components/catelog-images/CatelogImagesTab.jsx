@@ -8,8 +8,6 @@ import {
   FiImage,
   FiEdit2,
   FiTrash2,
-  FiChevronLeft,
-  FiChevronRight,
   FiX,
 } from "react-icons/fi";
 import { toast } from "@/components/ui/toast";
@@ -150,13 +148,6 @@ const CatelogImagesTab = () => {
     });
   }, [images, search]);
 
-  /* ---------- PAGINATION ---------- */
-  const goToPage = (page) => {
-    if (page >= 1 && page <= pagination.total_pages) {
-      setCurrentPage(page);
-    }
-  };
-
   /* ---------- SKELETON ---------- */
   const CardSkeleton = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
@@ -291,45 +282,18 @@ const CatelogImagesTab = () => {
         )}
 
         {/* Pagination */}
-        {!loading && pagination.total_pages > 1 && (
-          <div className="flex items-center justify-between mt-6 px-2">
-            <p className="text-sm text-[#64748B]">
-              Page {pagination.page} of {pagination.total_pages} (
-              {pagination.total_items || images.length} items)
-            </p>
-
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-              >
-                <FiChevronLeft size={16} />
-              </button>
-
-              <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === pagination.total_pages}
-                className="p-2 rounded-md border border-[#E2E8F0] disabled:opacity-30 hover:bg-[#F1F5F9] transition-colors"
-              >
-                <FiChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="mt-5">
-        <Pagination
-          currentPage={currentPage}
-          pageSize={pageSize}
-          total={pagination.total_items}
-          onChange={(page) => setCurrentPage(page)}
-          onPageSizeChange={(size) => {
-            setPageSize(size);
-            setCurrentPage(1);
-          }}
-        />
+        <div className="mt-5">
+          <Pagination
+            currentPage={currentPage}
+            pageSize={pageSize}
+            total={pagination.total_items}
+            onChange={(page) => setCurrentPage(page)}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
       </div>
 
       {/* Modals */}

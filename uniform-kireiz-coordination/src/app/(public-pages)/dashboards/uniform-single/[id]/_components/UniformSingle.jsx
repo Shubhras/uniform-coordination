@@ -78,7 +78,7 @@ const UniformSingle = () => {
                         {product?.subcategory?.name}
                     </p>
                 </div>
-               
+
                 {/* HEADER */}
                 <div className='bg-[#F5F8FF] rounded-xl  md:p-8 p-5'>
                     <div className="text-center mb-12 ">
@@ -121,13 +121,13 @@ const UniformSingle = () => {
                             {/* DATA */}
                             {!loading && !error && product && (
                                 <>
-                                    <div className="flex flex-col gap-5">
+                                    <div className="flex flex-col gap-1">
                                         <h3 className="text-[#1C2C56] text-2xl font-semibold capitalize">
                                             {product.productName}
                                         </h3>
 
                                         <div className="flex justify-between items-center text-xs">
-                                            <p className="text-[#6B7280]">
+                                            <p className="text-[#6B7280] text-[14px]">
                                                 Category: {product.subcategory?.name || 'N/A'}
                                             </p>
 
@@ -145,7 +145,7 @@ const UniformSingle = () => {
                                         Customize
                                     </button>
                                     <div className="pt-4 space-y-3 flex-1">
-                                        <h4 className="text-[#1C2C56] font-semibold">
+                                        <h4 className="text-[#000000] font-semibold">
                                             Description
                                         </h4>
 
@@ -157,21 +157,31 @@ const UniformSingle = () => {
                                             Price: ${product.price}
                                         </p> */}
                                         {product.type && (
-                                            <p className="text-[#6B7280] text-sm leading-relaxed capitalize">
+                                            <p className="text-[#000000] text-[15px] leading-relaxed capitalize">
                                                 Type: {product.type}
                                             </p>
                                         )}
 
                                         {Array.isArray(product.parts) && product.parts.length > 0 && (
-                                            <div className="text-[#6B7280] text-sm leading-relaxed">
-                                                <span>Parts: </span>
-                                                {product.parts.map((part, index) => (
-                                                    <span key={part.id}>
-                                                        {part.partName}
-                                                        {part.category?.categoryName ? ` (${part.category.categoryName})` : ''}
-                                                        {index < product.parts.length - 1 ? ', ' : ''}
-                                                    </span>
-                                                ))}
+                                            <div className="text-sm">
+                                                <span className="text-[#000000] text-[15px]">Parts:</span>
+                                                <div className="flex flex-wrap gap-2 mt-1.5">
+                                                    {product.parts.map((part) => (
+                                                        <span
+                                                            key={part.id}
+                                                            className="inline-flex items-center px-2.5 py-1 rounded-md text-xs bg-gray-100 text-gray-700"
+                                                        >
+                                                            <span className="font-medium text-gray-800">
+                                                                {part.partName}
+                                                            </span>
+                                                            {part.category?.categoryName && (
+                                                                <span className="text-gray-500 ml-1">
+                                                                    ({part.category.categoryName})
+                                                                </span>
+                                                            )}
+                                                        </span>
+                                                    ))}
+                                                </div>
                                             </div>
                                         )}
 

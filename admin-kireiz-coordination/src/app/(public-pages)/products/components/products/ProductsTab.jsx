@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   FiTrash2,
@@ -9,6 +10,7 @@ import {
   FiSearch,
   FiPlus,
   FiX,
+  FiEye,
 } from "react-icons/fi";
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -23,6 +25,7 @@ import Pagination from "@/components/ui/Pagination";
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 const ProductsTab = () => {
+  const router = useRouter();
   const t = useTranslations("productSpecification.products");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
@@ -360,12 +363,22 @@ const ProductsTab = () => {
 
                 <div className="flex gap-2 mt-auto mt-4">
                   <button
+                    type="button"
+                    onClick={() => router.push(`/products/view/${item.id}`)}
+                    title={t("view")}
+                    className="border border-[#CBD5E1] text-[#486284] hover:text-[#1C4FA8] hover:border-[#1C4FA8] hover:bg-[#F8FAFC] px-2.5 py-2 rounded-md flex items-center justify-center transition-colors"
+                  >
+                    <FiEye size={14} />
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => handleEdit(item)}
                     className="flex-1 bg-[#1C4FA8] text-white text-xs py-2 rounded-md"
                   >
                     {t("edit")}
                   </button>
                   <button
+                    type="button"
                     onClick={() => {
                       setProductToDelete(item);
                       setDeleteDialogOpen(true);

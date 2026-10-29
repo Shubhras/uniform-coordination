@@ -38,3 +38,24 @@ export async function apiExportQuotationPdf(accessToken, quotationId) {
     headers: authHeader(accessToken),
   });
 }
+
+// Exports the quotation history as a CSV file.
+export async function apiExportQuotationCsv(
+  accessToken,
+  { search = "", status = "" } = {},
+) {
+  const params = new URLSearchParams();
+  if (search) params.set("search", search);
+  if (status) params.set("status", status);
+
+  const query = params.toString();
+  const url = `/v1/uniformAdmin/quotation-history/export/csv/${query ? `?${query}` : ""}`;
+
+  return ApiService.fetchDataWithAxios({
+    url,
+    method: "get",
+    responseType: "blob",
+    headers: authHeader(accessToken),
+  });
+}
+

@@ -112,7 +112,7 @@ const Assignments = () => {
 
                 <button
                     onClick={() => setAddOpen(true)}
-                    className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium"
+                    className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 hover:bg-[#163F86] rounded-md text-sm font-medium"
                 >
                     <FiUserPlus size={16} />
                     {t("addRepresentative")}
@@ -166,11 +166,10 @@ const Assignments = () => {
                                     <div
                                         ref={provided.innerRef}
                                         {...provided.droppableProps}
-                                        className={`border rounded-xl p-3 min-h-[500px] transition-colors ${
-                                            snapshot.isDraggingOver
-                                                ? "bg-blue-50 border-blue-300"
-                                                : "bg-[#F8FAFC] border-[#E2E8F0]"
-                                        }`}
+                                        className={`border rounded-xl p-3 min-h-[500px] transition-colors ${snapshot.isDraggingOver
+                                            ? "bg-blue-50 border-blue-300"
+                                            : "bg-[#F8FAFC] border-[#E2E8F0]"
+                                            }`}
                                     >
                                         {/* Column Header */}
                                         <h3 className="text-sm font-semibold text-[#1C2C56] mb-3 flex items-center justify-between gap-2">

@@ -129,9 +129,9 @@ const B2BAccounts = () => {
         setAccounts(response.data);
         setTotalItems(
           response.count ||
-            response.pagination?.total_items ||
-            response.pagination?.count ||
-            0,
+          response.pagination?.total_items ||
+          response.pagination?.count ||
+          0,
         );
       }
     } catch (error) {
@@ -240,7 +240,7 @@ const B2BAccounts = () => {
           </div>
 
           <button
-            className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+            className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-[#163F86]"
             onClick={() => {
               setEditData(null);
               setOpenModal(true);
@@ -363,11 +363,10 @@ const B2BAccounts = () => {
                       </td>
                       <td className="px-5 py-4">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            acc.is_active
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${acc.is_active
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                            }`}
                         >
                           {acc.is_active ? tStatus("active") : tStatus("inactive")}
                         </span>
@@ -376,35 +375,32 @@ const B2BAccounts = () => {
                       <td className="px-5 py-4">
                         <div className="flex items-center justify-end gap-1">
                           <button
-                            className="text-[#1C4FA8] hover:bg-[#EEF4FF] p-1.5 rounded"
-                            title="View Profile"
+                            className="p-2 rounded-md bg-[#EEF4FF] text-[#1C4FA8] hover:bg-[#DCE8FF] transition-colors"
                             onClick={() => {
                               setSelectedAccount(acc);
                               setViewModalOpen(true);
                             }}
                           >
-                            <FiEye size={17} />
+                            <FiEye size={14} />
                           </button>
                           <button
-                            className="text-[#1C2C56] hover:text-[#0F172A] p-1.5 rounded hover:bg-[#EEF2FF]"
-                            title="Edit User"
+                            className="p-2 rounded-md bg-[#EEF2FF] text-[#1C2C56] hover:bg-[#E0E7FF] transition-colors"
                             onClick={() => {
                               setEditData(acc);
                               setOpenModal(true);
                             }}
                           >
-                            <FiEdit2 size={16} />
+                            <FiEdit2 size={14} />
                           </button>
                           {!isMainAdmin && (
                             <button
-                              className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50"
-                              title="Delete User"
+                              className="p-2 rounded-md bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
                               onClick={() => {
                                 setAccountToDelete(acc);
                                 setDeleteDialogOpen(true);
                               }}
                             >
-                              <FiTrash2 size={16} />
+                              <FiTrash2 size={14} />
                             </button>
                           )}
                         </div>

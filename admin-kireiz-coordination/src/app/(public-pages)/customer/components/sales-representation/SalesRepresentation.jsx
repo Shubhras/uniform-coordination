@@ -126,7 +126,7 @@ const SalesRepresentation = () => {
 
                 <button
                     onClick={() => setAddOpen(true)}
-                    className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+                    className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#163F86] transition"
                 >
                     <FiUserPlus />
                     {t("addRepresentative")}
@@ -206,8 +206,8 @@ const SalesRepresentation = () => {
 
                                 <span
                                     className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap self-start ${rep.is_active
-                                            ? "bg-green-100 text-green-700"
-                                            : "bg-gray-200 text-gray-600"
+                                        ? "bg-green-100 text-green-700"
+                                        : "bg-gray-200 text-gray-600"
                                         }`}
                                 >
                                     {rep.is_active ? tStatus("active") : tStatus("inactive")}
@@ -253,7 +253,7 @@ const SalesRepresentation = () => {
                                 <button
                                     onClick={() => setEditRep(rep)}
                                     title={`Edit ${rep.name}`}
-                                    className="p-2 border border-gray-300 rounded-lg text-[#1C2C56] hover:bg-gray-100 transition"
+                                    className="p-2 border border-gray-300 rounded-lg text-[#1C2C56] hover:bg-[#E0E7FF] transition"
                                 >
                                     <FiEdit2 size={16} />
                                 </button>
@@ -268,7 +268,7 @@ const SalesRepresentation = () => {
                                     type="button"
                                     onClick={() => handleOpenComposeEmail(rep.email, rep.name)}
                                     title={`Email ${rep.email}`}
-                                    className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-[#1C4FA8] transition"
+                                    className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-[#E0E7FF] hover:text-[#1C4FA8] transition"
                                 >
                                     <FiMail size={16} />
                                 </button>

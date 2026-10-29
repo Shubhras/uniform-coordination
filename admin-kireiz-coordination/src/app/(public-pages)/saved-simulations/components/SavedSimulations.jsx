@@ -152,11 +152,10 @@ const SavedSimulations = () => {
         {badges.slice(0, 3).map((b, idx) => (
           <span
             key={idx}
-            className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${
-              b.startsWith("Quote:")
-                ? "bg-green-50 text-green-700 border border-green-200"
-                : "bg-[#E8EEF9] text-[#1C2C56]"
-            }`}
+            className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${b.startsWith("Quote:")
+              ? "bg-green-50 text-green-700 border border-green-200"
+              : "bg-[#E8EEF9] text-[#1C2C56]"
+              }`}
           >
             {b}
           </span>
@@ -375,10 +374,9 @@ const SavedSimulations = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedSimulation(item)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E2E8F0] bg-white text-xs font-semibold text-[#1C2C56] hover:bg-[#F8FAFC] hover:border-[#1C2C56] transition-all shadow-sm"
+                      className="p-2 rounded-md bg-[#EEF4FF] text-[#1C4FA8] hover:bg-[#DCE8FF] transition-colors shadow-sm"
                     >
                       <FiEye size={14} />
-                      {t("viewDetails")}
                     </button>
                   </td>
                 </tr>

@@ -83,7 +83,7 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                     {/* FILTER + SORT BAR */}
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
 
-                       
+
                         {/* <div className="flex flex-wrap items-center gap-5 border border-[#1C2C56] bg-[#F5F8FF] rounded-lg px-3 py-2">
                             <span className="text-sm text-[#1C2C56] font-medium mr-1">
                                 Filters :
@@ -204,7 +204,7 @@ const CategorySection = ({ subCategoryData, activeFilter, setActiveFilter, sortB
                     })
                 ) : (
                     <div className="text-center py-10 text-gray-500">
-                        No categories found.
+                        No Sub-Categories found.
                     </div>
                 )}
             </div>
