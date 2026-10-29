@@ -11,6 +11,7 @@ import {
   FiBarChart2,
   FiLayers,
   FiImage,
+  FiLock,
 } from "react-icons/fi";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
@@ -245,41 +246,44 @@ const AddProduct = () => {
   }, [accessToken, category?.value]);
 
   const selectStyles = {
-    control: (base) => ({
+    control: (base, state) => ({
       ...base,
       minHeight: "48px",
       height: "48px",
-      borderColor: "#E9DDD3",
+      borderColor: state.isDisabled ? "#E5DCD4" : "#E9DDD3",
       borderRadius: "12px",
-      backgroundColor: "#FCFAF8",
+      backgroundColor: state.isDisabled ? "#F5EFEB" : "#FCFAF8",
       boxShadow: "none",
-      cursor: "pointer",
+      cursor: state.isDisabled ? "not-allowed" : "pointer",
+      opacity: state.isDisabled ? 0.75 : 1,
       "&:hover": {
-        borderColor: "#A85A32",
+        borderColor: state.isDisabled ? "#E5DCD4" : "#A85A32",
       },
     }),
 
-    valueContainer: (base) => ({
+    valueContainer: (base, state) => ({
       ...base,
       height: "48px",
       padding: "0 12px",
+      cursor: state?.isDisabled ? "not-allowed" : "pointer",
     }),
 
     indicatorSeparator: () => ({
       display: "none",
     }),
 
-    dropdownIndicator: (base) => ({
+    dropdownIndicator: (base, state) => ({
       ...base,
-      color: "#8D7A6C",
+      color: state.isDisabled ? "#B8A79B" : "#8D7A6C",
+      cursor: state.isDisabled ? "not-allowed" : "pointer",
       "&:hover": {
-        color: "#8D7A6C",
+        color: state.isDisabled ? "#B8A79B" : "#8D7A6C",
       },
     }),
 
-    placeholder: (base) => ({
+    placeholder: (base, state) => ({
       ...base,
-      color: "#8D7A6C",
+      color: state.isDisabled ? "#A8978A" : "#8D7A6C",
     }),
 
     singleValue: (base) => ({
@@ -542,10 +546,15 @@ const AddProduct = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           {/* Table Shape */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("tableShape")}
-            </label>
+          <div
+            className={`transition-all duration-200 ${!category ? "opacity-60 cursor-not-allowed" : ""}`}
+            title={!category ? (t("selectCategoryFirst") || "Please select a category first") : undefined}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <label className={`block text-xs font-semibold uppercase tracking-wide ${!category ? "text-[#A89689]" : "text-[#8C6E5D]"}`}>
+                {t("tableShape")}
+              </label>
+            </div>
             <Select
               value={tableShape}
               onChange={(value) => {
@@ -558,16 +567,18 @@ const AddProduct = () => {
               isSearchable={false}
               isDisabled={!category}
             />
-            {!category && (
-              <p className="text-xs text-[#8D7A6C] mt-1">{t("selectCategoryFirst") || "Please select a category first"}</p>
-            )}
           </div>
 
           {/* Style */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("style")}
-            </label>
+          <div
+            className={`transition-all duration-200 ${!category ? "opacity-60 cursor-not-allowed" : ""}`}
+            title={!category ? (t("selectCategoryFirst") || "Please select a category first") : undefined}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <label className={`block text-xs font-semibold uppercase tracking-wide ${!category ? "text-[#A89689]" : "text-[#8C6E5D]"}`}>
+                {t("style")}
+              </label>
+            </div>
             <Select
               value={style}
               onChange={(value) => {
@@ -580,16 +591,18 @@ const AddProduct = () => {
               isSearchable={false}
               isDisabled={!category}
             />
-            {!category && (
-              <p className="text-xs text-[#8D7A6C] mt-1">{t("selectCategoryFirst") || "Please select a category first"}</p>
-            )}
           </div>
 
           {/* Fabric */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("fabric")} <span className="text-red-500">*</span>
-            </label>
+          <div
+            className={`transition-all duration-200 ${!category ? "opacity-60 cursor-not-allowed" : ""}`}
+            title={!category ? (t("selectCategoryFirst") || "Please select a category first") : undefined}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <label className={`block text-xs font-semibold uppercase tracking-wide ${!category ? "text-[#A89689]" : "text-[#8C6E5D]"}`}>
+                {t("fabric")} <span className="text-red-500">*</span>
+              </label>
+            </div>
             <Select
               value={fabric}
               onChange={(value) => {
@@ -609,16 +622,19 @@ const AddProduct = () => {
             {errors.fabric && (
               <p className="text-red-500 text-sm mt-1">{errors.fabric}</p>
             )}
-            {!category && (
-              <p className="text-xs text-[#8D7A6C] mt-1">{t("selectCategoryFirst") || "Please select a category first"}</p>
-            )}
           </div>
 
           {/* Color */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("color")} <span className="text-red-500">*</span>
-            </label>
+          <div
+            className={`transition-all duration-200 ${!category ? "opacity-60 cursor-not-allowed" : ""}`}
+            title={!category ? (t("selectCategoryFirst") || "Please select a category first") : undefined}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <label className={`block text-xs font-semibold uppercase tracking-wide ${!category ? "text-[#A89689]" : "text-[#8C6E5D]"}`}>
+                {t("color")} <span className="text-red-500">*</span>
+              </label>
+
+            </div>
             <Select
               value={color}
               onChange={(value) => {
@@ -638,16 +654,18 @@ const AddProduct = () => {
             {errors.color && (
               <p className="text-red-500 text-sm mt-1">{errors.color}</p>
             )}
-            {!category && (
-              <p className="text-xs text-[#8D7A6C] mt-1">{t("selectCategoryFirst") || "Please select a category first"}</p>
-            )}
           </div>
 
           {/* Table Size */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("tableSize")} <span className="text-red-500">*</span>
-            </label>
+          <div
+            className={`transition-all duration-200 ${!category ? "opacity-60 cursor-not-allowed" : ""}`}
+            title={!category ? (t("selectCategoryFirst") || "Please select a category first") : undefined}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <label className={`block text-xs font-semibold uppercase tracking-wide ${!category ? "text-[#A89689]" : "text-[#8C6E5D]"}`}>
+                {t("tableSize")} <span className="text-red-500">*</span>
+              </label>
+            </div>
             <Select
               value={size}
               onChange={(value) => {
@@ -666,9 +684,6 @@ const AddProduct = () => {
             />
             {errors.size && (
               <p className="text-red-500 text-sm mt-1">{errors.size}</p>
-            )}
-            {!category && (
-              <p className="text-xs text-[#8D7A6C] mt-1">{t("selectCategoryFirst") || "Please select a category first"}</p>
             )}
           </div>
 
