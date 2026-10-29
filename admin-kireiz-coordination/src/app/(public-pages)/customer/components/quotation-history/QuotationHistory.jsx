@@ -306,17 +306,16 @@ const QuotationHistory = () => {
                       <td className="px-5 py-3">
                         <span
                           className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold capitalize
-      ${
-        q.quotation_status === "approved"
-          ? "bg-green-100 text-green-700"
-          : q.quotation_status === "pending"
-            ? "bg-yellow-100 text-yellow-700"
-            : q.quotation_status === "sent"
-              ? "bg-blue-100 text-blue-700"
-              : q.quotation_status === "cancelled"
-                ? "bg-red-100 text-red-700"
-                : "bg-gray-100 text-gray-700"
-      }`}
+      ${q.quotation_status === "approved"
+                              ? "bg-green-100 text-green-700"
+                              : q.quotation_status === "pending"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : q.quotation_status === "sent"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : q.quotation_status === "cancelled"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-gray-100 text-gray-700"
+                            }`}
                         >
                           {(() => {
                             // next-intl has no defaultValue option — an unmapped

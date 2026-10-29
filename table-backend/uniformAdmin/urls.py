@@ -180,6 +180,8 @@ urlpatterns = [
     
     #<-------------------QuotationRequestList------------------->
     path('quotationrequest/get/',QuotationRequestListAPIView.as_view(), name = 'QuotationRequest-getlist'),
+    path('quotationrequest/export/csv/',QuotationRequestExportCSVAPIView.as_view(), name = 'QuotationRequest-export-csv'),
+    path('quotation-history/export/csv/',QuotationRequestExportCSVAPIView.as_view(), name = 'quotation-history-export-csv'),
 
     #<-------------------QuotationTamplate----------------------->
     path('quotationrequesttamplate/create/',QuotationTemplateCreateAPIView.as_view(), name='QuotationRequest-create'),

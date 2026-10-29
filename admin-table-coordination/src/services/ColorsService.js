@@ -5,6 +5,7 @@ export async function apiGetColorsList(
   page = 1,
   pageSize = 10,
   search = "",
+  categoryId = "",
 ) {
   const params = new URLSearchParams({
     page,
@@ -13,6 +14,10 @@ export async function apiGetColorsList(
 
   if (search?.trim()) {
     params.append("search", search.trim());
+  }
+
+  if (categoryId) {
+    params.append("category_id", categoryId);
   }
 
   return ApiService.fetchDataWithAxios({

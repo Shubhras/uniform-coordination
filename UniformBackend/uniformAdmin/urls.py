@@ -151,6 +151,7 @@ urlpatterns = [
     
     #<-------------------QuotationRequestList------------------->
     path('quotationrequest/get/',QuotationRequestListAPIView.as_view(), name = 'QuotationRequest-getlist'),
+    path('quotationrequest/export/csv/',QuotationHistoryExportCSVAPIView.as_view(), name = 'QuotationRequest-export-csv'),
     path("quotation-request/<uuid:uuid>/",QuotationRequestDetailAPIView.as_view(),name="quotation-request-detail",),
     path("quotation-request/<uuid:uuid>/update/",QuotationRequestUpdateAPIView.as_view(),name="quotation-request-update",),
         
@@ -205,6 +206,7 @@ urlpatterns = [
     # Quotation History (Pricing -> PDF Templates tab)
     path("quotation-history/",QuotationHistoryListAPIView.as_view(),name="quotation-history-list"),
     path("quotation-history/<str:quotation_id>/resend/",QuotationResendAPIView.as_view(),name="quotation-history-resend"),
+    path("quotation-history/export/csv/",QuotationHistoryExportCSVAPIView.as_view(),name="quotation-history-export-csv"),
 
     # Sales Representation + Territory/Account Assignment
     path("sales-reps/",SalesRepListAPIView.as_view(),name="sales-rep-list"),

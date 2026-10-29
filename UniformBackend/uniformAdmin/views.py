@@ -591,7 +591,10 @@ class AdminListProductsAPIView(APIView):
             #         Q(theme__themeName__icontains=search)  # replace themeName with your actual field if different
             #     )    
 
-            serializer = ProductSerializer(products, many=True, context={'request': request})
+            paginator = CustomPagination()
+            page = paginator.paginate_queryset(products, request)
+
+            serializer = ProductSerializer(page, many=True, context={'request': request})
 
             # Fetch subcategory details and category details if subcategory_id is provided
             subcategory_data = None
@@ -613,13 +616,27 @@ class AdminListProductsAPIView(APIView):
                 except SubCategory.DoesNotExist:
                     pass
 
-            return Response({
-                "status": True,
+            response = {
+                "count": paginator.page.paginator.count,
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link(),
+                "page": paginator.page.number,
+                "page_size": paginator.get_page_size(request),
+                "total_pages": paginator.page.paginator.num_pages,
+                "total_items": paginator.page.paginator.count,
                 "statusCode": 200,
+                "status": True,
                 "message": "Products fetched successfully.",
                 "subcategory": subcategory_data,
-                "data": serializer.data
-            }, status=status.HTTP_200_OK)
+                "data": serializer.data,
+                "pagination": {
+                    "page": paginator.page.number,
+                    "page_size": paginator.get_page_size(request),
+                    "total_pages": paginator.page.paginator.num_pages,
+                    "total_items": paginator.page.paginator.count,
+                }
+            }
+            return Response(response, status=status.HTTP_200_OK)
 
         except Exception as exc:
             return Response({

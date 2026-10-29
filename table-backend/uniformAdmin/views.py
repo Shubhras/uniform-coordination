@@ -18,6 +18,8 @@ from .models import *
 from userhub.models import QuotationRequest, CustomUpdateModels, CustomUpdateThemes
 from userhub.serializers import QuotationRequestSerializer,userOrderSerializer
 from django.db.models import Q
+from django.http import HttpResponse
+import csv
 from .fabric import CustomPagination
 import traceback
 import stripe
@@ -787,7 +789,128 @@ class QuotationRequestListAPIView(APIView):
             "count": queryset.count(),
             "data": serializer.data
         },status=status.HTTP_200_OK)
-    
+
+
+class QuotationRequestExportCSVAPIView(APIView):
+    """
+    Exports quotation requests / history data as a CSV file.
+    Supports filtering by 'status' and 'search' query parameters.
+    """
+    authentication_classes = [IsAdminUserJWT]
+
+    @extend_schema(
+        tags=["Quotation Request"],
+        summary="Export quotation request list as CSV",
+        parameters=[
+            OpenApiParameter(
+                "status",
+                OpenApiTypes.STR,
+                OpenApiParameter.QUERY,
+                description="Filter by quotation_status (pending, sent, approved, cancelled...)",
+                required=False,
+            ),
+            OpenApiParameter(
+                "search",
+                OpenApiTypes.STR,
+                OpenApiParameter.QUERY,
+                description="Search query (company, quotation id, email, contact, item)",
+                required=False,
+            ),
+        ],
+        responses={200: OpenApiResponse(description="CSV file")},
+    )
+    def get(self, request):
+        try:
+            queryset = (
+                QuotationRequest.objects
+                .filter(isDeleted=False)
+                .select_related("sales_rep")
+                .order_by("-created_at")
+            )
+
+            status_param = request.GET.get("status")
+            if status_param:
+                queryset = queryset.filter(quotation_status__iexact=status_param)
+
+            search = request.GET.get("search")
+            if search:
+                queryset = queryset.filter(
+                    Q(company_name__icontains=search)
+                    | Q(quotation_id__icontains=search)
+                    | Q(email__icontains=search)
+                    | Q(contact_person__icontains=search)
+                    | Q(item_type__icontains=search)
+                )
+
+            stamp = now().strftime("%Y%m%d_%H%M%S")
+            response = HttpResponse(content_type="text/csv; charset=utf-8")
+            response["Content-Disposition"] = f'attachment; filename="quotation_history_{stamp}.csv"'
+            response.write("\ufeff")  # UTF-8 BOM for Microsoft Excel compatibility
+
+            writer = csv.writer(response)
+            writer.writerow([
+                "Quote ID",
+                "Company",
+                "Contact Person",
+                "Email",
+                "Phone Number",
+                "Item Type",
+                "Material",
+                "Size/Quantity",
+                "Status",
+                "Workflow Status",
+                "Subtotal",
+                "Discount (%)",
+                "Total Amount",
+                "Sales Rep",
+                "Created Date",
+                "Valid Until",
+                "Delivery Date",
+                "Last Sent Date",
+            ])
+
+            for q in queryset.iterator():
+                sales_rep_name = ""
+                if hasattr(q, "sales_rep") and q.sales_rep:
+                    sales_rep_name = (
+                        getattr(q.sales_rep, "full_name", None)
+                        or getattr(q.sales_rep, "name", None)
+                        or getattr(q.sales_rep, "email", "")
+                    )
+
+                writer.writerow([
+                    q.quotation_id or "",
+                    q.company_name or "",
+                    q.contact_person or "",
+                    q.email or "",
+                    q.phone_number or "",
+                    q.item_type or "",
+                    q.material or "",
+                    (q.size_quantity or "").replace("\n", " ").replace("\r", ""),
+                    (q.quotation_status or "").capitalize(),
+                    getattr(q, "workflow_status", ""),
+                    getattr(q, "subtotal", "") if getattr(q, "subtotal", None) is not None else "",
+                    getattr(q, "discount_percent", "") if getattr(q, "discount_percent", None) is not None else "",
+                    getattr(q, "total", "") if getattr(q, "total", None) is not None else "",
+                    sales_rep_name,
+                    q.created_at.strftime("%Y-%m-%d %H:%M") if getattr(q, "created_at", None) else "",
+                    q.valid_until.strftime("%Y-%m-%d") if getattr(q, "valid_until", None) else "",
+                    q.delivery_date.strftime("%Y-%m-%d") if getattr(q, "delivery_date", None) else "",
+                    q.last_sent_at.strftime("%Y-%m-%d %H:%M") if getattr(q, "last_sent_at", None) else "",
+                ])
+
+            return response
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "statusCode": 500,
+                    "message": f"Failed to export quotation history: {str(e)}",
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
 #<---------------------QuotationTemplate--------------------->
 
 
