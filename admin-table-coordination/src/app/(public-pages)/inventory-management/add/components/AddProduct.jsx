@@ -30,8 +30,6 @@ import {
 } from "@/services/AttributeService";
 import { useTranslations } from "next-intl";
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
-
 const AddProduct = () => {
   const t = useTranslations("inventoryManagement.addProduct");
   const router = useRouter();
@@ -174,11 +172,6 @@ const AddProduct = () => {
 
     if (!formData.productImage && !previewImage) {
       newErrors.productImage = t("validation.imageRequired");
-    } else if (
-      formData.productImage &&
-      formData.productImage.size > MAX_IMAGE_SIZE
-    ) {
-      newErrors.productImage = t("validation.imageSizeLimit");
     }
 
     setErrors(newErrors);
@@ -186,88 +179,7 @@ const AddProduct = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-<<<<<<< HEAD
-  const colorOptions = colorList.map((item) => ({
-    value: item.id,
-    label: item.colorName,
-  }));
-
-  const isEdit = searchParams.get("mode") === "edit";
-  const productId = searchParams.get("id");
-
-  const [formData, setFormData] = useState({
-    productName: "",
-    description: "",
-    tableShape: "round",
-    style: "premium",
-    size: "",
-    price: "",
-    rentalPricePerDay: "",
-    total_quantity: "",
-    availableQuantity: "",
-    rfidTrackingEnabled: true,
-    isActive: true,
-    productImage: null,
-  });
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > MAX_IMAGE_SIZE) {
-      const errorMsg = t("validation.imageSizeLimit");
-      handleChange("productImage", null);
-      setPreviewImage("");
-      e.target.value = "";
-      setErrors((prev) => ({
-        ...prev,
-        productImage: errorMsg,
-      }));
-      toast.push(
-        <Notification title="Error" type="danger" duration={2500}>
-          {errorMsg}
-        </Notification>,
-      );
-      return;
-    }
-
-    handleChange("productImage", file);
-    setPreviewImage(URL.createObjectURL(file));
-    setErrors((prev) => ({
-      ...prev,
-      productImage: "",
-    }));
-  };
-
-  useEffect(() => {
-    const fetchFabricList = async () => {
-      try {
-        const response = await apiGetFabricList(accessToken);
-
-        console.log(response);
-
-        if (response?.status && response?.data) {
-          setFabricList(response.data);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    if (accessToken) {
-      fetchFabricList();
-    }
-  }, [accessToken]);
-
-=======
   // Fetch all categories once
->>>>>>> 604e42cb70e4c97d6eef77851651f0d6803e6725
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -888,9 +800,22 @@ const AddProduct = () => {
           <label className="mt-5 cursor-pointer">
             <input
               type="file"
-              accept="image/png, image/jpeg, image/jpg"
+              accept="image/*"
               className="hidden"
-              onChange={handleImageChange}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+
+                handleChange("productImage", file);
+
+                if (file) {
+                  setPreviewImage(URL.createObjectURL(file));
+                }
+
+                setErrors((prev) => ({
+                  ...prev,
+                  productImage: "",
+                }));
+              }}
             />
 
             <span className="px-5 py-2 border border-[#D7A07B] rounded-full text-[#A85A32] text-sm font-medium hover:bg-[#FFF4ED] transition">

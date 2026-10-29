@@ -5,20 +5,12 @@ export async function apiGetColorsList(
   page = 1,
   pageSize = 10,
   search = "",
-<<<<<<< HEAD
-  categoryId = null,
-=======
   categoryId = "",
->>>>>>> 604e42cb70e4c97d6eef77851651f0d6803e6725
 ) {
-  const params = new URLSearchParams();
-
-  if (categoryId) {
-    params.append("category_id", categoryId);
-  }
-
-  params.append("page", page);
-  params.append("page_size", pageSize);
+  const params = new URLSearchParams({
+    page,
+    page_size: pageSize,
+  });
 
   if (search?.trim()) {
     params.append("search", search.trim());
