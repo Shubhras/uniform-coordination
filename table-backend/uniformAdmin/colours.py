@@ -82,7 +82,11 @@ class ColorsListView(APIView):
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
+            category_id = request.query_params.get("category_id") or request.query_params.get("category")
             colors = Colors.objects.filter(isDeleted=False)
+
+            if category_id and category_id.strip() and category_id.strip().lower() != "all":
+                colors = colors.filter(category_id=category_id.strip())
 
             if search:
                 colors = colors.filter(

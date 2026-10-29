@@ -116,8 +116,12 @@ class FabricListView(APIView):
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()
+            category_id = request.query_params.get("category_id") or request.query_params.get("category")
 
             fabrics = Fabric.objects.filter(isDeleted=False)
+
+            if category_id and category_id.strip() and category_id.strip().lower() != "all":
+                fabrics = fabrics.filter(category_id=category_id.strip())
 
             if search_query:
                 fabrics = fabrics.filter(

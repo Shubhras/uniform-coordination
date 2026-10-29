@@ -326,12 +326,17 @@ class QuotationRequestCreateAPIView(APIView):
             quotation = serializer.save()
             pdf_path = generate_quotation_pdf(quotation, request)
             # STEP 2 — Send DocuSign
-            envelope_id = send_contract(quotation, pdf_path)
-            print("SAVED ENVELOPE ID =", envelope_id)
-            # STEP 3 — Save envelope id
-            quotation.external_document_id = envelope_id
-            quotation.workflow_status = "SENT"
-            quotation.save()
+            try:
+                envelope_id = send_contract(quotation, pdf_path)
+                print("SAVED ENVELOPE ID =", envelope_id)
+                # STEP 3 — Save envelope id
+                quotation.external_document_id = envelope_id
+                quotation.workflow_status = "SENT"
+                quotation.save()
+            except Exception as docusign_err:
+                import logging
+                logging.getLogger(__name__).warning(f"DocuSign contract dispatch skipped or failed: {docusign_err}")
+
             send_admin_quotation_email(quotation)
             create_admin_notification(
                 instance=quotation,

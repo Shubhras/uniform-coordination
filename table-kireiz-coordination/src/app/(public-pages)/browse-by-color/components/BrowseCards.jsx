@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { FaRegHeart, FaHeart } from "react-icons/fa6";
+import { FiSearch, FiX } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Button from "@/components/ui/Button";
@@ -84,7 +85,21 @@ const BrowseCards = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedMaterial, setSelectedMaterial] = useState("");
   const [selectedType, setSelectedType] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
+  const [materialSearch, setMaterialSearch] = useState("");
   const [refresh, setRefresh] = useState(0);
+
+  const filteredCategories = categoryData.filter((cat) =>
+    (cat.categoryName || "")
+      .toLowerCase()
+      .includes(categorySearch.toLowerCase().trim())
+  );
+
+  const filteredMaterials = materialData.filter((mat) =>
+    (mat.fabricName || "")
+      .toLowerCase()
+      .includes(materialSearch.toLowerCase().trim())
+  );
 
   /**
    * Effect hook to fetch filter options (Categories, Fabrics, Colors) on component mount.
@@ -240,11 +255,10 @@ const BrowseCards = () => {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 sm:px-5 py-2 rounded-lg font-medium text-xs sm:text-sm transition whitespace-nowrap
-                            ${
-                              activeTab === tab
-                                ? "bg-[#A0522D] text-white shadow"
-                                : "text-[#6B7280] hover:bg-[#ead7c5]"
-                            }`}
+                            ${activeTab === tab
+                ? "bg-[#A0522D] text-white shadow"
+                : "text-[#6B7280] hover:bg-[#ead7c5]"
+              }`}
           >
             {tab}
           </button>
@@ -256,6 +270,8 @@ const BrowseCards = () => {
             setSelectedColor("");
             setSelectedType("");
             setActiveTab("");
+            setCategorySearch("");
+            setMaterialSearch("");
             setRefresh((prev) => prev + 1);
           }}
           className="px-4 sm:px-5 py-2 rounded-lg font-medium text-xs sm:text-sm transition whitespace-nowrap text-[#A0522D] border border-[#A0522D] hover:bg-[#A0522D] hover:text-white"
@@ -264,25 +280,106 @@ const BrowseCards = () => {
         </button>
         {/* Dropdown: By Category */}
         {activeTab === "By Category" && (
-          <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
-            <div className="flex md:flex-row flex-col flex-wrap gap-4">
-              {categoryData.map((cat) => (
-                <label
-                  key={cat.id}
-                  className="flex items-center gap-1 text-sm cursor-pointer text-[15px]"
-                >
+          <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[65vh] overflow-y-auto bg-[#FAF6F4] shadow-xl rounded-2xl p-4 sm:p-6 z-20 border border-[#A0522D]">
+            {/* Header: Title, count, clear button, and search bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+
+              {/* Quick Search for categories if more than 4 */}
+              {categoryData.length > 4 && (
+                <div className="relative w-full sm:w-64">
+                  <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
                   <input
-                    type="radio"
-                    name="category"
-                    className="accent-[#A0614D]"
-                    value={cat.id}
-                    checked={selectedCategory === cat.id}
-                    onChange={() => setSelectedCategory(cat.id)}
+                    type="text"
+                    value={categorySearch}
+                    onChange={(e) => setCategorySearch(e.target.value)}
+                    placeholder="Search categories..."
+                    className="w-full text-xs sm:text-sm pl-8 pr-7 py-1.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-[#A0522D] text-gray-700 placeholder-gray-400 transition"
                   />
-                  {cat.categoryName}
-                </label>
-              ))}
+                  {categorySearch && (
+                    <button
+                      type="button"
+                      onClick={() => setCategorySearch("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5"
+                    >
+                      <FiX size={13} />
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
+
+            {/* Empty State */}
+            {filteredCategories.length === 0 ? (
+              <div className="py-8 text-center text-gray-500 text-xs sm:text-sm">
+                No categories found matching &ldquo;{categorySearch}&rdquo;
+              </div>
+            ) : (
+              /* Scrollable Container (Shows 2 rows, then scrolls) */
+              <div
+                className="max-h-[114px] overflow-y-auto pr-1.5"
+                style={{
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "#d6a88b transparent",
+                }}
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                  {filteredCategories.map((cat) => {
+                    const isSelected = selectedCategory === cat.id;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() =>
+                          setSelectedCategory((prev) =>
+                            prev === cat.id ? "" : cat.id
+                          )
+                        }
+                        className={`group flex items-center justify-between p-3 rounded-xl border text-left transition-all duration-200 ${isSelected
+                          ? "bg-white border-[#A0522D] ring-1 ring-[#A0522D] shadow-sm"
+                          : "bg-white border-gray-200/90 hover:border-[#A0522D]/60 hover:bg-[#FFF9F6] hover:shadow-xs"
+                          }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                          <span
+                            className={`text-xs sm:text-sm font-medium leading-snug break-words ${isSelected
+                              ? "text-[#A0522D] font-semibold"
+                              : "text-gray-700 group-hover:text-[#1C2C56]"
+                              }`}
+                            title={cat.categoryName}
+                          >
+                            {cat.categoryName}
+                          </span>
+                        </div>
+
+                        <div
+                          className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${isSelected
+                            ? "bg-[#A0522D] text-white shadow-xs"
+                            : "border border-gray-300 bg-white group-hover:border-[#A0522D]"
+                            }`}
+                        >
+                          {isSelected && (
+                            <svg
+                              className="w-2.5 h-2.5 stroke-current"
+                              viewBox="0 0 12 12"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M2.5 6L5 8.5L9.5 3.5"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
         {/* Dropdown: By Color Swatches */}
@@ -332,47 +429,180 @@ const BrowseCards = () => {
         )}
         {/* Dropdown: By Material */}
         {activeTab === "By Material" && (
-          <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
-            <div className="flex md:flex-row flex-col flex-wrap gap-4">
-              {materialData.map((mat) => (
-                <label
-                  key={mat.id}
-                  className="flex items-center gap-1 text-sm cursor-pointer text-[15px]"
-                >
+          <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[65vh] overflow-y-auto bg-[#FAF6F4] shadow-xl rounded-2xl p-4 sm:p-6 z-20 border border-[#A0522D]">
+            {/* Header: Title, count, clear button, and search bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4">
+
+              {/* Quick Search for large datasets */}
+              {materialData.length > 4 && (
+                <div className="relative w-full sm:w-64">
+                  <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
                   <input
-                    type="radio"
-                    name="material"
-                    className="accent-[#A0614D]"
-                    value={mat.id}
-                    checked={selectedMaterial === mat.id}
-                    onChange={() => setSelectedMaterial(mat.id)}
+                    type="text"
+                    value={materialSearch}
+                    onChange={(e) => setMaterialSearch(e.target.value)}
+                    placeholder="Search materials..."
+                    className="w-full text-xs sm:text-sm pl-8 pr-7 py-1.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-[#A0522D] text-gray-700 placeholder-gray-400 transition"
                   />
-                  {mat.fabricName}
-                </label>
-              ))}
+                  {materialSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setMaterialSearch("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5"
+                    >
+                      <FiX size={13} />
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
+
+            {/* Empty State */}
+            {filteredMaterials.length === 0 ? (
+              <div className="py-8 text-center text-gray-500 text-xs sm:text-sm">
+                No materials found matching &ldquo;{materialSearch}&rdquo;
+              </div>
+            ) : (
+              /* Scrollable Container (Shows 2 rows, then scrolls) */
+              <div
+                className="max-h-[114px] overflow-y-auto pr-1.5"
+                style={{
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "#d6a88b transparent",
+                }}
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                  {filteredMaterials.map((mat) => {
+                    const isSelected = selectedMaterial === mat.id;
+                    return (
+                      <button
+                        key={mat.id}
+                        type="button"
+                        onClick={() =>
+                          setSelectedMaterial((prev) =>
+                            prev === mat.id ? "" : mat.id
+                          )
+                        }
+                        className={`group flex items-center justify-between p-3 rounded-xl border text-left transition-all duration-200 ${isSelected
+                          ? "bg-white border-[#A0522D] ring-1 ring-[#A0522D] shadow-sm"
+                          : "bg-white border-gray-200/90 hover:border-[#A0522D]/60 hover:bg-[#FFF9F6] hover:shadow-xs"
+                          }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                          <span
+                            className={`text-xs sm:text-sm font-medium leading-snug break-words ${isSelected
+                              ? "text-[#A0522D] font-semibold"
+                              : "text-gray-700 group-hover:text-[#1C2C56]"
+                              }`}
+                            title={mat.fabricName}
+                          >
+                            {mat.fabricName}
+                          </span>
+                        </div>
+
+                        <div
+                          className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${isSelected
+                            ? "bg-[#A0522D] text-white shadow-xs"
+                            : "border border-gray-300 bg-white group-hover:border-[#A0522D]"
+                            }`}
+                        >
+                          {isSelected && (
+                            <svg
+                              className="w-2.5 h-2.5 stroke-current"
+                              viewBox="0 0 12 12"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M2.5 6L5 8.5L9.5 3.5"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
         {/* Dropdown: By Function */}
         {activeTab === "By Function" && (
-          <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[60vh] overflow-y-auto bg-[#FAF6F4] shadow-lg rounded-lg px-4 py-6 z-20 border border-[#A0522D]">
-            <div className="flex md:flex-row flex-col flex-wrap gap-4">
-              {PRODUCT_TYPES.map((fun) => (
-                <label
-                  key={fun.key}
-                  className="flex items-center gap-1 text-sm cursor-pointer text-[15px]"
-                >
-                  <input
-                    type="radio"
-                    name="function"
-                    className="accent-[#A0614D]"
-                    value={fun.key}
-                    checked={selectedType === fun.key}
-                    onChange={() => setSelectedType(fun.key)}
-                  />
-                  {fun.label}
-                </label>
-              ))}
+          <div className="absolute top-14 sm:top-16 left-0 w-full max-h-[65vh] overflow-y-auto bg-[#FAF6F4] shadow-xl rounded-2xl p-4 sm:p-6 z-20 border border-[#A0522D]">
+            {/* Header: Title, count, and clear button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            </div>
+
+            {/* Scrollable Container (Shows 2 rows, then scrolls) */}
+            <div
+              className="max-h-[114px] overflow-y-auto pr-1.5"
+              style={{
+                scrollbarWidth: "thin",
+                scrollbarColor: "#d6a88b transparent",
+              }}
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                {PRODUCT_TYPES.map((fun) => {
+                  const isSelected = selectedType === fun.key;
+                  return (
+                    <button
+                      key={fun.key}
+                      type="button"
+                      onClick={() =>
+                        setSelectedType((prev) =>
+                          prev === fun.key ? "" : fun.key
+                        )
+                      }
+                      className={`group flex items-center justify-between p-3 rounded-xl border text-left transition-all duration-200 ${isSelected
+                        ? "bg-white border-[#A0522D] ring-1 ring-[#A0522D] shadow-sm"
+                        : "bg-white border-gray-200/90 hover:border-[#A0522D]/60 hover:bg-[#FFF9F6] hover:shadow-xs"
+                        }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0 pr-2">
+
+                        <span
+                          className={`text-xs sm:text-sm font-medium leading-snug break-words ${isSelected
+                            ? "text-[#A0522D] font-semibold"
+                            : "text-gray-700 group-hover:text-[#1C2C56]"
+                            }`}
+                          title={fun.label}
+                        >
+                          {fun.label}
+                        </span>
+                      </div>
+
+                      <div
+                        className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${isSelected
+                          ? "bg-[#A0522D] text-white shadow-xs"
+                          : "border border-gray-300 bg-white group-hover:border-[#A0522D]"
+                          }`}
+                      >
+                        {isSelected && (
+                          <svg
+                            className="w-2.5 h-2.5 stroke-current"
+                            viewBox="0 0 12 12"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M2.5 6L5 8.5L9.5 3.5"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}

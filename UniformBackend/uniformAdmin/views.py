@@ -521,7 +521,14 @@ class AdminListProductsAPIView(APIView):
             location=OpenApiParameter.QUERY,
             required=False,
             description="Filter products by subcategory ID",
-        )
+        ),
+        OpenApiParameter(
+            name="isActive",
+            type=OpenApiTypes.BOOL,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Filter active products only (true/false)",
+        ),
     ],
     responses={
         200: OpenApiResponse(description="Products fetched successfully"),
@@ -530,8 +537,6 @@ class AdminListProductsAPIView(APIView):
 )
     def get(self, request):
         try:
-            products = Product.objects.filter(isDeleted=False).order_by("-created_at")
-            serializer = ProductSerializer(products, many=True,context={'request':request})
             # -------------------------
             # Query params
             # -------------------------
@@ -541,6 +546,9 @@ class AdminListProductsAPIView(APIView):
             type_filter = request.query_params.get("type")
             ordering = request.query_params.get("ordering", "newest")
             search = request.query_params.get("search", "").strip()
+            is_active = request.query_params.get("isActive")
+            if is_active is None:
+                is_active = request.query_params.get("is_active")
 
             # -------------------------
             # productType is required
@@ -572,6 +580,12 @@ class AdminListProductsAPIView(APIView):
             if type_filter:
                 products = products.filter(type=type_filter)
 
+            if is_active is not None and is_active != "":
+                if str(is_active).lower() in ("1", "true", "active"):
+                    products = products.filter(isActive=True)
+                elif str(is_active).lower() in ("0", "false", "inactive"):
+                    products = products.filter(isActive=False)
+
             # -------------------------
             # Ordering
             # -------------------------
@@ -591,7 +605,10 @@ class AdminListProductsAPIView(APIView):
             #         Q(theme__themeName__icontains=search)  # replace themeName with your actual field if different
             #     )    
 
-            serializer = ProductSerializer(products, many=True, context={'request': request})
+            paginator = CustomPagination()
+            page = paginator.paginate_queryset(products, request)
+
+            serializer = ProductSerializer(page, many=True, context={'request': request})
 
             # Fetch subcategory details and category details if subcategory_id is provided
             subcategory_data = None
@@ -613,13 +630,27 @@ class AdminListProductsAPIView(APIView):
                 except SubCategory.DoesNotExist:
                     pass
 
-            return Response({
-                "status": True,
+            response = {
+                "count": paginator.page.paginator.count,
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link(),
+                "page": paginator.page.number,
+                "page_size": paginator.get_page_size(request),
+                "total_pages": paginator.page.paginator.num_pages,
+                "total_items": paginator.page.paginator.count,
                 "statusCode": 200,
+                "status": True,
                 "message": "Products fetched successfully.",
                 "subcategory": subcategory_data,
-                "data": serializer.data
-            }, status=status.HTTP_200_OK)
+                "data": serializer.data,
+                "pagination": {
+                    "page": paginator.page.number,
+                    "page_size": paginator.get_page_size(request),
+                    "total_pages": paginator.page.paginator.num_pages,
+                    "total_items": paginator.page.paginator.count,
+                }
+            }
+            return Response(response, status=status.HTTP_200_OK)
 
         except Exception as exc:
             return Response({
@@ -997,7 +1028,7 @@ class QuotationRequestListAPIView(APIView):
     }
 )
     def get(self, request):
-        queryset = QuotationRequest.objects.filter(isDeleted=False)
+        queryset = QuotationRequest.objects.filter(isDeleted=False).order_by("-created_at")
 
         # Query Params
         search = request.GET.get("search")

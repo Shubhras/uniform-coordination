@@ -6,12 +6,14 @@ Deliberately a lean, purpose-built endpoint rather than reusing the large
 QuotationRequestSerializer: this view only needs what the history timeline renders.
 """
 
+import csv
 import re
 import traceback
 from decimal import Decimal, InvalidOperation
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+from django.http import HttpResponse
 from django.utils.timezone import now
 from drf_spectacular.utils import (
     OpenApiParameter,
@@ -198,109 +200,260 @@ class QuotationResendAPIView(APIView):
             502: OpenApiResponse(description="Email delivery failed"),
         },
     )
+    def get(self, request, quotation_id):
+        return self.post(request, quotation_id)
+
     def post(self, request, quotation_id):
+        import uuid
         from django.db.models import Q
-        quotation = QuotationRequest.objects.filter(
-            Q(quotation_id=quotation_id) | Q(uuids=quotation_id),
-            isDeleted=False
-        ).first()
 
-        if not quotation:
-            return Response({
-                "status": False,
-                "statusCode": 404,
-                "message": "Quotation not found",
-            }, status=status.HTTP_404_NOT_FOUND)
-
-        if not quotation.email:
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "message": "This quotation has no customer email address",
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Render the active quotation template so the email matches the PDF layout
-        # the admin designed under Pricing -> Quotation Template.
-        from uniformAdmin.pdf_templates import DEFAULT_QUOTATION_HTML
-
-        template = QuotationTemplate.objects.filter(
-            title="quotation", is_active=True, is_deleted=False
-        ).first()
-        body_html = template.content if template else DEFAULT_QUOTATION_HTML
-
-        row = serialize_history_row(quotation)
-        subtotal_val = row["details"].get("subtotal")
-        discount_val = row["details"].get("discount_amount")
-        total_val = row["details"].get("total")
-
-        replacements = {
-            "{QUOTATION_ID}": quotation.quotation_id or "",
-            "{CLIENT_NAME}": quotation.contact_person or quotation.company_name or "",
-            "{COMPANY_NAME}": quotation.company_name or "",
-            "{COMPANY_ADDRESS}": "",
-            "{DATE}": row["details"].get("created") or "",
-            "{VALID_DATE}": row["details"].get("valid_until") or "",
-            "{ITEM_TYPE}": quotation.item_type or "",
-            "{FABRIC}": quotation.material or "",
-            "{QUANTITY}": quotation.size_quantity or "",
-            "{PRICE}": "",
-            "{SUBTOTAL}": f"{float(subtotal_val):.2f}" if subtotal_val is not None else "",
-            "{DISCOUNT}": f"-{float(discount_val):.2f}" if discount_val else "",
-            "{TOTAL}": f"{float(total_val):.2f}" if total_val is not None else "",
-        }
-        for token, value in replacements.items():
-            body_html = body_html.replace(token, str(value))
-
-        subject = f"Quotation {quotation.quotation_id or quotation.uuids}"
-
-        # Routed through the central mailer so this follows the admin's System
-        # Settings — SMTP connection, sender identity, reply-to, footer and the
-        # "quotation status change" notification toggle.
         try:
-            sent = send_email(
-                subject=subject,
-                to=[quotation.email],
-                html_body=body_html,
-                notification="customer_on_status_change",
-            )
-            # If notification toggle is off, but admin manually clicked Send/Resend, send directly
-            if not sent:
+            lookup = Q(quotation_id=quotation_id)
+            try:
+                uuid.UUID(str(quotation_id))
+                lookup |= Q(uuids=quotation_id)
+            except (ValueError, TypeError, AttributeError):
+                pass
+
+            quotation = QuotationRequest.objects.filter(
+                lookup,
+                isDeleted=False
+            ).first()
+
+            if not quotation:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Quotation not found",
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            if not quotation.email:
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "This quotation has no customer email address",
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Render the active quotation template so the email matches the PDF layout
+            # the admin designed under Pricing -> Quotation Template.
+            from uniformAdmin.pdf_templates import DEFAULT_QUOTATION_HTML
+
+            template = QuotationTemplate.objects.filter(
+                title="quotation", is_active=True, is_deleted=False
+            ).first()
+            body_html = template.content if template else DEFAULT_QUOTATION_HTML
+
+            row = serialize_history_row(quotation)
+            subtotal_val = row["details"].get("subtotal")
+            discount_val = row["details"].get("discount_amount")
+            total_val = row["details"].get("total")
+
+            def _fmt(val, prefix=""):
+                if val is None or val == "":
+                    return ""
+                try:
+                    return f"{prefix}{float(val):.2f}"
+                except (ValueError, TypeError):
+                    return f"{prefix}{val}"
+
+            replacements = {
+                "{QUOTATION_ID}": quotation.quotation_id or "",
+                "{CLIENT_NAME}": quotation.contact_person or quotation.company_name or "",
+                "{COMPANY_NAME}": quotation.company_name or "",
+                "{COMPANY_ADDRESS}": "",
+                "{DATE}": row["details"].get("created") or "",
+                "{VALID_DATE}": row["details"].get("valid_until") or "",
+                "{ITEM_TYPE}": quotation.item_type or "",
+                "{FABRIC}": quotation.material or "",
+                "{QUANTITY}": quotation.size_quantity or "",
+                "{PRICE}": "",
+                "{SUBTOTAL}": _fmt(subtotal_val),
+                "{DISCOUNT}": _fmt(discount_val, "-"),
+                "{TOTAL}": _fmt(total_val),
+            }
+            for token, value in replacements.items():
+                body_html = body_html.replace(token, str(value))
+
+            subject = f"Quotation {quotation.quotation_id or quotation.uuids}"
+
+            # Routed through the central mailer so this follows the admin's System
+            # Settings — SMTP connection, sender identity, reply-to, footer and the
+            # "quotation status change" notification toggle.
+            try:
                 sent = send_email(
                     subject=subject,
                     to=[quotation.email],
                     html_body=body_html,
-                    notification=None,
+                    notification="customer_on_status_change",
                 )
-        except Exception as e:
-            # Surface a distinct code so the UI can say "email failed", not "save failed".
+                # If notification toggle is off, but admin manually clicked Send/Resend, send directly
+                if not sent:
+                    sent = send_email(
+                        subject=subject,
+                        to=[quotation.email],
+                        html_body=body_html,
+                        notification=None,
+                    )
+            except Exception as e:
+                # Surface a distinct code so the UI can say "email failed", not "save failed".
+                return Response({
+                    "status": False,
+                    "statusCode": 502,
+                    "message": "Could not send the quotation email",
+                    "error": str(e),
+                }, status=status.HTTP_502_BAD_GATEWAY)
+
+            if not sent:
+                # Fallback to direct send_mail
+                try:
+                    from django.core.mail import send_mail
+                    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or getattr(settings, "EMAIL_HOST_USER", "noreply@kireiz.com")
+                    send_mail(subject, "", from_email, [quotation.email], html_message=body_html, fail_silently=True)
+                    sent = True
+                except Exception:
+                    sent = False
+
+            # Only stamp/promote after the send actually succeeded.
+            quotation.last_sent_at = now()
+            update_fields = ["last_sent_at", "updated_at"]
+            if quotation.quotation_status in ["pending", "quoting"]:
+                quotation.quotation_status = "sent"
+                update_fields.append("quotation_status")
+            quotation.save(update_fields=update_fields)
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": f"Quotation resent to {quotation.email}",
+                "data": serialize_history_row(quotation),
+            }, status=status.HTTP_200_OK)
+
+        except Exception as exc:
             return Response({
                 "status": False,
-                "statusCode": 502,
-                "message": "Could not send the quotation email",
-                "error": str(e),
-            }, status=status.HTTP_502_BAD_GATEWAY)
+                "statusCode": 500,
+                "message": "Failed to resend quotation",
+                "error": str(exc),
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        if not sent:
-            # Fallback to direct send_mail
-            try:
-                from django.core.mail import send_mail
-                from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or getattr(settings, "EMAIL_HOST_USER", "noreply@kireiz.com")
-                send_mail(subject, "", from_email, [quotation.email], html_message=body_html, fail_silently=True)
-                sent = True
-            except Exception:
-                sent = False
 
-        # Only stamp/promote after the send actually succeeded.
-        quotation.last_sent_at = now()
-        update_fields = ["last_sent_at", "updated_at"]
-        if quotation.quotation_status in ["pending", "quoting"]:
-            quotation.quotation_status = "sent"
-            update_fields.append("quotation_status")
-        quotation.save(update_fields=update_fields)
+class QuotationHistoryExportCSVAPIView(APIView):
+    """
+    Exports quotation history data as a CSV file.
+    Supports filtering by 'status' and 'search' query parameters matching the table view.
+    """
+    authentication_classes = [IsAdminUserJWT]
 
-        return Response({
-            "status": True,
-            "statusCode": 200,
-            "message": f"Quotation resent to {quotation.email}",
-            "data": serialize_history_row(quotation),
-        }, status=status.HTTP_200_OK)
+    @extend_schema(
+        tags=["Quotation History"],
+        summary="Export quotation history as CSV",
+        parameters=[
+            OpenApiParameter(
+                "status",
+                OpenApiTypes.STR,
+                OpenApiParameter.QUERY,
+                description="Filter by quotation_status (pending, sent, approved, cancelled...)",
+                required=False,
+            ),
+            OpenApiParameter(
+                "search",
+                OpenApiTypes.STR,
+                OpenApiParameter.QUERY,
+                description="Search query (company, quotation id, email, contact, item)",
+                required=False,
+            ),
+        ],
+        responses={200: OpenApiResponse(description="CSV file")},
+    )
+    def get(self, request):
+        try:
+            queryset = (
+                QuotationRequest.objects
+                .filter(isDeleted=False)
+                .select_related("sales_rep")
+                .order_by("-created_at")
+            )
+
+            status_param = request.GET.get("status")
+            if status_param:
+                queryset = queryset.filter(quotation_status__iexact=status_param)
+
+            search = request.GET.get("search")
+            if search:
+                from django.db.models import Q
+                queryset = queryset.filter(
+                    Q(company_name__icontains=search)
+                    | Q(quotation_id__icontains=search)
+                    | Q(email__icontains=search)
+                    | Q(contact_person__icontains=search)
+                    | Q(item_type__icontains=search)
+                )
+
+            stamp = now().strftime("%Y%m%d_%H%M%S")
+            response = HttpResponse(content_type="text/csv; charset=utf-8")
+            response["Content-Disposition"] = f'attachment; filename="quotation_history_{stamp}.csv"'
+            response.write("\ufeff")  # UTF-8 BOM for Microsoft Excel compatibility
+
+            writer = csv.writer(response)
+            writer.writerow([
+                "Quote ID",
+                "Company",
+                "Contact Person",
+                "Email",
+                "Phone Number",
+                "Item Type",
+                "Material",
+                "Size/Quantity",
+                "Status",
+                "Workflow Status",
+                "Subtotal",
+                "Discount (%)",
+                "Total Amount",
+                "Sales Rep",
+                "Created Date",
+                "Valid Until",
+                "Delivery Date",
+                "Last Sent Date",
+            ])
+
+            for q in queryset.iterator():
+                sales_rep_name = ""
+                if q.sales_rep:
+                    sales_rep_name = (
+                        getattr(q.sales_rep, "full_name", None)
+                        or getattr(q.sales_rep, "name", None)
+                        or q.sales_rep.email
+                        or ""
+                    )
+
+                writer.writerow([
+                    q.quotation_id or "",
+                    q.company_name or "",
+                    q.contact_person or "",
+                    q.email or "",
+                    q.phone_number or "",
+                    q.item_type or "",
+                    q.material or "",
+                    (q.size_quantity or "").replace("\n", " ").replace("\r", ""),
+                    (q.quotation_status or "").capitalize(),
+                    q.workflow_status or "",
+                    q.subtotal if q.subtotal is not None else "",
+                    q.discount_percent if q.discount_percent is not None else "",
+                    q.total if q.total is not None else "",
+                    sales_rep_name,
+                    q.created_at.strftime("%Y-%m-%d %H:%M") if q.created_at else "",
+                    q.valid_until.strftime("%Y-%m-%d") if q.valid_until else "",
+                    q.delivery_date.strftime("%Y-%m-%d") if q.delivery_date else "",
+                    q.last_sent_at.strftime("%Y-%m-%d %H:%M") if q.last_sent_at else "",
+                ])
+
+            return response
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "statusCode": 500,
+                    "message": f"Failed to export quotation history: {str(e)}",
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

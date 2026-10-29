@@ -66,19 +66,71 @@ const AddProduct = () => {
   const [size, setSize] = useState(null);
 
   const tableShapeOptions = tableShapeList.map((item) => ({
-    value: item.id,
+    value: item.name,
     label: item.name,
   }));
 
   const styleOptions = styleList.map((item) => ({
-    value: item.id,
+    value: item.name,
     label: item.name,
   }));
 
   const sizeOptions = sizeList.map((item) => ({
-    value: item.id,
+    value: item.name,
     label: item.name,
   }));
+
+  const colorOptions = colorList.map((item) => ({
+    value: item.id,
+    label: item.colorName,
+  }));
+
+  const isEdit = searchParams.get("mode") === "edit";
+  const productId = searchParams.get("id");
+
+  const [formData, setFormData] = useState({
+    productName: "",
+    description: "",
+    tableShape: "",
+    style: "",
+    size: "",
+    price: "",
+    rentalPricePerDay: "",
+    total_quantity: "",
+    availableQuantity: "",
+    rfidTrackingEnabled: true,
+    isActive: true,
+    productImage: null,
+  });
+
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleCategoryChange = (val) => {
+    setCategory(val);
+    setFabric(null);
+    setColor(null);
+    setTableShape(null);
+    setStyle(null);
+    setSize(null);
+    setFormData((prev) => ({
+      ...prev,
+      tableShape: "",
+      style: "",
+      size: "",
+    }));
+    setErrors((prev) => ({
+      ...prev,
+      category: "",
+      fabric: "",
+      color: "",
+      size: "",
+    }));
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -103,12 +155,9 @@ const AddProduct = () => {
       newErrors.color = t("validation.colorRequired");
     }
 
-    if (!String(formData.size || "").trim()) {
+    const currentSize = size?.value || formData.size;
+    if (!String(currentSize || "").trim()) {
       newErrors.size = t("validation.sizeRequired");
-    } else if (Number(formData.size) < 0) {
-      newErrors.size = t("validation.tableSizeNegative");
-    } else if (Number(formData.size) === 0) {
-      newErrors.size = t("validation.tableSizeGreaterThanZero");
     }
 
     if (!formData.rentalPricePerDay || !String(formData.rentalPricePerDay).trim()) {
@@ -137,6 +186,7 @@ const AddProduct = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+<<<<<<< HEAD
   const colorOptions = colorList.map((item) => ({
     value: item.id,
     label: item.colorName,
@@ -215,6 +265,9 @@ const AddProduct = () => {
     }
   }, [accessToken]);
 
+=======
+  // Fetch all categories once
+>>>>>>> 604e42cb70e4c97d6eef77851651f0d6803e6725
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -233,53 +286,51 @@ const AddProduct = () => {
     }
   }, [accessToken]);
 
+  // Fetch Fabric, Color, TableShape, Style, and Size dynamically filtered by selected category
   useEffect(() => {
-    const fetchColors = async () => {
-      try {
-        const response = await apiGetColorsList(accessToken, 1);
+    if (!accessToken) return;
 
-        if (response?.status && response?.data) {
-          setColorList(response.data);
-        }
-      } catch (error) {
-        console.log("Color List Error:", error);
-      }
-    };
-
-    if (accessToken) {
-      fetchColors();
+    const categoryId = category?.value ? String(category.value) : "";
+    if (!categoryId) {
+      setFabricList([]);
+      setColorList([]);
+      setTableShapeList([]);
+      setStyleList([]);
+      setSizeList([]);
+      return;
     }
-  }, [accessToken]);
 
-  useEffect(() => {
-    const fetchAttributes = async () => {
+    const fetchCategoryDependentData = async () => {
       try {
-        const [shapeRes, styleRes, sizeRes] = await Promise.all([
-          TableShapesService.list(accessToken, 1, 100),
-          StylesService.list(accessToken, 1, 100),
-          SizesService.list(accessToken, 1, 100),
+        const [fabRes, colRes, shapeRes, styleRes, sizeRes] = await Promise.all([
+          apiGetFabricList(accessToken, 1, 100, "", categoryId),
+          apiGetColorsList(accessToken, 1, 100, "", categoryId),
+          TableShapesService.list(accessToken, 1, 100, "", categoryId),
+          StylesService.list(accessToken, 1, 100, "", categoryId),
+          SizesService.list(accessToken, 1, 100, "", categoryId),
         ]);
 
-        if (shapeRes?.status && shapeRes?.data) {
-          setTableShapeList(shapeRes.data);
-        }
+        if (fabRes?.status && fabRes?.data) setFabricList(fabRes.data);
+        else setFabricList([]);
 
-        if (styleRes?.status && styleRes?.data) {
-          setStyleList(styleRes.data);
-        }
+        if (colRes?.status && colRes?.data) setColorList(colRes.data);
+        else setColorList([]);
 
-        if (sizeRes?.status && sizeRes?.data) {
-          setSizeList(sizeRes.data);
-        }
+        if (shapeRes?.status && shapeRes?.data) setTableShapeList(shapeRes.data);
+        else setTableShapeList([]);
+
+        if (styleRes?.status && styleRes?.data) setStyleList(styleRes.data);
+        else setStyleList([]);
+
+        if (sizeRes?.status && sizeRes?.data) setSizeList(sizeRes.data);
+        else setSizeList([]);
       } catch (error) {
-        console.log("Attribute List Error:", error);
+        console.error("Error fetching category-dependent attributes:", error);
       }
     };
 
-    if (accessToken) {
-      fetchAttributes();
-    }
-  }, [accessToken]);
+    fetchCategoryDependentData();
+  }, [accessToken, category?.value]);
 
   const selectStyles = {
     control: (base) => ({
@@ -350,11 +401,11 @@ const AddProduct = () => {
       payload.append("productName", formData.productName);
       payload.append("description", formData.description);
       payload.append("category_id", category?.value);
-      payload.append("table_shape", formData.tableShape);
-      payload.append("style", formData.style);
+      payload.append("table_shape", tableShape?.value || formData.tableShape || "");
+      payload.append("style", style?.value || formData.style || "");
       payload.append("fabric", fabric?.value);
       payload.append("color", color?.value);
-      payload.append("size", formData.size);
+      payload.append("size", size?.value || formData.size || "");
       payload.append("rfid_tracking_enabled", formData.rfidTrackingEnabled);
       payload.append("price", formData.rentalPricePerDay);
       payload.append("rental_price_per_day", formData.rentalPricePerDay);
@@ -368,13 +419,6 @@ const AddProduct = () => {
         payload.append("ProductImage_file", formData.productImage);
       }
 
-      // if (isEdit) {
-      //   await apiUpdateProduct(accessToken, productId, payload, "uniform");
-      // } else {
-      //   await apiCreateProduct(accessToken, payload);
-      // }
-
-      // router.push("/inventory-management");
       if (isEdit) {
         const res = await apiUpdateProduct(
           accessToken,
@@ -416,8 +460,8 @@ const AddProduct = () => {
           setFormData({
             productName: data.productName || "",
             description: data.description || "",
-            tableShape: data.table_shape || "round",
-            style: data.style || "premium",
+            tableShape: data.table_shape || "",
+            style: data.style || "",
             size: data.size || "",
             price: data.price || "",
             rentalPricePerDay: data.rental_price_per_day || "",
@@ -429,20 +473,47 @@ const AddProduct = () => {
           });
           setPreviewImage(data.ProductImage || "");
 
-          setCategory({
-            value: data.category?.id,
-            label: data.category?.categoryName,
-          });
+          if (data.category) {
+            setCategory({
+              value: data.category?.id,
+              label: data.category?.categoryName,
+            });
+          }
 
-          setFabric({
-            value: data.fabric_details?.id,
-            label: data.fabric_details?.name,
-          });
+          if (data.fabric_details) {
+            setFabric({
+              value: data.fabric_details?.id,
+              label: data.fabric_details?.name,
+            });
+          }
 
-          setColor({
-            value: data.color_details?.id,
-            label: data.color_details?.name,
-          });
+          if (data.color_details) {
+            setColor({
+              value: data.color_details?.id,
+              label: data.color_details?.name,
+            });
+          }
+
+          if (data.table_shape) {
+            setTableShape({
+              value: data.table_shape,
+              label: data.table_shape,
+            });
+          }
+
+          if (data.style) {
+            setStyle({
+              value: data.style,
+              label: data.style,
+            });
+          }
+
+          if (data.size) {
+            setSize({
+              value: data.size,
+              label: data.size,
+            });
+          }
         }
       } catch (err) {
         console.log(err);
@@ -520,14 +591,7 @@ const AddProduct = () => {
 
             <Select
               value={category}
-              onChange={(value) => {
-                setCategory(value);
-
-                setErrors((prev) => ({
-                  ...prev,
-                  category: "",
-                }));
-              }}
+              onChange={handleCategoryChange}
               options={categoryOptions}
               styles={selectStyles}
               placeholder={t("selectCategory")}
@@ -565,55 +629,26 @@ const AddProduct = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {/* Table Shape */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
               {t("tableShape")}
             </label>
-            <div className="relative">
-              <select className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 appearance-none outline-none focus:border-[#A85A32]">
-                <option>{t("round")}</option>
-                <option>{t("rectangle")}</option>
-                <option>{t("square")}</option>
-                <option>{t("oval")}</option>
-              </select>
-              <FiChevronDown
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7A6C]"
-                size={18}
-              />
-            </div>
-            {/* <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-                {t("tableShape")}
-              </label>
-
-              <div className="relative">
-                <select
-                  value={formData.tableShape}
-                  onChange={(e) => {
-                    handleChange("tableShape", e.target.value);
-
-                    setErrors((prev) => ({
-                      ...prev,
-                      tableShape: "",
-                    }));
-                  }}
-                  className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 pr-10 appearance-none outline-none focus:border-[#A85A32] text-[#2C1A0E]"
-                >
-                  <option value="">Select Table Shape</option>
-
-                  {tableShapeList.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-
-                <FiChevronDown
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7A6C] pointer-events-none"
-                  size={18}
-                />
-              </div>
-            </div> */}
+            <Select
+              value={tableShape}
+              onChange={(value) => {
+                setTableShape(value);
+                handleChange("tableShape", value?.value || "");
+              }}
+              options={tableShapeOptions}
+              styles={selectStyles}
+              placeholder={t("selectTableShape") || "Select Table Shape"}
+              isSearchable={false}
+              isDisabled={!category}
+            />
+            {!category && (
+              <p className="text-xs text-[#8D7A6C] mt-1">{t("selectCategoryFirst") || "Please select a category first"}</p>
+            )}
           </div>
 
           {/* Style */}
@@ -621,55 +656,28 @@ const AddProduct = () => {
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
               {t("style")}
             </label>
-
-            <div className="relative">
-              <select className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 appearance-none outline-none focus:border-[#A85A32]">
-                <option>{t("premium")}</option>
-                <option>{t("classic")}</option>
-                <option>{t("luxury")}</option>
-                <option>{t("modern")}</option>
-              </select>
-              <FiChevronDown
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7A6C]"
-                size={18}
-              />
-            </div>
+            <Select
+              value={style}
+              onChange={(value) => {
+                setStyle(value);
+                handleChange("style", value?.value || "");
+              }}
+              options={styleOptions}
+              styles={selectStyles}
+              placeholder={t("selectStyle") || "Select Style"}
+              isSearchable={false}
+              isDisabled={!category}
+            />
+            {!category && (
+              <p className="text-xs text-[#8D7A6C] mt-1">{t("selectCategoryFirst") || "Please select a category first"}</p>
+            )}
           </div>
-          {/* <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("style")}
-            </label>
-
-            <div className="relative">
-              <select
-                value={formData.style}
-                onChange={(e) => {
-                  handleChange("style", e.target.value);
-                }}
-                className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 pr-10 appearance-none outline-none focus:border-[#A85A32] text-[#2C1A0E]"
-              >
-                <option value="">Select Style</option>
-
-                {styleList.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-
-              <FiChevronDown
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7A6C] pointer-events-none"
-                size={18}
-              />
-            </div>
-          </div> */}
 
           {/* Fabric */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
               {t("fabric")} <span className="text-red-500">*</span>
             </label>
-
             <Select
               value={fabric}
               onChange={(value) => {
@@ -684,9 +692,13 @@ const AddProduct = () => {
               styles={selectStyles}
               placeholder={t("selectFabric")}
               isSearchable={false}
+              isDisabled={!category}
             />
             {errors.fabric && (
               <p className="text-red-500 text-sm mt-1">{errors.fabric}</p>
+            )}
+            {!category && (
+              <p className="text-xs text-[#8D7A6C] mt-1">{t("selectCategoryFirst") || "Please select a category first"}</p>
             )}
           </div>
 
@@ -695,7 +707,6 @@ const AddProduct = () => {
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
               {t("color")} <span className="text-red-500">*</span>
             </label>
-
             <Select
               value={color}
               onChange={(value) => {
@@ -710,83 +721,43 @@ const AddProduct = () => {
               styles={selectStyles}
               placeholder={t("selectColor")}
               isSearchable={false}
+              isDisabled={!category}
             />
             {errors.color && (
               <p className="text-red-500 text-sm mt-1">{errors.color}</p>
             )}
+            {!category && (
+              <p className="text-xs text-[#8D7A6C] mt-1">{t("selectCategoryFirst") || "Please select a category first"}</p>
+            )}
           </div>
 
           {/* Table Size */}
-          {/* <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
-              {t("tableSize")}
-            </label>
-
-            <div className="relative">
-              <select
-                value={formData.size}
-                onChange={(e) => {
-                  handleChange("size", e.target.value);
-
-                  setErrors((prev) => ({
-                    ...prev,
-                    size: "",
-                  }));
-                }}
-                className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 pr-10 appearance-none outline-none focus:border-[#A85A32] bg-[#FCFAF8] text-[#2C1A0E]"
-              >
-                <option value="">Select Table Size</option>
-
-                {sizeList.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-
-              <FiChevronDown
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7A6C] pointer-events-none"
-                size={18}
-              />
-            </div>
-
-            {errors.size && (
-              <p className="text-red-500 text-sm mt-1">{errors.size}</p>
-            )}
-          </div> */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-[#8C6E5D] mb-2">
               {t("tableSize")} <span className="text-red-500">*</span>
             </label>
-
-            <div className="relative">
-              <input
-                type="number"
-                value={formData.size}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  handleChange("size", val);
-
-                  let errorMsg = "";
-                  if (val !== "") {
-                    if (Number(val) < 0) {
-                      errorMsg = t("validation.tableSizeNegative");
-                    } else if (Number(val) === 0) {
-                      errorMsg = t("validation.tableSizeGreaterThanZero");
-                    }
-                  }
-                  setErrors((prev) => ({
-                    ...prev,
-                    size: errorMsg,
-                  }));
-                }}
-                placeholder={t("tableSizePlaceholder")}
-                className="w-full h-12 rounded-xl border border-[#E9DDD3] bg-[#FCFAF8] px-4 pr-10 outline-none focus:border-[#A85A32]"
-              />
-              {errors.size && (
-                <p className="text-red-500 text-sm mt-1">{errors.size}</p>
-              )}
-            </div>
+            <Select
+              value={size}
+              onChange={(value) => {
+                setSize(value);
+                handleChange("size", value?.value || "");
+                setErrors((prev) => ({
+                  ...prev,
+                  size: "",
+                }));
+              }}
+              options={sizeOptions}
+              styles={selectStyles}
+              placeholder={t("selectTableSize") || "Select Table Size"}
+              isSearchable={false}
+              isDisabled={!category}
+            />
+            {errors.size && (
+              <p className="text-red-500 text-sm mt-1">{errors.size}</p>
+            )}
+            {!category && (
+              <p className="text-xs text-[#8D7A6C] mt-1">{t("selectCategoryFirst") || "Please select a category first"}</p>
+            )}
           </div>
 
           {/* Rental Price */}

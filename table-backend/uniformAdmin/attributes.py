@@ -55,7 +55,10 @@ class TableShapeListView(APIView):
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
+            category_id = request.query_params.get("category_id") or request.query_params.get("category")
             qs = TableShape.objects.filter(isDeleted=False)
+            if category_id and category_id.strip() and category_id.strip().lower() != "all":
+                qs = qs.filter(category_id=category_id.strip())
             if search:
                 qs = qs.filter(name__icontains=search)
             qs = qs.order_by("-id")
@@ -144,7 +147,10 @@ class ClosureListView(APIView):
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
+            category_id = request.query_params.get("category_id") or request.query_params.get("category")
             qs = Closure.objects.filter(isDeleted=False)
+            if category_id and category_id.strip() and category_id.strip().lower() != "all":
+                qs = qs.filter(category_id=category_id.strip())
             if search:
                 qs = qs.filter(name__icontains=search)
             qs = qs.order_by("-id")
@@ -233,7 +239,10 @@ class StyleListView(APIView):
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
+            category_id = request.query_params.get("category_id") or request.query_params.get("category")
             qs = Style.objects.filter(isDeleted=False)
+            if category_id and category_id.strip() and category_id.strip().lower() != "all":
+                qs = qs.filter(category_id=category_id.strip())
             if search:
                 qs = qs.filter(name__icontains=search)
             qs = qs.order_by("-id")
@@ -322,7 +331,10 @@ class SizeListView(APIView):
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
+            category_id = request.query_params.get("category_id") or request.query_params.get("category")
             qs = Size.objects.filter(isDeleted=False)
+            if category_id and category_id.strip() and category_id.strip().lower() != "all":
+                qs = qs.filter(category_id=category_id.strip())
             if search:
                 qs = qs.filter(name__icontains=search)
             qs = qs.order_by("-id")
@@ -411,7 +423,10 @@ class PatternListView(APIView):
     def get(self, request):
         try:
             search = request.query_params.get("search", "").strip()
+            category_id = request.query_params.get("category_id") or request.query_params.get("category")
             qs = Pattern.objects.filter(isDeleted=False)
+            if category_id and category_id.strip() and category_id.strip().lower() != "all":
+                qs = qs.filter(category_id=category_id.strip())
             if search:
                 qs = qs.filter(name__icontains=search)
             qs = qs.order_by("-id")

@@ -172,43 +172,59 @@ class SimulationOptionsAPIView(APIView):
             
             for prod in products:
                 # Fabric
-                if prod.fabric and prod.fabric.id not in fabrics_set:
-                    fabrics_set.add(prod.fabric.id)
-                    fb_img = getattr(prod.fabric, "image", None)
-                    fabrics_list.append({
-                        "id": str(prod.fabric.id),
-                        "label": prod.fabric.fabricName,
-                        "image": request.build_absolute_uri(fb_img.url) if (fb_img and hasattr(fb_img, "url")) else None,
-                        "materialType": prod.fabric.materialType
-                    })
+                if prod.fabric:
+                    f_id = str(prod.fabric.id)
+                    f_name = (prod.fabric.fabricName or "").strip().lower()
+                    if f_id not in fabrics_set and (not f_name or f_name not in fabrics_set):
+                        fabrics_set.add(f_id)
+                        if f_name:
+                            fabrics_set.add(f_name)
+                        fb_img = getattr(prod.fabric, "image", None)
+                        fabrics_list.append({
+                            "id": f_id,
+                            "label": prod.fabric.fabricName,
+                            "image": request.build_absolute_uri(fb_img.url) if (fb_img and hasattr(fb_img, "url")) else None,
+                            "materialType": prod.fabric.materialType
+                        })
                     
                 # Style
-                if prod.style and prod.style not in styles_set:
-                    styles_set.add(prod.style)
-                    styles_list.append({
-                        "id": prod.style.lower(),
-                        "label": prod.style.capitalize(),
-                        "image": None
-                    })
+                if prod.style:
+                    s_label = prod.style.strip()
+                    s_id = s_label.lower()
+                    if s_id not in styles_set:
+                        styles_set.add(s_id)
+                        styles_list.append({
+                            "id": s_id,
+                            "label": s_label.capitalize(),
+                            "image": None
+                        })
                     
                 # Color
-                if prod.color and prod.color.id not in colors_set:
-                    colors_set.add(prod.color.id)
-                    colors_list.append({
-                        "id": str(prod.color.id),
-                        "label": prod.color.colorName,
-                        "colorCode": prod.color.colorCode or "#ffffff",
-                        "image": None,
-                        "compatibleFabric": prod.color.compatibleFabric or []
-                    })
+                if prod.color:
+                    c_id = str(prod.color.id)
+                    c_name = (prod.color.colorName or "").strip().lower()
+                    if c_id not in colors_set and (not c_name or c_name not in colors_set):
+                        colors_set.add(c_id)
+                        if c_name:
+                            colors_set.add(c_name)
+                        colors_list.append({
+                            "id": c_id,
+                            "label": prod.color.colorName,
+                            "colorCode": prod.color.colorCode or "#ffffff",
+                            "image": None,
+                            "compatibleFabric": prod.color.compatibleFabric or []
+                        })
                 
                 # Size
-                if prod.size and prod.size not in sizes_set:
-                    sizes_set.add(prod.size)
-                    sizes_list.append({
-                        "id": prod.size.lower(),
-                        "label": prod.size
-                    })
+                if prod.size:
+                    sz_label = prod.size.strip()
+                    sz_id = sz_label.lower()
+                    if sz_id not in sizes_set:
+                        sizes_set.add(sz_id)
+                        sizes_list.append({
+                            "id": sz_id,
+                            "label": sz_label
+                        })
 
             # Query DB attribute models for dynamic admin-configured options strictly filtered by category
             db_fabrics = Fabric.objects.filter(isActive=True, isDeleted=False)
@@ -217,12 +233,15 @@ class SimulationOptionsAPIView(APIView):
 
             if db_fabrics.exists():
                 for fb in db_fabrics:
-                    if str(fb.id) not in fabrics_set and fb.fabricName not in fabrics_set:
-                        fabrics_set.add(str(fb.id))
-                        fabrics_set.add(fb.fabricName)
+                    f_id = str(fb.id)
+                    f_name = (fb.fabricName or "").strip().lower()
+                    if f_id not in fabrics_set and (not f_name or f_name not in fabrics_set):
+                        fabrics_set.add(f_id)
+                        if f_name:
+                            fabrics_set.add(f_name)
                         fb_img = getattr(fb, "image", None)
                         fabrics_list.append({
-                            "id": str(fb.id),
+                            "id": f_id,
                             "label": fb.fabricName,
                             "image": request.build_absolute_uri(fb_img.url) if (fb_img and hasattr(fb_img, "url")) else None,
                             "materialType": fb.materialType or "cotton"
@@ -234,11 +253,14 @@ class SimulationOptionsAPIView(APIView):
 
             if db_colors.exists():
                 for cl in db_colors:
-                    if str(cl.id) not in colors_set and cl.colorName not in colors_set:
-                        colors_set.add(str(cl.id))
-                        colors_set.add(cl.colorName)
+                    c_id = str(cl.id)
+                    c_name = (cl.colorName or "").strip().lower()
+                    if c_id not in colors_set and (not c_name or c_name not in colors_set):
+                        colors_set.add(c_id)
+                        if c_name:
+                            colors_set.add(c_name)
                         colors_list.append({
-                            "id": str(cl.id),
+                            "id": c_id,
                             "label": cl.colorName,
                             "colorCode": cl.colorCode or "#ffffff",
                             "image": None,
