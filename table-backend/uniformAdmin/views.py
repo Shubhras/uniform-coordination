@@ -261,8 +261,6 @@ class AdminListProductsAPIView(APIView):
 )
     def get(self, request):
         try:
-            products = Product.objects.filter(isDeleted=False).order_by("-created_at")
-            serializer = ProductSerializer(products, many=True,context={'request':request})
             # -------------------------
             # Query params
             # -------------------------
@@ -279,6 +277,8 @@ class AdminListProductsAPIView(APIView):
             size = request.query_params.get("size")
             search = request.query_params.get("search")
             is_active = request.query_params.get("isActive")
+            if is_active is None:
+                is_active = request.query_params.get("is_active")
             rfid_tracking = request.query_params.get("rfid_tracking_enabled")
             show_in_simulation = request.query_params.get("showInSimulation")
 
@@ -328,10 +328,11 @@ class AdminListProductsAPIView(APIView):
             if search:
                 products = products.filter(productName__icontains=search)
 
-            if is_active is not None:
-                products = products.filter(
-                    isActive=is_active.lower() == "true"
-                )
+            if is_active is not None and is_active != "":
+                if str(is_active).lower() in ("1", "true", "active"):
+                    products = products.filter(isActive=True)
+                elif str(is_active).lower() in ("0", "false", "inactive"):
+                    products = products.filter(isActive=False)
 
             if rfid_tracking is not None:
                 products = products.filter(
@@ -752,7 +753,7 @@ class QuotationRequestListAPIView(APIView):
     }
 )
     def get(self, request):
-        queryset = QuotationRequest.objects.filter(isDeleted=False)
+        queryset = QuotationRequest.objects.filter(isDeleted=False).order_by("-created_at")
 
         # Query Params
         search = request.GET.get("search")

@@ -62,6 +62,12 @@ class CatalogImageCreateAPIView(APIView):
     summary="Catalog Images List API",
     parameters=[
         OpenApiParameter(
+            name="search",
+            description="Search catalog images by name",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
             name="name",
             description="Search catalog images by name",
             required=False,
@@ -81,13 +87,18 @@ class CatalogImageListAPIView(APIView):
 
     def get(self, request):
         try:
-            name = request.query_params.get("name", "").strip()
+            search = (
+                request.query_params.get("search")
+                or request.query_params.get("name")
+                or request.query_params.get("catalog_name")
+                or ""
+            ).strip()
 
             queryset = CatalogImage.objects.filter(isDeleted=False)
 
-            # Search ONLY by name
-            if name:
-                queryset = queryset.filter(name__icontains=name)
+            # Search ONLY by catalog name
+            if search:
+                queryset = queryset.filter(name__icontains=search)
 
             queryset = queryset.order_by("-id")
 

@@ -521,7 +521,14 @@ class AdminListProductsAPIView(APIView):
             location=OpenApiParameter.QUERY,
             required=False,
             description="Filter products by subcategory ID",
-        )
+        ),
+        OpenApiParameter(
+            name="isActive",
+            type=OpenApiTypes.BOOL,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Filter active products only (true/false)",
+        ),
     ],
     responses={
         200: OpenApiResponse(description="Products fetched successfully"),
@@ -530,8 +537,6 @@ class AdminListProductsAPIView(APIView):
 )
     def get(self, request):
         try:
-            products = Product.objects.filter(isDeleted=False).order_by("-created_at")
-            serializer = ProductSerializer(products, many=True,context={'request':request})
             # -------------------------
             # Query params
             # -------------------------
@@ -541,6 +546,9 @@ class AdminListProductsAPIView(APIView):
             type_filter = request.query_params.get("type")
             ordering = request.query_params.get("ordering", "newest")
             search = request.query_params.get("search", "").strip()
+            is_active = request.query_params.get("isActive")
+            if is_active is None:
+                is_active = request.query_params.get("is_active")
 
             # -------------------------
             # productType is required
@@ -571,6 +579,12 @@ class AdminListProductsAPIView(APIView):
 
             if type_filter:
                 products = products.filter(type=type_filter)
+
+            if is_active is not None and is_active != "":
+                if str(is_active).lower() in ("1", "true", "active"):
+                    products = products.filter(isActive=True)
+                elif str(is_active).lower() in ("0", "false", "inactive"):
+                    products = products.filter(isActive=False)
 
             # -------------------------
             # Ordering
@@ -1014,7 +1028,7 @@ class QuotationRequestListAPIView(APIView):
     }
 )
     def get(self, request):
-        queryset = QuotationRequest.objects.filter(isDeleted=False)
+        queryset = QuotationRequest.objects.filter(isDeleted=False).order_by("-created_at")
 
         # Query Params
         search = request.GET.get("search")
