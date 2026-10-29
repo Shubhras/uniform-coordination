@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import {
   FiSearch,
@@ -29,6 +29,16 @@ const CatelogImagesTab = () => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   // Modal
   const [openModal, setOpenModal] = useState(false);
@@ -60,6 +70,7 @@ const CatelogImagesTab = () => {
           accessToken,
           page,
           pageSize,
+          debouncedSearch,
         );
 
         if (response?.status && response?.data) {
@@ -75,6 +86,14 @@ const CatelogImagesTab = () => {
               page: response.page || page,
             }));
           }
+        } else {
+          setImages([]);
+          setPagination((prev) => ({
+            ...prev,
+            total_items: 0,
+            total_pages: 1,
+            page: 1,
+          }));
         }
       } catch (error) {
         console.error("Failed to fetch catalog images:", error);
@@ -82,12 +101,12 @@ const CatelogImagesTab = () => {
         setLoading(false);
       }
     },
-    [accessToken, pageSize],
+    [accessToken, pageSize, debouncedSearch],
   );
 
   useEffect(() => {
     fetchImages(currentPage);
-  }, [fetchImages, currentPage, pageSize]);
+  }, [fetchImages, currentPage]);
 
   /* ---------- DELETE ---------- */
   const handleDeleteConfirm = async () => {
@@ -135,18 +154,6 @@ const CatelogImagesTab = () => {
     handleCloseModal();
     fetchImages(currentPage);
   };
-
-  /* ---------- FILTER ---------- */
-  const filteredImages = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return images;
-    return images.filter((img) => {
-      const name = img.name?.toLowerCase() || "";
-      const category = img.category_name?.toLowerCase() || "";
-
-      return name.includes(term) || category.includes(term);
-    });
-  }, [images, search]);
 
   /* ---------- SKELETON ---------- */
   const CardSkeleton = () => (
@@ -209,7 +216,11 @@ const CatelogImagesTab = () => {
           {search && (
             <button
               type="button"
-              onClick={() => setSearch("")}
+              onClick={() => {
+                setSearch("");
+                setDebouncedSearch("");
+                setCurrentPage(1);
+              }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
             >
               <FiX size={16} />
@@ -220,13 +231,13 @@ const CatelogImagesTab = () => {
         {/* Image Grid */}
         {loading ? (
           <CardSkeleton />
-        ) : filteredImages.length === 0 ? (
+        ) : images.length === 0 ? (
           <div className="text-center py-16 text-[#94A3B8]">
             {t("noData")}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {filteredImages.map((item) => (
+            {images.map((item) => (
               <div
                 key={item.id}
                 className="bg-white border border-[#E2E8F0] rounded-xl p-3 shadow-sm hover:shadow-md transition"
@@ -267,17 +278,6 @@ const CatelogImagesTab = () => {
                 </div>
               </div>
             ))}
-
-            {/* Add New Image Card */}
-            <div
-              onClick={handleAdd}
-              className="border-2 border-dashed border-[#CBD5E1] rounded-xl flex flex-col items-center justify-center p-6 bg-white hover:bg-gray-50 cursor-pointer transition"
-            >
-              <FiImage className="text-[#64748B]" size={28} />
-              <p className="text-sm font-medium text-[#1C2C56] mt-2">
-                {t("addCatalogImageModal.modalTitle")}
-              </p>
-            </div>
           </div>
         )}
 

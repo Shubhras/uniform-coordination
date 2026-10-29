@@ -1,8 +1,22 @@
 import ApiService from './ApiService'
 
-export async function apiGetCatalogImageList(accessToken, page = 1, pageSize = 10) {
+export async function apiGetCatalogImageList(
+    accessToken,
+    page = 1,
+    pageSize = 10,
+    search = ''
+) {
+    const params = new URLSearchParams({
+        page,
+        page_size: pageSize,
+    })
+
+    if (search && search.trim()) {
+        params.append('search', search.trim())
+    }
+
     return ApiService.fetchDataWithAxios({
-        url: `/v1/uniformAdmin/catalog-image/list/?page=${page}&page_size=${pageSize}`,
+        url: `/v1/uniformAdmin/catalog-image/list/?${params.toString()}`,
         method: 'get',
         headers: {
             Authorization: `Bearer ${accessToken}`,

@@ -11,7 +11,10 @@ export async function apiGetProductById(params) {
   return ApiService.fetchDataWithAxios({
     url: `/v1/uniformAdmin/product/list/`,
     method: "get",
-    params,
+    params: {
+      isActive: true,
+      ...params,
+    },
   });
 }
 

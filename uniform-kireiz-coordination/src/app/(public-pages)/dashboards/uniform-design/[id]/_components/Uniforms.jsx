@@ -65,6 +65,7 @@ const Uniforms = () => {
 
                 params.subcategory_id = id
                 params.productType = 'uniform'
+                params.isActive = true
 
                 params.type = activeTab.key;
                 params.ordering = sortBy.key;
